@@ -152,6 +152,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         .any((a) => a.action == 'bet' || a.action == 'raise');
   }
 
+  int _calculatePotForStreet(int street) {
+    int pot = 0;
+    for (int s = 0; s <= street; s++) {
+      pot += actions
+          .where((a) => a.street == s &&
+              (a.action == 'call' || a.action == 'bet' || a.action == 'raise'))
+          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
+    }
+    return pot;
+  }
+
   void _recalculatePots() {
     int cumulative = 0;
     for (int s = 0; s < _pots.length; s++) {
@@ -179,7 +190,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   void onActionSelected(ActionEntry entry) {
     setState(() {
       actions.add(entry);
-      _recalculatePots();
+      _pots[currentStreet] = _calculatePotForStreet(currentStreet);
       _recalculateStreetInvestments();
     });
   }
@@ -361,6 +372,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
               onStreetChanged: (index) {
                 setState(() {
                   currentStreet = index;
+                  _pots[currentStreet] = _calculatePotForStreet(currentStreet);
                   _recalculateStreetInvestments();
                   _actionTags.clear();
                 });
