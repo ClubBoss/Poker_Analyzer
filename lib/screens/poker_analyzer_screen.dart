@@ -214,71 +214,95 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       ),
                     ),
                   ),
-                  ...List.generate(numberOfPlayers, (i) {
-                    final index = (i + heroIndex) % numberOfPlayers;
-                    final angle =
-                        2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
-                    final dx = radiusX * cos(angle);
-                    final dy = radiusY * sin(angle);
+                  for (int i = 0; i < numberOfPlayers; i++) ...[
+                    () {
+                      final index = (i + heroIndex) % numberOfPlayers;
+                      final angle =
+                          2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+                      final dx = radiusX * cos(angle);
+                      final dy = radiusY * sin(angle);
 
-                    final isFolded = actions.any((a) =>
-                        a.playerIndex == index &&
-                        a.action == 'fold' &&
-                        a.street <= currentStreet);
-                    final actionTag = _actionTags[index];
+                      final isFolded = actions.any((a) =>
+                          a.playerIndex == index &&
+                          a.action == 'fold' &&
+                          a.street <= currentStreet);
+                      final actionTag = _actionTags[index];
 
-                    ActionEntry? lastAction;
-                    for (final a in actions.reversed) {
-                      if (a.playerIndex == index && a.street == currentStreet) {
-                        lastAction = a;
-                        break;
+                      ActionEntry? lastAction;
+                      for (final a in actions.reversed) {
+                        if (a.playerIndex == index && a.street == currentStreet) {
+                          lastAction = a;
+                          break;
+                        }
                       }
-                    }
 
-                    return Positioned(
-                      left: centerX + dx - 55,
-                      top: centerY + dy - 55,
-                      child: GestureDetector(
-                        onTap: () async {
-                          final result = await showDialog<ActionEntry>(
-                            context: context,
-                            builder: (context) =>
-                                ActionDialog(playerIndex: index, street: currentStreet),
-                          );
-                          if (result != null) {
-                            onActionSelected(result);
-                          }
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            PlayerZoneWidget(
-                              playerName: 'Player ${index + 1}',
-                              position: playerPositions[index],
-                              cards: playerCards[index],
-                              isHero: index == heroIndex,
-                              isFolded: isFolded,
-                              isActive: index == activePlayerIndex,
-                              showHint: _showActionHints[index],
-                              actionTagText: actionTag,
-                              chipAmount: _streetInvestments[index],
-                              stackSize: stackSizes[index],
-                              onCardsSelected: (card) => selectCard(index, card),
-                            ),
-                            if (lastAction != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Text(
-                                  '${lastAction!.action}${lastAction!.amount != null ? ' ${lastAction!.amount}' : ''}',
-                                  style: const TextStyle(
-                                      color: Colors.white70, fontSize: 12),
-                                ),
-                              ),
-                          ],
+                      return Positioned(
+                        left: centerX + dx - 55,
+                        top: centerY + dy - 55,
+                        child: GestureDetector(
+                          onTap: () async {
+                            final result = await showDialog<ActionEntry>(
+                              context: context,
+                              builder: (context) =>
+                                  ActionDialog(playerIndex: index, street: currentStreet),
+                            );
+                            if (result != null) {
+                              onActionSelected(result);
+                            }
+                          },
+                          child: PlayerZoneWidget(
+                            playerName: 'Player ${index + 1}',
+                            position: playerPositions[index],
+                            cards: playerCards[index],
+                            isHero: index == heroIndex,
+                            isFolded: isFolded,
+                            isActive: index == activePlayerIndex,
+                            showHint: _showActionHints[index],
+                            actionTagText: actionTag,
+                            chipAmount: _streetInvestments[index],
+                            stackSize: stackSizes[index],
+                            onCardsSelected: (card) => selectCard(index, card),
+                          ),
                         ),
-                      ),
-                    );
-                  })
+                      );
+                    }(),
+                    () {
+                      final index = (i + heroIndex) % numberOfPlayers;
+                      final angle =
+                          2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+                      final dx = radiusX * cos(angle);
+                      final dy = radiusY * sin(angle);
+
+                      ActionEntry? lastAction;
+                      for (final a in actions.reversed) {
+                        if (a.playerIndex == index && a.street == currentStreet) {
+                          lastAction = a;
+                          break;
+                        }
+                      }
+
+                      if (lastAction == null) return const SizedBox.shrink();
+
+                      return Positioned(
+                        left: centerX + dx - 30,
+                        top: centerY + dy + 40,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Text(
+                            '${lastAction.action}${lastAction.amount != null ? ' ${lastAction.amount}' : ''}',
+                            style:
+                                const TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      );
+                    }(),
+                  ]
                 ],
               ),
             ),
