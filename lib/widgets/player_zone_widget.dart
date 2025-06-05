@@ -5,6 +5,7 @@ import 'card_selector.dart';
 
 class PlayerZoneWidget extends StatelessWidget {
   final String playerName;
+  final String? position;
   final List<CardModel> cards;
   final bool isHero;
   final bool isFolded;
@@ -17,6 +18,7 @@ class PlayerZoneWidget extends StatelessWidget {
   const PlayerZoneWidget({
     Key? key,
     required this.playerName,
+    this.position,
     required this.cards,
     required this.isHero,
     required this.isFolded,
@@ -60,9 +62,20 @@ class PlayerZoneWidget extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-              ),
+            ),
           ],
         ),
+        if (position != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 2.0),
+            child: Text(
+              position!,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+            ),
+          ),
         if (actionTagText != null)
           Padding(
             padding: const EdgeInsets.only(top: 4.0),

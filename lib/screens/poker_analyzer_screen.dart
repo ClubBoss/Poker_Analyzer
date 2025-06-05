@@ -30,10 +30,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   int? activePlayerIndex;
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
+  Map<int, String> playerPositions = {};
+
+  void setPosition(int playerIndex, String position) {
+    setState(() {
+      playerPositions[playerIndex] = position;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    playerPositions = {
+      heroIndex: 'BTN',
+      (heroIndex + 1) % numberOfPlayers: 'SB',
+      (heroIndex + 2) % numberOfPlayers: 'BB',
+    };
   }
 
   void selectCard(int index, CardModel card) {
@@ -226,6 +238,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           children: [
                             PlayerZoneWidget(
                               playerName: 'Player ${index + 1}',
+                              position: playerPositions[index],
                               cards: playerCards[index],
                               isHero: index == heroIndex,
                               isFolded: isFolded,
