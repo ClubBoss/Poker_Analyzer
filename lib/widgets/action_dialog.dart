@@ -295,7 +295,7 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
           ),
         ),
       ),
-    );
+    ),
     );
   }
 }
