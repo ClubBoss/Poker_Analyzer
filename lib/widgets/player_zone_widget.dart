@@ -9,6 +9,7 @@ class PlayerZoneWidget extends StatelessWidget {
   final bool isHero;
   final bool isFolded;
   final bool showHint;
+  final String? lastActionText;
   final Function(CardModel) onCardsSelected;
 
   const PlayerZoneWidget({
@@ -19,6 +20,7 @@ class PlayerZoneWidget extends StatelessWidget {
     required this.isFolded,
     required this.onCardsSelected,
     this.showHint = false,
+    this.lastActionText,
   }) : super(key: key);
 
   @override
@@ -104,6 +106,14 @@ class PlayerZoneWidget extends StatelessWidget {
             ),
           ),
         ),
+        if (lastActionText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Text(
+              lastActionText!,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ),
       ],
     );
 

@@ -5,7 +5,6 @@ import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_cards_widget.dart';
-import '../widgets/street_actions_list.dart';
 import '../widgets/action_dialog.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
@@ -95,6 +94,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       cumulative += streetAmount;
       _pots[s] = cumulative;
     }
+  }
+
+  String? _getLastActionText(int playerIndex) {
+    final entries = actions.where((a) =>
+        a.playerIndex == playerIndex && a.street == currentStreet);
+    if (entries.isEmpty) return null;
+    final last = entries.last;
+    final amountStr = last.amount != null ? ' ${last.amount}' : '';
+    return '${last.action}$amountStr';
   }
 
   Future<void> _openActionDialog(int playerIndex) async {
@@ -192,6 +200,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         a.playerIndex == index &&
                         a.action == 'fold' &&
                         a.street <= currentStreet);
+                    final lastActionText = _getLastActionText(index);
 
                     return Positioned(
                       left: centerX + dx - 55,
@@ -204,6 +213,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           isHero: index == heroIndex,
                           isFolded: isFolded,
                           showHint: _showActionHints[index],
+                          lastActionText: lastActionText,
                           onCardsSelected: (card) => selectCard(index, card),
                         ),
                       ),
@@ -215,13 +225,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             StreetActionsWidget(
               currentStreet: currentStreet,
               onStreetChanged: (index) => setState(() => currentStreet = index),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: StreetActionsList(
-                street: currentStreet,
-                actions: actions,
-              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
