@@ -26,6 +26,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   final Map<int, int> _streetInvestments = {};
   final TextEditingController _commentController = TextEditingController();
   List<bool> _showActionHints = List.filled(9, true);
+  final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
@@ -33,13 +34,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() {
-          _showActionHints = List.filled(9, false);
-        });
-      }
-    });
   }
 
   void selectCard(int index, CardModel card) {
@@ -115,9 +109,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
 
   Future<void> _openActionDialog(int playerIndex) async {
-    setState(() {
-      _showActionHints[playerIndex] = false;
-    });
     final entry = await showActionDialog(
       context,
       street: currentStreet,
@@ -136,6 +127,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         _recalculatePots();
         _recalculateStreetInvestments();
         activePlayerIndex = entry.playerIndex;
+        if (!_firstActionTaken.contains(entry.playerIndex)) {
+          _firstActionTaken.add(entry.playerIndex);
+          _showActionHints[entry.playerIndex] = false;
+        }
         if (!alreadyFolded) {
           final amountStr = entry.amount != null ? ' ${entry.amount}' : '';
           _actionTags[entry.playerIndex] = '${entry.action}$amountStr';
@@ -149,13 +144,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
           setState(() => activePlayerIndex = null);
         }
       });
-      if (!alreadyFolded) {
-        Timer(const Duration(seconds: 3), () {
-          if (mounted) {
-            setState(() => _actionTags[entry.playerIndex] = null);
-          }
-        });
-      }
+      // Action tag remains until next action or street change
     }
   }
 
@@ -271,6 +260,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                 setState(() {
                   currentStreet = index;
                   _recalculateStreetInvestments();
+                  _actionTags.clear();
                 });
               },
             ),
