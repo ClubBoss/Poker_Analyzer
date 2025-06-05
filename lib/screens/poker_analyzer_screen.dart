@@ -107,46 +107,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
-
-  Future<void> _openActionDialog(int playerIndex) async {
-    final entry = await showActionDialog(
-      context,
-      street: currentStreet,
-      playerIndex: playerIndex,
-      callAmount: _calculateCallAmount(playerIndex),
-      hasBet: _streetHasBet(),
-      currentPot: _pots[currentStreet],
-    );
-    if (entry != null) {
-      final alreadyFolded = actions.any((a) =>
-          a.playerIndex == entry.playerIndex &&
-          a.action == 'fold' &&
-          a.street <= currentStreet);
-      setState(() {
-        actions.add(entry);
-        _recalculatePots();
-        _recalculateStreetInvestments();
-        activePlayerIndex = entry.playerIndex;
-        if (!_firstActionTaken.contains(entry.playerIndex)) {
-          _firstActionTaken.add(entry.playerIndex);
-          _showActionHints[entry.playerIndex] = false;
-        }
-        if (!alreadyFolded) {
-          final amountStr = entry.amount != null ? ' ${entry.amount}' : '';
-          _actionTags[entry.playerIndex] = '${entry.action}$amountStr';
-        } else {
-          _streetInvestments.remove(entry.playerIndex);
-        }
-      });
-      _activeTimer?.cancel();
-      _activeTimer = Timer(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() => activePlayerIndex = null);
-        }
-      });
-      // Action tag remains until next action or street change
-    }
+  void onActionSelected(ActionEntry entry) {
+    setState(() {
+      actions.add(entry);
+    });
   }
+
+
 
   @override
   void dispose() {
@@ -239,7 +206,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       left: centerX + dx - 55,
                       top: centerY + dy - 55,
                       child: GestureDetector(
-                        onTap: () => _openActionDialog(index),
+                        onTap: () async {
+                          final result = await showDialog<ActionEntry>(
+                            context: context,
+                            builder: (context) =>
+                                ActionDialog(playerIndex: index, street: currentStreet),
+                          );
+                          if (result != null) {
+                            onActionSelected(result);
+                          }
+                        },
                         child: PlayerZoneWidget(
                           playerName: 'Player ${index + 1}',
                           cards: playerCards[index],
