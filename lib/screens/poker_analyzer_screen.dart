@@ -17,6 +17,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
 
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   final int heroIndex = 0;
+  String _heroPosition = 'BTN';
   int numberOfPlayers = 6;
   final List<List<CardModel>> playerCards = List.generate(9, (_) => []);
   final List<CardModel> boardCards = [];
@@ -43,6 +44,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   final Map<int, String?> _actionTags = {};
   Map<int, String> playerPositions = {};
 
+  List<String> _positionsForPlayers(int count) {
+    const base = ['BTN', 'SB', 'BB', 'UTG', 'LJ', 'HJ', 'CO'];
+    if (count <= base.length) {
+      return base.sublist(0, count);
+    }
+    final result = List<String>.from(base);
+    for (int i = base.length; i < count; i++) {
+      result.add('UTG+${i - 3}');
+    }
+    return result;
+  }
+
   void setPosition(int playerIndex, String position) {
     setState(() {
       playerPositions[playerIndex] = position;
@@ -50,11 +63,40 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   }
 
   void _updatePositions() {
-    playerPositions = {
-      heroIndex: 'BTN',
-      (heroIndex + 1) % numberOfPlayers: 'SB',
-      (heroIndex + 2) % numberOfPlayers: 'BB',
-    };
+    final order = _positionsForPlayers(numberOfPlayers);
+    final heroPosIndex = order.indexOf(_heroPosition);
+    final buttonIndex =
+        (heroIndex - heroPosIndex + numberOfPlayers) % numberOfPlayers;
+    playerPositions = {};
+    for (int i = 0; i < numberOfPlayers; i++) {
+      final posIndex = (i - buttonIndex + numberOfPlayers) % numberOfPlayers;
+      if (posIndex < order.length) {
+        playerPositions[i] = order[posIndex];
+      }
+    }
+  }
+
+  Future<void> _chooseHeroPosition() async {
+    final options = _positionsForPlayers(numberOfPlayers);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Выбрать позицию Hero'),
+        children: [
+          for (final pos in options)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, pos),
+              child: Text(pos),
+            ),
+        ],
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        _heroPosition = result;
+        _updatePositions();
+      });
+    }
   }
 
   @override
@@ -183,6 +225,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   });
                 }
               },
+            ),
+            TextButton(
+              onPressed: _chooseHeroPosition,
+              child: const Text('Выбрать позицию Hero'),
             ),
             Expanded(
               flex: 7,
