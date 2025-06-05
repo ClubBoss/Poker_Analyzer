@@ -1,5 +1,3 @@
-// Файл: poker_analyzer_screen.dart — Обновлённая версия с сохранением Hero снизу
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
@@ -22,6 +20,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
   void selectCard(int index, CardModel card) {
     setState(() {
+      for (final cards in playerCards) {
+        cards.removeWhere((c) => c == card);
+      }
       if (playerCards[index].length < 2) {
         playerCards[index].add(card);
       }
@@ -47,11 +48,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final radius = screenSize.width / 2.6;
-    final centerX = screenSize.width / 2;
-    final tableHeight = screenSize.width * 0.55;
-    final centerY = (screenSize.width - tableHeight) / 2 + tableHeight / 2;
-
+    final tableWidth = screenSize.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screenSize.width / 2 + 10;
+    final centerY = screenSize.height / 2 - 120;
+    final radiusX = tableWidth / 2 - 50;
+    final radiusY = tableHeight / 2 + 100;
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -81,19 +83,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   Center(
                     child: Image.asset(
                       'assets/table.png',
-                      width: screenSize.width * 0.9,
+                      width: tableWidth,
                       fit: BoxFit.contain,
                     ),
                   ),
                   ...List.generate(numberOfPlayers, (i) {
                     final index = (i + heroIndex) % numberOfPlayers;
                     final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
-                    final dx = radius * cos(angle);
-                    final dy = radius * sin(angle);
+                    final dx = radiusX * cos(angle);
+                    final dy = radiusY * sin(angle);
 
                     return Positioned(
-                      left: centerX + dx - 60,
-                      top: centerY + dy - 60,
+                      left: centerX + dx - 55,
+                      top: centerY + dy - 55,
                       child: GestureDetector(
                         onTap: () => _openActionDialog(index),
                         child: PlayerZoneWidget(
@@ -119,19 +121,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   labelText: 'Комментарий к раздаче',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text('Анализировать раздачу'),
-              ),
-            ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
