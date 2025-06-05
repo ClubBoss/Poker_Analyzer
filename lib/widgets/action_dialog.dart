@@ -145,28 +145,33 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
                 widget.hasBet ? 'Raise' : 'Bet',
                 Colors.green,
               ),
-              if (_showAmountField)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: TextField(
-                    controller: _amountController,
-                    keyboardType: TextInputType.number,
-                    autofocus: true,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      labelText: 'Сумма в фишках',
-                      labelStyle: TextStyle(color: Colors.white70),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white70),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                    ),
-                    onSubmitted: (_) =>
-                        _submit(widget.hasBet ? 'raise' : 'bet'),
-                  ),
-                ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: _showAmountField
+                    ? Padding(
+                        key: const ValueKey('amount-field'),
+                        padding: const EdgeInsets.only(top: 12),
+                        child: TextField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.number,
+                          autofocus: true,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            labelText: 'Сумма в фишках',
+                            labelStyle: TextStyle(color: Colors.white70),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white70),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          onSubmitted: (_) =>
+                              _submit(widget.hasBet ? 'raise' : 'bet'),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ],
           ),
         ),
