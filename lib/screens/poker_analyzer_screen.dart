@@ -283,65 +283,76 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       }
                     }
 
-                    return Positioned(
-                      left: centerX + dx - 55,
-                      top: centerY + dy - 55,
-                      child: GestureDetector(
-                        onTap: () async {
-                          final result = await showDialog<ActionEntry>(
-                            context: context,
-                            builder: (context) => ActionDialog(
-                              playerIndex: index,
-                              street: currentStreet,
-                              pot: _pots[currentStreet],
-                              stackSize: stackSizes[index] ?? 0,
-                            ),
-                          );
-                          if (result != null) {
-                            onActionSelected(result);
-                          }
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            PlayerZoneWidget(
-                              playerName: 'Player ${index + 1}',
-                              cards: playerCards[index],
-                              isHero: index == heroIndex,
-                              isFolded: isFolded,
-                              isActive: index == activePlayerIndex,
-                              showHint: _showActionHints[index],
-                              actionTagText: actionTag,
-                              chipAmount: _streetInvestments[index],
-                              stackSize: stackSizes[index],
-                              onCardsSelected: (card) => selectCard(index, card),
-                            ),
-                            if (playerPositions[index] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2.0),
-                                child: Text(
-                                  playerPositions[index]!,
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 11,
+                    return [
+                      Positioned(
+                        left: centerX + dx - 55,
+                        top: centerY + dy - 55,
+                        child: GestureDetector(
+                          onTap: () async {
+                            final result = await showDialog<ActionEntry>(
+                              context: context,
+                              builder: (context) => ActionDialog(
+                                playerIndex: index,
+                                street: currentStreet,
+                                pot: _pots[currentStreet],
+                                stackSize: stackSizes[index] ?? 0,
+                              ),
+                            );
+                            if (result != null) {
+                              onActionSelected(result);
+                            }
+                          },
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              PlayerZoneWidget(
+                                playerName: 'Player ${index + 1}',
+                                cards: playerCards[index],
+                                isHero: index == heroIndex,
+                                isFolded: isFolded,
+                                isActive: index == activePlayerIndex,
+                                showHint: _showActionHints[index],
+                                actionTagText: actionTag,
+                                chipAmount: _streetInvestments[index],
+                                stackSize: stackSizes[index],
+                                onCardsSelected: (card) => selectCard(index, card),
+                              ),
+                              if (playerPositions[index] != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2.0),
+                                  child: Text(
+                                    playerPositions[index]!,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 11,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                            if (lastAction != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Text(
-                                  '${lastAction!.action}${lastAction!.amount != null ? ' ${lastAction!.amount}' : ''}',
-                                  style: const TextStyle(
-                                      color: Colors.white70, fontSize: 12),
-                                ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    );
-                  })
+                      if (lastAction != null)
+                        Positioned(
+                          left: centerX + dx - 30,
+                          top: centerY + dy + 60,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '${lastAction!.action}${lastAction!.amount != null ? ' ${lastAction!.amount}' : ''}',
+                              style:
+                                  const TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                          ),
+                        ),
+                    ];
+                  }).expand((w) => w)
                 ],
               ),
             ),
