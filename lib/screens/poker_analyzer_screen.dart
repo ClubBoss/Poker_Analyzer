@@ -136,6 +136,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   }
 
   @override
+  void dispose() {
+    _activeTimer?.cancel();
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final tableWidth = screenSize.width * 0.9;
