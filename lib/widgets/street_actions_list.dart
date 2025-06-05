@@ -5,13 +5,11 @@ import '../models/action_entry.dart';
 class StreetActionsList extends StatelessWidget {
   final int street;
   final List<ActionEntry> actions;
-  final VoidCallback onAdd;
 
   const StreetActionsList({
     super.key,
     required this.street,
     required this.actions,
-    required this.onAdd,
   });
 
   @override
@@ -25,18 +23,9 @@ class StreetActionsList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Действия',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            TextButton(
-              onPressed: onAdd,
-              child: const Text('Добавить действие'),
-            ),
-          ],
+        const Text(
+          'Действия',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         if (streetActions.isEmpty)
           const Padding(
