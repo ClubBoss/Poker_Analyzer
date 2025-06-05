@@ -50,12 +50,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     });
   }
 
-  Future<void> _openActionDialog([int? playerIndex]) async {
+  int _calculateCallAmount(int playerIndex) {
+    final streetActions =
+        actions.where((a) => a.street == currentStreet).toList();
+    final Map<int, int> bets = {};
+    int highest = 0;
+    for (final a in streetActions) {
+      if (a.action == 'bet' || a.action == 'raise' || a.action == 'call') {
+        bets[a.playerIndex] = (bets[a.playerIndex] ?? 0) + (a.amount ?? 0);
+        highest = max(highest, bets[a.playerIndex]!);
+      }
+    }
+    final playerBet = bets[playerIndex] ?? 0;
+    return max(0, highest - playerBet);
+  }
+
+  bool _streetHasBet() {
+    return actions
+        .where((a) => a.street == currentStreet)
+        .any((a) => a.action == 'bet' || a.action == 'raise');
+  }
+
+  Future<void> _openActionDialog(int playerIndex) async {
     final entry = await showActionDialog(
       context,
       street: currentStreet,
-      playerCount: numberOfPlayers,
-      initialPlayer: playerIndex,
+      playerIndex: playerIndex,
+      callAmount: _calculateCallAmount(playerIndex),
+      hasBet: _streetHasBet(),
     );
     if (entry != null) {
       setState(() {
@@ -75,6 +97,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     final radiusY = tableHeight / 2 + 100;
     return Scaffold(
       backgroundColor: Colors.black,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
           children: [
@@ -143,7 +166,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
               child: StreetActionsList(
                 street: currentStreet,
                 actions: actions,
-                onAdd: _openActionDialog,
               ),
             ),
             Padding(
