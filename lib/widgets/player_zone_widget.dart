@@ -10,7 +10,7 @@ class PlayerZoneWidget extends StatelessWidget {
   final bool isFolded;
   final bool isActive;
   final bool showHint;
-  final String? lastActionText;
+  final String? actionTagText;
   final Function(CardModel) onCardsSelected;
 
   const PlayerZoneWidget({
@@ -22,12 +22,12 @@ class PlayerZoneWidget extends StatelessWidget {
     required this.onCardsSelected,
     this.isActive = false,
     this.showHint = false,
-    this.lastActionText,
+    this.actionTagText,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final content = Column(
+    final column = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
@@ -108,14 +108,43 @@ class PlayerZoneWidget extends StatelessWidget {
             ),
           ),
         ),
-        if (lastActionText != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Text(
-              lastActionText!,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
-            ),
+      ],
+    );
+
+    final content = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        column,
+        Positioned(
+          top: -24,
+          left: 0,
+          right: 0,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: actionTagText != null
+                ? Container(
+                    key: ValueKey(actionTagText),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade700,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 4,
+                        )
+                      ],
+                    ),
+                    child: Text(
+                      actionTagText!,
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
+        ),
       ],
     );
 
