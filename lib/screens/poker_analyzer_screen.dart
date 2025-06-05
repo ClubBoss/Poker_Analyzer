@@ -260,7 +260,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           children: [
                             PlayerZoneWidget(
                               playerName: 'Player ${index + 1}',
-                              position: playerPositions[index],
                               cards: playerCards[index],
                               isHero: index == heroIndex,
                               isFolded: isFolded,
@@ -271,6 +270,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               stackSize: stackSizes[index],
                               onCardsSelected: (card) => selectCard(index, card),
                             ),
+                            if (playerPositions[index] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2.0),
+                                child: Text(
+                                  playerPositions[index]!,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 11,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                             if (lastAction != null)
                               Padding(
                                 padding: const EdgeInsets.only(top: 4.0),
