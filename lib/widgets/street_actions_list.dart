@@ -16,7 +16,8 @@ class StreetActionsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final streetActions =
         actions.where((a) => a.street == street).toList(growable: false);
-    final pot = streetActions
+    final pot = actions
+        .where((a) => a.street <= street)
         .where((a) => ['call', 'bet', 'raise'].contains(a.action))
         .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
 
@@ -34,8 +35,8 @@ class StreetActionsList extends StatelessWidget {
                 style: TextStyle(color: Colors.white54)),
           )
         else
-          SizedBox(
-            height: 120,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 120),
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 4),
               itemCount: streetActions.length,

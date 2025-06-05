@@ -7,6 +7,7 @@ class PlayerZoneWidget extends StatelessWidget {
   final String playerName;
   final List<CardModel> cards;
   final bool isHero;
+  final bool isFolded;
   final Function(CardModel) onCardsSelected;
 
   const PlayerZoneWidget({
@@ -14,6 +15,7 @@ class PlayerZoneWidget extends StatelessWidget {
     required this.playerName,
     required this.cards,
     required this.isHero,
+    required this.isFolded,
     required this.onCardsSelected,
   }) : super(key: key);
 
@@ -44,9 +46,11 @@ class PlayerZoneWidget extends StatelessWidget {
               onCardsSelected(card);
             }
           },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(2, (index) {
+          child: Opacity(
+            opacity: isFolded ? 0.4 : 1.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(2, (index) {
               final card = index < cards.length ? cards[index] : null;
               final isRed = card?.suit == '♥' || card?.suit == '♦';
 
@@ -78,6 +82,7 @@ class PlayerZoneWidget extends StatelessWidget {
                     : const Icon(Icons.add, color: Colors.grey),
               );
             }),
+            ),
           ),
         ),
       ],
