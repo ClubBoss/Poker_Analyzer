@@ -58,6 +58,9 @@ class _ActionDialogContent extends StatefulWidget {
 class _ActionDialogContentState extends State<_ActionDialogContent> {
   final TextEditingController _amountController = TextEditingController();
   bool _showAmountField = false;
+  bool _useBB = false;
+
+  static const int _chipsPerBB = 20;
 
   @override
   void dispose() {
@@ -70,11 +73,12 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
     if (action == 'call') {
       amount = widget.callAmount;
     } else if (action == 'bet' || action == 'raise') {
-      amount = int.tryParse(_amountController.text);
-      if (amount == null) {
+      final input = int.tryParse(_amountController.text);
+      if (input == null) {
         setState(() => _showAmountField = true);
         return;
       }
+      amount = _useBB ? input * _chipsPerBB : input;
     }
 
     Future.delayed(const Duration(milliseconds: 200), () {
@@ -151,23 +155,66 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
                     ? Padding(
                         key: const ValueKey('amount-field'),
                         padding: const EdgeInsets.only(top: 12),
-                        child: TextField(
-                          controller: _amountController,
-                          keyboardType: TextInputType.number,
-                          autofocus: true,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            labelText: 'Сумма в фишках',
-                            labelStyle: TextStyle(color: Colors.white70),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white70),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ToggleButtons(
+                              isSelected: [!_useBB, _useBB],
+                              onPressed: (index) {
+                                setState(() => _useBB = index == 1);
+                              },
+                              color: Colors.white70,
+                              selectedColor: Colors.white,
+                              fillColor: Colors.grey.shade800,
+                              borderRadius: BorderRadius.circular(8),
+                              constraints: const BoxConstraints(minHeight: 36),
+                              children: const [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text('Фишки'),
+                                ),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text('BB'),
+                                ),
+                              ],
                             ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: _amountController,
+                              keyboardType: TextInputType.number,
+                              autofocus: true,
+                              style: const TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                labelText:
+                                    _useBB ? 'Сумма в BB' : 'Сумма в фишках',
+                                labelStyle:
+                                    const TextStyle(color: Colors.white70),
+                                enabledBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white70),
+                                ),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                ),
+                              ),
+                              onChanged: (_) => setState(() {}),
+                              onSubmitted: (_) =>
+                                  _submit(widget.hasBet ? 'raise' : 'bet'),
                             ),
-                          ),
-                          onSubmitted: (_) =>
-                              _submit(widget.hasBet ? 'raise' : 'bet'),
+                            if (_useBB && _amountController.text.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Text(
+                                  '≈ ${(int.tryParse(_amountController.text) ?? 0) * _chipsPerBB} фишек',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       )
                     : const SizedBox.shrink(),
