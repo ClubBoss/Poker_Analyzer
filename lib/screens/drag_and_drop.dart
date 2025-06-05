@@ -62,8 +62,8 @@ class CardDropZone extends StatelessWidget {
           ),
         );
       },
-      onAccept: (data) {
-        onCardDropped(data);
+      onAcceptWithDetails: (details) {
+        onCardDropped(details.data);
       },
     );
   }

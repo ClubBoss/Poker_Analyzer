@@ -21,8 +21,22 @@ class _SelectableCardsState extends State<SelectableCards> {
   String? selectedRank;
   String? selectedSuit;
 
-  final ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
-  final suits = ['♠', '♥', '♦', '♣'];
+  static const List<String> ranks = [
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    'T',
+    'J',
+    'Q',
+    'K',
+    'A'
+  ];
+  static const List<String> suits = ['♠', '♥', '♦', '♣'];
 
   void addCard() {
     if (selectedRank != null && selectedSuit != null) {

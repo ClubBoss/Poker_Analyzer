@@ -13,7 +13,7 @@ class CardDropZone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DragTarget<String>(
-      onAccept: (_) {
+      onAcceptWithDetails: (_) {
         if (onCardDropped != null) {
           onCardDropped!();
         }
