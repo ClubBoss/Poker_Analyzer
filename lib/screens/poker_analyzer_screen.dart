@@ -137,6 +137,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   void onActionSelected(ActionEntry entry) {
     setState(() {
       actions.add(entry);
+      _recalculatePots();
+      _recalculateStreetInvestments();
     });
   }
 
@@ -242,8 +244,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         onTap: () async {
                           final result = await showDialog<ActionEntry>(
                             context: context,
-                            builder: (context) =>
-                                ActionDialog(playerIndex: index, street: currentStreet),
+                            builder: (context) => ActionDialog(
+                              playerIndex: index,
+                              street: currentStreet,
+                              pot: _pots[currentStreet],
+                              stackSize: stackSizes[index] ?? 0,
+                            ),
                           );
                           if (result != null) {
                             onActionSelected(result);
