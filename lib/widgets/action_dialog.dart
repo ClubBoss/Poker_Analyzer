@@ -8,6 +8,7 @@ Future<ActionEntry?> showActionDialog(
   required int playerIndex,
   required int callAmount,
   required bool hasBet,
+  required int currentPot,
 }) {
   return showGeneralDialog<ActionEntry>(
     context: context,
@@ -21,6 +22,7 @@ Future<ActionEntry?> showActionDialog(
         playerIndex: playerIndex,
         callAmount: callAmount,
         hasBet: hasBet,
+        currentPot: currentPot,
       );
     },
     transitionBuilder: (ctx, anim, secondaryAnim, child) {
@@ -42,6 +44,7 @@ class _ActionDialogContent extends StatefulWidget {
   final int playerIndex;
   final int callAmount;
   final bool hasBet;
+  final int currentPot;
 
   const _ActionDialogContent({
     Key? key,
@@ -49,6 +52,7 @@ class _ActionDialogContent extends StatefulWidget {
     required this.playerIndex,
     required this.callAmount,
     required this.hasBet,
+    required this.currentPot,
   }) : super(key: key);
 
   @override
@@ -138,7 +142,7 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    final int pot = widget.callAmount == 0 ? 0 : 100; // TODO: replace with real pot
+    final int pot = widget.currentPot;
     final int quarterPot = (pot / 4).round();
     final int halfPot = (pot / 2).round();
 
