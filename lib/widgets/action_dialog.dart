@@ -215,15 +215,15 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
                               borderRadius: BorderRadius.circular(8),
                               constraints: const BoxConstraints(minHeight: 36),
                               children: const [
-                                Padding(
+                                const Padding(
                                   padding:
-                                      EdgeInsets.symmetric(horizontal: 12),
-                                  child: Text('Chips'),
+                                      const EdgeInsets.symmetric(horizontal: 12),
+                                  child: const Text('Chips'),
                                 ),
-                                Padding(
+                                const Padding(
                                   padding:
-                                      EdgeInsets.symmetric(horizontal: 12),
-                                  child: Text('BB'),
+                                      const EdgeInsets.symmetric(horizontal: 12),
+                                  child: const Text('BB'),
                                 ),
                               ],
                             ),
