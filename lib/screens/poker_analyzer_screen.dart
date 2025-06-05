@@ -202,6 +202,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         a.street <= currentStreet);
                     final actionTag = _actionTags[index];
 
+                    ActionEntry? lastAction;
+                    for (final a in actions.reversed) {
+                      if (a.playerIndex == index && a.street == currentStreet) {
+                        lastAction = a;
+                        break;
+                      }
+                    }
+
                     return Positioned(
                       left: centerX + dx - 55,
                       top: centerY + dy - 55,
@@ -216,16 +224,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             onActionSelected(result);
                           }
                         },
-                        child: PlayerZoneWidget(
-                          playerName: 'Player ${index + 1}',
-                          cards: playerCards[index],
-                          isHero: index == heroIndex,
-                          isFolded: isFolded,
-                          isActive: index == activePlayerIndex,
-                          showHint: _showActionHints[index],
-                          actionTagText: actionTag,
-                          chipAmount: _streetInvestments[index],
-                          onCardsSelected: (card) => selectCard(index, card),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PlayerZoneWidget(
+                              playerName: 'Player ${index + 1}',
+                              cards: playerCards[index],
+                              isHero: index == heroIndex,
+                              isFolded: isFolded,
+                              isActive: index == activePlayerIndex,
+                              showHint: _showActionHints[index],
+                              actionTagText: actionTag,
+                              chipAmount: _streetInvestments[index],
+                              onCardsSelected: (card) => selectCard(index, card),
+                            ),
+                            if (lastAction != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Text(
+                                  '${lastAction!.action}${lastAction!.amount != null ? ' ${lastAction!.amount}' : ''}',
+                                  style: const TextStyle(
+                                      color: Colors.white70, fontSize: 12),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     );
