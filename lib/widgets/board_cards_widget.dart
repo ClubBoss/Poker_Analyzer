@@ -39,7 +39,7 @@ class BoardCardsWidget extends StatelessWidget {
                 width: 36,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.white.withOpacity(card == null ? 0.3 : 1),
                   borderRadius: BorderRadius.circular(6),
                   boxShadow: [
                     BoxShadow(

@@ -17,7 +17,10 @@ Future<ActionEntry?> showActionDialog(
       final TextEditingController amountController = TextEditingController();
       return StatefulBuilder(
         builder: (context, setState) {
-          final needAmount = selectedAction == 'bet' || selectedAction == 'raise';
+          final needAmount =
+              selectedAction == 'bet' ||
+              selectedAction == 'raise' ||
+              selectedAction == 'call';
           return AlertDialog(
             title: const Text('Добавить действие'),
             content: Column(
