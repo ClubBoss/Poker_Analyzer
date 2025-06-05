@@ -63,6 +63,21 @@ class PlayerZoneWidget extends StatelessWidget {
               ),
           ],
         ),
+        if (actionTagText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                actionTagText!,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ),
         const SizedBox(height: 4),
         GestureDetector(
           onTap: () async {
@@ -117,36 +132,6 @@ class PlayerZoneWidget extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         column,
-        Positioned(
-          top: -24,
-          left: 0,
-          right: 0,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: actionTagText != null
-                ? Container(
-                    key: ValueKey(actionTagText),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade700,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
-                          blurRadius: 4,
-                        )
-                      ],
-                    ),
-                    child: Text(
-                      actionTagText!,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ),
         Positioned(
           bottom: -20,
           left: 0,
