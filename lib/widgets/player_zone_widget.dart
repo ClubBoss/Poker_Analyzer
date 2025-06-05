@@ -8,6 +8,7 @@ class PlayerZoneWidget extends StatelessWidget {
   final List<CardModel> cards;
   final bool isHero;
   final bool isFolded;
+  final bool isActive;
   final bool showHint;
   final String? lastActionText;
   final Function(CardModel) onCardsSelected;
@@ -19,6 +20,7 @@ class PlayerZoneWidget extends StatelessWidget {
     required this.isHero,
     required this.isFolded,
     required this.onCardsSelected,
+    this.isActive = false,
     this.showHint = false,
     this.lastActionText,
   }) : super(key: key);
@@ -117,13 +119,33 @@ class PlayerZoneWidget extends StatelessWidget {
       ],
     );
 
+    Widget result = content;
+
     if (isFolded) {
-      return ColorFiltered(
+      result = ColorFiltered(
         colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-        child: Opacity(opacity: 0.6, child: content),
+        child: Opacity(opacity: 0.6, child: result),
       );
     }
 
-    return content;
+    result = AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.all(2),
+      decoration: isActive
+          ? BoxDecoration(
+              border: Border.all(color: Colors.amberAccent, width: 2),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.amberAccent.withOpacity(0.6),
+                  blurRadius: 8,
+                )
+              ],
+            )
+          : null,
+      child: result,
+    );
+
+    return result;
   }
 }
