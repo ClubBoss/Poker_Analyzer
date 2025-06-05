@@ -38,14 +38,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
+  void _updatePositions() {
     playerPositions = {
       heroIndex: 'BTN',
       (heroIndex + 1) % numberOfPlayers: 'SB',
       (heroIndex + 2) % numberOfPlayers: 'BB',
     };
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _updatePositions();
   }
 
   void selectCard(int index, CardModel card) {
@@ -162,6 +166,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                 if (value != null) {
                   setState(() {
                     numberOfPlayers = value;
+                    _updatePositions();
                   });
                 }
               },
