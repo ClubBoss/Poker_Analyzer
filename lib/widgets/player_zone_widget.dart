@@ -44,44 +44,44 @@ class PlayerZoneWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-        Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: List.generate(
-    2,
-    (index) {
-      final card = index < cards.length ? cards[index] : null;
-      final isRed = card?.suit == '♥' || card?.suit == '♦';
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              2,
+              (index) {
+                final card = index < cards.length ? cards[index] : null;
+                final isRed = card?.suit == '♥' || card?.suit == '♦';
 
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        width: 36,
-        height: 52,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              blurRadius: 3,
-              offset: const Offset(1, 2),
-            )
-          ],
-        ),
-        alignment: Alignment.center,
-        child: card != null
-            ? Text(
-                '${card.rank}${card.suit}',
-                style: TextStyle(
-                  color: isRed ? Colors.red : Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              )
-            : const Icon(Icons.add, color: Colors.grey),
-      );
-    },
-  ),
-)
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: 36,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        blurRadius: 3,
+                        offset: const Offset(1, 2),
+                      )
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: card != null
+                      ? Text(
+                          '${card.rank}${card.suit}',
+                          style: TextStyle(
+                            color: isRed ? Colors.red : Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        )
+                      : const Icon(Icons.add, color: Colors.grey),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
