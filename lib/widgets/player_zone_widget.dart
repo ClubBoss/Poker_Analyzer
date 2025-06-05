@@ -183,9 +183,11 @@ class PlayerZoneWidget extends StatelessWidget {
     Widget result = content;
 
     if (isFolded) {
-      result = ColorFiltered(
-        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-        child: Opacity(opacity: 0.6, child: result),
+      result = ClipRect(
+        child: ColorFiltered(
+          colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+          child: Opacity(opacity: 0.6, child: result),
+        ),
       );
     }
 
