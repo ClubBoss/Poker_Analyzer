@@ -205,16 +205,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   ),
                   Positioned.fill(
                     child: Align(
-                      alignment: const Alignment(0, -0.4),
+                      alignment: const Alignment(0, -0.25),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: Colors.black.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           'Pot: ${_pots[currentStreet]}',
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
