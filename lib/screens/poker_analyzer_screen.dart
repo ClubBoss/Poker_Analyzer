@@ -27,6 +27,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   List<bool> _showActionHints = List.filled(9, true);
   int? activePlayerIndex;
   Timer? _activeTimer;
+  final Map<int, String?> _actionTags = {};
 
   @override
   void initState() {
@@ -99,14 +100,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
-  String? _getLastActionText(int playerIndex) {
-    final entries = actions.where((a) =>
-        a.playerIndex == playerIndex && a.street == currentStreet);
-    if (entries.isEmpty) return null;
-    final last = entries.last;
-    final amountStr = last.amount != null ? ' ${last.amount}' : '';
-    return '${last.action}$amountStr';
-  }
 
   Future<void> _openActionDialog(int playerIndex) async {
     setState(() {
@@ -121,10 +114,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       currentPot: _pots[currentStreet],
     );
     if (entry != null) {
+      final alreadyFolded = actions.any((a) =>
+          a.playerIndex == entry.playerIndex &&
+          a.action == 'fold' &&
+          a.street <= currentStreet);
       setState(() {
         actions.add(entry);
         _recalculatePots();
         activePlayerIndex = entry.playerIndex;
+        if (!alreadyFolded) {
+          final amountStr = entry.amount != null ? ' ${entry.amount}' : '';
+          _actionTags[entry.playerIndex] = '${entry.action}$amountStr';
+        }
       });
       _activeTimer?.cancel();
       _activeTimer = Timer(const Duration(seconds: 2), () {
@@ -132,6 +133,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
           setState(() => activePlayerIndex = null);
         }
       });
+      if (!alreadyFolded) {
+        Timer(const Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() => _actionTags[entry.playerIndex] = null);
+          }
+        });
+      }
     }
   }
 
@@ -217,7 +225,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         a.playerIndex == index &&
                         a.action == 'fold' &&
                         a.street <= currentStreet);
-                    final lastActionText = _getLastActionText(index);
+                    final actionTag = _actionTags[index];
 
                     return Positioned(
                       left: centerX + dx - 55,
@@ -231,7 +239,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           isFolded: isFolded,
                           isActive: index == activePlayerIndex,
                           showHint: _showActionHints[index],
-                          lastActionText: lastActionText,
+                          actionTagText: actionTag,
                           onCardsSelected: (card) => selectCard(index, card),
                         ),
                       ),
