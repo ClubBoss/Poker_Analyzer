@@ -65,6 +65,7 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
   bool _useBB = false;
 
   static const int _chipsPerBB = 20;
+  double _sliderValue = 1;
 
   @override
   void dispose() {
@@ -124,7 +125,10 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
         child: ElevatedButton(
           onPressed: () {
             final value = _useBB ? (chips / _chipsPerBB).round() : chips;
-            setState(() => _amountController.text = value.toString());
+            setState(() {
+              _amountController.text = value.toString();
+              _updateSliderFromInput();
+            });
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey.shade800,
@@ -138,6 +142,13 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
         ),
       ),
     );
+  }
+
+  void _updateSliderFromInput() {
+    final input = int.tryParse(_amountController.text);
+    if (input != null) {
+      _sliderValue = input.clamp(1, 100).toDouble();
+    }
   }
 
   @override
@@ -163,10 +174,11 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               _buildButton('fold', 'Fold', Colors.red),
               _buildButton(
                 widget.callAmount > 0 ? 'call' : 'check',
@@ -192,7 +204,10 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
                             ToggleButtons(
                               isSelected: [!_useBB, _useBB],
                               onPressed: (index) {
-                                setState(() => _useBB = index == 1);
+                                setState(() {
+                                  _useBB = index == 1;
+                                  _updateSliderFromInput();
+                                });
                               },
                               color: Colors.white70,
                               selectedColor: Colors.white,
@@ -203,7 +218,7 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
                                 Padding(
                                   padding:
                                       EdgeInsets.symmetric(horizontal: 12),
-                                  child: Text('Фишки'),
+                                  child: Text('Chips'),
                                 ),
                                 Padding(
                                   padding:
@@ -220,7 +235,7 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
                               style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
                                 labelText:
-                                    _useBB ? 'Сумма в BB' : 'Сумма в фишках',
+                                    _useBB ? 'Amount in BB' : 'Amount in chips',
                                 labelStyle:
                                     const TextStyle(color: Colors.white70),
                                 enabledBorder: const UnderlineInputBorder(
@@ -230,26 +245,42 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
                               ),
-                              onChanged: (_) => setState(() {}),
+                              onChanged: (_) => setState(() {
+                                    _updateSliderFromInput();
+                                  }),
                               onSubmitted: (_) =>
                                   _submit(widget.hasBet ? 'raise' : 'bet'),
                             ),
-                            if (_useBB && _amountController.text.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Text(
-                                  '≈ ${(int.tryParse(_amountController.text) ?? 0) * _chipsPerBB} фишек',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
+                              if (_useBB && _amountController.text.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4.0),
+                                  child: Text(
+                                    '≈ ${(int.tryParse(_amountController.text) ?? 0) * _chipsPerBB} фишек',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
+                              const SizedBox(height: 8),
+                              Slider(
+                                value: _sliderValue,
+                                min: 1,
+                                max: 100,
+                                divisions: 99,
+                                label: _sliderValue.round().toString(),
+                                onChanged: (v) {
+                                  setState(() {
+                                    _sliderValue = v;
+                                    _amountController.text = v.round().toString();
+                                  });
+                                },
                               ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                _buildPresetButton('¼ Pot', quarterPot),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _buildPresetButton('¼ Pot', quarterPot),
                                 _buildPresetButton('½ Pot', halfPot),
                                 _buildPresetButton('Pot', pot),
                                 _buildPresetButton('All-in', 500),
