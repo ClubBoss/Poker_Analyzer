@@ -136,9 +136,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   ),
                   ...List.generate(numberOfPlayers, (i) {
                     final index = (i + heroIndex) % numberOfPlayers;
-                    final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+                    final angle =
+                        2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
                     final dx = radiusX * cos(angle);
                     final dy = radiusY * sin(angle);
+
+                    final isFolded = actions.any((a) =>
+                        a.playerIndex == index &&
+                        a.action == 'fold' &&
+                        a.street <= currentStreet);
 
                     return Positioned(
                       left: centerX + dx - 55,
@@ -149,6 +155,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           playerName: 'Player ${index + 1}',
                           cards: playerCards[index],
                           isHero: index == heroIndex,
+                          isFolded: isFolded,
                           onCardsSelected: (card) => selectCard(index, card),
                         ),
                       ),
