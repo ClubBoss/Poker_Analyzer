@@ -22,6 +22,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   List<CardModel> boardCards = [];
   int currentStreet = 0;
   List<ActionEntry> actions = [];
+  List<int> _pots = List.filled(4, 0);
   final TextEditingController _commentController = TextEditingController();
   List<bool> _showActionHints = List.filled(9, true);
 
@@ -84,6 +85,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         .any((a) => a.action == 'bet' || a.action == 'raise');
   }
 
+  void _recalculatePots() {
+    int cumulative = 0;
+    for (int s = 0; s < _pots.length; s++) {
+      final streetAmount = actions
+          .where((a) => a.street == s &&
+              (a.action == 'call' || a.action == 'bet' || a.action == 'raise'))
+          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
+      cumulative += streetAmount;
+      _pots[s] = cumulative;
+    }
+  }
+
   Future<void> _openActionDialog(int playerIndex) async {
     setState(() {
       _showActionHints[playerIndex] = false;
@@ -94,10 +107,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       playerIndex: playerIndex,
       callAmount: _calculateCallAmount(playerIndex),
       hasBet: _streetHasBet(),
+      currentPot: _pots[currentStreet],
     );
     if (entry != null) {
       setState(() {
         actions.add(entry);
+        _recalculatePots();
       });
     }
   }
@@ -149,6 +164,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     currentStreet: currentStreet,
                     boardCards: boardCards,
                     onCardSelected: selectBoardCard,
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: const Alignment(0, -0.4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Pot: ${_pots[currentStreet]}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
                   ),
                   ...List.generate(numberOfPlayers, (i) {
                     final index = (i + heroIndex) % numberOfPlayers;
