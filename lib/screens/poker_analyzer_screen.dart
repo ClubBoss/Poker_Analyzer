@@ -23,6 +23,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   int currentStreet = 0;
   List<ActionEntry> actions = [];
   List<int> _pots = List.filled(4, 0);
+  final Map<int, int> _streetInvestments = {};
   final TextEditingController _commentController = TextEditingController();
   List<bool> _showActionHints = List.filled(9, true);
   int? activePlayerIndex;
@@ -100,6 +101,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
+  void _recalculateStreetInvestments() {
+    _streetInvestments.clear();
+    for (final a in actions.where((a) => a.street == currentStreet)) {
+      if (a.action == 'call' || a.action == 'bet' || a.action == 'raise') {
+        _streetInvestments[a.playerIndex] =
+            (_streetInvestments[a.playerIndex] ?? 0) + (a.amount ?? 0);
+      } else if (a.action == 'fold') {
+        _streetInvestments.remove(a.playerIndex);
+      }
+    }
+  }
+
 
   Future<void> _openActionDialog(int playerIndex) async {
     setState(() {
@@ -121,10 +134,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       setState(() {
         actions.add(entry);
         _recalculatePots();
+        _recalculateStreetInvestments();
         activePlayerIndex = entry.playerIndex;
         if (!alreadyFolded) {
           final amountStr = entry.amount != null ? ' ${entry.amount}' : '';
           _actionTags[entry.playerIndex] = '${entry.action}$amountStr';
+        } else {
+          _streetInvestments.remove(entry.playerIndex);
         }
       });
       _activeTimer?.cancel();
@@ -240,6 +256,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           isActive: index == activePlayerIndex,
                           showHint: _showActionHints[index],
                           actionTagText: actionTag,
+                          chipAmount: _streetInvestments[index],
                           onCardsSelected: (card) => selectCard(index, card),
                         ),
                       ),
@@ -250,7 +267,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             ),
             StreetActionsWidget(
               currentStreet: currentStreet,
-              onStreetChanged: (index) => setState(() => currentStreet = index),
+              onStreetChanged: (index) {
+                setState(() {
+                  currentStreet = index;
+                  _recalculateStreetInvestments();
+                });
+              },
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
