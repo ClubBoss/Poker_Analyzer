@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
+import '../widgets/board_cards_widget.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -15,6 +16,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   int heroIndex = 0;
   int numberOfPlayers = 6;
   List<List<CardModel>> playerCards = List.generate(9, (_) => []);
+  List<CardModel> boardCards = [];
   int currentStreet = 0;
   final TextEditingController _commentController = TextEditingController();
 
@@ -23,8 +25,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       for (final cards in playerCards) {
         cards.removeWhere((c) => c == card);
       }
+      boardCards.removeWhere((c) => c == card);
       if (playerCards[index].length < 2) {
         playerCards[index].add(card);
+      }
+    });
+  }
+
+  void selectBoardCard(int index, CardModel card) {
+    setState(() {
+      for (final cards in playerCards) {
+        cards.removeWhere((c) => c == card);
+      }
+      boardCards.removeWhere((c) => c == card);
+      if (index < boardCards.length) {
+        boardCards[index] = card;
+      } else if (index == boardCards.length) {
+        boardCards.add(card);
       }
     });
   }
@@ -86,6 +103,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       width: tableWidth,
                       fit: BoxFit.contain,
                     ),
+                  ),
+                  BoardCardsWidget(
+                    currentStreet: currentStreet,
+                    boardCards: boardCards,
+                    onCardSelected: selectBoardCard,
                   ),
                   ...List.generate(numberOfPlayers, (i) {
                     final index = (i + heroIndex) % numberOfPlayers;
