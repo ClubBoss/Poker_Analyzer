@@ -1,0 +1,10 @@
+language: dart
+tools:
+  - flutter@3.22.0
+
+tasks:
+  analyze:
+    run: flutter analyze
+
+  test:
+    run: flutter test
