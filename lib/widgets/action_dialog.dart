@@ -113,8 +113,35 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
     );
   }
 
+  Widget _buildPresetButton(String label, int chips) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+        child: ElevatedButton(
+          onPressed: () {
+            final value = _useBB ? (chips / _chipsPerBB).round() : chips;
+            setState(() => _amountController.text = value.toString());
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.grey.shade800,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+          ),
+          child: Text(label, style: const TextStyle(fontSize: 12)),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final int pot = widget.callAmount == 0 ? 0 : 100; // TODO: replace with real pot
+    final int quarterPot = (pot / 4).round();
+    final int halfPot = (pot / 2).round();
+
     return Center(
       child: Material(
         color: Colors.transparent,
@@ -214,6 +241,16 @@ class _ActionDialogContentState extends State<_ActionDialogContent> {
                                   ),
                                 ),
                               ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildPresetButton('¼ Pot', quarterPot),
+                                _buildPresetButton('½ Pot', halfPot),
+                                _buildPresetButton('Pot', pot),
+                                _buildPresetButton('All-in', 500),
+                              ],
+                            ),
                           ],
                         ),
                       )
