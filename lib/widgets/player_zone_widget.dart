@@ -23,7 +23,7 @@ class PlayerZoneWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final content = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
@@ -106,5 +106,14 @@ class PlayerZoneWidget extends StatelessWidget {
         ),
       ],
     );
+
+    if (isFolded) {
+      return ColorFiltered(
+        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+        child: Opacity(opacity: 0.6, child: content),
+      );
+    }
+
+    return content;
   }
 }
