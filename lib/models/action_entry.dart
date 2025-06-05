@@ -11,10 +11,7 @@ class ActionEntry {
   /// Размер ставки в фишках, если применимо
   final int? amount;
 
-  ActionEntry({
-    required this.street,
-    required this.playerIndex,
-    required this.action,
-    this.amount,
-  });
+  /// Создает запись о действии игрока на определенной улице.
+  /// [amount] заполняется только для действий bet, raise или call.
+  ActionEntry(this.street, this.playerIndex, this.action, [this.amount]);
 }
