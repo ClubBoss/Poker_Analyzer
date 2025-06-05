@@ -20,7 +20,7 @@ class BoardCardsWidget extends StatelessWidget {
 
     return Positioned.fill(
       child: Align(
-        alignment: Alignment(0, -0.05),
+        alignment: const Alignment(0, -0.05),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(visibleCount, (index) {

@@ -16,16 +16,16 @@ class PokerAnalyzerScreen extends StatefulWidget {
 }
 
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
-  int heroIndex = 0;
+  final int heroIndex = 0;
   int numberOfPlayers = 6;
-  List<List<CardModel>> playerCards = List.generate(9, (_) => []);
-  List<CardModel> boardCards = [];
+  final List<List<CardModel>> playerCards = List.generate(9, (_) => []);
+  final List<CardModel> boardCards = [];
   int currentStreet = 0;
-  List<ActionEntry> actions = [];
-  List<int> _pots = List.filled(4, 0);
+  final List<ActionEntry> actions = [];
+  final List<int> _pots = List.filled(4, 0);
   final Map<int, int> _streetInvestments = {};
   final TextEditingController _commentController = TextEditingController();
-  List<bool> _showActionHints = List.filled(9, true);
+  final List<bool> _showActionHints = List.filled(9, true);
   final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
   Timer? _activeTimer;

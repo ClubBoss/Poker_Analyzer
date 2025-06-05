@@ -50,7 +50,7 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                   dropdownColor: Colors.black,
                   style: const TextStyle(color: Colors.white),
                   items: List.generate(8, (index) => index + 2)
-                      .map((e) => DropdownMenuItem(
+                      .map((e) => DropdownMenuItem<int>(
                             value: e,
                             child: Text(e.toString()),
                           ))

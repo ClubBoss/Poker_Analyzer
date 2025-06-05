@@ -18,7 +18,7 @@ class StreetActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> streets = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
+    const List<String> streets = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
