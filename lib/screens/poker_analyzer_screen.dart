@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
@@ -24,6 +25,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   List<int> _pots = List.filled(4, 0);
   final TextEditingController _commentController = TextEditingController();
   List<bool> _showActionHints = List.filled(9, true);
+  int? activePlayerIndex;
+  Timer? _activeTimer;
 
   @override
   void initState() {
@@ -121,6 +124,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       setState(() {
         actions.add(entry);
         _recalculatePots();
+        activePlayerIndex = entry.playerIndex;
+      });
+      _activeTimer?.cancel();
+      _activeTimer = Timer(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() => activePlayerIndex = null);
+        }
       });
     }
   }
@@ -212,6 +222,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           cards: playerCards[index],
                           isHero: index == heroIndex,
                           isFolded: isFolded,
+                          isActive: index == activePlayerIndex,
                           showHint: _showActionHints[index],
                           lastActionText: lastActionText,
                           onCardsSelected: (card) => selectCard(index, card),
