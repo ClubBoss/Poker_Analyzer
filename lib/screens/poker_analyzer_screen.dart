@@ -24,6 +24,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   final List<ActionEntry> actions = [];
   final List<int> _pots = List.filled(4, 0);
   final Map<int, int> _streetInvestments = {};
+  final Map<int, int> stackSizes = {
+    0: 120,
+    1: 80,
+    2: 100,
+    3: 90,
+    4: 110,
+    5: 70,
+    6: 130,
+    7: 95,
+    8: 105,
+  };
   final TextEditingController _commentController = TextEditingController();
   final List<bool> _showActionHints = List.filled(9, true);
   final Set<int> _firstActionTaken = {};
@@ -251,6 +262,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               showHint: _showActionHints[index],
                               actionTagText: actionTag,
                               chipAmount: _streetInvestments[index],
+                              stackSize: stackSizes[index],
                               onCardsSelected: (card) => selectCard(index, card),
                             ),
                             if (lastAction != null)
