@@ -23,6 +23,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   int currentStreet = 0;
   List<ActionEntry> actions = [];
   final TextEditingController _commentController = TextEditingController();
+  List<bool> _showActionHints = List.filled(9, true);
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() {
+          _showActionHints = List.filled(9, false);
+        });
+      }
+    });
+  }
 
   void selectCard(int index, CardModel card) {
     setState(() {
@@ -72,6 +85,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   }
 
   Future<void> _openActionDialog(int playerIndex) async {
+    setState(() {
+      _showActionHints[playerIndex] = false;
+    });
     final entry = await showActionDialog(
       context,
       street: currentStreet,
@@ -156,6 +172,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           cards: playerCards[index],
                           isHero: index == heroIndex,
                           isFolded: isFolded,
+                          showHint: _showActionHints[index],
                           onCardsSelected: (card) => selectCard(index, card),
                         ),
                       ),

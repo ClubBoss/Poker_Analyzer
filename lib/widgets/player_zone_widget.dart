@@ -8,6 +8,7 @@ class PlayerZoneWidget extends StatelessWidget {
   final List<CardModel> cards;
   final bool isHero;
   final bool isFolded;
+  final bool showHint;
   final Function(CardModel) onCardsSelected;
 
   const PlayerZoneWidget({
@@ -17,6 +18,7 @@ class PlayerZoneWidget extends StatelessWidget {
     required this.isHero,
     required this.isFolded,
     required this.onCardsSelected,
+    this.showHint = false,
   }) : super(key: key);
 
   @override
@@ -24,19 +26,36 @@ class PlayerZoneWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: isHero ? Colors.orange : Colors.black54,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            isHero ? "$playerName (Hero)" : playerName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: isHero ? Colors.orange : Colors.black54,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                isHero ? "$playerName (Hero)" : playerName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
+            if (showHint)
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Tooltip(
+                  message: 'Нажмите, чтобы ввести действие',
+                  child: const Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 4),
         GestureDetector(
