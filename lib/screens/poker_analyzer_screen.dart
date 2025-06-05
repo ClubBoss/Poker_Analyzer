@@ -1,9 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
+import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_cards_widget.dart';
+import '../widgets/street_actions_list.dart';
+import '../widgets/action_dialog.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -18,6 +21,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   List<List<CardModel>> playerCards = List.generate(9, (_) => []);
   List<CardModel> boardCards = [];
   int currentStreet = 0;
+  List<ActionEntry> actions = [];
   final TextEditingController _commentController = TextEditingController();
 
   void selectCard(int index, CardModel card) {
@@ -46,20 +50,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     });
   }
 
-  void _openActionDialog(int playerIndex) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Действие игрока ${playerIndex + 1}'),
-        content: const Text('Здесь будет интерфейс выбора действия.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+  Future<void> _openActionDialog([int? playerIndex]) async {
+    final entry = await showActionDialog(
+      context,
+      street: currentStreet,
+      playerCount: numberOfPlayers,
+      initialPlayer: playerIndex,
     );
+    if (entry != null) {
+      setState(() {
+        actions.add(entry);
+      });
+    }
   }
 
   @override
@@ -135,6 +137,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             StreetActionsWidget(
               currentStreet: currentStreet,
               onStreetChanged: (index) => setState(() => currentStreet = index),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: StreetActionsList(
+                street: currentStreet,
+                actions: actions,
+                onAdd: _openActionDialog,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
