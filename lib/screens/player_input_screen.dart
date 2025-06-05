@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'analysis_screen.dart';
+import 'poker_analyzer_screen.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -72,10 +72,7 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                 if (text.isNotEmpty) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => AnalysisScreen(
-                        analysisText: text,
-                        playerCount: _selectedPlayers,
-                      ),
+                      builder: (context) => const PokerAnalyzerScreen(),
                     ),
                   );
                 }
