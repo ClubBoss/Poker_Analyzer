@@ -67,10 +67,10 @@ Future<ActionEntry?> showActionDialog(
                   Navigator.pop(
                     ctx,
                     ActionEntry(
-                      street: street,
-                      playerIndex: selectedPlayer,
-                      action: selectedAction,
-                      amount: needAmount ? amount : null,
+                      street,
+                      selectedPlayer,
+                      selectedAction,
+                      needAmount ? amount : null,
                     ),
                   );
                 },
