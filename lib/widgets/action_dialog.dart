@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import 'bet_sizer.dart';
 
 class ActionDialog extends StatefulWidget {
   final int playerIndex;
@@ -24,90 +25,90 @@ class ActionDialog extends StatefulWidget {
 }
 
 class _ActionDialogState extends State<ActionDialog> {
-  late double _currentAmount;
+  String? _selectedAction;
 
   @override
   void initState() {
     super.initState();
-    _currentAmount = (widget.initialAmount ?? 0).toDouble();
+    _selectedAction = widget.initialAction;
   }
 
-  Widget _buildSizingButton(String label, int amount) {
+  void _onActionPressed(String action) {
+    if (action == 'fold' || action == 'check' || action == 'call') {
+      Navigator.pop(
+        context,
+        ActionEntry(widget.street, widget.playerIndex, action, null),
+      );
+    } else {
+      setState(() => _selectedAction = action);
+    }
+  }
+
+  Widget _actionButton(String label, String action) {
+    final bool active = _selectedAction == action;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white12,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        backgroundColor: active ? Colors.blueGrey : Colors.white12,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       ),
-      onPressed: () {
-        setState(() {
-          _currentAmount =
-              amount.toDouble().clamp(0, widget.stackSize.toDouble());
-        });
-      },
-      child: Text(label, style: const TextStyle(color: Colors.white)),
+      onPressed: () => _onActionPressed(action),
+      child: Text(label,
+          style: const TextStyle(color: Colors.white, fontSize: 18)),
+    );
+  }
+
+  void _onBetSelected(int amount) {
+    Navigator.pop(
+      context,
+      ActionEntry(widget.street, widget.playerIndex, _selectedAction!, amount),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final action = widget.initialAction ?? 'bet';
-
     return AlertDialog(
       backgroundColor: Colors.black87,
-      title: Text(
-        'Размер ставки игрока ${widget.playerIndex + 1}',
-        style: const TextStyle(color: Colors.white),
+      titlePadding: const EdgeInsets.only(left: 24, right: 8, top: 20, bottom: 8),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              'Выберите действие игрока ${widget.playerIndex + 1}',
+              style: const TextStyle(color: Colors.white, fontSize: 20),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              _buildSizingButton('1/3 Пот', (widget.pot / 3).round()),
-              _buildSizingButton('1/2 Пот', (widget.pot / 2).round()),
-              _buildSizingButton('Пот', widget.pot),
-              _buildSizingButton('Олл-ин', widget.stackSize),
+              _actionButton('Fold', 'fold'),
+              _actionButton('Check', 'check'),
+              _actionButton('Call', 'call'),
+              _actionButton('Bet', 'bet'),
+              _actionButton('Raise', 'raise'),
             ],
           ),
-          const SizedBox(height: 12),
-          Slider(
-            value: _currentAmount.clamp(0, widget.stackSize.toDouble()),
-            min: 0,
-            max: widget.stackSize.toDouble(),
-            divisions: widget.stackSize > 0 ? widget.stackSize : 1,
-            label: _currentAmount.round().toString(),
-            onChanged: (val) => setState(() => _currentAmount = val),
-          ),
-          Text(
-            _currentAmount.round().toString(),
-            style: const TextStyle(color: Colors.white),
-          ),
+          if (_selectedAction == 'bet' || _selectedAction == 'raise')
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: BetSizer(
+                pot: widget.pot,
+                stackSize: widget.stackSize,
+                onSelected: _onBetSelected,
+              ),
+            ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Отмена'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            final amount = _currentAmount.round();
-            Navigator.pop(
-              context,
-              ActionEntry(
-                widget.street,
-                widget.playerIndex,
-                action,
-                amount,
-              ),
-            );
-          },
-          child: const Text('Сохранить'),
-        ),
-      ],
     );
   }
 }
