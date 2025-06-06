@@ -158,6 +158,7 @@ class PlayerZoneWidget extends StatelessWidget {
       children: [
         column,
       ],
+    );
 
     Widget result = content;
 
