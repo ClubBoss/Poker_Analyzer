@@ -93,3 +93,4 @@ class InputScreen extends StatelessWidget {
     );
   }
 }
+\n## Future Improvements\nTo show a chain of action arrows without cluttering the interface, consider rendering semi-transparent arrows for past actions and fading them out over time or collapsing them into a small history panel.
