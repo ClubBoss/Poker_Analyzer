@@ -35,12 +35,18 @@ class StreetActionsList extends StatelessWidget {
       default:
         color = Colors.white;
     }
+    final title = a.generated
+        ? 'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr (auto)'
+        : 'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr';
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
       title: Text(
-        'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr',
-        style: TextStyle(color: color),
+        title,
+        style: TextStyle(
+          color: color,
+          fontStyle: a.generated ? FontStyle.italic : FontStyle.normal,
+        ),
       ),
       onTap: () => onEdit(globalIndex),
       trailing: IconButton(
