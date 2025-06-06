@@ -6,12 +6,14 @@ class BoardCardsWidget extends StatelessWidget {
   final int currentStreet;
   final List<CardModel> boardCards;
   final void Function(int, CardModel) onCardSelected;
+  final double scale;
 
   const BoardCardsWidget({
     Key? key,
     required this.currentStreet,
     required this.boardCards,
     required this.onCardSelected,
+    this.scale = 1.0,
   }) : super(key: key);
 
   @override
@@ -36,8 +38,8 @@ class BoardCardsWidget extends StatelessWidget {
               },
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 36,
-                height: 52,
+                width: 36 * scale,
+                height: 52 * scale,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(card == null ? 0.3 : 1),
                   borderRadius: BorderRadius.circular(6),
@@ -56,7 +58,7 @@ class BoardCardsWidget extends StatelessWidget {
                         style: TextStyle(
                           color: isRed ? Colors.red : Colors.black,
                           fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                          fontSize: 18 * scale,
                         ),
                       )
                     : const Icon(Icons.add, color: Colors.grey),

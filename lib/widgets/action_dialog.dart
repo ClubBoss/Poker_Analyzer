@@ -24,13 +24,11 @@ class ActionDialog extends StatefulWidget {
 }
 
 class _ActionDialogState extends State<ActionDialog> {
-  late String _selectedAction;
   late double _currentAmount;
 
   @override
   void initState() {
     super.initState();
-    _selectedAction = widget.initialAction ?? 'check';
     _currentAmount = (widget.initialAmount ?? 0).toDouble();
   }
 
@@ -54,62 +52,38 @@ class _ActionDialogState extends State<ActionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final actions = ['fold', 'check', 'call', 'bet', 'raise'];
+    final action = widget.initialAction ?? 'bet';
 
     return AlertDialog(
       backgroundColor: Colors.black87,
       title: Text(
-        'Выберите действие для игрока ${widget.playerIndex + 1}',
+        'Размер ставки игрока ${widget.playerIndex + 1}',
         style: const TextStyle(color: Colors.white),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          DropdownButton<String>(
-            value: _selectedAction,
-            dropdownColor: Colors.black87,
-            style: const TextStyle(color: Colors.white),
-            iconEnabledColor: Colors.white,
-            items: actions
-                .map(
-                  (e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: const TextStyle(color: Colors.white)),
-                  ),
-                )
-                .toList(),
-            onChanged: (val) {
-              if (val != null) {
-                setState(() => _selectedAction = val);
-              }
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildSizingButton('1/2 Пот', (widget.pot / 2).round()),
+              _buildSizingButton('Пот', widget.pot),
+              _buildSizingButton('Олл-ин', widget.stackSize),
+            ],
           ),
-          if (_selectedAction == 'bet' ||
-              _selectedAction == 'raise' ||
-              _selectedAction == 'call') ...[
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSizingButton('1/2 Pot', (widget.pot / 2).round()),
-                _buildSizingButton('Pot', widget.pot),
-                _buildSizingButton('All-in', widget.stackSize),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Slider(
-              value: _currentAmount.clamp(0, widget.stackSize.toDouble()),
-              min: 0,
-              max: widget.stackSize.toDouble(),
-              divisions: widget.stackSize > 0 ? widget.stackSize : 1,
-              label: _currentAmount.round().toString(),
-              onChanged: (val) => setState(() => _currentAmount = val),
-            ),
-            Text(
-              _currentAmount.round().toString(),
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
+          const SizedBox(height: 12),
+          Slider(
+            value: _currentAmount.clamp(0, widget.stackSize.toDouble()),
+            min: 0,
+            max: widget.stackSize.toDouble(),
+            divisions: widget.stackSize > 0 ? widget.stackSize : 1,
+            label: _currentAmount.round().toString(),
+            onChanged: (val) => setState(() => _currentAmount = val),
+          ),
+          Text(
+            _currentAmount.round().toString(),
+            style: const TextStyle(color: Colors.white),
+          ),
         ],
       ),
       actions: [
@@ -119,18 +93,13 @@ class _ActionDialogState extends State<ActionDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            int? amount;
-            if (_selectedAction == 'bet' ||
-                _selectedAction == 'raise' ||
-                _selectedAction == 'call') {
-              amount = _currentAmount.round();
-            }
+            final amount = _currentAmount.round();
             Navigator.pop(
               context,
               ActionEntry(
                 widget.street,
                 widget.playerIndex,
-                _selectedAction,
+                action,
                 amount,
               ),
             );

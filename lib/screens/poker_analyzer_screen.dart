@@ -354,17 +354,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final bool crowded = numberOfPlayers > 6;
+    final double scale = crowded
+        ? (screenSize.height < 700 ? 0.8 : 0.9)
+        : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final centerY = screenSize.height / 2 - 120;
-    final radiusX = tableWidth / 2 - 50;
-    final radiusY = tableHeight / 2 + 100;
+    final radiusX = (tableWidth / 2 - 50) * scale;
+    final radiusY = (tableHeight / 2 + 100) * scale;
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Column(
           children: [
             DropdownButton<int>(
               value: numberOfPlayers,
@@ -399,7 +408,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  BoardCardsWidget(
+                  BoardCardsWidget(scale: scale, 
                     currentStreet: currentStreet,
                     boardCards: boardCards,
                     onCardSelected: selectBoardCard,
@@ -414,7 +423,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           scale: animation,
                           child: FadeTransition(opacity: animation, child: child),
                         ),
-                        child: ChipWidget(
+                        child: ChipWidget(scale: scale, 
                           key: ValueKey(_pots[currentStreet]),
                           amount: _pots[currentStreet],
                           chipType: 'stack',
@@ -474,6 +483,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               PlayerZoneWidget(
+                                scale: scale,
                                 playerName: 'Player ${index + 1}',
                                 position: playerPositions[index],
                                 cards: playerCards[index],
@@ -493,6 +503,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                   child: FadeTransition(opacity: animation, child: child),
                                 ),
                                 child: ChipWidget(
+                                  scale: scale,
                                   key: ValueKey(stackSizes[index] ?? 0),
                                   amount: stackSizes[index] ?? 0,
                                   chipType: 'stack',
@@ -566,6 +577,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               ),
                             ),
                             child: ChipWidget(
+                              scale: scale,
                               key: ValueKey(_streetInvestments[index]),
                               amount: _streetInvestments[index]!,
                               chipType: 'bet',
