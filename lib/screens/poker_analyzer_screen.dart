@@ -373,6 +373,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         (numberOfPlayers > 6 ? 160 + extraOffset : 120);
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
+
+    ActionEntry? lastStreetAction;
+    for (final a in actions.reversed) {
+      if (a.street == currentStreet) {
+        lastStreetAction = a;
+        break;
+      }
+    }
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
@@ -633,6 +641,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               key: ValueKey(invested),
                               amount: invested,
                               chipType: chipType,
+                            ),
+                          ),
+                        ),
+                      if (lastStreetAction != null &&
+                          lastStreetAction!.playerIndex == index &&
+                          (lastStreetAction!.action == 'bet' ||
+                              lastStreetAction!.action == 'raise' ||
+                              lastStreetAction!.action == 'call'))
+                        Positioned(
+                          left: centerX + dx,
+                          top: centerY + dy + bias,
+                          child: AnimatedOpacity(
+                            opacity: 1.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: Transform.rotate(
+                              angle: atan2(centerY - (centerY + dy + bias),
+                                  centerX - (centerX + dx)),
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                width: sqrt(pow(centerX - (centerX + dx), 2) +
+                                    pow(centerY - (centerY + dy + bias), 2)),
+                                height: 2,
+                                color:
+                                    Colors.orangeAccent.withOpacity(0.7),
+                              ),
                             ),
                           ),
                         ),
