@@ -48,6 +48,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   final Map<int, String?> _actionTags = {};
   Map<int, String> playerPositions = {};
 
+  bool debugLayout = false;
+
   List<String> _positionsForPlayers(int count) {
     const base = ['BTN', 'SB', 'BB', 'UTG', 'LJ', 'HJ', 'CO'];
     if (count <= base.length) {
@@ -78,6 +80,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         playerPositions[i] = order[posIndex];
       }
     }
+  }
+
+  double _verticalBiasFromAngle(double angle) {
+    return 90 + 20 * sin(angle);
   }
 
   Future<void> _chooseHeroPosition() async {
@@ -362,10 +368,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY =
-        (numberOfPlayers > 6 ? screenSize.height / 2 - 160 : screenSize.height / 2 - 120);
-    final radiusX = (tableWidth / 2 - 50) * scale;
-    final radiusY = (tableHeight / 2 + 100) * scale;
+    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
+    final centerY = screenSize.height / 2 -
+        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final radiusX = (tableWidth / 2 - 60) * scale;
+    final radiusY = (tableHeight / 2 + 90) * scale;
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
@@ -472,6 +479,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
                     final dx = radiusX * cos(angle);
                     final dy = radiusY * sin(angle);
+                    final bias = _verticalBiasFromAngle(angle) * scale;
 
                     final isFolded = actions.any((a) =>
                         a.playerIndex == index &&
@@ -498,8 +506,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
                     return [
                       Positioned(
-                        left: centerX + dx - 55,
-                        top: centerY + dy - 55,
+                        left: centerX + dx - 55 * scale,
+                        top: centerY + dy + bias - 55 * scale,
                         child: GestureDetector(
                           onTap: () async {
                             setState(() {
@@ -560,8 +568,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       ),
                       if (lastAction != null)
                         Positioned(
-                          left: centerX + dx - 30,
-                          top: centerY + dy + 60,
+                          left: centerX + dx - 30 * scale,
+                          top: centerY + dy + bias + 60 * scale,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -582,8 +590,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               lastAction!.action == 'call') &&
                           lastAction!.amount != null)
                         Positioned(
-                          left: centerX + dx - 20,
-                          top: centerY + dy + 85,
+                          left: centerX + dx - 20 * scale,
+                          top: centerY + dy + bias + 85 * scale,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -609,8 +617,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         ),
                       if (invested > 0)
                         Positioned(
-                          left: centerX + dx - 20,
-                          top: centerY + dy + 92,
+                          left: centerX + dx - 20 * scale,
+                          top: centerY + dy + bias + 92 * scale,
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             transitionBuilder: (child, animation) => ScaleTransition(
@@ -625,6 +633,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               key: ValueKey(invested),
                               amount: invested,
                               chipType: chipType,
+                            ),
+                          ),
+                        ),
+                      if (debugLayout)
+                        Positioned(
+                          left: centerX + dx - 40 * scale,
+                          top: centerY + dy + bias - 70 * scale,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            color: Colors.black45,
+                            child: Text(
+                              'a:${angle.toStringAsFixed(2)}\n${dx.toStringAsFixed(1)},${dy.toStringAsFixed(1)}',
+                              style: TextStyle(
+                                  color: Colors.yellow, fontSize: 9 * scale),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
