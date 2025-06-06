@@ -88,6 +88,7 @@ class _ActionDialogState extends State<ActionDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Wrap(
+            alignment: WrapAlignment.center,
             spacing: 8,
             runSpacing: 8,
             children: [
@@ -100,7 +101,7 @@ class _ActionDialogState extends State<ActionDialog> {
           ),
           if (_selectedAction == 'bet' || _selectedAction == 'raise')
             Padding(
-              padding: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: BetSizer(
                 pot: widget.pot,
                 stackSize: widget.stackSize,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BetSizer extends StatefulWidget {
   final int pot;
@@ -18,6 +19,8 @@ class BetSizer extends StatefulWidget {
 
 class _BetSizerState extends State<BetSizer> {
   double _value = 0;
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   Widget _quickButton(String label, double fraction) {
     final int amount = (widget.pot * fraction).round().clamp(0, widget.stackSize);
@@ -35,10 +38,27 @@ class _BetSizerState extends State<BetSizer> {
     }
   }
 
+  void _submitManual() {
+    final int? input = int.tryParse(_controller.text);
+    if (input == null || input <= 0) return;
+    final int amount = input.clamp(1, widget.stackSize);
+    widget.onSelected(amount);
+    _controller.clear();
+    _focusNode.unfocus();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -50,6 +70,29 @@ class _BetSizerState extends State<BetSizer> {
           ],
         ),
         const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white10,
+              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              hintText: 'Введите ставку',
+              hintStyle: const TextStyle(color: Colors.white70),
+            ),
+            onSubmitted: (_) => _submitManual(),
+          ),
+        ),
+        const SizedBox(height: 12),
         Slider(
           value: _value,
           min: 0,
@@ -59,8 +102,10 @@ class _BetSizerState extends State<BetSizer> {
           onChanged: (v) => setState(() => _value = v),
           onChangeEnd: _handleEnd,
         ),
+        const SizedBox(height: 8),
         Text(
           _value.round().toString(),
+          textAlign: TextAlign.center,
           style: const TextStyle(color: Colors.white),
         ),
       ],
