@@ -412,11 +412,43 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  BoardCardsWidget(scale: scale, 
+                  BoardCardsWidget(scale: scale,
                     currentStreet: currentStreet,
                     boardCards: boardCards,
                     onCardSelected: selectBoardCard,
                   ),
+                  // Pot display in the center of the table
+                  if (_pots[currentStreet] > 0)
+                    Positioned(
+                      left: screenSize.width / 2 - 40,
+                      top: screenSize.height / 2 - 60,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) => FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        ),
+                        child: Container(
+                          key: ValueKey(_pots[currentStreet]),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: const [
+                              BoxShadow(color: Colors.black54, blurRadius: 4),
+                            ],
+                          ),
+                          child: Text(
+                            'Pot: ${_pots[currentStreet]}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   if (_pots[currentStreet] > 0)
                     Positioned(
                       left: centerX - 20,
