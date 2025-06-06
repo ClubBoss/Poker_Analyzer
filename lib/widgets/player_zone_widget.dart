@@ -12,7 +12,6 @@ class PlayerZoneWidget extends StatelessWidget {
   final bool isActive;
   final bool showHint;
   final String? actionTagText;
-  final int? stackSize;
   final Function(CardModel) onCardsSelected;
 
   const PlayerZoneWidget({
@@ -26,7 +25,6 @@ class PlayerZoneWidget extends StatelessWidget {
     this.isActive = false,
     this.showHint = false,
     this.actionTagText,
-    this.stackSize,
   }) : super(key: key);
 
   @override
@@ -65,18 +63,6 @@ class PlayerZoneWidget extends StatelessWidget {
             ),
           ],
         ),
-        if (stackSize != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 2.0),
-            child: Text(
-              '$stackSize',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.orangeAccent,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
         if (position != null)
           Padding(
             padding: const EdgeInsets.only(top: 2.0),
@@ -158,6 +144,7 @@ class PlayerZoneWidget extends StatelessWidget {
       children: [
         column,
       ],
+    );
 
     Widget result = content;
 
