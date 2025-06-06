@@ -23,6 +23,24 @@ class _ActionDialogState extends State<ActionDialog> {
   String _selectedAction = 'check';
   double _currentAmount = 0;
 
+  Widget _buildSizingButton(String label, int amount) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white12,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onPressed: () {
+        setState(() {
+          _currentAmount =
+              amount.toDouble().clamp(0, widget.stackSize.toDouble());
+        });
+      },
+      child: Text(label, style: const TextStyle(color: Colors.white)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final actions = ['fold', 'check', 'call', 'bet', 'raise'];
@@ -58,6 +76,15 @@ class _ActionDialogState extends State<ActionDialog> {
           if (_selectedAction == 'bet' ||
               _selectedAction == 'raise' ||
               _selectedAction == 'call') ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildSizingButton('1/2 Pot', (widget.pot / 2).round()),
+                _buildSizingButton('Pot', widget.pot),
+                _buildSizingButton('All-in', widget.stackSize),
+              ],
+            ),
             const SizedBox(height: 12),
             Slider(
               value: _currentAmount.clamp(0, widget.stackSize.toDouble()),
