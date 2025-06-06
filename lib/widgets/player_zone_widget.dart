@@ -29,6 +29,15 @@ class PlayerZoneWidget extends StatelessWidget {
     this.actionTagText,
   }) : super(key: key);
 
+  static const TextStyle _captionStyle = TextStyle(
+    color: Colors.white70,
+    fontSize: 12,
+    fontWeight: FontWeight.bold,
+  );
+
+  static const TextStyle _tagStyle =
+      TextStyle(color: Colors.white, fontSize: 12);
+
   @override
   Widget build(BuildContext context) {
     final column = Column(
@@ -56,11 +65,7 @@ class PlayerZoneWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4.0),
                 child: Text(
                   position!,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: _captionStyle,
                 ),
               ),
             if (showHint)
@@ -77,21 +82,6 @@ class PlayerZoneWidget extends StatelessWidget {
               ),
           ],
         ),
-        if (actionTagText != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                actionTagText!,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ),
         const SizedBox(height: 4),
         GestureDetector(
           onTap: () async {
@@ -139,6 +129,22 @@ class PlayerZoneWidget extends StatelessWidget {
             ),
           ),
         ),
+        if (actionTagText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                actionTagText!,
+                style: _tagStyle,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
       ],
     );
 
