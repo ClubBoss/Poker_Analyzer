@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 class ChipWidget extends StatelessWidget {
   final int amount;
   final String chipType; // "bet" or "stack"
+  final double scale;
 
-  const ChipWidget({Key? key, required this.amount, this.chipType = 'stack'})
-      : super(key: key);
+  const ChipWidget({
+    Key? key,
+    required this.amount,
+    this.chipType = 'stack',
+    this.scale = 1.0,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +25,8 @@ class ChipWidget extends StatelessWidget {
     );
 
     return Container(
-      width: 40,
-      height: 40,
+      width: 40 * scale,
+      height: 40 * scale,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
@@ -35,9 +40,9 @@ class ChipWidget extends StatelessWidget {
       ),
       child: Text(
         '\$${amount}',
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 13,
+          fontSize: 13 * scale,
           fontWeight: FontWeight.bold,
         ),
       ),
