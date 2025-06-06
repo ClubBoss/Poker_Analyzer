@@ -347,9 +347,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                            ],
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2.0),
+                                child: Text(
+                                  'Stack: \$${stackSizes[index] ?? 0}',
+                                  style: TextStyle(
+                                    color: isFolded ? Colors.white38 : Colors.white,
+                                    fontSize: 11,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              ],
+                            ),
                           ),
-                        ),
                       ),
                       if (lastAction != null)
                         Positioned(

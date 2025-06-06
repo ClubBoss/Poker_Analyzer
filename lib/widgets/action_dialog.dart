@@ -6,6 +6,7 @@ class ActionDialog extends StatefulWidget {
   final int street;
   final int pot;
   final int stackSize;
+
   const ActionDialog({
     Key? key,
     required this.playerIndex,
@@ -15,128 +16,60 @@ class ActionDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ActionDialogState createState() => _ActionDialogState();
+  State<ActionDialog> createState() => _ActionDialogState();
 }
 
 class _ActionDialogState extends State<ActionDialog> {
-  String selectedAction = 'Check';
-  final TextEditingController _amountController = TextEditingController();
-  bool _useBB = true;
-  double _sliderValue = 1;
-
-  @override
-  void initState() {
-    super.initState();
-    _amountController.text = _sliderValue.round().toString();
-  }
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    super.dispose();
-  }
-
-  void _setValueFromChips(int chips) {
-    final value = _useBB ? chips / 20 : chips.toDouble();
-    setState(() {
-      _sliderValue = value.clamp(1, 100).toDouble();
-      _amountController.text = _sliderValue.round().toString();
-    });
-  }
-
-  int _currentAmountInChips() {
-    final val = int.tryParse(_amountController.text) ?? 0;
-    return _useBB ? val * 20 : val;
-  }
-
-  void _toggleUnit(bool useBB) {
-    if (_useBB == useBB) return;
-    final chips = _currentAmountInChips();
-    setState(() {
-      _useBB = useBB;
-      _sliderValue = (_useBB ? chips / 20 : chips.toDouble()).clamp(1, 100).toDouble();
-      _amountController.text = _sliderValue.round().toString();
-    });
-  }
+  String _selectedAction = 'check';
+  double _currentAmount = 0;
 
   @override
   Widget build(BuildContext context) {
+    final actions = ['fold', 'check', 'call', 'bet', 'raise'];
+
     return AlertDialog(
-      title: Text('Выберите действие для игрока ${widget.playerIndex + 1}'),
+      backgroundColor: Colors.black87,
+      title: Text(
+        'Выберите действие для игрока ${widget.playerIndex + 1}',
+        style: const TextStyle(color: Colors.white),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           DropdownButton<String>(
-            value: selectedAction,
-            items: ['Fold', 'Check', 'Call', 'Bet', 'Raise']
-                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            value: _selectedAction,
+            dropdownColor: Colors.black87,
+            style: const TextStyle(color: Colors.white),
+            iconEnabledColor: Colors.white,
+            items: actions
+                .map(
+                  (e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e, style: const TextStyle(color: Colors.white)),
+                  ),
+                )
                 .toList(),
-            onChanged: (value) {
-              if (value != null) {
-                setState(() => selectedAction = value);
+            onChanged: (val) {
+              if (val != null) {
+                setState(() => _selectedAction = val);
               }
             },
           ),
-          if (selectedAction == 'Bet' || selectedAction == 'Raise') ...[
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _setValueFromChips((widget.pot / 2).round()),
-                  child: const Text('1/2 пота'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _setValueFromChips(widget.pot),
-                  child: const Text('Пот'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _setValueFromChips(widget.stackSize),
-                  child: const Text('Олл-ин'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            ToggleButtons(
-              isSelected: [_useBB, !_useBB],
-              onPressed: (i) => _toggleUnit(i == 0),
-              borderRadius: BorderRadius.circular(8),
-              children: const [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: Text('BB'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: Text('Фишки'),
-                ),
-              ],
-            ),
+          if (_selectedAction == 'bet' ||
+              _selectedAction == 'raise' ||
+              _selectedAction == 'call') ...[
+            const SizedBox(height: 12),
             Slider(
-              value: _sliderValue,
-              min: 1,
-              max: 100,
-              divisions: 99,
-              label: _sliderValue.round().toString(),
-              onChanged: (val) {
-                setState(() {
-                  _sliderValue = val;
-                  _amountController.text = val.round().toString();
-                });
-              },
+              value: _currentAmount.clamp(0, widget.stackSize.toDouble()),
+              min: 0,
+              max: widget.stackSize.toDouble(),
+              divisions: widget.stackSize > 0 ? widget.stackSize : 1,
+              label: _currentAmount.round().toString(),
+              onChanged: (val) => setState(() => _currentAmount = val),
             ),
-            TextField(
-              controller: _amountController,
-              decoration: InputDecoration(
-                labelText: _useBB ? 'Сумма в BB' : 'Сумма в фишках',
-              ),
-              keyboardType: TextInputType.number,
-              onChanged: (val) {
-                final v = int.tryParse(val);
-                if (v != null) {
-                  setState(() => _sliderValue = v.clamp(1, 100).toDouble());
-                }
-              },
+            Text(
+              _currentAmount.round().toString(),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ],
@@ -149,15 +82,17 @@ class _ActionDialogState extends State<ActionDialog> {
         ElevatedButton(
           onPressed: () {
             int? amount;
-            if (selectedAction == 'Bet' || selectedAction == 'Raise') {
-              amount = _currentAmountInChips();
+            if (_selectedAction == 'bet' ||
+                _selectedAction == 'raise' ||
+                _selectedAction == 'call') {
+              amount = _currentAmount.round();
             }
             Navigator.pop(
               context,
               ActionEntry(
                 widget.street,
                 widget.playerIndex,
-                selectedAction.toLowerCase(),
+                _selectedAction,
                 amount,
               ),
             );
