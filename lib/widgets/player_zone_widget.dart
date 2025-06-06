@@ -40,37 +40,53 @@ class PlayerZoneWidget extends StatelessWidget {
       fontSize: 14 * scale,
     );
     final captionStyle = TextStyle(
-      color: Colors.white70,
+      color: _getPositionColor(position),
       fontSize: 12 * scale,
       fontWeight: FontWeight.bold,
     );
     final tagStyle = TextStyle(color: Colors.white, fontSize: 12 * scale);
 
-    final label = Container(
-      padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
-      decoration: BoxDecoration(
-        color: isHero ? Colors.orange : Colors.black54,
-        borderRadius: BorderRadius.circular(12 * scale),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            isHero ? "$playerName (Hero)" : playerName,
-            style: nameStyle,
-            textAlign: TextAlign.center,
-          ),
-          if (position != null)
-            Padding(
-              padding: EdgeInsets.only(top: 2.0 * scale),
-              child: Text(
-                position!,
-                style: captionStyle,
-                textAlign: TextAlign.center,
-              ),
+    final label = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 100 * scale),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(12 * scale),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  playerName,
+                  style: nameStyle,
+                ),
+                if (isHero)
+                  Padding(
+                    padding: EdgeInsets.only(left: 4.0 * scale),
+                    child: Icon(
+                      Icons.star,
+                      color: Colors.orangeAccent,
+                      size: 14 * scale,
+                    ),
+                  ),
+              ],
             ),
-        ],
+            if (position != null)
+              Padding(
+                padding: EdgeInsets.only(top: 2.0 * scale),
+                child: Text(
+                  position!,
+                  style: captionStyle,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+          ],
+        ),
       ),
     );
 
@@ -78,19 +94,26 @@ class PlayerZoneWidget extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         label,
-        if (showHint)
-          Positioned(
-            top: -4 * scale,
-            right: -4 * scale,
-            child: Tooltip(
-              message: 'Нажмите, чтобы ввести действие',
-              child: Icon(
-                Icons.edit,
-                size: 16 * scale,
-                color: Colors.white,
+        Positioned(
+          top: -4 * scale,
+          right: -4 * scale,
+          child: AnimatedOpacity(
+            opacity: showHint ? 1 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: AnimatedScale(
+              scale: showHint ? 1.0 : 0.8,
+              duration: const Duration(milliseconds: 200),
+              child: Tooltip(
+                message: 'Нажмите, чтобы ввести действие',
+                child: Icon(
+                  Icons.edit,
+                  size: 16 * scale,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
+        ),
       ],
     );
 
@@ -169,16 +192,6 @@ class PlayerZoneWidget extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         column,
-        if (isHero)
-          Positioned(
-            right: -4 * scale,
-            top: -4 * scale,
-            child: Icon(
-              Icons.star,
-              color: Colors.orangeAccent,
-              size: 12 * scale,
-            ),
-          ),
       ],
     );
 
@@ -212,5 +225,17 @@ class PlayerZoneWidget extends StatelessWidget {
     );
 
     return result;
+  }
+
+  Color _getPositionColor(String? position) {
+    switch (position) {
+      case 'BTN':
+        return Colors.amber;
+      case 'SB':
+      case 'BB':
+        return Colors.blueAccent;
+      default:
+        return Colors.white70;
+    }
   }
 }
