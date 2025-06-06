@@ -208,11 +208,11 @@ class PlayerZoneWidget extends StatelessWidget {
       padding: const EdgeInsets.all(2),
       decoration: isActive
           ? BoxDecoration(
-              border: Border.all(color: Colors.amberAccent, width: 2),
+              border: Border.all(color: Colors.blueAccent, width: 3),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.amberAccent.withOpacity(0.6),
+                  color: Colors.blueAccent.withOpacity(0.6),
                   blurRadius: 8,
                 )
               ],
