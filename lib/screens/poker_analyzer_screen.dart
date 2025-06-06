@@ -300,6 +300,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         top: centerY + dy - 55,
                         child: GestureDetector(
                           onTap: () async {
+                            setState(() {
+                              activePlayerIndex = index;
+                            });
                             final result = await showDialog<ActionEntry>(
                               context: context,
                               builder: (context) => ActionDialog(
@@ -312,6 +315,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             if (result != null) {
                               onActionSelected(result);
                             }
+                            setState(() {
+                              if (activePlayerIndex == index) {
+                                activePlayerIndex = null;
+                              }
+                            });
                           },
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
