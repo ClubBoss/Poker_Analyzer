@@ -361,7 +361,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - 120;
+    final centerY =
+        (numberOfPlayers > 6 ? screenSize.height / 2 - 160 : screenSize.height / 2 - 120);
     final radiusX = (tableWidth / 2 - 50) * scale;
     final radiusY = (tableHeight / 2 + 100) * scale;
     return Scaffold(
@@ -399,8 +400,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             ),
             Expanded(
               flex: 7,
-              child: Stack(
-                children: [
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 40.0),
+                child: Stack(
+                  children: [
                   Center(
                     child: Image.asset(
                       'assets/table.png',
@@ -589,6 +592,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                 ],
               ),
             ),
+          ),
             StreetActionsWidget(
               currentStreet: currentStreet,
               onStreetChanged: (index) {
