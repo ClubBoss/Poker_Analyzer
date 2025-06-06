@@ -12,7 +12,6 @@ class PlayerZoneWidget extends StatelessWidget {
   final bool isActive;
   final bool showHint;
   final String? actionTagText;
-  final int? chipAmount;
   final int? stackSize;
   final Function(CardModel) onCardsSelected;
 
@@ -27,7 +26,6 @@ class PlayerZoneWidget extends StatelessWidget {
     this.isActive = false,
     this.showHint = false,
     this.actionTagText,
-    this.chipAmount,
     this.stackSize,
   }) : super(key: key);
 
@@ -159,38 +157,7 @@ class PlayerZoneWidget extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         column,
-        Positioned(
-          bottom: -20,
-          left: 0,
-          right: 0,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: chipAmount != null
-                ? Container(
-                    key: ValueKey(chipAmount),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.shade700,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
-                          blurRadius: 4,
-                        )
-                      ],
-                    ),
-                    child: Text(
-                      '$chipAmount',
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ),
       ],
-    );
 
     Widget result = content;
 
