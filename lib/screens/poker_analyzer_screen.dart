@@ -513,6 +513,43 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         : 'stack';
 
                     return [
+                      // action arrow behind player widgets
+                      Positioned(
+                        left: centerX + dx,
+                        top: centerY + dy + bias + 12,
+                        child: IgnorePointer(
+                          child: AnimatedOpacity(
+                            opacity: (lastStreetAction != null &&
+                                    lastStreetAction!.playerIndex == index &&
+                                    (lastStreetAction!.action == 'bet' ||
+                                        lastStreetAction!.action == 'raise' ||
+                                        lastStreetAction!.action == 'call'))
+                                ? 1.0
+                                : 0.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: Transform.rotate(
+                              angle: atan2(
+                                  centerY - (centerY + dy + bias + 12),
+                                  centerX - (centerX + dx)),
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                width: sqrt(pow(centerX - (centerX + dx), 2) +
+                                    pow(centerY - (centerY + dy + bias + 12), 2)),
+                                height: 1,
+                                decoration: BoxDecoration(
+                                  color: Colors.orangeAccent.withOpacity(0.9),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.orangeAccent.withOpacity(0.6),
+                                      blurRadius: 4,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                       Positioned(
                         left: centerX + dx - 55 * scale,
                         top: centerY + dy + bias - 55 * scale,
@@ -641,31 +678,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               key: ValueKey(invested),
                               amount: invested,
                               chipType: chipType,
-                            ),
-                          ),
-                        ),
-                      if (lastStreetAction != null &&
-                          lastStreetAction!.playerIndex == index &&
-                          (lastStreetAction!.action == 'bet' ||
-                              lastStreetAction!.action == 'raise' ||
-                              lastStreetAction!.action == 'call'))
-                        Positioned(
-                          left: centerX + dx,
-                          top: centerY + dy + bias,
-                          child: AnimatedOpacity(
-                            opacity: 1.0,
-                            duration: const Duration(milliseconds: 300),
-                            child: Transform.rotate(
-                              angle: atan2(centerY - (centerY + dy + bias),
-                                  centerX - (centerX + dx)),
-                              alignment: Alignment.topLeft,
-                              child: Container(
-                                width: sqrt(pow(centerX - (centerX + dx), 2) +
-                                    pow(centerY - (centerY + dy + bias), 2)),
-                                height: 2,
-                                color:
-                                    Colors.orangeAccent.withOpacity(0.7),
-                              ),
                             ),
                           ),
                         ),
