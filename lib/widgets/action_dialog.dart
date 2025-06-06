@@ -46,14 +46,17 @@ class _ActionDialogState extends State<ActionDialog> {
 
   Widget _actionButton(String label, String action) {
     final bool active = _selectedAction == action;
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: active ? Colors.blueGrey : Colors.white12,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+    return SizedBox(
+      width: 110,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: active ? Colors.blueGrey : Colors.white12,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+        ),
+        onPressed: () => _onActionPressed(action),
+        child: Text(label, style: const TextStyle(fontSize: 18)),
       ),
-      onPressed: () => _onActionPressed(action),
-      child: Text(label,
-          style: const TextStyle(color: Colors.white, fontSize: 18)),
     );
   }
 
@@ -67,7 +70,7 @@ class _ActionDialogState extends State<ActionDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.black87,
+      backgroundColor: Colors.black,
       titlePadding: const EdgeInsets.only(left: 24, right: 8, top: 20, bottom: 8),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -89,8 +92,8 @@ class _ActionDialogState extends State<ActionDialog> {
         children: [
           Wrap(
             alignment: WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 12,
+            runSpacing: 12,
             children: [
               _actionButton('Fold', 'fold'),
               _actionButton('Check', 'check'),
@@ -101,7 +104,7 @@ class _ActionDialogState extends State<ActionDialog> {
           ),
           if (_selectedAction == 'bet' || _selectedAction == 'raise')
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.all(16),
               child: BetSizer(
                 pot: widget.pot,
                 stackSize: widget.stackSize,
