@@ -27,7 +27,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
   final List<int> _pots = List.filled(4, 0);
-  final Map<int, int> _streetInvestments = {};
+  final Map<int, Map<int, int>> _streetInvestments = {};
   final Map<int, int> stackSizes = {
     0: 120,
     1: 80,
@@ -181,12 +181,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
   void _recalculateStreetInvestments() {
     _streetInvestments.clear();
-    for (final a in actions.where((a) => a.street == currentStreet)) {
+    for (final a in actions) {
       if (a.action == 'call' || a.action == 'bet' || a.action == 'raise') {
-        _streetInvestments[a.playerIndex] =
-            (_streetInvestments[a.playerIndex] ?? 0) + (a.amount ?? 0);
+        final streetMap = _streetInvestments.putIfAbsent(a.street, () => {});
+        streetMap[a.playerIndex] =
+            (streetMap[a.playerIndex] ?? 0) + (a.amount ?? 0);
       } else if (a.action == 'fold') {
-        _streetInvestments.remove(a.playerIndex);
+        _streetInvestments[a.street]?.remove(a.playerIndex);
       }
     }
   }
@@ -565,11 +566,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                           ),
                         ),
-                      if (_streetInvestments[index] != null &&
-                          _streetInvestments[index]! > 0)
+                      final invested =
+                          _streetInvestments[currentStreet]?[index] ?? 0;
+                      if (invested > 0)
                         Positioned(
                           left: centerX + dx - 20,
-                          top: centerY + dy + 100,
+                          top: centerY + dy + 90,
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             transitionBuilder: (child, animation) => ScaleTransition(
@@ -581,9 +583,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                             child: ChipWidget(
                               scale: scale,
-                              key: ValueKey(_streetInvestments[index]),
-                              amount: _streetInvestments[index]!,
-                              chipType: 'bet',
+                              key: ValueKey(invested),
+                              amount: invested,
+                              chipType: 'stack',
                             ),
                           ),
                         ),
