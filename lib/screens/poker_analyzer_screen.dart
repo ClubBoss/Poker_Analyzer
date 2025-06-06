@@ -371,17 +371,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       top: centerY - 10,
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (child, animation) =>
-                            SlideTransition(
-                          position: Tween<Offset>(
-                                  begin: const Offset(0, 0.2), end: Offset.zero)
-                              .animate(animation),
+                        transitionBuilder: (child, animation) => ScaleTransition(
+                          scale: animation,
                           child: FadeTransition(opacity: animation, child: child),
                         ),
                         child: ChipWidget(
                           key: ValueKey(_pots[currentStreet]),
                           amount: _pots[currentStreet],
-                          chipType: 'bet',
+                          chipType: 'stack',
                         ),
                       ),
                     ),
