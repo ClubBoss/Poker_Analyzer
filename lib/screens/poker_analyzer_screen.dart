@@ -631,6 +631,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
               child: const Text('Сбросить раздачу'),
             ),
           ],
+          ),
         ),
       ),
     );
