@@ -25,9 +25,12 @@ class _BetSizerState extends State<BetSizer> {
   Widget _quickButton(String label, double fraction) {
     final int amount = (widget.pot * fraction).round().clamp(0, widget.stackSize);
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.white12),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.grey[850],
+        foregroundColor: Colors.white,
+      ),
       onPressed: () => widget.onSelected(amount),
-      child: Text(label, style: const TextStyle(color: Colors.white)),
+      child: Text(label),
     );
   }
 
@@ -63,10 +66,10 @@ class _BetSizerState extends State<BetSizer> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _quickButton('33% Pot', 0.33),
-            _quickButton('50% Pot', 0.5),
-            _quickButton('75% Pot', 0.75),
-            _quickButton('100% Pot', 1.0),
+            _quickButton('⅓ Pot', 0.33),
+            _quickButton('½ Pot', 0.5),
+            _quickButton('¾ Pot', 0.75),
+            _quickButton('Pot', 1.0),
           ],
         ),
         const SizedBox(height: 12),

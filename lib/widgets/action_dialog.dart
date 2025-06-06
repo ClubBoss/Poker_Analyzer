@@ -44,18 +44,28 @@ class _ActionDialogState extends State<ActionDialog> {
     }
   }
 
-  Widget _actionButton(String label, String action) {
+  Widget _actionButton(String label, String action, IconData icon) {
     final bool active = _selectedAction == action;
-    return SizedBox(
-      width: 110,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: active ? Colors.blueGrey : Colors.white12,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 18),
+    final double scale = active ? 1.05 : 1.0;
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
+      opacity: active || _selectedAction == null ? 1.0 : 0.6,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        transform: Matrix4.identity()..scale(scale),
+        child: SizedBox(
+          width: 110,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: active ? Colors.blueGrey : Colors.grey[850],
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+            ),
+            onPressed: () => _onActionPressed(action),
+            icon: Icon(icon),
+            label: Text(label, style: const TextStyle(fontSize: 19)),
+          ),
         ),
-        onPressed: () => _onActionPressed(action),
-        child: Text(label, style: const TextStyle(fontSize: 18)),
       ),
     );
   }
@@ -95,11 +105,11 @@ class _ActionDialogState extends State<ActionDialog> {
             spacing: 12,
             runSpacing: 12,
             children: [
-              _actionButton('Fold', 'fold'),
-              _actionButton('Check', 'check'),
-              _actionButton('Call', 'call'),
-              _actionButton('Bet', 'bet'),
-              _actionButton('Raise', 'raise'),
+              _actionButton('Fold', 'fold', Icons.close),
+              _actionButton('Check', 'check', Icons.remove),
+              _actionButton('Call', 'call', Icons.call),
+              _actionButton('Bet', 'bet', Icons.south),
+              _actionButton('Raise', 'raise', Icons.north),
             ],
           ),
           if (_selectedAction == 'bet' || _selectedAction == 'raise')
