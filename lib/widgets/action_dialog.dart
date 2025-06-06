@@ -6,6 +6,8 @@ class ActionDialog extends StatefulWidget {
   final int street;
   final int pot;
   final int stackSize;
+  final String? initialAction;
+  final int? initialAmount;
 
   const ActionDialog({
     Key? key,
@@ -13,6 +15,8 @@ class ActionDialog extends StatefulWidget {
     required this.street,
     required this.pot,
     required this.stackSize,
+    this.initialAction,
+    this.initialAmount,
   }) : super(key: key);
 
   @override
@@ -20,8 +24,15 @@ class ActionDialog extends StatefulWidget {
 }
 
 class _ActionDialogState extends State<ActionDialog> {
-  String _selectedAction = 'check';
-  double _currentAmount = 0;
+  late String _selectedAction;
+  late double _currentAmount;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedAction = widget.initialAction ?? 'check';
+    _currentAmount = (widget.initialAmount ?? 0).toDouble();
+  }
 
   Widget _buildSizingButton(String label, int amount) {
     return ElevatedButton(
