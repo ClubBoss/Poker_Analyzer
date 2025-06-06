@@ -46,45 +46,59 @@ class PlayerZoneWidget extends StatelessWidget {
     );
     final tagStyle = TextStyle(color: Colors.white, fontSize: 12 * scale);
 
-    final column = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
-              decoration: BoxDecoration(
-                color: isHero ? Colors.orange : Colors.black54,
-                borderRadius: BorderRadius.circular(12 * scale),
-              ),
+    final label = Container(
+      padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
+      decoration: BoxDecoration(
+        color: isHero ? Colors.orange : Colors.black54,
+        borderRadius: BorderRadius.circular(12 * scale),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            isHero ? "$playerName (Hero)" : playerName,
+            style: nameStyle,
+            textAlign: TextAlign.center,
+          ),
+          if (position != null)
+            Padding(
+              padding: EdgeInsets.only(top: 2.0 * scale),
               child: Text(
-                isHero ? "$playerName (Hero)" : playerName,
-                style: nameStyle,
+                position!,
+                style: captionStyle,
+                textAlign: TextAlign.center,
               ),
             ),
-            if (position != null)
-              Padding(
-                padding: EdgeInsets.only(left: 4.0 * scale),
-                child: Text(
-                  position!,
-                  style: captionStyle,
-                ),
+        ],
+      ),
+    );
+
+    final labelWithIcon = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        label,
+        if (showHint)
+          Positioned(
+            top: -4 * scale,
+            right: -4 * scale,
+            child: Tooltip(
+              message: 'Нажмите, чтобы ввести действие',
+              child: Icon(
+                Icons.edit,
+                size: 16 * scale,
+                color: Colors.white,
               ),
-            if (showHint)
-              Padding(
-                padding: EdgeInsets.only(left: 4.0 * scale),
-                child: Tooltip(
-                  message: 'Нажмите, чтобы ввести действие',
-                  child: Icon(
-                    Icons.edit,
-                    size: 16 * scale,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-          ],
-        ),
+            ),
+          ),
+      ],
+    );
+
+    final column = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        labelWithIcon,
         SizedBox(height: 4 * scale),
         GestureDetector(
           onTap: () async {
