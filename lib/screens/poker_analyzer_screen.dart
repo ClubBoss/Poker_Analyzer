@@ -370,6 +370,37 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                           ),
                         ),
+                      if (lastAction != null &&
+                          (lastAction!.action == 'bet' ||
+                              lastAction!.action == 'raise' ||
+                              lastAction!.action == 'call') &&
+                          lastAction!.amount != null)
+                        Positioned(
+                          left: centerX + dx - 20,
+                          top: centerY + dy + 80,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black54,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                )
+                              ],
+                            ),
+                            child: Text(
+                              '${lastAction!.amount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
                       if (_streetInvestments[index] != null &&
                           _streetInvestments[index]! > 0)
                         Positioned(
