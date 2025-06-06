@@ -8,6 +8,7 @@ import '../widgets/street_actions_widget.dart';
 import '../widgets/board_cards_widget.dart';
 import '../widgets/action_dialog.dart';
 import '../widgets/chip_widget.dart';
+import '../widgets/street_actions_list.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -191,9 +192,76 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   void onActionSelected(ActionEntry entry) {
     setState(() {
       actions.add(entry);
-      _pots[currentStreet] = _calculatePotForStreet(currentStreet);
+      _recalculatePots();
       _recalculateStreetInvestments();
     });
+  }
+
+  Future<void> _editAction(int index) async {
+    final action = actions[index];
+    final result = await showDialog<ActionEntry>(
+      context: context,
+      builder: (context) => ActionDialog(
+        playerIndex: action.playerIndex,
+        street: action.street,
+        pot: _pots[action.street],
+        stackSize: stackSizes[action.playerIndex] ?? 0,
+        initialAction: action.action,
+        initialAmount: action.amount,
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        actions[index] = result;
+        _recalculatePots();
+        _recalculateStreetInvestments();
+      });
+    }
+  }
+
+  void _deleteAction(int index) {
+    setState(() {
+      actions.removeAt(index);
+      _recalculatePots();
+      _recalculateStreetInvestments();
+    });
+  }
+
+  Future<void> _resetHand() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Сбросить раздачу?'),
+        content: const Text('Все введённые данные будут удалены.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Сбросить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      setState(() {
+        for (final list in playerCards) {
+          list.clear();
+        }
+        boardCards.clear();
+        actions.clear();
+        currentStreet = 0;
+        _pots.fillRange(0, _pots.length, 0);
+        _streetInvestments.clear();
+        _actionTags.clear();
+        _firstActionTaken.clear();
+        for (int i = 0; i < _showActionHints.length; i++) {
+          _showActionHints[i] = true;
+        }
+      });
+    }
   }
 
 
@@ -420,6 +488,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: StreetActionsList(
+                street: currentStreet,
+                actions: actions,
+                onEdit: _editAction,
+                onDelete: _deleteAction,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextField(
                 controller: _commentController,
                 style: const TextStyle(color: Colors.white),
@@ -429,6 +506,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
               ),
             ),
             const SizedBox(height: 10),
+            TextButton(
+              onPressed: _resetHand,
+              child: const Text('Сбросить раздачу'),
+            ),
           ],
         ),
       ),

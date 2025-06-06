@@ -5,11 +5,15 @@ import '../models/action_entry.dart';
 class StreetActionsList extends StatelessWidget {
   final int street;
   final List<ActionEntry> actions;
+  final void Function(int) onEdit;
+  final void Function(int) onDelete;
 
   const StreetActionsList({
     super.key,
     required this.street,
     required this.actions,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -37,6 +41,7 @@ class StreetActionsList extends StatelessWidget {
               itemCount: streetActions.length,
               itemBuilder: (context, index) {
                 final a = streetActions[index];
+                final globalIndex = actions.indexOf(a);
                 final amountStr = a.amount != null ? ' ${a.amount}' : '';
                 Color color;
                 switch (a.action) {
@@ -55,9 +60,18 @@ class StreetActionsList extends StatelessWidget {
                   default:
                     color = Colors.white;
                 }
-                return Text(
-                  'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr',
-                  style: TextStyle(color: color),
+                return ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr',
+                    style: TextStyle(color: color),
+                  ),
+                  onTap: () => onEdit(globalIndex),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => onDelete(globalIndex),
+                  ),
                 );
               },
             ),
