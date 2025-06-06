@@ -516,7 +516,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       if (lastAction != null)
                         Positioned(
                           left: centerX + dx - 30,
-                          top: centerY + dy + 50,
+                          top: centerY + dy + 60,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -538,7 +538,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           lastAction!.amount != null)
                         Positioned(
                           left: centerX + dx - 20,
-                          top: centerY + dy + 70,
+                          top: centerY + dy + 85,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
