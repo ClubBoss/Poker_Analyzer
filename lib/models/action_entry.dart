@@ -11,7 +11,12 @@ class ActionEntry {
   /// Размер ставки в фишках, если применимо
   final int? amount;
 
+  /// Флаг, указывающий, что запись сгенерирована автоматически
+  final bool generated;
+
   /// Создает запись о действии игрока на определенной улице.
   /// [amount] заполняется только для действий bet, raise или call.
-  ActionEntry(this.street, this.playerIndex, this.action, [this.amount]);
+  /// [generated] помечает автоматически добавленные действия.
+  ActionEntry(this.street, this.playerIndex, this.action,
+      {this.amount, this.generated = false});
 }

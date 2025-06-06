@@ -37,7 +37,8 @@ class _ActionDialogState extends State<ActionDialog> {
     if (action == 'fold' || action == 'check' || action == 'call') {
       Navigator.pop(
         context,
-        ActionEntry(widget.street, widget.playerIndex, action, null),
+        ActionEntry(widget.street, widget.playerIndex, action,
+            amount: null),
       );
     } else {
       setState(() => _selectedAction = action);
@@ -73,7 +74,8 @@ class _ActionDialogState extends State<ActionDialog> {
   void _onBetSelected(int amount) {
     Navigator.pop(
       context,
-      ActionEntry(widget.street, widget.playerIndex, _selectedAction!, amount),
+      ActionEntry(widget.street, widget.playerIndex, _selectedAction!,
+          amount: amount),
     );
   }
 
