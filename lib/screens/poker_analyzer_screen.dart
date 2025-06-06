@@ -487,6 +487,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       }
                     }
 
+                    final invested =
+                        _streetInvestments[currentStreet]?[index] ?? 0;
+                    final chipType = (lastAction != null &&
+                            (lastAction!.action == 'bet' ||
+                                lastAction!.action == 'raise' ||
+                                lastAction!.action == 'call'))
+                        ? lastAction!.action
+                        : 'stack';
+
                     return [
                       Positioned(
                         left: centerX + dx - 55,
@@ -598,12 +607,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                           ),
                         ),
-                      final invested =
-                          _streetInvestments[currentStreet]?[index] ?? 0;
                       if (invested > 0)
                         Positioned(
                           left: centerX + dx - 20,
-                          top: centerY + dy + 90,
+                          top: centerY + dy + 92,
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             transitionBuilder: (child, animation) => ScaleTransition(
@@ -617,7 +624,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               scale: scale,
                               key: ValueKey(invested),
                               amount: invested,
-                              chipType: 'stack',
+                              chipType: chipType,
                             ),
                           ),
                         ),
