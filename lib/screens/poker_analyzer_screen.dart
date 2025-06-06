@@ -323,7 +323,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                 isActive: index == activePlayerIndex,
                                 showHint: _showActionHints[index],
                                 actionTagText: actionTag,
-                                stackSize: stackSizes[index],
                                 onCardsSelected: (card) => selectCard(index, card),
                               ),
                               if (playerPositions[index] != null)
@@ -340,14 +339,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                 ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 2.0),
-                                child: Text(
-                                  'Stack: \$${stackSizes[index] ?? 0}',
-                                  style: TextStyle(
-                                    color: isFolded ? Colors.white38 : Colors.white,
-                                    fontSize: 11,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
+                                child: ChipWidget(amount: stackSizes[index] ?? 0),
                               ),
                               ],
                             ),
