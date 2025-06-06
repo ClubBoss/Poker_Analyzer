@@ -381,6 +381,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         child: ChipWidget(
                           key: ValueKey(_pots[currentStreet]),
                           amount: _pots[currentStreet],
+                          chipType: 'bet',
                         ),
                       ),
                     ),
@@ -438,6 +439,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             children: [
                               PlayerZoneWidget(
                                 playerName: 'Player ${index + 1}',
+                                position: playerPositions[index],
                                 cards: playerCards[index],
                                 isHero: index == heroIndex,
                                 isFolded: isFolded,
@@ -448,21 +450,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                 actionTagText: actionTag,
                                 onCardsSelected: (card) => selectCard(index, card),
                               ),
-                              if (playerPositions[index] != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 2.0),
-                                  child: Text(
-                                    playerPositions[index]!,
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 11,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                transitionBuilder: (child, animation) => ScaleTransition(
+                                  scale: animation,
+                                  child: FadeTransition(opacity: animation, child: child),
                                 ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2.0),
-                                child: ChipWidget(amount: stackSizes[index] ?? 0),
+                                child: ChipWidget(
+                                  key: ValueKey(stackSizes[index] ?? 0),
+                                  amount: stackSizes[index] ?? 0,
+                                  chipType: 'stack',
+                                ),
                               ),
                               ],
                             ),
@@ -471,7 +469,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       if (lastAction != null)
                         Positioned(
                           left: centerX + dx - 30,
-                          top: centerY + dy + 60,
+                          top: centerY + dy + 50,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -481,8 +479,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                             child: Text(
                               '${lastAction!.action}${lastAction!.amount != null ? ' ${lastAction!.amount}' : ''}',
-                              style:
-                                  const TextStyle(color: Colors.white, fontSize: 12),
+                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
@@ -493,7 +491,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           lastAction!.amount != null)
                         Positioned(
                           left: centerX + dx - 20,
-                          top: centerY + dy + 80,
+                          top: centerY + dy + 70,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -521,14 +519,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           _streetInvestments[index]! > 0)
                         Positioned(
                           left: centerX + dx - 20,
-                          top: centerY + dy + 110,
+                          top: centerY + dy + 100,
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, animation) => SlideTransition(
-                              position: Tween<Offset>(
-                                      begin: const Offset(0, 0.2),
-                                      end: Offset.zero)
-                                  .animate(animation),
+                            transitionBuilder: (child, animation) => ScaleTransition(
+                              scale: animation,
                               child: FadeTransition(
                                 opacity: animation,
                                 child: child,
@@ -537,6 +532,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             child: ChipWidget(
                               key: ValueKey(_streetInvestments[index]),
                               amount: _streetInvestments[index]!,
+                              chipType: 'bet',
                             ),
                           ),
                         ),
