@@ -263,13 +263,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white30),
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        'Pot: ${_pots[currentStreet]}',
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        'Pot: \$${_pots[currentStreet]}',
+                        style: const TextStyle(color: Colors.white, fontSize: 15),
                       ),
                     ),
                   ),
