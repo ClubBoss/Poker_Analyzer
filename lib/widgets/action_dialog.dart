@@ -66,6 +66,7 @@ class _ActionDialogState extends State<ActionDialog> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              _buildSizingButton('1/3 Пот', (widget.pot / 3).round()),
               _buildSizingButton('1/2 Пот', (widget.pot / 2).round()),
               _buildSizingButton('Пот', widget.pot),
               _buildSizingButton('Олл-ин', widget.stackSize),
