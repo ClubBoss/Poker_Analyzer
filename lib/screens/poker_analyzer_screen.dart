@@ -42,6 +42,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   final List<bool> _showActionHints = List.filled(9, true);
   final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
+  int? lastActionPlayerIndex;
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
   Map<int, String> playerPositions = {};
@@ -192,6 +193,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   void onActionSelected(ActionEntry entry) {
     setState(() {
       actions.add(entry);
+      lastActionPlayerIndex = entry.playerIndex;
+      _actionTags[entry.playerIndex] =
+          '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
       _recalculatePots();
       _recalculateStreetInvestments();
     });
@@ -215,8 +219,41 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         actions[index] = result;
         _recalculatePots();
         _recalculateStreetInvestments();
+        if (index == actions.length - 1) {
+          lastActionPlayerIndex = result.playerIndex;
+        }
+        _actionTags[result.playerIndex] =
+            '${result.action}${result.amount != null ? ' ${result.amount}' : ''}';
       });
     }
+  }
+
+  void _showPlayerInfo(int index) {
+    final pos = playerPositions[index];
+    final cardsText = playerCards[index]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
+    final actionsText = actions
+        .where((a) => a.playerIndex == index)
+        .map((a) =>
+            '${['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][a.street]}: ${a.action}${a.amount != null ? ' ${a.amount}' : ''}')
+        .join('\n');
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Player ${index + 1}'),
+        content: Text('Стек: ${stackSizes[index] ?? 0}\n'
+            'Позиция: ${pos ?? '-'}\n'
+            'Карты: $cardsText\n\n'
+            'Действия:\n$actionsText'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _deleteAction(int index) {
@@ -224,6 +261,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       actions.removeAt(index);
       _recalculatePots();
       _recalculateStreetInvestments();
+      lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
     });
   }
 
@@ -257,6 +295,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         _streetInvestments.clear();
         _actionTags.clear();
         _firstActionTaken.clear();
+        lastActionPlayerIndex = null;
         for (int i = 0; i < _showActionHints.length; i++) {
           _showActionHints[i] = true;
         }
@@ -330,7 +369,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     Positioned(
                       left: centerX - 20,
                       top: centerY - 10,
-                      child: ChipWidget(amount: _pots[currentStreet]),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) =>
+                            SlideTransition(
+                          position: Tween<Offset>(
+                                  begin: const Offset(0, 0.2), end: Offset.zero)
+                              .animate(animation),
+                          child: FadeTransition(opacity: animation, child: child),
+                        ),
+                        child: ChipWidget(
+                          key: ValueKey(_pots[currentStreet]),
+                          amount: _pots[currentStreet],
+                        ),
+                      ),
                     ),
                   ...List.generate(numberOfPlayers, (i) {
                     final index = (i + heroIndex) % numberOfPlayers;
@@ -380,6 +432,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               }
                             });
                           },
+                          onLongPress: () => _showPlayerInfo(index),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -389,6 +442,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                 isHero: index == heroIndex,
                                 isFolded: isFolded,
                                 isActive: index == activePlayerIndex,
+                                highlightLastAction:
+                                    index == lastActionPlayerIndex,
                                 showHint: _showActionHints[index],
                                 actionTagText: actionTag,
                                 onCardsSelected: (card) => selectCard(index, card),
@@ -467,8 +522,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         Positioned(
                           left: centerX + dx - 20,
                           top: centerY + dy + 110,
-                          child:
-                              ChipWidget(amount: _streetInvestments[index]!),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, animation) => SlideTransition(
+                              position: Tween<Offset>(
+                                      begin: const Offset(0, 0.2),
+                                      end: Offset.zero)
+                                  .animate(animation),
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            ),
+                            child: ChipWidget(
+                              key: ValueKey(_streetInvestments[index]),
+                              amount: _streetInvestments[index]!,
+                            ),
+                          ),
                         ),
                     ];
                   }).expand((w) => w)

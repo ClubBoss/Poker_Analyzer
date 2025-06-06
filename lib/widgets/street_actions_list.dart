@@ -16,6 +16,40 @@ class StreetActionsList extends StatelessWidget {
     required this.onDelete,
   });
 
+  Widget _buildTile(ActionEntry a, int globalIndex) {
+    final amountStr = a.amount != null ? ' ${a.amount}' : '';
+    Color color;
+    switch (a.action) {
+      case 'fold':
+        color = Colors.red;
+        break;
+      case 'call':
+        color = Colors.blue;
+        break;
+      case 'raise':
+        color = Colors.green;
+        break;
+      case 'check':
+        color = Colors.grey;
+        break;
+      default:
+        color = Colors.white;
+    }
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr',
+        style: TextStyle(color: color),
+      ),
+      onTap: () => onEdit(globalIndex),
+      trailing: IconButton(
+        icon: const Icon(Icons.delete, color: Colors.red),
+        onPressed: () => onDelete(globalIndex),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final streetActions =
@@ -36,44 +70,17 @@ class StreetActionsList extends StatelessWidget {
         else
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 120),
-            child: ListView.builder(
+            child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 4),
-              itemCount: streetActions.length,
-              itemBuilder: (context, index) {
-                final a = streetActions[index];
-                final globalIndex = actions.indexOf(a);
-                final amountStr = a.amount != null ? ' ${a.amount}' : '';
-                Color color;
-                switch (a.action) {
-                  case 'fold':
-                    color = Colors.red;
-                    break;
-                  case 'call':
-                    color = Colors.blue;
-                    break;
-                  case 'raise':
-                    color = Colors.green;
-                    break;
-                  case 'check':
-                    color = Colors.grey;
-                    break;
-                  default:
-                    color = Colors.white;
-                }
-                return ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr',
-                    style: TextStyle(color: color),
-                  ),
-                  onTap: () => onEdit(globalIndex),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => onDelete(globalIndex),
-                  ),
-                );
-              },
+              children: [
+                for (int index = 0; index < streetActions.length; index++) ...[
+                  if (index > 0 &&
+                      (streetActions[index].action == 'bet' ||
+                          streetActions[index].action == 'raise'))
+                    const Divider(height: 4, color: Colors.white24),
+                  _buildTile(streetActions[index], actions.indexOf(streetActions[index])),
+                ]
+              ],
             ),
           ),
       ],

@@ -10,6 +10,7 @@ class PlayerZoneWidget extends StatelessWidget {
   final bool isHero;
   final bool isFolded;
   final bool isActive;
+  final bool highlightLastAction;
   final bool showHint;
   final String? actionTagText;
   final Function(CardModel) onCardsSelected;
@@ -23,6 +24,7 @@ class PlayerZoneWidget extends StatelessWidget {
     required this.isFolded,
     required this.onCardsSelected,
     this.isActive = false,
+    this.highlightLastAction = false,
     this.showHint = false,
     this.actionTagText,
   }) : super(key: key);
@@ -48,11 +50,23 @@ class PlayerZoneWidget extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-        ),
-        if (showHint)
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0),
-            child: Tooltip(
+            ),
+            if (position != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Text(
+                  position!,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            if (showHint)
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Tooltip(
                   message: 'Нажмите, чтобы ввести действие',
                   child: const Icon(
                     Icons.edit,
@@ -60,20 +74,9 @@ class PlayerZoneWidget extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-            ),
+              ),
           ],
         ),
-        if (position != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 2.0),
-            child: Text(
-              position!,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
-            ),
-          ),
         if (actionTagText != null)
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
@@ -160,7 +163,7 @@ class PlayerZoneWidget extends StatelessWidget {
     result = AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.all(2),
-      decoration: isActive
+      decoration: (isActive || highlightLastAction)
           ? BoxDecoration(
               border: Border.all(color: Colors.blueAccent, width: 3),
               borderRadius: BorderRadius.circular(12),
