@@ -155,6 +155,16 @@ class PlayerZoneWidget extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         column,
+        if (isHero)
+          Positioned(
+            right: -4 * scale,
+            top: -4 * scale,
+            child: Icon(
+              Icons.star,
+              color: Colors.orangeAccent,
+              size: 12 * scale,
+            ),
+          ),
       ],
     );
 
