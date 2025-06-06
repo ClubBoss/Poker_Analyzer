@@ -406,7 +406,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           _streetInvestments[index]! > 0)
                         Positioned(
                           left: centerX + dx - 20,
-                          top: centerY + dy + 85,
+                          top: centerY + dy + 110,
                           child:
                               ChipWidget(amount: _streetInvestments[index]!),
                         ),
