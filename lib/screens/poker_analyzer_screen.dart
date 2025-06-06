@@ -9,6 +9,7 @@ import '../widgets/board_cards_widget.dart';
 import '../widgets/action_dialog.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/street_actions_list.dart';
+import '../widgets/street_action_summary_bar.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -246,6 +247,44 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             'Позиция: ${pos ?? '-'}\n'
             'Карты: $cardsText\n\n'
             'Действия:\n$actionsText'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showStreetActionsDetails() {
+    final streetActions =
+        actions.where((a) => a.street == currentStreet).toList(growable: false);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.black87,
+        title: Text(
+          ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final a in streetActions)
+                ListTile(
+                  dense: true,
+                  title: Text(
+                    '${playerPositions[a.playerIndex] ?? 'Player ${a.playerIndex + 1}'} '
+                    '— ${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -548,6 +587,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   _actionTags.clear();
                 });
               },
+            ),
+            StreetActionSummaryBar(
+              street: currentStreet,
+              actions: actions,
+              playerPositions: playerPositions,
+              onActionTap: _showStreetActionsDetails,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
