@@ -86,6 +86,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     return 90 + 20 * sin(angle);
   }
 
+  String _formatAmount(int amount) {
+    final digits = amount.toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) {
+        buffer.write(' ');
+      }
+      buffer.write(digits[i]);
+    }
+    return buffer.toString();
+  }
+
   Future<void> _chooseHeroPosition() async {
     final options = _positionsForPlayers(numberOfPlayers);
     final result = await showDialog<String>(
@@ -457,7 +469,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   // Pot display in the center of the table
                   if (_pots[currentStreet] > 0)
                     Positioned(
-                      left: screenSize.width / 2 - 40,
+                      left: screenSize.width / 2 - 50,
                       top: screenSize.height / 2 - 60,
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
@@ -469,17 +481,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           key: ValueKey(_pots[currentStreet]),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.black87,
+                            color: Colors.black54,
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: const [
                               BoxShadow(color: Colors.black54, blurRadius: 4),
                             ],
                           ),
                           child: Text(
-                            'Pot: ${_pots[currentStreet]}',
-                            style: const TextStyle(
+                            'Pot: ${_formatAmount(_pots[currentStreet])}',
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 17,
+                              fontSize: 15 * scale,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -627,6 +639,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                   key: ValueKey(stackSizes[index] ?? 0),
                                   amount: stackSizes[index] ?? 0,
                                   chipType: 'stack',
+                                ),
+                              ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                transitionBuilder: (child, animation) => FadeTransition(
+                                  opacity: animation,
+                                  child: ScaleTransition(scale: animation, child: child),
+                                ),
+                                child: Text(
+                                  'Stack: ${_formatAmount(stackSizes[index] ?? 0)}',
+                                  key: ValueKey('t${stackSizes[index] ?? 0}'),
+                                  style: TextStyle(
+                                    color: isFolded ? Colors.grey : Colors.white,
+                                    fontSize: 14 * scale,
+                                  ),
                                 ),
                               ),
                               ],
