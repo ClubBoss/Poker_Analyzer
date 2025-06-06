@@ -7,6 +7,7 @@ import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_cards_widget.dart';
 import '../widgets/action_dialog.dart';
+import '../widgets/chip_widget.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -257,21 +258,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     boardCards: boardCards,
                     onCardSelected: selectBoardCard,
                   ),
-                  Positioned(
-                    left: centerX - 40,
-                    top: centerY - 20,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        'Pot: \$${_pots[currentStreet]}',
-                        style: const TextStyle(color: Colors.white, fontSize: 15),
-                      ),
+                  if (_pots[currentStreet] > 0)
+                    Positioned(
+                      left: centerX - 20,
+                      top: centerY - 10,
+                      child: ChipWidget(amount: _pots[currentStreet]),
                     ),
-                  ),
                   ...List.generate(numberOfPlayers, (i) {
                     final index = (i + heroIndex) % numberOfPlayers;
                     final angle =
@@ -331,7 +323,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                 isActive: index == activePlayerIndex,
                                 showHint: _showActionHints[index],
                                 actionTagText: actionTag,
-                                chipAmount: _streetInvestments[index],
                                 stackSize: stackSizes[index],
                                 onCardsSelected: (card) => selectCard(index, card),
                               ),
@@ -414,27 +405,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       if (_streetInvestments[index] != null &&
                           _streetInvestments[index]! > 0)
                         Positioned(
-                          left: centerX + dx - 25,
+                          left: centerX + dx - 20,
                           top: centerY + dy + 85,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Colors.black54, Colors.black87],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '\$${_streetInvestments[index]}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
+                          child:
+                              ChipWidget(amount: _streetInvestments[index]!),
                         ),
                     ];
                   }).expand((w) => w)
