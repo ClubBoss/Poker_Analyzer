@@ -16,11 +16,6 @@ class StreetActionsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final streetActions =
         actions.where((a) => a.street == street).toList(growable: false);
-    final pot = actions
-        .where((a) => a.street <= street)
-        .where((a) => ['call', 'bet', 'raise'].contains(a.action))
-        .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -67,13 +62,6 @@ class StreetActionsList extends StatelessWidget {
               },
             ),
           ),
-        Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text(
-            'Пот: $pot',
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
       ],
     );
   }
