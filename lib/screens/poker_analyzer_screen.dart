@@ -14,6 +14,7 @@ import '../widgets/street_actions_list.dart';
 import '../widgets/collapsible_street_summary.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
+import '../widgets/bet_chips_on_table.dart';
 import '../widgets/invested_chip_tokens.dart';
 import '../widgets/central_pot_widget.dart';
 import '../helpers/poker_position_helper.dart';
@@ -790,6 +791,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           visible: showTrail,
                           scale: scale,
                           color: actionColor ?? Colors.green,
+                        ),
+                      ));
+                      final tableChipCount =
+                          (invested / 20).clamp(1, 5).round();
+                      chipTrails.add(Positioned.fill(
+                        child: BetChipsOnTable(
+                          start: Offset(centerX + dx, centerY + dy + bias + 92 * scale),
+                          end: Offset(centerX, centerY),
+                          chipCount: tableChipCount,
+                          color: lastAction!.action == 'call'
+                              ? Colors.blue
+                              : Colors.green,
+                          scale: scale,
                         ),
                       ));
                     }
