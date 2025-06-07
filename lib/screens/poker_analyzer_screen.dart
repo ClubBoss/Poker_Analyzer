@@ -28,7 +28,8 @@ class PokerAnalyzerScreen extends StatefulWidget {
   State<PokerAnalyzerScreen> createState() => _PokerAnalyzerScreenState();
 }
 
-class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
+class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
+    with TickerProviderStateMixin {
   int heroIndex = 0;
   String _heroPosition = 'BTN';
   int numberOfPlayers = 6;
@@ -67,6 +68,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
   final Map<int, bool> _showStackForPlayer = {};
   final Map<int, Timer?> _stackTimers = {};
+  final Map<int, AnimationController> _stackControllers = {};
+  final Map<int, Animation<double>> _stackAnimations = {};
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -99,13 +102,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
+  void _initStackAnimations() {
+    for (final controller in _stackControllers.values) {
+      controller.dispose();
+    }
+    _stackControllers.clear();
+    _stackAnimations.clear();
+    for (int i = 0; i < numberOfPlayers; i++) {
+      final controller = AnimationController(
+        duration: const Duration(milliseconds: 300),
+        vsync: this,
+      );
+      _stackControllers[i] = controller;
+      _stackAnimations[i] = CurvedAnimation(
+        parent: controller,
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   void _showStackTemporarily(int index) {
     _stackTimers[index]?.cancel();
     setState(() {
       _showStackForPlayer[index] = true;
     });
+    _stackControllers[index]?.forward();
     _stackTimers[index] = Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
+      _stackControllers[index]?.reverse();
       setState(() {
         _showStackForPlayer[index] = false;
       });
@@ -287,6 +311,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     );
     _updatePositions();
     _initShowStackMap();
+    _initStackAnimations();
     _updatePlaybackState();
   }
 
@@ -666,6 +691,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
           _showActionHints[i] = true;
         }
         _initShowStackMap();
+        _initStackAnimations();
       });
     }
   }
@@ -728,6 +754,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       _updatePlaybackState();
       _updatePositions();
       _initShowStackMap();
+      _initStackAnimations();
     });
   }
 
@@ -737,6 +764,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   void dispose() {
     _activeTimer?.cancel();
     _playbackTimer?.cancel();
+    for (final controller in _stackControllers.values) {
+      controller.dispose();
+    }
     _commentController.dispose();
     super.dispose();
   }
@@ -845,12 +875,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
         final bias = _verticalBiasFromAngle(angle) * scale;
+        final animation = _stackAnimations[index];
         chips.add(Positioned(
           left: centerX + dx - 10 * scale,
           top: centerY + dy + bias - 140 * scale,
-          child: ChipWidget(
-            amount: stack,
-            scale: 0.6 * scale,
+          child: FadeTransition(
+            opacity: animation ?? kAlwaysCompleteAnimation,
+            child: ChipWidget(
+              amount: stack,
+              scale: 0.6 * scale,
+            ),
           ),
         ));
       }
@@ -1073,14 +1107,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       getPositionList(numberOfPlayers),
                     );
                     for (int i = 0; i < numberOfPlayers; i++) {
-                      playerTypes.putIfAbsent(i, () => 'standard');
-                    }
-                    playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
-                    _updatePositions();
-                    _initShowStackMap();
-                  });
-                }
-              },
+                    playerTypes.putIfAbsent(i, () => 'standard');
+                  }
+                  playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
+                  _updatePositions();
+                  _initShowStackMap();
+                  _initStackAnimations();
+                });
+              }
+            },
             ),
             Expanded(
               flex: 7,
