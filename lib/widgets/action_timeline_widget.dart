@@ -6,6 +6,7 @@ class ActionTimelineWidget extends StatelessWidget {
   final List<ActionEntry> actions;
   final int playbackIndex;
   final Function(int index) onTap;
+  final Map<int, String>? playerPositions;
   final double scale;
 
   const ActionTimelineWidget({
@@ -13,6 +14,7 @@ class ActionTimelineWidget extends StatelessWidget {
     required this.actions,
     required this.playbackIndex,
     required this.onTap,
+    this.playerPositions,
     this.scale = 1.0,
   }) : super(key: key);
 
@@ -27,6 +29,8 @@ class ActionTimelineWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           final action = actions[index];
           final isSelected = index == playbackIndex;
+          final pos = playerPositions?[action.playerIndex] ??
+              'P${action.playerIndex + 1}';
 
           return GestureDetector(
             onTap: () => onTap(index),
@@ -39,7 +43,7 @@ class ActionTimelineWidget extends StatelessWidget {
                 border: Border.all(color: Colors.white24),
               ),
               child: Text(
-                '${action.position} ${action.action} ${action.amount ?? ''}',
+                '$pos ${action.action}${action.amount != null ? ' ${action.amount}' : ''}',
                 style: TextStyle(
                   color: isSelected ? Colors.white : Colors.white70,
                   fontSize: 12 * scale,
