@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Compact display for a player's position, stack and last action tag.
+/// Compact display for a player's position, stack, tag and last action.
 class PlayerInfoWidget extends StatelessWidget {
   final String position;
   final int stack;
   final String tag;
+  /// Last action taken by the player ('fold', 'call', 'bet', 'raise', 'check').
+  final String? lastAction;
   final bool isActive;
   final bool isFolded;
   final bool isHero;
@@ -19,6 +21,7 @@ class PlayerInfoWidget extends StatelessWidget {
     required this.position,
     required this.stack,
     required this.tag,
+    this.lastAction,
     this.isActive = false,
     this.isFolded = false,
     this.isHero = false,
@@ -36,6 +39,37 @@ class PlayerInfoWidget extends StatelessWidget {
         : isHero
             ? Colors.purpleAccent
             : null;
+
+    Color? actionColor;
+    String? actionIcon;
+    String? actionLabel;
+    switch (lastAction) {
+      case 'fold':
+        actionColor = Colors.red;
+        actionIcon = '❌';
+        actionLabel = 'Fold';
+        break;
+      case 'call':
+        actionColor = Colors.blue;
+        actionIcon = '📞';
+        actionLabel = 'Call';
+        break;
+      case 'bet':
+        actionColor = Colors.amber;
+        actionIcon = '💰';
+        actionLabel = 'Bet';
+        break;
+      case 'raise':
+        actionColor = Colors.green;
+        actionIcon = '⬆️';
+        actionLabel = 'Raise';
+        break;
+      case 'check':
+        actionColor = Colors.grey;
+        actionIcon = '✔️';
+        actionLabel = 'Check';
+        break;
+    }
 
     Widget box = Container(
       padding: const EdgeInsets.all(8),
@@ -87,19 +121,50 @@ class PlayerInfoWidget extends StatelessWidget {
       ),
     );
 
+    Widget result = box;
+
+    if (actionColor != null && actionLabel != null) {
+      final badge = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        decoration: BoxDecoration(
+          color: actionColor,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (actionIcon != null)
+              Text(actionIcon!, style: const TextStyle(fontSize: 10)),
+            if (actionIcon != null) const SizedBox(width: 2),
+            Text(
+              actionLabel!,
+              style: const TextStyle(color: Colors.white, fontSize: 10),
+            ),
+          ],
+        ),
+      );
+      result = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(padding: const EdgeInsets.only(bottom: 4), child: badge),
+          box,
+        ],
+      );
+    }
+
     if (isFolded) {
-      box = Opacity(opacity: 0.5, child: box);
+      result = Opacity(opacity: 0.5, child: result);
     }
 
     if (onLongPress != null) {
-      box = Tooltip(message: 'Change player type', child: box);
+      result = Tooltip(message: 'Change player type', child: result);
     }
 
     return GestureDetector(
       onTap: onTap,
       onDoubleTap: onDoubleTap,
       onLongPress: onLongPress,
-      child: box,
+      child: result,
     );
   }
 }
