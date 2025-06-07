@@ -7,6 +7,12 @@ class PlayerInfoWidget extends StatelessWidget {
   final String tag;
   final bool isActive;
   final bool isFolded;
+  final bool isHero;
+  final String playerTypeIcon;
+  final VoidCallback? onTap;
+  final VoidCallback? onDoubleTap;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onStackTap;
 
   const PlayerInfoWidget({
     super.key,
@@ -15,20 +21,35 @@ class PlayerInfoWidget extends StatelessWidget {
     required this.tag,
     this.isActive = false,
     this.isFolded = false,
+    this.isHero = false,
+    this.playerTypeIcon = '🔘',
+    this.onTap,
+    this.onDoubleTap,
+    this.onLongPress,
+    this.onStackTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final borderColor = isActive
+        ? Colors.orangeAccent
+        : isHero
+            ? Colors.purpleAccent
+            : null;
+
     Widget box = Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.black87,
         borderRadius: BorderRadius.circular(8),
-        border: isActive ? Border.all(color: Colors.orangeAccent, width: 2) : null,
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 2)
+            : null,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (isHero) const Text('🦸', style: TextStyle(fontSize: 12)),
           Text(
             position,
             style: const TextStyle(
@@ -37,9 +58,12 @@ class PlayerInfoWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            'Stack: \$stack',
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          GestureDetector(
+            onTap: onStackTap,
+            child: Text(
+              'Stack: \$stack',
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
           ),
           if (tag.isNotEmpty) ...[
             const SizedBox(height: 4),
@@ -55,6 +79,10 @@ class PlayerInfoWidget extends StatelessWidget {
               ),
             ),
           ],
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
+          ),
         ],
       ),
     );
@@ -63,6 +91,15 @@ class PlayerInfoWidget extends StatelessWidget {
       box = Opacity(opacity: 0.5, child: box);
     }
 
-    return box;
+    if (onLongPress != null) {
+      box = Tooltip(message: 'Change player type', child: box);
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      onDoubleTap: onDoubleTap,
+      onLongPress: onLongPress,
+      child: box,
+    );
   }
 }

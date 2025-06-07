@@ -1172,6 +1172,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           tag: tag,
                           isActive: isActive,
                           isFolded: isFolded,
+                          isHero: index == heroIndex,
+                          playerTypeIcon: _playerTypeIcon(playerTypes[index]),
+                          onTap: () => setState(() => activePlayerIndex = index),
+                          onDoubleTap: () => setState(() {
+                            heroIndex = index;
+                            _updatePositions();
+                          }),
+                          onLongPress: () => _selectPlayerType(index),
+                          onStackTap: () => _editStackSize(index),
                         ),
                       ),
                       if (invested > 0) ...[
