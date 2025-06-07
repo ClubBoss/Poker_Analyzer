@@ -65,6 +65,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
 
+  final Map<int, bool> _showStackForPlayer = {};
+  final Map<int, Timer?> _stackTimers = {};
+
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
   }
@@ -86,6 +89,32 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       if (posIndex < order.length) {
         playerPositions[i] = order[posIndex];
       }
+    }
+  }
+
+  void _initShowStackMap() {
+    _showStackForPlayer.clear();
+    for (int i = 0; i < numberOfPlayers; i++) {
+      _showStackForPlayer[i] = false;
+    }
+  }
+
+  void _showStackTemporarily(int index) {
+    _stackTimers[index]?.cancel();
+    setState(() {
+      _showStackForPlayer[index] = true;
+    });
+    _stackTimers[index] = Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      setState(() {
+        _showStackForPlayer[index] = false;
+      });
+    });
+  }
+
+  void _showStacksForAllPlayers() {
+    for (int i = 0; i < numberOfPlayers; i++) {
+      _showStackTemporarily(i);
     }
   }
 
@@ -257,6 +286,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       List.filled(numberOfPlayers, 'standard'),
     );
     _updatePositions();
+    _initShowStackMap();
     _updatePlaybackState();
   }
 
@@ -635,6 +665,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         for (int i = 0; i < _showActionHints.length; i++) {
           _showActionHints[i] = true;
         }
+        _initShowStackMap();
       });
     }
   }
@@ -696,6 +727,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       _playbackIndex = 0;
       _updatePlaybackState();
       _updatePositions();
+      _initShowStackMap();
     });
   }
 
@@ -807,7 +839,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     for (int i = 0; i < numberOfPlayers; i++) {
       final index = (i + heroIndex) % numberOfPlayers;
       final stack = stackSizes[index] ?? 0;
-      if (stack > 0) {
+      final show = _showStackForPlayer[index] ?? false;
+      if (stack > 0 && show) {
         final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
@@ -1044,6 +1077,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     }
                     playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
                     _updatePositions();
+                    _initShowStackMap();
                   });
                 }
               },
@@ -1184,6 +1218,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         top: centerY + dy + bias - 55 * scale,
                       child: GestureDetector(
                           onTap: () async {
+                            _showStackTemporarily(index);
                             setState(() {
                               activePlayerIndex = index;
                             });
@@ -1464,6 +1499,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           _recalculateStreetInvestments();
                           _actionTags.clear();
                         });
+                        _showStacksForAllPlayers();
                       },
                     ),
                     Padding(
