@@ -72,7 +72,7 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                 if (text.isNotEmpty) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const PokerAnalyzerScreen(potAmount: 0),
+                      builder: (context) => const PokerAnalyzerScreen(),
                     ),
                   );
                 }

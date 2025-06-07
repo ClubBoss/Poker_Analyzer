@@ -1,21 +1,38 @@
 import 'package:flutter/material.dart';
+import '../models/action_entry.dart';
 
 /// Displays current pot size above the board cards.
 class PotOverBoardWidget extends StatelessWidget {
-  /// Current pot size in big blinds.
-  final double potAmount;
+  /// Visible actions up to the current playback index.
+  final List<ActionEntry> visibleActions;
+
+  /// Current street index. 0 = preflop, 1 = flop, ...
+  final int currentStreet;
 
   /// Scale factor to adapt to table size.
   final double scale;
 
   const PotOverBoardWidget({
     Key? key,
-    required this.potAmount,
+    required this.visibleActions,
+    required this.currentStreet,
     this.scale = 1.0,
   }) : super(key: key);
 
+  double _calculatePot() {
+    return visibleActions
+        .where((a) =>
+            a.street <= currentStreet &&
+            (a.action == 'call' || a.action == 'bet' || a.action == 'raise'))
+        .fold<double>(0, (sum, a) => sum + (a.amount ?? 0).toDouble());
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (currentStreet < 1) {
+      return const SizedBox.shrink();
+    }
+    final potAmount = _calculatePot();
     return Positioned.fill(
       child: IgnorePointer(
         child: Align(

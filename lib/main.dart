@@ -24,7 +24,7 @@ class PokerAIAnalyzerApp extends StatelessWidget {
               displayColor: Colors.white,
             ),
       ),
-      home: const PokerAnalyzerScreen(potAmount: 0),
+      home: const PokerAnalyzerScreen(),
     );
   }
 }
