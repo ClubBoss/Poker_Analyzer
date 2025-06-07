@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/card_model.dart';
@@ -14,6 +15,7 @@ import '../widgets/collapsible_street_summary.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
 import '../helpers/poker_position_helper.dart';
+import '../models/saved_hand.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -561,6 +563,64 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         }
       });
     }
+  }
+
+  SavedHand _currentSavedHand() {
+    return SavedHand(
+      heroIndex: heroIndex,
+      heroPosition: _heroPosition,
+      numberOfPlayers: numberOfPlayers,
+      playerCards: [
+        for (int i = 0; i < numberOfPlayers; i++)
+          List<CardModel>.from(playerCards[i])
+      ],
+      boardCards: List<CardModel>.from(boardCards),
+      actions: List<ActionEntry>.from(actions),
+      stackSizes: Map<int, int>.from(stackSizes),
+      playerPositions: Map<int, String>.from(playerPositions),
+      playerTypes: Map<int, String>.from(playerTypes),
+      comment: _commentController.text.isNotEmpty ? _commentController.text : null,
+    );
+  }
+
+  String saveHand() {
+    final hand = _currentSavedHand();
+    return jsonEncode(hand.toJson());
+  }
+
+  void loadHand(String jsonStr) {
+    final hand = SavedHand.fromJson(jsonDecode(jsonStr));
+    setState(() {
+      heroIndex = hand.heroIndex;
+      _heroPosition = hand.heroPosition;
+      numberOfPlayers = hand.numberOfPlayers;
+      for (int i = 0; i < playerCards.length; i++) {
+        playerCards[i]
+          ..clear()
+          ..addAll(i < hand.playerCards.length ? hand.playerCards[i] : []);
+      }
+      boardCards
+        ..clear()
+        ..addAll(hand.boardCards);
+      actions
+        ..clear()
+        ..addAll(hand.actions);
+      stackSizes
+        ..clear()
+        ..addAll(hand.stackSizes);
+      playerPositions
+        ..clear()
+        ..addAll(hand.playerPositions);
+      playerTypes
+        ..clear()
+        ..addAll(hand.playerTypes ??
+            {for (final k in hand.playerPositions.keys) k: 'standard'});
+      _commentController.text = hand.comment ?? '';
+      _recalculatePots();
+      _recalculateStreetInvestments();
+      currentStreet = 0;
+      _updatePositions();
+    });
   }
 
 
