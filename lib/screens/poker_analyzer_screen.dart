@@ -1105,8 +1105,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY = screenSize.height / 2 -
-        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
+    final centerY = screenSize.height / 2 - centerYOffset;
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1145,8 +1145,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY =
-        screenSize.height / 2 - (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
+    final centerY = screenSize.height / 2 - centerYOffset;
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1202,8 +1202,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY =
-        screenSize.height / 2 - (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
+    final centerY = screenSize.height / 2 - centerYOffset;
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1245,8 +1245,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY =
-        screenSize.height / 2 - (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
+    final centerY = screenSize.height / 2 - centerYOffset;
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1434,8 +1434,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY = screenSize.height / 2 -
-        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
+    final centerY = screenSize.height / 2 - centerYOffset;
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1652,8 +1652,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY = screenSize.height / 2 -
-        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
+    final centerY = screenSize.height / 2 - centerYOffset;
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1891,8 +1891,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY = screenSize.height / 2 -
-        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
+    final centerY = screenSize.height / 2 - centerYOffset;
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
