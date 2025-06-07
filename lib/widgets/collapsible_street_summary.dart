@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import 'street_actions_list.dart';
+import 'street_action_chip_row.dart';
 
 class CollapsibleStreetSummary extends StatefulWidget {
   final List<ActionEntry> actions;
@@ -31,23 +32,14 @@ class CollapsibleStreetSummary extends StatefulWidget {
 class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
   int? _expandedStreet;
 
-  String _summaryForStreet(int street) {
-    final streetActions =
-        widget.actions.where((a) => a.street == street).toList(growable: false);
-    if (streetActions.isEmpty) return 'Нет действий';
-    final last = streetActions.last;
-    final pos = widget.playerPositions[last.playerIndex] ?? 'P${last.playerIndex + 1}';
-    final act = '${last.action}${last.amount != null ? ' ${last.amount}' : ''}';
-    return '$act $pos';
-  }
-
   @override
   Widget build(BuildContext context) {
     const streetNames = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
     return Column(
       children: List.generate(4, (i) {
         final expanded = _expandedStreet == i;
-        final summary = _summaryForStreet(i);
+        final streetActions =
+            widget.actions.where((a) => a.street == i).toList(growable: false);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Container(
@@ -66,9 +58,16 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '${streetNames[i]}: $summary',
-                      style: const TextStyle(color: Colors.white),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          streetNames[i],
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(height: 4),
+                        StreetActionChipRow(actions: streetActions),
+                      ],
                     ),
                   ),
                 ),
