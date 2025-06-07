@@ -425,6 +425,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     final radiusY = (tableHeight / 2 + 90) * scale;
 
     final effectiveStack = _calculateEffectiveStack();
+    final pot = _pots[currentStreet];
+    final double? sprValue =
+        pot > 0 ? effectiveStack / pot : null;
 
     ActionEntry? lastStreetAction;
     for (final a in actions.reversed) {
@@ -772,6 +775,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
                     potText: _formatAmount(_pots[currentStreet]),
                     stackText: _formatAmount(effectiveStack),
+                    sprText: sprValue != null
+                        ? 'SPR: ${sprValue.toStringAsFixed(1)}'
+                        : null,
                   ),
                 )
               ],

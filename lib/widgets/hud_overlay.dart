@@ -5,12 +5,14 @@ class HudOverlay extends StatelessWidget {
   final String streetName;
   final String potText;
   final String stackText;
+  final String? sprText;
 
   const HudOverlay({
     Key? key,
     required this.streetName,
     required this.potText,
     required this.stackText,
+    this.sprText,
   }) : super(key: key);
 
   @override
@@ -18,7 +20,7 @@ class HudOverlay extends StatelessWidget {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: Container(
-        key: ValueKey('$streetName-$potText-$stackText'),
+        key: ValueKey('$streetName-$potText-$stackText-${sprText ?? ''}'),
         margin: const EdgeInsets.all(8),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -36,7 +38,28 @@ class HudOverlay extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(streetName),
-              Text('Pot: $potText'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Pot: $potText'),
+                  if (sprText != null) ...[
+                    const SizedBox(width: 4),
+                    Text(
+                      sprText!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black54,
+                            offset: Offset(1, 1),
+                            blurRadius: 2,
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
               Text('Eff: $stackText'),
             ],
           ),
