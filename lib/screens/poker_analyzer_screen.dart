@@ -570,6 +570,59 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _showStackInfo(int playerIndex) {
+    final stack = stackSizes[playerIndex] ?? 0;
+    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
+    final investments = [
+      for (int i = 0; i < 4; i++)
+        _streetInvestments[i]?[playerIndex] ?? 0
+    ];
+    final total = investments.fold<int>(0, (sum, v) => sum + v);
+    final percent = stack > 0 ? (total / stack * 100) : 0.0;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.black87,
+        title: Text(
+          'Player ${playerIndex + 1} Stack',
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Stack: $stack',
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            for (int i = 0; i < streetNames.length; i++)
+              Text(
+                '${streetNames[i]}: ${investments[i]}',
+                style: const TextStyle(color: Colors.white70),
+              ),
+            const Divider(color: Colors.white24),
+            Text(
+              'Total invested: $total',
+              style: const TextStyle(color: Colors.white),
+            ),
+            Text(
+              '% of original stack: ${percent.toStringAsFixed(1)}%',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showStreetActionsDetails() {
     final streetActions =
         actions.where((a) => a.street == currentStreet).toList(growable: false);
@@ -1261,7 +1314,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             _updatePositions();
                           }),
                           onLongPress: () => _selectPlayerType(index),
-                          onStackTap: () => _editStackSize(index),
+                          onStackTap: () => _showStackInfo(index),
                           ),
                         ),
                       ),
