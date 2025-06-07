@@ -3,6 +3,18 @@ import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 import 'card_selector.dart';
 
+String _formatAmount(int amount) {
+  final digits = amount.toString();
+  final buffer = StringBuffer();
+  for (int i = 0; i < digits.length; i++) {
+    if (i > 0 && (digits.length - i) % 3 == 0) {
+      buffer.write(' ');
+    }
+    buffer.write(digits[i]);
+  }
+  return buffer.toString();
+}
+
 class PlayerZoneWidget extends StatelessWidget {
   final String playerName;
   final String? position;
@@ -15,6 +27,7 @@ class PlayerZoneWidget extends StatelessWidget {
   final String? actionTagText;
   final Function(CardModel) onCardsSelected;
   final double scale;
+  final int stack;
 
   const PlayerZoneWidget({
     Key? key,
@@ -29,6 +42,7 @@ class PlayerZoneWidget extends StatelessWidget {
     this.showHint = false,
     this.actionTagText,
     this.scale = 1.0,
+    required this.stack,
   }) : super(key: key);
 
 
@@ -83,6 +97,33 @@ class PlayerZoneWidget extends StatelessWidget {
                   position!,
                   style: captionStyle,
                   textAlign: TextAlign.center,
+                ),
+              ),
+            if (stack > 0)
+              Padding(
+                padding: EdgeInsets.only(top: 2.0 * scale),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
+                  ),
+                  child: Container(
+                    key: ValueKey(stack),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 6 * scale, vertical: 2 * scale),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(8 * scale),
+                    ),
+                    child: Text(
+                      _formatAmount(stack),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12 * scale,
+                      ),
+                    ),
+                  ),
                 ),
               ),
           ],

@@ -633,6 +633,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                 showHint: _showActionHints[index],
                                 actionTagText: actionTag,
                                 onCardsSelected: (card) => selectCard(index, card),
+                                stack: stackSizes[index] ?? 0,
                               ),
                               AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 300),
@@ -645,21 +646,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                   key: ValueKey(stackSizes[index] ?? 0),
                                   amount: stackSizes[index] ?? 0,
                                   chipType: 'stack',
-                                ),
-                              ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                transitionBuilder: (child, animation) => FadeTransition(
-                                  opacity: animation,
-                                  child: ScaleTransition(scale: animation, child: child),
-                                ),
-                                child: Text(
-                                  'Stack: ${_formatAmount(stackSizes[index] ?? 0)}',
-                                  key: ValueKey('t${stackSizes[index] ?? 0}'),
-                                  style: TextStyle(
-                                    color: isFolded ? Colors.grey : Colors.white,
-                                    fontSize: 14 * scale,
-                                  ),
                                 ),
                               ),
                               ],
