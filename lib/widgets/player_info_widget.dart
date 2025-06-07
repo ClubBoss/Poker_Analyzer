@@ -177,7 +177,7 @@ class PlayerInfoWidget extends StatelessWidget {
       result = Tooltip(message: 'Change player type', child: result);
     }
 
-    return Material(
+    Widget clickable = Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
@@ -186,6 +186,64 @@ class PlayerInfoWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: result,
       ),
+    );
+
+    if (isActive) {
+      clickable = _ActivePlayerGlow(child: clickable);
+    }
+
+    return clickable;
+  }
+}
+
+class _ActivePlayerGlow extends StatefulWidget {
+  final Widget child;
+  const _ActivePlayerGlow({required this.child});
+
+  @override
+  State<_ActivePlayerGlow> createState() => _ActivePlayerGlowState();
+}
+
+class _ActivePlayerGlowState extends State<_ActivePlayerGlow>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final t = Curves.easeInOut.transform(_controller.value);
+        return Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.orange.withOpacity(0.5 + (t * 0.3)),
+                blurRadius: 8 + (8 * t),
+                spreadRadius: 1,
+              ),
+            ],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: child,
+        );
+      },
+      child: widget.child,
     );
   }
 }
