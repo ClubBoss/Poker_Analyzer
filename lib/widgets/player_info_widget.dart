@@ -22,6 +22,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final VoidCallback? onLongPress;
   /// Called when the stack value has been edited and confirmed.
   final ValueChanged<int>? onStackTap;
+  /// Called when the remove icon is tapped.
+  final VoidCallback? onRemove;
 
   const PlayerInfoWidget({
     super.key,
@@ -39,6 +41,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.onDoubleTap,
     this.onLongPress,
     this.onStackTap,
+    this.onRemove,
   });
 
   @override
@@ -255,23 +258,31 @@ class PlayerInfoWidget extends StatelessWidget {
     }
 
     Widget withBadge = clickable;
-    if (playerTypeIcon.isNotEmpty) {
-      withBadge = Stack(
-        clipBehavior: Clip.none,
-        children: [
-          clickable,
-          Positioned(
-            top: -6,
-            right: -6,
-            child: IgnorePointer(
-              child: Text(
-                playerTypeIcon,
-                style: const TextStyle(fontSize: 12),
-              ),
+    if (playerTypeIcon.isNotEmpty || onRemove != null) {
+      final children = <Widget>[clickable];
+      if (playerTypeIcon.isNotEmpty) {
+        children.add(Positioned(
+          top: -6,
+          right: -6,
+          child: IgnorePointer(
+            child: Text(
+              playerTypeIcon,
+              style: const TextStyle(fontSize: 12),
             ),
           ),
-        ],
-      );
+        ));
+      }
+      if (onRemove != null) {
+        children.add(Positioned(
+          top: 0,
+          right: 0,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: const Text('❌', style: TextStyle(fontSize: 12)),
+          ),
+        ));
+      }
+      withBadge = Stack(clipBehavior: Clip.none, children: children);
     }
 
     return withBadge;
