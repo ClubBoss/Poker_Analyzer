@@ -9,7 +9,7 @@ import '../widgets/board_cards_widget.dart';
 import '../widgets/action_dialog.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/street_actions_list.dart';
-import '../widgets/street_action_summary_bar.dart';
+import '../widgets/collapsible_street_summary.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
 
@@ -810,6 +810,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             ),
           ),
         ),
+            CollapsibleStreetSummary(
+              actions: actions,
+              playerPositions: playerPositions,
+              onEdit: _editAction,
+              onDelete: _deleteAction,
+            ),
             StreetActionsWidget(
               currentStreet: currentStreet,
               onStreetChanged: (index) {
@@ -820,12 +826,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   _actionTags.clear();
                 });
               },
-            ),
-            StreetActionSummaryBar(
-              street: currentStreet,
-              actions: actions,
-              playerPositions: playerPositions,
-              onActionTap: _showStreetActionsDetails,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
