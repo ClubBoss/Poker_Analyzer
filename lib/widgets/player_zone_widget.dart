@@ -47,7 +47,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1600),
     );
     if (widget.isActive) {
       _controller.repeat(reverse: true);
@@ -283,12 +283,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       child: result,
     );
 
-    result = ScaleTransition(
-      scale: Tween(begin: 1.0, end: 1.2).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-      ),
-      child: result,
-    );
+    if (widget.isActive) {
+      result = FadeTransition(
+        opacity: Tween(begin: 0.85, end: 1.0).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeInOutExpo),
+        ),
+        child: ScaleTransition(
+          scale: Tween(begin: 0.96, end: 1.08).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeInOutExpo),
+          ),
+          child: result,
+        ),
+      );
+    }
 
     return result;
   }
