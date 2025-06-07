@@ -7,6 +7,8 @@ class StreetActionsList extends StatelessWidget {
   final List<ActionEntry> actions;
   final void Function(int) onEdit;
   final void Function(int) onDelete;
+  final int? visibleCount;
+  final String Function(ActionEntry)? evaluateActionQuality;
 
   const StreetActionsList({
     super.key,
@@ -14,6 +16,8 @@ class StreetActionsList extends StatelessWidget {
     required this.actions,
     required this.onEdit,
     required this.onDelete,
+    this.visibleCount,
+    this.evaluateActionQuality,
   });
 
   Widget _buildTile(ActionEntry a, int globalIndex) {
@@ -38,9 +42,27 @@ class StreetActionsList extends StatelessWidget {
     final title = a.generated
         ? 'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr (auto)'
         : 'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr';
+
+    String? icon;
+    if (evaluateActionQuality != null && visibleCount != null) {
+      final quality = evaluateActionQuality!(a);
+      switch (quality) {
+        case 'good':
+          icon = '🟢';
+          break;
+        case 'ok':
+          icon = '🟡';
+          break;
+        case 'bad':
+          icon = '🔴';
+          break;
+      }
+    }
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
+      leading:
+          icon != null ? Text(icon!, style: const TextStyle(fontSize: 16)) : null,
       title: Text(
         title,
         style: TextStyle(
@@ -58,8 +80,11 @@ class StreetActionsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final relevantActions = visibleCount != null
+        ? actions.take(visibleCount!).toList(growable: false)
+        : actions;
     final streetActions =
-        actions.where((a) => a.street == street).toList(growable: false);
+        relevantActions.where((a) => a.street == street).toList(growable: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

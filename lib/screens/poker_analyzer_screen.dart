@@ -170,6 +170,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
+  String _evaluateActionQuality(ActionEntry entry) {
+    switch (entry.action) {
+      case 'raise':
+      case 'bet':
+        return 'good';
+      case 'call':
+      case 'check':
+        return 'ok';
+      case 'fold':
+        return 'bad';
+      default:
+        return 'ok';
+    }
+  }
+
   Future<void> _selectPlayerType(int index) async {
     const types = {
       'shark': '🦈',
@@ -1205,6 +1220,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       playerPositions: playerPositions,
                       onEdit: _editAction,
                       onDelete: _deleteAction,
+                      visibleCount: _playbackIndex,
+                      evaluateActionQuality: _evaluateActionQuality,
                     ),
                     StreetActionsWidget(
                       currentStreet: currentStreet,
@@ -1225,6 +1242,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         actions: actions,
                         onEdit: _editAction,
                         onDelete: _deleteAction,
+                        visibleCount: _playbackIndex,
+                        evaluateActionQuality: _evaluateActionQuality,
                       ),
                     ),
                     Padding(
