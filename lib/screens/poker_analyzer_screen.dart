@@ -830,12 +830,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
         final bias = _verticalBiasFromAngle(angle) * scale;
-        chips.add(Positioned(
-          left: centerX + dx - 10 * scale,
-          top: centerY + dy + bias - 110 * scale,
-          child: ChipWidget(
-            amount: invested,
-            scale: 0.7 * scale,
+
+        final playerActions = actions
+            .where((a) => a.playerIndex == index && a.street == currentStreet)
+            .toList();
+        final lastAction =
+            playerActions.isNotEmpty ? playerActions.last : null;
+        final color = _actionColor(lastAction?.action ?? 'bet');
+        final start =
+            Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+        final end = Offset.lerp(start, Offset(centerX, centerY), 0.2)!;
+        chips.add(Positioned.fill(
+          child: BetChipsOnTable(
+            start: start,
+            end: end,
+            chipCount: (invested / 20).clamp(1, 5).round(),
+            color: color,
+            scale: scale,
           ),
         ));
       }
@@ -866,9 +877,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             alignment: const Alignment(0, -0.05),
             child: Transform.translate(
               offset: Offset(0, -12 * scale),
-              child: ChipWidget(
+              child: CentralPotChips(
                 amount: pot,
-                scale: 1.2 * scale,
+                scale: scale,
               ),
             ),
           ),
@@ -900,6 +911,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
         final bias = _verticalBiasFromAngle(angle) * scale;
+        final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+        final end = Offset(centerX, centerY);
+        items.add(Positioned.fill(
+          child: BetChipsOnTable(
+            start: start,
+            end: end,
+            chipCount: (lastAction.amount! / 20).clamp(1, 5).round(),
+            color: _actionColor(lastAction.action),
+            scale: scale,
+          ),
+        ));
         items.add(Positioned(
           left: centerX + dx + 40 * scale,
           top: centerY + dy + bias - 40 * scale,
@@ -1158,19 +1180,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           visible: showTrail,
                           scale: scale,
                           color: actionColor ?? Colors.green,
-                        ),
-                      ));
-                      final tableChipCount =
-                          (invested / 20).clamp(1, 5).round();
-                      chipTrails.add(Positioned.fill(
-                        child: BetChipsOnTable(
-                          start: Offset(centerX + dx, centerY + dy + bias + 92 * scale),
-                          end: Offset(centerX, centerY),
-                          chipCount: tableChipCount,
-                          color: lastAction!.action == 'call'
-                              ? Colors.blue
-                              : Colors.green,
-                          scale: scale,
                         ),
                       ));
                     }
