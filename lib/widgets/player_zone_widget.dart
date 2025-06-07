@@ -1,19 +1,6 @@
-
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 import 'card_selector.dart';
-
-String _formatAmount(int amount) {
-  final digits = amount.toString();
-  final buffer = StringBuffer();
-  for (int i = 0; i < digits.length; i++) {
-    if (i > 0 && (digits.length - i) % 3 == 0) {
-      buffer.write(' ');
-    }
-    buffer.write(digits[i]);
-  }
-  return buffer.toString();
-}
 
 class PlayerZoneWidget extends StatelessWidget {
   final String playerName;
@@ -111,21 +98,10 @@ class PlayerZoneWidget extends StatelessWidget {
                     opacity: animation,
                     child: ScaleTransition(scale: animation, child: child),
                   ),
-                  child: Container(
+                  child: _ChipStack(
                     key: ValueKey(stack),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 6 * scale, vertical: 2 * scale),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(8 * scale),
-                    ),
-                    child: Text(
-                      _formatAmount(stack),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12 * scale,
-                      ),
-                    ),
+                    count: stack,
+                    scale: scale,
                   ),
                 ),
               ),
@@ -282,5 +258,45 @@ class PlayerZoneWidget extends StatelessWidget {
       default:
         return Colors.white70;
     }
+  }
+}
+
+class _ChipStack extends StatelessWidget {
+  final int count;
+  final double scale;
+
+  const _ChipStack({Key? key, required this.count, required this.scale})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final chipCount = count.clamp(0, 10);
+    final chips = List<Widget>.generate(chipCount, (index) {
+      return Container(
+        margin: EdgeInsets.only(top: index == 0 ? 0 : 2 * scale),
+        width: 12 * scale,
+        height: 12 * scale,
+        decoration: BoxDecoration(
+          color: Colors.orangeAccent,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 1),
+        ),
+      );
+    });
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (count > 10)
+          Text(
+            '10+',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12 * scale,
+            ),
+          ),
+        ...chips,
+      ],
+    );
   }
 }
