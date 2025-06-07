@@ -716,6 +716,49 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _removePlayer(int index) {
+    if (numberOfPlayers <= 2) return;
+    setState(() {
+      // Remove actions for this player and adjust indices
+      actions.removeWhere((a) => a.playerIndex == index);
+      for (final a in actions) {
+        if (a.playerIndex > index) {
+          a.playerIndex -= 1;
+        }
+      }
+      // Shift player-specific data
+      for (int i = index; i < numberOfPlayers - 1; i++) {
+        playerCards[i] = playerCards[i + 1];
+        stackSizes[i] = stackSizes[i + 1] ?? 0;
+        _actionTags[i] = _actionTags[i + 1];
+        playerPositions[i] = playerPositions[i + 1] ?? '';
+        playerTypes[i] = playerTypes[i + 1] ?? 'standard';
+        _showActionHints[i] = _showActionHints[i + 1];
+      }
+      playerCards[numberOfPlayers - 1] = [];
+      stackSizes.remove(numberOfPlayers - 1);
+      _actionTags.remove(numberOfPlayers - 1);
+      playerPositions.remove(numberOfPlayers - 1);
+      playerTypes.remove(numberOfPlayers - 1);
+      _showActionHints[numberOfPlayers - 1] = true;
+
+      if (heroIndex == index) {
+        heroIndex = 0;
+      } else if (heroIndex > index) {
+        heroIndex--;
+      }
+
+      numberOfPlayers--;
+      _updatePositions();
+      _recalculatePots();
+      _recalculateStreetInvestments();
+      lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
+      if (_playbackIndex > actions.length) {
+        _playbackIndex = actions.length;
+      }
+    });
+  }
+
   Future<void> _resetHand() async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -1328,6 +1371,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           onStackTap: (value) => setState(() {
                             stackSizes[index] = value;
                           }),
+                          onRemove:
+                              numberOfPlayers > 2 ? () => _removePlayer(index) : null,
                           ),
                         ),
                       ),
