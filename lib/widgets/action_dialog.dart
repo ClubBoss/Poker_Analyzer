@@ -1,205 +1,138 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import '../models/action_entry.dart';
 
-enum PlayerAction { fold, check, call, bet, raise }
-
+/// Dialog allowing to quickly choose an action for a player.
 class ActionDialog extends StatefulWidget {
   final int playerIndex;
   final int street;
-  final String position;
   final int stackSize;
   final int pot;
-  final String? initialAction;
-  final int? initialAmount;
-  final List<ActionEntry> actions;
 
   const ActionDialog({
     super.key,
     required this.playerIndex,
     required this.street,
-    required this.position,
     required this.stackSize,
     required this.pot,
-    this.initialAction,
-    this.initialAmount,
-    required this.actions,
   });
 
   @override
   State<ActionDialog> createState() => _ActionDialogState();
 }
 
+enum _Action { fold, check, call, bet, raise }
+
 class _ActionDialogState extends State<ActionDialog> {
-  late PlayerAction _action;
-  late TextEditingController _controller;
-  final _formKey = GlobalKey<FormState>();
-  bool get _hasBet => widget.actions.any((a) =>
-      a.street == widget.street &&
-      ['bet', 'raise', 'call'].contains(a.action));
+  _Action? _selected;
+  double _slider = 0;
 
   @override
   void initState() {
     super.initState();
-    _action = widget.initialAction != null
-        ? PlayerAction.values.firstWhere(
-            (a) => describeEnum(a) == widget.initialAction,
-            orElse: () => PlayerAction.fold,
-          )
-        : PlayerAction.fold;
-    _controller = TextEditingController(
-        text: widget.initialAmount != null ? widget.initialAmount.toString() : '');
-    if (_hasBet && _action == PlayerAction.bet) {
-      _action = PlayerAction.raise;
-    } else if (!_hasBet && _action == PlayerAction.raise) {
-      _action = PlayerAction.bet;
+    _slider = 0;
+  }
+
+  void _selectSimple(_Action act) {
+    Navigator.pop(
+      context,
+      ActionEntry(widget.street, widget.playerIndex, act.name, amount: null),
+    );
+  }
+
+  void _selectBetAmount(int amount) {
+    Navigator.pop(
+      context,
+      ActionEntry(widget.street, widget.playerIndex, _selected!.name,
+          amount: amount.clamp(1, widget.stackSize)),
+    );
+  }
+
+  void _onSliderChange(double value) {
+    setState(() => _slider = value);
+    final amt = value.round();
+    if (amt > 0) {
+      _selectBetAmount(amt);
     }
   }
 
-  bool get _needsAmount =>
-      _action == PlayerAction.bet ||
-      _action == PlayerAction.raise ||
-      _action == PlayerAction.call;
-
-  int? get _amount {
-    final digits = _controller.text.replaceAll(RegExp(r'\D'), '');
-    return int.tryParse(digits);
-  }
-
-  void _confirm() {
-    if (!_formKey.currentState!.validate()) return;
-    Navigator.pop(
-      context,
-      ActionEntry(widget.street, widget.playerIndex, describeEnum(_action),
-          amount: _needsAmount ? _amount : null),
-    );
-  }
-
-  int get _callAmount => widget.initialAmount ?? 0;
-  int get _halfPot => widget.pot ~/ 2 > widget.stackSize
-      ? widget.stackSize
-      : widget.pot ~/ 2;
-  int get _pot => widget.pot > widget.stackSize ? widget.stackSize : widget.pot;
-  int get _allIn => widget.stackSize;
-
-  void _setPreset(int amount) {
-    setState(() => _controller.text = amount.toString());
-  }
-
-  Widget _buildAmountField(TextStyle textStyle) {
-    return TextFormField(
-      controller: _controller,
-      keyboardType: TextInputType.number,
-      style: textStyle,
-      decoration: const InputDecoration(
-        labelText: 'Размер',
-        labelStyle: TextStyle(color: Colors.white70),
+  Widget _actionButton(String label, _Action act) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor:
+            _selected == act ? Colors.blueGrey : Colors.black87,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
       ),
-      validator: (v) {
-        if (!_needsAmount) return null;
-        final digits = v?.replaceAll(RegExp(r'\D'), '');
-        if (digits == null || digits.isEmpty) return 'Введите сумму';
-        final value = int.tryParse(digits);
-        if (value == null) return 'Неверный формат';
-        if (value > widget.stackSize) return 'Недостаточно фишек';
-        if (value <= 0) return 'Введите сумму';
-        return null;
+      onPressed: () {
+        if (act == _Action.fold || act == _Action.check || act == _Action.call) {
+          _selectSimple(act);
+        } else {
+          setState(() {
+            _selected = act;
+            _slider = 0;
+          });
+        }
       },
+      child: Text(label, style: const TextStyle(fontSize: 20)),
     );
   }
 
-  void _onActionChanged(PlayerAction? value) {
-    if (value == null) return;
-    setState(() {
-      _action = value;
-      switch (_action) {
-        case PlayerAction.call:
-          _controller.text = _callAmount.toString();
-          break;
-        case PlayerAction.fold:
-        case PlayerAction.check:
-          _controller.clear();
-          break;
-        default:
-          break;
-      }
-    });
+  Widget _buildBetSizer() {
+    final int max = widget.stackSize;
+    return Column(
+      children: [
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            for (final f in [1 / 3, 0.5, 0.75, 1.0])
+              OutlinedButton(
+                onPressed: () {
+                  final amount = (widget.pot * f).round();
+                  _selectBetAmount(amount);
+                },
+                child: Text('${(f * 100).round()}%'),
+              ),
+          ],
+        ),
+        Slider(
+          value: _slider,
+          min: 0,
+          max: max.toDouble(),
+          divisions: max,
+          label: _slider.round().toString(),
+          onChanged: _onSliderChange,
+        ),
+        Text('Amount: ${_slider.round()}',
+            style: const TextStyle(color: Colors.white)),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = const TextStyle(color: Colors.white);
     return AlertDialog(
       backgroundColor: Colors.black87,
       title: Text(
-        'Игрок ${widget.playerIndex + 1} (${widget.position})',
-        style: textStyle,
+        'Choose action for Player ${widget.playerIndex + 1}',
+        style: const TextStyle(color: Colors.white),
       ),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Текущий пот: ${widget.pot}',
-              style: textStyle.copyWith(fontWeight: FontWeight.bold),
-            ),
-            DropdownButtonFormField<PlayerAction>(
-              value: _action,
-              dropdownColor: Colors.black87,
-              decoration: const InputDecoration(
-                labelText: 'Действие',
-                labelStyle: TextStyle(color: Colors.white70),
-              ),
-              items: [
-                for (final a in PlayerAction.values.where((a) {
-                  if (a == PlayerAction.bet) return !_hasBet;
-                  if (a == PlayerAction.raise) return _hasBet;
-                  return true;
-                }))
-                  DropdownMenuItem(
-                    value: a,
-                    child: Text(describeEnum(a), style: textStyle),
-                  )
-              ],
-              onChanged: _onActionChanged,
-            ),
-            if (_needsAmount)
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: _buildAmountField(textStyle),
-              ),
-            if (_needsAmount)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                        onPressed: () => _setPreset(_halfPot),
-                        child: const Text('1/2 pot')),
-                    TextButton(
-                        onPressed: () => _setPreset(_pot),
-                        child: const Text('pot')),
-                    TextButton(
-                        onPressed: () => _setPreset(_allIn),
-                        child: const Text('all-in')),
-                  ],
-                ),
-              ),
-          ],
-        ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _actionButton('Fold', _Action.fold),
+          const SizedBox(height: 8),
+          _actionButton('Check', _Action.check),
+          const SizedBox(height: 8),
+          _actionButton('Call', _Action.call),
+          const SizedBox(height: 8),
+          _actionButton('Bet', _Action.bet),
+          const SizedBox(height: 8),
+          _actionButton('Raise', _Action.raise),
+          if (_selected == _Action.bet || _selected == _Action.raise)
+            _buildBetSizer(),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Отмена'),
-        ),
-        TextButton(
-          onPressed: _confirm,
-          child: const Text('OK'),
-        ),
-      ],
     );
   }
 }
