@@ -36,6 +36,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   final List<CardModel> boardCards = [];
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
+  int _playbackIndex = 0;
+  bool _isPlaying = false;
+  Timer? _playbackTimer;
   final List<int> _pots = List.filled(4, 0);
   final Map<int, Map<int, int>> _streetInvestments = {};
   final Map<int, int> stackSizes = {
@@ -238,6 +241,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       List.filled(numberOfPlayers, 'standard'),
     );
     _updatePositions();
+    _updatePlaybackState();
   }
 
   void selectCard(int index, CardModel card) {
@@ -266,9 +270,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     });
   }
 
-  int _calculateCallAmount(int playerIndex) {
+  int _calculateCallAmount(int playerIndex, {List<ActionEntry>? fromActions}) {
+    final list = fromActions ?? actions;
     final streetActions =
-        actions.where((a) => a.street == currentStreet).toList();
+        list.where((a) => a.street == currentStreet).toList();
     final Map<int, int> bets = {};
     int highest = 0;
     for (final a in streetActions) {
@@ -281,16 +286,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     return max(0, highest - playerBet);
   }
 
-  bool _streetHasBet() {
-    return actions
+  bool _streetHasBet({List<ActionEntry>? fromActions}) {
+    final list = fromActions ?? actions;
+    return list
         .where((a) => a.street == currentStreet)
         .any((a) => a.action == 'bet' || a.action == 'raise');
   }
 
-  int _calculatePotForStreet(int street) {
+  int _calculatePotForStreet(int street, {List<ActionEntry>? fromActions}) {
+    final list = fromActions ?? actions;
     int pot = 0;
     for (int s = 0; s <= street; s++) {
-      pot += actions
+      pot += list
           .where((a) => a.street == s &&
               (a.action == 'call' || a.action == 'bet' || a.action == 'raise'))
           .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
@@ -298,10 +305,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     return pot;
   }
 
-  void _recalculatePots() {
+  void _recalculatePots({List<ActionEntry>? fromActions}) {
+    final list = fromActions ?? actions;
     int cumulative = 0;
     for (int s = 0; s < _pots.length; s++) {
-      final streetAmount = actions
+      final streetAmount = list
           .where((a) => a.street == s &&
               (a.action == 'call' || a.action == 'bet' || a.action == 'raise'))
           .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
@@ -310,9 +318,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
-  void _recalculateStreetInvestments() {
+  void _recalculateStreetInvestments({List<ActionEntry>? fromActions}) {
+    final list = fromActions ?? actions;
     _streetInvestments.clear();
-    for (final a in actions) {
+    for (final a in list) {
       if (a.action == 'call' || a.action == 'bet' || a.action == 'raise') {
         final streetMap = _streetInvestments.putIfAbsent(a.street, () => {});
         streetMap[a.playerIndex] =
@@ -323,11 +332,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
-  int _calculateEffectiveStack() {
+  int _calculateEffectiveStack({List<ActionEntry>? fromActions}) {
+    final list = fromActions ?? actions;
     int? minStack;
     for (final entry in stackSizes.entries) {
       final index = entry.key;
-      final folded = actions.any((a) =>
+      final folded = list.any((a) =>
           a.playerIndex == index && a.action == 'fold' && a.street <= currentStreet);
       if (folded) continue;
       final stack = entry.value;
@@ -336,6 +346,58 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       }
     }
     return minStack ?? 0;
+  }
+
+  void _updatePlaybackState() {
+    final subset = actions.take(_playbackIndex).toList();
+    _recalculatePots(fromActions: subset);
+    _recalculateStreetInvestments(fromActions: subset);
+    lastActionPlayerIndex =
+        subset.isNotEmpty ? subset.last.playerIndex : null;
+  }
+
+  void _playStepForward() {
+    if (_playbackIndex < actions.length) {
+      setState(() {
+        _playbackIndex++;
+      });
+      _updatePlaybackState();
+    } else {
+      _pausePlayback();
+    }
+  }
+
+  void _pausePlayback() {
+    _playbackTimer?.cancel();
+    _isPlaying = false;
+  }
+
+  void _startPlayback() {
+    _pausePlayback();
+    setState(() {
+      _isPlaying = true;
+      if (_playbackIndex == actions.length) {
+        _playbackIndex = 0;
+      }
+    });
+    _updatePlaybackState();
+    _playbackTimer =
+        Timer.periodic(const Duration(seconds: 1), (_) => _playStepForward());
+  }
+
+  void _stepForward() {
+    _pausePlayback();
+    _playStepForward();
+  }
+
+  void _stepBackward() {
+    _pausePlayback();
+    if (_playbackIndex > 0) {
+      setState(() {
+        _playbackIndex--;
+      });
+      _updatePlaybackState();
+    }
   }
 
   void _addAutoFolds(ActionEntry entry) {
@@ -381,6 +443,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     _recalculatePots();
     _recalculateStreetInvestments();
+    _updatePlaybackState();
   }
 
   void onActionSelected(ActionEntry entry) {
@@ -402,6 +465,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
+    _updatePlaybackState();
   }
 
   Future<void> _editAction(int index) async {
@@ -527,6 +591,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       _recalculatePots();
       _recalculateStreetInvestments();
       lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
+      if (_playbackIndex > actions.length) {
+        _playbackIndex = actions.length;
+      }
+      _updatePlaybackState();
     });
   }
 
@@ -561,6 +629,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         _actionTags.clear();
         _firstActionTaken.clear();
         lastActionPlayerIndex = null;
+        _playbackIndex = 0;
+        _updatePlaybackState();
         playerTypes.clear();
         for (int i = 0; i < _showActionHints.length; i++) {
           _showActionHints[i] = true;
@@ -623,6 +693,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       _recalculatePots();
       _recalculateStreetInvestments();
       currentStreet = 0;
+      _playbackIndex = 0;
+      _updatePlaybackState();
       _updatePositions();
     });
   }
@@ -632,6 +704,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   @override
   void dispose() {
     _activeTimer?.cancel();
+    _playbackTimer?.cancel();
     _commentController.dispose();
     super.dispose();
   }
@@ -639,6 +712,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final visibleActions = actions.take(_playbackIndex).toList();
     final bool crowded = numberOfPlayers > 6;
     final double scale = crowded
         ? (screenSize.height < 700 ? 0.8 : 0.9)
@@ -652,13 +726,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
-    final effectiveStack = _calculateEffectiveStack();
+    final effectiveStack = _calculateEffectiveStack(fromActions: visibleActions);
     final pot = _pots[currentStreet];
     final double? sprValue =
         pot > 0 ? effectiveStack / pot : null;
 
     ActionEntry? lastStreetAction;
-    for (final a in actions.reversed) {
+    for (final a in visibleActions.reversed) {
       if (a.street == currentStreet) {
         lastStreetAction = a;
         break;
@@ -753,14 +827,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     final dy = radiusY * sin(angle);
                     final bias = _verticalBiasFromAngle(angle) * scale;
 
-                    final isFolded = actions.any((a) =>
+                    final isFolded = visibleActions.any((a) =>
                         a.playerIndex == index &&
                         a.action == 'fold' &&
                         a.street <= currentStreet);
                     final actionTag = _actionTags[index];
 
                     ActionEntry? lastAction;
-                    for (final a in actions.reversed) {
+                    for (final a in visibleActions.reversed) {
                       if (a.playerIndex == index && a.street == currentStreet) {
                         lastAction = a;
                         break;
@@ -1076,15 +1150,52 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
                     potText: _formatAmount(_pots[currentStreet]),
                     stackText: _formatAmount(effectiveStack),
-                    sprText: sprValue != null
-                        ? 'SPR: ${sprValue.toStringAsFixed(1)}'
-                        : null,
+                sprText: sprValue != null
+                    ? 'SPR: ${sprValue.toStringAsFixed(1)}'
+                    : null,
                   ),
                 )
               ],
             ),
           ),
         ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.skip_previous, color: Colors.white),
+                    onPressed: _stepBackward,
+                  ),
+                  IconButton(
+                    icon: Icon(
+                        _isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white),
+                    onPressed: _isPlaying ? _pausePlayback : _startPlayback,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.skip_next, color: Colors.white),
+                    onPressed: _stepForward,
+                  ),
+                  Expanded(
+                    child: Slider(
+                      value: _playbackIndex.toDouble(),
+                      min: 0,
+                      max: actions.isNotEmpty
+                          ? actions.length.toDouble()
+                          : 1,
+                      onChanged: (v) {
+                        _pausePlayback();
+                        setState(() {
+                          _playbackIndex = v.round();
+                        });
+                        _updatePlaybackState();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
