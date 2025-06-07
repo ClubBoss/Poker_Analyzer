@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/saved_hand.dart';
 
 class SavedHandsScreen extends StatefulWidget {
   const SavedHandsScreen({super.key});
@@ -8,11 +9,7 @@ class SavedHandsScreen extends StatefulWidget {
 }
 
 class _SavedHandsScreenState extends State<SavedHandsScreen> {
-  final List<String> _savedHands = [
-    'UTG рейз 2bb, MP колл, BB пуш 20bb...',
-    'BTN лимп, SB пуш 15bb, BB фолд...',
-    'CO рейз 2.5bb, BTN 3бет 7bb, CO колл...',
-  ];
+  final List<SavedHand> _savedHands = [];
 
   void _deleteHand(int index) {
     setState(() {
@@ -39,8 +36,10 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
               itemCount: _savedHands.length,
               separatorBuilder: (_, __) => const Divider(color: Colors.white12),
               itemBuilder: (context, index) {
+                final hand = _savedHands[index];
+                final title = hand.comment ?? 'Раздача ${index + 1}';
                 return Dismissible(
-                  key: Key(_savedHands[index]),
+                  key: ValueKey(index),
                   direction: DismissDirection.endToStart,
                   background: Container(
                     alignment: Alignment.centerRight,
@@ -52,7 +51,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                   child: ListTile(
                     tileColor: const Color(0xFF2A2B2E),
                     title: Text(
-                      _savedHands[index],
+                      title,
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
