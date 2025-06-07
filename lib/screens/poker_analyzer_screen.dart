@@ -1055,11 +1055,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     final dy = radiusY * sin(angle);
                     final bias = _verticalBiasFromAngle(angle) * scale;
 
-                    final isFolded = visibleActions.any((a) =>
+                    final String position = playerPositions[index] ?? '';
+                    final int stack = stackSizes[index] ?? 0;
+                    final String tag = _actionTags[index] ?? '';
+                    final bool isActive = activePlayerIndex == index;
+                    final bool isFolded = visibleActions.any((a) =>
                         a.playerIndex == index &&
                         a.action == 'fold' &&
                         a.street <= currentStreet);
-                    final actionTag = _actionTags[index];
 
                     ActionEntry? lastAction;
                     for (final a in visibleActions.reversed) {
@@ -1164,62 +1167,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         left: centerX + dx - 55 * scale,
                         top: centerY + dy + bias - 55 * scale,
                         child: PlayerInfoWidget(
-                          scale: scale,
-                          playerName: 'Player ${index + 1}',
-                          position: playerPositions[index],
-                          cards: playerCards[index],
-                          isHero: index == heroIndex,
+                          position: position,
+                          stack: stack,
+                          tag: tag,
+                          isActive: isActive,
                           isFolded: isFolded,
-                          isActive: index == activePlayerIndex,
-                          highlightLastAction: index == lastActionPlayerIndex,
-                          showHint: _showActionHints[index],
-                          actionTagText: actionTag,
-                          onCardsSelected: (card) => selectCard(index, card),
-                          playerTypeIcon: _playerTypeIcon(playerTypes[index]),
-                          stack: stackSizes[index] ?? 0,
-                          lastAction: lastAction,
-                          onTap: () async {
-                            setState(() {
-                              activePlayerIndex = index;
-                            });
-                            final result = await showDetailedActionBottomSheet(
-                              context,
-                              potSizeBB: _pots[currentStreet],
-                              stackSizeBB: stackSizes[index] ?? 0,
-                              currentStreet: currentStreet,
-                            );
-                            if (result != null) {
-                              final street = result['street'] as int? ?? currentStreet;
-                              final entry = ActionEntry(
-                                street,
-                                index,
-                                result['action'] as String,
-                                amount: result['amount'] as int?,
-                              );
-                              final existingIndex = actions.lastIndexWhere(
-                                  (a) => a.playerIndex == index && a.street == street);
-                              setState(() {
-                                if (existingIndex != -1) {
-                                  _updateAction(existingIndex, entry);
-                                } else {
-                                  _addAction(entry);
-                                }
-                              });
-                            }
-                            setState(() {
-                              if (activePlayerIndex == index) {
-                                activePlayerIndex = null;
-                              }
-                            });
-                          },
-                          onDoubleTap: () {
-                            setState(() {
-                              heroIndex = index;
-                              _updatePositions();
-                            });
-                          },
-                          onLongPress: () => _selectPlayerType(index),
-                          onStackTap: () => _editStackSize(index),
                         ),
                       ),
                       if (invested > 0) ...[
