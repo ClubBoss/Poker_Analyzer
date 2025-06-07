@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Compact display for a player's position, stack, tag and last action.
+/// Optionally shows a simplified position label as a badge.
 class PlayerInfoWidget extends StatelessWidget {
   final String position;
   final int stack;
@@ -13,6 +14,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final String playerTypeIcon;
   /// Text label describing the player's type.
   final String? playerTypeLabel;
+  /// Simplified position label shown as a badge.
+  final String? positionLabel;
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onLongPress;
@@ -29,6 +32,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.isHero = false,
     this.playerTypeIcon = '',
     this.playerTypeLabel,
+    this.positionLabel,
     this.onTap,
     this.onDoubleTap,
     this.onLongPress,
@@ -94,6 +98,23 @@ class PlayerInfoWidget extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
+          if (positionLabel != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.grey[700],
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  positionLabel!,
+                  style:
+                      const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
           const SizedBox(height: 4),
           GestureDetector(
             onTap: onStackTap,
