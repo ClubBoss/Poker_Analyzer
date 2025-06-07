@@ -4,6 +4,7 @@ Future<Map<String, dynamic>?> showDetailedActionBottomSheet(
   BuildContext context, {
   required int potSizeBB,
   required int stackSizeBB,
+  required int currentStreet,
 }) {
   return showModalBottomSheet<Map<String, dynamic>>(
     context: context,
@@ -15,6 +16,7 @@ Future<Map<String, dynamic>?> showDetailedActionBottomSheet(
     builder: (ctx) => _DetailedActionSheet(
       potSizeBB: potSizeBB,
       stackSizeBB: stackSizeBB,
+      currentStreet: currentStreet,
     ),
   );
 }
@@ -22,10 +24,12 @@ Future<Map<String, dynamic>?> showDetailedActionBottomSheet(
 class _DetailedActionSheet extends StatefulWidget {
   final int potSizeBB;
   final int stackSizeBB;
+  final int currentStreet;
 
   const _DetailedActionSheet({
     required this.potSizeBB,
     required this.stackSizeBB,
+    required this.currentStreet,
   });
 
   @override
@@ -36,11 +40,13 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
   final TextEditingController _controller = TextEditingController();
   String? _action;
   double _amount = 1;
+  late int _street;
 
   @override
   void initState() {
     super.initState();
     _controller.addListener(_onTextChanged);
+    _street = widget.currentStreet;
   }
 
   @override
@@ -59,7 +65,11 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
         _action = act;
       });
     } else {
-      Navigator.pop(context, {'action': act, 'amount': null});
+      Navigator.pop(context, {
+        'action': act,
+        'amount': null,
+        'street': _street,
+      });
     }
   }
 
@@ -88,6 +98,7 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
     final result = <String, dynamic>{
       'action': _action,
       'amount': _needAmount ? _amount.round() : null,
+      'street': _street,
     };
     Navigator.pop(context, result);
   }
@@ -101,6 +112,7 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
       {'label': 'Bet', 'value': 'bet', 'icon': '💰'},
       {'label': 'Raise', 'value': 'raise', 'icon': '📈'},
     ];
+    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
 
     return Padding(
       padding: MediaQuery.of(context).viewInsets + const EdgeInsets.all(16),
@@ -108,6 +120,22 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          DropdownButton<int>(
+            value: _street,
+            dropdownColor: Colors.black87,
+            isExpanded: true,
+            style: const TextStyle(color: Colors.white),
+            iconEnabledColor: Colors.white,
+            items: [
+              for (int i = 0; i < streetNames.length; i++)
+                DropdownMenuItem(
+                  value: i,
+                  child: Text(streetNames[i]),
+                ),
+            ],
+            onChanged: (v) => setState(() => _street = v ?? _street),
+          ),
+          const SizedBox(height: 12),
           for (int i = 0; i < actions.length; i++) ...[
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(

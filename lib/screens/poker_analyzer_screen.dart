@@ -956,21 +956,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             setState(() {
                               activePlayerIndex = index;
                             });
-                            final existingIndex = actions.lastIndexWhere((a) =>
-                                a.playerIndex == index &&
-                                a.street == currentStreet);
                             final result = await showDetailedActionBottomSheet(
                               context,
                               potSizeBB: _pots[currentStreet],
                               stackSizeBB: stackSizes[index] ?? 0,
+                              currentStreet: currentStreet,
                             );
                             if (result != null) {
+                              final street = result['street'] as int? ?? currentStreet;
                               final entry = ActionEntry(
-                                currentStreet,
+                                street,
                                 index,
                                 result['action'] as String,
                                 amount: result['amount'] as int?,
                               );
+                              final existingIndex = actions.lastIndexWhere((a) =>
+                                  a.playerIndex == index && a.street == street);
                               setState(() {
                                 if (existingIndex != -1) {
                                   _updateAction(existingIndex, entry);
