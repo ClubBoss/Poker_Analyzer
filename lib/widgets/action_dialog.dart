@@ -121,6 +121,7 @@ class _ActionDialogState extends State<ActionDialog> {
                 pot: widget.pot,
                 stackSize: widget.stackSize,
                 onSelected: _onBetSelected,
+                initialAmount: widget.initialAmount,
               ),
             ),
         ],
