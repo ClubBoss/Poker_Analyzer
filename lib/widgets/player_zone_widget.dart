@@ -28,6 +28,7 @@ class PlayerZoneWidget extends StatelessWidget {
   final Function(CardModel) onCardsSelected;
   final double scale;
   final int stack;
+  final VoidCallback? onStackTap;
 
   const PlayerZoneWidget({
     Key? key,
@@ -43,6 +44,7 @@ class PlayerZoneWidget extends StatelessWidget {
     this.actionTagText,
     this.scale = 1.0,
     required this.stack,
+    this.onStackTap,
   }) : super(key: key);
 
 
@@ -99,9 +101,10 @@ class PlayerZoneWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-            if (stack > 0)
-              Padding(
-                padding: EdgeInsets.only(top: 2.0 * scale),
+            Padding(
+              padding: EdgeInsets.only(top: 2.0 * scale),
+              child: GestureDetector(
+                onTap: onStackTap,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   transitionBuilder: (child, animation) => FadeTransition(
@@ -126,6 +129,7 @@ class PlayerZoneWidget extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),
