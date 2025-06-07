@@ -11,6 +11,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final bool isFolded;
   final bool isHero;
   final String playerTypeIcon;
+  /// Text label describing the player's type.
+  final String? playerTypeLabel;
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onLongPress;
@@ -26,6 +28,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.isFolded = false,
     this.isHero = false,
     this.playerTypeIcon = '🔘',
+    this.playerTypeLabel,
     this.onTap,
     this.onDoubleTap,
     this.onLongPress,
@@ -115,7 +118,19 @@ class PlayerInfoWidget extends StatelessWidget {
           ],
           Padding(
             padding: const EdgeInsets.only(top: 2),
-            child: Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
+            child: Column(
+              children: [
+                Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
+                if (playerTypeLabel != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      playerTypeLabel!,
+                      style: const TextStyle(color: Colors.white60, fontSize: 10),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),

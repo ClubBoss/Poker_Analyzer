@@ -176,6 +176,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  String _playerTypeLabel(String? type) {
+    switch (type) {
+      case 'shark':
+        return 'Shark';
+      case 'fish':
+        return 'Fish';
+      case 'nit':
+        return 'Nit';
+      case 'maniac':
+        return 'Maniac';
+      case 'station':
+        return 'Calling Station';
+      default:
+        return 'Standard';
+    }
+  }
+
   String _evaluateActionQuality(ActionEntry entry) {
     switch (entry.action) {
       case 'raise':
@@ -192,32 +209,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _selectPlayerType(int index) async {
-    const types = {
-      'shark': '🦈',
-      'fish': '🐟',
-      'nit': '🧊',
-      'maniac': '🔥',
-      'station': '📞',
-      'standard': '🔘',
-    };
-    final result = await showDialog<String>(
+    const types = [
+      {'key': 'fish', 'icon': '🐟', 'label': 'Fish'},
+      {'key': 'shark', 'icon': '🦈', 'label': 'Shark'},
+      {'key': 'station', 'icon': '☎️', 'label': 'Calling Station'},
+      {'key': 'maniac', 'icon': '🔥', 'label': 'Maniac'},
+      {'key': 'nit', 'icon': '🧊', 'label': 'Nit'},
+      {'key': 'standard', 'icon': '🔘', 'label': 'Standard'},
+    ];
+    final result = await showModalBottomSheet<String>(
       context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Тип игрока'),
-        children: [
-          for (final entry in types.entries)
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, entry.key),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(entry.value, style: const TextStyle(fontSize: 20)),
-                  const SizedBox(width: 8),
-                  Text(entry.key),
-                ],
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final t in types)
+              ListTile(
+                leading: Text(t['icon']!, style: const TextStyle(fontSize: 24)),
+                title: Text(t['label']!),
+                onTap: () => Navigator.pop(context, t['key']),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
     if (result != null) {
@@ -1208,6 +1221,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           isFolded: isFolded,
                           isHero: index == heroIndex,
                           playerTypeIcon: _playerTypeIcon(playerTypes[index]),
+                          playerTypeLabel: _playerTypeLabel(playerTypes[index]),
                           onTap: () => setState(() => activePlayerIndex = index),
                           onDoubleTap: () => setState(() {
                             heroIndex = index;
