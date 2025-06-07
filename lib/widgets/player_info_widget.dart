@@ -17,6 +17,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final String? playerTypeLabel;
   /// Simplified position label shown as a badge.
   final String? positionLabel;
+  /// Whether to show an indicator that this player made the last action.
+  final bool showLastIndicator;
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onLongPress;
@@ -45,6 +47,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.onEdit,
     this.onStackTap,
     this.onRemove,
+    this.showLastIndicator = false,
   });
 
   @override
@@ -280,7 +283,7 @@ class PlayerInfoWidget extends StatelessWidget {
     }
 
     Widget withBadge = clickable;
-    if (playerTypeIcon.isNotEmpty || onRemove != null || onEdit != null) {
+    if (playerTypeIcon.isNotEmpty || onRemove != null || onEdit != null || showLastIndicator) {
       final children = <Widget>[clickable];
       if (playerTypeIcon.isNotEmpty) {
         children.add(Positioned(
@@ -311,6 +314,23 @@ class PlayerInfoWidget extends StatelessWidget {
           child: GestureDetector(
             onTap: onRemove,
             child: const Text('❌', style: TextStyle(fontSize: 12)),
+          ),
+        ));
+      }
+      if (showLastIndicator) {
+        children.add(Positioned(
+          bottom: -6,
+          right: -6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: const Text(
+              '⚡',
+              style: TextStyle(color: Colors.white, fontSize: 10),
+            ),
           ),
         ));
       }
