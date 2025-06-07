@@ -1484,7 +1484,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             Expanded(
               flex: 7,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 40.0),
+                padding: const EdgeInsets.only(bottom: 8.0),
                 child: Stack(
                   children: [
                   Center(
