@@ -1325,7 +1325,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             _updatePositions();
                           }),
                           onLongPress: () => _selectPlayerType(index),
-                          onStackTap: () => _showStackInfo(index),
+                          onStackTap: (value) => setState(() {
+                            stackSizes[index] = value;
+                          }),
                           ),
                         ),
                       ),

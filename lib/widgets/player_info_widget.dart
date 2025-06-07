@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Compact display for a player's position, stack, tag and last action.
 /// Optionally shows a simplified position label as a badge.
@@ -19,7 +20,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onLongPress;
-  final VoidCallback? onStackTap;
+  /// Called when the stack value has been edited and confirmed.
+  final ValueChanged<int>? onStackTap;
 
   const PlayerInfoWidget({
     super.key,
@@ -117,7 +119,59 @@ class PlayerInfoWidget extends StatelessWidget {
             ),
           const SizedBox(height: 4),
           GestureDetector(
-            onTap: onStackTap,
+            onTap: () async {
+              if (onStackTap == null) return;
+              final controller = TextEditingController(text: stack.toString());
+              int? value = stack;
+              final result = await showDialog<int>(
+                context: context,
+                builder: (context) => StatefulBuilder(
+                  builder: (context, setState) {
+                    return AlertDialog(
+                      backgroundColor: Colors.black87,
+                      title: const Text(
+                        'Edit Stack',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      content: TextField(
+                        controller: controller,
+                        autofocus: true,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white10,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          hintText: 'Enter stack',
+                          hintStyle: const TextStyle(color: Colors.white70),
+                        ),
+                        onChanged: (text) {
+                          setState(() => value = int.tryParse(text));
+                        },
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: value != null && value! > 0
+                              ? () => Navigator.pop(context, value)
+                              : null,
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              );
+              if (result != null && result > 0) {
+                onStackTap!(result);
+              }
+            },
             child: Text(
               'Stack: \$stack',
               style: const TextStyle(color: Colors.white70, fontSize: 12),
