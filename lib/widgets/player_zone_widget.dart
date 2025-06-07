@@ -14,8 +14,7 @@ class PlayerZoneWidget extends StatefulWidget {
   final String? actionTagText;
   final Function(CardModel) onCardsSelected;
   final double scale;
-  final int stack;
-  final VoidCallback? onStackTap;
+  // Stack and editing are handled by PlayerInfoWidget
 
   const PlayerZoneWidget({
     Key? key,
@@ -30,8 +29,6 @@ class PlayerZoneWidget extends StatefulWidget {
     this.showHint = false,
     this.actionTagText,
     this.scale = 1.0,
-    required this.stack,
-    this.onStackTap,
   }) : super(key: key);
 
   @override
@@ -126,24 +123,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   textAlign: TextAlign.center,
                 ),
               ),
-            Padding(
-              padding: EdgeInsets.only(top: 2.0 * widget.scale),
-              child: GestureDetector(
-                onTap: widget.onStackTap,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: ScaleTransition(scale: animation, child: child),
-                  ),
-                  child: _ChipStack(
-                    key: ValueKey(widget.stack),
-                    count: widget.stack,
-                    scale: widget.scale,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -313,42 +292,3 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   }
 }
 
-class _ChipStack extends StatelessWidget {
-  final int count;
-  final double scale;
-
-  const _ChipStack({Key? key, required this.count, required this.scale})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final chipCount = count.clamp(0, 10);
-    final chips = List<Widget>.generate(chipCount, (index) {
-      return Container(
-        margin: EdgeInsets.only(top: index == 0 ? 0 : 2 * scale),
-        width: 12 * scale,
-        height: 12 * scale,
-        decoration: BoxDecoration(
-          color: Colors.orangeAccent,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 1),
-        ),
-      );
-    });
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (count > 10)
-          Text(
-            '10+',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12 * scale,
-            ),
-          ),
-        ...chips,
-      ],
-    );
-  }
-}
