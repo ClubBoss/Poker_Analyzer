@@ -1387,6 +1387,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         actions: actions,
                         pots: _pots,
                         stackSizes: stackSizes,
+                        playerPositions: playerPositions,
                         onEdit: _editAction,
                         onDelete: _deleteAction,
                         visibleCount: _playbackIndex,
