@@ -21,6 +21,7 @@ import '../widgets/central_pot_widget.dart';
 import '../widgets/central_pot_chips.dart';
 import '../widgets/pot_display_widget.dart';
 import '../widgets/player_bet_indicator.dart';
+import '../widgets/player_stack_chips.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 
@@ -1552,7 +1553,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       Positioned(
                         left: centerX + dx - 55 * scale * infoScale,
                         top: centerY + dy + bias - 55 * scale * infoScale,
-                        child: Transform.scale(
+                      child: Transform.scale(
                           scale: infoScale,
                           child: PlayerInfoWidget(
                           position: position,
@@ -1582,6 +1583,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           onRemove:
                               numberOfPlayers > 2 ? () { _removePlayer(index); } : null,
                           ),
+                        ),
+                      ),
+                      Positioned(
+                        left: centerX + dx - 12 * scale,
+                        top: centerY + dy + bias + 70 * scale,
+                        child: PlayerStackChips(
+                          stack: stack,
+                          scale: scale * 0.9,
                         ),
                       ),
                       if (lastAction != null)
