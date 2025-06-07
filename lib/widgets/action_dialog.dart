@@ -12,6 +12,7 @@ class ActionDialog extends StatefulWidget {
   final int pot;
   final String? initialAction;
   final int? initialAmount;
+  final List<ActionEntry> actions;
 
   const ActionDialog({
     super.key,
@@ -22,6 +23,7 @@ class ActionDialog extends StatefulWidget {
     required this.pot,
     this.initialAction,
     this.initialAmount,
+    required this.actions,
   });
 
   @override
@@ -32,6 +34,9 @@ class _ActionDialogState extends State<ActionDialog> {
   late PlayerAction _action;
   late TextEditingController _controller;
   final _formKey = GlobalKey<FormState>();
+  bool get _hasBet => widget.actions.any((a) =>
+      a.street == widget.street &&
+      ['bet', 'raise', 'call'].contains(a.action));
 
   @override
   void initState() {
@@ -44,6 +49,11 @@ class _ActionDialogState extends State<ActionDialog> {
         : PlayerAction.fold;
     _controller = TextEditingController(
         text: widget.initialAmount != null ? widget.initialAmount.toString() : '');
+    if (_hasBet && _action == PlayerAction.bet) {
+      _action = PlayerAction.raise;
+    } else if (!_hasBet && _action == PlayerAction.raise) {
+      _action = PlayerAction.bet;
+    }
   }
 
   bool get _needsAmount =>
@@ -142,7 +152,11 @@ class _ActionDialogState extends State<ActionDialog> {
                 labelStyle: TextStyle(color: Colors.white70),
               ),
               items: [
-                for (final a in PlayerAction.values)
+                for (final a in PlayerAction.values.where((a) {
+                  if (a == PlayerAction.bet) return !_hasBet;
+                  if (a == PlayerAction.raise) return _hasBet;
+                  return true;
+                }))
                   DropdownMenuItem(
                     value: a,
                     child: Text(describeEnum(a), style: textStyle),

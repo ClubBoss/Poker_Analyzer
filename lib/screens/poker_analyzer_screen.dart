@@ -227,22 +227,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
   void _addAutoFolds(ActionEntry entry) {
     final street = entry.street;
-    final playerIndex = entry.playerIndex;
-    int insertPos = actions.length - 1; // position before the new entry
-    for (int i = 0; i < numberOfPlayers; i++) {
-      if (i == playerIndex) continue;
-      if (i >= playerIndex) continue; // earlier in simple index order
-      final hasActionThisStreet =
-          actions.any((a) => a.playerIndex == i && a.street == street);
-      if (hasActionThisStreet) continue;
-      final foldedEarlier = actions.any((a) =>
-          a.playerIndex == i && a.action == 'fold' && a.street < street);
-      if (foldedEarlier) continue;
-      final autoFold =
-          ActionEntry(street, i, 'fold', generated: true);
-      actions.insert(insertPos, autoFold);
-      insertPos++;
-      _actionTags[i] = 'fold';
+    final ordered =
+        List.generate(numberOfPlayers, (i) => (i + heroIndex) % numberOfPlayers);
+    final acted = actions
+        .where((a) => a.street == street)
+        .map((a) => a.playerIndex)
+        .toSet();
+    final toFold = ordered
+        .takeWhile((i) => i != entry.playerIndex)
+        .where((i) => !acted.contains(i));
+
+    bool inserted = false;
+    for (final i in toFold) {
+      final autoFold = ActionEntry(street, i, 'fold', generated: true);
+      _addAction(autoFold);
+      inserted = true;
+    }
+    if (inserted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Пропущенные игроки сброшены в пас.')),
+      );
     }
   }
 
@@ -259,7 +263,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   void _addAction(ActionEntry entry) {
     actions.add(entry);
     _applyStackChange(entry);
-    _addAutoFolds(entry);
     lastActionPlayerIndex = entry.playerIndex;
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
@@ -269,6 +272,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
   void onActionSelected(ActionEntry entry) {
     setState(() {
+      _addAutoFolds(entry);
       _addAction(entry);
     });
   }
@@ -299,6 +303,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         stackSize: stackSizes[action.playerIndex] ?? 0,
         initialAction: action.action,
         initialAmount: action.amount,
+        actions: actions.take(index).toList(),
       ),
     );
     if (result != null) {
@@ -686,6 +691,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                     : (_streetHasBet()
                                         ? _calculateCallAmount(index)
                                         : null),
+                                actions: actions,
                               ),
                             );
                             if (result != null) {
