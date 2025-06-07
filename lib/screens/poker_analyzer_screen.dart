@@ -1492,7 +1492,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     boardCards: boardCards,
                     onCardSelected: selectBoardCard,
                   ),
-                  PotOverBoardWidget(potAmount: widget.potAmount, scale: scale),
+                  PotOverBoardWidget(
+                    visibleActions: visibleActions,
+                    currentStreet: currentStreet,
+                    scale: scale,
+                  ),
                   for (int i = 0; i < numberOfPlayers; i++) {
                     final index = (i + heroIndex) % numberOfPlayers;
                     final angle =
