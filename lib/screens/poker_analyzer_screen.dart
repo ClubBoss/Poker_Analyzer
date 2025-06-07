@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -287,32 +288,60 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
-  void _showPlayerInfo(int index) {
-    final pos = playerPositions[index];
-    final cardsText = playerCards[index]
-        .map((c) => '${c.rank}${c.suit}')
-        .join(' ');
-    final actionsText = actions
-        .where((a) => a.playerIndex == index)
-        .map((a) =>
-            '${['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][a.street]}: ${a.action}${a.amount != null ? ' ${a.amount}' : ''}')
-        .join('\n');
-    showDialog(
+  Future<void> _editStackSize(int index) async {
+    final controller =
+        TextEditingController(text: (stackSizes[index] ?? 0).toString());
+    int? value = stackSizes[index];
+    final result = await showDialog<int>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Player ${index + 1}'),
-        content: Text('Стек: ${stackSizes[index] ?? 0}\n'
-            'Позиция: ${pos ?? '-'}\n'
-            'Карты: $cardsText\n\n'
-            'Действия:\n$actionsText'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: Colors.black87,
+            title: Text(
+              'Стек игрока ${index + 1}',
+              style: const TextStyle(color: Colors.white),
+            ),
+            content: TextField(
+              controller: controller,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white10,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                hintText: 'Введите стек',
+                hintStyle: const TextStyle(color: Colors.white70),
+              ),
+              onChanged: (text) {
+                setState(() => value = int.tryParse(text));
+              },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Отмена'),
+              ),
+              TextButton(
+                onPressed: value != null && value! > 0
+                    ? () => Navigator.pop(context, value)
+                    : null,
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       ),
     );
+    if (result != null) {
+      setState(() {
+        stackSizes[index] = result;
+      });
+    }
   }
 
   void _showStreetActionsDetails() {
@@ -644,7 +673,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               }
                             });
                           },
-                          onLongPress: () => _showPlayerInfo(index),
+                          onLongPress: () => _editStackSize(index),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -662,6 +691,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                 actionTagText: actionTag,
                                 onCardsSelected: (card) => selectCard(index, card),
                                 stack: stackSizes[index] ?? 0,
+                                onStackTap: () => _editStackSize(index),
                               ),
                               AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 300),
