@@ -10,6 +10,7 @@ import '../widgets/action_dialog.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/street_actions_list.dart';
 import '../widgets/street_action_summary_bar.dart';
+import '../widgets/hud_overlay.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -210,6 +211,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
+  int _calculateEffectiveStack() {
+    int? minStack;
+    for (final entry in stackSizes.entries) {
+      final index = entry.key;
+      final folded = actions.any((a) =>
+          a.playerIndex == index && a.action == 'fold' && a.street <= currentStreet);
+      if (folded) continue;
+      final stack = entry.value;
+      if (minStack == null || stack < minStack) {
+        minStack = stack;
+      }
+    }
+    return minStack ?? 0;
+  }
+
   void _addAutoFolds(ActionEntry entry) {
     final street = entry.street;
     final playerIndex = entry.playerIndex;
@@ -408,6 +424,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
+    final effectiveStack = _calculateEffectiveStack();
+
     ActionEntry? lastStreetAction;
     for (final a in actions.reversed) {
       if (a.street == currentStreet) {
@@ -539,12 +557,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
                     final invested =
                         _streetInvestments[currentStreet]?[index] ?? 0;
-                    final chipType = (lastAction != null &&
-                            (lastAction!.action == 'bet' ||
-                                lastAction!.action == 'raise' ||
-                                lastAction!.action == 'call'))
-                        ? lastAction!.action
-                        : 'stack';
+                  final chipType = (lastAction != null &&
+                          (lastAction!.action == 'bet' ||
+                              lastAction!.action == 'raise' ||
+                              lastAction!.action == 'call'))
+                      ? lastAction!.action
+                      : 'stack';
 
                     return [
                       // action arrow behind player widgets
@@ -745,12 +763,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                           ),
                         ),
-                    ];
-                  }).expand((w) => w)
-                ],
-              ),
+                  ];
+                }).expand((w) => w)
+                ,
+                Align(
+                  alignment: Alignment.topRight,
+                  child: HudOverlay(
+                    streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
+                    potText: _formatAmount(_pots[currentStreet]),
+                    stackText: _formatAmount(effectiveStack),
+                  ),
+                )
+              ],
             ),
           ),
+        ),
             StreetActionsWidget(
               currentStreet: currentStreet,
               onStreetChanged: (index) {
