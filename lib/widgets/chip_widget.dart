@@ -17,11 +17,11 @@ class ChipWidget extends StatelessWidget {
       padding:
           EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 5 * scale),
       decoration: BoxDecoration(
-        color: Colors.green.shade700.withOpacity(0.8),
+        color: Colors.green.shade700.withAlpha((255 * 0.8).round()),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        '\$${amount}',
+        '\$$amount',
         style: TextStyle(color: Colors.white, fontSize: 14 * scale),
       ),
     );

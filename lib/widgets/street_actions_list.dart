@@ -54,7 +54,7 @@ class StreetActionsList extends StatelessWidget {
 
     String? icon;
     if (evaluateActionQuality != null && visibleCount != null) {
-      final quality = evaluateActionQuality!(a);
+      final quality = evaluateActionQuality(a);
       switch (quality) {
         case 'good':
           icon = '🟢';
@@ -71,7 +71,7 @@ class StreetActionsList extends StatelessWidget {
       dense: true,
       contentPadding: EdgeInsets.zero,
       leading:
-          icon != null ? Text(icon!, style: const TextStyle(fontSize: 16)) : null,
+          icon != null ? Text(icon, style: const TextStyle(fontSize: 16)) : null,
       title: Text(
         title,
         style: TextStyle(
@@ -108,7 +108,7 @@ class StreetActionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final relevantActions = visibleCount != null
-        ? actions.take(visibleCount!).toList(growable: false)
+        ? actions.take(visibleCount).toList(growable: false)
         : actions;
     final streetActions =
         relevantActions.where((a) => a.street == street).toList(growable: false);

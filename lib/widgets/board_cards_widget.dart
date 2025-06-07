@@ -41,11 +41,11 @@ class BoardCardsWidget extends StatelessWidget {
                 width: 36 * scale,
                 height: 52 * scale,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                  color: Colors.white.withAlpha((255 * (card == null ? 0.3 : 1.0)).round()),
                   borderRadius: BorderRadius.circular(6),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withAlpha((255 * 0.25).round()),
                       blurRadius: 3,
                       offset: const Offset(1, 2),
                     )

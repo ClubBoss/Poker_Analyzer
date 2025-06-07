@@ -7,6 +7,8 @@ Future<CardModel?> showCardSelector(BuildContext context) async {
 
   String? selectedRank;
 
+  // Ensure the context is still valid before showing the bottom sheet
+  if (!context.mounted) return null;
   await showModalBottomSheet(
     context: context,
     backgroundColor: Colors.grey[900],
@@ -53,6 +55,8 @@ Future<CardModel?> showCardSelector(BuildContext context) async {
 
   String? selectedSuit;
 
+  // Ensure the context is still valid before showing the bottom sheet
+  if (!context.mounted) return null;
   await showModalBottomSheet(
     context: context,
     backgroundColor: Colors.grey[900],

@@ -48,7 +48,7 @@ class PlayerStackChips extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withAlpha((255 * 0.6).round()),
                       blurRadius: 3,
                       offset: const Offset(1, 2),
                     )

@@ -59,32 +59,26 @@ class PlayerInfoWidget extends StatelessWidget {
             : null;
 
     Color? actionColor;
-    String? actionIcon;
     String? actionLabel;
     switch (lastAction) {
       case 'fold':
         actionColor = Colors.red;
-        actionIcon = '❌';
         actionLabel = 'Fold';
         break;
       case 'call':
         actionColor = Colors.blue;
-        actionIcon = '📞';
         actionLabel = 'Call';
         break;
       case 'bet':
         actionColor = Colors.amber;
-        actionIcon = '💰';
         actionLabel = 'Bet';
         break;
       case 'raise':
         actionColor = Colors.green;
-        actionIcon = '⬆️';
         actionLabel = 'Raise';
         break;
       case 'check':
         actionColor = Colors.grey;
-        actionIcon = '✔️';
         actionLabel = 'Check';
         break;
     }
@@ -139,7 +133,7 @@ class PlayerInfoWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  positionLabel!,
+                  positionLabel,
                   style:
                       const TextStyle(color: Colors.white, fontSize: 10),
                 ),
@@ -186,7 +180,7 @@ class PlayerInfoWidget extends StatelessWidget {
                           child: const Text('Cancel'),
                         ),
                         TextButton(
-                          onPressed: value != null && value! > 0
+                          onPressed: value != null && value > 0
                               ? () => Navigator.pop(context, value)
                               : null,
                           child: const Text('OK'),
@@ -229,7 +223,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
-                    playerTypeLabel!,
+                    playerTypeLabel,
                     style: const TextStyle(color: Colors.white60, fontSize: 10),
                   ),
                 ),
@@ -246,7 +240,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                actionLabel!,
+                actionLabel,
                 style: const TextStyle(color: Colors.white, fontSize: 10),
               ),
             ),
@@ -378,7 +372,7 @@ class _ActivePlayerGlowState extends State<_ActivePlayerGlow>
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: Colors.orange.withOpacity(0.5 + (t * 0.3)),
+                color: Colors.orange.withAlpha((255 * (0.5 + (t * 0.3))).round()),
                 blurRadius: 8 + (8 * t),
                 spreadRadius: 1,
               ),

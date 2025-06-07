@@ -181,11 +181,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 width: 36 * widget.scale,
                 height: 52 * widget.scale,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                  color: Colors.white.withAlpha((255 * (card == null ? 0.3 : 1.0)).round()),
                   borderRadius: BorderRadius.circular(6),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withAlpha((255 * 0.25).round()),
                       blurRadius: 3,
                       offset: const Offset(1, 2),
                     )
@@ -213,7 +213,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.6),
+                color: Colors.grey.withAlpha((255 * 0.6).round()),
                 borderRadius: BorderRadius.circular(10 * widget.scale),
               ),
               child: Text(
@@ -253,7 +253,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               borderRadius: BorderRadius.circular(12 * widget.scale),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blueAccent.withOpacity(0.6),
+                  color: Colors.blueAccent.withAlpha((255 * 0.6).round()),
                   blurRadius: 8,
                 )
               ],

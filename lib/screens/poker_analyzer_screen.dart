@@ -5,11 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
-import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
+import '../widgets/board_cards_widget.dart';
 
 import '../widgets/pot_over_board_widget.dart';
-import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/player_info_widget.dart';
 import '../widgets/street_actions_list.dart';
@@ -18,7 +17,6 @@ import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
 import '../widgets/bet_chips_on_table.dart';
 import '../widgets/invested_chip_tokens.dart';
-import '../widgets/central_pot_widget.dart';
 import '../widgets/central_pot_chips.dart';
 import '../widgets/pot_display_widget.dart';
 import '../widgets/player_bet_indicator.dart';
@@ -152,29 +150,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  IconData? _actionIcon(String action) {
-    switch (action) {
-      case 'fold':
-        return Icons.close;
-      case 'call':
-        return Icons.call;
-      case 'raise':
-        return Icons.arrow_upward;
-      case 'bet':
-        return Icons.trending_up;
-      case 'check':
-        return Icons.remove;
-      default:
-        return null;
-    }
-  }
-
-  String _actionLabel(ActionEntry entry) {
-    return entry.amount != null
-        ? '${entry.action} ${entry.amount}'
-        : entry.action;
-  }
-
   String _playerTypeIcon(String? type) {
     switch (type) {
       case 'shark':
@@ -221,61 +196,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         return 'bad';
       default:
         return 'ok';
-    }
-  }
-
-  Future<void> _selectPlayerType(int index) async {
-    const types = [
-      {'key': 'fish', 'icon': '🐟', 'label': 'Fish'},
-      {'key': 'shark', 'icon': '🦈', 'label': 'Shark'},
-      {'key': 'station', 'icon': '☎️', 'label': 'Calling Station'},
-      {'key': 'maniac', 'icon': '🔥', 'label': 'Maniac'},
-      {'key': 'nit', 'icon': '🧊', 'label': 'Nit'},
-      {'key': 'standard', 'icon': '🔘', 'label': 'Standard'},
-    ];
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final t in types)
-              ListTile(
-                leading: Text(t['icon']!, style: const TextStyle(fontSize: 24)),
-                title: Text(t['label']!),
-                onTap: () => Navigator.pop(context, t['key']),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (result != null) {
-      setState(() {
-        playerTypes[index] = result;
-      });
-    }
-  }
-
-  Future<void> _chooseHeroPosition() async {
-    final options = _positionsForPlayers(numberOfPlayers);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Выбрать позицию Hero'),
-        children: [
-          for (final pos in options)
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, pos),
-              child: Text(pos),
-            ),
-        ],
-      ),
-    );
-    if (result != null) {
-      setState(() {
-        _heroPosition = result;
-        _updatePositions();
-      });
     }
   }
 
@@ -479,29 +399,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  int _calculateCallAmount(int playerIndex, {List<ActionEntry>? fromActions}) {
-    final list = fromActions ?? actions;
-    final streetActions =
-        list.where((a) => a.street == currentStreet).toList();
-    final Map<int, int> bets = {};
-    int highest = 0;
-    for (final a in streetActions) {
-      if (a.action == 'bet' || a.action == 'raise' || a.action == 'call') {
-        bets[a.playerIndex] = (bets[a.playerIndex] ?? 0) + (a.amount ?? 0);
-        highest = max(highest, bets[a.playerIndex]!);
-      }
-    }
-    final playerBet = bets[playerIndex] ?? 0;
-    return max(0, highest - playerBet);
-  }
-
-  bool _streetHasBet({List<ActionEntry>? fromActions}) {
-    final list = fromActions ?? actions;
-    return list
-        .where((a) => a.street == currentStreet)
-        .any((a) => a.action == 'bet' || a.action == 'raise');
-  }
-
   int _calculatePotForStreet(int street, {List<ActionEntry>? fromActions}) {
     final list = fromActions ?? actions;
     int pot = 0;
@@ -690,153 +587,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  Future<void> _editStackSize(int index) async {
-    final controller =
-        TextEditingController(text: (stackSizes[index] ?? 0).toString());
-    int? value = stackSizes[index];
-    final result = await showDialog<int>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: Colors.black87,
-            title: Text(
-              'Стек игрока ${index + 1}',
-              style: const TextStyle(color: Colors.white),
-            ),
-            content: TextField(
-              controller: controller,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white10,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                hintText: 'Введите стек',
-                hintStyle: const TextStyle(color: Colors.white70),
-              ),
-              onChanged: (text) {
-                setState(() => value = int.tryParse(text));
-              },
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Отмена'),
-              ),
-              TextButton(
-                onPressed: value != null && value! > 0
-                    ? () => Navigator.pop(context, value)
-                    : null,
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    if (result != null) {
-      setState(() {
-        stackSizes[index] = result;
-      });
-    }
-  }
-
-  void _showStackInfo(int playerIndex) {
-    final stack = stackSizes[playerIndex] ?? 0;
-    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
-    final investments = [
-      for (int i = 0; i < 4; i++)
-        _streetInvestments[i]?[playerIndex] ?? 0
-    ];
-    final total = investments.fold<int>(0, (sum, v) => sum + v);
-    final percent = stack > 0 ? (total / stack * 100) : 0.0;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.black87,
-        title: Text(
-          'Player ${playerIndex + 1} Stack',
-          style: const TextStyle(color: Colors.white),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Stack: $stack',
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 8),
-            for (int i = 0; i < streetNames.length; i++)
-              Text(
-                '${streetNames[i]}: ${investments[i]}',
-                style: const TextStyle(color: Colors.white70),
-              ),
-            const Divider(color: Colors.white24),
-            Text(
-              'Total invested: $total',
-              style: const TextStyle(color: Colors.white),
-            ),
-            Text(
-              '% of original stack: ${percent.toStringAsFixed(1)}%',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showStreetActionsDetails() {
-    final streetActions =
-        actions.where((a) => a.street == currentStreet).toList(growable: false);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.black87,
-        title: Text(
-          ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
-          style: const TextStyle(color: Colors.white),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              for (final a in streetActions)
-                ListTile(
-                  dense: true,
-                  title: Text(
-                    '${playerPositions[a.playerIndex] ?? 'Player ${a.playerIndex + 1}'} '
-                    '— ${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _deleteAction(int index) {
     setState(() {
       final removed = actions.removeAt(index);
@@ -915,6 +665,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (choice == null || choice == 'cancel') return;
 
       if (choice == 'change') {
+        // Ensure the widget is still mounted before showing a dialog
+        if (!mounted) return;
         final selected = await showDialog<int>(
           context: context,
           builder: (context) => SimpleDialog(
@@ -934,6 +686,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
 
+    // Ensure the widget is still mounted before calling setState
+    if (!mounted) return;
     setState(() {
       heroIndex = updatedHeroIndex;
       // Remove actions for this player and adjust indices
@@ -1002,6 +756,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     if (confirm == true) {
+      // Ensure the widget is still mounted before calling setState
+      if (!mounted) return;
       setState(() {
         for (final list in playerCards) {
           list.clear();
@@ -1096,44 +852,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     super.dispose();
   }
 
-  Widget _buildBetChipsOverlay() {
+  Widget _buildBoardCardsWidget() {
+    // Calculate scale as it's done in the build method
     final screenSize = MediaQuery.of(context).size;
-    final crowded = numberOfPlayers > 6;
-    final scale = crowded ? (screenSize.height < 700 ? 0.8 : 0.9) : 1.0;
-    final tableWidth = screenSize.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY = screenSize.height / 2 -
-        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    final bool crowded = numberOfPlayers > 6;
+    final double scale = crowded
+        ? (screenSize.height < 700 ? 0.8 : 0.9)
+        : 1.0;
 
-    final List<Widget> chips = [];
-    for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + heroIndex) % numberOfPlayers;
-      final playerActions = actions
-          .where((a) => a.playerIndex == index && a.street == currentStreet)
-          .toList();
-      if (playerActions.isEmpty) continue;
-      final lastAction = playerActions.last;
-      if (['bet', 'raise', 'call'].contains(lastAction.action) &&
-          lastAction.amount != null) {
-        final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias = _verticalBiasFromAngle(angle) * scale;
-        chips.add(Positioned(
-          left: centerX + dx - 10 * scale,
-          top: centerY + dy + bias - 80 * scale,
-          child: ChipWidget(
-            amount: lastAction.amount!,
-            scale: 0.8 * scale,
-          ),
-        ));
-      }
-    }
-    return Stack(children: chips);
+    return BoardCardsWidget(
+      scale: scale,
+      currentStreet: currentStreet,
+      boardCards: boardCards,
+      onCardSelected: selectBoardCard,
+    );
   }
 
   Widget _buildInvestedChipsOverlay() {
@@ -1314,7 +1046,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           top: centerY + dy + bias - 40 * scale,
           child: PlayerBetIndicator(
             action: lastAction.action,
-            amount: lastAction.amount!,
+            amount: lastAction.amount, // Removed !
             scale: scale,
           ),
         ));
@@ -1342,7 +1074,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
         margin: const EdgeInsets.only(right: 4, bottom: 4),
         decoration: BoxDecoration(
-          color: _actionColor(a.action).withOpacity(0.8),
+          color: _actionColor(a.action).withAlpha((255 * 0.8).round()),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -1428,15 +1160,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final double scale = crowded
         ? (screenSize.height < 700 ? 0.8 : 0.9)
         : 1.0;
-    final double infoScale = numberOfPlayers > 9 ? 0.9 : 1.0;
     final tableWidth = screenSize.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY = screenSize.height / 2 -
-        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    // final double infoScale = numberOfPlayers > 9 ? 0.9 : 1.0; // Unused
+    // final tableHeight = tableWidth * 0.55; // Unused by build method directly
+    // final centerX = screenSize.width / 2 + 10; // Unused by build method directly
+    // final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0; // Unused by build method directly
+    // final centerY = screenSize.height / 2 - (numberOfPlayers > 6 ? 160 + extraOffset : 120); // Unused by build method directly
+    // final radiusX = (tableWidth / 2 - 60) * scale; // Unused by build method directly
+    // final radiusY = (tableHeight / 2 + 90) * scale; // Unused by build method directly
 
     final effectiveStack = _calculateEffectiveStack(fromActions: visibleActions);
     final pot = _pots[currentStreet];
@@ -1493,11 +1224,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       fit: BoxFit.contain,
                     ),
                   ),
-                  BoardCardsWidget(scale: scale,
-                    currentStreet: currentStreet,
-                    boardCards: boardCards,
-                    onCardSelected: selectBoardCard,
-                  ),
+                  _buildBoardCardsWidget(),
                   PotOverBoardWidget(
                     visibleActions: visibleActions,
                     currentStreet: currentStreet,
@@ -1743,10 +1470,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     pow(centerY - (centerY + dy + bias + 12), 2)),
                 height: 1,
                 decoration: BoxDecoration(
-                  color: Colors.orangeAccent.withOpacity(0.9),
+                  color: Colors.orangeAccent.withAlpha((255 * 0.9).round()),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.orangeAccent.withOpacity(0.6),
+                      color: Colors.orangeAccent.withAlpha((255 * 0.6).round()),
                       blurRadius: 4,
                     )
                   ],
@@ -1796,8 +1523,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           left: centerX + dx - 24 * scale,
           top: centerY + dy + bias - 80 * scale,
           child: ChipAmountWidget(
-            amount: lastAmountAction!.amount!.toDouble(),
-            color: _actionColor(lastAmountAction!.action),
+            amount: lastAmountAction.amount.toDouble(), // Removed !
+            color: _actionColor(lastAmountAction.action), // Removed !
             scale: scale,
           ),
         ),
@@ -1844,7 +1571,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               height: radius * 2,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: actionColor!.withOpacity(0.2),
+                color: actionColor.withAlpha((255 * 0.2).round()), // Removed !
               ),
             ),
           ),
