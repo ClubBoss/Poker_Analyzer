@@ -10,6 +10,7 @@ import '../widgets/street_actions_widget.dart';
 import '../widgets/board_cards_widget.dart';
 import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
+import '../widgets/player_info_widget.dart';
 import '../widgets/street_actions_list.dart';
 import '../widgets/collapsible_street_summary.dart';
 import '../widgets/hud_overlay.dart';
@@ -67,10 +68,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
 
-  final Map<int, bool> _showStackForPlayer = {};
-  final Map<int, Timer?> _stackTimers = {};
-  final Map<int, AnimationController> _stackControllers = {};
-  final Map<int, Animation<double>> _stackAnimations = {};
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -96,52 +93,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  void _initShowStackMap() {
-    _showStackForPlayer.clear();
-    for (int i = 0; i < numberOfPlayers; i++) {
-      _showStackForPlayer[i] = false;
-    }
-  }
-
-  void _initStackAnimations() {
-    for (final controller in _stackControllers.values) {
-      controller.dispose();
-    }
-    _stackControllers.clear();
-    _stackAnimations.clear();
-    for (int i = 0; i < numberOfPlayers; i++) {
-      final controller = AnimationController(
-        duration: const Duration(milliseconds: 300),
-        vsync: this,
-      );
-      _stackControllers[i] = controller;
-      _stackAnimations[i] = CurvedAnimation(
-        parent: controller,
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  void _showStackTemporarily(int index) {
-    _stackTimers[index]?.cancel();
-    setState(() {
-      _showStackForPlayer[index] = true;
-    });
-    _stackControllers[index]?.forward();
-    _stackTimers[index] = Timer(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      _stackControllers[index]?.reverse();
-      setState(() {
-        _showStackForPlayer[index] = false;
-      });
-    });
-  }
-
-  void _showStacksForAllPlayers() {
-    for (int i = 0; i < numberOfPlayers; i++) {
-      _showStackTemporarily(i);
-    }
-  }
 
   double _verticalBiasFromAngle(double angle) {
     return 90 + 20 * sin(angle);
@@ -311,8 +262,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       List.filled(numberOfPlayers, 'standard'),
     );
     _updatePositions();
-    _initShowStackMap();
-    _initStackAnimations();
     _updatePlaybackState();
   }
 
@@ -691,8 +640,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (int i = 0; i < _showActionHints.length; i++) {
           _showActionHints[i] = true;
         }
-        _initShowStackMap();
-        _initStackAnimations();
       });
     }
   }
@@ -754,8 +701,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackIndex = 0;
       _updatePlaybackState();
       _updatePositions();
-      _initShowStackMap();
-      _initStackAnimations();
     });
   }
 
@@ -765,9 +710,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void dispose() {
     _activeTimer?.cancel();
     _playbackTimer?.cancel();
-    for (final controller in _stackControllers.values) {
-      controller.dispose();
-    }
     _commentController.dispose();
     super.dispose();
   }
@@ -846,46 +788,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           child: ChipWidget(
             amount: invested,
             scale: 0.7 * scale,
-          ),
-        ));
-      }
-    }
-    return Stack(children: chips);
-  }
-
-  Widget _buildStackDisplayOverlay() {
-    final screenSize = MediaQuery.of(context).size;
-    final crowded = numberOfPlayers > 6;
-    final scale = crowded ? (screenSize.height < 700 ? 0.8 : 0.9) : 1.0;
-    final tableWidth = screenSize.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerY =
-        screenSize.height / 2 - (numberOfPlayers > 6 ? 160 + extraOffset : 120);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
-
-    final List<Widget> chips = [];
-    for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + heroIndex) % numberOfPlayers;
-      final stack = stackSizes[index] ?? 0;
-      final show = _showStackForPlayer[index] ?? false;
-      if (stack > 0 && show) {
-        final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias = _verticalBiasFromAngle(angle) * scale;
-        final animation = _stackAnimations[index];
-        chips.add(Positioned(
-          left: centerX + dx - 10 * scale,
-          top: centerY + dy + bias - 140 * scale,
-          child: FadeTransition(
-            opacity: animation ?? kAlwaysCompleteAnimation,
-            child: ChipWidget(
-              amount: stack,
-              scale: 0.6 * scale,
-            ),
           ),
         ));
       }
@@ -1123,8 +1025,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   }
                   playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
                   _updatePositions();
-                  _initShowStackMap();
-                  _initStackAnimations();
                 });
               }
             },
@@ -1263,9 +1163,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       Positioned(
                         left: centerX + dx - 55 * scale,
                         top: centerY + dy + bias - 55 * scale,
-                      child: GestureDetector(
+                        child: PlayerInfoWidget(
+                          scale: scale,
+                          playerName: 'Player ${index + 1}',
+                          position: playerPositions[index],
+                          cards: playerCards[index],
+                          isHero: index == heroIndex,
+                          isFolded: isFolded,
+                          isActive: index == activePlayerIndex,
+                          highlightLastAction: index == lastActionPlayerIndex,
+                          showHint: _showActionHints[index],
+                          actionTagText: actionTag,
+                          onCardsSelected: (card) => selectCard(index, card),
+                          playerTypeIcon: _playerTypeIcon(playerTypes[index]),
+                          stack: stackSizes[index] ?? 0,
+                          lastAction: lastAction,
                           onTap: () async {
-                            _showStackTemporarily(index);
                             setState(() {
                               activePlayerIndex = index;
                             });
@@ -1283,8 +1196,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                                 result['action'] as String,
                                 amount: result['amount'] as int?,
                               );
-                              final existingIndex = actions.lastIndexWhere((a) =>
-                                  a.playerIndex == index && a.street == street);
+                              final existingIndex = actions.lastIndexWhere(
+                                  (a) => a.playerIndex == index && a.street == street);
                               setState(() {
                                 if (existingIndex != -1) {
                                   _updateAction(existingIndex, entry);
@@ -1306,95 +1219,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             });
                           },
                           onLongPress: () => _selectPlayerType(index),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  PlayerZoneWidget(
-                                scale: scale,
-                                playerName: 'Player ${index + 1}',
-                                position: playerPositions[index],
-                                cards: playerCards[index],
-                                isHero: index == heroIndex,
-                                isFolded: isFolded,
-                                isActive: index == activePlayerIndex,
-                                highlightLastAction:
-                                    index == lastActionPlayerIndex,
-                                showHint: _showActionHints[index],
-                                actionTagText: actionTag,
-                                onCardsSelected: (card) => selectCard(index, card),
-                                stack: stackSizes[index] ?? 0,
-                                onStackTap: () => _editStackSize(index),
-                                  ),
-                                  SizedBox(width: 4 * scale),
-                                  Text(
-                                    _playerTypeIcon(playerTypes[index]),
-                                    style: TextStyle(fontSize: 18 * scale),
-                                  ),
-                                ],
-                              ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                transitionBuilder: (child, animation) => ScaleTransition(
-                                  scale: animation,
-                                  child: FadeTransition(opacity: animation, child: child),
-                                ),
-                                child: ChipWidget(
-                                  key: ValueKey(stackSizes[index] ?? 0),
-                                  amount: stackSizes[index] ?? 0,
-                                ),
-                              ),
-                            ],
-                          ),
+                          onStackTap: () => _editStackSize(index),
                         ),
                       ),
-                      if (lastAction != null &&
-                          (lastAction!.action == 'bet' ||
-                              lastAction!.action == 'raise' ||
-                              lastAction!.action == 'call') &&
-                          lastAction!.amount != null)
-                        Positioned(
-                          left: centerX + dx - 35 * scale,
-                          top: centerY + dy + bias + 85 * scale,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, animation) => FadeTransition(
-                              opacity: animation,
-                              child: ScaleTransition(scale: animation, child: child),
-                            ),
-                            child: Container(
-                              key: ValueKey('${lastAction!.action}_${lastAction!.amount}'),
-                              padding: EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 6 * scale),
-                              decoration: BoxDecoration(
-                                color: _actionColor(lastAction!.action),
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (_actionIcon(lastAction!.action) != null) ...[
-                                    Icon(
-                                      _actionIcon(lastAction!.action),
-                                      size: 14 * scale,
-                                      color: _actionTextColor(lastAction!.action),
-                                    ),
-                                    SizedBox(width: 4 * scale),
-                                  ],
-                                  Text(
-                                    _actionLabel(lastAction!),
-                                    style: TextStyle(
-                                      color: _actionTextColor(lastAction!.action),
-                                      fontSize: 13 * scale,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
                       if (invested > 0) ...[
                         if (_pots[currentStreet] > 0 &&
                             (lastAction?.action == 'bet' ||
@@ -1431,22 +1258,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           ),
                         ),
                       ],
-                      if (!isFolded && !((stackSizes[index] ?? 0) == 0 && invested == 0))
-                        Positioned(
-                          left: centerX + dx - 50 * scale,
-                          top: centerY + dy + bias + 124 * scale,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              'S: ${_formatAmount(stackSizes[index] ?? 0)}   I: ${_formatAmount(invested)}',
-                              style: TextStyle(color: Colors.white, fontSize: 11 * scale),
-                            ),
-                          ),
-                        ),
                       if (debugLayout)
                         Positioned(
                           left: centerX + dx - 40 * scale,
@@ -1467,7 +1278,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     ...playerWidgets,
                     ...chipTrails,
                     _buildInvestedChipsOverlay(),
-                    _buildStackDisplayOverlay(),
                     _buildPotAndBetsOverlay(),
                     _buildActionHistoryOverlay(),
                   Align(
@@ -1546,7 +1356,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           _recalculateStreetInvestments();
                           _actionTags.clear();
                         });
-                        _showStacksForAllPlayers();
                       },
                     ),
                     Padding(
