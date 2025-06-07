@@ -9,7 +9,7 @@ import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_cards_widget.dart';
 import '../widgets/action_dialog.dart';
-import '../widgets/action_bottom_sheet.dart';
+import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/street_actions_list.dart';
 import '../widgets/collapsible_street_summary.dart';
@@ -959,15 +959,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             final existingIndex = actions.lastIndexWhere((a) =>
                                 a.playerIndex == index &&
                                 a.street == currentStreet);
-                            final action = await showActionBottomSheet(context);
-                            if (action != null) {
+                            final result = await showDetailedActionBottomSheet(
+                              context,
+                              potSizeBB: _pots[currentStreet],
+                              stackSizeBB: stackSizes[index] ?? 0,
+                            );
+                            if (result != null) {
                               final entry = ActionEntry(
                                 currentStreet,
                                 index,
-                                action,
-                                amount: action == 'call'
-                                    ? _calculateCallAmount(index)
-                                    : null,
+                                result['action'] as String,
+                                amount: result['amount'] as int?,
                               );
                               setState(() {
                                 if (existingIndex != -1) {
