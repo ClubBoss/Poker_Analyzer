@@ -7,6 +7,8 @@ class CollapsibleStreetSummary extends StatefulWidget {
   final Map<int, String> playerPositions;
   final void Function(int) onEdit;
   final void Function(int) onDelete;
+  final int? visibleCount;
+  final String Function(ActionEntry)? evaluateActionQuality;
 
   const CollapsibleStreetSummary({
     super.key,
@@ -14,6 +16,8 @@ class CollapsibleStreetSummary extends StatefulWidget {
     required this.playerPositions,
     required this.onEdit,
     required this.onDelete,
+    this.visibleCount,
+    this.evaluateActionQuality,
   });
 
   @override
@@ -76,6 +80,8 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                         actions: widget.actions,
                         onEdit: widget.onEdit,
                         onDelete: widget.onDelete,
+                        visibleCount: widget.visibleCount,
+                        evaluateActionQuality: widget.evaluateActionQuality,
                       ),
                     ),
                   ),
