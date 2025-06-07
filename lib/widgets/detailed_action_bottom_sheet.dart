@@ -108,6 +108,24 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
     _onSliderChanged(value.clamp(1, widget.stackSizeBB).toDouble());
   }
 
+  Widget _quickSizeButton(String label, double fraction) {
+    final bb = widget.potSizeBB * fraction;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        OutlinedButton(
+          onPressed: () => _setQuick(fraction),
+          child: Text(label),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          '(${bb.toStringAsFixed(1)} BB)',
+          style: const TextStyle(fontSize: 10, color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
   void _confirm() {
     if (_action == null) return;
     final result = <String, dynamic>{
@@ -182,18 +200,9 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                OutlinedButton(
-                  onPressed: () => _setQuick(1 / 3),
-                  child: const Text('1/3 pot'),
-                ),
-                OutlinedButton(
-                  onPressed: () => _setQuick(1 / 2),
-                  child: const Text('1/2 pot'),
-                ),
-                OutlinedButton(
-                  onPressed: () => _setQuick(1),
-                  child: const Text('pot'),
-                ),
+                _quickSizeButton('1/3 pot', 1 / 3),
+                _quickSizeButton('1/2 pot', 1 / 2),
+                _quickSizeButton('pot', 1),
               ],
             ),
             const SizedBox(height: 12),
