@@ -137,21 +137,36 @@ class PlayerInfoWidget extends StatelessWidget {
               ),
             ),
           ],
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Column(
-              children: [
-                if (playerTypeIcon.isNotEmpty)
-                  Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
-                if (playerTypeLabel != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      playerTypeLabel!,
-                      style: const TextStyle(color: Colors.white60, fontSize: 10),
-                    ),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Column(
+            children: [
+              if (playerTypeIcon.isNotEmpty)
+                Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
+              if (playerTypeLabel != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    playerTypeLabel!,
+                    style: const TextStyle(color: Colors.white60, fontSize: 10),
                   ),
-              ],
+                ),
+            ],
+          ),
+        ),
+        if (actionColor != null && actionLabel != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              decoration: BoxDecoration(
+                color: actionColor,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                actionLabel!,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
             ),
           ),
         ],
@@ -160,36 +175,7 @@ class PlayerInfoWidget extends StatelessWidget {
 
     Widget result = box;
 
-    if (actionColor != null && actionLabel != null) {
-      final badge = IgnorePointer(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          decoration: BoxDecoration(
-            color: actionColor,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (actionIcon != null)
-                Text(actionIcon!, style: const TextStyle(fontSize: 10)),
-              if (actionIcon != null) const SizedBox(width: 2),
-              Text(
-                actionLabel!,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
-              ),
-            ],
-          ),
-        ),
-      );
-      result = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(padding: const EdgeInsets.only(bottom: 4), child: badge),
-          box,
-        ],
-      );
-    }
+
 
     if (isFolded) {
       result = Opacity(opacity: 0.5, child: result);
