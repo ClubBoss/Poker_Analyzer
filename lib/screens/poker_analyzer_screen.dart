@@ -7,6 +7,7 @@ import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
+import '../widgets/board_cards_widget.dart';
 
 import '../widgets/pot_over_board_widget.dart';
 import '../widgets/detailed_action_bottom_sheet.dart';
