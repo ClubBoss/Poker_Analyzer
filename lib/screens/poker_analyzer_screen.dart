@@ -94,6 +94,55 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     return buffer.toString();
   }
 
+  Color _actionColor(String action) {
+    switch (action) {
+      case 'fold':
+        return Colors.red[700]!;
+      case 'call':
+        return Colors.blue[700]!;
+      case 'raise':
+        return Colors.green[600]!;
+      case 'bet':
+        return Colors.amber[700]!;
+      case 'check':
+        return Colors.grey[700]!;
+      default:
+        return Colors.black;
+    }
+  }
+
+  Color _actionTextColor(String action) {
+    switch (action) {
+      case 'bet':
+        return Colors.black;
+      default:
+        return Colors.white;
+    }
+  }
+
+  IconData? _actionIcon(String action) {
+    switch (action) {
+      case 'fold':
+        return Icons.close;
+      case 'call':
+        return Icons.call;
+      case 'raise':
+        return Icons.arrow_upward;
+      case 'bet':
+        return Icons.trending_up;
+      case 'check':
+        return Icons.remove;
+      default:
+        return null;
+    }
+  }
+
+  String _actionLabel(ActionEntry entry) {
+    return entry.amount != null
+        ? '${entry.action} ${entry.amount}'
+        : entry.action;
+  }
+
   Future<void> _chooseHeroPosition() async {
     final options = _positionsForPlayers(numberOfPlayers);
     final result = await showDialog<String>(
@@ -758,15 +807,40 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         Positioned(
                           left: centerX + dx - 35 * scale,
                           top: centerY + dy + bias + 85 * scale,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.circular(8),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, animation) => FadeTransition(
+                              opacity: animation,
+                              child: ScaleTransition(scale: animation, child: child),
                             ),
-                            child: Text(
-                              '${lastAction!.action[0].toUpperCase()}${lastAction!.action.substring(1)}: ${lastAction!.amount}',
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                            child: Container(
+                              key: ValueKey('${lastAction!.action}_${lastAction!.amount}'),
+                              padding: EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 6 * scale),
+                              decoration: BoxDecoration(
+                                color: _actionColor(lastAction!.action),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (_actionIcon(lastAction!.action) != null) ...[
+                                    Icon(
+                                      _actionIcon(lastAction!.action),
+                                      size: 14 * scale,
+                                      color: _actionTextColor(lastAction!.action),
+                                    ),
+                                    SizedBox(width: 4 * scale),
+                                  ],
+                                  Text(
+                                    _actionLabel(lastAction!),
+                                    style: TextStyle(
+                                      color: _actionTextColor(lastAction!.action),
+                                      fontSize: 13 * scale,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
