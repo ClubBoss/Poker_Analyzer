@@ -1,50 +1,24 @@
 import 'package:flutter/material.dart';
 
+/// Simple widget to visualize chip stacks.
 class ChipWidget extends StatelessWidget {
+  /// Amount of chips to display.
   final int amount;
-  final String chipType; // "bet" or "stack"
-  final double scale;
 
-  const ChipWidget({
-    Key? key,
-    required this.amount,
-    this.chipType = 'stack',
-    this.scale = 1.0,
-  }) : super(key: key);
+  /// Creates a [ChipWidget].
+  const ChipWidget({super.key, required this.amount});
 
   @override
   Widget build(BuildContext context) {
-    final isBet = chipType == 'bet';
-    final gradientColors = isBet
-        ? const [Color(0xFFB22222), Colors.black]
-        : const [Color(0xFF4A4A4A), Colors.black];
-    final shadow = BoxShadow(
-      color: Colors.black.withOpacity(isBet ? 0.6 : 0.3),
-      blurRadius: isBet ? 6 : 4,
-      offset: const Offset(0, 2),
-    );
-
     return Container(
-      width: 40 * scale,
-      height: 40 * scale,
-      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: gradientColors,
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        border: Border.all(color: Colors.black87, width: 1),
-        boxShadow: [shadow],
+        color: Colors.green.shade700.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         '\$${amount}',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 13 * scale,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(color: Colors.white),
       ),
     );
   }
