@@ -24,14 +24,13 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
   int? _expandedStreet;
 
   String _summaryForStreet(int street) {
-    final streetActions = widget.actions.where((a) => a.street == street).toList();
+    final streetActions =
+        widget.actions.where((a) => a.street == street).toList(growable: false);
     if (streetActions.isEmpty) return 'Нет действий';
-    final parts = streetActions.map((a) {
-      final pos = widget.playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-      final act = '${a.action}${a.amount != null ? ' ${a.amount}' : ''}';
-      return '$act $pos';
-    }).toList();
-    return parts.join(' → ');
+    final last = streetActions.last;
+    final pos = widget.playerPositions[last.playerIndex] ?? 'P${last.playerIndex + 1}';
+    final act = '${last.action}${last.amount != null ? ' ${last.amount}' : ''}';
+    return '$act $pos';
   }
 
   @override
