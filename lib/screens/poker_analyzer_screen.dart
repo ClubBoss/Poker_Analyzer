@@ -9,6 +9,7 @@ import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_cards_widget.dart';
 import '../widgets/action_dialog.dart';
+import '../widgets/action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/street_actions_list.dart';
 import '../widgets/collapsible_street_summary.dart';
@@ -958,31 +959,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             final existingIndex = actions.lastIndexWhere((a) =>
                                 a.playerIndex == index &&
                                 a.street == currentStreet);
-                            final result = await showDialog<ActionEntry>(
-                              context: context,
-                              builder: (context) => ActionDialog(
-                                playerIndex: index,
-                                street: currentStreet,
-                                position: playerPositions[index] ?? '',
-                                pot: _pots[currentStreet],
-                                stackSize: stackSizes[index] ?? 0,
-                                initialAction: existingIndex != -1
-                                    ? actions[existingIndex].action
+                            final action = await showActionBottomSheet(context);
+                            if (action != null) {
+                              final entry = ActionEntry(
+                                currentStreet,
+                                index,
+                                action,
+                                amount: action == 'call'
+                                    ? _calculateCallAmount(index)
                                     : null,
-                                initialAmount: existingIndex != -1
-                                    ? actions[existingIndex].amount
-                                    : (_streetHasBet()
-                                        ? _calculateCallAmount(index)
-                                        : null),
-                                actions: actions,
-                              ),
-                            );
-                            if (result != null) {
+                              );
                               setState(() {
                                 if (existingIndex != -1) {
-                                  _updateAction(existingIndex, result);
+                                  _updateAction(existingIndex, entry);
                                 } else {
-                                  _addAction(result);
+                                  _addAction(entry);
                                 }
                               });
                             }
