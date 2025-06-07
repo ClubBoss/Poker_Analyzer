@@ -204,9 +204,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         final streetMap = _streetInvestments.putIfAbsent(a.street, () => {});
         streetMap[a.playerIndex] =
             (streetMap[a.playerIndex] ?? 0) + (a.amount ?? 0);
-      } else if (a.action == 'fold') {
-        _streetInvestments[a.street]?.remove(a.playerIndex);
       }
+      // Do not remove chip contributions on "fold" so that
+      // folded players still display their invested amount
     }
   }
 
