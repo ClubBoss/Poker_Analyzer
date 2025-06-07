@@ -529,12 +529,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
                     final invested =
                         _streetInvestments[currentStreet]?[index] ?? 0;
-                  final chipType = (lastAction != null &&
-                          (lastAction!.action == 'bet' ||
-                              lastAction!.action == 'raise' ||
-                              lastAction!.action == 'call'))
-                      ? lastAction!.action
-                      : 'stack';
+                    final chipType = (lastAction != null &&
+                            (lastAction!.action == 'bet' ||
+                                lastAction!.action == 'raise' ||
+                                lastAction!.action == 'call'))
+                        ? lastAction!.action
+                        : 'stack';
+
+                    final Color? actionColor =
+                        lastAction?.action == 'bet'
+                            ? const Color(0xFFFFA500)
+                            : lastAction?.action == 'raise'
+                                ? const Color(0xFFFF6347)
+                                : lastAction?.action == 'call'
+                                    ? const Color(0xFF00BFFF)
+                                    : null;
+                    final double maxRadius = 36 * scale;
+                    final double radius = (_pots[currentStreet] > 0)
+                        ? min(
+                            maxRadius,
+                            (invested / _pots[currentStreet]) * maxRadius,
+                          )
+                        : 0.0;
 
                     return [
                       // action arrow behind player widgets
@@ -699,7 +715,32 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                           ),
                         ),
-                      if (invested > 0)
+                      if (invested > 0) ...[
+                        if (_pots[currentStreet] > 0 &&
+                            (lastAction?.action == 'bet' ||
+                                lastAction?.action == 'raise' ||
+                                lastAction?.action == 'call'))
+                          Positioned(
+                            left: centerX + dx - radius,
+                            top: centerY + dy + bias + 112 * scale - radius,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (child, animation) => FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(scale: animation, child: child),
+                              ),
+                              child: AnimatedContainer(
+                                key: ValueKey(radius),
+                                duration: const Duration(milliseconds: 300),
+                                width: radius * 2,
+                                height: radius * 2,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: actionColor.withOpacity(0.2),
+                                ),
+                              ),
+                            ),
+                          ),
                         Positioned(
                           left: centerX + dx - 20 * scale,
                           top: centerY + dy + bias + 92 * scale,
@@ -720,6 +761,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                           ),
                         ),
+                      ],
                       if (debugLayout)
                         Positioned(
                           left: centerX + dx - 40 * scale,
