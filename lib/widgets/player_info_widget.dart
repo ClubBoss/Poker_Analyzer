@@ -219,7 +219,7 @@ class PlayerInfoWidget extends StatelessWidget {
               ),
             ),
           ],
-        Padding(
+          Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Column(
             children: [
