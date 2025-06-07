@@ -1770,6 +1770,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   _updateVisibleActions(); // Перестраиваем экран
                 });
               },
+              playerPositions: playerPositions,
               scale: scale,
             ),
             Padding(
