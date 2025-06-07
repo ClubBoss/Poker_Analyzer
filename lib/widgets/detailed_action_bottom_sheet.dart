@@ -211,6 +211,14 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
               ),
               style: const TextStyle(color: Colors.white),
             ),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${_amount.toStringAsFixed(1)} BB',
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _confirm,
