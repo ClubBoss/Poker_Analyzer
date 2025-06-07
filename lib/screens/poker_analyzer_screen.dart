@@ -18,6 +18,7 @@ import '../widgets/bet_chips_on_table.dart';
 import '../widgets/invested_chip_tokens.dart';
 import '../widgets/central_pot_widget.dart';
 import '../widgets/central_pot_chips.dart';
+import '../widgets/pot_display_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 
@@ -919,6 +920,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 amount: pot,
                 scale: 1.2 * scale,
               ),
+            ),
+          ),
+        ),
+      ));
+      items.add(Positioned.fill(
+        child: IgnorePointer(
+          child: Align(
+            alignment: const Alignment(0, -0.25),
+            child: PotDisplayWidget(
+              text: 'Pot ${_formatAmount(pot)}',
+              scale: scale,
             ),
           ),
         ),
