@@ -1,0 +1,54 @@
+import 'package:flutter/material.dart';
+import '../models/action_entry.dart';
+
+/// Displays a timeline of all visible actions with interaction support.
+class ActionTimelineWidget extends StatelessWidget {
+  final List<ActionEntry> actions;
+  final int playbackIndex;
+  final Function(int index) onTap;
+  final double scale;
+
+  const ActionTimelineWidget({
+    Key? key,
+    required this.actions,
+    required this.playbackIndex,
+    required this.onTap,
+    this.scale = 1.0,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48 * scale,
+      padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: actions.length,
+        itemBuilder: (context, index) {
+          final action = actions[index];
+          final isSelected = index == playbackIndex;
+
+          return GestureDetector(
+            onTap: () => onTap(index),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 4 * scale),
+              padding: EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 6 * scale),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.deepPurple : Colors.grey[800],
+                borderRadius: BorderRadius.circular(8 * scale),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: Text(
+                '${action.position} ${action.action} ${action.amount ?? ''}',
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white70,
+                  fontSize: 12 * scale,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
