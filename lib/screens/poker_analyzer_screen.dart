@@ -544,16 +544,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   if (_pots[currentStreet] > 0)
                     Positioned.fill(
                       child: IgnorePointer(
-                        child: Center(
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: ChipWidget(
-                              key: ValueKey(_pots[currentStreet]),
-                              amount: _pots[currentStreet],
+                        child: Align(
+                          alignment: const Alignment(0, 0.4),
+                          child: Text(
+                            'Pot: ${_formatAmount(_pots[currentStreet])}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
                         ),
                       ),
+                    ),
                     ),
                   for (int i = 0; i < numberOfPlayers; i++) {
                     final index = (i + heroIndex) % numberOfPlayers;
@@ -741,52 +744,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           ),
                         ),
                       ),
-                      if (lastAction != null)
-                        Positioned(
-                          left: centerX + dx - 30 * scale,
-                          top: centerY + dy + bias + 60 * scale,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '${lastAction!.action}${lastAction!.amount != null ? ' ${lastAction!.amount}' : ''}',
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
                       if (lastAction != null &&
                           (lastAction!.action == 'bet' ||
                               lastAction!.action == 'raise' ||
                               lastAction!.action == 'call') &&
                           lastAction!.amount != null)
                         Positioned(
-                          left: centerX + dx - 20 * scale,
+                          left: centerX + dx - 35 * scale,
                           top: centerY + dy + bias + 85 * scale,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.black54,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black54,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
-                                )
-                              ],
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              '${lastAction!.amount}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                              ),
+                              '${lastAction!.action[0].toUpperCase()}${lastAction!.action.substring(1)}: ${lastAction!.amount}',
+                              style: const TextStyle(color: Colors.white, fontSize: 12),
                             ),
                           ),
                         ),
