@@ -938,9 +938,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       heroIndex = updatedHeroIndex;
       // Remove actions for this player and adjust indices
       actions.removeWhere((a) => a.playerIndex == index);
-      for (final a in actions) {
+      for (int i = 0; i < actions.length; i++) {
+        final a = actions[i];
         if (a.playerIndex > index) {
-          a.playerIndex -= 1;
+          actions[i] = ActionEntry(
+            a.street,
+            a.playerIndex - 1,
+            a.action,
+            amount: a.amount,
+            generated: a.generated,
+          );
         }
       }
       // Shift player-specific data
