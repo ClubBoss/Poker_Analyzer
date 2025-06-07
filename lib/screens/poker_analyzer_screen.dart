@@ -69,6 +69,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
+  final Set<int> _animatedPlayersPerStreet = {};
 
 
   List<String> _positionsForPlayers(int count) {
@@ -386,6 +387,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _updatePlaybackState() {
     final subset = actions.take(_playbackIndex).toList();
+    if (_playbackIndex == 0) {
+      _animatedPlayersPerStreet.clear();
+    }
     _recalculatePots(fromActions: subset);
     _recalculateStreetInvestments(fromActions: subset);
     lastActionPlayerIndex =
@@ -681,6 +685,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _streetInvestments.clear();
         _actionTags.clear();
         _firstActionTaken.clear();
+        _animatedPlayersPerStreet.clear();
         lastActionPlayerIndex = null;
         _playbackIndex = 0;
         _updatePlaybackState();
@@ -747,6 +752,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _recalculateStreetInvestments();
       currentStreet = 0;
       _playbackIndex = 0;
+      _animatedPlayersPerStreet.clear();
       _updatePlaybackState();
       _updatePositions();
     });
@@ -840,6 +846,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final start =
             Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset.lerp(start, Offset(centerX, centerY), 0.2)!;
+        final animate = !_animatedPlayersPerStreet.contains(index);
+        if (animate) {
+          _animatedPlayersPerStreet.add(index);
+        }
         chips.add(Positioned.fill(
           child: BetChipsOnTable(
             start: start,
@@ -847,6 +857,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             chipCount: (invested / 20).clamp(1, 5).round(),
             color: color,
             scale: scale,
+            animate: animate,
           ),
         ));
       }
@@ -913,6 +924,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final bias = _verticalBiasFromAngle(angle) * scale;
         final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset(centerX, centerY);
+        final animate = !_animatedPlayersPerStreet.contains(index);
+        if (animate) {
+          _animatedPlayersPerStreet.add(index);
+        }
         items.add(Positioned.fill(
           child: BetChipsOnTable(
             start: start,
@@ -920,6 +935,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             chipCount: (lastAction.amount! / 20).clamp(1, 5).round(),
             color: _actionColor(lastAction.action),
             scale: scale,
+            animate: animate,
           ),
         ));
         items.add(Positioned(
@@ -1395,6 +1411,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                               _calculatePotForStreet(currentStreet);
                           _recalculateStreetInvestments();
                           _actionTags.clear();
+                          _animatedPlayersPerStreet.clear();
                         });
                       },
                     ),
