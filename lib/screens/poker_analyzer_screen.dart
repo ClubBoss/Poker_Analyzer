@@ -748,6 +748,47 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     return Stack(children: chips);
   }
 
+  Widget _buildInvestedChipsOverlay() {
+    final screenSize = MediaQuery.of(context).size;
+    final crowded = numberOfPlayers > 6;
+    final scale = crowded ? (screenSize.height < 700 ? 0.8 : 0.9) : 1.0;
+    final tableWidth = screenSize.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screenSize.width / 2 + 10;
+    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
+    final centerY =
+        screenSize.height / 2 - (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final radiusX = (tableWidth / 2 - 60) * scale;
+    final radiusY = (tableHeight / 2 + 90) * scale;
+
+    final List<Widget> chips = [];
+    for (int i = 0; i < numberOfPlayers; i++) {
+      final index = (i + heroIndex) % numberOfPlayers;
+      final invested = actions
+          .where((a) =>
+              a.playerIndex == index &&
+              a.street == currentStreet &&
+              (a.action == 'call' || a.action == 'bet' || a.action == 'raise') &&
+              a.amount != null)
+          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
+      if (invested > 0) {
+        final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+        final dx = radiusX * cos(angle);
+        final dy = radiusY * sin(angle);
+        final bias = _verticalBiasFromAngle(angle) * scale;
+        chips.add(Positioned(
+          left: centerX + dx - 10 * scale,
+          top: centerY + dy + bias - 110 * scale,
+          child: ChipWidget(
+            amount: invested,
+            scale: 0.7 * scale,
+          ),
+        ));
+      }
+    }
+    return Stack(children: chips);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -1176,6 +1217,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     ...playerWidgets,
                     ...chipTrails,
                     _buildBetChipsOverlay(),
+                    _buildInvestedChipsOverlay(),
                   Align(
                   alignment: Alignment.topRight,
                   child: HudOverlay(
