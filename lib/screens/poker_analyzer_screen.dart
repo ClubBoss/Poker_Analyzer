@@ -13,6 +13,7 @@ import '../widgets/street_actions_list.dart';
 import '../widgets/collapsible_street_summary.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
+import '../helpers/poker_position_helper.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -54,15 +55,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   bool debugLayout = false;
 
   List<String> _positionsForPlayers(int count) {
-    const base = ['BTN', 'SB', 'BB', 'UTG', 'LJ', 'HJ', 'CO'];
-    if (count <= base.length) {
-      return base.sublist(0, count);
-    }
-    final result = List<String>.from(base);
-    for (int i = base.length; i < count; i++) {
-      result.add('UTG+${i - 3}');
-    }
-    return result;
+    return getPositionList(count);
   }
 
   void setPosition(int playerIndex, String position) {
@@ -127,6 +120,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   @override
   void initState() {
     super.initState();
+    playerPositions = Map.fromIterables(
+      List.generate(numberOfPlayers, (i) => i),
+      getPositionList(numberOfPlayers),
+    );
     _updatePositions();
   }
 
@@ -492,6 +489,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                 if (value != null) {
                   setState(() {
                     numberOfPlayers = value;
+                    playerPositions = Map.fromIterables(
+                      List.generate(numberOfPlayers, (i) => i),
+                      getPositionList(numberOfPlayers),
+                    );
                     _updatePositions();
                   });
                 }
