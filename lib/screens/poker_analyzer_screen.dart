@@ -246,16 +246,45 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     }
   }
 
+  void _applyStackChange(ActionEntry entry, {bool revert = false}) {
+    if (entry.action == 'call' ||
+        entry.action == 'bet' ||
+        entry.action == 'raise') {
+      final amount = entry.amount ?? 0;
+      final current = stackSizes[entry.playerIndex] ?? 0;
+      stackSizes[entry.playerIndex] = revert ? current + amount : current - amount;
+    }
+  }
+
+  void _addAction(ActionEntry entry) {
+    actions.add(entry);
+    _applyStackChange(entry);
+    _addAutoFolds(entry);
+    lastActionPlayerIndex = entry.playerIndex;
+    _actionTags[entry.playerIndex] =
+        '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
+    _recalculatePots();
+    _recalculateStreetInvestments();
+  }
+
   void onActionSelected(ActionEntry entry) {
     setState(() {
-      actions.add(entry);
-      _addAutoFolds(entry);
-      lastActionPlayerIndex = entry.playerIndex;
-      _actionTags[entry.playerIndex] =
-          '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
-      _recalculatePots();
-      _recalculateStreetInvestments();
+      _addAction(entry);
     });
+  }
+
+  void _updateAction(int index, ActionEntry entry) {
+    final old = actions[index];
+    _applyStackChange(old, revert: true);
+    actions[index] = entry;
+    _applyStackChange(entry);
+    _recalculatePots();
+    _recalculateStreetInvestments();
+    if (index == actions.length - 1) {
+      lastActionPlayerIndex = entry.playerIndex;
+    }
+    _actionTags[entry.playerIndex] =
+        '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
   }
 
   Future<void> _editAction(int index) async {
@@ -265,6 +294,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
       builder: (context) => ActionDialog(
         playerIndex: action.playerIndex,
         street: action.street,
+        position: playerPositions[action.playerIndex] ?? '',
         pot: _pots[action.street],
         stackSize: stackSizes[action.playerIndex] ?? 0,
         initialAction: action.action,
@@ -273,14 +303,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     );
     if (result != null) {
       setState(() {
-        actions[index] = result;
-        _recalculatePots();
-        _recalculateStreetInvestments();
-        if (index == actions.length - 1) {
-          lastActionPlayerIndex = result.playerIndex;
-        }
-        _actionTags[result.playerIndex] =
-            '${result.action}${result.amount != null ? ' ${result.amount}' : ''}';
+        _updateAction(index, result);
       });
     }
   }
@@ -381,7 +404,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
 
   void _deleteAction(int index) {
     setState(() {
-      actions.removeAt(index);
+      final removed = actions.removeAt(index);
+      _applyStackChange(removed, revert: true);
       _recalculatePots();
       _recalculateStreetInvestments();
       lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
@@ -635,22 +659,40 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       Positioned(
                         left: centerX + dx - 55 * scale,
                         top: centerY + dy + bias - 55 * scale,
-                        child: GestureDetector(
+                      child: GestureDetector(
                           onTap: () async {
                             setState(() {
                               activePlayerIndex = index;
                             });
+                            final existingIndex = actions.lastIndexWhere((a) =>
+                                a.playerIndex == index &&
+                                a.street == currentStreet);
                             final result = await showDialog<ActionEntry>(
                               context: context,
                               builder: (context) => ActionDialog(
                                 playerIndex: index,
                                 street: currentStreet,
+                                position: playerPositions[index] ?? '',
                                 pot: _pots[currentStreet],
                                 stackSize: stackSizes[index] ?? 0,
+                                initialAction: existingIndex != -1
+                                    ? actions[existingIndex].action
+                                    : null,
+                                initialAmount: existingIndex != -1
+                                    ? actions[existingIndex].amount
+                                    : (_streetHasBet()
+                                        ? _calculateCallAmount(index)
+                                        : null),
                               ),
                             );
                             if (result != null) {
-                              onActionSelected(result);
+                              setState(() {
+                                if (existingIndex != -1) {
+                                  _updateAction(existingIndex, result);
+                                } else {
+                                  _addAction(result);
+                                }
+                              });
                             }
                             setState(() {
                               if (activePlayerIndex == index) {
