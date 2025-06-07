@@ -420,7 +420,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
 
     if (confirmed == true) {
-      final newStack = int.tryParse(stackController.text) ?? stackSizes[index];
+      final int newStack =
+          int.tryParse(stackController.text) ?? stackSizes[index] ?? 0;
       setState(() {
         stackSizes[index] = newStack;
         playerTypes[index] = type;
