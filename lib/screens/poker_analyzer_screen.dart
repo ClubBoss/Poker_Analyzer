@@ -1326,7 +1326,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Widget _buildActionHistoryOverlay() {
     final visible = actions.take(_playbackIndex).toList();
-    final Map<int, List<ActionEntry>> grouped = {for (var i = 0; i < 4; i++) i: []};
+    final Map<int, List<ActionEntry>> grouped =
+        {for (var i = 0; i < 4; i++) i: <ActionEntry>[]};
     for (final a in visible) {
       grouped[a.street]?.add(a);
     }
