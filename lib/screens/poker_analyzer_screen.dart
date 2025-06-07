@@ -36,7 +36,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int heroIndex = 0;
   String _heroPosition = 'BTN';
   int numberOfPlayers = 6;
-  final List<List<CardModel>> playerCards = List.generate(9, (_) => []);
+  final List<List<CardModel>> playerCards = List.generate(10, (_) => []);
   final List<CardModel> boardCards = [];
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
@@ -55,9 +55,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     6: 130,
     7: 95,
     8: 105,
+    9: 100,
   };
   final TextEditingController _commentController = TextEditingController();
-  final List<bool> _showActionHints = List.filled(9, true);
+  final List<bool> _showActionHints = List.filled(10, true);
   final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
   int? lastActionPlayerIndex;
@@ -1017,6 +1018,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final double scale = crowded
         ? (screenSize.height < 700 ? 0.8 : 0.9)
         : 1.0;
+    final double infoScale = numberOfPlayers > 9 ? 0.9 : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
@@ -1057,7 +1059,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               style: const TextStyle(color: Colors.white),
               iconEnabledColor: Colors.white,
               items: [
-                for (int i = 2; i <= 9; i++)
+                for (int i = 2; i <= 10; i++)
                   DropdownMenuItem(value: i, child: Text('Игроков: $i')),
               ],
               onChanged: (value) {
@@ -1212,9 +1214,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ),
                       ),
                       Positioned(
-                        left: centerX + dx - 55 * scale,
-                        top: centerY + dy + bias - 55 * scale,
-                        child: PlayerInfoWidget(
+                        left: centerX + dx - 55 * scale * infoScale,
+                        top: centerY + dy + bias - 55 * scale * infoScale,
+                        child: Transform.scale(
+                          scale: infoScale,
+                          child: PlayerInfoWidget(
                           position: position,
                           stack: stack,
                           tag: tag,
@@ -1223,7 +1227,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           isFolded: isFolded,
                           isHero: index == heroIndex,
                           playerTypeIcon: _playerTypeIcon(playerTypes[index]),
-                          playerTypeLabel: _playerTypeLabel(playerTypes[index]),
+                          playerTypeLabel: numberOfPlayers > 9
+                              ? null
+                              : _playerTypeLabel(playerTypes[index]),
                           onTap: () => setState(() => activePlayerIndex = index),
                           onDoubleTap: () => setState(() {
                             heroIndex = index;
@@ -1231,6 +1237,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           }),
                           onLongPress: () => _selectPlayerType(index),
                           onStackTap: () => _editStackSize(index),
+                          ),
                         ),
                       ),
                       if (lastAction != null)
