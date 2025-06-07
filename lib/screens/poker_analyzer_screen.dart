@@ -11,6 +11,7 @@ import '../widgets/chip_widget.dart';
 import '../widgets/street_actions_list.dart';
 import '../widgets/street_action_summary_bar.dart';
 import '../widgets/hud_overlay.dart';
+import '../widgets/chip_trail.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -436,6 +437,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         break;
       }
     }
+    final List<Widget> chipTrails = [];
+    final List<Widget> playerWidgets = [];
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
@@ -508,7 +511,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         ),
                       ),
                     ),
-                  ...List.generate(numberOfPlayers, (i) {
+                  for (int i = 0; i < numberOfPlayers; i++) {
                     final index = (i + heroIndex) % numberOfPlayers;
                     final angle =
                         2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
@@ -555,7 +558,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           )
                         : 0.0;
 
-                    return [
+                    final bool showTrail = invested > 0 &&
+                        (lastAction != null &&
+                            (lastAction!.action == 'bet' ||
+                                lastAction!.action == 'raise' ||
+                                lastAction!.action == 'call'));
+                    if (showTrail) {
+                      final fraction = _pots[currentStreet] > 0
+                          ? invested / _pots[currentStreet]
+                          : 0.0;
+                      final trailCount = 3 + (fraction * 2).clamp(0, 2).round();
+                      chipTrails.add(Positioned.fill(
+                        child: ChipTrail(
+                          start: Offset(centerX + dx, centerY + dy + bias + 92 * scale),
+                          end: Offset(centerX, centerY),
+                          chipCount: trailCount,
+                          visible: showTrail,
+                          scale: scale,
+                          color: actionColor ?? Colors.orangeAccent,
+                        ),
+                      ));
+                    }
+
+                    playerWidgets.addAll([
                       // action arrow behind player widgets
                       Positioned(
                         left: centerX + dx,
@@ -651,9 +676,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                   chipType: 'stack',
                                 ),
                               ),
-                              ],
-                            ),
+                            ],
                           ),
+                        ),
                       ),
                       if (lastAction != null)
                         Positioned(
@@ -766,10 +791,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                             ),
                           ),
                         ),
-                  ];
-                }).expand((w) => w)
-                ,
-                Align(
+                    ]);
+                  }
+                    ...chipTrails,
+                    ...playerWidgets,
+                  Align(
                   alignment: Alignment.topRight,
                   child: HudOverlay(
                     streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
