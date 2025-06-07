@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import 'detailed_action_bottom_sheet.dart';
 
 /// Список действий на конкретной улице
 class StreetActionsList extends StatelessWidget {
   final int street;
   final List<ActionEntry> actions;
-  final void Function(int) onEdit;
+  final List<int> pots;
+  final Map<int, int> stackSizes;
+  final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
@@ -14,13 +17,15 @@ class StreetActionsList extends StatelessWidget {
     super.key,
     required this.street,
     required this.actions,
+    required this.pots,
+    required this.stackSizes,
     required this.onEdit,
     required this.onDelete,
     this.visibleCount,
     this.evaluateActionQuality,
   });
 
-  Widget _buildTile(ActionEntry a, int globalIndex) {
+  Widget _buildTile(BuildContext context, ActionEntry a, int globalIndex) {
     final amountStr = a.amount != null ? ' ${a.amount}' : '';
     Color color;
     switch (a.action) {
@@ -70,7 +75,25 @@ class StreetActionsList extends StatelessWidget {
           fontStyle: a.generated ? FontStyle.italic : FontStyle.normal,
         ),
       ),
-      onTap: () => onEdit(globalIndex),
+      onTap: () async {
+        final result = await showDetailedActionBottomSheet(
+          context,
+          potSizeBB: pots[a.street],
+          stackSizeBB: stackSizes[a.playerIndex] ?? 0,
+          currentStreet: a.street,
+          initialAction: a.action,
+          initialAmount: a.amount,
+        );
+        if (result != null) {
+          final entry = ActionEntry(
+            result['street'] as int,
+            a.playerIndex,
+            result['action'] as String,
+            amount: result['amount'] as int?,
+          );
+          onEdit(globalIndex, entry);
+        }
+      },
       trailing: IconButton(
         icon: const Icon(Icons.delete, color: Colors.red),
         onPressed: () => onDelete(globalIndex),
@@ -109,7 +132,8 @@ class StreetActionsList extends StatelessWidget {
                       (streetActions[index].action == 'bet' ||
                           streetActions[index].action == 'raise'))
                     const Divider(height: 4, color: Colors.white24),
-                  _buildTile(streetActions[index], actions.indexOf(streetActions[index])),
+                  _buildTile(context, streetActions[index],
+                      actions.indexOf(streetActions[index])),
                 ]
               ],
             ),

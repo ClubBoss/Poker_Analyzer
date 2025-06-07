@@ -5,6 +5,8 @@ Future<Map<String, dynamic>?> showDetailedActionBottomSheet(
   required int potSizeBB,
   required int stackSizeBB,
   required int currentStreet,
+  String? initialAction,
+  int? initialAmount,
 }) {
   return showModalBottomSheet<Map<String, dynamic>>(
     context: context,
@@ -17,6 +19,8 @@ Future<Map<String, dynamic>?> showDetailedActionBottomSheet(
       potSizeBB: potSizeBB,
       stackSizeBB: stackSizeBB,
       currentStreet: currentStreet,
+      initialAction: initialAction,
+      initialAmount: initialAmount,
     ),
   );
 }
@@ -25,11 +29,15 @@ class _DetailedActionSheet extends StatefulWidget {
   final int potSizeBB;
   final int stackSizeBB;
   final int currentStreet;
+  final String? initialAction;
+  final int? initialAmount;
 
   const _DetailedActionSheet({
     required this.potSizeBB,
     required this.stackSizeBB,
     required this.currentStreet,
+    this.initialAction,
+    this.initialAmount,
   });
 
   @override
@@ -47,6 +55,13 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
     super.initState();
     _controller.addListener(_onTextChanged);
     _street = widget.currentStreet;
+    if (widget.initialAction != null) {
+      _action = widget.initialAction;
+      if (widget.initialAmount != null) {
+        _amount = widget.initialAmount!.toDouble();
+        _controller.text = widget.initialAmount!.toString();
+      }
+    }
   }
 
   @override
