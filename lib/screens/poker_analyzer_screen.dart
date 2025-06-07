@@ -17,6 +17,7 @@ import '../widgets/chip_trail.dart';
 import '../widgets/bet_chips_on_table.dart';
 import '../widgets/invested_chip_tokens.dart';
 import '../widgets/central_pot_widget.dart';
+import '../widgets/central_pot_chips.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 
@@ -726,9 +727,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       child: IgnorePointer(
                         child: Align(
                           alignment: const Alignment(0, 0.4),
-                          child: CentralPotWidget(
-                            text: 'Pot: ${_formatAmount(_pots[currentStreet])}',
-                            scale: scale,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CentralPotChips(
+                                amount: _pots[currentStreet],
+                                scale: scale,
+                              ),
+                              SizedBox(height: 4 * scale),
+                              CentralPotWidget(
+                                text:
+                                    'Pot: ${_formatAmount(_pots[currentStreet])}',
+                                scale: scale,
+                              ),
+                            ],
                           ),
                         ),
                       ),
