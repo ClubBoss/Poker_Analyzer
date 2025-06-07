@@ -1604,6 +1604,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           stack: stack,
                           tag: tag,
                           lastAction: lastAction?.action,
+                          showLastIndicator:
+                              lastStreetAction?.playerIndex == index,
                           isActive: isActive,
                           isFolded: isFolded,
                           isHero: index == heroIndex,
