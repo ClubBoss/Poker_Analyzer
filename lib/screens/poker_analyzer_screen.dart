@@ -835,22 +835,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     onCardSelected: selectBoardCard,
                   ),
                   // Pot display in the center of the table
-                  if (_pots[currentStreet] > 0)
+                  if (pot > 0)
                     Positioned.fill(
                       child: IgnorePointer(
                         child: Align(
-                          alignment: const Alignment(0, 0.4),
+                          alignment: Alignment.center,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               CentralPotChips(
-                                amount: _pots[currentStreet],
-                                scale: scale,
+                                amount: pot,
+                                scale: 1.3 * scale,
                               ),
                               SizedBox(height: 4 * scale),
                               CentralPotWidget(
-                                text:
-                                    'Pot: ${_formatAmount(_pots[currentStreet])}',
+                                text: 'Pot: ${_formatAmount(pot)}',
                                 scale: scale,
                               ),
                             ],
