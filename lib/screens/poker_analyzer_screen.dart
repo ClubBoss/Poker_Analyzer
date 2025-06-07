@@ -486,50 +486,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   ),
                   // Pot display in the center of the table
                   if (_pots[currentStreet] > 0)
-                    Positioned(
-                      left: screenSize.width / 2 - 50,
-                      top: screenSize.height / 2 - 60,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (child, animation) => FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        ),
-                        child: Container(
-                          key: ValueKey(_pots[currentStreet]),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: const [
-                              BoxShadow(color: Colors.black54, blurRadius: 4),
-                            ],
-                          ),
-                          child: Text(
-                            'Pot: ${_formatAmount(_pots[currentStreet])}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15 * scale,
-                              fontWeight: FontWeight.w500,
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Center(
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, animation) => ScaleTransition(
+                              scale: animation,
+                              child: FadeTransition(opacity: animation, child: child),
+                            ),
+                            child: ChipWidget(
+                              key: ValueKey(_pots[currentStreet]),
+                              amount: _pots[currentStreet],
+                              chipType: 'stack',
+                              scale: scale,
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                  if (_pots[currentStreet] > 0)
-                    Positioned(
-                      left: centerX - 20,
-                      top: centerY - 10,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (child, animation) => ScaleTransition(
-                          scale: animation,
-                          child: FadeTransition(opacity: animation, child: child),
-                        ),
-                        child: ChipWidget(scale: scale, 
-                          key: ValueKey(_pots[currentStreet]),
-                          amount: _pots[currentStreet],
-                          chipType: 'stack',
                         ),
                       ),
                     ),
