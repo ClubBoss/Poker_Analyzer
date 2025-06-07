@@ -23,7 +23,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
 }
 
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
-  final int heroIndex = 0;
+  int heroIndex = 0;
   String _heroPosition = 'BTN';
   int numberOfPlayers = 6;
   final List<List<CardModel>> playerCards = List.generate(9, (_) => []);
@@ -498,10 +498,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                 }
               },
             ),
-            TextButton(
-              onPressed: _chooseHeroPosition,
-              child: const Text('Выбрать позицию Hero'),
-            ),
             Expanded(
               flex: 7,
               child: Padding(
@@ -672,6 +668,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               if (activePlayerIndex == index) {
                                 activePlayerIndex = null;
                               }
+                            });
+                          },
+                          onDoubleTap: () {
+                            setState(() {
+                              heroIndex = index;
+                              _updatePositions();
                             });
                           },
                           onLongPress: () => _editStackSize(index),
