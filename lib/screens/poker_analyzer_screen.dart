@@ -175,7 +175,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       case 'station':
         return '📞';
       default:
-        return '🔘';
+        return '';
     }
   }
 
