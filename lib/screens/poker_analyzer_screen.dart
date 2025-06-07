@@ -96,6 +96,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  String _positionLabelForIndex(int index) {
+    final pos = playerPositions[index];
+    if (pos == null) return '';
+    if (pos.startsWith('UTG')) return 'UTG';
+    if (pos == 'HJ' || pos == 'MP') return 'MP';
+    return pos;
+  }
+
 
   double _verticalBiasFromAngle(double angle) {
     return 90 + 20 * sin(angle);
@@ -1308,6 +1316,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           playerTypeLabel: numberOfPlayers > 9
                               ? null
                               : _playerTypeLabel(playerTypes[index]),
+                          positionLabel: numberOfPlayers <= 9
+                              ? _positionLabelForIndex(index)
+                              : null,
                           onTap: () => setState(() => activePlayerIndex = index),
                           onDoubleTap: () => setState(() {
                             heroIndex = index;
