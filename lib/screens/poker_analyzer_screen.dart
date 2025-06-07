@@ -24,6 +24,7 @@ import '../widgets/pot_display_widget.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
 import '../widgets/bet_stack_chips.dart';
+import '../widgets/chip_amount_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 
@@ -1522,6 +1523,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       }
                     }
 
+                    ActionEntry? lastAmountAction;
+                    for (final a in visibleActions.reversed) {
+                      if (a.playerIndex == index &&
+                          a.street == currentStreet &&
+                          (a.action == 'bet' ||
+                              a.action == 'raise' ||
+                              a.action == 'call') &&
+                          a.amount != null) {
+                        lastAmountAction = a;
+                        break;
+                      }
+                    }
+
                     final invested =
                         _streetInvestments[currentStreet]?[index] ?? 0;
 
@@ -1637,6 +1651,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           ),
                         ),
                       ),
+                      if (lastAmountAction != null)
+                        Positioned(
+                          left: centerX + dx - 24 * scale,
+                          top: centerY + dy + bias - 80 * scale,
+                          child: ChipAmountWidget(
+                            amount: lastAmountAction!.amount!.toDouble(),
+                            color: _actionColor(lastAmountAction!.action),
+                            scale: scale,
+                          ),
+                        ),
                       Positioned(
                         left: centerX + dx - 12 * scale,
                         top: centerY + dy + bias + 70 * scale,
