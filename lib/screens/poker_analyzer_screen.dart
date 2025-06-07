@@ -14,6 +14,8 @@ import '../widgets/street_actions_list.dart';
 import '../widgets/collapsible_street_summary.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
+import '../widgets/invested_chip_tokens.dart';
+import '../widgets/central_pot_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 
@@ -723,17 +725,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       child: IgnorePointer(
                         child: Align(
                           alignment: const Alignment(0, 0.4),
-                          child: Text(
-                            'Pot: ${_formatAmount(_pots[currentStreet])}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                          child: CentralPotWidget(
+                            text: 'Pot: ${_formatAmount(_pots[currentStreet])}',
+                            scale: scale,
                           ),
                         ),
                       ),
-                    ),
                     ),
                   for (int i = 0; i < numberOfPlayers; i++) {
                     final index = (i + heroIndex) % numberOfPlayers;
@@ -761,13 +758,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         _streetInvestments[currentStreet]?[index] ?? 0;
 
                     final Color? actionColor =
-                        lastAction?.action == 'bet'
-                            ? const Color(0xFFFFA500)
-                            : lastAction?.action == 'raise'
-                                ? const Color(0xFFFF6347)
-                                : lastAction?.action == 'call'
-                                    ? const Color(0xFF00BFFF)
-                                    : null;
+                        (lastAction?.action == 'bet' ||
+                                lastAction?.action == 'raise')
+                            ? Colors.green
+                            : lastAction?.action == 'call'
+                                ? Colors.blue
+                                : null;
                     final double maxRadius = 36 * scale;
                     final double radius = (_pots[currentStreet] > 0)
                         ? min(
@@ -793,7 +789,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           chipCount: trailCount,
                           visible: showTrail,
                           scale: scale,
-                          color: actionColor ?? Colors.orangeAccent,
+                          color: actionColor ?? Colors.green,
                         ),
                       ));
                     }
@@ -1006,19 +1002,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                         Positioned(
                           left: centerX + dx - 20 * scale,
                           top: centerY + dy + bias + 92 * scale,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, animation) => ScaleTransition(
-                              scale: animation,
-                              child: FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
-                            ),
-                            child: ChipWidget(
-                              key: ValueKey(invested),
-                              amount: invested,
-                            ),
+                          child: InvestedChipTokens(
+                            amount: invested,
+                            color: actionColor ?? Colors.green,
+                            scale: scale,
                           ),
                         ),
                       ],
