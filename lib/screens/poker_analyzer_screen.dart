@@ -20,6 +20,7 @@ import '../widgets/invested_chip_tokens.dart';
 import '../widgets/central_pot_widget.dart';
 import '../widgets/central_pot_chips.dart';
 import '../widgets/pot_display_widget.dart';
+import '../widgets/player_bet_indicator.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 
@@ -899,11 +900,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final dy = radiusY * sin(angle);
         final bias = _verticalBiasFromAngle(angle) * scale;
         items.add(Positioned(
-          left: centerX + dx - 10 * scale,
-          top: centerY + dy + bias - 80 * scale,
-          child: ChipWidget(
+          left: centerX + dx + 40 * scale,
+          top: centerY + dy + bias - 40 * scale,
+          child: PlayerBetIndicator(
+            action: lastAction.action,
             amount: lastAction.amount!,
-            scale: 0.8 * scale,
+            scale: scale,
           ),
         ));
       }
