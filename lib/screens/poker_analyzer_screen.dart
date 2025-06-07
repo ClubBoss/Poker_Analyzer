@@ -27,6 +27,7 @@ import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
+import '../widgets/action_timeline_widget.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   const PokerAnalyzerScreen({super.key});
@@ -564,6 +565,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _recalculateStreetInvestments(fromActions: subset);
     lastActionPlayerIndex =
         subset.isNotEmpty ? subset.last.playerIndex : null;
+  }
+
+  void _updateVisibleActions() {
+    _updatePlaybackState();
   }
 
   void _playStepForward() {
@@ -1756,6 +1761,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             ),
           ),
         ),
+            ActionTimelineWidget(
+              actions: visibleActions,
+              playbackIndex: _playbackIndex,
+              onTap: (index) {
+                setState(() {
+                  _playbackIndex = index;
+                  _updateVisibleActions(); // Перестраиваем экран
+                });
+              },
+              scale: scale,
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
