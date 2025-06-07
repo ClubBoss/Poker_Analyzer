@@ -19,6 +19,9 @@ class BetChipsOnTable extends StatelessWidget {
   /// Scale factor to adapt to table scaling.
   final double scale;
 
+  /// Whether to animate the chip appearance.
+  final bool animate;
+
   const BetChipsOnTable({
     Key? key,
     required this.start,
@@ -26,6 +29,7 @@ class BetChipsOnTable extends StatelessWidget {
     required this.chipCount,
     required this.color,
     this.scale = 1.0,
+    this.animate = true,
   }) : super(key: key);
 
   @override
@@ -49,7 +53,8 @@ class BetChipsOnTable extends StatelessWidget {
             child: Transform.rotate(
               angle: angle,
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
+                duration:
+                    animate ? const Duration(milliseconds: 300) : Duration.zero,
                 transitionBuilder: (child, animation) => FadeTransition(
                   opacity: animation,
                   child: ScaleTransition(scale: animation, child: child),
