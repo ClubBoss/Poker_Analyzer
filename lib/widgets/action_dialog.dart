@@ -130,6 +130,10 @@ class _ActionDialogState extends State<ActionDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Text(
+              'Текущий пот: ${widget.pot}',
+              style: textStyle.copyWith(fontWeight: FontWeight.bold),
+            ),
             DropdownButtonFormField<PlayerAction>(
               value: _action,
               dropdownColor: Colors.black87,
