@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'chip_trail.dart';
+import 'chip_widget.dart';
 
 /// Visual representation of the central pot using chip icons.
 class CentralPotChips extends StatelessWidget {
@@ -18,22 +18,23 @@ class CentralPotChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (amount <= 0) return const SizedBox.shrink();
-    final chipCount = (amount / 20).clamp(1, 10).round();
+    final double chipScale = 1.3 * scale;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       transitionBuilder: (child, animation) => FadeTransition(
         opacity: animation,
         child: ScaleTransition(scale: animation, child: child),
       ),
-      child: Row(
-        key: ValueKey(chipCount),
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(
-          chipCount,
-          (index) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2 * scale),
-            child: MiniChip(color: Colors.orangeAccent, size: 16 * scale),
-          ),
+      child: Container(
+        key: ValueKey(amount),
+        padding: EdgeInsets.all(4 * scale),
+        decoration: BoxDecoration(
+          color: Colors.black45,
+          borderRadius: BorderRadius.circular(12 * scale),
+        ),
+        child: ChipWidget(
+          amount: amount,
+          scale: chipScale,
         ),
       ),
     );
