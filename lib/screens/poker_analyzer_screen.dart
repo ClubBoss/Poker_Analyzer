@@ -825,6 +825,66 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     return Stack(children: chips);
   }
 
+  Widget _buildPotAndBetsOverlay() {
+    final screenSize = MediaQuery.of(context).size;
+    final crowded = numberOfPlayers > 6;
+    final scale = crowded ? (screenSize.height < 700 ? 0.8 : 0.9) : 1.0;
+    final tableWidth = screenSize.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screenSize.width / 2 + 10;
+    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
+    final centerY =
+        screenSize.height / 2 - (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final radiusX = (tableWidth / 2 - 60) * scale;
+    final radiusY = (tableHeight / 2 + 90) * scale;
+
+    final List<Widget> items = [];
+
+    final pot = _pots[currentStreet];
+    if (pot > 0) {
+      items.add(Positioned.fill(
+        child: IgnorePointer(
+          child: Align(
+            alignment: const Alignment(0, -0.05),
+            child: Transform.translate(
+              offset: Offset(0, -12 * scale),
+              child: ChipWidget(
+                amount: pot,
+                scale: 1.2 * scale,
+              ),
+            ),
+          ),
+        ),
+      ));
+    }
+
+    for (int i = 0; i < numberOfPlayers; i++) {
+      final index = (i + heroIndex) % numberOfPlayers;
+      final playerActions = actions
+          .where((a) => a.playerIndex == index && a.street == currentStreet)
+          .toList();
+      if (playerActions.isEmpty) continue;
+      final lastAction = playerActions.last;
+      if (['bet', 'raise', 'call'].contains(lastAction.action) &&
+          lastAction.amount != null) {
+        final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+        final dx = radiusX * cos(angle);
+        final dy = radiusY * sin(angle);
+        final bias = _verticalBiasFromAngle(angle) * scale;
+        items.add(Positioned(
+          left: centerX + dx - 10 * scale,
+          top: centerY + dy + bias - 80 * scale,
+          child: ChipWidget(
+            amount: lastAction.amount!,
+            scale: 0.8 * scale,
+          ),
+        ));
+      }
+    }
+
+    return Stack(children: items);
+  }
+
   Widget _buildActionHistoryOverlay() {
     final visible = actions.take(_playbackIndex).toList();
     final Map<int, List<ActionEntry>> grouped = {for (var i = 0; i < 4; i++) i: []};
@@ -1006,29 +1066,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     boardCards: boardCards,
                     onCardSelected: selectBoardCard,
                   ),
-                  // Pot display in the center of the table
-                  if (pot > 0)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CentralPotChips(
-                                amount: pot,
-                                scale: 1.3 * scale,
-                              ),
-                              SizedBox(height: 4 * scale),
-                              CentralPotWidget(
-                                text: 'Pot: ${_formatAmount(pot)}',
-                                scale: scale,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
                   for (int i = 0; i < numberOfPlayers; i++) {
                     final index = (i + heroIndex) % numberOfPlayers;
                     final angle =
@@ -1347,9 +1384,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                   }
                     ...playerWidgets,
                     ...chipTrails,
-                    _buildBetChipsOverlay(),
                     _buildInvestedChipsOverlay(),
                     _buildStackDisplayOverlay(),
+                    _buildPotAndBetsOverlay(),
                     _buildActionHistoryOverlay(),
                   Align(
                   alignment: Alignment.topRight,
