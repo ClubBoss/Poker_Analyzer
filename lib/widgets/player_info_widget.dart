@@ -27,7 +27,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.isActive = false,
     this.isFolded = false,
     this.isHero = false,
-    this.playerTypeIcon = '🔘',
+    this.playerTypeIcon = '',
     this.playerTypeLabel,
     this.onTap,
     this.onDoubleTap,
@@ -120,7 +120,8 @@ class PlayerInfoWidget extends StatelessWidget {
             padding: const EdgeInsets.only(top: 2),
             child: Column(
               children: [
-                Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
+                if (playerTypeIcon.isNotEmpty)
+                  Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
                 if (playerTypeLabel != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
@@ -192,7 +193,27 @@ class PlayerInfoWidget extends StatelessWidget {
       clickable = _ActivePlayerGlow(child: clickable);
     }
 
-    return clickable;
+    Widget withBadge = clickable;
+    if (playerTypeIcon.isNotEmpty) {
+      withBadge = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          clickable,
+          Positioned(
+            top: -6,
+            right: -6,
+            child: IgnorePointer(
+              child: Text(
+                playerTypeIcon,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return withBadge;
   }
 }
 
