@@ -51,6 +51,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
   Map<int, String> playerPositions = {};
+  Map<int, String> playerTypes = {};
 
   bool debugLayout = false;
 
@@ -143,6 +144,59 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         : entry.action;
   }
 
+  String _playerTypeIcon(String? type) {
+    switch (type) {
+      case 'shark':
+        return '🦈';
+      case 'fish':
+        return '🐟';
+      case 'nit':
+        return '🧊';
+      case 'maniac':
+        return '🔥';
+      case 'station':
+        return '📞';
+      default:
+        return '🔘';
+    }
+  }
+
+  Future<void> _selectPlayerType(int index) async {
+    const types = {
+      'shark': '🦈',
+      'fish': '🐟',
+      'nit': '🧊',
+      'maniac': '🔥',
+      'station': '📞',
+      'standard': '🔘',
+    };
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Тип игрока'),
+        children: [
+          for (final entry in types.entries)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, entry.key),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(entry.value, style: const TextStyle(fontSize: 20)),
+                  const SizedBox(width: 8),
+                  Text(entry.key),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        playerTypes[index] = result;
+      });
+    }
+  }
+
   Future<void> _chooseHeroPosition() async {
     final options = _positionsForPlayers(numberOfPlayers);
     final result = await showDialog<String>(
@@ -172,6 +226,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     playerPositions = Map.fromIterables(
       List.generate(numberOfPlayers, (i) => i),
       getPositionList(numberOfPlayers),
+    );
+    playerTypes = Map.fromIterables(
+      List.generate(numberOfPlayers, (i) => i),
+      List.filled(numberOfPlayers, 'standard'),
     );
     _updatePositions();
   }
@@ -497,6 +555,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
         _actionTags.clear();
         _firstActionTaken.clear();
         lastActionPlayerIndex = null;
+        playerTypes.clear();
         for (int i = 0; i < _showActionHints.length; i++) {
           _showActionHints[i] = true;
         }
@@ -571,6 +630,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       List.generate(numberOfPlayers, (i) => i),
                       getPositionList(numberOfPlayers),
                     );
+                    for (int i = 0; i < numberOfPlayers; i++) {
+                      playerTypes.putIfAbsent(i, () => 'standard');
+                    }
+                    playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
                     _updatePositions();
                   });
                 }
@@ -764,11 +827,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                               _updatePositions();
                             });
                           },
-                          onLongPress: () => _editStackSize(index),
+                          onLongPress: () => _selectPlayerType(index),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              PlayerZoneWidget(
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  PlayerZoneWidget(
                                 scale: scale,
                                 playerName: 'Player ${index + 1}',
                                 position: playerPositions[index],
@@ -783,6 +849,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                                 onCardsSelected: (card) => selectCard(index, card),
                                 stack: stackSizes[index] ?? 0,
                                 onStackTap: () => _editStackSize(index),
+                                  ),
+                                  SizedBox(width: 4 * scale),
+                                  Text(
+                                    _playerTypeIcon(playerTypes[index]),
+                                    style: TextStyle(fontSize: 18 * scale),
+                                  ),
+                                ],
                               ),
                               AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 300),
