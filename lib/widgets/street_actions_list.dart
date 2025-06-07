@@ -8,6 +8,7 @@ class StreetActionsList extends StatelessWidget {
   final List<ActionEntry> actions;
   final List<int> pots;
   final Map<int, int> stackSizes;
+  final Map<int, String> playerPositions;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
   final int? visibleCount;
@@ -19,6 +20,7 @@ class StreetActionsList extends StatelessWidget {
     required this.actions,
     required this.pots,
     required this.stackSizes,
+    required this.playerPositions,
     required this.onEdit,
     required this.onDelete,
     this.visibleCount,
@@ -44,9 +46,11 @@ class StreetActionsList extends StatelessWidget {
       default:
         color = Colors.white;
     }
+    final pos =
+        playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
     final title = a.generated
-        ? 'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr (auto)'
-        : 'Игрок ${a.playerIndex + 1}: ${a.action}$amountStr';
+        ? '$pos — ${a.action}$amountStr (auto)'
+        : '$pos — ${a.action}$amountStr';
 
     String? icon;
     if (evaluateActionQuality != null && visibleCount != null) {

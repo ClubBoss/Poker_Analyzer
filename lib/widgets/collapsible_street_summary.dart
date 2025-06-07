@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import 'street_actions_list.dart';
-import 'street_action_chip_row.dart';
 
 class CollapsibleStreetSummary extends StatefulWidget {
   final List<ActionEntry> actions;
@@ -31,6 +30,41 @@ class CollapsibleStreetSummary extends StatefulWidget {
 
 class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
   int? _expandedStreet;
+
+  Color _colorForAction(String action) {
+    switch (action) {
+      case 'fold':
+        return Colors.red;
+      case 'call':
+        return Colors.blue;
+      case 'raise':
+      case 'bet':
+        return Colors.green;
+      default:
+        return Colors.white;
+    }
+  }
+
+  String _capitalize(String s) =>
+      s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
+
+  Widget _buildHeaderSummary(List<ActionEntry> actions) {
+    if (actions.isEmpty) {
+      return const Text(
+        'Нет действий',
+        style: TextStyle(color: Colors.white54),
+      );
+    }
+    final last = actions.last;
+    final pos =
+        widget.playerPositions[last.playerIndex] ?? 'P${last.playerIndex + 1}';
+    final actionText =
+        '${_capitalize(last.action)}${last.amount != null ? ' ${last.amount}' : ''}';
+    return Text(
+      '$pos $actionText',
+      style: TextStyle(color: _colorForAction(last.action)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +100,7 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                           style: const TextStyle(color: Colors.white),
                         ),
                         const SizedBox(height: 4),
-                        StreetActionChipRow(actions: streetActions),
+                        _buildHeaderSummary(streetActions),
                       ],
                     ),
                   ),
@@ -83,6 +117,7 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                         actions: widget.actions,
                         pots: widget.pots,
                         stackSizes: widget.stackSizes,
+                        playerPositions: widget.playerPositions,
                         onEdit: widget.onEdit,
                         onDelete: widget.onDelete,
                         visibleCount: widget.visibleCount,
