@@ -124,23 +124,25 @@ class PlayerInfoWidget extends StatelessWidget {
     Widget result = box;
 
     if (actionColor != null && actionLabel != null) {
-      final badge = Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        decoration: BoxDecoration(
-          color: actionColor,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (actionIcon != null)
-              Text(actionIcon!, style: const TextStyle(fontSize: 10)),
-            if (actionIcon != null) const SizedBox(width: 2),
-            Text(
-              actionLabel!,
-              style: const TextStyle(color: Colors.white, fontSize: 10),
-            ),
-          ],
+      final badge = IgnorePointer(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          decoration: BoxDecoration(
+            color: actionColor,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (actionIcon != null)
+                Text(actionIcon!, style: const TextStyle(fontSize: 10)),
+              if (actionIcon != null) const SizedBox(width: 2),
+              Text(
+                actionLabel!,
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ],
+          ),
         ),
       );
       result = Column(
@@ -160,11 +162,15 @@ class PlayerInfoWidget extends StatelessWidget {
       result = Tooltip(message: 'Change player type', child: result);
     }
 
-    return GestureDetector(
-      onTap: onTap,
-      onDoubleTap: onDoubleTap,
-      onLongPress: onLongPress,
-      child: result,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        onDoubleTap: onDoubleTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(8),
+        child: result,
+      ),
     );
   }
 }
