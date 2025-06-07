@@ -827,46 +827,55 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
             ),
           ),
         ),
-            CollapsibleStreetSummary(
-              actions: actions,
-              playerPositions: playerPositions,
-              onEdit: _editAction,
-              onDelete: _deleteAction,
-            ),
-            StreetActionsWidget(
-              currentStreet: currentStreet,
-              onStreetChanged: (index) {
-                setState(() {
-                  currentStreet = index;
-                  _pots[currentStreet] = _calculatePotForStreet(currentStreet);
-                  _recalculateStreetInvestments();
-                  _actionTags.clear();
-                });
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: StreetActionsList(
-                street: currentStreet,
-                actions: actions,
-                onEdit: _editAction,
-                onDelete: _deleteAction,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: TextField(
-                controller: _commentController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Комментарий к раздаче',
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    CollapsibleStreetSummary(
+                      actions: actions,
+                      playerPositions: playerPositions,
+                      onEdit: _editAction,
+                      onDelete: _deleteAction,
+                    ),
+                    StreetActionsWidget(
+                      currentStreet: currentStreet,
+                      onStreetChanged: (index) {
+                        setState(() {
+                          currentStreet = index;
+                          _pots[currentStreet] =
+                              _calculatePotForStreet(currentStreet);
+                          _recalculateStreetInvestments();
+                          _actionTags.clear();
+                        });
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: StreetActionsList(
+                        street: currentStreet,
+                        actions: actions,
+                        onEdit: _editAction,
+                        onDelete: _deleteAction,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextField(
+                        controller: _commentController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          labelText: 'Комментарий к раздаче',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: _resetHand,
+                      child: const Text('Сбросить раздачу'),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: _resetHand,
-              child: const Text('Сбросить раздачу'),
             ),
           ],
           ),
