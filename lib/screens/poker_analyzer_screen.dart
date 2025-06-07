@@ -1443,15 +1443,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final double? sprValue =
         pot > 0 ? effectiveStack / pot : null;
 
-    ActionEntry? lastStreetAction;
-    for (final a in visibleActions.reversed) {
-      if (a.street == currentStreet) {
-        lastStreetAction = a;
-        break;
-      }
-    }
-    final List<Widget> chipTrails = [];
-    final List<Widget> playerWidgets = [];
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
@@ -1512,245 +1503,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     currentStreet: currentStreet,
                     scale: scale,
                   ),
-                  for (int i = 0; i < numberOfPlayers; i++) {
-                    final index = (i + heroIndex) % numberOfPlayers;
-                    final angle =
-                        2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
-                    final dx = radiusX * cos(angle);
-                    final dy = radiusY * sin(angle);
-                    final bias = _verticalBiasFromAngle(angle) * scale;
-
-                    final String position = playerPositions[index] ?? '';
-                    final int stack = stackSizes[index] ?? 0;
-                    final String tag = _actionTags[index] ?? '';
-                    final bool isActive = activePlayerIndex == index;
-                    final bool isFolded = visibleActions.any((a) =>
-                        a.playerIndex == index &&
-                        a.action == 'fold' &&
-                        a.street <= currentStreet);
-
-                    ActionEntry? lastAction;
-                    for (final a in visibleActions.reversed) {
-                      if (a.playerIndex == index && a.street == currentStreet) {
-                        lastAction = a;
-                        break;
-                      }
-                    }
-
-                    ActionEntry? lastAmountAction;
-                    for (final a in visibleActions.reversed) {
-                      if (a.playerIndex == index &&
-                          a.street == currentStreet &&
-                          (a.action == 'bet' ||
-                              a.action == 'raise' ||
-                              a.action == 'call') &&
-                          a.amount != null) {
-                        lastAmountAction = a;
-                        break;
-                      }
-                    }
-
-                    final invested =
-                        _streetInvestments[currentStreet]?[index] ?? 0;
-
-                    final Color? actionColor =
-                        (lastAction?.action == 'bet' ||
-                                lastAction?.action == 'raise')
-                            ? Colors.green
-                            : lastAction?.action == 'call'
-                                ? Colors.blue
-                                : null;
-                    final double maxRadius = 36 * scale;
-                    final double radius = (_pots[currentStreet] > 0)
-                        ? min(
-                            maxRadius,
-                            (invested / _pots[currentStreet]) * maxRadius,
-                          )
-                        : 0.0;
-
-                    final bool showTrail = invested > 0 &&
-                        (lastAction != null &&
-                            (lastAction!.action == 'bet' ||
-                                lastAction!.action == 'raise' ||
-                                lastAction!.action == 'call'));
-                    if (showTrail) {
-                      final fraction = _pots[currentStreet] > 0
-                          ? invested / _pots[currentStreet]
-                          : 0.0;
-                      final trailCount = 3 + (fraction * 2).clamp(0, 2).round();
-                      chipTrails.add(Positioned.fill(
-                        child: ChipTrail(
-                          start: Offset(centerX + dx, centerY + dy + bias + 92 * scale),
-                          end: Offset(centerX, centerY),
-                          chipCount: trailCount,
-                          visible: showTrail,
-                          scale: scale,
-                          color: actionColor ?? Colors.green,
-                        ),
-                      ));
-                    }
-
-                    playerWidgets.addAll([
-                      // action arrow behind player widgets
-                      Positioned(
-                        left: centerX + dx,
-                        top: centerY + dy + bias + 12,
-                        child: IgnorePointer(
-                          child: AnimatedOpacity(
-                            opacity: (lastStreetAction != null &&
-                                    lastStreetAction!.playerIndex == index &&
-                                    (lastStreetAction!.action == 'bet' ||
-                                        lastStreetAction!.action == 'raise' ||
-                                        lastStreetAction!.action == 'call'))
-                                ? 1.0
-                                : 0.0,
-                            duration: const Duration(milliseconds: 300),
-                            child: Transform.rotate(
-                              angle: atan2(
-                                  centerY - (centerY + dy + bias + 12),
-                                  centerX - (centerX + dx)),
-                              alignment: Alignment.topLeft,
-                              child: Container(
-                                width: sqrt(pow(centerX - (centerX + dx), 2) +
-                                    pow(centerY - (centerY + dy + bias + 12), 2)),
-                                height: 1,
-                                decoration: BoxDecoration(
-                                  color: Colors.orangeAccent.withOpacity(0.9),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.orangeAccent.withOpacity(0.6),
-                                      blurRadius: 4,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: centerX + dx - 55 * scale * infoScale,
-                        top: centerY + dy + bias - 55 * scale * infoScale,
-                      child: Transform.scale(
-                          scale: infoScale,
-                          child: PlayerInfoWidget(
-                          position: position,
-                          stack: stack,
-                          tag: tag,
-                          lastAction: lastAction?.action,
-                          showLastIndicator:
-                              lastStreetAction?.playerIndex == index,
-                          isActive: isActive,
-                          isFolded: isFolded,
-                          isHero: index == heroIndex,
-                          playerTypeIcon: _playerTypeIcon(playerTypes[index]),
-                          playerTypeLabel: numberOfPlayers > 9
-                              ? null
-                              : _playerTypeLabel(playerTypes[index]),
-                          positionLabel: numberOfPlayers <= 9
-                              ? _positionLabelForIndex(index)
-                              : null,
-                          onTap: () => setState(() => activePlayerIndex = index),
-                          onDoubleTap: () => setState(() {
-                            heroIndex = index;
-                            _updatePositions();
-                          }),
-                          onLongPress: () => _editPlayerInfo(index),
-                          onEdit: () => _editPlayerInfo(index),
-                          onStackTap: (value) => setState(() {
-                            stackSizes[index] = value;
-                          }),
-                          onRemove:
-                              numberOfPlayers > 2 ? () { _removePlayer(index); } : null,
-                          ),
-                        ),
-                      ),
-                      if (lastAmountAction != null)
-                        Positioned(
-                          left: centerX + dx - 24 * scale,
-                          top: centerY + dy + bias - 80 * scale,
-                          child: ChipAmountWidget(
-                            amount: lastAmountAction!.amount!.toDouble(),
-                            color: _actionColor(lastAmountAction!.action),
-                            scale: scale,
-                          ),
-                        ),
-                      Positioned(
-                        left: centerX + dx - 12 * scale,
-                        top: centerY + dy + bias + 70 * scale,
-                        child: PlayerStackChips(
-                          stack: stack,
-                          scale: scale * 0.9,
-                        ),
-                      ),
-                      if (lastAction != null)
-                        Positioned(
-                          left: centerX + dx + 40 * scale,
-                          top: centerY + dy + bias - 60 * scale,
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            iconSize: 16 * scale,
-                            onPressed: () => _removeLastPlayerAction(index),
-                            icon: const Text('❌',
-                                style: TextStyle(color: Colors.redAccent)),
-                          ),
-                        ),
-                      if (invested > 0) ...[
-                        if (_pots[currentStreet] > 0 &&
-                            (lastAction?.action == 'bet' ||
-                                lastAction?.action == 'raise' ||
-                                lastAction?.action == 'call'))
-                          Positioned(
-                            left: centerX + dx - radius,
-                            top: centerY + dy + bias + 112 * scale - radius,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-                              transitionBuilder: (child, animation) => FadeTransition(
-                                opacity: animation,
-                                child: ScaleTransition(scale: animation, child: child),
-                              ),
-                              child: AnimatedContainer(
-                                key: ValueKey(radius),
-                                duration: const Duration(milliseconds: 300),
-                                width: radius * 2,
-                                height: radius * 2,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: actionColor.withOpacity(0.2),
-                                ),
-                              ),
-                            ),
-                          ),
-                        Positioned(
-                          left: centerX + dx - 20 * scale,
-                          top: centerY + dy + bias + 92 * scale,
-                          child: InvestedChipTokens(
-                            amount: invested,
-                            color: actionColor ?? Colors.green,
-                            scale: scale,
-                          ),
-                        ),
-                      ],
-                      if (debugLayout)
-                        Positioned(
-                          left: centerX + dx - 40 * scale,
-                          top: centerY + dy + bias - 70 * scale,
-                          child: Container(
-                            padding: const EdgeInsets.all(2),
-                            color: Colors.black45,
-                            child: Text(
-                              'a:${angle.toStringAsFixed(2)}\n${dx.toStringAsFixed(1)},${dy.toStringAsFixed(1)}',
-                              style: TextStyle(
-                                  color: Colors.yellow, fontSize: 9 * scale),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                    ]);
-                  }
-                    ...playerWidgets,
-                    ...chipTrails,
+                  for (int i = 0; i < numberOfPlayers; i++) ..._buildPlayerWidgets(i),
+                  for (int i = 0; i < numberOfPlayers; i++) ..._buildChipTrail(i),
                     _buildBetStacksOverlay(),
                     _buildInvestedChipsOverlay(),
                     _buildPotAndBetsOverlay(),
@@ -1883,6 +1637,313 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
         ),
       ),
-    );
+      );
+  }
+
+  List<Widget> _buildPlayerWidgets(int i) {
+    final screenSize = MediaQuery.of(context).size;
+    final bool crowded = numberOfPlayers > 6;
+    final double scale = crowded
+        ? (screenSize.height < 700 ? 0.8 : 0.9)
+        : 1.0;
+    final double infoScale = numberOfPlayers > 9 ? 0.9 : 1.0;
+    final tableWidth = screenSize.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screenSize.width / 2 + 10;
+    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
+    final centerY = screenSize.height / 2 -
+        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final radiusX = (tableWidth / 2 - 60) * scale;
+    final radiusY = (tableHeight / 2 + 90) * scale;
+
+    final visibleActions = actions.take(_playbackIndex).toList();
+
+    ActionEntry? lastStreetAction;
+    for (final a in visibleActions.reversed) {
+      if (a.street == currentStreet) {
+        lastStreetAction = a;
+        break;
+      }
+    }
+
+    final index = (i + heroIndex) % numberOfPlayers;
+    final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = _verticalBiasFromAngle(angle) * scale;
+
+    final String position = playerPositions[index] ?? '';
+    final int stack = stackSizes[index] ?? 0;
+    final String tag = _actionTags[index] ?? '';
+    final bool isActive = activePlayerIndex == index;
+    final bool isFolded = visibleActions.any((a) =>
+        a.playerIndex == index &&
+        a.action == 'fold' &&
+        a.street <= currentStreet);
+
+    ActionEntry? lastAction;
+    for (final a in visibleActions.reversed) {
+      if (a.playerIndex == index && a.street == currentStreet) {
+        lastAction = a;
+        break;
+      }
+    }
+
+    ActionEntry? lastAmountAction;
+    for (final a in visibleActions.reversed) {
+      if (a.playerIndex == index &&
+          a.street == currentStreet &&
+          (a.action == 'bet' ||
+              a.action == 'raise' ||
+              a.action == 'call') &&
+          a.amount != null) {
+        lastAmountAction = a;
+        break;
+      }
+    }
+
+    final invested = _streetInvestments[currentStreet]?[index] ?? 0;
+
+    final Color? actionColor =
+        (lastAction?.action == 'bet' || lastAction?.action == 'raise')
+            ? Colors.green
+            : lastAction?.action == 'call'
+                ? Colors.blue
+                : null;
+    final double maxRadius = 36 * scale;
+    final double radius = (_pots[currentStreet] > 0)
+        ? min(
+            maxRadius,
+            (invested / _pots[currentStreet]) * maxRadius,
+          )
+        : 0.0;
+
+    final widgets = <Widget>[
+      // action arrow behind player widgets
+      Positioned(
+        left: centerX + dx,
+        top: centerY + dy + bias + 12,
+        child: IgnorePointer(
+          child: AnimatedOpacity(
+            opacity: (lastStreetAction != null &&
+                    lastStreetAction!.playerIndex == index &&
+                    (lastStreetAction!.action == 'bet' ||
+                        lastStreetAction!.action == 'raise' ||
+                        lastStreetAction!.action == 'call'))
+                ? 1.0
+                : 0.0,
+            duration: const Duration(milliseconds: 300),
+            child: Transform.rotate(
+              angle: atan2(
+                  centerY - (centerY + dy + bias + 12),
+                  centerX - (centerX + dx)),
+              alignment: Alignment.topLeft,
+              child: Container(
+                width: sqrt(pow(centerX - (centerX + dx), 2) +
+                    pow(centerY - (centerY + dy + bias + 12), 2)),
+                height: 1,
+                decoration: BoxDecoration(
+                  color: Colors.orangeAccent.withOpacity(0.9),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orangeAccent.withOpacity(0.6),
+                      blurRadius: 4,
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      Positioned(
+        left: centerX + dx - 55 * scale * infoScale,
+        top: centerY + dy + bias - 55 * scale * infoScale,
+        child: Transform.scale(
+          scale: infoScale,
+          child: PlayerInfoWidget(
+            position: position,
+            stack: stack,
+            tag: tag,
+            lastAction: lastAction?.action,
+            showLastIndicator: lastStreetAction?.playerIndex == index,
+            isActive: isActive,
+            isFolded: isFolded,
+            isHero: index == heroIndex,
+            playerTypeIcon: _playerTypeIcon(playerTypes[index]),
+            playerTypeLabel:
+                numberOfPlayers > 9 ? null : _playerTypeLabel(playerTypes[index]),
+            positionLabel:
+                numberOfPlayers <= 9 ? _positionLabelForIndex(index) : null,
+            onTap: () => setState(() => activePlayerIndex = index),
+            onDoubleTap: () => setState(() {
+              heroIndex = index;
+              _updatePositions();
+            }),
+            onLongPress: () => _editPlayerInfo(index),
+            onEdit: () => _editPlayerInfo(index),
+            onStackTap: (value) => setState(() {
+              stackSizes[index] = value;
+            }),
+            onRemove: numberOfPlayers > 2 ? () {
+              _removePlayer(index);
+            } : null,
+          ),
+        ),
+      ),
+      if (lastAmountAction != null)
+        Positioned(
+          left: centerX + dx - 24 * scale,
+          top: centerY + dy + bias - 80 * scale,
+          child: ChipAmountWidget(
+            amount: lastAmountAction!.amount!.toDouble(),
+            color: _actionColor(lastAmountAction!.action),
+            scale: scale,
+          ),
+        ),
+      Positioned(
+        left: centerX + dx - 12 * scale,
+        top: centerY + dy + bias + 70 * scale,
+        child: PlayerStackChips(
+          stack: stack,
+          scale: scale * 0.9,
+        ),
+      ),
+      if (lastAction != null)
+        Positioned(
+          left: centerX + dx + 40 * scale,
+          top: centerY + dy + bias - 60 * scale,
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            iconSize: 16 * scale,
+            onPressed: () => _removeLastPlayerAction(index),
+            icon: const Text('❌', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ),
+    ];
+
+    if (invested > 0) {
+      if (_pots[currentStreet] > 0 &&
+          (lastAction?.action == 'bet' ||
+              lastAction?.action == 'raise' ||
+              lastAction?.action == 'call')) {
+        widgets.add(Positioned(
+          left: centerX + dx - radius,
+          top: centerY + dy + bias + 112 * scale - radius,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(scale: animation, child: child),
+            ),
+            child: AnimatedContainer(
+              key: ValueKey(radius),
+              duration: const Duration(milliseconds: 300),
+              width: radius * 2,
+              height: radius * 2,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: actionColor!.withOpacity(0.2),
+              ),
+            ),
+          ),
+        ));
+      }
+      widgets.add(Positioned(
+        left: centerX + dx - 20 * scale,
+        top: centerY + dy + bias + 92 * scale,
+        child: InvestedChipTokens(
+          amount: invested,
+          color: actionColor ?? Colors.green,
+          scale: scale,
+        ),
+      ));
+    }
+
+    if (debugLayout) {
+      widgets.add(Positioned(
+        left: centerX + dx - 40 * scale,
+        top: centerY + dy + bias - 70 * scale,
+        child: Container(
+          padding: const EdgeInsets.all(2),
+          color: Colors.black45,
+          child: Text(
+            'a:${angle.toStringAsFixed(2)}\n${dx.toStringAsFixed(1)},${dy.toStringAsFixed(1)}',
+            style: TextStyle(color: Colors.yellow, fontSize: 9 * scale),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ));
+    }
+
+    return widgets;
+  }
+
+  List<Widget> _buildChipTrail(int i) {
+    final screenSize = MediaQuery.of(context).size;
+    final bool crowded = numberOfPlayers > 6;
+    final double scale = crowded
+        ? (screenSize.height < 700 ? 0.8 : 0.9)
+        : 1.0;
+    final tableWidth = screenSize.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screenSize.width / 2 + 10;
+    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
+    final centerY = screenSize.height / 2 -
+        (numberOfPlayers > 6 ? 160 + extraOffset : 120);
+    final radiusX = (tableWidth / 2 - 60) * scale;
+    final radiusY = (tableHeight / 2 + 90) * scale;
+
+    final visibleActions = actions.take(_playbackIndex).toList();
+
+    final index = (i + heroIndex) % numberOfPlayers;
+    final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = _verticalBiasFromAngle(angle) * scale;
+
+    ActionEntry? lastAction;
+    for (final a in visibleActions.reversed) {
+      if (a.playerIndex == index && a.street == currentStreet) {
+        lastAction = a;
+        break;
+      }
+    }
+
+    final invested = _streetInvestments[currentStreet]?[index] ?? 0;
+
+    final Color? actionColor =
+        (lastAction?.action == 'bet' || lastAction?.action == 'raise')
+            ? Colors.green
+            : lastAction?.action == 'call'
+                ? Colors.blue
+                : null;
+
+    final bool showTrail = invested > 0 &&
+        (lastAction != null &&
+            (lastAction!.action == 'bet' ||
+                lastAction!.action == 'raise' ||
+                lastAction!.action == 'call'));
+
+    if (!showTrail) return [];
+
+    final fraction = _pots[currentStreet] > 0
+        ? invested / _pots[currentStreet]
+        : 0.0;
+    final trailCount = 3 + (fraction * 2).clamp(0, 2).round();
+
+    return [
+      Positioned.fill(
+        child: ChipTrail(
+          start: Offset(centerX + dx, centerY + dy + bias + 92 * scale),
+          end: Offset(centerX, centerY),
+          chipCount: trailCount,
+          visible: showTrail,
+          scale: scale,
+          color: actionColor ?? Colors.green,
+        ),
+      )
+    ];
   }
 }
