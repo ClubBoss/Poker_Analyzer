@@ -48,32 +48,26 @@ class PlayerInfoWidget extends StatelessWidget {
             : null;
 
     Color? actionColor;
-    String? actionIcon;
     String? actionLabel;
     switch (lastAction) {
       case 'fold':
         actionColor = Colors.red;
-        actionIcon = '❌';
         actionLabel = 'Fold';
         break;
       case 'call':
         actionColor = Colors.blue;
-        actionIcon = '📞';
         actionLabel = 'Call';
         break;
       case 'bet':
         actionColor = Colors.amber;
-        actionIcon = '💰';
         actionLabel = 'Bet';
         break;
       case 'raise':
         actionColor = Colors.green;
-        actionIcon = '⬆️';
         actionLabel = 'Raise';
         break;
       case 'check':
         actionColor = Colors.grey;
-        actionIcon = '✔️';
         actionLabel = 'Check';
         break;
     }
@@ -154,42 +148,26 @@ class PlayerInfoWidget extends StatelessWidget {
               ],
             ),
           ),
+          if (actionColor != null && actionLabel != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: actionColor,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  actionLabel!,
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
         ],
       ),
     );
 
     Widget result = box;
-
-    if (actionColor != null && actionLabel != null) {
-      final badge = IgnorePointer(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          decoration: BoxDecoration(
-            color: actionColor,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (actionIcon != null)
-                Text(actionIcon!, style: const TextStyle(fontSize: 10)),
-              if (actionIcon != null) const SizedBox(width: 2),
-              Text(
-                actionLabel!,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
-              ),
-            ],
-          ),
-        ),
-      );
-      result = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(padding: const EdgeInsets.only(bottom: 4), child: badge),
-          box,
-        ],
-      );
-    }
 
     if (isFolded) {
       result = Opacity(opacity: 0.5, child: result);
