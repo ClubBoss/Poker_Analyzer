@@ -809,6 +809,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                           ),
                         ),
                       ],
+                      if (!isFolded && !((stackSizes[index] ?? 0) == 0 && invested == 0))
+                        Positioned(
+                          left: centerX + dx - 50 * scale,
+                          top: centerY + dy + bias + 124 * scale,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'S: ${_formatAmount(stackSizes[index] ?? 0)}   I: ${_formatAmount(invested)}',
+                              style: TextStyle(color: Colors.white, fontSize: 11 * scale),
+                            ),
+                          ),
+                        ),
                       if (debugLayout)
                         Positioned(
                           left: centerX + dx - 40 * scale,
