@@ -962,7 +962,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           child: Align(
             alignment: const Alignment(0, -0.25),
             child: PotDisplayWidget(
-              text: 'Pot ${_formatAmount(pot)}',
+              amount: pot,
               scale: scale,
             ),
           ),
