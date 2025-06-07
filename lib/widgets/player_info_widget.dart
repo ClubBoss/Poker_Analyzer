@@ -20,6 +20,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onLongPress;
+  /// Called when the edit icon is tapped.
+  final VoidCallback? onEdit;
   /// Called when the stack value has been edited and confirmed.
   final ValueChanged<int>? onStackTap;
   /// Called when the remove icon is tapped.
@@ -40,6 +42,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.onTap,
     this.onDoubleTap,
     this.onLongPress,
+    this.onEdit,
     this.onStackTap,
     this.onRemove,
   });
@@ -257,8 +260,8 @@ class PlayerInfoWidget extends StatelessWidget {
       result = Opacity(opacity: 0.5, child: result);
     }
 
-    if (onLongPress != null) {
-      result = Tooltip(message: 'Change player type', child: result);
+    if (onEdit != null || onLongPress != null) {
+      result = Tooltip(message: 'Edit player', child: result);
     }
 
     Widget clickable = Material(
@@ -266,7 +269,7 @@ class PlayerInfoWidget extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         onDoubleTap: onDoubleTap,
-        onLongPress: onLongPress,
+        onLongPress: onLongPress ?? onEdit,
         borderRadius: BorderRadius.circular(8),
         child: result,
       ),
@@ -277,7 +280,7 @@ class PlayerInfoWidget extends StatelessWidget {
     }
 
     Widget withBadge = clickable;
-    if (playerTypeIcon.isNotEmpty || onRemove != null) {
+    if (playerTypeIcon.isNotEmpty || onRemove != null || onEdit != null) {
       final children = <Widget>[clickable];
       if (playerTypeIcon.isNotEmpty) {
         children.add(Positioned(
@@ -288,6 +291,16 @@ class PlayerInfoWidget extends StatelessWidget {
               playerTypeIcon,
               style: const TextStyle(fontSize: 12),
             ),
+          ),
+        ));
+      }
+      if (onEdit != null) {
+        children.add(Positioned(
+          top: 0,
+          left: 0,
+          child: GestureDetector(
+            onTap: onEdit,
+            child: const Text('✏️', style: TextStyle(fontSize: 12)),
           ),
         ));
       }

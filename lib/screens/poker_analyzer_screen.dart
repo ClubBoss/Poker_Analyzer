@@ -274,6 +274,164 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _editPlayerInfo(int index) async {
+    final stackController =
+        TextEditingController(text: (stackSizes[index] ?? 0).toString());
+    String type = playerTypes[index] ?? 'standard';
+    bool isHeroSelected = index == heroIndex;
+    CardModel? card1 =
+        playerCards[index].isNotEmpty ? playerCards[index][0] : null;
+    CardModel? card2 =
+        playerCards[index].length > 1 ? playerCards[index][1] : null;
+
+    const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+    const suits = ['♠', '♥', '♦', '♣'];
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: Colors.grey[900],
+            title: const Text('Edit Player', style: TextStyle(color: Colors.white)),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: stackController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Stack',
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      filled: true,
+                      fillColor: Colors.white10,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: type,
+                    dropdownColor: Colors.grey[900],
+                    decoration: const InputDecoration(
+                      labelText: 'Type',
+                      labelStyle: TextStyle(color: Colors.white70),
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'standard', child: Text('standard')),
+                      DropdownMenuItem(value: 'nit', child: Text('nit')),
+                      DropdownMenuItem(value: 'fish', child: Text('fish')),
+                      DropdownMenuItem(value: 'maniac', child: Text('maniac')),
+                      DropdownMenuItem(value: 'shark', child: Text('shark')),
+                      DropdownMenuItem(value: 'station', child: Text('station')),
+                    ],
+                    onChanged: (v) => setState(() => type = v ?? type),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    value: isHeroSelected,
+                    title: const Text('Hero', style: TextStyle(color: Colors.white)),
+                    onChanged: (v) => setState(() => isHeroSelected = v),
+                    activeColor: Colors.orange,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          DropdownButton<String>(
+                            value: card1?.rank,
+                            hint: const Text('Rank', style: TextStyle(color: Colors.white54)),
+                            dropdownColor: Colors.grey[900],
+                            items: ranks
+                                .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                                .toList(),
+                            onChanged: (v) => setState(() => card1 = v != null && card1 != null
+                                ? CardModel(rank: v, suit: card1!.suit)
+                                : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
+                          ),
+                          DropdownButton<String>(
+                            value: card1?.suit,
+                            hint: const Text('Suit', style: TextStyle(color: Colors.white54)),
+                            dropdownColor: Colors.grey[900],
+                            items: suits
+                                .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                                .toList(),
+                            onChanged: (v) => setState(() => card1 = v != null && card1 != null
+                                ? CardModel(rank: card1!.rank, suit: v)
+                                : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          DropdownButton<String>(
+                            value: card2?.rank,
+                            hint: const Text('Rank', style: TextStyle(color: Colors.white54)),
+                            dropdownColor: Colors.grey[900],
+                            items: ranks
+                                .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                                .toList(),
+                            onChanged: (v) => setState(() => card2 = v != null && card2 != null
+                                ? CardModel(rank: v, suit: card2!.suit)
+                                : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
+                          ),
+                          DropdownButton<String>(
+                            value: card2?.suit,
+                            hint: const Text('Suit', style: TextStyle(color: Colors.white54)),
+                            dropdownColor: Colors.grey[900],
+                            items: suits
+                                .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                                .toList(),
+                            onChanged: (v) => setState(() => card2 = v != null && card2 != null
+                                ? CardModel(rank: card2!.rank, suit: v)
+                                : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (confirmed == true) {
+      final newStack = int.tryParse(stackController.text) ?? stackSizes[index];
+      setState(() {
+        stackSizes[index] = newStack;
+        playerTypes[index] = type;
+        if (isHeroSelected) {
+          heroIndex = index;
+        } else if (heroIndex == index) {
+          heroIndex = 0;
+        }
+        final cards = <CardModel>[];
+        if (card1 != null) cards.add(card1!);
+        if (card2 != null) cards.add(card2!);
+        playerCards[index] = cards;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1416,7 +1574,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             heroIndex = index;
                             _updatePositions();
                           }),
-                          onLongPress: () => _selectPlayerType(index),
+                          onLongPress: () => _editPlayerInfo(index),
+                          onEdit: () => _editPlayerInfo(index),
                           onStackTap: (value) => setState(() {
                             stackSizes[index] = value;
                           }),
