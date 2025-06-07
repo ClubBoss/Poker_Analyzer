@@ -8,7 +8,6 @@ import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_cards_widget.dart';
-import '../widgets/action_dialog.dart';
 import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/street_actions_list.dart';
@@ -484,26 +483,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
     _updatePlaybackState();
   }
 
-  Future<void> _editAction(int index) async {
-    final action = actions[index];
-    final result = await showDialog<ActionEntry>(
-      context: context,
-      builder: (context) => ActionDialog(
-        playerIndex: action.playerIndex,
-        street: action.street,
-        position: playerPositions[action.playerIndex] ?? '',
-        pot: _pots[action.street],
-        stackSize: stackSizes[action.playerIndex] ?? 0,
-        initialAction: action.action,
-        initialAmount: action.amount,
-        actions: actions.take(index).toList(),
-      ),
-    );
-    if (result != null) {
-      setState(() {
-        _updateAction(index, result);
-      });
-    }
+  void _editAction(int index, ActionEntry entry) {
+    setState(() {
+      _updateAction(index, entry);
+    });
   }
 
   Future<void> _editStackSize(int index) async {
@@ -1212,6 +1195,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                     CollapsibleStreetSummary(
                       actions: actions,
                       playerPositions: playerPositions,
+                      pots: _pots,
+                      stackSizes: stackSizes,
                       onEdit: _editAction,
                       onDelete: _deleteAction,
                       visibleCount: _playbackIndex,
@@ -1234,6 +1219,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen> {
                       child: StreetActionsList(
                         street: currentStreet,
                         actions: actions,
+                        pots: _pots,
+                        stackSizes: stackSizes,
                         onEdit: _editAction,
                         onDelete: _deleteAction,
                         visibleCount: _playbackIndex,

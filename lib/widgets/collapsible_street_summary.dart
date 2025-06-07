@@ -5,7 +5,9 @@ import 'street_actions_list.dart';
 class CollapsibleStreetSummary extends StatefulWidget {
   final List<ActionEntry> actions;
   final Map<int, String> playerPositions;
-  final void Function(int) onEdit;
+  final List<int> pots;
+  final Map<int, int> stackSizes;
+  final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
@@ -14,6 +16,8 @@ class CollapsibleStreetSummary extends StatefulWidget {
     super.key,
     required this.actions,
     required this.playerPositions,
+    required this.pots,
+    required this.stackSizes,
     required this.onEdit,
     required this.onDelete,
     this.visibleCount,
@@ -78,6 +82,8 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                       child: StreetActionsList(
                         street: i,
                         actions: widget.actions,
+                        pots: widget.pots,
+                        stackSizes: widget.stackSizes,
                         onEdit: widget.onEdit,
                         onDelete: widget.onDelete,
                         visibleCount: widget.visibleCount,
