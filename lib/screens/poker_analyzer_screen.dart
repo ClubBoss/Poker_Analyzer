@@ -716,9 +716,58 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  void _removePlayer(int index) {
+  Future<void> _removePlayer(int index) async {
     if (numberOfPlayers <= 2) return;
+
+    int updatedHeroIndex = heroIndex;
+
+    if (index == heroIndex) {
+      final choice = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Hero player is being removed'),
+          content: const Text('What would you like to do?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'remove'),
+              child: const Text('Remove anyway'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'change'),
+              child: const Text('Change Hero'),
+            ),
+          ],
+        ),
+      );
+
+      if (choice == null || choice == 'cancel') return;
+
+      if (choice == 'change') {
+        final selected = await showDialog<int>(
+          context: context,
+          builder: (context) => SimpleDialog(
+            title: const Text('Select new hero'),
+            children: [
+              for (int i = 0; i < numberOfPlayers; i++)
+                if (i != index)
+                  SimpleDialogOption(
+                    onPressed: () => Navigator.pop(context, i),
+                    child: Text('Player ${i + 1}'),
+                  ),
+            ],
+          ),
+        );
+        if (selected == null) return;
+        updatedHeroIndex = selected;
+      }
+    }
+
     setState(() {
+      heroIndex = updatedHeroIndex;
       // Remove actions for this player and adjust indices
       actions.removeWhere((a) => a.playerIndex == index);
       for (final a in actions) {
@@ -1372,7 +1421,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             stackSizes[index] = value;
                           }),
                           onRemove:
-                              numberOfPlayers > 2 ? () => _removePlayer(index) : null,
+                              numberOfPlayers > 2 ? () { _removePlayer(index); } : null,
                           ),
                         ),
                       ),
