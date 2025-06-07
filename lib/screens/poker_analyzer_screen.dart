@@ -599,8 +599,41 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (_playbackIndex > actions.length) {
         _playbackIndex = actions.length;
       }
+      // Update action tag for player whose action was removed
+      try {
+        final last = actions.lastWhere((a) => a.playerIndex == removed.playerIndex);
+        _actionTags[removed.playerIndex] =
+            '${last.action}${last.amount != null ? ' ${last.amount}' : ''}';
+      } catch (_) {
+        _actionTags.remove(removed.playerIndex);
+      }
       _updatePlaybackState();
     });
+  }
+
+  Future<void> _removeLastPlayerAction(int playerIndex) async {
+    final actionIndex = actions.lastIndexWhere(
+        (a) => a.playerIndex == playerIndex && a.street == currentStreet);
+    if (actionIndex == -1) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить действие?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      _deleteAction(actionIndex);
+    }
   }
 
   Future<void> _resetHand() async {
@@ -1184,6 +1217,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           onStackTap: () => _editStackSize(index),
                         ),
                       ),
+                      if (lastAction != null)
+                        Positioned(
+                          left: centerX + dx + 40 * scale,
+                          top: centerY + dy + bias - 60 * scale,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            iconSize: 16 * scale,
+                            onPressed: () => _removeLastPlayerAction(index),
+                            icon: const Text('❌',
+                                style: TextStyle(color: Colors.redAccent)),
+                          ),
+                        ),
                       if (invested > 0) ...[
                         if (_pots[currentStreet] > 0 &&
                             (lastAction?.action == 'bet' ||
