@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 import 'card_selector.dart';
 
-class PlayerZoneWidget extends StatelessWidget {
+class PlayerZoneWidget extends StatefulWidget {
   final String playerName;
   final String? position;
   final List<CardModel> cards;
@@ -34,28 +34,66 @@ class PlayerZoneWidget extends StatelessWidget {
     this.onStackTap,
   }) : super(key: key);
 
+  @override
+  State<PlayerZoneWidget> createState() => _PlayerZoneWidgetState();
+}
+
+class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    if (widget.isActive) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant PlayerZoneWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _controller
+        ..reset()
+        ..repeat(reverse: true);
+    } else if (!widget.isActive && oldWidget.isActive) {
+      _controller.stop();
+      _controller.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final nameStyle = TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
-      fontSize: 14 * scale,
+      fontSize: 14 * widget.scale,
     );
     final captionStyle = TextStyle(
-      color: _getPositionColor(position),
-      fontSize: 12 * scale,
+      color: _getPositionColor(widget.position),
+      fontSize: 12 * widget.scale,
       fontWeight: FontWeight.bold,
     );
-    final tagStyle = TextStyle(color: Colors.white, fontSize: 12 * scale);
+    final tagStyle = TextStyle(color: Colors.white, fontSize: 12 * widget.scale);
 
     final label = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 100 * scale),
+      constraints: BoxConstraints(maxWidth: 100 * widget.scale),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
+        padding: EdgeInsets.symmetric(horizontal: 8 * widget.scale, vertical: 4 * widget.scale),
         decoration: BoxDecoration(
           color: Colors.black54,
-          borderRadius: BorderRadius.circular(12 * scale),
+          borderRadius: BorderRadius.circular(12 * widget.scale),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -65,33 +103,33 @@ class PlayerZoneWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  playerName,
+                  widget.playerName,
                   style: nameStyle,
                 ),
-                if (isHero)
+                if (widget.isHero)
                   Padding(
-                    padding: EdgeInsets.only(left: 4.0 * scale),
+                    padding: EdgeInsets.only(left: 4.0 * widget.scale),
                     child: Icon(
                       Icons.star,
                       color: Colors.orangeAccent,
-                      size: 14 * scale,
+                      size: 14 * widget.scale,
                     ),
                   ),
               ],
             ),
-            if (position != null)
+            if (widget.position != null)
               Padding(
-                padding: EdgeInsets.only(top: 2.0 * scale),
+                padding: EdgeInsets.only(top: 2.0 * widget.scale),
                 child: Text(
-                  position!,
+                  widget.position!,
                   style: captionStyle,
                   textAlign: TextAlign.center,
                 ),
               ),
             Padding(
-              padding: EdgeInsets.only(top: 2.0 * scale),
+              padding: EdgeInsets.only(top: 2.0 * widget.scale),
               child: GestureDetector(
-                onTap: onStackTap,
+                onTap: widget.onStackTap,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   transitionBuilder: (child, animation) => FadeTransition(
@@ -99,9 +137,9 @@ class PlayerZoneWidget extends StatelessWidget {
                     child: ScaleTransition(scale: animation, child: child),
                   ),
                   child: _ChipStack(
-                    key: ValueKey(stack),
-                    count: stack,
-                    scale: scale,
+                    key: ValueKey(widget.stack),
+                    count: widget.stack,
+                    scale: widget.scale,
                   ),
                 ),
               ),
@@ -116,19 +154,19 @@ class PlayerZoneWidget extends StatelessWidget {
       children: [
         label,
         Positioned(
-          top: -4 * scale,
-          right: -4 * scale,
+          top: -4 * widget.scale,
+          right: -4 * widget.scale,
           child: AnimatedOpacity(
-            opacity: showHint ? 1 : 0,
+            opacity: widget.showHint ? 1 : 0,
             duration: const Duration(milliseconds: 200),
             child: AnimatedScale(
-              scale: showHint ? 1.0 : 0.8,
+              scale: widget.showHint ? 1.0 : 0.8,
               duration: const Duration(milliseconds: 200),
               child: Tooltip(
                 message: 'Нажмите, чтобы ввести действие',
                 child: Icon(
                   Icons.edit,
-                  size: 16 * scale,
+                  size: 16 * widget.scale,
                   color: Colors.white,
                 ),
               ),
@@ -143,26 +181,26 @@ class PlayerZoneWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         labelWithIcon,
-        SizedBox(height: 4 * scale),
+        SizedBox(height: 4 * widget.scale),
         GestureDetector(
           onTap: () async {
             final card = await showCardSelector(context);
             if (card != null) {
-              onCardsSelected(card);
+              widget.onCardsSelected(card);
             }
           },
           child: Opacity(
-            opacity: isFolded ? 0.4 : 1.0,
+            opacity: widget.isFolded ? 0.4 : 1.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(2, (index) {
-              final card = index < cards.length ? cards[index] : null;
+              final card = index < widget.cards.length ? widget.cards[index] : null;
               final isRed = card?.suit == '♥' || card?.suit == '♦';
 
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 36 * scale,
-                height: 52 * scale,
+                width: 36 * widget.scale,
+                height: 52 * widget.scale,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(card == null ? 0.3 : 1),
                   borderRadius: BorderRadius.circular(6),
@@ -181,7 +219,7 @@ class PlayerZoneWidget extends StatelessWidget {
                         style: TextStyle(
                           color: isRed ? Colors.red : Colors.black,
                           fontWeight: FontWeight.bold,
-                          fontSize: 18 * scale,
+                          fontSize: 18 * widget.scale,
                         ),
                       )
                     : const Icon(Icons.add, color: Colors.grey),
@@ -190,17 +228,17 @@ class PlayerZoneWidget extends StatelessWidget {
             ),
           ),
         ),
-        if (actionTagText != null)
+        if (widget.actionTagText != null)
           Padding(
-            padding: EdgeInsets.only(top: 4.0 * scale),
+            padding: EdgeInsets.only(top: 4.0 * widget.scale),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+              padding: EdgeInsets.symmetric(horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
               decoration: BoxDecoration(
                 color: Colors.grey.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(10 * scale),
+                borderRadius: BorderRadius.circular(10 * widget.scale),
               ),
               child: Text(
-                actionTagText!,
+                widget.actionTagText!,
                 style: tagStyle,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -218,7 +256,7 @@ class PlayerZoneWidget extends StatelessWidget {
 
     Widget result = content;
 
-    if (isFolded) {
+    if (widget.isFolded) {
       result = ClipRect(
         child: ColorFiltered(
           colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
@@ -229,11 +267,11 @@ class PlayerZoneWidget extends StatelessWidget {
 
     result = AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: EdgeInsets.all(2 * scale),
-      decoration: (isActive || highlightLastAction)
+      padding: EdgeInsets.all(2 * widget.scale),
+      decoration: (widget.isActive || widget.highlightLastAction)
           ? BoxDecoration(
               border: Border.all(color: Colors.blueAccent, width: 3),
-              borderRadius: BorderRadius.circular(12 * scale),
+              borderRadius: BorderRadius.circular(12 * widget.scale),
               boxShadow: [
                 BoxShadow(
                   color: Colors.blueAccent.withOpacity(0.6),
@@ -242,6 +280,13 @@ class PlayerZoneWidget extends StatelessWidget {
               ],
             )
           : null,
+      child: result,
+    );
+
+    result = ScaleTransition(
+      scale: Tween(begin: 1.0, end: 1.2).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      ),
       child: result,
     );
 
