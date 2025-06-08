@@ -22,6 +22,7 @@ import '../widgets/invested_chip_tokens.dart';
 import '../widgets/central_pot_widget.dart';
 import '../widgets/central_pot_chips.dart';
 import '../widgets/pot_display_widget.dart';
+import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
 import '../widgets/bet_stack_chips.dart';
@@ -481,6 +482,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardCards.removeWhere((c) => c == card);
       if (playerCards[index].length < 2) {
         playerCards[index].add(card);
+      }
+    });
+  }
+
+  Future<void> _onPlayerCardTap(int index, int cardIndex) async {
+    final selectedCard = await showCardSelector(context);
+    if (selectedCard == null) return;
+    setState(() {
+      for (final cards in playerCards) {
+        cards.removeWhere((c) => c == selectedCard);
+      }
+      boardCards.removeWhere((c) => c == selectedCard);
+      if (playerCards[index].length > cardIndex) {
+        playerCards[index][cardIndex] = selectedCard;
+      } else if (playerCards[index].length == cardIndex) {
+        playerCards[index].add(selectedCard);
       }
     });
   }
@@ -1783,6 +1800,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     playerPositions[index] == 'BB')
                 ? playerPositions[index]
                 : null,
+            onCardTap: (cardIndex) => _onPlayerCardTap(index, cardIndex),
             onTap: () => setState(() => activePlayerIndex = index),
             onDoubleTap: () => setState(() {
               heroIndex = index;
