@@ -98,10 +98,11 @@ class PlayerInfoWidget extends StatelessWidget {
     Widget box = Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
             color: borderColor ?? Colors.white24, width: borderColor != null ? 2 : 1),
+        boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 2)],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -207,7 +208,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 builder: (context) => StatefulBuilder(
                   builder: (context, setState) {
                     return AlertDialog(
-                      backgroundColor: Colors.black87,
+                      backgroundColor: Colors.black.withOpacity(0.3),
                       title: const Text(
                         'Edit Stack',
                         style: TextStyle(color: Colors.white),
