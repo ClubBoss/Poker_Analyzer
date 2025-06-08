@@ -1199,7 +1199,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 final title =
                     hand.name.isNotEmpty ? hand.name : 'Без названия';
                 return ListTile(
-                  title: Text(title),
+                  dense: true,
+                  title: Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: hand.tags.isNotEmpty
+                      ? Text(
+                          hand.tags.join(', '),
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 12,
+                          ),
+                        )
+                      : null,
                   onTap: () => Navigator.pop(context, hand),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
