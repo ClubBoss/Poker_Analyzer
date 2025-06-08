@@ -2,6 +2,7 @@ import 'card_model.dart';
 import 'action_entry.dart';
 
 class SavedHand {
+  final String name;
   final int heroIndex;
   final String heroPosition;
   final int numberOfPlayers;
@@ -14,6 +15,7 @@ class SavedHand {
   final String? comment;
 
   SavedHand({
+    required this.name,
     required this.heroIndex,
     required this.heroPosition,
     required this.numberOfPlayers,
@@ -27,6 +29,7 @@ class SavedHand {
   });
 
   Map<String, dynamic> toJson() => {
+        'name': name,
         'heroIndex': heroIndex,
         'heroPosition': heroPosition,
         'numberOfPlayers': numberOfPlayers,
@@ -88,6 +91,7 @@ class SavedHand {
       }
     }
     return SavedHand(
+      name: json['name'] as String? ?? '',
       heroIndex: json['heroIndex'] as int? ?? 0,
       heroPosition: json['heroPosition'] as String? ?? 'BTN',
       numberOfPlayers: json['numberOfPlayers'] as int? ?? 6,
