@@ -1138,7 +1138,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       stackSizes: Map<int, int>.from(stackSizes),
       playerPositions: Map<int, String>.from(playerPositions),
       playerTypes: Map<int, String>.from(playerTypes),
-      comment: null,
+      comment:
+          _commentController.text.isNotEmpty ? _commentController.text : null,
     );
     setState(() {
       savedHands.add(hand);
@@ -1734,6 +1735,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextField(
+                        controller: _commentController,
+                        maxLines: 3,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          labelText: 'Комментарий к раздаче',
+                          labelStyle: TextStyle(color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.white12,
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: StreetActionsList(
                         street: currentStreet,
                         actions: actions,
@@ -1744,16 +1760,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         onDelete: _deleteAction,
                         visibleCount: _playbackIndex,
                         evaluateActionQuality: _evaluateActionQuality,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: TextField(
-                        controller: _commentController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          labelText: 'Комментарий к раздаче',
-                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
