@@ -66,6 +66,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     9: 100,
   };
   final TextEditingController _commentController = TextEditingController();
+  final TextEditingController _tagsController = TextEditingController();
   final List<bool> _showActionHints = List.filled(10, true);
   final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
@@ -1059,6 +1060,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (int i = 0; i < _showActionHints.length; i++) {
           _showActionHints[i] = true;
         }
+        _commentController.clear();
+        _tagsController.clear();
       });
     }
   }
@@ -1087,6 +1090,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       playerPositions: Map<int, String>.from(playerPositions),
       playerTypes: Map<int, String>.from(playerTypes),
       comment: _commentController.text.isNotEmpty ? _commentController.text : null,
+      tags: _tagsController.text
+          .split(',')
+          .map((t) => t.trim())
+          .where((t) => t.isNotEmpty)
+          .toList(),
     );
   }
 
@@ -1127,6 +1135,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..addAll(hand.playerTypes ??
             {for (final k in hand.playerPositions.keys) k: 'standard'});
       _commentController.text = hand.comment ?? '';
+      _tagsController.text = hand.tags.join(', ');
       _recalculatePots();
       _recalculateStreetInvestments();
       currentStreet = 0;
@@ -1239,6 +1248,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                                 playerPositions: Map<int, String>.from(old.playerPositions),
                                 playerTypes: Map<int, String>.from(old.playerTypes),
                                 comment: old.comment,
+                                tags: List<String>.from(old.tags),
                               );
                             });
                             setStateDialog(() {});
@@ -1373,6 +1383,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _activeTimer?.cancel();
     _playbackTimer?.cancel();
     _commentController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 
@@ -1908,6 +1919,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         style: const TextStyle(color: Colors.white),
                         decoration: const InputDecoration(
                           labelText: 'Комментарий к раздаче',
+                          labelStyle: TextStyle(color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.white12,
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextField(
+                        controller: _tagsController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          labelText: 'Теги (через запятую)',
                           labelStyle: TextStyle(color: Colors.white),
                           filled: true,
                           fillColor: Colors.white12,

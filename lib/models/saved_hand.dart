@@ -13,6 +13,7 @@ class SavedHand {
   final Map<int, String> playerPositions;
   final Map<int, String>? playerTypes;
   final String? comment;
+  final List<String> tags;
 
   SavedHand({
     required this.name,
@@ -26,7 +27,8 @@ class SavedHand {
     required this.playerPositions,
     this.playerTypes,
     this.comment,
-  });
+    List<String>? tags,
+  }) : tags = tags ?? [];
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -53,6 +55,7 @@ class SavedHand {
         if (playerTypes != null)
           'playerTypes': playerTypes!.map((k, v) => MapEntry(k.toString(), v)),
         if (comment != null) 'comment': comment,
+        'tags': tags,
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -80,6 +83,7 @@ class SavedHand {
     (json['playerPositions'] as Map? ?? {}).forEach((key, value) {
       positions[int.parse(key as String)] = value as String;
     });
+    final tags = [for (final t in (json['tags'] as List? ?? [])) t as String];
     Map<int, String> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -102,6 +106,7 @@ class SavedHand {
       playerPositions: positions,
       playerTypes: types,
       comment: json['comment'] as String?,
+      tags: tags,
     );
   }
 }
