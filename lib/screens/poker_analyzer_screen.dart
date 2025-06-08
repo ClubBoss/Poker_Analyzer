@@ -1296,6 +1296,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
+  Future<void> exportAllHands() async {
+    if (savedHands.isEmpty) return;
+    final jsonStr =
+        jsonEncode([for (final hand in savedHands) hand.toJson()]);
+    await Clipboard.setData(ClipboardData(text: jsonStr));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content:
+              Text('${savedHands.length} hands exported to clipboard')),
+    );
+  }
+
   Future<void> importHandFromClipboard() async {
     final data = await Clipboard.getData('text/plain');
     if (data == null || data.text == null) {
@@ -1801,6 +1813,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   IconButton(
                     icon: const Icon(Icons.upload, color: Colors.white),
                     onPressed: exportLastSavedHand,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.file_upload, color: Colors.white),
+                    onPressed: exportAllHands,
                   ),
                   IconButton(
                     icon: const Icon(Icons.download, color: Colors.white),
