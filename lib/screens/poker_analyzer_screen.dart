@@ -115,6 +115,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return 90 + 20 * sin(angle);
   }
 
+  double _tableScale() {
+    final extraPlayers = max(0, numberOfPlayers - 6);
+    return (1.0 - extraPlayers * 0.05).clamp(0.75, 1.0);
+  }
+
+  double _centerYOffset(double scale) {
+    final base = numberOfPlayers > 6 ? 180.0 : 140.0;
+    final extra = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
+    return (base + extra) * scale;
+  }
+
   String _formatAmount(int amount) {
     final digits = amount.toString();
     final buffer = StringBuffer();
@@ -1102,9 +1113,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
-    final centerY = screenSize.height / 2 - centerYOffset;
+    final centerY = screenSize.height / 2 - _centerYOffset(scale);
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1140,9 +1149,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
-    final centerY = screenSize.height / 2 - centerYOffset;
+    final centerY = screenSize.height / 2 - _centerYOffset(scale);
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1195,9 +1202,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
-    final centerY = screenSize.height / 2 - centerYOffset;
+    final centerY = screenSize.height / 2 - _centerYOffset(scale);
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1236,9 +1241,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
-    final centerY = screenSize.height / 2 - centerYOffset;
+    final centerY = screenSize.height / 2 - _centerYOffset(scale);
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1417,14 +1420,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final visibleActions = actions.take(_playbackIndex).toList();
-    final double scale = numberOfPlayers >= 7 ? 0.85 : 1.0;
+    final double scale = _tableScale();
     final double infoScale = numberOfPlayers > 8 ? 0.85 : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
-    final centerY = screenSize.height / 2 - centerYOffset;
+    final centerY = screenSize.height / 2 - _centerYOffset(scale);
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1636,9 +1637,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
-    final centerY = screenSize.height / 2 - centerYOffset;
+    final centerY = screenSize.height / 2 - _centerYOffset(scale);
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
@@ -1871,9 +1870,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final extraOffset = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
-    final centerYOffset = numberOfPlayers > 6 ? 180.0 + extraOffset : 140.0;
-    final centerY = screenSize.height / 2 - centerYOffset;
+    final centerY = screenSize.height / 2 - _centerYOffset(scale);
     final radiusX = (tableWidth / 2 - 60) * scale;
     final radiusY = (tableHeight / 2 + 90) * scale;
 
