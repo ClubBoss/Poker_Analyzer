@@ -1192,32 +1192,88 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 return ListTile(
                   title: Text(title),
                   onTap: () => Navigator.pop(context, hand),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Удалить раздачу?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Отмена'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () async {
+                          final controller = TextEditingController(text: hand.name);
+                          final result = await showDialog<String>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Новое название'),
+                              content: TextField(
+                                controller: controller,
+                                decoration: const InputDecoration(hintText: 'Введите название'),
+                                autofocus: true,
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Отмена'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, controller.text),
+                                  child: const Text('ОК'),
+                                ),
+                              ],
                             ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Удалить'),
+                          );
+                          final newName = result?.trim();
+                          if (newName != null && newName.isNotEmpty) {
+                            setState(() {
+                              final old = savedHands[index];
+                              savedHands[index] = SavedHand(
+                                name: newName,
+                                heroIndex: old.heroIndex,
+                                heroPosition: old.heroPosition,
+                                numberOfPlayers: old.numberOfPlayers,
+                                playerCards: [
+                                  for (final list in old.playerCards)
+                                    List<CardModel>.from(list)
+                                ],
+                                boardCards: List<CardModel>.from(old.boardCards),
+                                actions: List<ActionEntry>.from(old.actions),
+                                stackSizes: Map<int, int>.from(old.stackSizes),
+                                playerPositions: Map<int, String>.from(old.playerPositions),
+                                playerTypes: Map<int, String>.from(old.playerTypes),
+                                comment: old.comment,
+                              );
+                            });
+                            setStateDialog(() {});
+                          }
+                          controller.dispose();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Удалить раздачу?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: const Text('Отмена'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Удалить'),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                      if (confirm == true) {
-                        setState(() {
-                          savedHands.removeAt(index);
-                        });
-                        setStateDialog(() {});
-                      }
-                    },
+                          );
+                          if (confirm == true) {
+                            setState(() {
+                              savedHands.removeAt(index);
+                            });
+                            setStateDialog(() {});
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 );
               },
