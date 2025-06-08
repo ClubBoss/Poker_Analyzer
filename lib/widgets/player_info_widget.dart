@@ -32,6 +32,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final ValueChanged<int>? onStackTap;
   /// Called when the remove icon is tapped.
   final VoidCallback? onRemove;
+  /// Called when a card slot is tapped. The index corresponds to 0 or 1.
+  final void Function(int index)? onCardTap;
 
   const PlayerInfoWidget({
     super.key,
@@ -53,6 +55,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.onEdit,
     this.onStackTap,
     this.onRemove,
+    this.onCardTap,
     this.showLastIndicator = false,
   });
 
@@ -166,15 +169,17 @@ class PlayerInfoWidget extends StatelessWidget {
                 ),
               ),
             ),
-          if (cards.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(2, (idx) {
-                  final card = idx < cards.length ? cards[idx] : null;
-                  final isRed = card?.suit == '♥' || card?.suit == '♦';
-                  return Container(
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(2, (idx) {
+                final card = idx < cards.length ? cards[idx] : null;
+                final isRed = card?.suit == '♥' || card?.suit == '♦';
+                return GestureDetector(
+                  onTap: onCardTap != null ? () => onCardTap!(idx) : null,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     width: 22,
                     height: 30,
@@ -192,11 +197,12 @@ class PlayerInfoWidget extends StatelessWidget {
                               fontSize: 12,
                             ),
                           )
-                        : const SizedBox.shrink(),
-                  );
-                }),
-              ),
+                        : const Icon(Icons.add, size: 14, color: Colors.grey),
+                  ),
+                );
+              }),
             ),
+          ),
           const SizedBox(height: 4),
           GestureDetector(
             onTap: () async {
