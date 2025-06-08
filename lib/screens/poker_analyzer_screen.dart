@@ -1184,39 +1184,61 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> loadHandByName() async {
     if (savedHands.isEmpty) return;
+    String filter = '';
     final selected = await showDialog<SavedHand>(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setStateDialog) => AlertDialog(
-          title: const Text('Выберите раздачу'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: savedHands.length,
-              itemBuilder: (context, index) {
-                final hand = savedHands[index];
-                final title =
-                    hand.name.isNotEmpty ? hand.name : 'Без названия';
-                return ListTile(
-                  dense: true,
-                  title: Text(
-                    title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+        builder: (context, setStateDialog) {
+          final filtered = filter.isEmpty
+              ? savedHands
+              : [
+                  for (final hand in savedHands)
+                    if (hand.tags
+                        .any((t) => t.toLowerCase().contains(filter.toLowerCase())))
+                      hand
+                ];
+          return AlertDialog(
+            title: const Text('Выберите раздачу'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration:
+                        const InputDecoration(hintText: 'Поиск по тегам'),
+                    onChanged: (value) => setStateDialog(() => filter = value),
                   ),
-                  subtitle: hand.tags.isNotEmpty
-                      ? Text(
-                          hand.tags.join(', '),
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 12,
+                  const SizedBox(height: 8),
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final hand = filtered[index];
+                        final savedIndex = savedHands.indexOf(hand);
+                        final title =
+                            hand.name.isNotEmpty ? hand.name : 'Без названия';
+                        return ListTile(
+                          dense: true,
+                          title: Text(
+                            title,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                        )
-                      : null,
-                  onTap: () => Navigator.pop(context, hand),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                          subtitle: hand.tags.isNotEmpty
+                              ? Text(
+                                  hand.tags.join(', '),
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                  ),
+                                )
+                              : null,
+                          onTap: () => Navigator.pop(context, hand),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
@@ -1245,8 +1267,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           final newName = result?.trim();
                           if (newName != null && newName.isNotEmpty) {
                             setState(() {
-                              final old = savedHands[index];
-                              savedHands[index] = SavedHand(
+                              final old = savedHands[savedIndex];
+                              savedHands[savedIndex] = SavedHand(
                                 name: newName,
                                 heroIndex: old.heroIndex,
                                 heroPosition: old.heroPosition,
@@ -1290,7 +1312,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           );
                           if (confirm == true) {
                             setState(() {
-                              savedHands.removeAt(index);
+                              savedHands.removeAt(savedIndex);
                             });
                             setStateDialog(() {});
                           }
