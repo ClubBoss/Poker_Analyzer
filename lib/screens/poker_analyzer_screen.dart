@@ -1184,6 +1184,32 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  Future<void> exportLastSavedHand() async {
+    if (savedHands.isEmpty) return;
+    final jsonStr = jsonEncode(savedHands.last.toJson());
+    await Clipboard.setData(ClipboardData(text: jsonStr));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Раздача скопирована.')),
+    );
+  }
+
+  Future<void> importHandFromClipboard() async {
+    final data = await Clipboard.getData('text/plain');
+    if (data == null || data.text == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Неверный формат данных.')),
+      );
+      return;
+    }
+    try {
+      loadHand(data.text!);
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Неверный формат данных.')),
+      );
+    }
+  }
+
 
 
   @override
@@ -1664,6 +1690,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   IconButton(
                     icon: const Icon(Icons.folder_open, color: Colors.white),
                     onPressed: loadLastSavedHand,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.upload, color: Colors.white),
+                    onPressed: exportLastSavedHand,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.download, color: Colors.white),
+                    onPressed: importHandFromClipboard,
                   ),
                   Expanded(
                     child: Slider(
