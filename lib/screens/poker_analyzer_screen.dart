@@ -1189,12 +1189,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) {
-          final filtered = filter.isEmpty
+          final query = filter.toLowerCase();
+          final filtered = query.isEmpty
               ? savedHands
               : [
                   for (final hand in savedHands)
-                    if (hand.tags
-                        .any((t) => t.toLowerCase().contains(filter.toLowerCase())))
+                    if (hand.tags.any((t) => t.toLowerCase().contains(query)) ||
+                        hand.name.toLowerCase().contains(query) ||
+                        (hand.comment?.toLowerCase().contains(query) ?? false))
                       hand
                 ];
           return AlertDialog(
@@ -1206,7 +1208,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 children: [
                   TextField(
                     decoration:
-                        const InputDecoration(hintText: 'Поиск по тегам'),
+                        const InputDecoration(hintText: 'Поиск'),
                     onChanged: (value) => setStateDialog(() => filter = value),
                   ),
                   const SizedBox(height: 8),
@@ -1226,15 +1228,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             style:
                                 const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          subtitle: hand.tags.isNotEmpty
-                              ? Text(
-                                  hand.tags.join(', '),
-                                  style: TextStyle(
-                                    color: Colors.grey[400],
-                                    fontSize: 12,
-                                  ),
-                                )
-                              : null,
+                          subtitle: () {
+                            final items = <Widget>[];
+                            if (hand.tags.isNotEmpty) {
+                              items.add(Text(
+                                hand.tags.join(', '),
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
+                                ),
+                              ));
+                            }
+                            if (hand.comment?.isNotEmpty ?? false) {
+                              items.add(Text(
+                                hand.comment!,
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 11,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ));
+                            }
+                            return items.isEmpty
+                                ? null
+                                : Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: items,
+                                  );
+                          }(),
                           onTap: () => Navigator.pop(context, hand),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
