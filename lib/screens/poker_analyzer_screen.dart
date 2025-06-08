@@ -1177,21 +1177,51 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (savedHands.isEmpty) return;
     final selected = await showDialog<SavedHand>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Выберите раздачу'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: savedHands.length,
-            itemBuilder: (context, index) {
-              final hand = savedHands[index];
-              final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
-              return ListTile(
-                title: Text(title),
-                onTap: () => Navigator.pop(context, hand),
-              );
-            },
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Выберите раздачу'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: savedHands.length,
+              itemBuilder: (context, index) {
+                final hand = savedHands[index];
+                final title =
+                    hand.name.isNotEmpty ? hand.name : 'Без названия';
+                return ListTile(
+                  title: Text(title),
+                  onTap: () => Navigator.pop(context, hand),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Удалить раздачу?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Отмена'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Удалить'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        setState(() {
+                          savedHands.removeAt(index);
+                        });
+                        setStateDialog(() {});
+                      }
+                    },
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
