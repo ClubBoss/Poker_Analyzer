@@ -1063,8 +1063,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  SavedHand _currentSavedHand() {
+  String _defaultHandName() {
+    final now = DateTime.now();
+    final day = now.day.toString().padLeft(2, '0');
+    final month = now.month.toString().padLeft(2, '0');
+    final year = now.year.toString();
+    return 'Раздача от $day.$month.$year';
+  }
+
+  SavedHand _currentSavedHand({String? name}) {
     return SavedHand(
+      name: name ?? _defaultHandName(),
       heroIndex: heroIndex,
       heroPosition: _heroPosition,
       numberOfPlayers: numberOfPlayers,
@@ -1088,6 +1097,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void loadHand(String jsonStr) {
     final hand = SavedHand.fromJson(jsonDecode(jsonStr));
+    _applySavedHand(hand);
+  }
+
+  void _applySavedHand(SavedHand hand) {
     setState(() {
       heroIndex = hand.heroIndex;
       _heroPosition = hand.heroPosition;
@@ -1124,23 +1137,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void saveCurrentHand() {
-    final hand = SavedHand(
-      heroIndex: heroIndex,
-      heroPosition: _heroPosition,
-      numberOfPlayers: numberOfPlayers,
-      playerCards: [
-        for (int i = 0; i < numberOfPlayers; i++)
-          List<CardModel>.from(playerCards[i])
-      ],
-      boardCards: List<CardModel>.from(boardCards),
-      actions: List<ActionEntry>.from(actions),
-      stackSizes: Map<int, int>.from(stackSizes),
-      playerPositions: Map<int, String>.from(playerPositions),
-      playerTypes: Map<int, String>.from(playerTypes),
-      comment:
-          _commentController.text.isNotEmpty ? _commentController.text : null,
+  Future<void> saveCurrentHand() async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Название раздачи'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Введите название'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Сохранить'),
+          ),
+        ],
+      ),
     );
+    if (result == null) return;
+    final handName = result.trim().isEmpty ? _defaultHandName() : result.trim();
+    final hand = _currentSavedHand(name: handName);
     setState(() {
       savedHands.add(hand);
     });
@@ -1149,40 +1170,35 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void loadLastSavedHand() {
     if (savedHands.isEmpty) return;
     final hand = savedHands.last;
-    setState(() {
-      heroIndex = hand.heroIndex;
-      _heroPosition = hand.heroPosition;
-      numberOfPlayers = hand.numberOfPlayers;
-      for (int i = 0; i < playerCards.length; i++) {
-        playerCards[i]
-          ..clear()
-          ..addAll(i < hand.playerCards.length ? hand.playerCards[i] : []);
-      }
-      boardCards
-        ..clear()
-        ..addAll(hand.boardCards);
-      actions
-        ..clear()
-        ..addAll(hand.actions);
-      stackSizes
-        ..clear()
-        ..addAll(hand.stackSizes);
-      playerPositions
-        ..clear()
-        ..addAll(hand.playerPositions);
-      playerTypes
-        ..clear()
-        ..addAll(hand.playerTypes ??
-            {for (final k in hand.playerPositions.keys) k: 'standard'});
-      _commentController.text = hand.comment ?? '';
-      _recalculatePots();
-      _recalculateStreetInvestments();
-      currentStreet = 0;
-      _playbackIndex = 0;
-      _animatedPlayersPerStreet.clear();
-      _updatePlaybackState();
-      _updatePositions();
-    });
+    _applySavedHand(hand);
+  }
+
+  Future<void> loadHandByName() async {
+    if (savedHands.isEmpty) return;
+    final selected = await showDialog<SavedHand>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Выберите раздачу'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: savedHands.length,
+            itemBuilder: (context, index) {
+              final hand = savedHands[index];
+              final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
+              return ListTile(
+                title: Text(title),
+                onTap: () => Navigator.pop(context, hand),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    if (selected != null) {
+      _applySavedHand(selected);
+    }
   }
 
   Future<void> exportLastSavedHand() async {
@@ -1686,11 +1702,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                   IconButton(
                     icon: const Icon(Icons.save, color: Colors.white),
-                    onPressed: saveCurrentHand,
+                    onPressed: () => saveCurrentHand(),
                   ),
                   IconButton(
                     icon: const Icon(Icons.folder_open, color: Colors.white),
                     onPressed: loadLastSavedHand,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.list, color: Colors.white),
+                    onPressed: () => loadHandByName(),
                   ),
                   IconButton(
                     icon: const Icon(Icons.upload, color: Colors.white),
