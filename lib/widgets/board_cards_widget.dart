@@ -30,6 +30,7 @@ class BoardCardsWidget extends StatelessWidget {
             final isRed = card?.suit == '♥' || card?.suit == '♦';
 
             return GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () async {
                 final selected = await showCardSelector(context);
                 if (selected != null) {

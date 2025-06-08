@@ -12,7 +12,7 @@ class PlayerZoneWidget extends StatefulWidget {
   final bool highlightLastAction;
   final bool showHint;
   final String? actionTagText;
-  final Function(CardModel) onCardsSelected;
+  final void Function(int, CardModel) onCardsSelected;
   final double scale;
   // Stack and editing are handled by PlayerInfoWidget
 
@@ -161,50 +161,51 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       children: [
         labelWithIcon,
         SizedBox(height: 4 * widget.scale),
-        GestureDetector(
-          onTap: () async {
-            final card = await showCardSelector(context);
-            if (card != null) {
-              widget.onCardsSelected(card);
-            }
-          },
-          child: Opacity(
-            opacity: widget.isFolded ? 0.4 : 1.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(2, (index) {
+        Opacity(
+          opacity: widget.isFolded ? 0.4 : 1.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(2, (index) {
               final card = index < widget.cards.length ? widget.cards[index] : null;
               final isRed = card?.suit == '♥' || card?.suit == '♦';
 
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 36 * widget.scale,
-                height: 52 * widget.scale,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(card == null ? 0.3 : 1),
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
-                      blurRadius: 3,
-                      offset: const Offset(1, 2),
-                    )
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: card != null
-                    ? Text(
-                        '${card.rank}${card.suit}',
-                        style: TextStyle(
-                          color: isRed ? Colors.red : Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18 * widget.scale,
-                        ),
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () async {
+                  final selected = await showCardSelector(context);
+                  if (selected != null) {
+                    widget.onCardsSelected(index, selected);
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: 36 * widget.scale,
+                  height: 52 * widget.scale,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        blurRadius: 3,
+                        offset: const Offset(1, 2),
                       )
-                    : const Icon(Icons.add, color: Colors.grey),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: card != null
+                      ? Text(
+                          '${card.rank}${card.suit}',
+                          style: TextStyle(
+                            color: isRed ? Colors.red : Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18 * widget.scale,
+                          ),
+                        )
+                      : const Icon(Icons.add, color: Colors.grey),
+                ),
               );
             }),
-            ),
           ),
         ),
         if (widget.actionTagText != null)
