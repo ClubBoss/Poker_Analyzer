@@ -1418,7 +1418,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final screenSize = MediaQuery.of(context).size;
     final visibleActions = actions.take(_playbackIndex).toList();
     final double scale = numberOfPlayers >= 7 ? 0.85 : 1.0;
-    final double infoScale = numberOfPlayers > 9 ? 0.9 : 1.0;
+    final double infoScale = numberOfPlayers > 8 ? 0.85 : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
@@ -1632,7 +1632,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   List<Widget> _buildPlayerWidgets(int i, double scale) {
     final screenSize = MediaQuery.of(context).size;
-    final double infoScale = numberOfPlayers > 9 ? 0.9 : 1.0;
+    final double infoScale = numberOfPlayers > 8 ? 0.85 : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
