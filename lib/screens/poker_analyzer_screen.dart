@@ -121,9 +121,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   double _centerYOffset(double scale) {
-    final base = numberOfPlayers > 6 ? 200.0 : 140.0;
-    final extra = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 20.0 : 0.0;
-    return (base + extra) * scale;
+    double base;
+    if (numberOfPlayers > 6) {
+      base = 200.0 + (numberOfPlayers - 6) * 10.0;
+    } else {
+      base = 140.0 - (6 - numberOfPlayers) * 10.0;
+    }
+    return base * scale;
+  }
+
+  double _radiusModifier() {
+    return (1 + (6 - numberOfPlayers) * 0.05).clamp(0.8, 1.2);
   }
 
   String _formatAmount(int amount) {
@@ -1114,8 +1122,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final List<Widget> chips = [];
     for (int i = 0; i < numberOfPlayers; i++) {
@@ -1127,7 +1136,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final lastAction = playerActions.last;
       if (['bet', 'raise', 'call'].contains(lastAction.action) &&
           lastAction.amount != null) {
-        final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
         final bias = _verticalBiasFromAngle(angle) * scale;
@@ -1150,8 +1159,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final List<Widget> chips = [];
     for (int i = 0; i < numberOfPlayers; i++) {
@@ -1164,7 +1174,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               a.amount != null)
           .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
       if (invested > 0) {
-        final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
         final bias = _verticalBiasFromAngle(angle) * scale;
@@ -1203,8 +1213,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final List<Widget> chips = [];
     for (int i = 0; i < numberOfPlayers; i++) {
@@ -1217,7 +1228,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               a.amount != null)
           .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
       if (invested > 0) {
-        final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
         final bias = _verticalBiasFromAngle(angle) * scale;
@@ -1242,8 +1253,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final List<Widget> items = [];
 
@@ -1285,7 +1297,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final lastAction = playerActions.last;
       if (['bet', 'raise', 'call'].contains(lastAction.action) &&
           lastAction.amount != null) {
-        final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
         final bias = _verticalBiasFromAngle(angle) * scale;
@@ -1426,8 +1438,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final effectiveStack = _calculateEffectiveStack(fromActions: visibleActions);
     final pot = _pots[currentStreet];
@@ -1642,8 +1655,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final visibleActions = actions.take(_playbackIndex).toList();
 
@@ -1656,7 +1670,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     final index = (i + heroIndex) % numberOfPlayers;
-    final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
     final bias = _verticalBiasFromAngle(angle) * scale;
@@ -1765,6 +1779,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 numberOfPlayers > 9 ? null : _playerTypeLabel(playerTypes[index]),
             positionLabel:
                 numberOfPlayers <= 9 ? _positionLabelForIndex(index) : null,
+            blindLabel: (playerPositions[index] == 'SB' ||
+                    playerPositions[index] == 'BB')
+                ? playerPositions[index]
+                : null,
             onTap: () => setState(() => activePlayerIndex = index),
             onDoubleTap: () => setState(() {
               heroIndex = index;
@@ -1876,13 +1894,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
     final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusX = (tableWidth / 2 - 60) * scale;
-    final radiusY = (tableHeight / 2 + 90) * scale;
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final visibleActions = actions.take(_playbackIndex).toList();
 
     final index = (i + heroIndex) % numberOfPlayers;
-    final angle = 2 * pi * (i - heroIndex) / numberOfPlayers + pi / 2;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
     final bias = _verticalBiasFromAngle(angle) * scale;
