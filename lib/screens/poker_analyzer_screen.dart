@@ -40,6 +40,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
 
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
+  List<SavedHand> savedHands = [];
   int heroIndex = 0;
   String _heroPosition = 'BTN';
   int numberOfPlayers = 6;
@@ -1123,6 +1124,66 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void saveCurrentHand() {
+    final hand = SavedHand(
+      heroIndex: heroIndex,
+      heroPosition: _heroPosition,
+      numberOfPlayers: numberOfPlayers,
+      playerCards: [
+        for (int i = 0; i < numberOfPlayers; i++)
+          List<CardModel>.from(playerCards[i])
+      ],
+      boardCards: List<CardModel>.from(boardCards),
+      actions: List<ActionEntry>.from(actions),
+      stackSizes: Map<int, int>.from(stackSizes),
+      playerPositions: Map<int, String>.from(playerPositions),
+      playerTypes: Map<int, String>.from(playerTypes),
+      comment: null,
+    );
+    setState(() {
+      savedHands.add(hand);
+    });
+  }
+
+  void loadLastSavedHand() {
+    if (savedHands.isEmpty) return;
+    final hand = savedHands.last;
+    setState(() {
+      heroIndex = hand.heroIndex;
+      _heroPosition = hand.heroPosition;
+      numberOfPlayers = hand.numberOfPlayers;
+      for (int i = 0; i < playerCards.length; i++) {
+        playerCards[i]
+          ..clear()
+          ..addAll(i < hand.playerCards.length ? hand.playerCards[i] : []);
+      }
+      boardCards
+        ..clear()
+        ..addAll(hand.boardCards);
+      actions
+        ..clear()
+        ..addAll(hand.actions);
+      stackSizes
+        ..clear()
+        ..addAll(hand.stackSizes);
+      playerPositions
+        ..clear()
+        ..addAll(hand.playerPositions);
+      playerTypes
+        ..clear()
+        ..addAll(hand.playerTypes ??
+            {for (final k in hand.playerPositions.keys) k: 'standard'});
+      _commentController.text = hand.comment ?? '';
+      _recalculatePots();
+      _recalculateStreetInvestments();
+      currentStreet = 0;
+      _playbackIndex = 0;
+      _animatedPlayersPerStreet.clear();
+      _updatePlaybackState();
+      _updatePositions();
+    });
+  }
+
 
 
   @override
@@ -1592,9 +1653,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         color: Colors.white),
                     onPressed: _isPlaying ? _pausePlayback : _startPlayback,
                   ),
-                  IconButton(
+                IconButton(
                     icon: const Icon(Icons.skip_next, color: Colors.white),
                     onPressed: _stepForward,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.save, color: Colors.white),
+                    onPressed: saveCurrentHand,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.folder_open, color: Colors.white),
+                    onPressed: loadLastSavedHand,
                   ),
                   Expanded(
                     child: Slider(
