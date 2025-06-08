@@ -1557,6 +1557,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 });
               },
             ),
+            StreetActionInputWidget(
+              currentStreet: currentStreet,
+              numberOfPlayers: numberOfPlayers,
+              actions: actions,
+              playerPositions: playerPositions,
+              onAdd: onActionSelected,
+              onEdit: _editAction,
+              onDelete: _deleteAction,
+            ),
             ActionTimelineWidget(
               actions: visibleActions,
               playbackIndex: _playbackIndex,
@@ -1966,5 +1975,203 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       )
     ];
+  }
+}
+
+class StreetActionInputWidget extends StatefulWidget {
+  final int currentStreet;
+  final int numberOfPlayers;
+  final List<ActionEntry> actions;
+  final Map<int, String> playerPositions;
+  final void Function(ActionEntry) onAdd;
+  final void Function(int, ActionEntry) onEdit;
+  final void Function(int) onDelete;
+
+  const StreetActionInputWidget({
+    super.key,
+    required this.currentStreet,
+    required this.numberOfPlayers,
+    required this.actions,
+    required this.playerPositions,
+    required this.onAdd,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  State<StreetActionInputWidget> createState() => _StreetActionInputWidgetState();
+}
+
+class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
+  int _player = 0;
+  String _action = 'fold';
+  final TextEditingController _controller = TextEditingController();
+
+  bool get _needAmount =>
+      _action == 'bet' || _action == 'raise' || _action == 'call';
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _add() {
+    final amount = _needAmount ? int.tryParse(_controller.text) : null;
+    widget.onAdd(ActionEntry(widget.currentStreet, _player, _action,
+        amount: amount));
+    _controller.clear();
+  }
+
+  void _editDialog(int index, ActionEntry entry) {
+    int p = entry.playerIndex;
+    String act = entry.action;
+    final c = TextEditingController(
+        text: entry.amount != null ? entry.amount.toString() : '');
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) {
+          bool need = act == 'bet' || act == 'raise' || act == 'call';
+          return AlertDialog(
+            title: const Text('Редактировать действие'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButton<int>(
+                  value: p,
+                  items: [
+                    for (int i = 0; i < widget.numberOfPlayers; i++)
+                      DropdownMenuItem(
+                        value: i,
+                        child: Text(widget.playerPositions[i] ??
+                            'Player ${i + 1}'),
+                      )
+                  ],
+                  onChanged: (v) => setState(() => p = v ?? p),
+                ),
+                const SizedBox(height: 8),
+                DropdownButton<String>(
+                  value: act,
+                  items: const [
+                    DropdownMenuItem(value: 'fold', child: Text('fold')),
+                    DropdownMenuItem(value: 'check', child: Text('check')),
+                    DropdownMenuItem(value: 'call', child: Text('call')),
+                    DropdownMenuItem(value: 'bet', child: Text('bet')),
+                    DropdownMenuItem(value: 'raise', child: Text('raise')),
+                  ],
+                  onChanged: (v) => setState(() => act = v ?? act),
+                ),
+                if (need)
+                  TextField(
+                    controller: c,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Amount'),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Отмена'),
+              ),
+              TextButton(
+                onPressed: () {
+                  final amt =
+                      (act == 'bet' || act == 'raise' || act == 'call')
+                          ? int.tryParse(c.text)
+                          : null;
+                  widget.onEdit(index,
+                      ActionEntry(widget.currentStreet, p, act, amount: amt));
+                  Navigator.pop(ctx);
+                },
+                child: const Text('Сохранить'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final streetActions = widget.actions
+        .where((a) => a.street == widget.currentStreet)
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            DropdownButton<int>(
+              value: _player,
+              items: [
+                for (int i = 0; i < widget.numberOfPlayers; i++)
+                  DropdownMenuItem(
+                    value: i,
+                    child: Text(widget.playerPositions[i] ??
+                        'Player ${i + 1}'),
+                  )
+              ],
+              onChanged: (v) => setState(() => _player = v ?? _player),
+            ),
+            const SizedBox(width: 8),
+            DropdownButton<String>(
+              value: _action,
+              items: const [
+                DropdownMenuItem(value: 'fold', child: Text('fold')),
+                DropdownMenuItem(value: 'check', child: Text('check')),
+                DropdownMenuItem(value: 'call', child: Text('call')),
+                DropdownMenuItem(value: 'bet', child: Text('bet')),
+                DropdownMenuItem(value: 'raise', child: Text('raise')),
+              ],
+              onChanged: (v) => setState(() => _action = v ?? _action),
+            ),
+            const SizedBox(width: 8),
+            if (_needAmount)
+              SizedBox(
+                width: 80,
+                child: TextField(
+                  controller: _controller,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Amount'),
+                ),
+              ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: _add,
+              child: const Text('Добавить'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        for (final a in streetActions)
+          ListTile(
+            dense: true,
+            title: Text(
+              '${widget.playerPositions[a.playerIndex] ?? 'Player ${a.playerIndex + 1}'} '
+              '— ${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
+              style: const TextStyle(color: Colors.white),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.amber),
+                  onPressed: () =>
+                      _editDialog(widget.actions.indexOf(a), a),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () =>
+                      widget.onDelete(widget.actions.indexOf(a)),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
   }
 }
