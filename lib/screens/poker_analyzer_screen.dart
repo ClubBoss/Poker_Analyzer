@@ -1325,6 +1325,47 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> importAllHandsFromClipboard() async {
+    final data = await Clipboard.getData('text/plain');
+    if (data == null || data.text == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid data format')),
+      );
+      return;
+    }
+
+    try {
+      final parsed = jsonDecode(data.text!);
+      if (parsed is! List) throw const FormatException();
+
+      int count = 0;
+      for (final item in parsed) {
+        if (item is Map<String, dynamic>) {
+          try {
+            savedHands.add(SavedHand.fromJson(item));
+            count++;
+          } catch (_) {
+            // skip invalid hand objects
+          }
+        }
+      }
+
+      if (count > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Imported $count hands')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid data format')),
+        );
+      }
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid data format')),
+      );
+    }
+  }
+
 
 
   @override
@@ -1821,6 +1862,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   IconButton(
                     icon: const Icon(Icons.download, color: Colors.white),
                     onPressed: importHandFromClipboard,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.file_download, color: Colors.white),
+                    onPressed: importAllHandsFromClipboard,
                   ),
                   Expanded(
                     child: Slider(
