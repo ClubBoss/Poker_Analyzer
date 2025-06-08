@@ -19,6 +19,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final String? playerTypeLabel;
   /// Simplified position label shown as a badge.
   final String? positionLabel;
+  /// Shows 'SB' or 'BB' badge when the player is in the blinds.
+  final String? blindLabel;
   /// Whether to show an indicator that this player made the last action.
   final bool showLastIndicator;
   final VoidCallback? onTap;
@@ -44,6 +46,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.playerTypeIcon = '',
     this.playerTypeLabel,
     this.positionLabel,
+    this.blindLabel,
     this.onTap,
     this.onDoubleTap,
     this.onLongPress,
@@ -125,6 +128,21 @@ class PlayerInfoWidget extends StatelessWidget {
                     child: const Text(
                       '🧙‍♂️ Hero',
                       style: TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                  ),
+                ),
+              if (blindLabel != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[700],
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      blindLabel!,
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
                     ),
                   ),
                 ),
