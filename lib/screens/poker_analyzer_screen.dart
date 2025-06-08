@@ -1263,53 +1263,91 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
-                          final controller = TextEditingController(text: hand.name);
-                          final result = await showDialog<String>(
+                          final nameController = TextEditingController(text: hand.name);
+                          final tagsController = TextEditingController(text: hand.tags.join(', '));
+                          final commentController = TextEditingController(text: hand.comment ?? '');
+                          await showModalBottomSheet<void>(
                             context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Новое название'),
-                              content: TextField(
-                                controller: controller,
-                                decoration: const InputDecoration(hintText: 'Введите название'),
-                                autofocus: true,
+                            isScrollControlled: true,
+                            builder: (context) => Padding(
+                              padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                                left: 16,
+                                right: 16,
+                                top: 16,
                               ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Отмена'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, controller.text),
-                                  child: const Text('ОК'),
-                                ),
-                              ],
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  TextField(
+                                    controller: nameController,
+                                    decoration: const InputDecoration(labelText: 'Название'),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    controller: tagsController,
+                                    decoration: const InputDecoration(labelText: 'Теги (через запятую)'),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    controller: commentController,
+                                    decoration: const InputDecoration(labelText: 'Комментарий'),
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: null,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Отмена'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          final newName = nameController.text.trim();
+                                          final newTags = tagsController.text
+                                              .split(',')
+                                              .map((t) => t.trim())
+                                              .where((t) => t.isNotEmpty)
+                                              .toList();
+                                          final newComment = commentController.text.trim();
+                                          setState(() {
+                                            final old = savedHands[savedIndex];
+                                            savedHands[savedIndex] = SavedHand(
+                                              name: newName,
+                                              heroIndex: old.heroIndex,
+                                              heroPosition: old.heroPosition,
+                                              numberOfPlayers: old.numberOfPlayers,
+                                              playerCards: [
+                                                for (final list in old.playerCards) List<CardModel>.from(list)
+                                              ],
+                                              boardCards: List<CardModel>.from(old.boardCards),
+                                              actions: List<ActionEntry>.from(old.actions),
+                                              stackSizes: Map<int, int>.from(old.stackSizes),
+                                              playerPositions: Map<int, String>.from(old.playerPositions),
+                                              playerTypes: old.playerTypes == null
+                                                  ? null
+                                                  : Map<int, String>.from(old.playerTypes!),
+                                              comment: newComment.isNotEmpty ? newComment : null,
+                                              tags: newTags,
+                                            );
+                                          });
+                                          Navigator.pop(context);
+                                          setStateDialog(() {});
+                                        },
+                                        child: const Text('Сохранить'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           );
-                          final newName = result?.trim();
-                          if (newName != null && newName.isNotEmpty) {
-                            setState(() {
-                              final old = savedHands[savedIndex];
-                              savedHands[savedIndex] = SavedHand(
-                                name: newName,
-                                heroIndex: old.heroIndex,
-                                heroPosition: old.heroPosition,
-                                numberOfPlayers: old.numberOfPlayers,
-                                playerCards: [
-                                  for (final list in old.playerCards)
-                                    List<CardModel>.from(list)
-                                ],
-                                boardCards: List<CardModel>.from(old.boardCards),
-                                actions: List<ActionEntry>.from(old.actions),
-                                stackSizes: Map<int, int>.from(old.stackSizes),
-                                playerPositions: Map<int, String>.from(old.playerPositions),
-                                playerTypes: Map<int, String>.from(old.playerTypes),
-                                comment: old.comment,
-                                tags: List<String>.from(old.tags),
-                              );
-                            });
-                            setStateDialog(() {});
-                          }
-                          controller.dispose();
+                          nameController.dispose();
+                          tagsController.dispose();
+                          commentController.dispose();
                         },
                       ),
                       IconButton(
