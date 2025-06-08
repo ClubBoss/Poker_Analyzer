@@ -121,8 +121,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   double _centerYOffset(double scale) {
-    final base = numberOfPlayers > 6 ? 180.0 : 140.0;
-    final extra = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 15.0 : 0.0;
+    final base = numberOfPlayers > 6 ? 200.0 : 140.0;
+    final extra = numberOfPlayers > 7 ? (numberOfPlayers - 7) * 20.0 : 0.0;
     return (base + extra) * scale;
   }
 
@@ -1515,6 +1515,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             ),
           ),
         ),
+            StreetActionsWidget(
+              currentStreet: currentStreet,
+              onStreetChanged: (index) {
+                setState(() {
+                  currentStreet = index;
+                  _pots[currentStreet] = _calculatePotForStreet(currentStreet);
+                  _recalculateStreetInvestments();
+                  _actionTags.clear();
+                  _animatedPlayersPerStreet.clear();
+                });
+              },
+            ),
             ActionTimelineWidget(
               actions: visibleActions,
               playbackIndex: _playbackIndex,
@@ -1578,19 +1590,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       visibleCount: _playbackIndex,
                       evaluateActionQuality: _evaluateActionQuality,
                     ),
-                    StreetActionsWidget(
-                      currentStreet: currentStreet,
-                      onStreetChanged: (index) {
-                        setState(() {
-                          currentStreet = index;
-                          _pots[currentStreet] =
-                              _calculatePotForStreet(currentStreet);
-                          _recalculateStreetInvestments();
-                          _actionTags.clear();
-                          _animatedPlayersPerStreet.clear();
-                        });
-                      },
-                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: StreetActionsList(
@@ -1614,6 +1613,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           labelText: 'Комментарий к раздаче',
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text('🔍 Проанализировать'),
                     ),
                     const SizedBox(height: 10),
                     TextButton(
@@ -1750,6 +1754,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             position: position,
             stack: stack,
             tag: tag,
+            cards: playerCards[index],
             lastAction: lastAction?.action,
             showLastIndicator: lastStreetAction?.playerIndex == index,
             isActive: isActive,

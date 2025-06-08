@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../models/card_model.dart';
 
 /// Compact display for a player's position, stack, tag and last action.
 /// Optionally shows a simplified position label as a badge.
@@ -7,6 +8,7 @@ class PlayerInfoWidget extends StatelessWidget {
   final String position;
   final int stack;
   final String tag;
+  final List<CardModel> cards;
   /// Last action taken by the player ('fold', 'call', 'bet', 'raise', 'check').
   final String? lastAction;
   final bool isActive;
@@ -34,6 +36,7 @@ class PlayerInfoWidget extends StatelessWidget {
     required this.position,
     required this.stack,
     required this.tag,
+    this.cards = const [],
     this.lastAction,
     this.isActive = false,
     this.isFolded = false,
@@ -90,13 +93,12 @@ class PlayerInfoWidget extends StatelessWidget {
     }
 
     Widget box = Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.black87,
+        color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.circular(8),
-        border: borderColor != null
-            ? Border.all(color: borderColor, width: 2)
-            : null,
+        border: Border.all(
+            color: borderColor ?? Colors.white24, width: borderColor != null ? 2 : 1),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -143,6 +145,37 @@ class PlayerInfoWidget extends StatelessWidget {
                   style:
                       const TextStyle(color: Colors.white, fontSize: 10),
                 ),
+              ),
+            ),
+          if (cards.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(2, (idx) {
+                  final card = idx < cards.length ? cards[idx] : null;
+                  final isRed = card?.suit == '♥' || card?.suit == '♦';
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    width: 22,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    alignment: Alignment.center,
+                    child: card != null
+                        ? Text(
+                            '${card.rank}${card.suit}',
+                            style: TextStyle(
+                              color: isRed ? Colors.red : Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  );
+                }),
               ),
             ),
           const SizedBox(height: 4),
