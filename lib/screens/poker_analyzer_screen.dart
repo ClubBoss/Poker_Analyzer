@@ -1097,10 +1097,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     super.dispose();
   }
 
-  Widget _buildBetChipsOverlay() {
+  Widget _buildBetChipsOverlay(double scale) {
     final screenSize = MediaQuery.of(context).size;
-    final crowded = numberOfPlayers > 6;
-    final scale = crowded ? (screenSize.height < 700 ? 0.8 : 0.9) : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
@@ -1137,10 +1135,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return Stack(children: chips);
   }
 
-  Widget _buildInvestedChipsOverlay() {
+  Widget _buildInvestedChipsOverlay(double scale) {
     final screenSize = MediaQuery.of(context).size;
-    final crowded = numberOfPlayers > 6;
-    final scale = crowded ? (screenSize.height < 700 ? 0.8 : 0.9) : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
@@ -1194,10 +1190,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return Stack(children: chips);
   }
 
-  Widget _buildBetStacksOverlay() {
+  Widget _buildBetStacksOverlay(double scale) {
     final screenSize = MediaQuery.of(context).size;
-    final crowded = numberOfPlayers > 6;
-    final scale = crowded ? (screenSize.height < 700 ? 0.8 : 0.9) : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
@@ -1237,10 +1231,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return Stack(children: chips);
   }
 
-  Widget _buildPotAndBetsOverlay() {
+  Widget _buildPotAndBetsOverlay(double scale) {
     final screenSize = MediaQuery.of(context).size;
-    final crowded = numberOfPlayers > 6;
-    final scale = crowded ? (screenSize.height < 700 ? 0.8 : 0.9) : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
@@ -1425,10 +1417,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final visibleActions = actions.take(_playbackIndex).toList();
-    final bool crowded = numberOfPlayers > 6;
-    final double scale = crowded
-        ? (screenSize.height < 700 ? 0.8 : 0.9)
-        : 1.0;
+    final double scale = numberOfPlayers >= 7 ? 0.85 : 1.0;
     final double infoScale = numberOfPlayers > 9 ? 0.9 : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
@@ -1504,11 +1493,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     currentStreet: currentStreet,
                     scale: scale,
                   ),
-                  for (int i = 0; i < numberOfPlayers; i++) ..._buildPlayerWidgets(i),
-                  for (int i = 0; i < numberOfPlayers; i++) ..._buildChipTrail(i),
-                    _buildBetStacksOverlay(),
-                    _buildInvestedChipsOverlay(),
-                    _buildPotAndBetsOverlay(),
+                  for (int i = 0; i < numberOfPlayers; i++) ..._buildPlayerWidgets(i, scale),
+                  for (int i = 0; i < numberOfPlayers; i++) ..._buildChipTrail(i, scale),
+                    _buildBetStacksOverlay(scale),
+                    _buildInvestedChipsOverlay(scale),
+                    _buildPotAndBetsOverlay(scale),
                     _buildActionHistoryOverlay(),
                   Align(
                   alignment: Alignment.topRight,
@@ -1641,12 +1630,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
   }
 
-  List<Widget> _buildPlayerWidgets(int i) {
+  List<Widget> _buildPlayerWidgets(int i, double scale) {
     final screenSize = MediaQuery.of(context).size;
-    final bool crowded = numberOfPlayers > 6;
-    final double scale = crowded
-        ? (screenSize.height < 700 ? 0.8 : 0.9)
-        : 1.0;
     final double infoScale = numberOfPlayers > 9 ? 0.9 : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
@@ -1881,12 +1866,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return widgets;
   }
 
-  List<Widget> _buildChipTrail(int i) {
+  List<Widget> _buildChipTrail(int i, double scale) {
     final screenSize = MediaQuery.of(context).size;
-    final bool crowded = numberOfPlayers > 6;
-    final double scale = crowded
-        ? (screenSize.height < 700 ? 0.8 : 0.9)
-        : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
