@@ -27,6 +27,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   final List<_SessionEntry> _entries = [];
   final Set<String> _packNames = {};
   String _filter = 'all';
+  DateTimeRange? _dateRange;
 
   @override
   void initState() {
@@ -41,6 +42,20 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     final hour = d.hour.toString().padLeft(2, '0');
     final minute = d.minute.toString().padLeft(2, '0');
     return '$day.$month.$year $hour:$minute';
+  }
+
+  String _formatDay(DateTime d) {
+    final day = d.day.toString().padLeft(2, '0');
+    final month = d.month.toString().padLeft(2, '0');
+    final year = d.year.toString();
+    return '$day.$month.$year';
+  }
+
+  String get _dateFilterText {
+    if (_dateRange == null) return 'Все даты';
+    final start = _formatDay(_dateRange!.start);
+    final end = _formatDay(_dateRange!.end);
+    return start == end ? start : '$start - $end';
   }
 
   Future<void> _loadHistory() async {
@@ -97,6 +112,13 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           _allEntries.where((e) => e.packName == name).toList();
     } else {
       filtered = List.from(_allEntries);
+    }
+
+    if (_dateRange != null) {
+      filtered = filtered.where((e) {
+        final d = e.result.date;
+        return !d.isBefore(_dateRange!.start) && !d.isAfter(_dateRange!.end);
+      }).toList();
     }
     setState(() {
       _entries
@@ -159,6 +181,28 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     }
   }
 
+  Future<void> _pickDateRange() async {
+    final now = DateTime.now();
+    final initialRange = _dateRange ??
+        DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: now,
+      initialDateRange: initialRange,
+    );
+    if (picked != null) {
+      _dateRange = picked;
+      _applyFilter();
+    }
+  }
+
+  void _resetFilters() {
+    _filter = 'all';
+    _dateRange = null;
+    _applyFilter();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,37 +216,53 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           if (_allEntries.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16),
-              child: DropdownButton<String>(
-                value: _filter,
-                dropdownColor: const Color(0xFF2A2B2E),
-                style: const TextStyle(color: Colors.white),
-                onChanged: (value) {
-                  if (value != null) {
-                    _filter = value;
-                    _applyFilter();
-                  }
-                },
-                items: [
-                  const DropdownMenuItem(
-                    value: 'all',
-                    child: Text('Все сессии'),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: _filter,
+                      dropdownColor: const Color(0xFF2A2B2E),
+                      style: const TextStyle(color: Colors.white),
+                      onChanged: (value) {
+                        if (value != null) {
+                          _filter = value;
+                          _applyFilter();
+                        }
+                      },
+                      items: [
+                        const DropdownMenuItem(
+                          value: 'all',
+                          child: Text('Все сессии'),
+                        ),
+                        const DropdownMenuItem(
+                          value: 'success',
+                          child: Text('Только успешные (>70%)'),
+                        ),
+                        const DropdownMenuItem(
+                          value: 'fail',
+                          child: Text('Только неуспешные (<70%)'),
+                        ),
+                        if (_packNames.length > 1)
+                          ...[
+                            for (final name in _packNames)
+                              DropdownMenuItem(
+                                value: 'pack:$name',
+                                child: Text('Пакет: $name'),
+                              )
+                          ]
+                      ],
+                    ),
                   ),
-                  const DropdownMenuItem(
-                    value: 'success',
-                    child: Text('Только успешные (>70%)'),
+                  const SizedBox(width: 8),
+                  OutlinedButton(
+                    onPressed: _pickDateRange,
+                    child: Text(_dateFilterText),
                   ),
-                  const DropdownMenuItem(
-                    value: 'fail',
-                    child: Text('Только неуспешные (<70%)'),
-                  ),
-                  if (_packNames.length > 1)
-                    ...[
-                      for (final name in _packNames)
-                        DropdownMenuItem(
-                          value: 'pack:$name',
-                          child: Text('Пакет: $name'),
-                        )
-                    ]
+                  IconButton(
+                    onPressed: _resetFilters,
+                    icon: const Icon(Icons.clear),
+                    tooltip: 'Сбросить',
+                  )
                 ],
               ),
             ),
