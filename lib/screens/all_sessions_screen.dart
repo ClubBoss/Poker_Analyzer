@@ -31,6 +31,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   final List<_SessionEntry> _allEntries = [];
   final List<_SessionEntry> _entries = [];
   final Set<String> _packNames = {};
+  final Map<String, TrainingPack> _packs = {};
   String _filter = 'all';
   String _sortMode = 'date_desc';
   DateTimeRange? _dateRange;
@@ -136,6 +137,9 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
               TrainingPack.fromJson(Map<String, dynamic>.from(item))
         ];
         final List<_SessionEntry> all = [];
+        final Map<String, TrainingPack> loadedPacks = {
+          for (final p in packs) p.name: p
+        };
         for (final p in packs) {
           for (final r in p.history) {
             all.add(_SessionEntry(p.name, p.description, r));
@@ -150,6 +154,9 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           _packNames
             ..clear()
             ..addAll(names);
+          _packs
+            ..clear()
+            ..addAll(loadedPacks);
         });
         _applyFilter();
       }
@@ -625,6 +632,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
 
     _allEntries.clear();
     _packNames.clear();
+    _packs.clear();
     _applyFilter();
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -722,6 +730,16 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       _packNames
         ..remove(oldName)
         ..add(newName);
+      final oldPack = _packs.remove(oldName);
+      if (oldPack != null) {
+        _packs[newName] = TrainingPack(
+          name: newName,
+          description: newDescription,
+          category: oldPack.category,
+          hands: oldPack.hands,
+          history: oldPack.history,
+        );
+      }
     });
     _applyFilter();
 
@@ -773,6 +791,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     setState(() {
       _allEntries.removeWhere((e) => e.packName == name);
       _packNames.remove(name);
+      _packs.remove(name);
     });
     _applyFilter();
 
@@ -805,6 +824,78 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     } else if (result == 'delete') {
       await _deletePack(name);
     }
+  }
+
+  Future<void> _showPackPreview(_SessionEntry entry) async {
+    TrainingPack? pack = _packs[entry.packName];
+    if (pack == null) {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/training_packs.json');
+      if (await file.exists()) {
+        try {
+          final content = await file.readAsString();
+          final data = jsonDecode(content);
+          if (data is List) {
+            for (final item in data) {
+              if (item is Map<String, dynamic>) {
+                final p =
+                    TrainingPack.fromJson(Map<String, dynamic>.from(item));
+                if (p.name == entry.packName) {
+                  pack = p;
+                  break;
+                }
+              }
+            }
+          }
+        } catch (_) {}
+      }
+    }
+    if (pack == null) return;
+    final avg = pack.history.isNotEmpty
+        ? pack.history
+                .map((r) => r.total > 0 ? r.correct * 100 / r.total : 0.0)
+                .reduce((a, b) => a + b) /
+            pack.history.length
+        : 0.0;
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(pack.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (pack.description.isNotEmpty) Text(pack.description),
+            const SizedBox(height: 8),
+            Text('Категория: ${pack.category}'),
+            Text('Кол-во рук: ${pack.hands.length}'),
+            Text('Всего сессий: ${pack.history.length}'),
+            Text('Средний % верных: ${avg.toStringAsFixed(0)}%'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Закрыть'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SessionDetailScreen(
+                    packName: entry.packName,
+                    result: entry.result,
+                  ),
+                ),
+              );
+            },
+            child: const Text('Открыть последнюю сессию'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _pickDateRange() async {
@@ -1060,17 +1151,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     itemBuilder: (context, index) {
                       final e = _entries[index];
                       return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => SessionDetailScreen(
-                                packName: e.packName,
-                                result: e.result,
-                              ),
-                            ),
-                          );
-                        },
+                        onTap: () => _showPackPreview(e),
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           padding: const EdgeInsets.all(12),
