@@ -67,6 +67,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   };
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
+  Set<String> get allTags =>
+      savedHands.expand((hand) => hand.tags).toSet();
   final List<bool> _showActionHints = List.filled(10, true);
   final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
@@ -1285,9 +1287,47 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                                     decoration: const InputDecoration(labelText: 'Название'),
                                   ),
                                   const SizedBox(height: 8),
-                                  TextField(
-                                    controller: tagsController,
-                                    decoration: const InputDecoration(labelText: 'Теги'),
+                                  Autocomplete<String>(
+                                    optionsBuilder: (TextEditingValue value) {
+                                      final input = value.text.toLowerCase();
+                                      if (input.isEmpty) {
+                                        return const Iterable<String>.empty();
+                                      }
+                                      return allTags.where((tag) =>
+                                          tag.toLowerCase().contains(input));
+                                    },
+                                    displayStringForOption: (opt) => opt,
+                                    onSelected: (selection) {
+                                      final tags = tagsController.text
+                                          .split(',')
+                                          .map((t) => t.trim())
+                                          .where((t) => t.isNotEmpty)
+                                          .toSet();
+                                      if (tags.add(selection)) {
+                                        tagsController.text = tags.join(', ');
+                                        tagsController.selection = TextSelection.fromPosition(
+                                            TextPosition(offset: tagsController.text.length));
+                                      }
+                                    },
+                                    fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                                      textEditingController.text = tagsController.text;
+                                      textEditingController.selection = tagsController.selection;
+                                      textEditingController.addListener(() {
+                                        if (tagsController.text != textEditingController.text) {
+                                          tagsController.value = textEditingController.value;
+                                        }
+                                      });
+                                      tagsController.addListener(() {
+                                        if (textEditingController.text != tagsController.text) {
+                                          textEditingController.value = tagsController.value;
+                                        }
+                                      });
+                                      return TextField(
+                                        controller: textEditingController,
+                                        focusNode: focusNode,
+                                        decoration: const InputDecoration(labelText: 'Теги'),
+                                      );
+                                    },
                                   ),
                                   const SizedBox(height: 8),
                                   TextField(
