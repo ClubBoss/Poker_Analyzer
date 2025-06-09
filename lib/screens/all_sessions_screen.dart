@@ -46,6 +46,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   int _successCount = 0;
   int _failCount = 0;
   bool _showSummary = true;
+  int _accuracyChartKey = 0;
   int _touchedAccuracyIndex = -1;
 
   @override
@@ -692,15 +693,20 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     );
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: Container(
-        height: 200,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFF2A2B2E),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: LineChart(
-          LineChartData(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+        child: Container(
+          key: ValueKey(_accuracyChartKey),
+          height: 200,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2B2E),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: LineChart(
+            LineChartData(
             minY: 0,
             maxY: 100,
             lineTouchData: LineTouchData(
@@ -1315,12 +1321,13 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                           child: IconButton(
                             icon: const Icon(Icons.visibility),
                             color: Colors.white70,
-                            onPressed: () {
-                              setState(() {
-                                _showSummary = false;
-                              });
-                              _savePreferences();
-                            },
+                          onPressed: () {
+                            setState(() {
+                              _showSummary = false;
+                              _accuracyChartKey++;
+                            });
+                            _savePreferences();
+                          },
                           ),
                         ),
                       ],
@@ -1333,6 +1340,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                         onPressed: () {
                           setState(() {
                             _showSummary = true;
+                            _accuracyChartKey++;
                           });
                           _savePreferences();
                         },
