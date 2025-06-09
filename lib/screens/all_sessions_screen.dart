@@ -420,25 +420,81 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
               pw.Text('Пакет: $name',
                   style: pw.TextStyle(font: boldFont)),
               pw.SizedBox(height: 4),
-              pw.Table.fromTextArray(
-                headers: const [
-                  'Дата',
-                  'Название пакета',
-                  'Правильных / Всего',
-                  'Процент успешности'
-                ],
-                headerStyle: pw.TextStyle(font: boldFont),
-                cellStyle: pw.TextStyle(font: regularFont),
-                data: [
-                  for (final e in groups[name]!)
-                    [
-                      _formatDate(e.result.date),
-                      e.packName,
-                      '${e.result.correct}/${e.result.total}',
-                      e.result.total > 0
-                          ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
-                          : '0%'
-                    ]
+              pw.Table(
+                border: pw.TableBorder.all(),
+                children: [
+                  pw.TableRow(
+                    decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                    children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text('Дата',
+                            style: pw.TextStyle(font: boldFont)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text('Название пакета',
+                            style: pw.TextStyle(font: boldFont)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text('Правильных / Всего',
+                            style: pw.TextStyle(font: boldFont)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text('Процент успешности',
+                            style: pw.TextStyle(font: boldFont)),
+                      ),
+                    ],
+                  ),
+                  ...groups[name]!.map(
+                    (e) {
+                      final percent = e.result.total > 0
+                          ? e.result.correct * 100 / e.result.total
+                          : 0.0;
+                      final color = percent >= 80
+                          ? PdfColors.lightGreen
+                          : percent >= 50
+                              ? PdfColors.amber100
+                              : PdfColors.red100;
+                      return pw.TableRow(
+                        decoration: pw.BoxDecoration(color: color),
+                        children: [
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(
+                              _formatDate(e.result.date),
+                              style: pw.TextStyle(font: regularFont),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(
+                              e.packName,
+                              style: pw.TextStyle(font: regularFont),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(
+                              '${e.result.correct}/${e.result.total}',
+                              style: pw.TextStyle(font: regularFont),
+                            ),
+                          ),
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.all(4),
+                            child: pw.Text(
+                              e.result.total > 0
+                                  ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
+                                  : '0%',
+                              style: pw.TextStyle(font: regularFont),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
               pw.SizedBox(height: 20),
