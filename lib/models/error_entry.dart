@@ -1,4 +1,5 @@
 class ErrorEntry {
+  final String street;
   final String spotTitle;
   final String situationDescription;
   final String userAction;
@@ -6,6 +7,7 @@ class ErrorEntry {
   final String aiExplanation;
 
   ErrorEntry({
+    required this.street,
     required this.spotTitle,
     required this.situationDescription,
     required this.userAction,
