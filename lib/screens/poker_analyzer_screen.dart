@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -1265,126 +1266,164 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
-                          final nameController = TextEditingController(text: hand.name);
-                          final tagsController = TextEditingController(text: hand.tags.join(', '));
-                          final commentController = TextEditingController(text: hand.comment ?? '');
+                          final nameController =
+                              TextEditingController(text: hand.name);
+                          final tagsController =
+                              TextEditingController(text: hand.tags.join(', '));
+                          final commentController =
+                              TextEditingController(text: hand.comment ?? '');
+
                           await showModalBottomSheet<void>(
                             context: context,
                             isScrollControlled: true,
                             builder: (context) => Padding(
                               padding: EdgeInsets.only(
-                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom,
                                 left: 16,
                                 right: 16,
                                 top: 16,
                               ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  TextField(
-                                    controller: nameController,
-                                    decoration: const InputDecoration(labelText: 'Название'),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Autocomplete<String>(
-                                    optionsBuilder: (TextEditingValue value) {
-                                      final input = value.text.toLowerCase();
-                                      if (input.isEmpty) {
-                                        return const Iterable<String>.empty();
-                                      }
-                                      return allTags.where((tag) =>
-                                          tag.toLowerCase().contains(input));
-                                    },
-                                    displayStringForOption: (opt) => opt,
-                                    onSelected: (selection) {
-                                      final tags = tagsController.text
-                                          .split(',')
-                                          .map((t) => t.trim())
-                                          .where((t) => t.isNotEmpty)
-                                          .toSet();
-                                      if (tags.add(selection)) {
-                                        tagsController.text = tags.join(', ');
-                                        tagsController.selection = TextSelection.fromPosition(
-                                            TextPosition(offset: tagsController.text.length));
-                                      }
-                                    },
-                                    fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
-                                      textEditingController.text = tagsController.text;
-                                      textEditingController.selection = tagsController.selection;
-                                      textEditingController.addListener(() {
-                                        if (tagsController.text != textEditingController.text) {
-                                          tagsController.value = textEditingController.value;
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    TextField(
+                                      controller: nameController,
+                                      decoration: const InputDecoration(
+                                          labelText: 'Название'),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Autocomplete<String>(
+                                      optionsBuilder: (TextEditingValue value) {
+                                        final input = value.text.toLowerCase();
+                                        if (input.isEmpty) {
+                                          return const Iterable<String>.empty();
                                         }
-                                      });
-                                      tagsController.addListener(() {
-                                        if (textEditingController.text != tagsController.text) {
-                                          textEditingController.value = tagsController.value;
+                                        return allTags.where((tag) =>
+                                            tag.toLowerCase().contains(input));
+                                      },
+                                      displayStringForOption: (opt) => opt,
+                                      onSelected: (selection) {
+                                        final tags = tagsController.text
+                                            .split(',')
+                                            .map((t) => t.trim())
+                                            .where((t) => t.isNotEmpty)
+                                            .toSet();
+                                        if (tags.add(selection)) {
+                                          tagsController.text = tags.join(', ');
+                                          tagsController.selection =
+                                              TextSelection.fromPosition(
+                                                  TextPosition(
+                                                      offset: tagsController
+                                                          .text.length));
                                         }
-                                      });
-                                      return TextField(
-                                        controller: textEditingController,
-                                        focusNode: focusNode,
-                                        decoration: const InputDecoration(labelText: 'Теги'),
-                                      );
-                                    },
-                                  ),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: commentController,
-                                    decoration: const InputDecoration(labelText: 'Комментарий'),
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: null,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      TextButton(
+                                      },
+                                      fieldViewBuilder: (context,
+                                          textEditingController,
+                                          focusNode,
+                                          onFieldSubmitted) {
+                                        textEditingController.text =
+                                            tagsController.text;
+                                        textEditingController.selection =
+                                            tagsController.selection;
+                                        textEditingController.addListener(() {
+                                          if (tagsController.text !=
+                                              textEditingController.text) {
+                                            tagsController.value =
+                                                textEditingController.value;
+                                          }
+                                        });
+                                        tagsController.addListener(() {
+                                          if (textEditingController.text !=
+                                              tagsController.text) {
+                                            textEditingController.value =
+                                                tagsController.value;
+                                          }
+                                        });
+                                        return TextField(
+                                          controller: textEditingController,
+                                          focusNode: focusNode,
+                                          decoration: const InputDecoration(
+                                              labelText: 'Теги'),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: commentController,
+                                      decoration: const InputDecoration(
+                                          labelText: 'Комментарий'),
+                                      keyboardType: TextInputType.multiline,
+                                      maxLines: null,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
                                         onPressed: () => Navigator.pop(context),
                                         child: const Text('Отмена'),
                                       ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          final newName = nameController.text.trim();
-                                          final newTags = tagsController.text
-                                              .split(',')
-                                              .map((t) => t.trim())
-                                              .where((t) => t.isNotEmpty)
-                                              .toList();
-                                          final newComment = commentController.text.trim();
-                                          setState(() {
-                                            final old = savedHands[savedIndex];
-                                            savedHands[savedIndex] = SavedHand(
-                                              name: newName,
-                                              heroIndex: old.heroIndex,
-                                              heroPosition: old.heroPosition,
-                                              numberOfPlayers: old.numberOfPlayers,
-                                              playerCards: [
-                                                for (final list in old.playerCards) List<CardModel>.from(list)
-                                              ],
-                                              boardCards: List<CardModel>.from(old.boardCards),
-                                              actions: List<ActionEntry>.from(old.actions),
-                                              stackSizes: Map<int, int>.from(old.stackSizes),
-                                              playerPositions: Map<int, String>.from(old.playerPositions),
-                                              playerTypes: old.playerTypes == null
-                                                  ? null
-                                                  : Map<int, String>.from(old.playerTypes!),
-                                              comment: newComment.isNotEmpty ? newComment : null,
-                                              tags: newTags,
-                                            );
-                                          });
-                                          Navigator.pop(context);
-                                          setStateDialog(() {});
-                                        },
-                                        child: const Text('Сохранить'),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
+
+                          final newName = nameController.text.trim();
+                          final newTags = tagsController.text
+                              .split(',')
+                              .map((t) => t.trim())
+                              .where((t) => t.isNotEmpty)
+                              .toList();
+                          final newComment = commentController.text.trim();
+
+                          final old = savedHands[savedIndex];
+                          final oldName = old.name.trim();
+                          final oldTags = old.tags
+                              .map((t) => t.trim())
+                              .where((t) => t.isNotEmpty)
+                              .toList();
+                          final oldComment = old.comment?.trim() ?? '';
+
+                          final hasChanges =
+                              newName != oldName ||
+                                  !listEquals(newTags, oldTags) ||
+                                  newComment != oldComment;
+
+                          if (hasChanges) {
+                            setState(() {
+                              savedHands[savedIndex] = SavedHand(
+                                name: newName,
+                                heroIndex: old.heroIndex,
+                                heroPosition: old.heroPosition,
+                                numberOfPlayers: old.numberOfPlayers,
+                                playerCards: [
+                                  for (final list in old.playerCards)
+                                    List<CardModel>.from(list)
+                                ],
+                                boardCards: List<CardModel>.from(old.boardCards),
+                                actions: List<ActionEntry>.from(old.actions),
+                                stackSizes: Map<int, int>.from(old.stackSizes),
+                                playerPositions:
+                                    Map<int, String>.from(old.playerPositions),
+                                playerTypes: old.playerTypes == null
+                                    ? null
+                                    : Map<int, String>.from(old.playerTypes!),
+                                comment:
+                                    newComment.isNotEmpty ? newComment : null,
+                                tags: newTags,
+                              );
+                            });
+                            setStateDialog(() {});
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Раздача обновлена')),
+                            );
+                          }
+
                           nameController.dispose();
                           tagsController.dispose();
                           commentController.dispose();
