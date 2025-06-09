@@ -72,6 +72,16 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
     final summaryColor = streetActions.isNotEmpty
         ? _colorForAction(streetActions.last.action)
         : Colors.white54;
+    bool hasNegative = false;
+    if (widget.evaluateActionQuality != null) {
+      for (final a in streetActions) {
+        final q = widget.evaluateActionQuality!(a).toLowerCase();
+        if (q.contains('bad') || q.contains('плох') || q.contains('ошиб')) {
+          hasNegative = true;
+          break;
+        }
+      }
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -92,12 +102,20 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          _streetName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              _streetName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (hasNegative) ...[
+                              const SizedBox(width: 4),
+                              const Icon(Icons.warning, color: Colors.red, size: 16),
+                            ]
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
