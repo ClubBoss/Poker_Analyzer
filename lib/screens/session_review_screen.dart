@@ -152,39 +152,64 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
                     for (final e in grouped[street]!)
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: const Color(0xFF2A2B2E),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Stack(
                           children: [
-                            Text(
-                              e.spotTitle,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 24, 12, 12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    e.spotTitle,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    e.situationDescription,
+                                    style: const TextStyle(color: Colors.white70),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Ваше действие: ${e.userAction}',
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                  Text(
+                                    'Правильное действие: ${e.correctAction}',
+                                    style: const TextStyle(color: Colors.green),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    e.aiExplanation,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              e.situationDescription,
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Ваше действие: ${e.userAction}',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                            Text(
-                              'Правильное действие: ${e.correctAction}',
-                              style: const TextStyle(color: Colors.green),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              e.aiExplanation,
-                              style: const TextStyle(color: Colors.white),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white24,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  e.errorType,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
