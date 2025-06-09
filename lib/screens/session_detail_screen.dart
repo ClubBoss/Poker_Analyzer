@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
+
 import '../models/training_pack.dart';
+import '../models/saved_hand.dart';
+import 'training_pack_screen.dart';
 
 class SessionDetailScreen extends StatelessWidget {
   final String packName;
@@ -21,8 +28,52 @@ class SessionDetailScreen extends StatelessWidget {
     return '$day.$month.$year $hour:$minute';
   }
 
+  Future<TrainingPack?> _loadPack() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_packs.json');
+    if (!await file.exists()) return null;
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is List) {
+        for (final item in data) {
+          if (item is Map<String, dynamic>) {
+            final p =
+                TrainingPack.fromJson(Map<String, dynamic>.from(item));
+            if (p.name == packName) return p;
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  Future<void> _repeatMistakes(BuildContext context) async {
+    final pack = await _loadPack();
+    if (pack == null) return;
+    final mistakes = result.tasks.where((t) => !t.correct).toList();
+    final List<SavedHand> hands = [];
+    for (final m in mistakes) {
+      try {
+        hands.add(pack.hands.firstWhere((h) => h.name == m.question));
+      } catch (_) {}
+    }
+    if (hands.isEmpty) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackScreen(
+          pack: pack,
+          hands: hands,
+          mistakeReviewMode: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool hasMistakes = result.tasks.any((t) => !t.correct);
     return Scaffold(
       appBar: AppBar(
         title: Text(packName),
@@ -50,6 +101,13 @@ class SessionDetailScreen extends StatelessWidget {
                   _formatDate(result.date),
                   style: const TextStyle(color: Colors.white70),
                 ),
+                if (hasMistakes) ...[
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () => _repeatMistakes(context),
+                    child: const Text('Повторить ошибочные задачи'),
+                  ),
+                ],
               ],
             ),
           ),
