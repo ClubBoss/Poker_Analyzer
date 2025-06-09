@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
 import 'poker_analyzer_screen.dart';
@@ -15,11 +16,32 @@ class TrainingPackScreen extends StatefulWidget {
 class _TrainingPackScreenState extends State<TrainingPackScreen> {
   int _currentIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadProgress();
+  }
+
+  Future<void> _loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentIndex =
+          prefs.getInt('training_progress_${widget.pack.name}') ?? 0;
+    });
+  }
+
+  Future<void> _saveProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(
+        'training_progress_${widget.pack.name}', _currentIndex);
+  }
+
   void _previousHand() {
     if (_currentIndex > 0) {
       setState(() {
         _currentIndex--;
       });
+      _saveProgress();
     }
   }
 
@@ -27,6 +49,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     setState(() {
       _currentIndex++;
     });
+    _saveProgress();
   }
 
   @override
