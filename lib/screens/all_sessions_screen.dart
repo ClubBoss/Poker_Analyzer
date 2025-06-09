@@ -498,7 +498,65 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                 ],
               ),
               pw.SizedBox(height: 20),
-            ]
+            ],
+            pw.SizedBox(height: 20),
+            pw.Table(
+              border: pw.TableBorder.all(),
+              children: [
+                pw.TableRow(
+                  decoration: pw.BoxDecoration(color: PdfColors.grey300),
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Название пакета',
+                          style: pw.TextStyle(font: boldFont)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Кол-во сессий',
+                          style: pw.TextStyle(font: boldFont)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(4),
+                      child: pw.Text('Средний %',
+                          style: pw.TextStyle(font: boldFont)),
+                    ),
+                  ],
+                ),
+                for (final name in names)
+                  pw.TableRow(
+                    children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text(name,
+                            style: pw.TextStyle(font: regularFont)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text('${groups[name]!.length}',
+                            style: pw.TextStyle(font: regularFont)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(4),
+                        child: pw.Text(
+                          () {
+                            var sum = 0.0;
+                            for (final e in groups[name]!) {
+                              sum += e.result.total > 0
+                                  ? e.result.correct * 100 / e.result.total
+                                  : 0.0;
+                            }
+                            final avg = sum / groups[name]!.length;
+                            return '${avg.toStringAsFixed(0)}%';
+                          }(),
+                          style: pw.TextStyle(font: regularFont),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            pw.SizedBox(height: 20),
           ];
         },
       ),
