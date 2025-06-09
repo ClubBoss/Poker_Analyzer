@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../models/training_pack.dart';
 
 class CreatePackScreen extends StatefulWidget {
-  const CreatePackScreen({super.key});
+  final TrainingPack? initialPack;
+
+  const CreatePackScreen({super.key, this.initialPack});
 
   @override
   State<CreatePackScreen> createState() => _CreatePackScreenState();
@@ -14,6 +16,17 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    final pack = widget.initialPack;
+    if (pack != null) {
+      _nameController.text = pack.name;
+      _descriptionController.text = pack.description;
+      _categoryController.text = pack.category;
+    }
+  }
+
   void _save() {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
@@ -22,7 +35,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
       name: name,
       description: _descriptionController.text.trim(),
       category: category.isEmpty ? 'Uncategorized' : category,
-      hands: const [],
+      hands: widget.initialPack?.hands ?? const [],
     );
     Navigator.pop(context, pack);
   }
@@ -31,7 +44,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Новый пакет'),
+        title: Text(widget.initialPack == null ? 'Новый пакет' : 'Редактирование'),
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFF1B1C1E),

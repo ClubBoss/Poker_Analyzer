@@ -120,12 +120,20 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                         ),
                       ],
                     ),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TrainingPackScreen(pack: pack),
-                      ),
-                    ),
+                    onTap: () async {
+                      final updated = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TrainingPackScreen(pack: pack),
+                        ),
+                      );
+                      if (updated is TrainingPack) {
+                        final idx = _packsList.indexOf(pack);
+                        if (idx != -1) {
+                          setState(() => _packsList[idx] = updated);
+                        }
+                      }
+                    },
                   ),
                 );
               },
