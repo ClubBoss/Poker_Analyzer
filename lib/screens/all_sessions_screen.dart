@@ -27,6 +27,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   final List<_SessionEntry> _entries = [];
   final Set<String> _packNames = {};
   String _filter = 'all';
+  String _sortMode = 'date_desc';
   DateTimeRange? _dateRange;
 
   int _filteredCount = 0;
@@ -124,6 +125,42 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         final d = e.result.date;
         return !d.isBefore(_dateRange!.start) && !d.isAfter(_dateRange!.end);
       }).toList();
+    }
+
+    switch (_sortMode) {
+      case 'date_asc':
+        filtered.sort((a, b) => a.result.date.compareTo(b.result.date));
+        break;
+      case 'success_desc':
+        filtered.sort((a, b) {
+          final pa = a.result.total > 0
+              ? a.result.correct / a.result.total
+              : 0.0;
+          final pb = b.result.total > 0
+              ? b.result.correct / b.result.total
+              : 0.0;
+          return pb.compareTo(pa);
+        });
+        break;
+      case 'success_asc':
+        filtered.sort((a, b) {
+          final pa = a.result.total > 0
+              ? a.result.correct / a.result.total
+              : 0.0;
+          final pb = b.result.total > 0
+              ? b.result.correct / b.result.total
+              : 0.0;
+          return pa.compareTo(pb);
+        });
+        break;
+      case 'pack_az':
+        filtered.sort((a, b) => a.packName.compareTo(b.packName));
+        break;
+      case 'pack_za':
+        filtered.sort((a, b) => b.packName.compareTo(a.packName));
+        break;
+      default:
+        filtered.sort((a, b) => b.result.date.compareTo(a.result.date));
     }
     final int success = filtered
         .where((e) =>
@@ -271,6 +308,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   void _resetFilters() {
     _filter = 'all';
     _dateRange = null;
+    _sortMode = 'date_desc';
     _applyFilter();
   }
 
@@ -323,6 +361,46 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                           ]
                       ],
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('Sort by:', style: TextStyle(color: Colors.white)),
+                  const SizedBox(width: 8),
+                  DropdownButton<String>(
+                    value: _sortMode,
+                    dropdownColor: const Color(0xFF2A2B2E),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (value) {
+                      if (value != null) {
+                        _sortMode = value;
+                        _applyFilter();
+                      }
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'date_desc',
+                        child: Text('Date ↓'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'date_asc',
+                        child: Text('Date ↑'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'success_desc',
+                        child: Text('Success ↓'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'success_asc',
+                        child: Text('Success ↑'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'pack_az',
+                        child: Text('Pack A–Z'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'pack_za',
+                        child: Text('Pack Z–A'),
+                      ),
+                    ],
                   ),
                   const SizedBox(width: 8),
                   OutlinedButton(
