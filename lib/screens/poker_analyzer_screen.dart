@@ -251,6 +251,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _addQualityTags() {
+    final tags = _tagsController.text
+        .split(',')
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty)
+        .toSet();
+    bool misplay = false;
+    bool aggressive = false;
+    for (final a in actions) {
+      final q = _evaluateActionQuality(a).toLowerCase();
+      if (q.contains('плох') || q.contains('ошиб') || q.contains('bad')) {
+        misplay = true;
+      }
+      if (q.contains('агресс') || q.contains('overbet') || q.contains('слишком')) {
+        aggressive = true;
+      }
+    }
+    if (misplay) tags.add('🚫 Мисс-плей');
+    if (aggressive) tags.add('🤯 Слишком агрессивно');
+    _tagsController.text = tags.join(', ');
+  }
+
   Future<void> _selectPlayerType(int index) async {
     const types = [
       {'key': 'fish', 'icon': '🐟', 'label': 'Fish'},
@@ -1103,6 +1125,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   String saveHand() {
+    _addQualityTags();
     final hand = _currentSavedHand();
     return jsonEncode(hand.toJson());
   }
@@ -1174,6 +1197,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     if (result == null) return;
     final handName = result.trim().isEmpty ? _defaultHandName() : result.trim();
+    _addQualityTags();
     final hand = _currentSavedHand(name: handName);
     setState(() {
       savedHands.add(hand);
