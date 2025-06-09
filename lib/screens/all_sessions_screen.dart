@@ -326,6 +326,43 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     }
   }
 
+  Future<void> _deleteAllSessions() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить все сессии?'),
+        content: const Text(
+            'Вы уверены, что хотите удалить все сессии? Это действие нельзя отменить'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_packs.json');
+    if (await file.exists()) {
+      await file.delete();
+    }
+    if (!mounted) return;
+
+    _allEntries.clear();
+    _packNames.clear();
+    _applyFilter();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Все сессии удалены')),
+    );
+  }
+
   Future<void> _pickDateRange() async {
     final now = DateTime.now();
     final initialRange = _dateRange ??
@@ -490,6 +527,20 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          if (_allEntries.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  onPressed: _deleteAllSessions,
+                  child: const Text('Удалить все сессии'),
+                ),
               ),
             ),
           Expanded(
