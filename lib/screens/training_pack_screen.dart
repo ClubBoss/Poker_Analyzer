@@ -32,11 +32,20 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   final GlobalKey _analyzerKey = GlobalKey();
   int _currentIndex = 0;
 
+  /// Hands that are currently used in the session. By default it contains
+  /// all hands from the training pack, but when the user chooses to repeat
+  /// mistakes it becomes a filtered subset.
+  late List<SavedHand> _sessionHands;
+
+  /// Whether we are currently reviewing only the mistaken hands.
+  bool _isMistakeReviewMode = false;
+
   final List<_ResultEntry> _results = [];
 
   @override
   void initState() {
     super.initState();
+    _sessionHands = widget.pack.hands;
     _loadProgress();
   }
 
@@ -63,7 +72,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         played = SavedHand.fromJson(jsonDecode(jsonStr));
       } catch (_) {}
     }
-    final original = widget.pack.hands[_currentIndex];
+    final original = _sessionHands[_currentIndex];
     String userAct = '-';
     if (played != null) {
       for (final a in played.actions) {
@@ -109,7 +118,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       setState(() {
         _currentIndex--;
       });
-      _saveProgress();
+      if (!_isMistakeReviewMode) {
+        _saveProgress();
+      }
     }
   }
 
@@ -123,13 +134,17 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     setState(() {
       _currentIndex++;
     });
-    _saveProgress();
+    if (!_isMistakeReviewMode) {
+      _saveProgress();
+    }
   }
 
   void _restartPack() {
     setState(() {
       _currentIndex = 0;
       _results.clear();
+      _sessionHands = widget.pack.hands;
+      _isMistakeReviewMode = false;
     });
     _saveProgress();
   }
@@ -163,6 +178,29 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         ),
       );
     }
+  }
+
+  void _repeatMistakes() {
+    final mistakes = _results.where((r) => !r.correct).toList();
+    if (mistakes.isEmpty) return;
+
+    final List<SavedHand> mistakeHands = [];
+    for (final m in mistakes) {
+      try {
+        mistakeHands.add(
+          widget.pack.hands.firstWhere((h) => h.name == m.name),
+        );
+      } catch (_) {}
+    }
+
+    setState(() {
+      _sessionHands = mistakeHands;
+      _results
+        ..clear()
+        ..addAll(mistakes);
+      _currentIndex = 0;
+      _isMistakeReviewMode = true;
+    });
   }
 
   Widget _buildSummary() {
@@ -199,10 +237,18 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               child: const Text('Начать заново'),
             ),
             const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: _exportResults,
-              child: const Text('Сохранить результаты'),
-            ),
+            if (!_isMistakeReviewMode && mistakes.isNotEmpty) ...[
+              ElevatedButton(
+                onPressed: _repeatMistakes,
+                child: const Text('Повторить ошибки'),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (!_isMistakeReviewMode)
+              ElevatedButton(
+                onPressed: _exportResults,
+                child: const Text('Сохранить результаты'),
+              ),
           ],
         ),
       ),
@@ -211,7 +257,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hands = widget.pack.hands;
+    final hands = _sessionHands;
     final bool completed = _currentIndex >= hands.length;
 
     Widget body;
