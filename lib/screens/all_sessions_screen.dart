@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 import '../models/training_pack.dart';
 import 'session_detail_screen.dart';
@@ -352,6 +354,74 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     }
   }
 
+  Future<void> _exportPdf() async {
+    if (_entries.isEmpty) return;
+
+    final regularFont = await PdfGoogleFonts.robotoRegular();
+    final boldFont = await PdfGoogleFonts.robotoBold();
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        build: (context) {
+          return [
+            pw.Table.fromTextArray(
+              headers: const [
+                'Дата',
+                'Название пакета',
+                'Правильных / Всего',
+                'Процент успешности'
+              ],
+              headerStyle: pw.TextStyle(font: boldFont),
+              cellStyle: pw.TextStyle(font: regularFont),
+              data: [
+                for (final e in _entries)
+                  [
+                    _formatDate(e.result.date),
+                    e.packName,
+                    '${e.result.correct}/${e.result.total}',
+                    e.result.total > 0
+                        ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
+                        : '0%'
+                  ]
+              ],
+            )
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+
+    final fileName =
+        'sessions_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final savePath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Сохранить PDF',
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (savePath == null) return;
+
+    final file = File(savePath);
+    await file.writeAsBytes(bytes);
+
+    if (mounted) {
+      final name = savePath.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Файл сохранён: $name'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () {
+              OpenFile.open(file.path);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _deleteAllSessions() async {
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -605,6 +675,13 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     child: ElevatedButton(
                       onPressed: _exportCsv,
                       child: const Text('Export to CSV'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _exportPdf,
+                      child: const Text('Export to PDF'),
                     ),
                   ),
                 ],
