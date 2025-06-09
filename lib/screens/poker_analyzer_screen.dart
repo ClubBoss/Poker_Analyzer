@@ -70,6 +70,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final TextEditingController _tagsController = TextEditingController();
   Set<String> get allTags =>
       savedHands.expand((hand) => hand.tags).toSet();
+  Set<String> tagFilters = {};
   final List<bool> _showActionHints = List.filled(10, true);
   final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
@@ -1188,20 +1189,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> loadHandByName() async {
     if (savedHands.isEmpty) return;
     String filter = '';
+    Set<String> localFilters = {...tagFilters};
     final selected = await showDialog<SavedHand>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) {
           final query = filter.toLowerCase();
-          final filtered = query.isEmpty
-              ? savedHands
-              : [
-                  for (final hand in savedHands)
-                    if (hand.tags.any((t) => t.toLowerCase().contains(query)) ||
-                        hand.name.toLowerCase().contains(query) ||
-                        (hand.comment?.toLowerCase().contains(query) ?? false))
-                      hand
-                ];
+          final filtered = [
+            for (final hand in savedHands)
+              if ((query.isEmpty ||
+                      hand.tags.any((t) => t.toLowerCase().contains(query)) ||
+                      hand.name.toLowerCase().contains(query) ||
+                      (hand.comment?.toLowerCase().contains(query) ?? false)) &&
+                  (localFilters.isEmpty ||
+                      localFilters.every((tag) => hand.tags.contains(tag))))
+                hand
+          ];
           return AlertDialog(
             title: const Text('Выберите раздачу'),
             content: SizedBox(
@@ -1213,6 +1216,54 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     decoration:
                         const InputDecoration(hintText: 'Поиск'),
                     onChanged: (value) => setStateDialog(() => filter = value),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () async {
+                        await showModalBottomSheet<void>(
+                          context: context,
+                          builder: (context) => StatefulBuilder(
+                            builder: (context, setStateSheet) {
+                              final tags = allTags.toList()..sort();
+                              if (tags.isEmpty) {
+                                return const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Text('Нет тегов'),
+                                );
+                              }
+                              return ListView(
+                                shrinkWrap: true,
+                                children: [
+                                  for (final tag in tags)
+                                    CheckboxListTile(
+                                      title: Text(tag),
+                                      value: localFilters.contains(tag),
+                                      onChanged: (checked) {
+                                        setStateSheet(() {
+                                          if (checked == true) {
+                                            localFilters.add(tag);
+                                          } else {
+                                            localFilters.remove(tag);
+                                          }
+                                          tagFilters = Set.from(localFilters);
+                                        });
+                                        setStateDialog(() {});
+                                      },
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                        setState(() {
+                          tagFilters = Set.from(localFilters);
+                        });
+                        setStateDialog(() {});
+                      },
+                      child: const Text('Фильтр по тегам'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Flexible(
