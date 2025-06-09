@@ -96,30 +96,55 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
     final expected = original.expectedAction ?? '-';
     final matched = userAct.toLowerCase() == expected.toLowerCase();
-    await showDialog(
+    await showModalBottomSheet<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Обратная связь'),
-        content: Column(
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Ваше действие: $userAct'),
-            Text('Правильное действие: $expected'),
-            const SizedBox(height: 8),
-            Text(matched ? 'Верно!' : 'Неверно.'),
+            Text(
+              original.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text('Ожидалось: $expected',
+                style: const TextStyle(color: Colors.white70)),
+            Text('Вы выбрали: $userAct',
+                style: const TextStyle(color: Colors.white70)),
+            const SizedBox(height: 12),
+            Text(
+              matched ? 'Верно!' : 'Неверно.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: matched ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             if (original.feedbackText != null) ...[
               const SizedBox(height: 8),
-              Text(original.feedbackText!),
-            ]
+              Text(
+                original.feedbackText!,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('OK'),
+            )
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          )
-        ],
       ),
     );
     return _ResultEntry(original.name, expected, userAct, matched);
