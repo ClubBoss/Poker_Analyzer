@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:open_file/open_file.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -151,7 +152,15 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     await file.writeAsString(jsonEncode(data));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Результаты сохранены: $fileName')),
+        SnackBar(
+          content: Text('Результаты сохранены: $fileName'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () {
+              OpenFile.open(file.path);
+            },
+          ),
+        ),
       );
     }
   }
