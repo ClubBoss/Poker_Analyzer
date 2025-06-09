@@ -1,7 +1,7 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
-import 'screens/poker_analyzer_screen.dart';
+import 'screens/main_menu_screen.dart';
 
 void main() {
   runApp(const PokerAIAnalyzerApp());
@@ -24,7 +24,7 @@ class PokerAIAnalyzerApp extends StatelessWidget {
               displayColor: Colors.white,
             ),
       ),
-      home: const PokerAnalyzerScreen(),
+      home: const MainMenuScreen(),
     );
   }
 }
