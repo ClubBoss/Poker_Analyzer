@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
+import '../models/session_task_result.dart';
 import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
 
@@ -318,10 +319,20 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   Future<void> _completeSession() async {
     final total = _results.length;
     final correct = _results.where((r) => r.correct).length;
+    final tasks = [
+      for (final r in _results)
+        SessionTaskResult(
+          question: r.name,
+          selectedAnswer: r.userAction,
+          correctAnswer: r.expected,
+          correct: r.correct,
+        )
+    ];
     final result = TrainingSessionResult(
       date: DateTime.now(),
       total: total,
       correct: correct,
+      tasks: tasks,
     );
 
     widget.pack.history.add(result);

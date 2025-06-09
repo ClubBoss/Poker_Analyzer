@@ -7,6 +7,7 @@ import 'package:open_file/open_file.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../models/training_pack.dart';
+import 'session_detail_screen.dart';
 
 class AllSessionsScreen extends StatefulWidget {
   const AllSessionsScreen({super.key});
@@ -223,15 +224,27 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     itemCount: _entries.length,
                     itemBuilder: (context, index) {
                       final e = _entries[index];
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2A2B2E),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => SessionDetailScreen(
+                                packName: e.packName,
+                                result: e.result,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2A2B2E),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
