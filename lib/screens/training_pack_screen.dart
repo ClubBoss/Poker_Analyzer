@@ -159,6 +159,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (!_isMistakeReviewMode) {
       _saveProgress();
     }
+    if (_currentIndex >= _sessionHands.length && !_isMistakeReviewMode) {
+      await _completeSession();
+    }
   }
 
   void _restartPack() {
@@ -223,6 +226,45 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       _currentIndex = 0;
       _isMistakeReviewMode = true;
     });
+  }
+
+  Future<void> _completeSession() async {
+    final total = _results.length;
+    final correct = _results.where((r) => r.correct).length;
+    final result = TrainingSessionResult(
+      date: DateTime.now(),
+      total: total,
+      correct: correct,
+    );
+
+    widget.pack.history.add(result);
+
+    final prefs = await SharedPreferences.getInstance();
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_packs.json');
+    List<TrainingPack> packs = [];
+    if (await file.exists()) {
+      try {
+        final content = await file.readAsString();
+        final data = jsonDecode(content);
+        if (data is List) {
+          packs = [
+            for (final item in data)
+              if (item is Map<String, dynamic>)
+                TrainingPack.fromJson(Map<String, dynamic>.from(item))
+          ];
+        }
+      } catch (_) {}
+    }
+
+    final idx = packs.indexWhere((p) => p.name == widget.pack.name);
+    if (idx != -1) {
+      packs[idx] = widget.pack;
+    } else {
+      packs.add(widget.pack);
+    }
+
+    await file.writeAsString(jsonEncode([for (final p in packs) p.toJson()]));
   }
 
   Widget _buildSummary() {
