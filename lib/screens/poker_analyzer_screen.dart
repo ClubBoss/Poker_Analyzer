@@ -15,7 +15,7 @@ import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/player_info_widget.dart';
 import '../widgets/street_actions_list.dart';
-import '../widgets/collapsible_street_summary.dart';
+import '../widgets/collapsible_street_section.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
 import '../widgets/bet_chips_on_table.dart';
@@ -2125,15 +2125,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    CollapsibleStreetSummary(
-                      actions: actions,
-                      playerPositions: playerPositions,
-                      pots: _pots,
-                      stackSizes: stackSizes,
-                      onEdit: _editAction,
-                      onDelete: _deleteAction,
-                      visibleCount: _playbackIndex,
-                      evaluateActionQuality: _evaluateActionQuality,
+                    Column(
+                      children: List.generate(4, (i) => CollapsibleStreetSection(
+                        street: i,
+                        actions: actions,
+                        pots: _pots,
+                        stackSizes: stackSizes,
+                        playerPositions: playerPositions,
+                        onEdit: _editAction,
+                        onDelete: _deleteAction,
+                        visibleCount: _playbackIndex,
+                        evaluateActionQuality: _evaluateActionQuality,
+                      )),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),

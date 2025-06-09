@@ -1,0 +1,145 @@
+import 'package:flutter/material.dart';
+import '../models/action_entry.dart';
+import 'street_actions_list.dart';
+
+/// Collapsible block showing actions for a specific street.
+class CollapsibleStreetSection extends StatefulWidget {
+  final int street;
+  final List<ActionEntry> actions;
+  final List<int> pots;
+  final Map<int, int> stackSizes;
+  final Map<int, String> playerPositions;
+  final void Function(int, ActionEntry) onEdit;
+  final void Function(int) onDelete;
+  final int? visibleCount;
+  final String Function(ActionEntry)? evaluateActionQuality;
+
+  const CollapsibleStreetSection({
+    super.key,
+    required this.street,
+    required this.actions,
+    required this.pots,
+    required this.stackSizes,
+    required this.playerPositions,
+    required this.onEdit,
+    required this.onDelete,
+    this.visibleCount,
+    this.evaluateActionQuality,
+  });
+
+  @override
+  State<CollapsibleStreetSection> createState() => _CollapsibleStreetSectionState();
+}
+
+class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
+  bool _open = false;
+
+  String get _streetName => ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][widget.street];
+
+  String _capitalize(String s) => s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
+
+  Color _colorForAction(String action) {
+    switch (action) {
+      case 'fold':
+        return Colors.red;
+      case 'call':
+        return Colors.blue;
+      case 'raise':
+      case 'bet':
+        return Colors.green;
+      default:
+        return Colors.white;
+    }
+  }
+
+  String _buildSummary(List<ActionEntry> actions) {
+    if (actions.isEmpty) return 'Нет действий';
+    final last = actions.last;
+    final pos = widget.playerPositions[last.playerIndex] ?? 'P${last.playerIndex + 1}';
+    final actionText = '${_capitalize(last.action)}${last.amount != null ? ' ${last.amount}' : ''}';
+    return '$pos $actionText';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final relevant = widget.visibleCount != null
+        ? widget.actions.take(widget.visibleCount!).toList(growable: false)
+        : widget.actions;
+    final streetActions =
+        relevant.where((a) => a.street == widget.street).toList(growable: false);
+
+    final summary = _buildSummary(streetActions);
+    final summaryColor = streetActions.isNotEmpty
+        ? _colorForAction(streetActions.last.action)
+        : Colors.white54;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: _open ? Colors.black54 : Colors.black.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: () => setState(() => _open = !_open),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _streetName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          summary,
+                          style: TextStyle(color: summaryColor),
+                        ),
+                      ],
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: _open ? 0.5 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: const Icon(Icons.expand_more, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ClipRect(
+            child: AnimatedAlign(
+              alignment: Alignment.topCenter,
+              duration: const Duration(milliseconds: 300),
+              heightFactor: _open ? 1 : 0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                child: StreetActionsList(
+                  street: widget.street,
+                  actions: widget.actions,
+                  pots: widget.pots,
+                  stackSizes: widget.stackSizes,
+                  playerPositions: widget.playerPositions,
+                  onEdit: widget.onEdit,
+                  onDelete: widget.onDelete,
+                  visibleCount: widget.visibleCount,
+                  evaluateActionQuality: widget.evaluateActionQuality,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
