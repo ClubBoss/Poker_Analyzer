@@ -1287,7 +1287,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                                   const SizedBox(height: 8),
                                   TextField(
                                     controller: tagsController,
-                                    decoration: const InputDecoration(labelText: 'Теги (через запятую)'),
+                                    decoration: const InputDecoration(labelText: 'Теги'),
                                   ),
                                   const SizedBox(height: 8),
                                   TextField(
