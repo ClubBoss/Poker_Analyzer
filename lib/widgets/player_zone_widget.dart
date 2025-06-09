@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
+import '../models/player_model.dart';
 import 'card_selector.dart';
 
 class PlayerZoneWidget extends StatefulWidget {
@@ -8,6 +9,8 @@ class PlayerZoneWidget extends StatefulWidget {
   final List<CardModel> cards;
   final bool isHero;
   final bool isFolded;
+  final PlayerType playerType;
+  final ValueChanged<PlayerType>? onPlayerTypeChanged;
   final bool isActive;
   final bool highlightLastAction;
   final bool showHint;
@@ -23,6 +26,8 @@ class PlayerZoneWidget extends StatefulWidget {
     required this.cards,
     required this.isHero,
     required this.isFolded,
+    this.playerType = PlayerType.unknown,
+    this.onPlayerTypeChanged,
     required this.onCardsSelected,
     this.isActive = false,
     this.highlightLastAction = false,
@@ -38,10 +43,12 @@ class PlayerZoneWidget extends StatefulWidget {
 class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  late PlayerType _playerType;
 
   @override
   void initState() {
     super.initState();
+    _playerType = widget.playerType;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -61,6 +68,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     } else if (!widget.isActive && oldWidget.isActive) {
       _controller.stop();
       _controller.reset();
+    }
+    if (widget.playerType != oldWidget.playerType) {
+      _playerType = widget.playerType;
     }
   }
 
@@ -102,6 +112,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 Text(
                   widget.playerName,
                   style: nameStyle,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 4.0 * widget.scale),
+                  child: Text(
+                    _playerTypeIcon(_playerType),
+                    style: TextStyle(fontSize: 14 * widget.scale),
+                  ),
                 ),
                 if (widget.isHero)
                   Padding(
@@ -277,7 +294,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       );
     }
 
-    return result;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onLongPress: _showPlayerTypeDialog,
+      child: result,
+    );
   }
 
   Color _getPositionColor(String? position) {
@@ -289,6 +310,79 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         return Colors.blueAccent;
       default:
         return Colors.white70;
+    }
+  }
+
+  String _playerTypeIcon(PlayerType type) {
+    switch (type) {
+      case PlayerType.shark:
+        return '🦈';
+      case PlayerType.fish:
+        return '🐠';
+      case PlayerType.callingStation:
+        return '📞';
+      case PlayerType.maniac:
+        return '🔥';
+      case PlayerType.nit:
+        return '🧊';
+      case PlayerType.unknown:
+      default:
+        return '👤';
+    }
+  }
+
+  String _playerTypeLabel(PlayerType type) {
+    switch (type) {
+      case PlayerType.shark:
+        return 'Shark';
+      case PlayerType.fish:
+        return 'Fish';
+      case PlayerType.callingStation:
+        return 'Calling Station';
+      case PlayerType.maniac:
+        return 'Maniac';
+      case PlayerType.nit:
+        return 'Nit';
+      case PlayerType.unknown:
+      default:
+        return 'Unknown';
+    }
+  }
+
+  Future<void> _showPlayerTypeDialog() async {
+    PlayerType selected = _playerType;
+    final result = await showDialog<PlayerType>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Тип игрока'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: PlayerType.values.map((t) {
+              return RadioListTile<PlayerType>(
+                title: Text('${_playerTypeIcon(t)}  ${_playerTypeLabel(t)}'),
+                value: t,
+                groupValue: selected,
+                onChanged: (val) => setState(() => selected = val!),
+              );
+            }).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, selected),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result != null) {
+      setState(() => _playerType = result);
+      widget.onPlayerTypeChanged?.call(result);
     }
   }
 }
