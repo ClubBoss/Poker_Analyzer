@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import 'training_pack_screen.dart';
+import 'create_pack_screen.dart';
 
 class TrainingPacksScreen extends StatefulWidget {
   const TrainingPacksScreen({super.key});
@@ -13,6 +14,13 @@ class TrainingPacksScreen extends StatefulWidget {
 
 class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   String _selectedCategory = 'All';
+  final List<TrainingPack> _packsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _packsList.addAll(_defaultPacks());
+  }
 
   SavedHand _placeholderHand(String name) {
     return SavedHand(
@@ -30,7 +38,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     );
   }
 
-  List<TrainingPack> _packs() {
+  List<TrainingPack> _defaultPacks() {
     return [
       TrainingPack(
         name: 'Push/Fold 10BB',
@@ -49,7 +57,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final packs = _packs();
+    final packs = _packsList;
     final categories = ['All', ...{for (final p in packs) p.category}];
     final visible = _selectedCategory == 'All'
         ? packs
@@ -126,6 +134,18 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final pack = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CreatePackScreen()),
+          );
+          if (pack is TrainingPack) {
+            setState(() => _packsList.add(pack));
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
