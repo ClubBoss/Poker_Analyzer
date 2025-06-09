@@ -364,6 +364,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     pdf.addPage(
       pw.MultiPage(
         build: (context) {
+          final Map<String, List<_SessionEntry>> groups = {};
+          for (final e in _entries) {
+            groups.putIfAbsent(e.packName, () => []).add(e);
+          }
+          final List<String> names = groups.keys.toList()..sort();
+
           return [
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -410,27 +416,33 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                 pw.SizedBox(height: 20),
               ],
             ),
-            pw.Table.fromTextArray(
-              headers: const [
-                'Дата',
-                'Название пакета',
-                'Правильных / Всего',
-                'Процент успешности'
-              ],
-              headerStyle: pw.TextStyle(font: boldFont),
-              cellStyle: pw.TextStyle(font: regularFont),
-              data: [
-                for (final e in _entries)
-                  [
-                    _formatDate(e.result.date),
-                    e.packName,
-                    '${e.result.correct}/${e.result.total}',
-                    e.result.total > 0
-                        ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
-                        : '0%'
-                  ]
-              ],
-            )
+            for (final name in names) ...[
+              pw.Text('Пакет: $name',
+                  style: pw.TextStyle(font: boldFont)),
+              pw.SizedBox(height: 4),
+              pw.Table.fromTextArray(
+                headers: const [
+                  'Дата',
+                  'Название пакета',
+                  'Правильных / Всего',
+                  'Процент успешности'
+                ],
+                headerStyle: pw.TextStyle(font: boldFont),
+                cellStyle: pw.TextStyle(font: regularFont),
+                data: [
+                  for (final e in groups[name]!)
+                    [
+                      _formatDate(e.result.date),
+                      e.packName,
+                      '${e.result.correct}/${e.result.total}',
+                      e.result.total > 0
+                          ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
+                          : '0%'
+                    ]
+                ],
+              ),
+              pw.SizedBox(height: 20),
+            ]
           ];
         },
       ),
