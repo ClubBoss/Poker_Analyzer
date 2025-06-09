@@ -44,6 +44,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   double _averagePercent = 0;
   int _successCount = 0;
   int _failCount = 0;
+  bool _showSummary = true;
 
   @override
   void initState() {
@@ -115,6 +116,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           _minPercent != null ? _minPercent!.toStringAsFixed(0) : '';
       _maxPercentController.text =
           _maxPercent != null ? _maxPercent!.toStringAsFixed(0) : '';
+      _showSummary = prefs.getBool('sessions_show_summary') ?? true;
     });
     _applyFilter();
   }
@@ -123,6 +125,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('sessions_filter', _filter);
     await prefs.setString('sessions_sortMode', _sortMode);
+    await prefs.setBool('sessions_show_summary', _showSummary);
     if (_dateRange != null) {
       await prefs.setString(
           'sessions_date_start', _dateRange!.start.toIso8601String());
@@ -1093,58 +1096,91 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           if (_allEntries.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2A2B2E),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Сессий: $_filteredCount',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+              child: _showSummary
+                  ? Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2A2B2E),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Сессий: $_filteredCount',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  'Успешных: $_successCount',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  'Неуспешных: $_failCount',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  'Средний %: ${_averagePercent.toStringAsFixed(0)}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: IconButton(
+                            icon: const Icon(Icons.visibility),
+                            color: Colors.white70,
+                            onPressed: () {
+                              setState(() {
+                                _showSummary = false;
+                              });
+                              _savePreferences();
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  : Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.visibility_off),
+                        color: Colors.white70,
+                        onPressed: () {
+                          setState(() {
+                            _showSummary = true;
+                          });
+                          _savePreferences();
+                        },
                       ),
                     ),
-                    Expanded(
-                      child: Text(
-                        'Успешных: $_successCount',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Неуспешных: $_failCount',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Средний %: ${_averagePercent.toStringAsFixed(0)}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           if (_entries.isNotEmpty)
             Padding(
