@@ -25,8 +25,15 @@ class _ResultEntry {
 
 class TrainingPackScreen extends StatefulWidget {
   final TrainingPack pack;
+  final List<SavedHand>? hands;
+  final bool mistakeReviewMode;
 
-  const TrainingPackScreen({super.key, required this.pack});
+  const TrainingPackScreen({
+    super.key,
+    required this.pack,
+    this.hands,
+    this.mistakeReviewMode = false,
+  });
 
   @override
   State<TrainingPackScreen> createState() => _TrainingPackScreenState();
@@ -61,11 +68,18 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   void initState() {
     super.initState();
     _pack = widget.pack;
-    _sessionHands = _pack.hands;
+    _sessionHands = widget.hands ?? _pack.hands;
+    _isMistakeReviewMode = widget.mistakeReviewMode;
     _loadProgress();
   }
 
   Future<void> _loadProgress() async {
+    if (_isMistakeReviewMode) {
+      setState(() {
+        _currentIndex = 0;
+      });
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _currentIndex = prefs.getInt('training_progress_${_pack.name}') ?? 0;
@@ -593,7 +607,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_pack.name),
+          title: Text(_isMistakeReviewMode
+              ? '${_pack.name} — Повторение ошибок'
+              : _pack.name),
           centerTitle: true,
           actions: [
             IconButton(
