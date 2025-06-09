@@ -365,6 +365,51 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       pw.MultiPage(
         build: (context) {
           return [
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Row(
+                  children: [
+                    pw.Text('Общее количество сессий:',
+                        style: pw.TextStyle(font: boldFont)),
+                    pw.SizedBox(width: 4),
+                    pw.Text('$_filteredCount',
+                        style: pw.TextStyle(font: regularFont)),
+                  ],
+                ),
+                pw.SizedBox(height: 4),
+                pw.Row(
+                  children: [
+                    pw.Text('Средний процент успешности:',
+                        style: pw.TextStyle(font: boldFont)),
+                    pw.SizedBox(width: 4),
+                    pw.Text('${_averagePercent.toStringAsFixed(0)}%',
+                        style: pw.TextStyle(font: regularFont)),
+                  ],
+                ),
+                pw.SizedBox(height: 4),
+                pw.Row(
+                  children: [
+                    pw.Text('Успешных сессий:',
+                        style: pw.TextStyle(font: boldFont)),
+                    pw.SizedBox(width: 4),
+                    pw.Text('$_successCount',
+                        style: pw.TextStyle(font: regularFont)),
+                  ],
+                ),
+                pw.SizedBox(height: 4),
+                pw.Row(
+                  children: [
+                    pw.Text('Неуспешных сессий:',
+                        style: pw.TextStyle(font: boldFont)),
+                    pw.SizedBox(width: 4),
+                    pw.Text('$_failCount',
+                        style: pw.TextStyle(font: regularFont)),
+                  ],
+                ),
+                pw.SizedBox(height: 20),
+              ],
+            ),
             pw.Table.fromTextArray(
               headers: const [
                 'Дата',
