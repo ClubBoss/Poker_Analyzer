@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:open_file/open_file.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -67,6 +68,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     final file = File('${dir.path}/$fileName');
     final data = [for (final p in _packsList) p.toJson()];
     await file.writeAsString(jsonEncode(data));
+    await OpenFile.open(file.path);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Экспорт завершён: \$fileName')),
