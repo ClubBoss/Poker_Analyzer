@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -131,6 +133,29 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     _saveProgress();
   }
 
+  Future<void> _exportResults() async {
+    if (_results.isEmpty) return;
+    final dir = await getApplicationDocumentsDirectory();
+    final fileName =
+        'training_results_${widget.pack.name}_${DateTime.now().millisecondsSinceEpoch}.json';
+    final file = File('${dir.path}/$fileName');
+    final data = [
+      for (final r in _results)
+        {
+          'hand': r.name,
+          'expected': r.expected,
+          'userAction': r.userAction,
+          'correct': r.correct,
+        }
+    ];
+    await file.writeAsString(jsonEncode(data));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Результаты сохранены: $fileName')),
+      );
+    }
+  }
+
   Widget _buildSummary() {
     final total = _results.length;
     final correct = _results.where((r) => r.correct).length;
@@ -163,6 +188,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
             ElevatedButton(
               onPressed: _restartPack,
               child: const Text('Начать заново'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _exportResults,
+              child: const Text('Сохранить результаты'),
             ),
           ],
         ),
