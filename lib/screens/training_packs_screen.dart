@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -73,6 +74,40 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     }
   }
 
+  Future<void> _importPacks() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is List) {
+        final List<TrainingPack> packs = [
+          for (final item in data)
+            if (item is Map)
+              TrainingPack.fromJson(Map<String, dynamic>.from(item))
+        ];
+        if (packs.isNotEmpty) {
+          setState(() => _packsList.addAll(packs));
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content:
+                      Text('Импорт завершён: ${packs.length} пакетов')),
+            );
+          }
+        }
+      }
+    } catch (_) {
+      // ignore errors silently
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final packs = _packsList;
@@ -90,6 +125,11 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             icon: const Icon(Icons.file_upload),
             tooltip: 'Экспортировать все',
             onPressed: _exportAllPacks,
+          ),
+          IconButton(
+            icon: const Icon(Icons.file_download),
+            tooltip: 'Импортировать',
+            onPressed: _importPacks,
           ),
         ],
       ),
