@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
 import 'session_detail_screen.dart';
@@ -38,6 +39,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   @override
   void initState() {
     super.initState();
+    _loadPreferences();
     _loadHistory();
   }
 
@@ -62,6 +64,41 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     final start = _formatDay(_dateRange!.start);
     final end = _formatDay(_dateRange!.end);
     return start == end ? start : '$start - $end';
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final startStr = prefs.getString('sessions_date_start');
+    final endStr = prefs.getString('sessions_date_end');
+    DateTimeRange? range;
+    if (startStr != null && endStr != null) {
+      final start = DateTime.tryParse(startStr);
+      final end = DateTime.tryParse(endStr);
+      if (start != null && end != null) {
+        range = DateTimeRange(start: start, end: end);
+      }
+    }
+    setState(() {
+      _filter = prefs.getString('sessions_filter') ?? 'all';
+      _sortMode = prefs.getString('sessions_sortMode') ?? 'date_desc';
+      _dateRange = range;
+    });
+    _applyFilter();
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('sessions_filter', _filter);
+    await prefs.setString('sessions_sortMode', _sortMode);
+    if (_dateRange != null) {
+      await prefs.setString(
+          'sessions_date_start', _dateRange!.start.toIso8601String());
+      await prefs.setString(
+          'sessions_date_end', _dateRange!.end.toIso8601String());
+    } else {
+      await prefs.remove('sessions_date_start');
+      await prefs.remove('sessions_date_end');
+    }
   }
 
   Future<void> _loadHistory() async {
@@ -301,6 +338,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     );
     if (picked != null) {
       _dateRange = picked;
+      _savePreferences();
       _applyFilter();
     }
   }
@@ -309,6 +347,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     _filter = 'all';
     _dateRange = null;
     _sortMode = 'date_desc';
+    _savePreferences();
     _applyFilter();
   }
 
@@ -332,12 +371,13 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                       value: _filter,
                       dropdownColor: const Color(0xFF2A2B2E),
                       style: const TextStyle(color: Colors.white),
-                      onChanged: (value) {
-                        if (value != null) {
-                          _filter = value;
-                          _applyFilter();
-                        }
-                      },
+                    onChanged: (value) {
+                      if (value != null) {
+                        _filter = value;
+                        _savePreferences();
+                        _applyFilter();
+                      }
+                    },
                       items: [
                         const DropdownMenuItem(
                           value: 'all',
@@ -377,6 +417,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     onChanged: (value) {
                       if (value != null) {
                         _sortMode = value;
+                        _savePreferences();
                         _applyFilter();
                       }
                     },
