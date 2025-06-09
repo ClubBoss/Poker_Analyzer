@@ -133,6 +133,36 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             tooltip: 'Импортировать',
             onPressed: _importPacks,
           ),
+          IconButton(
+            icon: const Icon(Icons.delete_forever),
+            tooltip: 'Очистить всё',
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Удалить все тренировочные пакеты?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Отмена'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Удалить'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                setState(() => _packsList.clear());
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Все пакеты удалены')),
+                  );
+                }
+              }
+            },
+          ),
         ],
       ),
       body: Column(
