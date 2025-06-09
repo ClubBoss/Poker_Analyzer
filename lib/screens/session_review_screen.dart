@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/error_entry.dart';
+import 'retry_training_screen.dart';
 
 const _filterOptions = [
   'All',
@@ -107,6 +108,21 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
                   padding: const EdgeInsets.all(16),
                   child: _buildSummary(),
                 ),
+                if (filtered.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => RetryTrainingScreen(errors: filtered),
+                          ),
+                        );
+                      },
+                      child: const Text('Retry Mistakes'),
+                    ),
+                  ),
                 Expanded(child: _buildGroupedList(filtered)),
               ],
             ),
