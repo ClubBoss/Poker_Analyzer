@@ -17,6 +17,7 @@ dependencies:
   path_provider: ^2.0.15
   open_file: ^3.5.10
   file_picker: ^5.2.10
+  fl_chart: ^0.64.0
 
 dev_dependencies:
   flutter_test:
