@@ -2,36 +2,70 @@ import 'package:flutter/material.dart';
 
 import '../models/error_entry.dart';
 
-class SessionReviewScreen extends StatelessWidget {
+const _filterOptions = [
+  'All',
+  'Aggressive',
+  'Passive',
+  'Sizing',
+  'Other'
+];
+class SessionReviewScreen extends StatefulWidget {
   final List<ErrorEntry> errors;
 
   const SessionReviewScreen({super.key, required this.errors});
 
   @override
+  State<SessionReviewScreen> createState() => _SessionReviewScreenState();
+}
+
+class _SessionReviewScreenState extends State<SessionReviewScreen> {
+  String _selectedType = 'All';
+
+  @override
   Widget build(BuildContext context) {
+    final filtered = _selectedType == 'All'
+        ? widget.errors
+        : widget.errors
+            .where((e) => e.errorType == _selectedType)
+            .toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ошибки сессии'),
         centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              setState(() {
+                _selectedType = v;
+              });
+            },
+            icon: const Icon(Icons.filter_list),
+            itemBuilder: (_) => [
+              for (final option in _filterOptions)
+                PopupMenuItem(value: option, child: Text(option))
+            ],
+          )
+        ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
-      body: errors.isEmpty
+      body: filtered.isEmpty
           ? const Center(
               child: Text(
                 'Ошибок нет',
                 style: TextStyle(color: Colors.white70),
               ),
             )
-          : _buildGroupedList(),
+          : _buildGroupedList(filtered),
     );
   }
 
-  Widget _buildGroupedList() {
+  Widget _buildGroupedList(List<ErrorEntry> entries) {
     const streets = ['Preflop', 'Flop', 'Turn', 'River'];
     final Map<String, List<ErrorEntry>> grouped = {
       for (final s in streets) s: []
     };
-    for (final e in errors) {
+    for (final e in entries) {
       if (grouped.containsKey(e.street)) {
         grouped[e.street]!.add(e);
       } else {
