@@ -33,7 +33,9 @@ import '../models/saved_hand.dart';
 import '../widgets/action_timeline_widget.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
-  const PokerAnalyzerScreen({super.key});
+  final SavedHand? initialHand;
+
+  const PokerAnalyzerScreen({super.key, this.initialHand});
 
   @override
   State<PokerAnalyzerScreen> createState() => _PokerAnalyzerScreenState();
@@ -500,6 +502,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     _updatePositions();
     _updatePlaybackState();
+    if (widget.initialHand != null) {
+      _applySavedHand(widget.initialHand!);
+    }
   }
 
   void selectCard(int index, CardModel card) {
