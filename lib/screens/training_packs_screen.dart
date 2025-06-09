@@ -18,6 +18,8 @@ class TrainingPacksScreen extends StatelessWidget {
       actions: [],
       stackSizes: const {},
       playerPositions: const {},
+      expectedAction: 'Push',
+      feedbackText: 'При стеке 10BB это стандартный пуш.',
     );
   }
 

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'dart:convert';
+
 import '../models/training_pack.dart';
+import '../models/saved_hand.dart';
 import 'poker_analyzer_screen.dart';
 
 class TrainingPackScreen extends StatefulWidget {
@@ -14,6 +17,7 @@ class TrainingPackScreen extends StatefulWidget {
 }
 
 class _TrainingPackScreenState extends State<TrainingPackScreen> {
+  final GlobalKey _analyzerKey = GlobalKey();
   int _currentIndex = 0;
 
   @override
@@ -36,6 +40,55 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         'training_progress_${widget.pack.name}', _currentIndex);
   }
 
+  Future<void> _showFeedback() async {
+    final state = _analyzerKey.currentState as dynamic;
+    SavedHand? played;
+    if (state != null) {
+      try {
+        final jsonStr = state.saveHand() as String;
+        played = SavedHand.fromJson(jsonDecode(jsonStr));
+      } catch (_) {}
+    }
+    final original = widget.pack.hands[_currentIndex];
+    String userAct = '-';
+    if (played != null) {
+      for (final a in played.actions) {
+        if (a.playerIndex == played.heroIndex) {
+          userAct = a.action;
+          break;
+        }
+      }
+    }
+    final expected = original.expectedAction ?? '-';
+    final matched = userAct.toLowerCase() == expected.toLowerCase();
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Обратная связь'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Ваше действие: $userAct'),
+            Text('Правильное действие: $expected'),
+            const SizedBox(height: 8),
+            Text(matched ? 'Верно!' : 'Неверно.'),
+            if (original.feedbackText != null) ...[
+              const SizedBox(height: 8),
+              Text(original.feedbackText!),
+            ]
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          )
+        ],
+      ),
+    );
+  }
+
   void _previousHand() {
     if (_currentIndex > 0) {
       setState(() {
@@ -45,7 +98,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
   }
 
-  void _nextHand() {
+  Future<void> _nextHand() async {
+    await _showFeedback();
     setState(() {
       _currentIndex++;
     });
@@ -82,9 +136,12 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                   child: child,
                 ),
               ),
-              child: PokerAnalyzerScreen(
+              child: KeyedSubtree(
                 key: ValueKey(_currentIndex),
-                initialHand: hands[_currentIndex],
+                child: PokerAnalyzerScreen(
+                  key: _analyzerKey,
+                  initialHand: hands[_currentIndex],
+                ),
               ),
             ),
           ),
