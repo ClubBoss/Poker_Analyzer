@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../models/training_pack.dart';
 import 'session_detail_screen.dart';
@@ -657,6 +658,98 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     );
   }
 
+  Widget _buildAccuracyChart() {
+    final sessions = _allEntries.take(30).toList();
+    if (sessions.length < 2) {
+      return const SizedBox.shrink();
+    }
+    sessions.sort((a, b) => a.result.date.compareTo(b.result.date));
+    final spots = <FlSpot>[];
+    for (var i = 0; i < sessions.length; i++) {
+      final r = sessions[i].result;
+      final percent = r.total > 0 ? r.correct * 100 / r.total : 0.0;
+      spots.add(FlSpot(i.toDouble(), percent));
+    }
+    final step = (sessions.length / 6).ceil();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Container(
+        height: 200,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A2B2E),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: LineChart(
+          LineChartData(
+            minY: 0,
+            maxY: 100,
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: 20,
+              getDrawingHorizontalLine: (value) =>
+                  FlLine(color: Colors.white24, strokeWidth: 1),
+            ),
+            titlesData: FlTitlesData(
+              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 20,
+                  reservedSize: 30,
+                  getTitlesWidget: (value, meta) => Text(
+                    value.toInt().toString(),
+                    style:
+                        const TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                ),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 1,
+                  getTitlesWidget: (value, meta) {
+                    final index = value.toInt();
+                    if (index < 0 || index >= sessions.length) {
+                      return const SizedBox.shrink();
+                    }
+                    if (index % step != 0 && index != sessions.length - 1) {
+                      return const SizedBox.shrink();
+                    }
+                    final d = sessions[index].result.date;
+                    final label =
+                        '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                    return Text(label,
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 10));
+                  },
+                ),
+              ),
+            ),
+            borderData: FlBorderData(
+              show: true,
+              border: const Border(
+                left: BorderSide(color: Colors.white24),
+                bottom: BorderSide(color: Colors.white24),
+              ),
+            ),
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                color: Colors.white,
+                barWidth: 2,
+                dotData: FlDotData(show: false),
+                isCurved: false,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _renamePack(String oldName) async {
     final current = _allEntries.firstWhere(
       (e) => e.packName == oldName,
@@ -1179,9 +1272,11 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                           });
                           _savePreferences();
                         },
-                      ),
                     ),
+                ),
             ),
+          if (_showSummary && _allEntries.length >= 2)
+            _buildAccuracyChart(),
           if (_entries.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
