@@ -46,6 +46,15 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
 
   final List<_ResultEntry> _results = [];
 
+  String _formatDate(DateTime d) {
+    final day = d.day.toString().padLeft(2, '0');
+    final month = d.month.toString().padLeft(2, '0');
+    final year = d.year.toString();
+    final hour = d.hour.toString().padLeft(2, '0');
+    final minute = d.minute.toString().padLeft(2, '0');
+    return '$day.$month.$year $hour:$minute';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -342,9 +351,67 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                 onPressed: _exportResults,
                 child: const Text('Сохранить результаты'),
               ),
+            const SizedBox(height: 24),
+            _buildHistory(),
           ],
         ),
       ),
+      );
+  }
+
+  Widget _buildHistory() {
+    final entries = List<TrainingSessionResult>.from(widget.pack.history)
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: const [
+            Icon(Icons.bar_chart, color: Colors.white),
+            SizedBox(width: 8),
+            Text(
+              'История тренировок',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (entries.isEmpty)
+          const Text('История пуста', style: TextStyle(color: Colors.white54))
+        else
+          for (final r in entries)
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2A2B2E),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      _formatDate(r.date),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Text(
+                    '${r.correct}/${r.total}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    r.total > 0
+                        ? '${(r.correct * 100 / r.total).toStringAsFixed(0)}%'
+                        : '0%',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+      ],
     );
   }
 
