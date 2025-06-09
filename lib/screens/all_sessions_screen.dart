@@ -706,6 +706,81 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     }
   }
 
+  Future<void> _deletePack(String name) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Удалить пакет «$name» и все его сессии?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_packs.json');
+    List<TrainingPack> packs = [];
+    if (await file.exists()) {
+      try {
+        final content = await file.readAsString();
+        final data = jsonDecode(content);
+        if (data is List) {
+          packs = [
+            for (final item in data)
+              if (item is Map<String, dynamic>)
+                TrainingPack.fromJson(Map<String, dynamic>.from(item))
+          ];
+        }
+      } catch (_) {}
+    }
+    packs.removeWhere((p) => p.name == name);
+    await file.writeAsString(jsonEncode([for (final p in packs) p.toJson()]));
+
+    setState(() {
+      _allEntries.removeWhere((e) => e.packName == name);
+      _packNames.remove(name);
+    });
+    _applyFilter();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Пакет удалён')),
+      );
+    }
+  }
+
+  Future<void> _showPackOptions(String name) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Выберите действие'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'rename'),
+            child: const Text('Переименовать'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'delete'),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (result == 'rename') {
+      await _renamePack(name);
+    } else if (result == 'delete') {
+      await _deletePack(name);
+    }
+  }
+
   Future<void> _pickDateRange() async {
     final now = DateTime.now();
     final initialRange = _dateRange ??
@@ -987,7 +1062,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                                     children: [
                                       Expanded(
                                         child: GestureDetector(
-                                          onLongPress: () => _renamePack(e.packName),
+                                          onLongPress: () => _showPackOptions(e.packName),
                                           child: Text(
                                             e.packName,
                                             style: const TextStyle(
@@ -997,7 +1072,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                                         ),
                                       ),
                                       GestureDetector(
-                                        onLongPress: () => _renamePack(e.packName),
+                                        onLongPress: () => _showPackOptions(e.packName),
                                         child: const Icon(
                                           Icons.edit,
                                           color: Colors.white70,
