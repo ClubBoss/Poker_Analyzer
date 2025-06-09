@@ -363,6 +363,11 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  OutlinedButton(
+                    onPressed: _pickDateRange,
+                    child: Text(_dateFilterText),
+                  ),
+                  const SizedBox(width: 8),
                   const Text('Sort by:', style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 8),
                   DropdownButton<String>(
@@ -401,11 +406,6 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                         child: Text('Pack Z–A'),
                       ),
                     ],
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton(
-                    onPressed: _pickDateRange,
-                    child: Text(_dateFilterText),
                   ),
                   IconButton(
                     onPressed: _resetFilters,
