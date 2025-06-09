@@ -87,9 +87,27 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         range = DateTimeRange(start: start, end: end);
       }
     }
+    final sortPref = prefs.getString('sessions_sortMode');
+    String sortMode;
+    switch (sortPref) {
+      case 'success_desc':
+        sortMode = 'accuracy_desc';
+        break;
+      case 'success_asc':
+        sortMode = 'accuracy_asc';
+        break;
+      case 'date_asc':
+      case 'date_desc':
+      case 'accuracy_desc':
+      case 'accuracy_asc':
+        sortMode = sortPref!;
+        break;
+      default:
+        sortMode = 'date_desc';
+    }
     setState(() {
       _filter = prefs.getString('sessions_filter') ?? 'all';
-      _sortMode = prefs.getString('sessions_sortMode') ?? 'date_desc';
+      _sortMode = sortMode;
       _dateRange = range;
       _minPercent = prefs.getDouble('sessions_percent_min');
       _maxPercent = prefs.getDouble('sessions_percent_max');
@@ -205,7 +223,8 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       case 'date_asc':
         filtered.sort((a, b) => a.result.date.compareTo(b.result.date));
         break;
-      case 'success_desc':
+      case 'accuracy_desc':
+      case 'success_desc': // backward compatibility
         filtered.sort((a, b) {
           final pa = a.result.total > 0
               ? a.result.correct / a.result.total
@@ -216,6 +235,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           return pb.compareTo(pa);
         });
         break;
+      case 'accuracy_asc':
       case 'success_asc':
         filtered.sort((a, b) {
           final pa = a.result.total > 0
@@ -227,13 +247,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           return pa.compareTo(pb);
         });
         break;
-      case 'pack_az':
-        filtered.sort((a, b) => a.packName.compareTo(b.packName));
-        break;
-      case 'pack_za':
-        filtered.sort((a, b) => b.packName.compareTo(a.packName));
-        break;
-      default:
+      default: // 'date_desc'
         filtered.sort((a, b) => b.result.date.compareTo(a.result.date));
     }
     final int success = filtered
@@ -984,7 +998,8 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     child: Text(_dateFilterText),
                   ),
                   const SizedBox(width: 8),
-                  const Text('Sort by:', style: TextStyle(color: Colors.white)),
+                  const Text('Сортировка:',
+                      style: TextStyle(color: Colors.white)),
                   const SizedBox(width: 8),
                   DropdownButton<String>(
                     value: _sortMode,
@@ -1000,27 +1015,19 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     items: const [
                       DropdownMenuItem(
                         value: 'date_desc',
-                        child: Text('Date ↓'),
+                        child: Text('по дате (новые)'),
                       ),
                       DropdownMenuItem(
                         value: 'date_asc',
-                        child: Text('Date ↑'),
+                        child: Text('по дате (старые)'),
                       ),
                       DropdownMenuItem(
-                        value: 'success_desc',
-                        child: Text('Success ↓'),
+                        value: 'accuracy_desc',
+                        child: Text('по точности (высокая)'),
                       ),
                       DropdownMenuItem(
-                        value: 'success_asc',
-                        child: Text('Success ↑'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'pack_az',
-                        child: Text('Pack A–Z'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'pack_za',
-                        child: Text('Pack Z–A'),
+                        value: 'accuracy_asc',
+                        child: Text('по точности (низкая)'),
                       ),
                     ],
                   ),
