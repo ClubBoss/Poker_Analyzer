@@ -28,11 +28,13 @@ class TrainingPacksScreen extends StatelessWidget {
       TrainingPack(
         name: 'Push/Fold 10BB',
         description: 'Решения при стеке 10BB',
+        category: 'Preflop',
         hands: [_placeholderHand('Push/Fold 10BB')],
       ),
       TrainingPack(
         name: '3-bet без позиции',
         description: 'Тренировка игры без позиции',
+        category: 'Preflop',
         hands: [_placeholderHand('3-bet без позиции')],
       ),
     ];
@@ -55,8 +57,25 @@ class TrainingPacksScreen extends StatelessWidget {
             color: const Color(0xFF2A2B2E),
             child: ListTile(
               title: Text(pack.name, style: const TextStyle(color: Colors.white)),
-              subtitle: Text(pack.description,
-                  style: const TextStyle(color: Colors.white70)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(pack.description,
+                      style: const TextStyle(color: Colors.white70)),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF3A3B3E),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(pack.category,
+                        style: const TextStyle(color: Colors.white70)),
+                  ),
+                ],
+              ),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
