@@ -208,6 +208,50 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     }
   }
 
+  Future<void> _exportCsv() async {
+    if (_entries.isEmpty) return;
+
+    final buffer = StringBuffer()
+      ..writeln(
+          'Date,Pack name,Correct answers,Total questions,Success percentage');
+    for (final e in _entries) {
+      final date = _formatDate(e.result.date);
+      final percent = e.result.total > 0
+          ? (e.result.correct * 100 / e.result.total).round()
+          : 0;
+      buffer.writeln(
+          '"$date","${e.packName}",${e.result.correct},${e.result.total},$percent');
+    }
+
+    final fileName =
+        'sessions_${DateTime.now().millisecondsSinceEpoch}.csv';
+    final savePath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Сохранить CSV',
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+    if (savePath == null) return;
+
+    final file = File(savePath);
+    await file.writeAsString(buffer.toString());
+
+    if (mounted) {
+      final name = savePath.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Файл сохранён: $name'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () {
+              OpenFile.open(file.path);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _pickDateRange() async {
     final now = DateTime.now();
     final initialRange = _dateRange ??
@@ -311,9 +355,22 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           if (_entries.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ElevatedButton(
-                onPressed: _exportMarkdown,
-                child: const Text('Экспортировать в Markdown'),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _exportMarkdown,
+                      child: const Text('Экспортировать в Markdown'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _exportCsv,
+                      child: const Text('Export to CSV'),
+                    ),
+                  ),
+                ],
               ),
             ),
           Expanded(
