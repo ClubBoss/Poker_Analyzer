@@ -630,6 +630,82 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     );
   }
 
+  Future<void> _renamePack(String oldName) async {
+    final controller = TextEditingController(text: oldName);
+    final String? newName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Переименовать пакет'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Новое название'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Переименовать'),
+          ),
+        ],
+      ),
+    );
+    if (newName == null || newName.isEmpty || newName == oldName) return;
+
+    final List<_SessionEntry> updatedAll = [
+      for (final e in _allEntries)
+        _SessionEntry(e.packName == oldName ? newName : e.packName, e.result)
+    ];
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_packs.json');
+    if (await file.exists()) {
+      try {
+        final content = await file.readAsString();
+        final data = jsonDecode(content);
+        if (data is List) {
+          final List<TrainingPack> packs = [
+            for (final item in data)
+              if (item is Map<String, dynamic>)
+                TrainingPack.fromJson(Map<String, dynamic>.from(item))
+          ];
+          final idx = packs.indexWhere((p) => p.name == oldName);
+          if (idx != -1) {
+            final p = packs[idx];
+            packs[idx] = TrainingPack(
+              name: newName,
+              description: p.description,
+              category: p.category,
+              hands: p.hands,
+              history: p.history,
+            );
+            await file
+                .writeAsString(jsonEncode([for (final p in packs) p.toJson()]));
+          }
+        }
+      } catch (_) {}
+    }
+
+    setState(() {
+      _allEntries
+        ..clear()
+        ..addAll(updatedAll);
+      _packNames
+        ..remove(oldName)
+        ..add(newName);
+    });
+    _applyFilter();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Пакет переименован')),
+      );
+    }
+  }
+
   Future<void> _pickDateRange() async {
     final now = DateTime.now();
     final initialRange = _dateRange ??
@@ -907,10 +983,29 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(e.packName,
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold)),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onLongPress: () => _renamePack(e.packName),
+                                          child: Text(
+                                            e.packName,
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onLongPress: () => _renamePack(e.packName),
+                                        child: const Icon(
+                                          Icons.edit,
+                                          color: Colors.white70,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   const SizedBox(height: 4),
                                   Text(
                                     _formatDate(e.result.date),
