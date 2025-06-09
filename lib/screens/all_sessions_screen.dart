@@ -20,7 +20,10 @@ class _SessionEntry {
 }
 
 class _AllSessionsScreenState extends State<AllSessionsScreen> {
+  final List<_SessionEntry> _allEntries = [];
   final List<_SessionEntry> _entries = [];
+  final Set<String> _packNames = {};
+  String _filter = 'all';
 
   @override
   void initState() {
@@ -57,11 +60,46 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           }
         }
         all.sort((a, b) => b.result.date.compareTo(a.result.date));
-        setState(() => _entries
-          ..clear()
-          ..addAll(all));
+        final Set<String> names = {for (final p in packs) p.name};
+        setState(() {
+          _allEntries
+            ..clear()
+            ..addAll(all);
+          _packNames
+            ..clear()
+            ..addAll(names);
+        });
+        _applyFilter();
       }
     } catch (_) {}
+  }
+
+  void _applyFilter() {
+    List<_SessionEntry> filtered;
+    if (_filter == 'success') {
+      filtered = _allEntries
+          .where((e) =>
+              e.result.total > 0 &&
+              e.result.correct / e.result.total >= 0.7)
+          .toList();
+    } else if (_filter == 'fail') {
+      filtered = _allEntries
+          .where((e) =>
+              e.result.total > 0 &&
+              e.result.correct / e.result.total < 0.7)
+          .toList();
+    } else if (_filter.startsWith('pack:')) {
+      final name = _filter.substring(5);
+      filtered =
+          _allEntries.where((e) => e.packName == name).toList();
+    } else {
+      filtered = List.from(_allEntries);
+    }
+    setState(() {
+      _entries
+        ..clear()
+        ..addAll(filtered);
+    });
   }
 
   @override
@@ -72,61 +110,104 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFF1B1C1E),
-      body: _entries.isEmpty
-          ? const Center(
-              child: Text('История пуста'),
-            )
-          : ListView.builder(
+      body: Column(
+        children: [
+          if (_allEntries.isNotEmpty)
+            Padding(
               padding: const EdgeInsets.all(16),
-              itemCount: _entries.length,
-              itemBuilder: (context, index) {
-                final e = _entries[index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2A2B2E),
-                    borderRadius: BorderRadius.circular(8),
+              child: DropdownButton<String>(
+                value: _filter,
+                dropdownColor: const Color(0xFF2A2B2E),
+                style: const TextStyle(color: Colors.white),
+                onChanged: (value) {
+                  if (value != null) {
+                    _filter = value;
+                    _applyFilter();
+                  }
+                },
+                items: [
+                  const DropdownMenuItem(
+                    value: 'all',
+                    child: Text('Все сессии'),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  const DropdownMenuItem(
+                    value: 'success',
+                    child: Text('Только успешные (>70%)'),
+                  ),
+                  const DropdownMenuItem(
+                    value: 'fail',
+                    child: Text('Только неуспешные (<70%)'),
+                  ),
+                  if (_packNames.length > 1)
+                    ...[
+                      for (final name in _packNames)
+                        DropdownMenuItem(
+                          value: 'pack:$name',
+                          child: Text('Пакет: $name'),
+                        )
+                    ]
+                ],
+              ),
+            ),
+          Expanded(
+            child: _entries.isEmpty
+                ? const Center(
+                    child: Text('История пуста'),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _entries.length,
+                    itemBuilder: (context, index) {
+                      final e = _entries[index];
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2A2B2E),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
                           children: [
-                            Text(e.packName,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            Text(
-                              _formatDate(e.result.date),
-                              style: const TextStyle(color: Colors.white70),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(e.packName,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _formatDate(e.result.date),
+                                    style: const TextStyle(color: Colors.white70),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${e.result.correct}/${e.result.total}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  e.result.total > 0
+                                      ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
+                                      : '0%',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '${e.result.correct}/${e.result.total}',
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            e.result.total > 0
-                                ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
-                                : '0%',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+          ),
+        ],
+      ),
     );
   }
 }
