@@ -272,6 +272,22 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
             value: _currentIndex / hands.length,
           ),
           const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3A3B3E),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                widget.pack.category,
+                style: const TextStyle(color: Colors.white70),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
