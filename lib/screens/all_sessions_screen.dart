@@ -46,6 +46,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   int _successCount = 0;
   int _failCount = 0;
   bool _showSummary = true;
+  int _touchedAccuracyIndex = -1;
 
   @override
   void initState() {
@@ -671,6 +672,24 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       spots.add(FlSpot(i.toDouble(), percent));
     }
     final step = (sessions.length / 6).ceil();
+    final barData = LineChartBarData(
+      spots: spots,
+      color: Colors.white,
+      barWidth: 2,
+      isCurved: false,
+      showingIndicators:
+          _touchedAccuracyIndex != -1 ? [_touchedAccuracyIndex] : [],
+      dotData: FlDotData(
+        show: _touchedAccuracyIndex != -1,
+        checkToShowDot: (spot, bar) =>
+            bar.spots.indexOf(spot) == _touchedAccuracyIndex,
+        getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
+          radius: 4,
+          color: Colors.yellow,
+          strokeWidth: 0,
+        ),
+      ),
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Container(
@@ -684,6 +703,59 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           LineChartData(
             minY: 0,
             maxY: 100,
+            lineTouchData: LineTouchData(
+              handleBuiltInTouches: false,
+              touchCallback:
+                  (FlTouchEvent event, LineTouchResponse? lineTouch) {
+                if (!event.isInterestedForInteractions ||
+                    lineTouch == null ||
+                    lineTouch.lineBarSpots == null) {
+                  setState(() {
+                    _touchedAccuracyIndex = -1;
+                  });
+                  return;
+                }
+                setState(() {
+                  _touchedAccuracyIndex =
+                      lineTouch.lineBarSpots!.first.spotIndex;
+                });
+              },
+              touchTooltipData: LineTouchTooltipData(
+                tooltipBgColor: Colors.black87,
+                fitInsideHorizontally: true,
+                fitInsideVertically: true,
+                getTooltipItems: (spots) {
+                  return spots.map((s) {
+                    final entry = sessions[s.spotIndex];
+                    final d = entry.result.date;
+                    final date =
+                        '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+                    final percent = s.y.toStringAsFixed(0);
+                    return LineTooltipItem(
+                      '$date\n${entry.packName}\n${entry.result.correct} из ${entry.result.total} ($percent%)',
+                      const TextStyle(color: Colors.white, fontSize: 12),
+                    );
+                  }).toList();
+                },
+              ),
+              getTouchedSpotIndicator:
+                  (LineChartBarData barData, List<int> indexes) {
+                return indexes
+                    .map((index) => TouchedSpotIndicatorData(
+                          const FlLine(color: Colors.transparent),
+                          FlDotData(
+                            getDotPainter:
+                                (spot, percent, bar, idx) =>
+                                    FlDotCirclePainter(
+                              radius: 4,
+                              color: Colors.yellow,
+                              strokeWidth: 0,
+                            ),
+                          ),
+                        ))
+                    .toList();
+              },
+            ),
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
@@ -735,15 +807,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                 bottom: BorderSide(color: Colors.white24),
               ),
             ),
-            lineBarsData: [
-              LineChartBarData(
-                spots: spots,
-                color: Colors.white,
-                barWidth: 2,
-                dotData: FlDotData(show: false),
-                isCurved: false,
-              ),
-            ],
+            lineBarsData: [barData],
           ),
         ),
       ),
