@@ -29,6 +29,11 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   String _filter = 'all';
   DateTimeRange? _dateRange;
 
+  int _filteredCount = 0;
+  double _averagePercent = 0;
+  int _successCount = 0;
+  int _failCount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -120,10 +125,32 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         return !d.isBefore(_dateRange!.start) && !d.isAfter(_dateRange!.end);
       }).toList();
     }
+    final int success = filtered
+        .where((e) =>
+            e.result.total > 0 &&
+            e.result.correct / e.result.total >= 0.7)
+        .length;
+    final int fail = filtered
+        .where((e) =>
+            e.result.total > 0 &&
+            e.result.correct / e.result.total < 0.7)
+        .length;
+    final double avg = filtered.isNotEmpty
+        ? filtered
+                .map((e) => e.result.total > 0
+                    ? e.result.correct * 100 / e.result.total
+                    : 0.0)
+                .reduce((a, b) => a + b) /
+            filtered.length
+        : 0.0;
     setState(() {
       _entries
         ..clear()
         ..addAll(filtered);
+      _filteredCount = filtered.length;
+      _averagePercent = avg;
+      _successCount = success;
+      _failCount = fail;
     });
   }
 
@@ -263,6 +290,21 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     icon: const Icon(Icons.clear),
                     tooltip: 'Сбросить',
                   )
+                ],
+              ),
+            ),
+          if (_allEntries.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Сессий: $_filteredCount',
+                      style: const TextStyle(color: Colors.white)),
+                  Text('Средний %: ${_averagePercent.toStringAsFixed(0)}',
+                      style: const TextStyle(color: Colors.white)),
+                  Text('Успешных: $_successCount, Неуспешных: $_failCount',
+                      style: const TextStyle(color: Colors.white)),
                 ],
               ),
             ),
