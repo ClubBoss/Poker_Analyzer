@@ -21,8 +21,10 @@ class AllSessionsScreen extends StatefulWidget {
 
 class _SessionEntry {
   final String packName;
+  final String description;
   final TrainingSessionResult result;
-  _SessionEntry(this.packName, this.result);
+
+  _SessionEntry(this.packName, this.description, this.result);
 }
 
 class _AllSessionsScreenState extends State<AllSessionsScreen> {
@@ -136,7 +138,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         final List<_SessionEntry> all = [];
         for (final p in packs) {
           for (final r in p.history) {
-            all.add(_SessionEntry(p.name, r));
+            all.add(_SessionEntry(p.name, p.description, r));
           }
         }
         all.sort((a, b) => b.result.date.compareTo(a.result.date));
@@ -631,15 +633,29 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   }
 
   Future<void> _renamePack(String oldName) async {
-    final controller = TextEditingController(text: oldName);
-    final String? newName = await showDialog<String>(
+    final current = _allEntries.firstWhere(
+      (e) => e.packName == oldName,
+      orElse: () => _SessionEntry(oldName, '', TrainingSessionResult(date: DateTime.now(), total: 0, correct: 0)),
+    );
+    final nameController = TextEditingController(text: oldName);
+    final descController = TextEditingController(text: current.description);
+    final Map<String, String>? result = await showDialog<Map<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Переименовать пакет'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(labelText: 'Новое название'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              autofocus: true,
+              decoration: const InputDecoration(labelText: 'Новое название'),
+            ),
+            TextField(
+              controller: descController,
+              decoration: const InputDecoration(labelText: 'Описание'),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -647,17 +663,27 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
             child: const Text('Отмена'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            onPressed: () => Navigator.pop(context, {
+              'name': nameController.text.trim(),
+              'description': descController.text.trim(),
+            }),
             child: const Text('Переименовать'),
           ),
         ],
       ),
     );
-    if (newName == null || newName.isEmpty || newName == oldName) return;
+    if (result == null) return;
+    final newName = result['name'] ?? oldName;
+    final newDescription = result['description'] ?? current.description;
+    if (newName.isEmpty || (newName == oldName && newDescription == current.description)) return;
 
     final List<_SessionEntry> updatedAll = [
       for (final e in _allEntries)
-        _SessionEntry(e.packName == oldName ? newName : e.packName, e.result)
+        _SessionEntry(
+          e.packName == oldName ? newName : e.packName,
+          e.packName == oldName ? newDescription : e.description,
+          e.result,
+        )
     ];
 
     final dir = await getApplicationDocumentsDirectory();
@@ -677,7 +703,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
             final p = packs[idx];
             packs[idx] = TrainingPack(
               name: newName,
-              description: p.description,
+              description: newDescription,
               category: p.category,
               hands: p.hands,
               history: p.history,
@@ -1060,7 +1086,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      Expanded(
+                                  Expanded(
                                         child: GestureDetector(
                                           onLongPress: () => _showPackOptions(e.packName),
                                           child: Text(
@@ -1081,6 +1107,13 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                                       ),
                                     ],
                                   ),
+                                  if (e.description.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      e.description,
+                                      style: const TextStyle(color: Colors.white70),
+                                    ),
+                                  ],
                                   const SizedBox(height: 4),
                                   Text(
                                     _formatDate(e.result.date),
