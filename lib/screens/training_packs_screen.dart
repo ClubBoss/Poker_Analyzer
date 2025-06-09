@@ -134,6 +134,29 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                         }
                       }
                     },
+                    onLongPress: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('Удалить пакет «${pack.name}»?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Отмена'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Удалить'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        setState(() {
+                          _packsList.remove(pack);
+                        });
+                      }
+                    },
                   ),
                 );
               },
