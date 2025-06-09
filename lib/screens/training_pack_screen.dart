@@ -313,6 +313,23 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text(
+              'Результаты',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Text('Сыграно рук: $total'),
+            Text('Верные действия: $correct / $total'),
+            const SizedBox(height: 16),
+            if (mistakes.isNotEmpty) ...[
+              const Text('Ошибки:'),
+              const SizedBox(height: 8),
+              for (final m in mistakes)
+                Text('${m.name}: ожидалось ${m.expected}, ваше действие ${m.userAction}'),
+            ] else ...[
+              const Text('Ошибок нет!'),
+            ],
+            const SizedBox(height: 24),
             PieChart(
               PieChartData(
                 sectionsSpace: 0,
@@ -341,23 +358,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Результаты',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Text('Сыграно рук: $total'),
-            Text('Верные действия: $correct / $total'),
-            const SizedBox(height: 16),
-            if (mistakes.isNotEmpty) ...[
-              const Text('Ошибки:'),
-              const SizedBox(height: 8),
-              for (final m in mistakes)
-                Text('${m.name}: ожидалось ${m.expected}, ваше действие ${m.userAction}'),
-            ] else ...[
-              const Text('Ошибок нет!'),
-            ],
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _restartPack,
