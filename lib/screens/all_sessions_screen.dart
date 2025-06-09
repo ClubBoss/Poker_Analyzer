@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../models/training_pack.dart';
 
@@ -102,6 +104,60 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     });
   }
 
+  Future<void> _exportMarkdown() async {
+    if (_entries.isEmpty) return;
+
+    String title;
+    if (_filter == 'all') {
+      title = 'Все сессии';
+    } else if (_filter == 'success') {
+      title = 'Только успешные сессии';
+    } else if (_filter == 'fail') {
+      title = 'Только неуспешные сессии';
+    } else if (_filter.startsWith('pack:')) {
+      title = 'Пакет: ${_filter.substring(5)}';
+    } else {
+      title = _filter;
+    }
+
+    final buffer = StringBuffer()..writeln('## $title')..writeln();
+    for (final e in _entries) {
+      final percent = e.result.total > 0
+          ? (e.result.correct * 100 / e.result.total).toStringAsFixed(0)
+          : '0';
+      buffer.writeln(
+          '- ${e.packName} — ${_formatDate(e.result.date)} — ${e.result.correct}/${e.result.total} (${percent}%)');
+    }
+
+    final fileName =
+        'sessions_${DateTime.now().millisecondsSinceEpoch}.md';
+    final savePath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Сохранить Markdown',
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: ['md'],
+    );
+    if (savePath == null) return;
+
+    final file = File(savePath);
+    await file.writeAsString(buffer.toString());
+
+    if (mounted) {
+      final name = savePath.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Файл сохранён: $name'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () {
+              OpenFile.open(file.path);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,6 +203,14 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                         )
                     ]
                 ],
+              ),
+            ),
+          if (_entries.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ElevatedButton(
+                onPressed: _exportMarkdown,
+                child: const Text('Экспортировать в Markdown'),
               ),
             ),
           Expanded(
