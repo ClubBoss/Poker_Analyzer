@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import 'poker_analyzer_screen.dart';
+import 'create_pack_screen.dart';
 
 class _ResultEntry {
   final String name;
@@ -32,6 +33,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   final GlobalKey _analyzerKey = GlobalKey();
   int _currentIndex = 0;
 
+  late TrainingPack _pack;
+
   /// Hands that are currently used in the session. By default it contains
   /// all hands from the training pack, but when the user chooses to repeat
   /// mistakes it becomes a filtered subset.
@@ -45,22 +48,21 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   @override
   void initState() {
     super.initState();
-    _sessionHands = widget.pack.hands;
+    _pack = widget.pack;
+    _sessionHands = _pack.hands;
     _loadProgress();
   }
 
   Future<void> _loadProgress() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _currentIndex =
-          prefs.getInt('training_progress_${widget.pack.name}') ?? 0;
+      _currentIndex = prefs.getInt('training_progress_${_pack.name}') ?? 0;
     });
   }
 
   Future<void> _saveProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(
-        'training_progress_${widget.pack.name}', _currentIndex);
+    await prefs.setInt('training_progress_${_pack.name}', _currentIndex);
   }
 
   Future<_ResultEntry> _showFeedback() async {
@@ -113,6 +115,25 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     return _ResultEntry(original.name, expected, userAct, matched);
   }
 
+  Future<void> _editPack() async {
+    final updated = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CreatePackScreen(initialPack: _pack),
+      ),
+    );
+    if (updated is TrainingPack) {
+      setState(() {
+        _pack = TrainingPack(
+          name: updated.name,
+          description: updated.description,
+          category: updated.category,
+          hands: _pack.hands,
+        );
+      });
+    }
+  }
+
   void _previousHand() {
     if (_currentIndex > 0) {
       setState(() {
@@ -143,7 +164,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     setState(() {
       _currentIndex = 0;
       _results.clear();
-      _sessionHands = widget.pack.hands;
+      _sessionHands = _pack.hands;
       _isMistakeReviewMode = false;
     });
     _saveProgress();
@@ -153,7 +174,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (_results.isEmpty) return;
     final dir = await getApplicationDocumentsDirectory();
     final fileName =
-        'training_results_${widget.pack.name}_${DateTime.now().millisecondsSinceEpoch}.json';
+        'training_results_${_pack.name}_${DateTime.now().millisecondsSinceEpoch}.json';
     final file = File('${dir.path}/$fileName');
     final data = [
       for (final r in _results)
@@ -188,7 +209,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     for (final m in mistakes) {
       try {
         mistakeHands.add(
-          widget.pack.hands.firstWhere((h) => h.name == m.name),
+          _pack.hands.firstWhere((h) => h.name == m.name),
         );
       } catch (_) {}
     }
@@ -282,7 +303,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                widget.pack.category,
+                _pack.category,
                 style: const TextStyle(color: Colors.white70),
               ),
             ),
@@ -331,13 +352,25 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.pack.name),
-        centerTitle: true,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, _pack);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_pack.name),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: _editPack,
+            ),
+          ],
+        ),
+        body: body,
+        backgroundColor: const Color(0xFF1B1C1E),
       ),
-      body: body,
-      backgroundColor: const Color(0xFF1B1C1E),
     );
   }
 }
