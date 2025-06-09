@@ -15,6 +15,14 @@ class TrainingPackScreen extends StatefulWidget {
 class _TrainingPackScreenState extends State<TrainingPackScreen> {
   int _currentIndex = 0;
 
+  void _previousHand() {
+    if (_currentIndex > 0) {
+      setState(() {
+        _currentIndex--;
+      });
+    }
+  }
+
   void _nextHand() {
     setState(() {
       _currentIndex++;
@@ -34,6 +42,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     } else {
       body = Column(
         children: [
+          LinearProgressIndicator(
+            value: _currentIndex / hands.length,
+          ),
+          const SizedBox(height: 8),
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
@@ -58,14 +70,14 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Раздача ${_currentIndex + 1} из ${hands.length}',
-                  style: const TextStyle(color: Colors.white),
+                ElevatedButton(
+                  onPressed: _currentIndex == 0 ? null : _previousHand,
+                  child: const Text('⬅ Назад'),
                 ),
                 if (_currentIndex < hands.length)
                   ElevatedButton(
                     onPressed: _nextHand,
-                    child: const Text('Следующая раздача'),
+                    child: const Text('Следующая раздача ➡'),
                   ),
               ],
             ),
