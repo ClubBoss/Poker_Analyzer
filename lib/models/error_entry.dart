@@ -5,6 +5,7 @@ class ErrorEntry {
   final String userAction;
   final String correctAction;
   final String aiExplanation;
+  final String errorType;
 
   ErrorEntry({
     required this.street,
@@ -13,5 +14,6 @@ class ErrorEntry {
     required this.userAction,
     required this.correctAction,
     required this.aiExplanation,
+    required this.errorType,
   });
 }
