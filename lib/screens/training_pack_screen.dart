@@ -7,6 +7,15 @@ import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import 'poker_analyzer_screen.dart';
 
+class _ResultEntry {
+  final String name;
+  final String expected;
+  final String userAction;
+  final bool correct;
+
+  _ResultEntry(this.name, this.expected, this.userAction, this.correct);
+}
+
 class TrainingPackScreen extends StatefulWidget {
   final TrainingPack pack;
 
@@ -19,6 +28,8 @@ class TrainingPackScreen extends StatefulWidget {
 class _TrainingPackScreenState extends State<TrainingPackScreen> {
   final GlobalKey _analyzerKey = GlobalKey();
   int _currentIndex = 0;
+
+  final List<_ResultEntry> _results = [];
 
   @override
   void initState() {
@@ -40,7 +51,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         'training_progress_${widget.pack.name}', _currentIndex);
   }
 
-  Future<void> _showFeedback() async {
+  Future<_ResultEntry> _showFeedback() async {
     final state = _analyzerKey.currentState as dynamic;
     SavedHand? played;
     if (state != null) {
@@ -87,6 +98,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         ],
       ),
     );
+    return _ResultEntry(original.name, expected, userAct, matched);
   }
 
   void _previousHand() {
@@ -99,11 +111,63 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   }
 
   Future<void> _nextHand() async {
-    await _showFeedback();
+    final result = await _showFeedback();
+    if (_results.length > _currentIndex) {
+      _results[_currentIndex] = result;
+    } else {
+      _results.add(result);
+    }
     setState(() {
       _currentIndex++;
     });
     _saveProgress();
+  }
+
+  void _restartPack() {
+    setState(() {
+      _currentIndex = 0;
+      _results.clear();
+    });
+    _saveProgress();
+  }
+
+  Widget _buildSummary() {
+    final total = _results.length;
+    final correct = _results.where((r) => r.correct).length;
+    final mistakes = _results.where((r) => !r.correct).toList();
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Результаты',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Text('Сыграно рук: $total'),
+            Text('Верные действия: $correct / $total'),
+            const SizedBox(height: 16),
+            if (mistakes.isNotEmpty) ...[
+              const Text('Ошибки:'),
+              const SizedBox(height: 8),
+              for (final m in mistakes)
+                Text('${m.name}: ожидалось ${m.expected}, ваше действие ${m.userAction}'),
+            ] else ...[
+              const Text('Ошибок нет!'),
+            ],
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _restartPack,
+              child: const Text('Начать заново'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -115,7 +179,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (hands.isEmpty) {
       body = const Center(child: Text('Нет раздач'));
     } else if (completed) {
-      body = const Center(child: Text('Пакет завершён'));
+      body = _buildSummary();
     } else {
       body = Column(
         children: [
