@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_file/open_file.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -239,6 +240,58 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
   }
 
+  Future<void> _exportMarkdown() async {
+    if (_results.isEmpty) return;
+    final total = _results.length;
+    final correct = _results.where((r) => r.correct).length;
+    final mistakes = _results.where((r) => !r.correct).toList();
+    final date = DateTime.now();
+    final percent = total > 0 ? (correct * 100 / total).toStringAsFixed(2) : '0';
+
+    final buffer = StringBuffer()
+      ..writeln('# Training Session')
+      ..writeln()
+      ..writeln('- **Date:** ${_formatDate(date)}')
+      ..writeln('- **Total hands:** $total')
+      ..writeln('- **Correct answers:** $correct')
+      ..writeln('- **Accuracy:** $percent%')
+      ..writeln();
+
+    if (mistakes.isNotEmpty) {
+      buffer.writeln('## Mistakes');
+      for (final m in mistakes) {
+        buffer.writeln(
+            '- ${m.name}: expected `${m.expected}`, got `${m.userAction}`');
+      }
+    }
+
+    final fileName =
+        'training_${_pack.name}_${date.millisecondsSinceEpoch}.md';
+    final savePath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save Markdown',
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: ['md'],
+    );
+    if (savePath == null) return;
+    final file = File(savePath);
+    await file.writeAsString(buffer.toString());
+    if (mounted) {
+      final name = savePath.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Файл сохранён: $name'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () {
+              OpenFile.open(file.path);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
   void _repeatMistakes() {
     final mistakes = _results.where((r) => !r.correct).toList();
     if (mistakes.isEmpty) return;
@@ -371,11 +424,17 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ),
               const SizedBox(height: 12),
             ],
-            if (!_isMistakeReviewMode)
+            if (!_isMistakeReviewMode) ...[
               ElevatedButton(
                 onPressed: _exportResults,
                 child: const Text('Сохранить результаты'),
               ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _exportMarkdown,
+                child: const Text('Export to Markdown'),
+              ),
+            ],
             const SizedBox(height: 24),
             _buildHistory(),
           ],
