@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_file/open_file.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -236,6 +237,35 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            PieChart(
+              PieChartData(
+                sectionsSpace: 0,
+                centerSpaceRadius: 0,
+                sections: [
+                  PieChartSectionData(
+                    value: correct.toDouble(),
+                    color: Colors.green,
+                    radius: 80,
+                    title: total > 0
+                        ? '${(correct * 100 / total).toStringAsFixed(0)}%'
+                        : '0%',
+                    titleStyle: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  PieChartSectionData(
+                    value: (total - correct).toDouble(),
+                    color: Colors.red,
+                    radius: 80,
+                    title: total > 0
+                        ? '${((total - correct) * 100 / total).toStringAsFixed(0)}%'
+                        : '0%',
+                    titleStyle: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             const Text(
               'Результаты',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
