@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -55,6 +58,21 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     ];
   }
 
+  Future<void> _exportAllPacks() async {
+    if (_packsList.isEmpty) return;
+    final dir = await getApplicationDocumentsDirectory();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final fileName = 'packs_\$timestamp.json';
+    final file = File('${dir.path}/$fileName');
+    final data = [for (final p in _packsList) p.toJson()];
+    await file.writeAsString(jsonEncode(data));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Экспорт завершён: \$fileName')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final packs = _packsList;
@@ -67,6 +85,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       appBar: AppBar(
         title: const Text('Тренировочные пакеты'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.file_upload),
+            tooltip: 'Экспортировать все',
+            onPressed: _exportAllPacks,
+          ),
+        ],
       ),
       body: Column(
         children: [
