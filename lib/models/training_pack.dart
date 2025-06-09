@@ -1,20 +1,24 @@
 import 'saved_hand.dart';
+import 'session_task_result.dart';
 
 class TrainingSessionResult {
   final DateTime date;
   final int total;
   final int correct;
+  final List<SessionTaskResult> tasks;
 
   TrainingSessionResult({
     required this.date,
     required this.total,
     required this.correct,
-  });
+    List<SessionTaskResult>? tasks,
+  }) : tasks = tasks ?? [];
 
   Map<String, dynamic> toJson() => {
         'date': date.toIso8601String(),
         'total': total,
         'correct': correct,
+        'tasks': [for (final t in tasks) t.toJson()],
       };
 
   static TrainingSessionResult fromJson(Map<String, dynamic> json) {
@@ -22,6 +26,10 @@ class TrainingSessionResult {
       date: DateTime.parse(json['date']),
       total: json['total'],
       correct: json['correct'],
+      tasks: [
+        for (final t in (json['tasks'] as List? ?? []))
+          SessionTaskResult.fromJson(Map<String, dynamic>.from(t))
+      ],
     );
   }
 }
