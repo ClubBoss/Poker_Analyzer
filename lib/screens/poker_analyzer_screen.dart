@@ -2026,7 +2026,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         controller: _tagsController,
                         style: const TextStyle(color: Colors.white),
                         decoration: const InputDecoration(
-                          labelText: 'Теги (через запятую)',
+                          labelText: 'Теги',
                           labelStyle: TextStyle(color: Colors.white),
                           filled: true,
                           fillColor: Colors.white12,
