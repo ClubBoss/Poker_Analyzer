@@ -71,6 +71,21 @@ class SessionDetailScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _startFullPack(BuildContext context) async {
+    final pack = await _loadPack();
+    if (pack == null) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackScreen(
+          pack: pack,
+          hands: pack.hands,
+          mistakeReviewMode: false,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool hasMistakes = result.tasks.any((t) => !t.correct);
@@ -108,6 +123,11 @@ class SessionDetailScreen extends StatelessWidget {
                     child: const Text('Повторить ошибочные задачи'),
                   ),
                 ],
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => _startFullPack(context),
+                  child: const Text('Начать весь пакет заново'),
+                ),
               ],
             ),
           ),
