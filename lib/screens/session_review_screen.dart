@@ -26,14 +26,30 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
     for (final e in widget.errors) {
       counts[e.errorType] = (counts[e.errorType] ?? 0) + 1;
     }
-    final parts = <String>[];
+    final children = <Widget>[
+      Text(
+        'Total: ${widget.errors.length}',
+        style: const TextStyle(color: Colors.white),
+      ),
+    ];
     for (final type in _filterOptions.skip(1)) {
       final count = counts[type] ?? 0;
-      var label = type;
-      if (_selectedType == type) label = '$label (active)';
-      parts.add('$label: $count');
+      final isActive = _selectedType == type;
+      children.add(TextButton(
+        onPressed: () {
+          setState(() {
+            _selectedType = type;
+          });
+        },
+        style: TextButton.styleFrom(padding: EdgeInsets.zero),
+        child: Text(
+          '$type: $count',
+          style: TextStyle(
+            color: isActive ? Colors.amber : Colors.white,
+          ),
+        ),
+      ));
     }
-    final text = 'Total: ${widget.errors.length} — ${parts.join(', ')}';
 
     return Container(
       width: double.infinity,
@@ -42,9 +58,10 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
         color: const Color(0xFF2A2B2E),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.white),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        children: children,
       ),
     );
   }
