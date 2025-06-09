@@ -21,6 +21,34 @@ class SessionReviewScreen extends StatefulWidget {
 class _SessionReviewScreenState extends State<SessionReviewScreen> {
   String _selectedType = 'All';
 
+  Widget _buildSummary() {
+    final counts = <String, int>{};
+    for (final e in widget.errors) {
+      counts[e.errorType] = (counts[e.errorType] ?? 0) + 1;
+    }
+    final parts = <String>[];
+    for (final type in _filterOptions.skip(1)) {
+      final count = counts[type] ?? 0;
+      var label = type;
+      if (_selectedType == type) label = '$label (active)';
+      parts.add('$label: $count');
+    }
+    final text = 'Total: ${widget.errors.length} — ${parts.join(', ')}';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2B2E),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _selectedType == 'All'
@@ -56,7 +84,15 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
                 style: TextStyle(color: Colors.white70),
               ),
             )
-          : _buildGroupedList(filtered),
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildSummary(),
+                ),
+                Expanded(child: _buildGroupedList(filtered)),
+              ],
+            ),
     );
   }
 
