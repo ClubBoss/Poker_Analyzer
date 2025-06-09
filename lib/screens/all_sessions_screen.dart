@@ -30,6 +30,10 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   String _filter = 'all';
   String _sortMode = 'date_desc';
   DateTimeRange? _dateRange;
+  final TextEditingController _minPercentController = TextEditingController();
+  final TextEditingController _maxPercentController = TextEditingController();
+  double? _minPercent;
+  double? _maxPercent;
 
   int _filteredCount = 0;
   double _averagePercent = 0;
@@ -82,6 +86,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       _filter = prefs.getString('sessions_filter') ?? 'all';
       _sortMode = prefs.getString('sessions_sortMode') ?? 'date_desc';
       _dateRange = range;
+      _minPercent = prefs.getDouble('sessions_percent_min');
+      _maxPercent = prefs.getDouble('sessions_percent_max');
+      _minPercentController.text =
+          _minPercent != null ? _minPercent!.toStringAsFixed(0) : '';
+      _maxPercentController.text =
+          _maxPercent != null ? _maxPercent!.toStringAsFixed(0) : '';
     });
     _applyFilter();
   }
@@ -98,6 +108,13 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     } else {
       await prefs.remove('sessions_date_start');
       await prefs.remove('sessions_date_end');
+    }
+    if (_minPercent != null && _maxPercent != null) {
+      await prefs.setDouble('sessions_percent_min', _minPercent!);
+      await prefs.setDouble('sessions_percent_max', _maxPercent!);
+    } else {
+      await prefs.remove('sessions_percent_min');
+      await prefs.remove('sessions_percent_max');
     }
   }
 
@@ -161,6 +178,15 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       filtered = filtered.where((e) {
         final d = e.result.date;
         return !d.isBefore(_dateRange!.start) && !d.isAfter(_dateRange!.end);
+      }).toList();
+    }
+
+    if (_minPercent != null && _maxPercent != null) {
+      filtered = filtered.where((e) {
+        final percent = e.result.total > 0
+            ? e.result.correct * 100 / e.result.total
+            : 0.0;
+        return percent >= _minPercent! && percent <= _maxPercent!;
       }).toList();
     }
 
@@ -384,6 +410,10 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     _filter = 'all';
     _dateRange = null;
     _sortMode = 'date_desc';
+    _minPercent = null;
+    _maxPercent = null;
+    _minPercentController.text = '';
+    _maxPercentController.text = '';
     _savePreferences();
     _applyFilter();
   }
@@ -490,6 +520,57 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                     icon: const Icon(Icons.clear),
                     tooltip: 'Сбросить',
                   )
+                ],
+              ),
+            ),
+          if (_allEntries.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _minPercentController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: 'Min %',
+                      ),
+                      onChanged: (v) {
+                        final val = double.tryParse(v);
+                        _minPercent = val;
+                        _savePreferences();
+                        _applyFilter();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _maxPercentController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: 'Max %',
+                      ),
+                      onChanged: (v) {
+                        final val = double.tryParse(v);
+                        _maxPercent = val;
+                        _savePreferences();
+                        _applyFilter();
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      _minPercentController.text = '';
+                      _maxPercentController.text = '';
+                      _minPercent = null;
+                      _maxPercent = null;
+                      _savePreferences();
+                      _applyFilter();
+                    },
+                    icon: const Icon(Icons.close),
+                    tooltip: 'Сбросить диапазон',
+                  ),
                 ],
               ),
             ),
@@ -615,5 +696,12 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _minPercentController.dispose();
+    _maxPercentController.dispose();
+    super.dispose();
   }
 }
