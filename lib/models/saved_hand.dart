@@ -15,6 +15,8 @@ class SavedHand {
   final Map<int, PlayerType>? playerTypes;
   final String? comment;
   final List<String> tags;
+  final bool isFavorite;
+  final DateTime date;
   final String? expectedAction;
   final String? feedbackText;
 
@@ -31,9 +33,51 @@ class SavedHand {
     this.playerTypes,
     this.comment,
     List<String>? tags,
+    this.isFavorite = false,
+    DateTime? date,
     this.expectedAction,
     this.feedbackText,
-  }) : tags = tags ?? [];
+  })  : tags = tags ?? [],
+        date = date ?? DateTime.now();
+
+  SavedHand copyWith({
+    String? name,
+    int? heroIndex,
+    String? heroPosition,
+    int? numberOfPlayers,
+    List<List<CardModel>>? playerCards,
+    List<CardModel>? boardCards,
+    List<ActionEntry>? actions,
+    Map<int, int>? stackSizes,
+    Map<int, String>? playerPositions,
+    Map<int, PlayerType>? playerTypes,
+    String? comment,
+    List<String>? tags,
+    bool? isFavorite,
+    DateTime? date,
+    String? expectedAction,
+    String? feedbackText,
+  }) {
+    return SavedHand(
+      name: name ?? this.name,
+      heroIndex: heroIndex ?? this.heroIndex,
+      heroPosition: heroPosition ?? this.heroPosition,
+      numberOfPlayers: numberOfPlayers ?? this.numberOfPlayers,
+      playerCards: playerCards ??
+          [for (final list in this.playerCards) List<CardModel>.from(list)],
+      boardCards: boardCards ?? List<CardModel>.from(this.boardCards),
+      actions: actions ?? List<ActionEntry>.from(this.actions),
+      stackSizes: stackSizes ?? Map<int, int>.from(this.stackSizes),
+      playerPositions: playerPositions ?? Map<int, String>.from(this.playerPositions),
+      playerTypes: playerTypes ?? this.playerTypes,
+      comment: comment ?? this.comment,
+      tags: tags ?? List<String>.from(this.tags),
+      isFavorite: isFavorite ?? this.isFavorite,
+      date: date ?? this.date,
+      expectedAction: expectedAction ?? this.expectedAction,
+      feedbackText: feedbackText ?? this.feedbackText,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -62,6 +106,8 @@ class SavedHand {
               playerTypes!.map((k, v) => MapEntry(k.toString(), v.name)),
         if (comment != null) 'comment': comment,
         'tags': tags,
+        'isFavorite': isFavorite,
+        'date': date.toIso8601String(),
         if (expectedAction != null) 'expectedAction': expectedAction,
         if (feedbackText != null) 'feedbackText': feedbackText,
       };
@@ -92,6 +138,8 @@ class SavedHand {
       positions[int.parse(key as String)] = value as String;
     });
     final tags = [for (final t in (json['tags'] as List? ?? [])) t as String];
+    final isFavorite = json['isFavorite'] as bool? ?? false;
+    final date = DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now();
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -119,6 +167,8 @@ class SavedHand {
       playerTypes: types,
       comment: json['comment'] as String?,
       tags: tags,
+      isFavorite: isFavorite,
+      date: date,
       expectedAction: json['expectedAction'] as String?,
       feedbackText: json['feedbackText'] as String?,
     );

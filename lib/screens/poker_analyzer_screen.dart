@@ -11,7 +11,7 @@ import '../widgets/street_actions_widget.dart';
 import '../widgets/board_display.dart';
 import '../widgets/action_history_overlay.dart';
 import 'package:provider/provider.dart';
-import '../services/saved_hand_service.dart';
+import '../services/saved_hand_storage_service.dart';
 import '../theme/constants.dart';
 import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
@@ -46,7 +46,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
 
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
-  late SavedHandService _savedHandService;
+  late SavedHandStorageService _savedHandService;
   List<SavedHand> get savedHands => _savedHandService.hands;
   int heroIndex = 0;
   String _heroPosition = 'BTN';
@@ -520,7 +520,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _savedHandService = context.read<SavedHandService>();
+    _savedHandService = context.read<SavedHandStorageService>();
   }
 
   void selectCard(int index, CardModel card) {
@@ -1142,6 +1142,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .map((t) => t.trim())
           .where((t) => t.isNotEmpty)
           .toList(),
+      isFavorite: false,
+      date: DateTime.now(),
     );
   }
 
@@ -1505,10 +1507,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                                     Map<int, String>.from(old.playerPositions),
                                 playerTypes: old.playerTypes == null
                                     ? null
-                                    : Map<int, String>.from(old.playerTypes!),
+                                    : Map<int, PlayerType>.from(old.playerTypes!),
                                 comment:
                                     newComment.isNotEmpty ? newComment : null,
                                 tags: newTags,
+                                isFavorite: old.isFavorite,
+                                date: old.date,
                               );
                             await _savedHandService.update(savedIndex, updated);
                             setStateDialog(() {});
