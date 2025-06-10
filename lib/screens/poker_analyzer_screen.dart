@@ -8,9 +8,11 @@ import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
-import '../widgets/board_cards_widget.dart';
-
-import '../widgets/pot_over_board_widget.dart';
+import '../widgets/board_display.dart';
+import '../widgets/action_history_overlay.dart';
+import 'package:provider/provider.dart';
+import '../services/saved_hand_service.dart';
+import '../theme/constants.dart';
 import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/player_info_widget.dart';
@@ -44,7 +46,8 @@ class PokerAnalyzerScreen extends StatefulWidget {
 
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
-  List<SavedHand> savedHands = [];
+  late SavedHandService _savedHandService;
+  List<SavedHand> get savedHands => _savedHandService.hands;
   int heroIndex = 0;
   String _heroPosition = 'BTN';
   int numberOfPlayers = 6;
@@ -512,6 +515,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (widget.initialHand != null) {
       _applySavedHand(widget.initialHand!);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _savedHandService = context.read<SavedHandService>();
   }
 
   void selectCard(int index, CardModel card) {
@@ -1211,9 +1220,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final handName = result.trim().isEmpty ? _defaultHandName() : result.trim();
     _addQualityTags();
     final hand = _currentSavedHand(name: handName);
-    setState(() {
-      savedHands.add(hand);
-    });
+    await _savedHandService.add(hand);
   }
 
   void loadLastSavedHand() {
@@ -1265,7 +1272,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                               final tags = allTags.toList()..sort();
                               if (tags.isEmpty) {
                                 return const Padding(
-                                  padding: EdgeInsets.all(16),
+                                  padding: EdgeInsets.all(AppConstants.padding16),
                                   child: Text('Нет тегов'),
                                 );
                               }
@@ -1482,8 +1489,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                                   newComment != oldComment;
 
                           if (hasChanges) {
-                            setState(() {
-                              savedHands[savedIndex] = SavedHand(
+                            final updated = SavedHand(
                                 name: newName,
                                 heroIndex: old.heroIndex,
                                 heroPosition: old.heroPosition,
@@ -1504,7 +1510,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                                     newComment.isNotEmpty ? newComment : null,
                                 tags: newTags,
                               );
-                            });
+                            await _savedHandService.update(savedIndex, updated);
                             setStateDialog(() {});
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Раздача обновлена')),
@@ -1536,9 +1542,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             ),
                           );
                           if (confirm == true) {
-                            setState(() {
-                              savedHands.removeAt(savedIndex);
-                            });
+                            await _savedHandService.removeAt(savedIndex);
                             setStateDialog(() {});
                           }
                         },
@@ -1612,7 +1616,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       for (final item in parsed) {
         if (item is Map<String, dynamic>) {
           try {
-            savedHands.add(SavedHand.fromJson(item));
+            await _savedHandService.add(SavedHand.fromJson(item));
             count++;
           } catch (_) {
             // skip invalid hand objects
@@ -1863,101 +1867,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return Stack(children: items);
   }
 
-  Widget _buildActionHistoryOverlay() {
-    final visible = actions.take(_playbackIndex).toList();
-    final Map<int, List<ActionEntry>> grouped =
-        {for (var i = 0; i < 4; i++) i: <ActionEntry>[]};
-    for (final a in visible) {
-      grouped[a.street]?.add(a);
-    }
-    final screenWidth = MediaQuery.of(context).size.width;
-    final double scale = screenWidth < 350 ? 0.8 : 1.0;
-    const streetNames = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
-
-    Widget buildChip(ActionEntry a) {
-      final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-      final text = '$pos: ${a.action}${a.amount != null ? ' ${a.amount}' : ''}';
-      return Container(
-        padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
-        margin: const EdgeInsets.only(right: 4, bottom: 4),
-        decoration: BoxDecoration(
-          color: _actionColor(a.action).withOpacity(0.8),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: _actionTextColor(a.action),
-            fontSize: 11 * scale,
-          ),
-        ),
-      );
-    }
-
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        color: Colors.black38,
-        height: 70 * scale,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 4,
-          itemBuilder: (context, index) {
-            final list = grouped[index] ?? [];
-            if (list.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            final expanded = _expandedHistoryStreets.contains(index);
-            final visibleList = expanded || list.length <= 5
-                ? list
-                : list.sublist(list.length - 5);
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (expanded) {
-                    _expandedHistoryStreets.remove(index);
-                  } else {
-                    _expandedHistoryStreets.add(index);
-                  }
-                });
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 6),
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      streetNames[index],
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12 * scale,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [for (final a in visibleList) buildChip(a)],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -2028,22 +1937,33 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       fit: BoxFit.contain,
                     ),
                   ),
-                  BoardCardsWidget(scale: scale,
+                  BoardDisplay(
+                    scale: scale,
                     currentStreet: currentStreet,
                     boardCards: boardCards,
                     onCardSelected: selectBoardCard,
-                  ),
-                  PotOverBoardWidget(
                     visibleActions: visibleActions,
-                    currentStreet: currentStreet,
-                    scale: scale,
                   ),
                   for (int i = 0; i < numberOfPlayers; i++) ..._buildPlayerWidgets(i, scale),
                   for (int i = 0; i < numberOfPlayers; i++) ..._buildChipTrail(i, scale),
                     _buildBetStacksOverlay(scale),
                     _buildInvestedChipsOverlay(scale),
                     _buildPotAndBetsOverlay(scale),
-                    _buildActionHistoryOverlay(),
+                    ActionHistoryOverlay(
+                      actions: actions,
+                      playbackIndex: _playbackIndex,
+                      playerPositions: playerPositions,
+                      expandedStreets: _expandedHistoryStreets,
+                      onToggleStreet: (index) {
+                        setState(() {
+                          if (_expandedHistoryStreets.contains(index)) {
+                            _expandedHistoryStreets.remove(index);
+                          } else {
+                            _expandedHistoryStreets.add(index);
+                          }
+                        });
+                      },
+                    ),
                   Align(
                   alignment: Alignment.topRight,
                   child: HudOverlay(

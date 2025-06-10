@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_service.dart';
+import '../theme/constants.dart';
 
 class SavedHandsScreen extends StatelessWidget {
   const SavedHandsScreen({super.key});
@@ -19,11 +20,13 @@ class SavedHandsScreen extends StatelessWidget {
           ? const Center(
               child: Text(
                 'Нет сохранённых раздач.',
-                style: TextStyle(fontSize: 16, color: Colors.white54),
+                style: TextStyle(
+                    fontSize: AppConstants.fontSize16,
+                    color: Colors.white54),
               ),
             )
           : ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppConstants.padding16),
               itemCount: savedHands.length,
               separatorBuilder: (_, __) => const Divider(color: Colors.white12),
               itemBuilder: (context, index) {

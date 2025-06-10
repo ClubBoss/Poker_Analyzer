@@ -8,6 +8,7 @@ import 'package:open_file/open_file.dart';
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import 'training_pack_screen.dart';
+import '../theme/constants.dart';
 import 'create_pack_screen.dart';
 
 class TrainingPacksScreen extends StatefulWidget {
@@ -168,7 +169,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppConstants.padding16),
             child: DropdownButton<String>(
               value: _selectedCategory,
               dropdownColor: const Color(0xFF2A2B2E),
@@ -189,7 +190,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           ),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppConstants.padding16),
               itemCount: visible.length,
               itemBuilder: (context, index) {
                 final pack = visible[index];
