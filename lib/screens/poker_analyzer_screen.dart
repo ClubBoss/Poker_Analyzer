@@ -552,6 +552,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _onPlayerTimeExpired(int index) {
+    if (activePlayerIndex == index) {
+      setState(() => activePlayerIndex = null);
+    }
+  }
+
   void selectBoardCard(int index, CardModel card) {
     setState(() {
       for (final cards in playerCards) {
@@ -2323,6 +2329,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             onRemove: numberOfPlayers > 2 ? () {
               _removePlayer(index);
             } : null,
+            onTimeExpired: () => _onPlayerTimeExpired(index),
           ),
         ),
       ),

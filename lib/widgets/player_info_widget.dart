@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/card_model.dart';
+import 'action_timer_ring.dart';
 
 /// Compact display for a player's position, stack, tag and last action.
 /// Optionally shows a simplified position label as a badge.
@@ -32,6 +33,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final ValueChanged<int>? onStackTap;
   /// Called when the remove icon is tapped.
   final VoidCallback? onRemove;
+  /// Called when the active timer finishes.
+  final VoidCallback? onTimeExpired;
   /// Called when a card slot is tapped. The index corresponds to 0 or 1.
   final void Function(int index)? onCardTap;
 
@@ -55,6 +58,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.onEdit,
     this.onStackTap,
     this.onRemove,
+    this.onTimeExpired,
     this.onCardTap,
     this.showLastIndicator = false,
   });
@@ -338,6 +342,11 @@ class PlayerInfoWidget extends StatelessWidget {
 
     if (isActive) {
       clickable = _ActivePlayerGlow(child: clickable);
+      clickable = ActionTimerRing(
+        child: clickable,
+        isActive: true,
+        onTimeExpired: onTimeExpired,
+      );
     }
 
     Widget withBadge = clickable;
