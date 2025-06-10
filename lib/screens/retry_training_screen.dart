@@ -18,6 +18,16 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
   int _correctCount = 0;
   int _totalAnswered = 0;
 
+  void _restart() {
+    setState(() {
+      _currentIndex = 0;
+      _correctCount = 0;
+      _totalAnswered = 0;
+      _showCorrect = false;
+      _selectedAction = null;
+    });
+  }
+
   void _next() {
     setState(() {
       _showCorrect = false;
@@ -28,7 +38,161 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final completed = _totalAnswered == widget.errors.length;
     final error = widget.errors[_currentIndex];
+
+    Widget body;
+    if (completed) {
+      final accuracy = _totalAnswered > 0
+          ? (_correctCount * 100 / _totalAnswered).toStringAsFixed(1)
+          : '0';
+      body = Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Summary',
+              style: const TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Correct: $_correctCount / $_totalAnswered',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            Text(
+              'Accuracy: $accuracy%',
+              style: const TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _restart,
+              child: const Text('Restart'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Mistakes to retry: ${widget.errors.length}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2B2E),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  error.spotTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  error.situationDescription,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 8),
+                DropdownButton<String>(
+                  value: _selectedAction,
+                  dropdownColor: const Color(0xFF2A2B2E),
+                  hint: const Text(
+                    'Select your action',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  iconEnabledColor: Colors.white,
+                  items: const [
+                    DropdownMenuItem(value: 'Fold', child: Text('Fold')),
+                    DropdownMenuItem(value: 'Call', child: Text('Call')),
+                    DropdownMenuItem(value: 'Raise small', child: Text('Raise small')),
+                    DropdownMenuItem(value: 'Raise big', child: Text('Raise big')),
+                    DropdownMenuItem(value: 'All-in', child: Text('All-in')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedAction = value;
+                    });
+                  },
+                ),
+                if (_showCorrect) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Your Action: $_selectedAction',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _selectedAction == error.correctAction
+                        ? '✅ Correct'
+                        : '❌ Mistake',
+                    style: TextStyle(
+                      color: _selectedAction == error.correctAction
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Correct Action: ${error.correctAction}',
+                    style: const TextStyle(color: Colors.green),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    error.aiExplanation,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: _selectedAction == null
+                    ? null
+                    : () {
+                        setState(() {
+                          if (!_showCorrect) {
+                            _totalAnswered++;
+                            if (_selectedAction == error.correctAction) {
+                              _correctCount++;
+                            }
+                          }
+                          _showCorrect = !_showCorrect;
+                        });
+                      },
+                child: Text(_showCorrect ? 'Hide' : 'Show Correct Action'),
+              ),
+              ElevatedButton(
+                onPressed: _next,
+                child: const Text('Next'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Correct: $_correctCount / $_totalAnswered',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Retry Mistakes'),
@@ -37,125 +201,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
       backgroundColor: const Color(0xFF1B1C1E),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Mistakes to retry: ${widget.errors.length}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2A2B2E),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    error.spotTitle,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    error.situationDescription,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButton<String>(
-                    value: _selectedAction,
-                    dropdownColor: const Color(0xFF2A2B2E),
-                    hint: const Text(
-                      'Select your action',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    iconEnabledColor: Colors.white,
-                    items: const [
-                      DropdownMenuItem(value: 'Fold', child: Text('Fold')),
-                      DropdownMenuItem(value: 'Call', child: Text('Call')),
-                      DropdownMenuItem(value: 'Raise small', child: Text('Raise small')),
-                      DropdownMenuItem(value: 'Raise big', child: Text('Raise big')),
-                      DropdownMenuItem(value: 'All-in', child: Text('All-in')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedAction = value;
-                      });
-                    },
-                  ),
-                  if (_showCorrect) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      'Your Action: $_selectedAction',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _selectedAction == error.correctAction
-                          ? '✅ Correct'
-                          : '❌ Mistake',
-                      style: TextStyle(
-                        color: _selectedAction == error.correctAction
-                            ? Colors.green
-                            : Colors.red,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Correct Action: ${error.correctAction}',
-                      style: const TextStyle(color: Colors.green),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      error.aiExplanation,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: _selectedAction == null
-                      ? null
-                      : () {
-                          setState(() {
-                            if (!_showCorrect) {
-                              _totalAnswered++;
-                              if (_selectedAction == error.correctAction) {
-                                _correctCount++;
-                              }
-                            }
-                            _showCorrect = !_showCorrect;
-                          });
-                        },
-                  child: Text(_showCorrect ? 'Hide' : 'Show Correct Action'),
-                ),
-                ElevatedButton(
-                  onPressed: _next,
-                  child: const Text('Next'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Correct: $_correctCount / $_totalAnswered',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ],
-        ),
+        child: body,
       ),
     );
   }
