@@ -290,20 +290,38 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         : entry.action;
   }
 
-  String _playerTypeIcon(PlayerType? type) {
+  Widget _playerTypeIcon(PlayerType? type) {
     switch (type) {
       case PlayerType.shark:
-        return '🦈';
+        return const Tooltip(
+          message: 'Shark',
+          child: Text('🦈', style: TextStyle(fontSize: 14)),
+        );
       case PlayerType.fish:
-        return '🐟';
+        return const Tooltip(
+          message: 'Fish',
+          child: Text('🐟', style: TextStyle(fontSize: 14)),
+        );
       case PlayerType.nit:
-        return '🧊';
+        return const Tooltip(
+          message: 'Nit',
+          child: Text('🧊', style: TextStyle(fontSize: 14)),
+        );
       case PlayerType.maniac:
-        return '🔥';
+        return const Tooltip(
+          message: 'Maniac',
+          child: Text('🔥', style: TextStyle(fontSize: 14)),
+        );
       case PlayerType.callingStation:
-        return '📞';
+        return const Tooltip(
+          message: 'Calling Station',
+          child: Text('📞', style: TextStyle(fontSize: 14)),
+        );
       default:
-        return '';
+        return const Tooltip(
+          message: 'Standard',
+          child: Icon(Icons.person, size: 14, color: Colors.white70),
+        );
     }
   }
 
@@ -2585,7 +2603,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             isFolded: isFolded,
             isHero: index == heroIndex,
             isOpponent: index == opponentIndex,
-            playerTypeIcon: _playerTypeIcon(playerTypes[index]),
+            playerTypeIcon: '',
             playerTypeLabel:
                 numberOfPlayers > 9 ? null : _playerTypeLabel(playerTypes[index]),
             positionLabel:
@@ -2611,6 +2629,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             onTimeExpired: () => _onPlayerTimeExpired(index),
           ),
         ),
+      ),
+      Positioned(
+        left: centerX + dx - 8 * scale,
+        top: centerY + dy + bias - 70 * scale,
+        child: _playerTypeIcon(playerTypes[index]),
       ),
       if (lastAmountAction != null)
         Positioned(
