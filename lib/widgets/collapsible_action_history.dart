@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import '../helpers/action_utils.dart';
 
 class CollapsibleActionHistory extends StatefulWidget {
   final List<ActionEntry> actions;
@@ -76,7 +77,7 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
         final style = TextStyle(
           color: Colors.white,
           fontWeight:
-              a.playerIndex == widget.heroIndex ? FontWeight.bold : null,
+              isHeroAction(a, widget.heroIndex) ? FontWeight.bold : null,
         );
         return Row(
           children: [
