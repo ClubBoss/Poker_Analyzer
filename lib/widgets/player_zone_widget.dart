@@ -180,6 +180,20 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betEntry = entry;
   }
 
+  Widget _betIndicator(TextStyle style) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4 * widget.scale),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('🪙', style: TextStyle(fontSize: 12 * widget.scale)),
+          SizedBox(width: 4 * widget.scale),
+          Text('$_currentBet', style: style),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _playerZoneRegistry.remove(widget.playerName);
@@ -203,9 +217,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       fontWeight: FontWeight.bold,
     );
     final stackStyle = TextStyle(
-      color: isDark ? Colors.white70 : Colors.black87,
+      color: Colors.white70,
       fontSize: 12 * widget.scale,
       fontWeight: FontWeight.w500,
+    );
+    final betStyle = TextStyle(
+      color: Colors.white70,
+      fontSize: 12 * widget.scale,
+      fontWeight: FontWeight.w600,
     );
     final tagStyle = TextStyle(color: Colors.white, fontSize: 12 * widget.scale);
 
@@ -328,62 +347,69 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           opacity: widget.isFolded ? 0.4 : 1.0,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(2, (index) {
-              final card = index < _cards.length ? _cards[index] : null;
-              final isRed = card?.suit == '♥' || card?.suit == '♦';
+            children: [
+              if (_currentBet > 0 && _isLeftSide(widget.position))
+                _betIndicator(betStyle),
+              ...List.generate(2, (index) {
+                final card = index < _cards.length ? _cards[index] : null;
+                final isRed = card?.suit == '♥' || card?.suit == '♦';
 
-              return GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: widget.isHero
-                    ? () async {
-                        final selected = await showCardSelector(context);
-                        if (selected != null) {
-                          widget.onCardsSelected(index, selected);
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: widget.isHero
+                      ? () async {
+                          final selected = await showCardSelector(context);
+                          if (selected != null) {
+                            widget.onCardsSelected(index, selected);
+                          }
                         }
-                      }
-                    : null,
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: 36 * widget.scale,
-                  height: 52 * widget.scale,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(card == null ? 0.3 : 1),
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 3,
-                        offset: const Offset(1, 2),
-                      )
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, animation) =>
-                        FadeTransition(opacity: animation, child: child),
-                    child: card != null
-                        ? Text(
-                            '${card.rank}${card.suit}',
-                            key: ValueKey('${card.rank}${card.suit}$index'),
-                            style: TextStyle(
-                              color: isRed ? Colors.red : Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18 * widget.scale,
-                            ),
-                          )
-                        : widget.isHero
-                            ? const Icon(Icons.add,
-                                color: Colors.grey, key: ValueKey('add'))
-                            : Image.asset(
-                                'assets/cards/card_back.png',
-                                key: const ValueKey('back'),
-                                fit: BoxFit.cover,
+                      : null,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 36 * widget.scale,
+                    height: 52 * widget.scale,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          blurRadius: 3,
+                          offset: const Offset(1, 2),
+                        )
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, animation) =>
+                          FadeTransition(opacity: animation, child: child),
+                      child: card != null
+                          ? Text(
+                              '${card.rank}${card.suit}',
+                              key: ValueKey('${card.rank}${card.suit}$index'),
+                              style: TextStyle(
+                                color: isRed ? Colors.red : Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18 * widget.scale,
                               ),
+                            )
+                          : widget.isHero
+                              ? const Icon(Icons.add,
+                                  color: Colors.grey, key: ValueKey('add'))
+                              : Image.asset(
+                                  'assets/cards/card_back.png',
+                                  key: const ValueKey('back'),
+                                  fit: BoxFit.cover,
+                                ),
+                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+              if (_currentBet > 0 && !_isLeftSide(widget.position))
+                _betIndicator(betStyle),
+            ],
+          ),
         ),
       ),
         PlayerStackLabel(stack: widget.stackSize, scale: widget.scale),
@@ -495,6 +521,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         return Colors.blueAccent;
       default:
         return Colors.white70;
+    }
+  }
+
+  bool _isLeftSide(String? position) {
+    switch (position) {
+      case 'SB':
+      case 'BB':
+        return true;
+      default:
+        return false;
     }
   }
 
