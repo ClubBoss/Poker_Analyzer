@@ -115,6 +115,7 @@ class SavedHand {
               'action': a.action,
               'amount': a.amount,
               'generated': a.generated,
+              'timestamp': a.timestamp.toIso8601String(),
             }
         ],
         'stackSizes': stackSizes.map((k, v) => MapEntry(k.toString(), v)),
@@ -152,8 +153,15 @@ class SavedHand {
     final oppIndex = json['opponentIndex'] as int?;
     final acts = [
       for (final a in (json['actions'] as List? ?? []))
-        ActionEntry(a['street'] as int, a['playerIndex'] as int, a['action'] as String,
-            amount: a['amount'] as int?, generated: a['generated'] as bool? ?? false)
+        ActionEntry(
+          a['street'] as int,
+          a['playerIndex'] as int,
+          a['action'] as String,
+          amount: a['amount'] as int?,
+          generated: a['generated'] as bool? ?? false,
+          timestamp:
+              DateTime.tryParse(a['timestamp'] as String? ?? '') ?? DateTime.now(),
+        )
     ];
     final stack = <int, int>{};
     (json['stackSizes'] as Map? ?? {}).forEach((key, value) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import 'detailed_action_bottom_sheet.dart';
+import 'package:intl/intl.dart';
 
 /// Список действий на конкретной улице
 class StreetActionsList extends StatelessWidget {
@@ -118,6 +119,14 @@ class StreetActionsList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          if (!a.generated)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Text(
+                _formatTimestamp(globalIndex, a),
+                style: const TextStyle(color: Colors.white54, fontSize: 12),
+              ),
+            ),
           if (qualityText != null)
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
@@ -133,6 +142,17 @@ class StreetActionsList extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatTimestamp(int index, ActionEntry a) {
+    if (index > 0) {
+      final prev = actions[index - 1];
+      final diff = a.timestamp.difference(prev.timestamp).inSeconds;
+      if (diff > 0 && diff < 60) {
+        return '+${diff}s';
+      }
+    }
+    return '⏱ ${DateFormat('HH:mm').format(a.timestamp)}';
   }
 
   @override
