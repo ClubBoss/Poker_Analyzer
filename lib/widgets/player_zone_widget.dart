@@ -133,6 +133,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   /// Updates the player's visible cards.
   void updateCards(List<CardModel> cards) {
     setState(() => _cards = List<CardModel>.from(cards));
+    if (!widget.isHero) {
+      _showCardRevealOverlay();
+    }
   }
 
   void highlightWinner() {
@@ -141,6 +144,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _highlightTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) setState(() => _winnerHighlight = false);
     });
+  }
+
+  void _showCardRevealOverlay() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _CardRevealBackdrop(
+        onCompleted: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
   }
 
   void _playBetAnimation(int amount) {
@@ -806,6 +822,57 @@ class _WinnerCelebrationState extends State<_WinnerCelebration>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dark overlay that fades in and out when revealing opponent cards.
+class _CardRevealBackdrop extends StatefulWidget {
+  final VoidCallback? onCompleted;
+
+  const _CardRevealBackdrop({Key? key, this.onCompleted}) : super(key: key);
+
+  @override
+  State<_CardRevealBackdrop> createState() => _CardRevealBackdropState();
+}
+
+class _CardRevealBackdropState extends State<_CardRevealBackdrop>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _controller.forward();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        _controller.reverse().whenComplete(() => widget.onCompleted?.call());
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: FadeTransition(
+          opacity: CurvedAnimation(
+            parent: _controller,
+            curve: Curves.easeInOut,
+          ),
+          child: Container(color: Colors.black54),
         ),
       ),
     );
