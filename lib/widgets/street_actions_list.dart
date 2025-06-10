@@ -3,6 +3,9 @@ import '../models/action_entry.dart';
 import 'detailed_action_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 
+/// Whether action hints (tooltips) should be shown. TODO: load from preferences.
+const bool kShowActionHints = true;
+
 /// Список действий на конкретной улице
 class StreetActionsList extends StatelessWidget {
   final int street;
@@ -62,7 +65,7 @@ class StreetActionsList extends StatelessWidget {
         qualityText = '🔴 MISTAKE';
       }
     }
-    return ListTile(
+    final tile = ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
       title: Row(
@@ -142,6 +145,14 @@ class StreetActionsList extends StatelessWidget {
         ],
       ),
     );
+
+    if (!kShowActionHints || a.generated) return tile;
+
+    return Tooltip(
+      message: _buildTooltipMessage(a, globalIndex, qualityText),
+      preferBelow: false,
+      child: tile,
+    );
   }
 
   String _formatTimestamp(int index, ActionEntry a) {
@@ -153,6 +164,24 @@ class StreetActionsList extends StatelessWidget {
       }
     }
     return '⏱ ${DateFormat('HH:mm').format(a.timestamp)}';
+  }
+
+  String _buildTooltipMessage(
+      ActionEntry a, int index, String? qualityText) {
+    final buffer = StringBuffer(
+        'Время: ${DateFormat('HH:mm:ss').format(a.timestamp)}');
+    if (index > 0) {
+      final prev = actions[index - 1];
+      final diffMs =
+          a.timestamp.difference(prev.timestamp).inMilliseconds;
+      final diffSec = diffMs / 1000;
+      buffer.writeln(
+          '\nС момента прошлого действия: +${diffSec.toStringAsFixed(1)} сек');
+    }
+    if (qualityText != null) {
+      buffer.writeln('\nОценка: $qualityText');
+    }
+    return buffer.toString();
   }
 
   @override
