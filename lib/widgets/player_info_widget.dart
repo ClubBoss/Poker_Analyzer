@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import 'action_timer_ring.dart';
 
@@ -40,6 +41,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final void Function(int index)? onCardTap;
   /// Amount invested by the player on the current street.
   final int streetInvestment;
+  /// Last bet amount placed by the player on the current street.
+  final int currentBet;
 
   const PlayerInfoWidget({
     super.key,
@@ -65,8 +68,11 @@ class PlayerInfoWidget extends StatelessWidget {
     this.onTimeExpired,
     this.onCardTap,
     this.streetInvestment = 0,
+    this.currentBet = 0,
     this.showLastIndicator = false,
   });
+
+  String _format(int value) => NumberFormat.decimalPattern().format(value);
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +233,24 @@ class PlayerInfoWidget extends StatelessWidget {
               }),
             ),
           ),
+          if (currentBet > 0)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                margin: const EdgeInsets.only(top: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.greenAccent.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '💰 ${_format(currentBet)}',
+                  style:
+                      const TextStyle(color: Colors.black, fontSize: 10),
+                ),
+              ),
+            ),
           if (streetInvestment > 0)
             Padding(
               padding: const EdgeInsets.only(top: 4),
