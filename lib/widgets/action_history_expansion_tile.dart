@@ -33,6 +33,22 @@ class ActionHistoryExpansionTile extends StatefulWidget {
 class _ActionHistoryExpansionTileState
     extends State<ActionHistoryExpansionTile> {
   bool _expanded = false;
+  late List<bool> _streetExpanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _streetExpanded = List<bool>.filled(4, true);
+  }
+
+  void _toggleAll() {
+    final shouldExpand = _streetExpanded.any((e) => !e);
+    setState(() {
+      for (var i = 0; i < _streetExpanded.length; i++) {
+        _streetExpanded[i] = shouldExpand;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +66,25 @@ class _ActionHistoryExpansionTileState
           'Show Action History',
           style: TextStyle(color: Colors.white),
         ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(
+                _streetExpanded.every((e) => e)
+                    ? Icons.expand_less
+                    : Icons.expand_more,
+                color: Colors.white,
+              ),
+              onPressed: _toggleAll,
+            ),
+            AnimatedRotation(
+              turns: _expanded ? 0.5 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: const Icon(Icons.expand_more, color: Colors.white),
+            ),
+          ],
+        ),
         textColor: Colors.white,
         iconColor: Colors.white,
         collapsedIconColor: Colors.white,
@@ -64,24 +99,49 @@ class _ActionHistoryExpansionTileState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    streetNames[i],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: () =>
+                        setState(() => _streetExpanded[i] = !_streetExpanded[i]),
+                    child: Row(
+                      children: [
+                        Text(
+                          streetNames[i],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          _streetExpanded[i]
+                              ? Icons.expand_less
+                              : Icons.expand_more,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  StreetActionsList(
-                    street: i,
-                    actions: widget.actions,
-                    pots: widget.pots,
-                    stackSizes: widget.stackSizes,
-                    playerPositions: widget.playerPositions,
-                    onEdit: widget.onEdit,
-                    onDelete: widget.onDelete,
-                    visibleCount: widget.visibleCount,
-                    evaluateActionQuality: widget.evaluateActionQuality,
+                  ClipRect(
+                    child: AnimatedAlign(
+                      alignment: Alignment.topCenter,
+                      duration: const Duration(milliseconds: 300),
+                      heightFactor: _streetExpanded[i] ? 1 : 0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: StreetActionsList(
+                          street: i,
+                          actions: widget.actions,
+                          pots: widget.pots,
+                          stackSizes: widget.stackSizes,
+                          playerPositions: widget.playerPositions,
+                          onEdit: widget.onEdit,
+                          onDelete: widget.onDelete,
+                          visibleCount: widget.visibleCount,
+                          evaluateActionQuality: widget.evaluateActionQuality,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
