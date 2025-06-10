@@ -6,6 +6,7 @@ import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/player_zone_action_entry.dart' as pz;
 import '../services/action_sync_service.dart';
+import '../user_preferences.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
 import 'current_bet_label.dart';
@@ -893,6 +894,7 @@ Future<void> showWinnerSequence(
   Map<String, List<CardModel>>? revealedCardsByPlayer,
   bool showCelebration = true,
 }) async {
+  final prefs = UserPreferences.instance;
   for (final name in playerNames) {
     // Brief delay before showing the highlight.
     await Future.delayed(const Duration(milliseconds: 500));
@@ -900,16 +902,18 @@ Future<void> showWinnerSequence(
 
     // Optionally reveal the winner's cards.
     final cards = revealedCardsByPlayer?[name];
-    if (cards != null) {
+    if (cards != null && prefs.showCardReveal) {
       await Future.delayed(const Duration(milliseconds: 500));
       revealOpponentCards(name, cards);
     }
 
     // Delay slightly longer before moving the pot.
-    await Future.delayed(const Duration(milliseconds: 700));
-    movePotToWinner(context, name);
+    if (prefs.showPotAnimation) {
+      await Future.delayed(const Duration(milliseconds: 700));
+      movePotToWinner(context, name);
+    }
 
-    if (showCelebration) {
+    if (showCelebration && prefs.showWinnerCelebration) {
       await Future.delayed(const Duration(milliseconds: 1000));
       showWinnerCelebration(context, name);
     }

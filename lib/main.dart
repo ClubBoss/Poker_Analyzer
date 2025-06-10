@@ -7,6 +7,8 @@ import 'services/saved_hand_storage_service.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/daily_hand_service.dart';
 import 'services/action_sync_service.dart';
+import 'services/user_preferences_service.dart';
+import 'user_preferences.dart';
 
 void main() {
   runApp(
@@ -16,6 +18,14 @@ void main() {
         ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
         ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
         ChangeNotifierProvider(create: (_) => ActionSyncService()),
+        ChangeNotifierProvider(
+          create: (_) {
+            final service = UserPreferencesService();
+            UserPreferences.init(service);
+            service.load();
+            return service;
+          },
+        ),
       ],
       child: const PokerAIAnalyzerApp(),
     ),
