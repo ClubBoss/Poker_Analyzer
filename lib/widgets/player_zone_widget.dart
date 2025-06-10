@@ -16,6 +16,8 @@ class PlayerZoneWidget extends StatefulWidget {
   final bool isFolded;
   /// Current bet placed by the player.
   final int currentBet;
+  /// Current stack size of the player.
+  final int? stackSize;
   final PlayerType playerType;
   final ValueChanged<PlayerType>? onPlayerTypeChanged;
   final bool isActive;
@@ -24,7 +26,7 @@ class PlayerZoneWidget extends StatefulWidget {
   final String? actionTagText;
   final void Function(int, CardModel) onCardsSelected;
   final double scale;
-  // Stack and editing are handled by PlayerInfoWidget
+  // Stack editing is handled by PlayerInfoWidget
 
   const PlayerZoneWidget({
     Key? key,
@@ -35,6 +37,7 @@ class PlayerZoneWidget extends StatefulWidget {
     required this.isHero,
     required this.isFolded,
     this.currentBet = 0,
+    this.stackSize,
     this.playerType = PlayerType.unknown,
     this.onPlayerTypeChanged,
     required this.onCardsSelected,
@@ -106,6 +109,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final nameStyle = TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
@@ -115,6 +119,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       color: _getPositionColor(widget.position),
       fontSize: 12 * widget.scale,
       fontWeight: FontWeight.bold,
+    );
+    final stackStyle = TextStyle(
+      color: isDark ? Colors.white70 : Colors.black87,
+      fontSize: 12 * widget.scale,
+      fontWeight: FontWeight.w500,
     );
     final tagStyle = TextStyle(color: Colors.white, fontSize: 12 * widget.scale);
 
@@ -155,6 +164,24 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   ),
               ],
             ),
+            if (widget.stackSize != null)
+              Padding(
+                padding: EdgeInsets.only(top: 2.0 * widget.scale),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '🪙',
+                      style: TextStyle(fontSize: 12 * widget.scale),
+                    ),
+                    SizedBox(width: 4 * widget.scale),
+                    Text(
+                      '${widget.stackSize}',
+                      style: stackStyle,
+                    ),
+                  ],
+                ),
+              ),
             if (widget.position != null)
               Padding(
                 padding: EdgeInsets.only(top: 2.0 * widget.scale),
