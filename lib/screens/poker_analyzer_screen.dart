@@ -964,6 +964,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       players[entry.playerIndex].name,
       _formatLastAction(entry),
       _actionColor(entry.action),
+      entry.amount,
     );
     _recalculatePots();
     _recalculateStreetInvestments();
@@ -996,6 +997,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       players[entry.playerIndex].name,
       _formatLastAction(entry),
       _actionColor(entry.action),
+      entry.amount,
     );
     _triggerCenterChip(entry);
     _playActionChipAnimation(entry);

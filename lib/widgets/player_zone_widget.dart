@@ -73,6 +73,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late List<CardModel> _cards;
   String? _actionTagText;
   OverlayEntry? _betEntry;
+  OverlayEntry? _betOverlayEntry;
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
   String? _lastActionText;
@@ -150,7 +151,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
-  void setLastAction(String text, Color color) {
+  void setLastAction(String text, Color color, [int? amount]) {
     _lastActionTimer?.cancel();
     setState(() {
       _lastActionText = text;
@@ -162,6 +163,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         setState(() => _lastActionOpacity = 0.0);
       }
     });
+    if (amount != null) {
+      showBetOverlay(amount, color);
+    }
   }
 
   void _showCardRevealOverlay() {
@@ -198,6 +202,29 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betEntry = entry;
   }
 
+  void showBetOverlay(int amount, Color color) {
+    _betOverlayEntry?.remove();
+    final overlay = Overlay.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _BetAmountOverlay(
+        position: pos,
+        amount: amount,
+        color: color,
+        scale: widget.scale,
+        onCompleted: () {
+          entry.remove();
+          if (_betOverlayEntry == entry) _betOverlayEntry = null;
+        },
+      ),
+    );
+    overlay.insert(entry);
+    _betOverlayEntry = entry;
+  }
+
   Widget _betIndicator(TextStyle style) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 4 * widget.scale),
@@ -218,6 +245,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _highlightTimer?.cancel();
     _lastActionTimer?.cancel();
     _betEntry?.remove();
+    _betOverlayEntry?.remove();
     _controller.dispose();
     super.dispose();
   }
@@ -908,6 +936,102 @@ class _WinnerCelebrationState extends State<_WinnerCelebration>
   }
 }
 
+class _BetAmountOverlay extends StatefulWidget {
+  final Offset position;
+  final int amount;
+  final Color color;
+  final double scale;
+  final VoidCallback? onCompleted;
+
+  const _BetAmountOverlay({
+    Key? key,
+    required this.position,
+    required this.amount,
+    required this.color,
+    this.scale = 1.0,
+    this.onCompleted,
+  }) : super(key: key);
+
+  @override
+  State<_BetAmountOverlay> createState() => _BetAmountOverlayState();
+}
+
+class _BetAmountOverlayState extends State<_BetAmountOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    );
+    _opacity = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0).chain(
+          CurveTween(curve: Curves.easeIn),
+        ),
+        weight: 25,
+      ),
+      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0).chain(
+          CurveTween(curve: Curves.easeOut),
+        ),
+        weight: 25,
+      ),
+    ]).animate(_controller);
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onCompleted?.call();
+      }
+    });
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double radius = 16 * widget.scale;
+    return Positioned(
+      left: widget.position.dx - radius,
+      top: widget.position.dy - radius,
+      child: FadeTransition(
+        opacity: _opacity,
+        child: Container(
+          width: radius * 2,
+          height: radius * 2,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: widget.color.withOpacity(0.9),
+            shape: BoxShape.circle,
+            boxShadow: const [
+              BoxShadow(color: Colors.black45, blurRadius: 4),
+            ],
+          ),
+          child: Text(
+            '${widget.amount}',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14 * widget.scale,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Dark overlay that fades in and out when revealing opponent cards.
 class _CardRevealBackdrop extends StatefulWidget {
   final VoidCallback? onCompleted;
@@ -975,9 +1099,10 @@ void revealOpponentCards(String playerName, List<CardModel> cards) {
 }
 
 /// Sets and displays the last action label for the given player.
-void setPlayerLastAction(String playerName, String text, Color color) {
+void setPlayerLastAction(
+    String playerName, String text, Color color, [int? amount]) {
   final state = _playerZoneRegistry[playerName];
-  state?.setLastAction(text, color);
+  state?.setLastAction(text, color, amount);
 }
 
 /// Reveals cards for multiple opponents at once. Typically called after
