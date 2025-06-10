@@ -1,4 +1,5 @@
 import 'action_model.dart';
+import 'card_model.dart';
 
 /// Different types of players at the table.
 enum PlayerType {
@@ -24,10 +25,12 @@ enum PlayerType {
 class PlayerModel {
   final String name;
   final List<String> cards;
+  /// Known revealed cards for this player, if any.
+  List<CardModel>? revealedCards;
   final Map<String, List<PlayerActionModel>> actions;
   PlayerType type;
 
-  PlayerModel({required this.name, this.type = PlayerType.unknown})
+  PlayerModel({required this.name, this.type = PlayerType.unknown, this.revealedCards})
       : cards = [],
         actions = {
           'Preflop': [],
