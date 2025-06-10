@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import 'card_selector.dart';
+import 'chip_widget.dart';
 
 class PlayerZoneWidget extends StatefulWidget {
   final String playerName;
@@ -9,6 +10,8 @@ class PlayerZoneWidget extends StatefulWidget {
   final List<CardModel> cards;
   final bool isHero;
   final bool isFolded;
+  /// Current bet placed by the player.
+  final int currentBet;
   final PlayerType playerType;
   final ValueChanged<PlayerType>? onPlayerTypeChanged;
   final bool isActive;
@@ -26,6 +29,7 @@ class PlayerZoneWidget extends StatefulWidget {
     required this.cards,
     required this.isHero,
     required this.isFolded,
+    this.currentBet = 0,
     this.playerType = PlayerType.unknown,
     this.onPlayerTypeChanged,
     required this.onCardsSelected,
@@ -44,11 +48,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late PlayerType _playerType;
+  late int _currentBet;
 
   @override
   void initState() {
     super.initState();
     _playerType = widget.playerType;
+    _currentBet = widget.currentBet;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -72,6 +78,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.playerType != oldWidget.playerType) {
       _playerType = widget.playerType;
     }
+    if (widget.currentBet != oldWidget.currentBet) {
+      _currentBet = widget.currentBet;
+    }
+  }
+
+  /// Updates the player's bet value.
+  void updateBet(int bet) {
+    setState(() => _currentBet = bet);
   }
 
   @override
@@ -177,6 +191,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         labelWithIcon,
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          ),
+          child: (!widget.isFolded && _currentBet > 0)
+              ? Padding(
+                  padding: EdgeInsets.only(top: 4 * widget.scale),
+                  child: ChipWidget(amount: _currentBet, scale: widget.scale),
+                )
+              : SizedBox(height: 4 * widget.scale),
+        ),
         SizedBox(height: 4 * widget.scale),
         Opacity(
           opacity: widget.isFolded ? 0.4 : 1.0,
