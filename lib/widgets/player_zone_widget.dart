@@ -688,6 +688,99 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 }
 
+/// Simple fade-in/out "Winner" label displayed over a player zone.
+class _WinnerCelebration extends StatefulWidget {
+  final Offset position;
+  final double scale;
+  final VoidCallback? onCompleted;
+
+  const _WinnerCelebration({
+    Key? key,
+    required this.position,
+    this.scale = 1.0,
+    this.onCompleted,
+  }) : super(key: key);
+
+  @override
+  State<_WinnerCelebration> createState() => _WinnerCelebrationState();
+}
+
+class _WinnerCelebrationState extends State<_WinnerCelebration>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _opacity = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0).chain(
+          CurveTween(curve: Curves.easeIn),
+        ),
+        weight: 30,
+      ),
+      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0).chain(
+          CurveTween(curve: Curves.easeOut),
+        ),
+        weight: 30,
+      ),
+    ]).animate(_controller);
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onCompleted?.call();
+      }
+    });
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: widget.position.dx,
+      top: widget.position.dy,
+      child: FadeTransition(
+        opacity: _opacity,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 8 * widget.scale,
+            vertical: 4 * widget.scale,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.amberAccent.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(12 * widget.scale),
+            boxShadow: const [
+              BoxShadow(color: Colors.black45, blurRadius: 6),
+            ],
+          ),
+          child: Text(
+            'Winner!',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 14 * widget.scale,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Highlights the [PlayerZoneWidget] for the given [playerName].
 /// This should be called before [showWinPotAnimation] to visually
 /// indicate the winner.
@@ -737,6 +830,28 @@ void movePotToWinner(BuildContext context, String playerName) {
   overlay.insert(entry);
 }
 
+/// Displays a short celebratory overlay over the winning player's zone.
+void showWinnerCelebration(BuildContext context, String playerName) {
+  final overlay = Overlay.of(context);
+  final state = _playerZoneRegistry[playerName];
+  if (overlay == null || state == null) return;
+
+  final box = state.context.findRenderObject() as RenderBox?;
+  if (box == null) return;
+
+  final pos = box.localToGlobal(box.size.center(Offset.zero));
+
+  late OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (_) => _WinnerCelebration(
+      position: pos,
+      scale: state.widget.scale,
+      onCompleted: () => entry.remove(),
+    ),
+  );
+  overlay.insert(entry);
+}
+
 /// Runs the full winner reveal animation sequence.
 ///
 /// This will first highlight the player's zone, optionally reveal
@@ -745,6 +860,7 @@ Future<void> showWinnerSequence(
   BuildContext context,
   String playerName, {
   List<CardModel>? cards,
+  bool showCelebration = true,
 }) async {
   // Brief delay before showing the highlight.
   await Future.delayed(const Duration(milliseconds: 500));
@@ -759,5 +875,10 @@ Future<void> showWinnerSequence(
   // Delay slightly longer before moving the pot.
   await Future.delayed(const Duration(milliseconds: 700));
   movePotToWinner(context, playerName);
+
+  if (showCelebration) {
+    await Future.delayed(const Duration(milliseconds: 1000));
+    showWinnerCelebration(context, playerName);
+  }
 }
 
