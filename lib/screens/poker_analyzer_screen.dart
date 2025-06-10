@@ -2790,6 +2790,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           scale: scale * 0.9,
         ),
       ),
+      if (lastAction != null)
+        Positioned(
+          left: centerX + dx - 30 * scale,
+          top: centerY + dy + bias + 90 * scale,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+                horizontal: 6 * scale, vertical: 2 * scale),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              lastAction!.amount != null
+                  ? '${lastAction!.action.toUpperCase()} ${lastAction!.amount}'
+                  : lastAction!.action.toUpperCase(),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12 * scale,
+              ),
+            ),
+          ),
+        ),
       Positioned(
         left: centerX + dx - 20 * scale,
         top: centerY + dy + bias + 60 * scale,
