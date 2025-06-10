@@ -168,9 +168,22 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                     style: const TextStyle(color: Colors.green),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    error.aiExplanation,
-                    style: const TextStyle(color: Colors.white70),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: 'Explanation: ',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextSpan(
+                          text: error.aiExplanation,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ],
