@@ -2653,6 +2653,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           scale: scale * 0.9,
         ),
       ),
+      Positioned(
+        left: centerX + dx - 20 * scale,
+        top: centerY + dy + bias + 60 * scale,
+        child: Container(
+          width: 40 * scale,
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade700,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            position,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10 * scale,
+            ),
+          ),
+        ),
+      ),
       if (lastAction != null)
         Positioned(
           left: centerX + dx + 40 * scale,
