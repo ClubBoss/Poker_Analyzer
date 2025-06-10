@@ -8,6 +8,7 @@ import 'card_selector.dart';
 import 'chip_widget.dart';
 import 'current_bet_label.dart';
 import 'player_stack_label.dart';
+import 'stack_bar_widget.dart';
 
 class PlayerZoneWidget extends StatefulWidget {
   final String playerName;
@@ -27,6 +28,8 @@ class PlayerZoneWidget extends StatefulWidget {
   final bool showHint;
   final String? actionTagText;
   final void Function(int, CardModel) onCardsSelected;
+  /// Starting stack value representing 100% for the stack bar.
+  final int maxStackSize;
   final double scale;
   // Stack editing is handled by PlayerInfoWidget
 
@@ -47,6 +50,7 @@ class PlayerZoneWidget extends StatefulWidget {
     this.highlightLastAction = false,
     this.showHint = false,
     this.actionTagText,
+    this.maxStackSize = 100,
     this.scale = 1.0,
   }) : super(key: key);
 
@@ -289,9 +293,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 ),
               );
             }),
-          ),
         ),
+      ),
         PlayerStackLabel(stack: widget.stackSize, scale: widget.scale),
+        StackBarWidget(
+          stack: widget.stackSize,
+          maxStack: widget.maxStackSize,
+          scale: widget.scale,
+        ),
         CurrentBetLabel(bet: _currentBet, scale: widget.scale),
         if (_actionTagText != null)
           Padding(
