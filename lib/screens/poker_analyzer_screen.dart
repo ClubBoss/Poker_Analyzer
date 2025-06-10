@@ -2558,7 +2558,46 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
         ),
       ),
-      );
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          final data = {
+            'playerCards': [
+              [
+                {'rank': 'A', 'suit': 'h'},
+                {'rank': 'K', 'suit': 'h'},
+              ],
+              [
+                {'rank': 'Q', 'suit': 's'},
+                {'rank': 'Q', 'suit': 'd'},
+              ],
+              [
+                {'rank': 'J', 'suit': 'c'},
+                {'rank': 'J', 'suit': 'd'},
+              ],
+            ],
+            'boardCards': [
+              {'rank': '2', 'suit': 'h'},
+              {'rank': '7', 'suit': 'd'},
+              {'rank': 'T', 'suit': 's'},
+            ],
+            'actions': [
+              {
+                'street': 1,
+                'playerIndex': 0,
+                'action': 'bet',
+                'amount': 40,
+              },
+            ],
+            'positions': ['BTN', 'SB', 'BB'],
+            'heroIndex': 0,
+            'numberOfPlayers': 3,
+          };
+          loadTrainingSpot(data);
+        },
+        child: const Icon(Icons.play_arrow),
+      ),
+    );
   }
 
   List<Widget> _buildPlayerWidgets(int i, double scale) {
