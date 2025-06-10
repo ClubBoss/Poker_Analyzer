@@ -15,6 +15,8 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
   int _currentIndex = 0;
   bool _showCorrect = false;
   String? _selectedAction;
+  int _correctCount = 0;
+  int _totalAnswered = 0;
 
   void _next() {
     setState(() {
@@ -129,6 +131,12 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                       ? null
                       : () {
                           setState(() {
+                            if (!_showCorrect) {
+                              _totalAnswered++;
+                              if (_selectedAction == error.correctAction) {
+                                _correctCount++;
+                              }
+                            }
                             _showCorrect = !_showCorrect;
                           });
                         },
@@ -139,6 +147,12 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                   child: const Text('Next'),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Correct: $_correctCount / $_totalAnswered',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),
