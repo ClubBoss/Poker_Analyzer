@@ -2546,14 +2546,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             position: position,
             stack: stack,
             tag: tag,
-            cards: index == heroIndex
-                ? playerCards[index]
-                : (_showAllRevealedCards || index == opponentIndex)
-                    ? players[index]
+            cards: _showAllRevealedCards &&
+                    players[index]
                         .revealedCards
                         .whereType<CardModel>()
-                        .toList()
-                    : [],
+                        .isNotEmpty
+                ? players[index]
+                    .revealedCards
+                    .whereType<CardModel>()
+                    .toList()
+                : playerCards[index],
             streetInvestment: invested,
             currentBet: currentBet,
             lastAction: lastAction?.action,
@@ -2571,9 +2573,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     playerPositions[index] == 'BB')
                 ? playerPositions[index]
                 : null,
-            onCardTap: index == heroIndex
-                ? (cardIndex) => _onPlayerCardTap(index, cardIndex)
-                : (cardIndex) => _onRevealedCardTap(index, cardIndex),
+            onCardTap: (cardIndex) => _onPlayerCardTap(index, cardIndex),
             onTap: () => setState(() => activePlayerIndex = index),
             onDoubleTap: () => setState(() {
               heroIndex = index;
