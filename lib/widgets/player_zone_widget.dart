@@ -9,6 +9,7 @@ import 'chip_widget.dart';
 import 'current_bet_label.dart';
 import 'player_stack_label.dart';
 import 'stack_bar_widget.dart';
+import 'bet_chip_animation.dart';
 
 class PlayerZoneWidget extends StatefulWidget {
   final String playerName;
@@ -64,6 +65,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late PlayerType _playerType;
   late int _currentBet;
   String? _actionTagText;
+  OverlayEntry? _betEntry;
 
   @override
   void initState() {
@@ -96,6 +98,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     if (widget.currentBet != oldWidget.currentBet) {
       _currentBet = widget.currentBet;
+      if (widget.currentBet > 0 && widget.currentBet > oldWidget.currentBet) {
+        _playBetAnimation(widget.currentBet);
+      }
     }
     if (widget.actionTagText != oldWidget.actionTagText) {
       _actionTagText = widget.actionTagText;
@@ -107,8 +112,30 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     setState(() => _currentBet = bet);
   }
 
+  void _playBetAnimation(int amount) {
+    final overlay = Overlay.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final start = box.localToGlobal(box.size.center(Offset.zero));
+    final media = MediaQuery.of(context).size;
+    final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => BetChipAnimation(
+        start: start,
+        end: end,
+        amount: amount,
+        scale: widget.scale,
+        onCompleted: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
+    _betEntry = entry;
+  }
+
   @override
   void dispose() {
+    _betEntry?.remove();
     _controller.dispose();
     super.dispose();
   }
