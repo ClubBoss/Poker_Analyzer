@@ -63,32 +63,48 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
     Widget body;
     if (completed) {
       final accuracy = _totalAnswered > 0
-          ? (_correctCount * 100 / _totalAnswered).toStringAsFixed(1)
-          : '0';
-      body = Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Summary',
-              style: const TextStyle(color: Colors.white, fontSize: 20),
+          ? _correctCount * 100 / _totalAnswered
+          : 0.0;
+      final message = _correctCount == _totalAnswered
+          ? 'Perfect!'
+          : accuracy >= 80
+              ? 'Great effort!'
+              : 'Keep training!';
+
+      body = Column(
+        children: [
+          const Spacer(),
+          Card(
+            color: const Color(0xFF2A2B2E),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Summary',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Correct: $_correctCount / $_totalAnswered',
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    message,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _restart,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Correct: $_correctCount / $_totalAnswered',
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            Text(
-              'Accuracy: $accuracy%',
-              style: const TextStyle(color: Colors.white70),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _restart,
-              child: const Text('Restart'),
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     } else {
       body = Column(
