@@ -55,6 +55,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int numberOfPlayers = 6;
   final List<List<CardModel>> playerCards = List.generate(10, (_) => []);
   final List<CardModel> boardCards = [];
+  final List<CardModel?> opponentCards = [null, null];
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
   int _playbackIndex = 0;
@@ -560,6 +561,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         cards.removeWhere((c) => c == card);
       }
       boardCards.removeWhere((c) => c == card);
+      _removeFromOpponentCards(card);
       if (playerCards[index].length < 2) {
         playerCards[index].add(card);
       }
@@ -574,6 +576,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         cards.removeWhere((c) => c == selectedCard);
       }
       boardCards.removeWhere((c) => c == selectedCard);
+      _removeFromOpponentCards(selectedCard);
       if (playerCards[index].length > cardIndex) {
         playerCards[index][cardIndex] = selectedCard;
       } else if (playerCards[index].length == cardIndex) {
@@ -588,18 +591,40 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _onOpponentCardTap(int index) async {
+    final selected = await showCardSelector(context);
+    if (selected == null) return;
+    setState(() {
+      for (final cards in playerCards) {
+        cards.removeWhere((c) => c == selected);
+      }
+      boardCards.removeWhere((c) => c == selected);
+      _removeFromOpponentCards(selected);
+      opponentCards[index] = selected;
+    });
+  }
+
   void selectBoardCard(int index, CardModel card) {
     setState(() {
       for (final cards in playerCards) {
         cards.removeWhere((c) => c == card);
       }
       boardCards.removeWhere((c) => c == card);
+      _removeFromOpponentCards(card);
       if (index < boardCards.length) {
         boardCards[index] = card;
       } else if (index == boardCards.length) {
         boardCards.add(card);
       }
     });
+  }
+
+  void _removeFromOpponentCards(CardModel card) {
+    for (int i = 0; i < opponentCards.length; i++) {
+      if (opponentCards[i] == card) {
+        opponentCards[i] = null;
+      }
+    }
   }
 
   int _calculateCallAmount(int playerIndex, {List<ActionEntry>? fromActions}) {
@@ -1132,6 +1157,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           list.clear();
         }
         boardCards.clear();
+        for (int i = 0; i < opponentCards.length; i++) {
+          opponentCards[i] = null;
+        }
         actions.clear();
         currentStreet = 0;
         _pots.fillRange(0, _pots.length, 0);
@@ -1171,6 +1199,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           List<CardModel>.from(playerCards[i])
       ],
       boardCards: List<CardModel>.from(boardCards),
+      opponentCards: List<CardModel?>.from(opponentCards),
       actions: List<ActionEntry>.from(actions),
       stackSizes: Map<int, int>.from(stackSizes),
       playerPositions: Map<int, String>.from(playerPositions),
@@ -1210,6 +1239,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardCards
         ..clear()
         ..addAll(hand.boardCards);
+      opponentCards
+        ..clear()
+        ..addAll(hand.opponentCards.length == 2 ? hand.opponentCards : [null, null]);
       actions
         ..clear()
         ..addAll(hand.actions);
@@ -1945,6 +1977,52 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return Stack(children: items);
   }
 
+  Widget _buildOpponentCardRow(double scale) {
+    return Positioned.fill(
+      child: Align(
+        alignment: const Alignment(0, -0.8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(2, (i) {
+            final card = opponentCards[i];
+            final isRed = card?.suit == '♥' || card?.suit == '♦';
+            return GestureDetector(
+              onTap: () => _onOpponentCardTap(i),
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: 36 * scale,
+                height: 52 * scale,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 3,
+                      offset: const Offset(1, 2),
+                    )
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: card != null
+                    ? Text(
+                        '${card.rank}${card.suit}',
+                        style: TextStyle(
+                          color: isRed ? Colors.red : Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18 * scale,
+                        ),
+                      )
+                    : Image.asset('assets/cards/card_back.png', fit: BoxFit.cover),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -2022,6 +2100,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     onCardSelected: selectBoardCard,
                     visibleActions: visibleActions,
                   ),
+                  _buildOpponentCardRow(scale),
                   for (int i = 0; i < numberOfPlayers; i++) ..._buildPlayerWidgets(i, scale),
                   for (int i = 0; i < numberOfPlayers; i++) ..._buildChipTrail(i, scale),
                     _buildBetStacksOverlay(scale),
