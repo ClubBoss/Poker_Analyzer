@@ -6,6 +6,7 @@ import '../models/player_zone_action_entry.dart' as pz;
 import '../services/action_sync_service.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
+import 'current_bet_label.dart';
 
 class PlayerZoneWidget extends StatefulWidget {
   final String playerName;
@@ -289,6 +290,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             }),
           ),
         ),
+        CurrentBetLabel(bet: _currentBet, scale: widget.scale),
         if (_actionTagText != null)
           Padding(
             padding: EdgeInsets.only(top: 4.0 * widget.scale),
