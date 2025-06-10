@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'poker_analyzer_screen.dart';
+import 'settings_screen.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -20,6 +21,17 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
         backgroundColor: Colors.black,
         title: const Text('Poker AI Analyzer'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
