@@ -68,6 +68,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _controller;
   late PlayerType _playerType;
   late int _currentBet;
+  late List<CardModel> _cards;
   String? _actionTagText;
   OverlayEntry? _betEntry;
   bool _winnerHighlight = false;
@@ -78,6 +79,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     super.initState();
     _playerType = widget.playerType;
     _currentBet = widget.currentBet;
+    _cards = List<CardModel>.from(widget.cards);
     _actionTagText = widget.actionTagText;
     _playerZoneRegistry[widget.playerName] = this;
     _controller = AnimationController(
@@ -107,6 +109,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.playerType != oldWidget.playerType) {
       _playerType = widget.playerType;
     }
+    if (widget.cards != oldWidget.cards) {
+      _cards = List<CardModel>.from(widget.cards);
+    }
     if (widget.currentBet != oldWidget.currentBet) {
       _currentBet = widget.currentBet;
       if (widget.currentBet > 0 && widget.currentBet > oldWidget.currentBet) {
@@ -121,6 +126,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   /// Updates the player's bet value.
   void updateBet(int bet) {
     setState(() => _currentBet = bet);
+  }
+
+  /// Updates the player's visible cards.
+  void updateCards(List<CardModel> cards) {
+    setState(() => _cards = List<CardModel>.from(cards));
   }
 
   void highlightWinner() {
@@ -301,7 +311,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(2, (index) {
-              final card = index < widget.cards.length ? widget.cards[index] : null;
+              final card = index < _cards.length ? _cards[index] : null;
               final isRed = card?.suit == '♥' || card?.suit == '♦';
 
               return GestureDetector(
@@ -328,16 +338,22 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: card != null
-                      ? Text(
-                          '${card.rank}${card.suit}',
-                          style: TextStyle(
-                            color: isRed ? Colors.red : Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18 * widget.scale,
-                          ),
-                        )
-                      : const Icon(Icons.add, color: Colors.grey),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (child, animation) =>
+                        FadeTransition(opacity: animation, child: child),
+                    child: card != null
+                        ? Text(
+                            '${card.rank}${card.suit}',
+                            key: ValueKey('${card.rank}${card.suit}$index'),
+                            style: TextStyle(
+                              color: isRed ? Colors.red : Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18 * widget.scale,
+                            ),
+                          )
+                        : const Icon(Icons.add, color: Colors.grey, key: ValueKey('add')),
+                  ),
                 ),
               );
             }),
@@ -668,5 +684,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 void showWinnerHighlight(BuildContext context, String playerName) {
   final state = _playerZoneRegistry[playerName];
   state?.highlightWinner();
+}
+
+/// Updates and reveals cards for the [PlayerZoneWidget] with the given
+/// [playerName].
+void revealOpponentCards(String playerName, List<CardModel> cards) {
+  final state = _playerZoneRegistry[playerName];
+  state?.updateCards(cards);
+}
+
+/// Reveals cards for multiple opponents at once. Typically called after
+/// [showWinnerHighlight] and before [showWinPotAnimation].
+void showOpponentCards(
+    BuildContext context, Map<String, List<CardModel>> cardsByPlayer) {
+  for (final entry in cardsByPlayer.entries) {
+    revealOpponentCards(entry.key, entry.value);
+  }
 }
 
