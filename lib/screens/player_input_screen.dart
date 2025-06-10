@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'poker_analyzer_screen.dart';
 import 'settings_screen.dart';
+import 'training_packs_screen.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -76,6 +77,31 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                   },
                 ),
               ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                final data = await Navigator.push<Map<String, dynamic>?>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TrainingPacksScreen(),
+                  ),
+                );
+                if (data != null) {
+                  final key = GlobalKey();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PokerAnalyzerScreen(key: key),
+                    ),
+                  );
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final state = key.currentState as dynamic;
+                    state?.loadTrainingSpot(data);
+                  });
+                }
+              },
+              child: const Text('📦 Выбрать тренировку'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
