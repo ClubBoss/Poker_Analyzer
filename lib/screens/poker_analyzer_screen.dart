@@ -10,6 +10,7 @@ import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_display.dart';
 import '../widgets/action_history_overlay.dart';
+import '../widgets/collapsible_action_history.dart';
 import 'package:provider/provider.dart';
 import '../services/saved_hand_storage_service.dart';
 import '../theme/constants.dart';
@@ -2153,6 +2154,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                 ],
               ),
+            ),
+            CollapsibleActionHistory(
+              actions: visibleActions,
+              playerPositions: playerPositions,
             ),
             Expanded(
               child: SingleChildScrollView(
