@@ -97,6 +97,17 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
+                      _selectedAction == error.correctAction
+                          ? '✅ Correct'
+                          : '❌ Mistake',
+                      style: TextStyle(
+                        color: _selectedAction == error.correctAction
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
                       'Correct Action: ${error.correctAction}',
                       style: const TextStyle(color: Colors.green),
                     ),
