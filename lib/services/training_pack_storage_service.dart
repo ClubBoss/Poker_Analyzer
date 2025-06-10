@@ -45,6 +45,18 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> clear() async {
+    _packs.clear();
+    await _persist();
+    notifyListeners();
+  }
+
+  Future<void> removePack(TrainingPack pack) async {
+    _packs.remove(pack);
+    await _persist();
+    notifyListeners();
+  }
+
   Future<File?> exportPack(TrainingPack pack) async {
     final dir = await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();

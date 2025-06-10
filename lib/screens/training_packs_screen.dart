@@ -10,6 +10,8 @@ import '../models/saved_hand.dart';
 import 'training_pack_screen.dart';
 import '../theme/constants.dart';
 import 'create_pack_screen.dart';
+import 'package:provider/provider.dart';
+import '../services/training_pack_storage_service.dart';
 
 class TrainingPacksScreen extends StatefulWidget {
   const TrainingPacksScreen({super.key});
@@ -20,54 +22,25 @@ class TrainingPacksScreen extends StatefulWidget {
 
 class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   String _selectedCategory = 'All';
-  final List<TrainingPack> _packsList = [];
+  String _statusFilter = 'Все';
 
   @override
   void initState() {
     super.initState();
-    _packsList.addAll(_defaultPacks());
+    Future.microtask(
+        () => context.read<TrainingPackStorageService>().load());
   }
 
-  SavedHand _placeholderHand(String name) {
-    return SavedHand(
-      name: name,
-      heroIndex: 0,
-      heroPosition: 'BTN',
-      numberOfPlayers: 6,
-      playerCards: List.generate(6, (_) => []),
-      boardCards: [],
-      actions: [],
-      stackSizes: const {},
-      playerPositions: const {},
-      expectedAction: 'Push',
-      feedbackText: 'При стеке 10BB это стандартный пуш.',
-    );
-  }
-
-  List<TrainingPack> _defaultPacks() {
-    return [
-      TrainingPack(
-        name: 'Push/Fold 10BB',
-        description: 'Решения при стеке 10BB',
-        category: 'Preflop',
-        hands: [_placeholderHand('Push/Fold 10BB')],
-      ),
-      TrainingPack(
-        name: '3-bet без позиции',
-        description: 'Тренировка игры без позиции',
-        category: 'Preflop',
-        hands: [_placeholderHand('3-bet без позиции')],
-      ),
-    ];
-  }
 
   Future<void> _exportAllPacks() async {
-    if (_packsList.isEmpty) return;
+    final service = context.read<TrainingPackStorageService>();
+    final packs = service.packs;
+    if (packs.isEmpty) return;
     final dir = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final fileName = 'packs_\$timestamp.json';
     final file = File('${dir.path}/$fileName');
-    final data = [for (final p in _packsList) p.toJson()];
+    final data = [for (final p in packs) p.toJson()];
     await file.writeAsString(jsonEncode(data));
     await OpenFile.open(file.path);
     if (mounted) {
@@ -90,18 +63,19 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       final content = await file.readAsString();
       final data = jsonDecode(content);
       if (data is List) {
+        final service = context.read<TrainingPackStorageService>();
         final List<TrainingPack> packs = [
           for (final item in data)
             if (item is Map)
               TrainingPack.fromJson(Map<String, dynamic>.from(item))
         ];
         if (packs.isNotEmpty) {
-          setState(() => _packsList.addAll(packs));
+          for (final p in packs) {
+            await service.addPack(p);
+          }
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content:
-                      Text('Импорт завершён: ${packs.length} пакетов')),
+              SnackBar(content: Text('Импорт завершён: ${packs.length} пакетов')),
             );
           }
         }
@@ -111,13 +85,45 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     }
   }
 
+  Widget _buildProgress(TrainingPack pack) {
+    if (pack.history.isEmpty) {
+      return const Text('Не начат',
+          style: TextStyle(color: Colors.white54));
+    }
+    final last = pack.history.last;
+    final progress =
+        last.total > 0 ? last.correct / last.total : 0.0;
+    final percent = (progress * 100).toStringAsFixed(0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LinearProgressIndicator(value: progress),
+        const SizedBox(height: 4),
+        Text('$percent% (${last.correct}/${last.total})',
+            style: const TextStyle(color: Colors.white70)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final packs = _packsList;
+    final service = context.watch<TrainingPackStorageService>();
+    var packs = service.packs;
     final categories = ['All', ...{for (final p in packs) p.category}];
-    final visible = _selectedCategory == 'All'
-        ? packs
-        : packs.where((p) => p.category == _selectedCategory).toList();
+    if (_selectedCategory != 'All') {
+      packs = packs.where((p) => p.category == _selectedCategory).toList();
+    }
+    List<TrainingPack> visible = packs;
+    if (_statusFilter == 'Начатые') {
+      visible = visible.where((p) => p.history.isNotEmpty).toList();
+    } else if (_statusFilter == 'Завершённые') {
+      visible = visible
+          .where((p) =>
+              p.history.isNotEmpty &&
+              p.history.last.total > 0 &&
+              p.history.last.correct == p.history.last.total)
+          .toList();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -155,7 +161,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                 ),
               );
               if (confirm == true) {
-                setState(() => _packsList.clear());
+                final service = context.read<TrainingPackStorageService>();
+                await service.clear();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Все пакеты удалены')),
@@ -170,21 +177,40 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(AppConstants.padding16),
-            child: DropdownButton<String>(
-              value: _selectedCategory,
-              dropdownColor: const Color(0xFF2A2B2E),
-              style: const TextStyle(color: Colors.white),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _selectedCategory = value);
-                }
-              },
-              items: [
-                for (final c in categories)
-                  DropdownMenuItem(
-                    value: c,
-                    child: Text(c),
-                  )
+            child: Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: _selectedCategory,
+                    dropdownColor: const Color(0xFF2A2B2E),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedCategory = value);
+                      }
+                    },
+                    items: [
+                      for (final c in categories)
+                        DropdownMenuItem(value: c, child: Text(c))
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                DropdownButton<String>(
+                  value: _statusFilter,
+                  dropdownColor: const Color(0xFF2A2B2E),
+                  style: const TextStyle(color: Colors.white),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _statusFilter = value);
+                    }
+                  },
+                  items: const [
+                    DropdownMenuItem(value: 'Все', child: Text('Все')),
+                    DropdownMenuItem(value: 'Начатые', child: Text('Начатые')),
+                    DropdownMenuItem(value: 'Завершённые', child: Text('Завершённые')),
+                  ],
+                ),
               ],
             ),
           ),
@@ -216,21 +242,18 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                           child: Text(pack.category,
                               style: const TextStyle(color: Colors.white70)),
                         ),
+                        const SizedBox(height: 8),
+                        _buildProgress(pack),
                       ],
                     ),
                     onTap: () async {
-                      final updated = await Navigator.push(
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => TrainingPackScreen(pack: pack),
                         ),
                       );
-                      if (updated is TrainingPack) {
-                        final idx = _packsList.indexOf(pack);
-                        if (idx != -1) {
-                          setState(() => _packsList[idx] = updated);
-                        }
-                      }
+                      await context.read<TrainingPackStorageService>().load();
                     },
                     onLongPress: () async {
                       final confirm = await showDialog<bool>(
@@ -250,9 +273,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                         ),
                       );
                       if (confirm == true) {
-                        setState(() {
-                          _packsList.remove(pack);
-                        });
+                        final service = context.read<TrainingPackStorageService>();
+                        await service.removePack(pack);
                       }
                     },
                   ),
@@ -270,7 +292,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             MaterialPageRoute(builder: (_) => const CreatePackScreen()),
           );
           if (pack is TrainingPack) {
-            setState(() => _packsList.add(pack));
+            await context.read<TrainingPackStorageService>().addPack(pack);
           }
         },
         child: const Icon(Icons.add),
