@@ -91,6 +91,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Set<int> _expandedHistoryStreets = {};
   final Set<int> _animatedPlayersPerStreet = {};
 
+  ActionEntry? _centerChipAction;
+  bool _showCenterChip = false;
+  Timer? _centerChipTimer;
+  late AnimationController _centerChipController;
+
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -146,6 +151,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   double _radiusModifier() {
     return (1 + (6 - numberOfPlayers) * 0.05).clamp(0.8, 1.2);
+  }
+
+  void _triggerCenterChip(ActionEntry entry) {
+    if (!['bet', 'raise', 'call'].contains(entry.action) || entry.amount == null) {
+      return;
+    }
+    _centerChipTimer?.cancel();
+    _centerChipController.forward(from: 0);
+    setState(() {
+      _centerChipAction = entry;
+      _showCenterChip = true;
+    });
+    _centerChipTimer = Timer(const Duration(milliseconds: 1000), () {
+      if (!mounted) return;
+      _centerChipController.reverse();
+      setState(() {
+        _showCenterChip = false;
+        _centerChipAction = null;
+      });
+    });
   }
 
   String _formatAmount(int amount) {
@@ -503,6 +528,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
+    _centerChipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
     playerPositions = Map.fromIterables(
       List.generate(numberOfPlayers, (i) => i),
       getPositionList(numberOfPlayers),
@@ -752,6 +781,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     _recalculatePots();
     _recalculateStreetInvestments();
+    _triggerCenterChip(entry);
     _updatePlaybackState();
   }
 
@@ -774,6 +804,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
+    _triggerCenterChip(entry);
     _updatePlaybackState();
   }
 
@@ -1657,6 +1688,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void dispose() {
     _activeTimer?.cancel();
     _playbackTimer?.cancel();
+    _centerChipTimer?.cancel();
+    _centerChipController.dispose();
     _commentController.dispose();
     _tagsController.dispose();
     super.dispose();
@@ -1828,6 +1861,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             child: PotDisplayWidget(
               amount: pot,
               scale: scale,
+            ),
+          ),
+        ),
+      ));
+    }
+
+    if (_centerChipAction != null) {
+      items.add(Positioned.fill(
+        child: IgnorePointer(
+          child: Align(
+            alignment: Alignment.center,
+            child: AnimatedOpacity(
+              opacity: _showCenterChip ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: ScaleTransition(
+                scale: _centerChipController,
+                child: ChipAmountWidget(
+                  amount: _centerChipAction!.amount!.toDouble(),
+                  color: _actionColor(_centerChipAction!.action),
+                  scale: scale,
+                ),
+              ),
             ),
           ),
         ),
