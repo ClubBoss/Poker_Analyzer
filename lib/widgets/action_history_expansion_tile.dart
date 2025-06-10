@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+
+import '../models/action_entry.dart';
+import 'street_actions_list.dart';
+
+class ActionHistoryExpansionTile extends StatefulWidget {
+  final List<ActionEntry> actions;
+  final Map<int, String> playerPositions;
+  final List<int> pots;
+  final Map<int, int> stackSizes;
+  final void Function(int, ActionEntry) onEdit;
+  final void Function(int) onDelete;
+  final int visibleCount;
+  final String Function(ActionEntry)? evaluateActionQuality;
+
+  const ActionHistoryExpansionTile({
+    super.key,
+    required this.actions,
+    required this.playerPositions,
+    required this.pots,
+    required this.stackSizes,
+    required this.onEdit,
+    required this.onDelete,
+    required this.visibleCount,
+    this.evaluateActionQuality,
+  });
+
+  @override
+  State<ActionHistoryExpansionTile> createState() =>
+      _ActionHistoryExpansionTileState();
+}
+
+class _ActionHistoryExpansionTileState
+    extends State<ActionHistoryExpansionTile> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black45,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ExpansionTile(
+        initiallyExpanded: _expanded,
+        onExpansionChanged: (v) => setState(() => _expanded = v),
+        title: const Text(
+          'Show Action History',
+          style: TextStyle(color: Colors.white),
+        ),
+        textColor: Colors.white,
+        iconColor: Colors.white,
+        collapsedIconColor: Colors.white,
+        collapsedTextColor: Colors.white,
+        collapsedBackgroundColor: Colors.black45,
+        backgroundColor: Colors.black54,
+        childrenPadding: const EdgeInsets.only(bottom: 8),
+        children: [
+          for (int i = 0; i < 4; i++)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    streetNames[i],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  StreetActionsList(
+                    street: i,
+                    actions: widget.actions,
+                    pots: widget.pots,
+                    stackSizes: widget.stackSizes,
+                    playerPositions: widget.playerPositions,
+                    onEdit: widget.onEdit,
+                    onDelete: widget.onDelete,
+                    visibleCount: widget.visibleCount,
+                    evaluateActionQuality: widget.evaluateActionQuality,
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
