@@ -15,6 +15,7 @@ class PlayerInfoWidget extends StatelessWidget {
   final bool isActive;
   final bool isFolded;
   final bool isHero;
+  final bool isOpponent;
   final String playerTypeIcon;
   /// Text label describing the player's type.
   final String? playerTypeLabel;
@@ -48,6 +49,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.isActive = false,
     this.isFolded = false,
     this.isHero = false,
+    this.isOpponent = false,
     this.playerTypeIcon = '',
     this.playerTypeLabel,
     this.positionLabel,
@@ -135,6 +137,21 @@ class PlayerInfoWidget extends StatelessWidget {
                     ),
                     child: const Text(
                       '🧙‍♂️ Hero',
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                  ),
+                ),
+              if (isOpponent)
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[700],
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      'Opponent',
                       style: TextStyle(color: Colors.white, fontSize: 10),
                     ),
                   ),
