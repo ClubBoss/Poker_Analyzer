@@ -4,11 +4,13 @@ import '../models/action_entry.dart';
 class CollapsibleActionHistory extends StatefulWidget {
   final List<ActionEntry> actions;
   final Map<int, String> playerPositions;
+  final int heroIndex;
 
   const CollapsibleActionHistory({
     super.key,
     required this.actions,
     required this.playerPositions,
+    required this.heroIndex,
   });
 
   @override
@@ -19,6 +21,21 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
     with SingleTickerProviderStateMixin {
   bool _open = false;
   late TabController _controller;
+
+  String _iconForAction(String action) {
+    switch (action) {
+      case 'raise':
+        return '🔼';
+      case 'call':
+        return '📞';
+      case 'fold':
+        return '❌';
+      case 'all-in':
+        return '💀';
+      default:
+        return '';
+    }
+  }
 
   @override
   void initState() {
@@ -53,11 +70,26 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
       itemCount: list.length,
       itemBuilder: (_, i) {
         final a = list[i];
-        final pos = widget.playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
+        final pos =
+            widget.playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
         final size = a.amount != null ? ' ${a.amount}' : '';
-        return Text('$pos ${a.action}$size', style: const TextStyle(color: Colors.white));
+        final style = TextStyle(
+          color: Colors.white,
+          fontWeight:
+              a.playerIndex == widget.heroIndex ? FontWeight.bold : null,
+        );
+        return Row(
+          children: [
+            Text(_iconForAction(a.action), style: style),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text('$pos ${a.action}$size', style: style),
+            ),
+          ],
+        );
       },
-      separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white24),
+      separatorBuilder: (_, __) =>
+          const Divider(height: 1, color: Colors.white24),
     );
   }
 
