@@ -101,6 +101,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _centerChipTimer;
   late AnimationController _centerChipController;
   bool _showAllRevealedCards = false;
+  bool isPerspectiveSwitched = false;
 
 
   List<String> _positionsForPlayers(int count) {
@@ -159,6 +160,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return (1 + (6 - numberOfPlayers) * 0.05).clamp(0.8, 1.2);
   }
 
+  int _viewIndex() {
+    if (isPerspectiveSwitched && opponentIndex != null) {
+      return opponentIndex!;
+    }
+    return heroIndex;
+  }
+
   void _triggerCenterChip(ActionEntry entry) {
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
@@ -196,7 +204,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusMod = _radiusModifier();
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-    final i = (entry.playerIndex - heroIndex + numberOfPlayers) % numberOfPlayers;
+    final i =
+        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
@@ -1829,7 +1838,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final List<Widget> chips = [];
     for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + heroIndex) % numberOfPlayers;
+      final index = (i + _viewIndex()) % numberOfPlayers;
       final playerActions = actions
           .where((a) => a.playerIndex == index && a.street == currentStreet)
           .toList();
@@ -1866,7 +1875,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final List<Widget> chips = [];
     for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + heroIndex) % numberOfPlayers;
+      final index = (i + _viewIndex()) % numberOfPlayers;
       final invested = actions
           .where((a) =>
               a.playerIndex == index &&
@@ -1920,7 +1929,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final List<Widget> chips = [];
     for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + heroIndex) % numberOfPlayers;
+      final index = (i + _viewIndex()) % numberOfPlayers;
       final invested = actions
           .where((a) =>
               a.playerIndex == index &&
@@ -2012,7 +2021,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + heroIndex) % numberOfPlayers;
+      final index = (i + _viewIndex()) % numberOfPlayers;
       final playerActions = actions
           .where((a) => a.playerIndex == index && a.street == currentStreet)
           .toList();
@@ -2198,11 +2207,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   for (int i = 0; i < numberOfPlayers; i++) ..._buildChipTrail(i, scale),
                     _buildBetStacksOverlay(scale),
                     _buildInvestedChipsOverlay(scale),
-                    _buildPotAndBetsOverlay(scale),
-                    ActionHistoryOverlay(
-                      actions: actions,
-                      playbackIndex: _playbackIndex,
-                      playerPositions: playerPositions,
+                  _buildPotAndBetsOverlay(scale),
+                  ActionHistoryOverlay(
+                    actions: actions,
+                    playbackIndex: _playbackIndex,
+                    playerPositions: playerPositions,
                       expandedStreets: _expandedHistoryStreets,
                       onToggleStreet: (index) {
                         setState(() {
@@ -2213,7 +2222,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           }
                         });
                       },
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: TextButton(
+                      onPressed: () => setState(
+                          () => isPerspectiveSwitched = !isPerspectiveSwitched),
+                      child: const Text(
+                        '👁 Смотреть от лица',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
+                  ),
                   Align(
                   alignment: Alignment.topRight,
                   child: HudOverlay(
@@ -2445,7 +2466,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
 
-    final index = (i + heroIndex) % numberOfPlayers;
+    final index = (i + _viewIndex()) % numberOfPlayers;
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
@@ -2692,7 +2713,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final visibleActions = actions.take(_playbackIndex).toList();
 
-    final index = (i + heroIndex) % numberOfPlayers;
+    final index = (i + _viewIndex()) % numberOfPlayers;
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
