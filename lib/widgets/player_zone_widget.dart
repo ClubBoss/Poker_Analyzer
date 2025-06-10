@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
@@ -77,6 +78,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late PlayerType _playerType;
   late int _currentBet;
   late List<CardModel> _cards;
+  int? _stack;
   String? _actionTagText;
   OverlayEntry? _betEntry;
   OverlayEntry? _betOverlayEntry;
@@ -94,6 +96,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _currentBet = widget.currentBet;
     _cards = List<CardModel>.from(widget.cards);
     _actionTagText = widget.actionTagText;
+    _stack = widget.stackSize ??
+        (widget.stackSizes != null && widget.playerIndex != null
+            ? widget.stackSizes![widget.playerIndex!]
+            : null);
     _playerZoneRegistry[widget.playerName] = this;
     _controller = AnimationController(
       vsync: this,
@@ -133,6 +139,17 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     if (widget.actionTagText != oldWidget.actionTagText) {
       _actionTagText = widget.actionTagText;
+    }
+    final int? oldStack = oldWidget.stackSize ??
+        (oldWidget.stackSizes != null && oldWidget.playerIndex != null
+            ? oldWidget.stackSizes![oldWidget.playerIndex!]
+            : null);
+    final int? newStack = widget.stackSize ??
+        (widget.stackSizes != null && widget.playerIndex != null
+            ? widget.stackSizes![widget.playerIndex!]
+            : null);
+    if (newStack != oldStack) {
+      setState(() => _stack = newStack);
     }
   }
 
@@ -231,6 +248,54 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betOverlayEntry = entry;
   }
 
+  Future<void> _editStack() async {
+    final controller = TextEditingController(text: _stack?.toString() ?? '');
+    int? value = _stack;
+    final result = await showDialog<int>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: Colors.black.withOpacity(0.3),
+          title: const Text(
+            'Edit Stack',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white10,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              hintText: 'Enter stack in BB',
+              hintStyle: const TextStyle(color: Colors.white70),
+            ),
+            onChanged: (text) => setState(() => value = int.tryParse(text)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed:
+                  value != null && value! > 0 ? () => Navigator.pop(context, value) : null,
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result != null && result > 0) {
+      setState(() => _stack = result);
+    }
+  }
+
   Widget _betIndicator(TextStyle style) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 4 * widget.scale),
@@ -297,10 +362,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final int? stack = widget.stackSize ??
-        (widget.stackSizes != null && widget.playerIndex != null
-            ? widget.stackSizes![widget.playerIndex!]
-            : null);
+    final int? stack = _stack;
     final nameStyle = TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
@@ -507,7 +569,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           ),
         ),
       ),
-        PlayerStackLabel(stack: stack, scale: widget.scale),
+        GestureDetector(
+          onLongPress: _editStack,
+          child: PlayerStackLabel(stack: stack, scale: widget.scale),
+        ),
         StackBarWidget(
           stack: stack,
           maxStack: widget.maxStackSize,
