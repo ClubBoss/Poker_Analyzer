@@ -884,31 +884,35 @@ void showWinnerCelebration(BuildContext context, String playerName) {
 
 /// Runs the full winner reveal animation sequence.
 ///
-/// This will first highlight the player's zone, optionally reveal
-/// their cards, and finally move the pot to the winner.
+/// Each winner will be highlighted, their cards revealed if provided, and
+/// the pot will be moved to them sequentially. Winner celebrations are also
+/// shown one after another when [showCelebration] is true.
 Future<void> showWinnerSequence(
   BuildContext context,
-  String playerName, {
-  List<CardModel>? cards,
+  List<String> playerNames, {
+  Map<String, List<CardModel>>? revealedCardsByPlayer,
   bool showCelebration = true,
 }) async {
-  // Brief delay before showing the highlight.
-  await Future.delayed(const Duration(milliseconds: 500));
-  showWinnerHighlight(context, playerName);
-
-  // Optionally reveal the winner's cards.
-  if (cards != null) {
+  for (final name in playerNames) {
+    // Brief delay before showing the highlight.
     await Future.delayed(const Duration(milliseconds: 500));
-    revealOpponentCards(playerName, cards);
-  }
+    showWinnerHighlight(context, name);
 
-  // Delay slightly longer before moving the pot.
-  await Future.delayed(const Duration(milliseconds: 700));
-  movePotToWinner(context, playerName);
+    // Optionally reveal the winner's cards.
+    final cards = revealedCardsByPlayer?[name];
+    if (cards != null) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      revealOpponentCards(name, cards);
+    }
 
-  if (showCelebration) {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    showWinnerCelebration(context, playerName);
+    // Delay slightly longer before moving the pot.
+    await Future.delayed(const Duration(milliseconds: 700));
+    movePotToWinner(context, name);
+
+    if (showCelebration) {
+      await Future.delayed(const Duration(milliseconds: 1000));
+      showWinnerCelebration(context, name);
+    }
   }
 }
 
