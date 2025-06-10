@@ -1396,113 +1396,88 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// - `stacks`: optional list of stack sizes.
   void loadTrainingSpot(Map<String, dynamic> data) {
     final pcData = data['playerCards'] as List? ?? [];
-    final parsedPlayerCards = <List<CardModel>>[];
-    for (final list in pcData) {
-      final cards = <CardModel>[];
+    final newCards =
+        List.generate(playerCards.length, (_) => <CardModel>[]);
+    for (var i = 0; i < pcData.length && i < playerCards.length; i++) {
+      final list = pcData[i];
       if (list is List) {
-        for (final c in list) {
-          if (c is Map) {
-            cards.add(
-                CardModel(rank: c['rank'] as String, suit: c['suit'] as String));
+        for (var j = 0; j < list.length && j < 2; j++) {
+          final cardMap = list[j];
+          if (cardMap is Map) {
+            newCards[i].add(CardModel(
+              rank: cardMap['rank'] as String,
+              suit: cardMap['suit'] as String,
+            ));
           }
         }
       }
-      parsedPlayerCards.add(cards);
     }
 
     final boardData = data['boardCards'] as List? ?? [];
-    final parsedBoard = <CardModel>[for (final c in boardData)
-      if (c is Map)
-        CardModel(rank: c['rank'] as String, suit: c['suit'] as String)
-    ];
+    final newBoard = <CardModel>[];
+    for (final c in boardData) {
+      if (c is Map) {
+        newBoard.add(
+          CardModel(rank: c['rank'] as String, suit: c['suit'] as String),
+        );
+      }
+    }
 
     final actionsData = data['actions'] as List? ?? [];
-    final parsedActions = <ActionEntry>[for (final a in actionsData)
-      if (a is Map)
-        ActionEntry(a['street'] as int, a['playerIndex'] as int,
-            a['action'] as String,
-            amount: (a['amount'] as num?)?.toInt())
-    ];
+    final newActions = <ActionEntry>[];
+    for (final a in actionsData) {
+      if (a is Map) {
+        newActions.add(ActionEntry(
+          a['street'] as int,
+          a['playerIndex'] as int,
+          a['action'] as String,
+          amount: (a['amount'] as num?)?.toInt(),
+        ));
+      }
+    }
 
     final newHeroIndex = data['heroIndex'] as int? ?? 0;
-    final newPlayerCount = data['numberOfPlayers'] as int? ?? parsedPlayerCards.length;
+    final newPlayerCount =
+        data['numberOfPlayers'] as int? ?? pcData.length;
 
-    final positionsList = [for (final p in (data['positions'] as List? ?? [])) p as String];
-    final newHeroPos = newHeroIndex < positionsList.length
-        ? positionsList[newHeroIndex]
-        : (positionsList.isNotEmpty ? positionsList.last : 'BTN');
-    final posMap = <int, String>{};
-    for (int i = 0; i < positionsList.length; i++) {
-      posMap[i] = positionsList[i];
-    }
-
-    final typesList = data['playerTypes'] as List?;
-    final typeMap = <int, PlayerType>{};
-    if (typesList != null) {
-      for (int i = 0; i < typesList.length; i++) {
-        final t = typesList[i];
-        if (t is String) {
-          typeMap[i] = PlayerType.values.firstWhere(
-              (e) => e.name == t,
-              orElse: () => PlayerType.unknown);
-        }
-      }
-    }
-
-    final stacksList = data['stacks'] as List?;
-    final stackMap = <int, int>{};
-    if (stacksList != null) {
-      for (int i = 0; i < stacksList.length; i++) {
-        final s = stacksList[i];
-        if (s is num) stackMap[i] = s.toInt();
-      }
+    final posList = (data['positions'] as List?)?.cast<String>() ?? [];
+    final heroPos =
+        newHeroIndex < posList.length ? posList[newHeroIndex] : _heroPosition;
+    final newPositions = <int, String>{};
+    for (var i = 0; i < posList.length; i++) {
+      newPositions[i] = posList[i];
     }
 
     setState(() {
+      heroIndex = newHeroIndex;
+      numberOfPlayers = newPlayerCount;
+      _heroPosition = heroPos;
+
       for (final list in playerCards) {
         list.clear();
       }
-      for (int i = 0; i < parsedPlayerCards.length; i++) {
-        playerCards[i].addAll(parsedPlayerCards[i]);
-      }
-      boardCards
-        ..clear()
-        ..addAll(parsedBoard);
-      for (final p in players) {
-        p.revealedCards.fillRange(0, p.revealedCards.length, null);
+      for (var i = 0; i < newCards.length; i++) {
+        playerCards[i].addAll(newCards[i]);
       }
 
-      heroIndex = newHeroIndex;
-      numberOfPlayers = newPlayerCount;
-      _heroPosition = newHeroPos;
+      boardCards
+        ..clear()
+        ..addAll(newBoard);
 
       actions
         ..clear()
-        ..addAll(parsedActions);
-
-      stackSizes
-        ..clear()
-        ..addAll(stackMap);
+        ..addAll(newActions);
 
       playerPositions
         ..clear()
-        ..addAll(posMap);
+        ..addAll(newPositions);
 
-      playerTypes
-        ..clear()
-        ..addAll(typeMap.isNotEmpty
-            ? typeMap
-            : {for (final k in posMap.keys) k: PlayerType.unknown});
-
-      opponentIndex = null;
-      _commentController.clear();
-      _tagsController.clear();
-      _recalculatePots();
-      _recalculateStreetInvestments();
       currentStreet = 0;
       _playbackIndex = 0;
-      _animatedPlayersPerStreet.clear();
+      _recalculatePots();
+      _recalculateStreetInvestments();
       _updatePlaybackState();
+      _updatePositions();
     });
   }
 
