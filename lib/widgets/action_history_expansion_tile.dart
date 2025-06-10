@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/action_entry.dart';
 import 'street_actions_list.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 
 class ActionHistoryExpansionTile extends StatefulWidget {
   final List<ActionEntry> actions;
@@ -96,12 +97,13 @@ class _ActionHistoryExpansionTileState
           for (int i = 0; i < 4; i++)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () =>
-                        setState(() => _streetExpanded[i] = !_streetExpanded[i]),
+              child: StickyHeader(
+                header: GestureDetector(
+                  onTap: () =>
+                      setState(() => _streetExpanded[i] = !_streetExpanded[i]),
+                  child: Container(
+                    color: Colors.black54,
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Row(
                       children: [
                         Text(
@@ -122,28 +124,28 @@ class _ActionHistoryExpansionTileState
                       ],
                     ),
                   ),
-                  ClipRect(
-                    child: AnimatedAlign(
-                      alignment: Alignment.topCenter,
-                      duration: const Duration(milliseconds: 300),
-                      heightFactor: _streetExpanded[i] ? 1 : 0,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: StreetActionsList(
-                          street: i,
-                          actions: widget.actions,
-                          pots: widget.pots,
-                          stackSizes: widget.stackSizes,
-                          playerPositions: widget.playerPositions,
-                          onEdit: widget.onEdit,
-                          onDelete: widget.onDelete,
-                          visibleCount: widget.visibleCount,
-                          evaluateActionQuality: widget.evaluateActionQuality,
-                        ),
+                ),
+                content: ClipRect(
+                  child: AnimatedAlign(
+                    alignment: Alignment.topCenter,
+                    duration: const Duration(milliseconds: 300),
+                    heightFactor: _streetExpanded[i] ? 1 : 0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: StreetActionsList(
+                        street: i,
+                        actions: widget.actions,
+                        pots: widget.pots,
+                        stackSizes: widget.stackSizes,
+                        playerPositions: widget.playerPositions,
+                        onEdit: widget.onEdit,
+                        onDelete: widget.onDelete,
+                        visibleCount: widget.visibleCount,
+                        evaluateActionQuality: widget.evaluateActionQuality,
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
             ),
         ],
