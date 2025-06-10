@@ -1817,7 +1817,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       items.add(Positioned.fill(
         child: IgnorePointer(
           child: Align(
-            alignment: const Alignment(0, -0.25),
+            alignment: Alignment.center,
             child: PotDisplayWidget(
               amount: pot,
               scale: scale,
