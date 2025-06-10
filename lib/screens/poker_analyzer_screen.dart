@@ -29,6 +29,7 @@ import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
 import '../widgets/bet_stack_chips.dart';
+import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
@@ -1863,6 +1864,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             action: lastAction.action,
             amount: lastAction.amount!,
             scale: scale,
+          ),
+        ));
+        final stackPos = Offset.lerp(start, end, 0.15)!;
+        final stackScale = scale * 0.7;
+        items.add(Positioned(
+          left: stackPos.dx - 6 * stackScale,
+          top: stackPos.dy - 12 * stackScale,
+          child: ChipStackWidget(
+            amount: lastAction.amount!,
+            scale: stackScale,
+            color: _actionColor(lastAction.action),
           ),
         ));
       }
