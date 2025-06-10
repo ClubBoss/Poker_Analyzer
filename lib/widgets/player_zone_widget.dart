@@ -49,12 +49,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _controller;
   late PlayerType _playerType;
   late int _currentBet;
+  String? _actionTagText;
 
   @override
   void initState() {
     super.initState();
     _playerType = widget.playerType;
     _currentBet = widget.currentBet;
+    _actionTagText = widget.actionTagText;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -80,6 +82,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     if (widget.currentBet != oldWidget.currentBet) {
       _currentBet = widget.currentBet;
+    }
+    if (widget.actionTagText != oldWidget.actionTagText) {
+      _actionTagText = widget.actionTagText;
     }
   }
 
@@ -252,7 +257,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             }),
           ),
         ),
-        if (widget.actionTagText != null)
+        if (_actionTagText != null)
           Padding(
             padding: EdgeInsets.only(top: 4.0 * widget.scale),
             child: Container(
@@ -262,7 +267,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 borderRadius: BorderRadius.circular(10 * widget.scale),
               ),
               child: Text(
-                widget.actionTagText!,
+                _actionTagText!,
                 style: tagStyle,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -324,6 +329,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onLongPress: _showPlayerTypeDialog,
+      onTap: _handleTap,
       child: result,
     );
   }
@@ -412,5 +418,131 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       widget.onPlayerTypeChanged?.call(result);
     }
   }
+
+  Future<void> _handleTap() async {
+    if (widget.isFolded) return;
+    final result = await _showActionSheet();
+    if (result == null) return;
+    final String action = result['action'] as String;
+    final int? amount = result['amount'] as int?;
+    setState(() {
+      _actionTagText = amount != null
+          ? '${_capitalize(action)} $amount'
+          : _capitalize(action);
+      if (amount != null) {
+        _currentBet = amount;
+      }
+    });
+  }
+
+  Future<Map<String, dynamic>?> _showActionSheet() {
+    final TextEditingController controller = TextEditingController();
+    String? selected;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) {
+          final bool needAmount = selected == 'bet' || selected == 'raise';
+          return Padding(
+            padding: MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, {'action': 'fold'}),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? Colors.black87 : Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Fold'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, {'action': 'check'}),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? Colors.black87 : Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Check'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, {'action': 'call'}),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? Colors.black87 : Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Call'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => setModal(() => selected = 'bet'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? Colors.black87 : Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Bet'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => setModal(() => selected = 'raise'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark ? Colors.black87 : Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Raise'),
+                ),
+                if (needAmount) ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: isDark ? Colors.white10 : Colors.black12,
+                      hintText: 'Amount',
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      final int? amt = int.tryParse(controller.text);
+                      if (amt != null) {
+                        Navigator.pop(ctx, {
+                          'action': selected,
+                          'amount': amt,
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          isDark ? Colors.blueGrey : Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Confirm'),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    ).whenComplete(controller.dispose);
+  }
+
+  String _capitalize(String s) =>
+      s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 }
 
