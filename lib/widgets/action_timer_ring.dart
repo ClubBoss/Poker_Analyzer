@@ -9,6 +9,7 @@ class ActionTimerRing extends StatefulWidget {
   final Duration duration;
   final VoidCallback? onTimeExpired;
   final double thickness;
+  final bool showCountdownText;
 
   const ActionTimerRing({
     super.key,
@@ -17,6 +18,7 @@ class ActionTimerRing extends StatefulWidget {
     this.duration = const Duration(seconds: 10),
     this.onTimeExpired,
     this.thickness = 4,
+    this.showCountdownText = true,
   });
 
   @override
@@ -77,7 +79,7 @@ class _ActionTimerRingState extends State<ActionTimerRing>
       builder: (context, child) {
         final progress = 1.0 - _controller.value;
         final color = _color.value ?? Colors.green;
-        return CustomPaint(
+        final ring = CustomPaint(
           foregroundPainter: _RingPainter(
             progress: progress,
             color: color,
@@ -85,6 +87,24 @@ class _ActionTimerRingState extends State<ActionTimerRing>
           ),
           child: child,
         );
+        if (widget.showCountdownText && widget.isActive) {
+          final remainingSeconds =
+              (widget.duration.inSeconds * progress).ceil();
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              ring,
+              Text(
+                '$remainingSeconds',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          );
+        }
+        return ring;
       },
       child: widget.child,
     );
