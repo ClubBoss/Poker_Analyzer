@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'chip_widget.dart';
 
 /// Displays the current pot amount with a label and animates changes.
 class PotDisplayWidget extends StatefulWidget {
@@ -49,56 +50,36 @@ class _PotDisplayWidgetState extends State<PotDisplayWidget>
     super.dispose();
   }
 
-  String _formatAmount(int amount) {
-    final digits = amount.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < digits.length; i++) {
-      if (i > 0 && (digits.length - i) % 3 == 0) {
-        buffer.write(' ');
-      }
-      buffer.write(digits[i]);
-    }
-    return buffer.toString();
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (widget.amount <= 0) return const SizedBox.shrink();
+
     return ScaleTransition(
       scale: Tween<double>(begin: 1, end: 1.1).animate(
         CurvedAnimation(parent: _scaleController, curve: Curves.easeOut),
       ),
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(end: widget.amount.toDouble()),
+      child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
-        builder: (context, value, child) {
-          final text = 'Pot ${_formatAmount(value.round())}';
-          return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(scale: animation, child: child),
-            ),
-            child: Container(
-              key: ValueKey(text),
-              padding: EdgeInsets.symmetric(
-                horizontal: 12 * widget.scale,
-                vertical: 6 * widget.scale,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.black45,
-                borderRadius: BorderRadius.circular(12 * widget.scale),
-              ),
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16 * widget.scale,
-                  fontWeight: FontWeight.w600,
-                ),
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(scale: animation, child: child),
+        ),
+        child: Column(
+          key: ValueKey(widget.amount),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ChipWidget(amount: widget.amount, scale: widget.scale * 1.3),
+            SizedBox(height: 4 * widget.scale),
+            Text(
+              'Pot',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14 * widget.scale,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
