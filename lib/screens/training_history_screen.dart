@@ -15,7 +15,7 @@ class TrainingHistoryScreen extends StatefulWidget {
 
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   final List<TrainingResult> _history = [];
-  double _averageAccuracy = 0.0;
+  int _filterDays = 7;
 
   @override
   void initState() {
@@ -48,12 +48,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _history
         ..clear()
         ..addAll(loaded.reversed);
-      _averageAccuracy = _history.isNotEmpty
-          ? _history
-                  .map((e) => e.accuracy)
-                  .reduce((a, b) => a + b) /
-              _history.length
-          : 0.0;
     });
   }
 
@@ -62,14 +56,24 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.remove('training_history');
     setState(() {
       _history.clear();
-      _averageAccuracy = 0.0;
     });
   }
 
-  Widget _buildAccuracyChart() {
-    if (_history.length < 2) return const SizedBox.shrink();
+  List<TrainingResult> _getFilteredHistory() {
+    final cutoff = DateTime.now().subtract(Duration(days: _filterDays));
+    return _history.where((r) => r.date.isAfter(cutoff)).toList();
+  }
 
-    final sessions = [..._history]..sort((a, b) => a.date.compareTo(b.date));
+  double _calculateAverageAccuracy(List<TrainingResult> list) {
+    if (list.isEmpty) return 0.0;
+    final sum = list.map((e) => e.accuracy).reduce((a, b) => a + b);
+    return sum / list.length;
+  }
+
+  Widget _buildAccuracyChart(List<TrainingResult> sessions) {
+    if (sessions.length < 2) return const SizedBox.shrink();
+
+    sessions = [...sessions]..sort((a, b) => a.date.compareTo(b.date));
     final spots = <FlSpot>[];
     for (var i = 0; i < sessions.length; i++) {
       spots.add(FlSpot(i.toDouble(), sessions[i].accuracy));
@@ -179,18 +183,51 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'Average Accuracy: ${_averageAccuracy.toStringAsFixed(1)}%',
-                    style: const TextStyle(color: Colors.white),
+                  child: Row(
+                    children: [
+                      const Text('Show:', style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 8),
+                      DropdownButton<int>(
+                        value: _filterDays,
+                        dropdownColor: const Color(0xFF2A2B2E),
+                        style: const TextStyle(color: Colors.white),
+                        items: const [
+                          DropdownMenuItem(value: 7, child: Text('7 days')),
+                          DropdownMenuItem(value: 30, child: Text('30 days')),
+                          DropdownMenuItem(value: 90, child: Text('90 days')),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              _filterDays = value;
+                            });
+                          }
+                        },
+                      ),
+                      const Spacer(),
+                      Builder(builder: (context) {
+                        final filtered = _getFilteredHistory();
+                        final avg = _calculateAverageAccuracy(filtered);
+                        return Text(
+                          'Average Accuracy: ${avg.toStringAsFixed(1)}%',
+                          style: const TextStyle(color: Colors.white),
+                        );
+                      })
+                    ],
                   ),
                 ),
-                _buildAccuracyChart(),
+                Builder(builder: (context) {
+                  final filtered = _getFilteredHistory();
+                  return _buildAccuracyChart(filtered);
+                }),
                 Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemBuilder: (context, index) {
-                      final result = _history[index];
-                      final accuracy = result.accuracy.toStringAsFixed(1);
+                  child: Builder(builder: (context) {
+                    final filtered = _getFilteredHistory();
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemBuilder: (context, index) {
+                        final result = filtered[index];
+                        final accuracy = result.accuracy.toStringAsFixed(1);
                       return Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFF2A2B2E),
@@ -211,10 +248,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           ),
                         ),
                       );
-                    },
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemCount: _history.length,
-                  ),
+                      },
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemCount: filtered.length,
+                    );
+                  }),
                 ),
               ],
             ),
