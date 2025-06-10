@@ -709,6 +709,7 @@ class _WinnerCelebrationState extends State<_WinnerCelebration>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _opacity;
+  late final Animation<double> _scale;
 
   @override
   void initState() {
@@ -730,6 +731,21 @@ class _WinnerCelebrationState extends State<_WinnerCelebration>
           CurveTween(curve: Curves.easeOut),
         ),
         weight: 30,
+      ),
+    ]).animate(_controller);
+
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.8, end: 1.2).chain(
+          CurveTween(curve: Curves.easeOut),
+        ),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.2, end: 1.0).chain(
+          CurveTween(curve: Curves.easeIn),
+        ),
+        weight: 50,
       ),
     ]).animate(_controller);
 
@@ -755,24 +771,38 @@ class _WinnerCelebrationState extends State<_WinnerCelebration>
       top: widget.position.dy,
       child: FadeTransition(
         opacity: _opacity,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 8 * widget.scale,
-            vertical: 4 * widget.scale,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.amberAccent.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(12 * widget.scale),
-            boxShadow: const [
-              BoxShadow(color: Colors.black45, blurRadius: 6),
-            ],
-          ),
-          child: Text(
-            'Winner!',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 14 * widget.scale,
+        child: ScaleTransition(
+          scale: _scale,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 8 * widget.scale,
+              vertical: 4 * widget.scale,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.amberAccent.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12 * widget.scale),
+              boxShadow: const [
+                BoxShadow(color: Colors.black45, blurRadius: 6),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.emoji_events,
+                  size: 16 * widget.scale,
+                  color: Colors.black,
+                ),
+                SizedBox(width: 4 * widget.scale),
+                Text(
+                  'Winner!',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14 * widget.scale,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
