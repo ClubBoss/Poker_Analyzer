@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
+import '../models/player_zone_action_entry.dart' as pz;
+import '../services/action_sync_service.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
 
 class PlayerZoneWidget extends StatefulWidget {
   final String playerName;
+  final String street;
   final String? position;
   final List<CardModel> cards;
   final bool isHero;
@@ -25,6 +29,7 @@ class PlayerZoneWidget extends StatefulWidget {
   const PlayerZoneWidget({
     Key? key,
     required this.playerName,
+    required this.street,
     this.position,
     required this.cards,
     required this.isHero,
@@ -433,6 +438,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         _currentBet = amount;
       }
     });
+    final sync = context.read<ActionSyncService>();
+    sync.addOrUpdate(pz.ActionEntry(
+      playerName: widget.playerName,
+      street: widget.street,
+      action: action,
+      amount: amount,
+    ));
   }
 
   Future<Map<String, dynamic>?> _showActionSheet() {
