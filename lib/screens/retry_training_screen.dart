@@ -116,6 +116,20 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: widget.errors.isNotEmpty
+                ? _totalAnswered / widget.errors.length
+                : 0,
+            backgroundColor: Colors.white24,
+            valueColor: const AlwaysStoppedAnimation(Colors.green),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$_totalAnswered of ${widget.errors.length} completed',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(16),
