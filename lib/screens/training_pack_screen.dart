@@ -4,6 +4,7 @@ import 'package:open_file/open_file.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:file_picker/file_picker.dart';
 import '../helpers/date_utils.dart';
+import 'package:provider/provider.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -14,6 +15,7 @@ import '../models/saved_hand.dart';
 import '../models/session_task_result.dart';
 import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
+import '../services/training_pack_storage_service.dart';
 
 class _ResultEntry {
   final String name;
@@ -295,6 +297,22 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
             },
           ),
         ),
+      );
+    }
+  }
+
+  Future<void> _importPackFromFile() async {
+    final service =
+        Provider.of<TrainingPackStorageService>(context, listen: false);
+    final pack = await service.importPack();
+    if (!mounted) return;
+    if (pack == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ошибка загрузки пакета')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Пакет "${pack.name}" загружен')),
       );
     }
   }
@@ -607,6 +625,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: _editPack,
+            ),
+            IconButton(
+              icon: const Icon(Icons.file_download),
+              tooltip: 'Импорт пакета',
+              onPressed: _importPackFromFile,
             ),
           ],
         ),
