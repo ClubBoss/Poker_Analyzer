@@ -3,13 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/main_menu_screen.dart';
-import 'services/saved_hand_service.dart';
+import 'services/saved_hand_storage_service.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => SavedHandService()..load()),
+        ChangeNotifierProvider(create: (_) => SavedHandStorageService()..load()),
       ],
       child: const PokerAIAnalyzerApp(),
     ),

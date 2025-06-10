@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:poker_ai_analyzer/services/saved_hand_service.dart';
+import 'package:poker_ai_analyzer/services/saved_hand_storage_service.dart';
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import 'package:poker_ai_analyzer/models/card_model.dart';
 import 'package:poker_ai_analyzer/models/action_entry.dart';
@@ -12,7 +12,7 @@ void main() {
 
   test('saved hand service persists hands', () async {
     SharedPreferences.setMockInitialValues({});
-    final service = SavedHandService();
+    final service = SavedHandStorageService();
     await service.load();
     final hand = SavedHand(
       name: 'Test',
@@ -33,7 +33,7 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList('saved_hands');
     expect(raw, isNotNull);
-    final loadedService = SavedHandService();
+    final loadedService = SavedHandStorageService();
     await loadedService.load();
     expect(loadedService.hands.length, 1);
     expect(loadedService.hands.first.name, 'Test');
