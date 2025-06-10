@@ -32,6 +32,7 @@ import '../widgets/player_stack_chips.dart';
 import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
+import '../widgets/bet_chip_animation.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 import '../models/player_model.dart';
@@ -159,7 +160,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _triggerCenterChip(ActionEntry entry) {
-    if (!['bet', 'raise', 'call'].contains(entry.action) || entry.amount == null) {
+    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
+        entry.amount == null ||
+        entry.generated) {
       return;
     }
     _centerChipTimer?.cancel();
@@ -176,6 +179,41 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _centerChipAction = null;
       });
     });
+  }
+
+  void _playActionChipAnimation(ActionEntry entry) {
+    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
+        entry.amount == null ||
+        entry.generated) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale = _tableScale();
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY = screen.height / 2 - _centerYOffset(scale);
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i = (entry.playerIndex - heroIndex + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = _verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final end = Offset(centerX, centerY);
+    late OverlayEntry entryOverlay;
+    entryOverlay = OverlayEntry(
+      builder: (_) => BetChipAnimation(
+        start: start,
+        end: end,
+        amount: entry.amount!,
+        scale: scale,
+        onCompleted: () => entryOverlay.remove(),
+      ),
+    );
+    overlay.insert(entryOverlay);
   }
 
   String _formatAmount(int amount) {
@@ -200,6 +238,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         return Colors.green[600]!;
       case 'bet':
         return Colors.amber[700]!;
+      case 'all-in':
+        return Colors.purpleAccent;
       case 'check':
         return Colors.grey[700]!;
       default:
@@ -226,6 +266,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         return Icons.arrow_upward;
       case 'bet':
         return Icons.trending_up;
+      case 'all-in':
+        return Icons.flash_on;
       case 'check':
         return Icons.remove;
       default:
@@ -831,6 +873,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _recalculatePots();
     _recalculateStreetInvestments();
     _triggerCenterChip(entry);
+    _playActionChipAnimation(entry);
     _updatePlaybackState();
   }
 
@@ -854,6 +897,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     _triggerCenterChip(entry);
+    _playActionChipAnimation(entry);
     _updatePlaybackState();
   }
 
