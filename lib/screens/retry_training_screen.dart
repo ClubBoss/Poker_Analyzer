@@ -14,10 +14,12 @@ class RetryTrainingScreen extends StatefulWidget {
 class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
   int _currentIndex = 0;
   bool _showCorrect = false;
+  String? _selectedAction;
 
   void _next() {
     setState(() {
       _showCorrect = false;
+      _selectedAction = null;
       _currentIndex = (_currentIndex + 1) % widget.errors.length;
     });
   }
@@ -65,8 +67,35 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                     error.situationDescription,
                     style: const TextStyle(color: Colors.white70),
                   ),
+                  const SizedBox(height: 8),
+                  DropdownButton<String>(
+                    value: _selectedAction,
+                    dropdownColor: const Color(0xFF2A2B2E),
+                    hint: const Text(
+                      'Select your action',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    iconEnabledColor: Colors.white,
+                    items: const [
+                      DropdownMenuItem(value: 'Fold', child: Text('Fold')),
+                      DropdownMenuItem(value: 'Call', child: Text('Call')),
+                      DropdownMenuItem(value: 'Raise small', child: Text('Raise small')),
+                      DropdownMenuItem(value: 'Raise big', child: Text('Raise big')),
+                      DropdownMenuItem(value: 'All-in', child: Text('All-in')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedAction = value;
+                      });
+                    },
+                  ),
                   if (_showCorrect) ...[
                     const SizedBox(height: 8),
+                    Text(
+                      'Your Action: $_selectedAction',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 4),
                     Text(
                       'Correct Action: ${error.correctAction}',
                       style: const TextStyle(color: Colors.green),
@@ -85,11 +114,13 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _showCorrect = !_showCorrect;
-                    });
-                  },
+                  onPressed: _selectedAction == null
+                      ? null
+                      : () {
+                          setState(() {
+                            _showCorrect = !_showCorrect;
+                          });
+                        },
                   child: Text(_showCorrect ? 'Hide' : 'Show Correct Action'),
                 ),
                 ElevatedButton(
