@@ -24,6 +24,14 @@ class ActionSyncService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Updates an existing action entry at the given index for the street.
+  void updateAction(String street, int index, ActionEntry newEntry) {
+    final list = actions[street];
+    if (list == null || index < 0 || index >= list.length) return;
+    list[index] = newEntry;
+    notifyListeners();
+  }
+
   /// Removes the most recently added action for the given street, if any.
   void undoLastAction(String street) {
     final list = actions[street];
