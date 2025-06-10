@@ -1,10 +1,19 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/main_menu_screen.dart';
+import 'services/saved_hand_service.dart';
 
 void main() {
-  runApp(const PokerAIAnalyzerApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SavedHandService()..load()),
+      ],
+      child: const PokerAIAnalyzerApp(),
+    ),
+  );
 }
 
 class PokerAIAnalyzerApp extends StatelessWidget {

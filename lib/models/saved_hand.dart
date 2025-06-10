@@ -1,5 +1,6 @@
 import 'card_model.dart';
 import 'action_entry.dart';
+import 'player_model.dart';
 
 class SavedHand {
   final String name;
@@ -11,7 +12,7 @@ class SavedHand {
   final List<ActionEntry> actions;
   final Map<int, int> stackSizes;
   final Map<int, String> playerPositions;
-  final Map<int, String>? playerTypes;
+  final Map<int, PlayerType>? playerTypes;
   final String? comment;
   final List<String> tags;
   final String? expectedAction;
@@ -57,7 +58,8 @@ class SavedHand {
         'stackSizes': stackSizes.map((k, v) => MapEntry(k.toString(), v)),
         'playerPositions': playerPositions.map((k, v) => MapEntry(k.toString(), v)),
         if (playerTypes != null)
-          'playerTypes': playerTypes!.map((k, v) => MapEntry(k.toString(), v)),
+          'playerTypes':
+              playerTypes!.map((k, v) => MapEntry(k.toString(), v.name)),
         if (comment != null) 'comment': comment,
         'tags': tags,
         if (expectedAction != null) 'expectedAction': expectedAction,
@@ -90,14 +92,18 @@ class SavedHand {
       positions[int.parse(key as String)] = value as String;
     });
     final tags = [for (final t in (json['tags'] as List? ?? [])) t as String];
-    Map<int, String> types = {};
+    Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
-        types[int.parse(key as String)] = value as String;
+        types[int.parse(key as String)] =
+            PlayerType.values.firstWhere(
+          (e) => e.name == value,
+          orElse: () => PlayerType.unknown,
+        );
       });
     } else {
       for (final k in positions.keys) {
-        types[k] = 'standard';
+        types[k] = PlayerType.unknown;
       }
     }
     return SavedHand(

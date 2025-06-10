@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_file/open_file.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:file_picker/file_picker.dart';
+import '../helpers/date_utils.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -54,15 +55,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   bool _isMistakeReviewMode = false;
 
   final List<_ResultEntry> _results = [];
-
-  String _formatDate(DateTime d) {
-    final day = d.day.toString().padLeft(2, '0');
-    final month = d.month.toString().padLeft(2, '0');
-    final year = d.year.toString();
-    final hour = d.hour.toString().padLeft(2, '0');
-    final minute = d.minute.toString().padLeft(2, '0');
-    return '$day.$month.$year $hour:$minute';
-  }
 
   @override
   void initState() {
@@ -266,7 +258,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final buffer = StringBuffer()
       ..writeln('# Training Session')
       ..writeln()
-      ..writeln('- **Date:** ${_formatDate(date)}')
+      ..writeln('- **Date:** ${formatDateTime(date)}')
       ..writeln('- **Total hands:** $total')
       ..writeln('- **Correct answers:** $correct')
       ..writeln('- **Accuracy:** $percent%')
@@ -502,7 +494,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      _formatDate(r.date),
+                      formatDateTime(r.date),
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),

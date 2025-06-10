@@ -30,6 +30,7 @@ import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
+import '../models/player_model.dart';
 import '../widgets/action_timeline_widget.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
@@ -80,7 +81,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
   Map<int, String> playerPositions = {};
-  Map<int, String> playerTypes = {};
+  Map<int, PlayerType> playerTypes = {};
 
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
@@ -204,34 +205,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         : entry.action;
   }
 
-  String _playerTypeIcon(String? type) {
+  String _playerTypeIcon(PlayerType? type) {
     switch (type) {
-      case 'shark':
+      case PlayerType.shark:
         return '🦈';
-      case 'fish':
+      case PlayerType.fish:
         return '🐟';
-      case 'nit':
+      case PlayerType.nit:
         return '🧊';
-      case 'maniac':
+      case PlayerType.maniac:
         return '🔥';
-      case 'station':
+      case PlayerType.callingStation:
         return '📞';
       default:
         return '';
     }
   }
 
-  String _playerTypeLabel(String? type) {
+  String _playerTypeLabel(PlayerType? type) {
     switch (type) {
-      case 'shark':
+      case PlayerType.shark:
         return 'Shark';
-      case 'fish':
+      case PlayerType.fish:
         return 'Fish';
-      case 'nit':
+      case PlayerType.nit:
         return 'Nit';
-      case 'maniac':
+      case PlayerType.maniac:
         return 'Maniac';
-      case 'station':
+      case PlayerType.callingStation:
         return 'Calling Station';
       default:
         return 'Standard';
@@ -302,7 +303,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     if (result != null) {
       setState(() {
-        playerTypes[index] = result;
+        playerTypes[index] =
+            PlayerType.values.firstWhere((e) => e.name == result,
+                orElse: () => PlayerType.unknown);
       });
     }
   }
@@ -333,7 +336,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _editPlayerInfo(int index) async {
     final stackController =
         TextEditingController(text: (stackSizes[index] ?? 0).toString());
-    String type = playerTypes[index] ?? 'standard';
+    PlayerType type = playerTypes[index] ?? PlayerType.unknown;
     bool isHeroSelected = index == heroIndex;
     CardModel? card1 =
         playerCards[index].isNotEmpty ? playerCards[index][0] : null;
@@ -371,7 +374,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: type,
+                    value: type.name,
                     dropdownColor: Colors.grey[900],
                     decoration: const InputDecoration(
                       labelText: 'Type',
@@ -385,7 +388,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       DropdownMenuItem(value: 'shark', child: Text('shark')),
                       DropdownMenuItem(value: 'station', child: Text('station')),
                     ],
-                    onChanged: (v) => setState(() => type = v ?? type),
+                    onChanged: (v) => setState(() =>
+                        type = PlayerType.values.firstWhere(
+                          (e) => e.name == v,
+                          orElse: () => PlayerType.unknown,
+                        )),
                   ),
                   const SizedBox(height: 12),
                   SwitchListTile(
@@ -498,7 +505,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     playerTypes = Map.fromIterables(
       List.generate(numberOfPlayers, (i) => i),
-      List.filled(numberOfPlayers, 'standard'),
+      List.filled(numberOfPlayers, PlayerType.unknown),
     );
     _updatePositions();
     _updatePlaybackState();
@@ -1026,7 +1033,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         stackSizes[i] = stackSizes[i + 1] ?? 0;
         _actionTags[i] = _actionTags[i + 1];
         playerPositions[i] = playerPositions[i + 1] ?? '';
-        playerTypes[i] = playerTypes[i + 1] ?? 'standard';
+        playerTypes[i] = playerTypes[i + 1] ?? PlayerType.unknown;
         _showActionHints[i] = _showActionHints[i + 1];
       }
       playerCards[numberOfPlayers - 1] = [];
@@ -1119,7 +1126,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actions: List<ActionEntry>.from(actions),
       stackSizes: Map<int, int>.from(stackSizes),
       playerPositions: Map<int, String>.from(playerPositions),
-      playerTypes: Map<int, String>.from(playerTypes),
+      playerTypes: Map<int, PlayerType>.from(playerTypes),
       comment: _commentController.text.isNotEmpty ? _commentController.text : null,
       tags: _tagsController.text
           .split(',')
@@ -1165,7 +1172,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       playerTypes
         ..clear()
         ..addAll(hand.playerTypes ??
-            {for (final k in hand.playerPositions.keys) k: 'standard'});
+            {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
       _commentController.text = hand.comment ?? '';
       _tagsController.text = hand.tags.join(', ');
       _recalculatePots();
@@ -2000,7 +2007,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       getPositionList(numberOfPlayers),
                     );
                     for (int i = 0; i < numberOfPlayers; i++) {
-                    playerTypes.putIfAbsent(i, () => 'standard');
+                    playerTypes.putIfAbsent(i, () => PlayerType.unknown);
                   }
                   playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
                   _updatePositions();
