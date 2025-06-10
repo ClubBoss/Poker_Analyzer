@@ -20,4 +20,22 @@ class ActionSyncService extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  /// Removes the most recently added action for the given street, if any.
+  void undoLastAction(String street) {
+    final list = actions[street];
+    if (list != null && list.isNotEmpty) {
+      list.removeLast();
+      notifyListeners();
+    }
+  }
+
+  /// Clears all actions for the specified street.
+  void clearStreet(String street) {
+    final list = actions[street];
+    if (list != null && list.isNotEmpty) {
+      list.clear();
+      notifyListeners();
+    }
+  }
 }

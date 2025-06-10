@@ -14,9 +14,6 @@ class StreetActionListSimple extends StatelessWidget {
     final Map<String, List<ActionEntry>> actions =
         context.watch<ActionSyncService>().actions;
     final list = actions[street] ?? [];
-    if (list.isEmpty) {
-      return const SizedBox.shrink();
-    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -27,14 +24,38 @@ class StreetActionListSimple extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        for (final a in list)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
+        if (list.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 2),
             child: Text(
-              '${a.playerName}: ${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
-              style: const TextStyle(color: Colors.white),
+              'No actions',
+              style: TextStyle(color: Colors.white54),
             ),
-          ),
+          )
+        else
+          for (final a in list)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Text(
+                '${a.playerName}: ${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+        Row(
+          children: [
+            TextButton(
+              onPressed: () =>
+                  context.read<ActionSyncService>().undoLastAction(street),
+              child: const Text('Undo Last Action'),
+            ),
+            const SizedBox(width: 8),
+            TextButton(
+              onPressed: () =>
+                  context.read<ActionSyncService>().clearStreet(street),
+              child: const Text('Clear Street'),
+            ),
+          ],
+        ),
       ],
     );
   }
