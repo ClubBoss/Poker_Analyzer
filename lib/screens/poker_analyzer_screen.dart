@@ -347,6 +347,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         : entry.action;
   }
 
+  String _formatLastAction(ActionEntry entry) {
+    final a = entry.action;
+    final cap = a.isNotEmpty ? a[0].toUpperCase() + a.substring(1) : a;
+    return entry.amount != null ? '$cap ${entry.amount}' : cap;
+  }
+
   Widget _playerTypeIcon(PlayerType? type) {
     switch (type) {
       case PlayerType.shark:
@@ -954,6 +960,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lastActionPlayerIndex = entry.playerIndex;
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
+    setPlayerLastAction(
+      players[entry.playerIndex].name,
+      _formatLastAction(entry),
+      _actionColor(entry.action),
+    );
     _recalculatePots();
     _recalculateStreetInvestments();
     _triggerCenterChip(entry);
@@ -981,6 +992,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
+    setPlayerLastAction(
+      players[entry.playerIndex].name,
+      _formatLastAction(entry),
+      _actionColor(entry.action),
+    );
     _triggerCenterChip(entry);
     _playActionChipAnimation(entry);
     _addChipAnimation(entry);

@@ -75,6 +75,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   OverlayEntry? _betEntry;
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
+  String? _lastActionText;
+  Color _lastActionColor = Colors.black87;
+  double _lastActionOpacity = 0.0;
+  Timer? _lastActionTimer;
 
   @override
   void initState() {
@@ -146,6 +150,20 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
+  void setLastAction(String text, Color color) {
+    _lastActionTimer?.cancel();
+    setState(() {
+      _lastActionText = text;
+      _lastActionColor = color;
+      _lastActionOpacity = 1.0;
+    });
+    _lastActionTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        setState(() => _lastActionOpacity = 0.0);
+      }
+    });
+  }
+
   void _showCardRevealOverlay() {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -198,6 +216,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void dispose() {
     _playerZoneRegistry.remove(widget.playerName);
     _highlightTimer?.cancel();
+    _lastActionTimer?.cancel();
     _betEntry?.remove();
     _controller.dispose();
     super.dispose();
@@ -442,6 +461,31 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       clipBehavior: Clip.none,
       children: [
         column,
+        if (_lastActionText != null)
+          Positioned(
+            top: -8 * widget.scale,
+            right: 20 * widget.scale,
+            child: AnimatedOpacity(
+              opacity: _lastActionOpacity,
+              duration: const Duration(milliseconds: 300),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
+                decoration: BoxDecoration(
+                  color: _lastActionColor.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(8 * widget.scale),
+                ),
+                child: Text(
+                  _lastActionText!,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12 * widget.scale,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
       ],
     );
 
@@ -928,6 +972,12 @@ void showWinnerHighlight(BuildContext context, String playerName) {
 void revealOpponentCards(String playerName, List<CardModel> cards) {
   final state = _playerZoneRegistry[playerName];
   state?.updateCards(cards);
+}
+
+/// Sets and displays the last action label for the given player.
+void setPlayerLastAction(String playerName, String text, Color color) {
+  final state = _playerZoneRegistry[playerName];
+  state?.setLastAction(text, color);
 }
 
 /// Reveals cards for multiple opponents at once. Typically called after
