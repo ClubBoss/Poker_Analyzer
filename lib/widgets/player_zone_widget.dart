@@ -245,6 +245,44 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
   }
 
+  Widget _betChip(TextStyle style) {
+    final double radius = 12 * widget.scale;
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(scale: animation, child: child),
+      ),
+      child: _currentBet > 0
+          ? Container(
+              key: ValueKey(_currentBet),
+              width: radius * 2,
+              height: radius * 2,
+              margin: EdgeInsets.symmetric(horizontal: 4 * widget.scale),
+              decoration: BoxDecoration(
+                color: Colors.yellowAccent,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.4),
+                    blurRadius: 3 * widget.scale,
+                    offset: const Offset(1, 2),
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '$_currentBet',
+                style: style.copyWith(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          : SizedBox(width: radius * 2, height: radius * 2),
+    );
+  }
+
   @override
   void dispose() {
     _playerZoneRegistry.remove(widget.playerName);
@@ -372,11 +410,20 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ],
     );
 
+    final labelRow = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_isLeftSide(widget.position)) _betChip(betStyle),
+        labelWithIcon,
+        if (!_isLeftSide(widget.position)) _betChip(betStyle),
+      ],
+    );
+
     final column = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        labelWithIcon,
+        labelRow,
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           transitionBuilder: (child, animation) => FadeTransition(
