@@ -12,6 +12,7 @@ import 'current_bet_label.dart';
 import 'player_stack_label.dart';
 import 'stack_bar_widget.dart';
 import 'bet_chip_animation.dart';
+import 'move_pot_animation.dart';
 
 final Map<String, _PlayerZoneWidgetState> _playerZoneRegistry = {};
 
@@ -709,5 +710,30 @@ void showOpponentCards(
   for (final entry in cardsByPlayer.entries) {
     revealOpponentCards(entry.key, entry.value);
   }
+}
+
+/// Animates the central pot moving to the specified player's zone.
+void movePotToWinner(BuildContext context, String playerName) {
+  final overlay = Overlay.of(context);
+  final state = _playerZoneRegistry[playerName];
+  if (overlay == null || state == null) return;
+
+  final box = state.context.findRenderObject() as RenderBox?;
+  if (box == null) return;
+
+  final end = box.localToGlobal(box.size.center(Offset.zero));
+  final media = MediaQuery.of(context).size;
+  final start = Offset(media.width / 2, media.height / 2);
+
+  late OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (_) => MovePotAnimation(
+      start: start,
+      end: end,
+      scale: state.widget.scale,
+      onCompleted: () => entry.remove(),
+    ),
+  );
+  overlay.insert(entry);
 }
 
