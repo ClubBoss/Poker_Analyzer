@@ -14,6 +14,7 @@ class TrainingHistoryScreen extends StatefulWidget {
 
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   final List<TrainingResult> _history = [];
+  double _averageAccuracy = 0.0;
 
   @override
   void initState() {
@@ -42,15 +43,26 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         }
       } catch (_) {}
     }
-    setState(() => _history
-      ..clear()
-      ..addAll(loaded.reversed));
+    setState(() {
+      _history
+        ..clear()
+        ..addAll(loaded.reversed);
+      _averageAccuracy = _history.isNotEmpty
+          ? _history
+                  .map((e) => e.accuracy)
+                  .reduce((a, b) => a + b) /
+              _history.length
+          : 0.0;
+    });
   }
 
   Future<void> _clearHistory() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('training_history');
-    setState(() => _history.clear());
+    setState(() {
+      _history.clear();
+      _averageAccuracy = 0.0;
+    });
   }
 
   @override
@@ -74,34 +86,47 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 style: TextStyle(color: Colors.white54),
               ),
             )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemBuilder: (context, index) {
-                final result = _history[index];
-                final accuracy = result.accuracy.toStringAsFixed(1);
-                return Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2A2B2E),
-                    borderRadius: BorderRadius.circular(8),
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'Average Accuracy: ${_averageAccuracy.toStringAsFixed(1)}%',
+                    style: const TextStyle(color: Colors.white),
                   ),
-                  child: ListTile(
-                    title: Text(
-                      _formatDate(result.date),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    subtitle: Text(
-                      'Correct: ${result.correct} / ${result.total}',
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                    trailing: Text(
-                      '$accuracy%',
-                      style: const TextStyle(color: Colors.greenAccent),
-                    ),
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemBuilder: (context, index) {
+                      final result = _history[index];
+                      final accuracy = result.accuracy.toStringAsFixed(1);
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2A2B2E),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            _formatDate(result.date),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          subtitle: Text(
+                            'Correct: ${result.correct} / ${result.total}',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          trailing: Text(
+                            '$accuracy%',
+                            style: const TextStyle(color: Colors.greenAccent),
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemCount: _history.length,
                   ),
-                );
-              },
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemCount: _history.length,
+                ),
+              ],
             ),
     );
   }
