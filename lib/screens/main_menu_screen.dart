@@ -6,6 +6,7 @@ import 'training_packs_screen.dart';
 import 'all_sessions_screen.dart';
 import 'training_history_screen.dart';
 import 'player_zone_demo_screen.dart';
+import 'settings_screen.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
@@ -82,6 +83,16 @@ class MainMenuScreen extends StatelessWidget {
                 );
               },
               child: const Text('🧪 Player Zone Demo'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              },
+              child: const Text('⚙️ Settings'),
             ),
           ],
         ),
