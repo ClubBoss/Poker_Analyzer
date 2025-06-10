@@ -4,6 +4,7 @@ import 'package:open_file/open_file.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:file_picker/file_picker.dart';
 import '../helpers/date_utils.dart';
+import '../helpers/action_utils.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:convert';
@@ -102,7 +103,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     String userAct = '-';
     if (played != null) {
       for (final a in played.actions) {
-        if (a.playerIndex == played.heroIndex) {
+        if (isHeroAction(a, played.heroIndex)) {
           userAct = a.action;
           break;
         }
