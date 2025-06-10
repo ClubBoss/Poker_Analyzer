@@ -737,3 +737,27 @@ void movePotToWinner(BuildContext context, String playerName) {
   overlay.insert(entry);
 }
 
+/// Runs the full winner reveal animation sequence.
+///
+/// This will first highlight the player's zone, optionally reveal
+/// their cards, and finally move the pot to the winner.
+Future<void> showWinnerSequence(
+  BuildContext context,
+  String playerName, {
+  List<CardModel>? cards,
+}) async {
+  // Brief delay before showing the highlight.
+  await Future.delayed(const Duration(milliseconds: 500));
+  showWinnerHighlight(context, playerName);
+
+  // Optionally reveal the winner's cards.
+  if (cards != null) {
+    await Future.delayed(const Duration(milliseconds: 500));
+    revealOpponentCards(playerName, cards);
+  }
+
+  // Delay slightly longer before moving the pot.
+  await Future.delayed(const Duration(milliseconds: 700));
+  movePotToWinner(context, playerName);
+}
+
