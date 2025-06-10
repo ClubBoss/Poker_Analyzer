@@ -10,6 +10,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../helpers/date_utils.dart';
+import '../helpers/accuracy_utils.dart';
 
 import '../models/training_pack.dart';
 import 'session_detail_screen.dart';
@@ -207,7 +208,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     if (_minPercent != null && _maxPercent != null) {
       filtered = filtered.where((e) {
         final percent = e.result.total > 0
-            ? e.result.correct * 100 / e.result.total
+            ? calculateAccuracy(e.result.correct, e.result.total)
             : 0.0;
         return percent >= _minPercent! && percent <= _maxPercent!;
       }).toList();
@@ -257,7 +258,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     final double avg = filtered.isNotEmpty
         ? filtered
                 .map((e) => e.result.total > 0
-                    ? e.result.correct * 100 / e.result.total
+                    ? calculateAccuracy(e.result.correct, e.result.total)
                     : 0.0)
                 .reduce((a, b) => a + b) /
             filtered.length
@@ -292,7 +293,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     final buffer = StringBuffer()..writeln('## $title')..writeln();
     for (final e in _entries) {
       final percent = e.result.total > 0
-          ? (e.result.correct * 100 / e.result.total).toStringAsFixed(0)
+          ? (calculateAccuracy(e.result.correct, e.result.total)).toStringAsFixed(0)
           : '0';
       buffer.writeln(
           '- ${e.packName} — ${formatDateTime(e.result.date)} — ${e.result.correct}/${e.result.total} (${percent}%)');
@@ -336,7 +337,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     for (final e in _entries) {
       final date = formatDateTime(e.result.date);
       final percent = e.result.total > 0
-          ? (e.result.correct * 100 / e.result.total).round()
+          ? (calculateAccuracy(e.result.correct, e.result.total)).round()
           : 0;
       buffer.writeln(
           '"$date","${e.packName}",${e.result.correct},${e.result.total},$percent');
@@ -468,7 +469,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                   ...groups[name]!.map(
                     (e) {
                       final percent = e.result.total > 0
-                          ? e.result.correct * 100 / e.result.total
+                          ? calculateAccuracy(e.result.correct, e.result.total)
                           : 0.0;
                       final color = percent >= 80
                           ? PdfColors.lightGreen
@@ -503,7 +504,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                             padding: const pw.EdgeInsets.all(4),
                             child: pw.Text(
                               e.result.total > 0
-                                  ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
+                                  ? '${(calculateAccuracy(e.result.correct, e.result.total)).toStringAsFixed(0)}%'
                                   : '0%',
                               style: pw.TextStyle(font: regularFont),
                             ),
@@ -560,7 +561,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                             var sum = 0.0;
                             for (final e in groups[name]!) {
                               sum += e.result.total > 0
-                                  ? e.result.correct * 100 / e.result.total
+                                  ? calculateAccuracy(e.result.correct, e.result.total)
                                   : 0.0;
                             }
                             final avg = sum / groups[name]!.length;
@@ -1452,7 +1453,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   e.result.total > 0
-                                      ? '${(e.result.correct * 100 / e.result.total).toStringAsFixed(0)}%'
+                                      ? '${(calculateAccuracy(e.result.correct, e.result.total)).toStringAsFixed(0)}%'
                                       : '0%',
                                   style: const TextStyle(color: Colors.white),
                                 ),

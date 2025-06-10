@@ -37,4 +37,11 @@ class SavedHandService extends ChangeNotifier {
     await _persist();
     notifyListeners();
   }
+
+  Future<void> update(int index, SavedHand hand) async {
+    if (index < 0 || index >= _hands.length) return;
+    _hands[index] = hand;
+    await _persist();
+    notifyListeners();
+  }
 }
