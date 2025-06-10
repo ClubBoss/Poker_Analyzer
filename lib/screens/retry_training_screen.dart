@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 import '../models/error_entry.dart';
+import '../models/training_result.dart';
 
 class RetryTrainingScreen extends StatefulWidget {
   final List<ErrorEntry> errors;
@@ -17,6 +20,22 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
   String? _selectedAction;
   int _correctCount = 0;
   int _totalAnswered = 0;
+
+  Future<void> _saveResult() async {
+    final accuracy = _totalAnswered > 0
+        ? _correctCount * 100 / _totalAnswered
+        : 0.0;
+    final result = TrainingResult(
+      date: DateTime.now(),
+      total: _totalAnswered,
+      correct: _correctCount,
+      accuracy: accuracy,
+    );
+    final prefs = await SharedPreferences.getInstance();
+    final history = prefs.getStringList('training_history') ?? [];
+    history.add(jsonEncode(result.toJson()));
+    await prefs.setStringList('training_history', history);
+  }
 
   void _restart() {
     setState(() {
@@ -174,6 +193,9 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                           }
                           _showCorrect = !_showCorrect;
                         });
+                        if (_totalAnswered == widget.errors.length) {
+                          _saveResult();
+                        }
                       },
                 child: Text(_showCorrect ? 'Hide' : 'Show Correct Action'),
               ),
