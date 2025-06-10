@@ -38,6 +38,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final VoidCallback? onTimeExpired;
   /// Called when a card slot is tapped. The index corresponds to 0 or 1.
   final void Function(int index)? onCardTap;
+  /// Amount invested by the player on the current street.
+  final int streetInvestment;
 
   const PlayerInfoWidget({
     super.key,
@@ -62,6 +64,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.onRemove,
     this.onTimeExpired,
     this.onCardTap,
+    this.streetInvestment = 0,
     this.showLastIndicator = false,
   });
 
@@ -224,6 +227,28 @@ class PlayerInfoWidget extends StatelessWidget {
               }),
             ),
           ),
+          if (streetInvestment > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.circle,
+                    size: 12,
+                    color: Colors.orangeAccent.withOpacity(0.8),
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    '$streetInvestment',
+                    style: TextStyle(
+                      color: Colors.orangeAccent.withOpacity(0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           const SizedBox(height: 4),
           GestureDetector(
             onTap: () async {
