@@ -16,6 +16,72 @@ class StreetActionListSimple extends StatefulWidget {
 class _StreetActionListSimpleState extends State<StreetActionListSimple> {
   bool _expanded = true;
 
+  Future<void> _editAction(int index, ActionEntry entry) async {
+    final controller = TextEditingController(
+      text: entry.amount?.toString() ?? '',
+    );
+    String action = entry.action;
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) {
+          final needAmount = action == 'bet' || action == 'raise';
+          return Padding(
+            padding: MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                DropdownButton<String>(
+                  value: action,
+                  isExpanded: true,
+                  items: const [
+                    DropdownMenuItem(value: 'fold', child: Text('Fold')),
+                    DropdownMenuItem(value: 'call', child: Text('Call')),
+                    DropdownMenuItem(value: 'bet', child: Text('Bet')),
+                    DropdownMenuItem(value: 'raise', child: Text('Raise')),
+                  ],
+                  onChanged: (val) => setModal(() => action = val ?? action),
+                ),
+                if (needAmount) ...[
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Amount'),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx, {
+                      'action': action,
+                      'amount': needAmount ? int.tryParse(controller.text) : null,
+                    });
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+    if (result != null) {
+      final newEntry = ActionEntry(
+        playerName: entry.playerName,
+        street: entry.street,
+        action: result['action'] as String,
+        amount: result['amount'] as int?,
+      );
+      context
+          .read<ActionSyncService>()
+          .updateAction(widget.street, index, newEntry);
+    }
+    controller.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Map<String, List<ActionEntry>> actions =
@@ -73,25 +139,28 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
               ),
             )
           else
-            for (final a in list)
+            for (int i = 0; i < list.length; i++)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Card(
-                  color: _cardColor(),
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Text(_iconForAction(a.action)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            '${a.playerName}: ${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
-                            style: TextStyle(color: _textColor()),
+                child: InkWell(
+                  onTap: () => _editAction(i, list[i]),
+                  child: Card(
+                    color: _cardColor(),
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Text(_iconForAction(list[i].action)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '${list[i].playerName}: ${list[i].action}${list[i].amount != null ? ' ${list[i].amount}' : ''}',
+                              style: TextStyle(color: _textColor()),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
