@@ -55,7 +55,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int numberOfPlayers = 6;
   final List<List<CardModel>> playerCards = List.generate(10, (_) => []);
   final List<CardModel> boardCards = [];
-  final List<CardModel?> opponentCards = [null, null];
+  final List<List<CardModel>> revealedCards = List.generate(10, (_) => []);
   int? opponentIndex;
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
@@ -374,7 +374,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         playerCards[index].isNotEmpty ? playerCards[index][0] : null;
     CardModel? card2 =
         playerCards[index].length > 1 ? playerCards[index][1] : null;
-    final disableCards = index == opponentIndex;
+    final disableCards = index != heroIndex;
 
     const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
     const suits = ['♠', '♥', '♦', '♣'];
@@ -573,7 +573,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         cards.removeWhere((c) => c == card);
       }
       boardCards.removeWhere((c) => c == card);
-      _removeFromOpponentCards(card);
+      _removeFromRevealedCards(card);
       if (playerCards[index].length < 2) {
         playerCards[index].add(card);
       }
@@ -588,7 +588,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         cards.removeWhere((c) => c == selectedCard);
       }
       boardCards.removeWhere((c) => c == selectedCard);
-      _removeFromOpponentCards(selectedCard);
+      _removeFromRevealedCards(selectedCard);
       if (playerCards[index].length > cardIndex) {
         playerCards[index][cardIndex] = selectedCard;
       } else if (playerCards[index].length == cardIndex) {
@@ -603,7 +603,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  Future<void> _onOpponentCardTap(int index) async {
+  Future<void> _onOpponentCardTap(int cardIndex) async {
+    if (opponentIndex == null) opponentIndex = activePlayerIndex;
+    final idx = opponentIndex ?? 0;
+    await _onRevealedCardTap(idx, cardIndex);
+  }
+
+  Future<void> _onRevealedCardTap(int playerIndex, int cardIndex) async {
     final selected = await showCardSelector(context);
     if (selected == null) return;
     setState(() {
@@ -611,15 +617,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         cards.removeWhere((c) => c == selected);
       }
       boardCards.removeWhere((c) => c == selected);
-      _removeFromOpponentCards(selected);
-      opponentCards[index] = selected;
-      opponentIndex ??= activePlayerIndex;
-      if (opponentIndex != null) {
-        if (playerCards[opponentIndex!].length > index) {
-          playerCards[opponentIndex!][index] = selected;
-        } else if (playerCards[opponentIndex!].length == index) {
-          playerCards[opponentIndex!].add(selected);
-        }
+      _removeFromRevealedCards(selected);
+      final list = revealedCards[playerIndex];
+      if (list.length > cardIndex) {
+        list[cardIndex] = selected;
+      } else if (list.length == cardIndex) {
+        list.add(selected);
       }
     });
   }
@@ -630,7 +633,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         cards.removeWhere((c) => c == card);
       }
       boardCards.removeWhere((c) => c == card);
-      _removeFromOpponentCards(card);
+      _removeFromRevealedCards(card);
       if (index < boardCards.length) {
         boardCards[index] = card;
       } else if (index == boardCards.length) {
@@ -639,14 +642,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void _removeFromOpponentCards(CardModel card) {
-    for (int i = 0; i < opponentCards.length; i++) {
-      if (opponentCards[i] == card) {
-        opponentCards[i] = null;
-        if (opponentIndex != null) {
-          playerCards[opponentIndex!].removeWhere((c) => c == card);
-        }
-      }
+  void _removeFromRevealedCards(CardModel card) {
+    for (final list in revealedCards) {
+      list.removeWhere((c) => c == card);
     }
   }
 
@@ -1126,6 +1124,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       // Shift player-specific data
       for (int i = index; i < numberOfPlayers - 1; i++) {
         playerCards[i] = playerCards[i + 1];
+        revealedCards[i] = revealedCards[i + 1];
         stackSizes[i] = stackSizes[i + 1] ?? 0;
         _actionTags[i] = _actionTags[i + 1];
         playerPositions[i] = playerPositions[i + 1] ?? '';
@@ -1133,6 +1132,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _showActionHints[i] = _showActionHints[i + 1];
       }
       playerCards[numberOfPlayers - 1] = [];
+      revealedCards[numberOfPlayers - 1] = [];
       stackSizes.remove(numberOfPlayers - 1);
       _actionTags.remove(numberOfPlayers - 1);
       playerPositions.remove(numberOfPlayers - 1);
@@ -1147,9 +1147,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (opponentIndex != null) {
         if (opponentIndex == index) {
           opponentIndex = null;
-          for (int i = 0; i < opponentCards.length; i++) {
-            opponentCards[i] = null;
-          }
         } else if (opponentIndex! > index) {
           opponentIndex = opponentIndex! - 1;
         }
@@ -1190,8 +1187,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           list.clear();
         }
         boardCards.clear();
-        for (int i = 0; i < opponentCards.length; i++) {
-          opponentCards[i] = null;
+        for (final list in revealedCards) {
+          list.clear();
         }
         opponentIndex = null;
         actions.clear();
@@ -1233,7 +1230,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           List<CardModel>.from(playerCards[i])
       ],
       boardCards: List<CardModel>.from(boardCards),
-      opponentCards: List<CardModel?>.from(opponentCards),
+      revealedCards: [
+        for (int i = 0; i < numberOfPlayers; i++)
+          List<CardModel>.from(revealedCards[i])
+      ],
       opponentIndex: opponentIndex,
       actions: List<ActionEntry>.from(actions),
       stackSizes: Map<int, int>.from(stackSizes),
@@ -1274,9 +1274,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardCards
         ..clear()
         ..addAll(hand.boardCards);
-      opponentCards
-        ..clear()
-        ..addAll(hand.opponentCards.length == 2 ? hand.opponentCards : [null, null]);
+      for (int i = 0; i < revealedCards.length; i++) {
+        revealedCards[i]
+          ..clear()
+          ..addAll(i < hand.revealedCards.length ? hand.revealedCards[i] : []);
+      }
       opponentIndex = hand.opponentIndex;
       actions
         ..clear()
@@ -2020,7 +2022,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(2, (i) {
-            final card = opponentCards[i];
+            final idx = opponentIndex ?? activePlayerIndex;
+            final list = idx != null ? revealedCards[idx] : <CardModel>[];
+            final card = i < list.length ? list[i] : null;
             final isRed = card?.suit == '♥' || card?.suit == '♦';
             return GestureDetector(
               onTap: () => _onOpponentCardTap(i),
@@ -2476,9 +2480,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             position: position,
             stack: stack,
             tag: tag,
-            cards: index == opponentIndex
-                ? opponentCards.whereType<CardModel>().toList()
-                : playerCards[index],
+            cards: index == heroIndex
+                ? playerCards[index]
+                : revealedCards[index],
             lastAction: lastAction?.action,
             showLastIndicator: lastStreetAction?.playerIndex == index,
             isActive: isActive,
@@ -2494,9 +2498,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     playerPositions[index] == 'BB')
                 ? playerPositions[index]
                 : null,
-            onCardTap: index == opponentIndex
-                ? null
-                : (cardIndex) => _onPlayerCardTap(index, cardIndex),
+            onCardTap: index == heroIndex
+                ? (cardIndex) => _onPlayerCardTap(index, cardIndex)
+                : (cardIndex) => _onRevealedCardTap(index, cardIndex),
             onTap: () => setState(() => activePlayerIndex = index),
             onDoubleTap: () => setState(() {
               heroIndex = index;
