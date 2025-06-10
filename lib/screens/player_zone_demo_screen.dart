@@ -60,6 +60,11 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
                       padding: const EdgeInsets.only(bottom: 12.0),
                       child: StreetActionListSimple(street: s),
                     ),
+                  TextButton(
+                    onPressed: () =>
+                        context.read<ActionSyncService>().undoLastGlobal(),
+                    child: const Text('Undo Global'),
+                  ),
                 ],
               ),
             ),
