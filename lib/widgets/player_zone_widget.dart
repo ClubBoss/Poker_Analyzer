@@ -316,12 +316,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () async {
-                  final selected = await showCardSelector(context);
-                  if (selected != null) {
-                    widget.onCardsSelected(index, selected);
-                  }
-                },
+                onTap: widget.isHero
+                    ? () async {
+                        final selected = await showCardSelector(context);
+                        if (selected != null) {
+                          widget.onCardsSelected(index, selected);
+                        }
+                      }
+                    : null,
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   width: 36 * widget.scale,
@@ -352,7 +354,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                               fontSize: 18 * widget.scale,
                             ),
                           )
-                        : const Icon(Icons.add, color: Colors.grey, key: ValueKey('add')),
+                        : widget.isHero
+                            ? const Icon(Icons.add,
+                                color: Colors.grey, key: ValueKey('add'))
+                            : Image.asset(
+                                'assets/cards/card_back.png',
+                                key: const ValueKey('back'),
+                                fit: BoxFit.cover,
+                              ),
                   ),
                 ),
               );
