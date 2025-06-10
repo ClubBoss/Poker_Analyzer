@@ -28,6 +28,10 @@ class PlayerZoneWidget extends StatefulWidget {
   final int currentBet;
   /// Current stack size of the player.
   final int? stackSize;
+  /// Map of stack sizes keyed by player index.
+  final Map<int, int>? stackSizes;
+  /// Index of this player within the stack map.
+  final int? playerIndex;
   final PlayerType playerType;
   final ValueChanged<PlayerType>? onPlayerTypeChanged;
   final bool isActive;
@@ -50,6 +54,8 @@ class PlayerZoneWidget extends StatefulWidget {
     required this.isFolded,
     this.currentBet = 0,
     this.stackSize,
+    this.stackSizes,
+    this.playerIndex,
     this.playerType = PlayerType.unknown,
     this.onPlayerTypeChanged,
     required this.onCardsSelected,
@@ -253,6 +259,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final int? stack = widget.stackSize ??
+        (widget.stackSizes != null && widget.playerIndex != null
+            ? widget.stackSizes![widget.playerIndex!]
+            : null);
     final nameStyle = TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
@@ -265,7 +275,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
     final stackStyle = TextStyle(
       color: Colors.white70,
-      fontSize: 12 * widget.scale,
+      fontSize: 10 * widget.scale,
       fontWeight: FontWeight.w500,
     );
     final betStyle = TextStyle(
@@ -312,30 +322,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   ),
               ],
             ),
-            if (widget.stackSize != null)
-              Padding(
-                padding: EdgeInsets.only(top: 2.0 * widget.scale),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '🪙',
-                      style: TextStyle(fontSize: 12 * widget.scale),
-                    ),
-                    SizedBox(width: 4 * widget.scale),
-                    Text(
-                      '${widget.stackSize}',
-                      style: stackStyle,
-                    ),
-                  ],
-                ),
-              ),
             if (widget.position != null)
               Padding(
                 padding: EdgeInsets.only(top: 2.0 * widget.scale),
                 child: Text(
                   widget.position!,
                   style: captionStyle,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            if (stack != null)
+              Padding(
+                padding: EdgeInsets.only(top: 2.0 * widget.scale),
+                child: Text(
+                  '$stack BB',
+                  style: stackStyle,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -459,9 +460,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           ),
         ),
       ),
-        PlayerStackLabel(stack: widget.stackSize, scale: widget.scale),
+        PlayerStackLabel(stack: stack, scale: widget.scale),
         StackBarWidget(
-          stack: widget.stackSize,
+          stack: stack,
           maxStack: widget.maxStackSize,
           scale: widget.scale,
         ),
