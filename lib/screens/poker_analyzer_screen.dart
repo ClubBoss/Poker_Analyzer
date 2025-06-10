@@ -11,6 +11,7 @@ import '../widgets/street_actions_widget.dart';
 import '../widgets/board_display.dart';
 import '../widgets/action_history_overlay.dart';
 import '../widgets/collapsible_action_history.dart';
+import '../widgets/action_history_expansion_tile.dart';
 import 'package:provider/provider.dart';
 import '../services/saved_hand_storage_service.dart';
 import '../theme/constants.dart';
@@ -2374,14 +2375,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                 )
               ],
-            ),
-          ),
         ),
-            StreetActionsWidget(
-              currentStreet: currentStreet,
-              onStreetChanged: (index) {
-                setState(() {
-                  currentStreet = index;
+      ),
+    ),
+    ActionHistoryExpansionTile(
+      actions: visibleActions,
+      playerPositions: playerPositions,
+      pots: _pots,
+      stackSizes: stackSizes,
+      onEdit: _editAction,
+      onDelete: _deleteAction,
+      visibleCount: _playbackIndex,
+      evaluateActionQuality: _evaluateActionQuality,
+    ),
+    StreetActionsWidget(
+      currentStreet: currentStreet,
+      onStreetChanged: (index) {
+        setState(() {
+          currentStreet = index;
                   _pots[currentStreet] = _calculatePotForStreet(currentStreet);
                   _recalculateStreetInvestments();
                   _actionTags.clear();
