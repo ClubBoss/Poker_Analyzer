@@ -52,26 +52,20 @@ class StreetActionsList extends StatelessWidget {
         ? '$pos — ${a.action}$amountStr (auto)'
         : '$pos — ${a.action}$amountStr';
 
-    String? icon;
+    String? qualityText;
     if (evaluateActionQuality != null && visibleCount != null) {
-      final quality = evaluateActionQuality!(a);
-      switch (quality) {
-        case 'good':
-          icon = '🟢';
-          break;
-        case 'ok':
-          icon = '🟡';
-          break;
-        case 'bad':
-          icon = '🔴';
-          break;
+      final q = evaluateActionQuality!(a).toLowerCase();
+      if (q.contains('good')) {
+        qualityText = '🟢 GOOD';
+      } else if (q.contains('marginal') || q.contains('ok')) {
+        qualityText = '🟡 MARGINAL';
+      } else if (q.contains('mistake') || q.contains('bad')) {
+        qualityText = '🔴 MISTAKE';
       }
     }
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      leading:
-          icon != null ? Text(icon!, style: const TextStyle(fontSize: 16)) : null,
       title: Text(
         title,
         style: TextStyle(
@@ -98,9 +92,23 @@ class StreetActionsList extends StatelessWidget {
           onEdit(globalIndex, entry);
         }
       },
-      trailing: IconButton(
-        icon: const Icon(Icons.delete, color: Colors.red),
-        onPressed: () => onDelete(globalIndex),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (qualityText != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Text(
+                qualityText!,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () => onDelete(globalIndex),
+          ),
+        ],
       ),
     );
   }
