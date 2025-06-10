@@ -6,12 +6,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:open_file/open_file.dart';
 
 import '../models/training_pack.dart';
-import '../models/saved_hand.dart';
 import 'training_pack_screen.dart';
 import '../theme/constants.dart';
 import 'create_pack_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/training_pack_storage_service.dart';
+import '../services/daily_hand_service.dart';
 
 class TrainingPacksScreen extends StatefulWidget {
   const TrainingPacksScreen({super.key});
@@ -27,8 +27,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-        () => context.read<TrainingPackStorageService>().load());
+    Future.microtask(() async {
+      final packsService = context.read<TrainingPackStorageService>();
+      await packsService.load();
+      final daily = context.read<DailyHandService>();
+      await daily.load();
+      await daily.ensureTodayHand(packs: packsService.packs);
+    });
   }
 
 
@@ -102,6 +107,49 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         Text('$percent% (${last.correct}/${last.total})',
             style: const TextStyle(color: Colors.white70)),
       ],
+    );
+  }
+
+  Widget _buildDailyHandCard() {
+    final service = context.watch<DailyHandService>();
+    final played = service.result != null;
+    return Card(
+      color: const Color(0xFF2A2B2E),
+      child: ListTile(
+        title: const Text('Задача дня',
+            style: TextStyle(color: Colors.white)),
+        subtitle: const Text('Каждый день — новая раздача',
+            style: TextStyle(color: Colors.white70)),
+        trailing: played
+            ? Icon(
+                service.result! ? Icons.check_circle : Icons.cancel,
+                color: service.result! ? Colors.green : Colors.red,
+              )
+            : null,
+        onTap: () async {
+          final hand = service.hand;
+          if (hand == null) return;
+          final pack = TrainingPack(
+            name: 'Задача дня',
+            description: '',
+            category: 'Daily',
+            hands: [hand],
+          );
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TrainingPackScreen(
+                pack: pack,
+                hands: [hand],
+                persistResults: false,
+                onComplete: (correct) async {
+                  await context.read<DailyHandService>().setResult(correct);
+                },
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -217,9 +265,12 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(AppConstants.padding16),
-              itemCount: visible.length,
+              itemCount: visible.length + 1,
               itemBuilder: (context, index) {
-                final pack = visible[index];
+                if (index == 0) {
+                  return _buildDailyHandCard();
+                }
+                final pack = visible[index - 1];
                 return Card(
                   color: const Color(0xFF2A2B2E),
                   child: ListTile(

@@ -30,12 +30,16 @@ class TrainingPackScreen extends StatefulWidget {
   final TrainingPack pack;
   final List<SavedHand>? hands;
   final bool mistakeReviewMode;
+  final ValueChanged<bool>? onComplete;
+  final bool persistResults;
 
   const TrainingPackScreen({
     super.key,
     required this.pack,
     this.hands,
     this.mistakeReviewMode = false,
+    this.onComplete,
+    this.persistResults = true,
   });
 
   @override
@@ -343,6 +347,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   Future<void> _completeSession() async {
     final total = _results.length;
     final correct = _results.where((r) => r.correct).length;
+    final success = total > 0 && correct == total;
     final tasks = [
       for (final r in _results)
         SessionTaskResult(
@@ -359,34 +364,38 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       tasks: tasks,
     );
 
-    widget.pack.history.add(result);
+    if (widget.persistResults) {
+      widget.pack.history.add(result);
 
-    final prefs = await SharedPreferences.getInstance();
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/training_packs.json');
-    List<TrainingPack> packs = [];
-    if (await file.exists()) {
-      try {
-        final content = await file.readAsString();
-        final data = jsonDecode(content);
-        if (data is List) {
-          packs = [
-            for (final item in data)
-              if (item is Map<String, dynamic>)
-                TrainingPack.fromJson(Map<String, dynamic>.from(item))
-          ];
-        }
-      } catch (_) {}
+      final prefs = await SharedPreferences.getInstance();
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/training_packs.json');
+      List<TrainingPack> packs = [];
+      if (await file.exists()) {
+        try {
+          final content = await file.readAsString();
+          final data = jsonDecode(content);
+          if (data is List) {
+            packs = [
+              for (final item in data)
+                if (item is Map<String, dynamic>)
+                  TrainingPack.fromJson(Map<String, dynamic>.from(item))
+            ];
+          }
+        } catch (_) {}
+      }
+
+      final idx = packs.indexWhere((p) => p.name == widget.pack.name);
+      if (idx != -1) {
+        packs[idx] = widget.pack;
+      } else {
+        packs.add(widget.pack);
+      }
+
+      await file.writeAsString(jsonEncode([for (final p in packs) p.toJson()]));
     }
 
-    final idx = packs.indexWhere((p) => p.name == widget.pack.name);
-    if (idx != -1) {
-      packs[idx] = widget.pack;
-    } else {
-      packs.add(widget.pack);
-    }
-
-    await file.writeAsString(jsonEncode([for (final p in packs) p.toJson()]));
+    widget.onComplete?.call(success);
   }
 
   Widget _buildSummary() {
