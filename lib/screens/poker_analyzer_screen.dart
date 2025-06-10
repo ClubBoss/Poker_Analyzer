@@ -56,6 +56,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final List<List<CardModel>> playerCards = List.generate(10, (_) => []);
   final List<CardModel> boardCards = [];
   final List<CardModel?> opponentCards = [null, null];
+  int? opponentIndex;
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
   int _playbackIndex = 0;
@@ -373,6 +374,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         playerCards[index].isNotEmpty ? playerCards[index][0] : null;
     CardModel? card2 =
         playerCards[index].length > 1 ? playerCards[index][1] : null;
+    final disableCards = index == opponentIndex;
 
     const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
     const suits = ['♠', '♥', '♦', '♣'];
@@ -445,9 +447,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             items: ranks
                                 .map((r) => DropdownMenuItem(value: r, child: Text(r)))
                                 .toList(),
-                            onChanged: (v) => setState(() => card1 = v != null && card1 != null
-                                ? CardModel(rank: v, suit: card1!.suit)
-                                : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
+                            onChanged: disableCards
+                                ? null
+                                : (v) => setState(() => card1 = v != null && card1 != null
+                                    ? CardModel(rank: v, suit: card1!.suit)
+                                    : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
                           ),
                           DropdownButton<String>(
                             value: card1?.suit,
@@ -456,9 +460,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             items: suits
                                 .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                                 .toList(),
-                            onChanged: (v) => setState(() => card1 = v != null && card1 != null
-                                ? CardModel(rank: card1!.rank, suit: v)
-                                : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
+                            onChanged: disableCards
+                                ? null
+                                : (v) => setState(() => card1 = v != null && card1 != null
+                                    ? CardModel(rank: card1!.rank, suit: v)
+                                    : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
                           ),
                         ],
                       ),
@@ -471,9 +477,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             items: ranks
                                 .map((r) => DropdownMenuItem(value: r, child: Text(r)))
                                 .toList(),
-                            onChanged: (v) => setState(() => card2 = v != null && card2 != null
-                                ? CardModel(rank: v, suit: card2!.suit)
-                                : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
+                            onChanged: disableCards
+                                ? null
+                                : (v) => setState(() => card2 = v != null && card2 != null
+                                    ? CardModel(rank: v, suit: card2!.suit)
+                                    : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
                           ),
                           DropdownButton<String>(
                             value: card2?.suit,
@@ -482,9 +490,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             items: suits
                                 .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                                 .toList(),
-                            onChanged: (v) => setState(() => card2 = v != null && card2 != null
-                                ? CardModel(rank: card2!.rank, suit: v)
-                                : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
+                            onChanged: disableCards
+                                ? null
+                                : (v) => setState(() => card2 = v != null && card2 != null
+                                    ? CardModel(rank: card2!.rank, suit: v)
+                                    : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
                           ),
                         ],
                       ),
@@ -519,10 +529,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         } else if (heroIndex == index) {
           heroIndex = 0;
         }
-        final cards = <CardModel>[];
-        if (card1 != null) cards.add(card1!);
-        if (card2 != null) cards.add(card2!);
-        playerCards[index] = cards;
+        if (!disableCards) {
+          final cards = <CardModel>[];
+          if (card1 != null) cards.add(card1!);
+          if (card2 != null) cards.add(card2!);
+          playerCards[index] = cards;
+        }
       });
     }
   }
@@ -601,6 +613,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardCards.removeWhere((c) => c == selected);
       _removeFromOpponentCards(selected);
       opponentCards[index] = selected;
+      opponentIndex ??= activePlayerIndex;
+      if (opponentIndex != null) {
+        if (playerCards[opponentIndex!].length > index) {
+          playerCards[opponentIndex!][index] = selected;
+        } else if (playerCards[opponentIndex!].length == index) {
+          playerCards[opponentIndex!].add(selected);
+        }
+      }
     });
   }
 
@@ -623,6 +643,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (int i = 0; i < opponentCards.length; i++) {
       if (opponentCards[i] == card) {
         opponentCards[i] = null;
+        if (opponentIndex != null) {
+          playerCards[opponentIndex!].removeWhere((c) => c == card);
+        }
       }
     }
   }
@@ -1121,6 +1144,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       } else if (heroIndex > index) {
         heroIndex--;
       }
+      if (opponentIndex != null) {
+        if (opponentIndex == index) {
+          opponentIndex = null;
+          for (int i = 0; i < opponentCards.length; i++) {
+            opponentCards[i] = null;
+          }
+        } else if (opponentIndex! > index) {
+          opponentIndex = opponentIndex! - 1;
+        }
+      }
 
       numberOfPlayers--;
       _updatePositions();
@@ -1160,6 +1193,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (int i = 0; i < opponentCards.length; i++) {
           opponentCards[i] = null;
         }
+        opponentIndex = null;
         actions.clear();
         currentStreet = 0;
         _pots.fillRange(0, _pots.length, 0);
@@ -1200,6 +1234,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ],
       boardCards: List<CardModel>.from(boardCards),
       opponentCards: List<CardModel?>.from(opponentCards),
+      opponentIndex: opponentIndex,
       actions: List<ActionEntry>.from(actions),
       stackSizes: Map<int, int>.from(stackSizes),
       playerPositions: Map<int, String>.from(playerPositions),
@@ -1242,6 +1277,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       opponentCards
         ..clear()
         ..addAll(hand.opponentCards.length == 2 ? hand.opponentCards : [null, null]);
+      opponentIndex = hand.opponentIndex;
       actions
         ..clear()
         ..addAll(hand.actions);
@@ -2440,12 +2476,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             position: position,
             stack: stack,
             tag: tag,
-            cards: playerCards[index],
+            cards: index == opponentIndex
+                ? opponentCards.whereType<CardModel>().toList()
+                : playerCards[index],
             lastAction: lastAction?.action,
             showLastIndicator: lastStreetAction?.playerIndex == index,
             isActive: isActive,
             isFolded: isFolded,
             isHero: index == heroIndex,
+            isOpponent: index == opponentIndex,
             playerTypeIcon: _playerTypeIcon(playerTypes[index]),
             playerTypeLabel:
                 numberOfPlayers > 9 ? null : _playerTypeLabel(playerTypes[index]),
@@ -2455,7 +2494,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     playerPositions[index] == 'BB')
                 ? playerPositions[index]
                 : null,
-            onCardTap: (cardIndex) => _onPlayerCardTap(index, cardIndex),
+            onCardTap: index == opponentIndex
+                ? null
+                : (cardIndex) => _onPlayerCardTap(index, cardIndex),
             onTap: () => setState(() => activePlayerIndex = index),
             onDoubleTap: () => setState(() {
               heroIndex = index;

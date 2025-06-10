@@ -10,6 +10,7 @@ class SavedHand {
   final List<List<CardModel>> playerCards;
   final List<CardModel> boardCards;
   final List<CardModel?> opponentCards;
+  final int? opponentIndex;
   final List<ActionEntry> actions;
   final Map<int, int> stackSizes;
   final Map<int, String> playerPositions;
@@ -29,6 +30,7 @@ class SavedHand {
     required this.playerCards,
     required this.boardCards,
     List<CardModel?>? opponentCards,
+    this.opponentIndex,
     required this.actions,
     required this.stackSizes,
     required this.playerPositions,
@@ -51,6 +53,7 @@ class SavedHand {
     List<List<CardModel>>? playerCards,
     List<CardModel>? boardCards,
     List<CardModel?>? opponentCards,
+    int? opponentIndex,
     List<ActionEntry>? actions,
     Map<int, int>? stackSizes,
     Map<int, String>? playerPositions,
@@ -71,6 +74,7 @@ class SavedHand {
           [for (final list in this.playerCards) List<CardModel>.from(list)],
       boardCards: boardCards ?? List<CardModel>.from(this.boardCards),
       opponentCards: opponentCards ?? List<CardModel?>.from(this.opponentCards),
+      opponentIndex: opponentIndex ?? this.opponentIndex,
       actions: actions ?? List<ActionEntry>.from(this.actions),
       stackSizes: stackSizes ?? Map<int, int>.from(this.stackSizes),
       playerPositions: playerPositions ?? Map<int, String>.from(this.playerPositions),
@@ -98,6 +102,7 @@ class SavedHand {
           for (final c in opponentCards)
             c != null ? {'rank': c.rank, 'suit': c.suit} : null
         ],
+        if (opponentIndex != null) 'opponentIndex': opponentIndex,
         'actions': [
           for (final a in actions)
             {
@@ -139,6 +144,7 @@ class SavedHand {
             ? null
             : CardModel(rank: c['rank'] as String, suit: c['suit'] as String)
     ];
+    final oppIndex = json['opponentIndex'] as int?;
     final acts = [
       for (final a in (json['actions'] as List? ?? []))
         ActionEntry(a['street'] as int, a['playerIndex'] as int, a['action'] as String,
@@ -177,6 +183,7 @@ class SavedHand {
       playerCards: pc,
       boardCards: board,
       opponentCards: opp,
+      opponentIndex: oppIndex,
       actions: acts,
       stackSizes: stack,
       playerPositions: positions,
