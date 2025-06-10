@@ -404,11 +404,15 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   widget.playerName,
                   style: nameStyle,
                 ),
-                Padding(
-                  padding: EdgeInsets.only(left: 4.0 * widget.scale),
-                  child: Text(
-                    _playerTypeIcon(_playerType),
-                    style: TextStyle(fontSize: 14 * widget.scale),
+                GestureDetector(
+                  onLongPressStart: (d) => _showPlayerTypeMenu(d.globalPosition),
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 4.0 * widget.scale),
+                    child: Text(
+                      _playerTypeIcon(_playerType),
+                      style: TextStyle(fontSize: 14 * widget.scale),
+                    ),
                   ),
                 ),
                 if (widget.isHero)
@@ -786,6 +790,31 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         ),
       ),
     );
+    if (result != null) {
+      setState(() => _playerType = result);
+      widget.onPlayerTypeChanged?.call(result);
+    }
+  }
+
+  Future<void> _showPlayerTypeMenu(Offset position) async {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RelativeRect rect = RelativeRect.fromRect(
+      Rect.fromPoints(position, position),
+      Offset.zero & overlay.size,
+    );
+
+    final PlayerType? result = await showMenu<PlayerType>(
+      context: context,
+      position: rect,
+      items: [
+        for (final t in PlayerType.values)
+          PopupMenuItem<PlayerType>(
+            value: t,
+            child: Text('${_playerTypeIcon(t)}  ${_playerTypeLabel(t)}'),
+          ),
+      ],
+    );
+
     if (result != null) {
       setState(() => _playerType = result);
       widget.onPlayerTypeChanged?.call(result);
