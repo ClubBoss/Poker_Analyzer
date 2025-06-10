@@ -28,7 +28,6 @@ class StreetActionsList extends StatelessWidget {
   });
 
   Widget _buildTile(BuildContext context, ActionEntry a, int globalIndex) {
-    final amountStr = a.amount != null ? ' ${a.amount}' : '';
     Color color;
     switch (a.action) {
       case 'fold':
@@ -48,9 +47,8 @@ class StreetActionsList extends StatelessWidget {
     }
     final pos =
         playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-    final title = a.generated
-        ? '$pos — ${a.action}$amountStr (auto)'
-        : '$pos — ${a.action}$amountStr';
+    final baseTitle = '$pos — ${a.action}';
+    final title = a.generated ? '$baseTitle (auto)' : baseTitle;
 
     String? qualityText;
     if (evaluateActionQuality != null && visibleCount != null) {
@@ -66,12 +64,36 @@ class StreetActionsList extends StatelessWidget {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      title: Text(
-        title,
-        style: TextStyle(
-          color: color,
-          fontStyle: a.generated ? FontStyle.italic : FontStyle.normal,
-        ),
+      title: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (a.amount != null)
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                '${a.amount}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          if (a.amount != null) const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontStyle: a.generated ? FontStyle.italic : FontStyle.normal,
+              ),
+            ),
+          ),
+        ],
       ),
       onTap: () async {
         final result = await showDetailedActionBottomSheet(
