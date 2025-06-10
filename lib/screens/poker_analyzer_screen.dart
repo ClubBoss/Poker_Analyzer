@@ -55,7 +55,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int numberOfPlayers = 6;
   final List<List<CardModel>> playerCards = List.generate(10, (_) => []);
   final List<CardModel> boardCards = [];
-  final List<List<CardModel>> revealedCards = List.generate(10, (_) => []);
+  final List<PlayerModel> players =
+      List.generate(10, (i) => PlayerModel(name: 'Player ${i + 1}'));
   int? opponentIndex;
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
@@ -618,12 +619,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       boardCards.removeWhere((c) => c == selected);
       _removeFromRevealedCards(selected);
-      final list = revealedCards[playerIndex];
-      if (list.length > cardIndex) {
-        list[cardIndex] = selected;
-      } else if (list.length == cardIndex) {
-        list.add(selected);
-      }
+      final list = players[playerIndex].revealedCards;
+      list[cardIndex] = selected;
     });
   }
 
@@ -643,8 +640,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _removeFromRevealedCards(CardModel card) {
-    for (final list in revealedCards) {
-      list.removeWhere((c) => c == card);
+    for (final player in players) {
+      for (int i = 0; i < player.revealedCards.length; i++) {
+        if (player.revealedCards[i] == card) {
+          player.revealedCards[i] = null;
+        }
+      }
     }
   }
 
@@ -1124,7 +1125,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       // Shift player-specific data
       for (int i = index; i < numberOfPlayers - 1; i++) {
         playerCards[i] = playerCards[i + 1];
-        revealedCards[i] = revealedCards[i + 1];
+        players[i] = players[i + 1];
         stackSizes[i] = stackSizes[i + 1] ?? 0;
         _actionTags[i] = _actionTags[i + 1];
         playerPositions[i] = playerPositions[i + 1] ?? '';
@@ -1132,7 +1133,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _showActionHints[i] = _showActionHints[i + 1];
       }
       playerCards[numberOfPlayers - 1] = [];
-      revealedCards[numberOfPlayers - 1] = [];
+      players[numberOfPlayers - 1] = PlayerModel(name: 'Player ${numberOfPlayers}');
       stackSizes.remove(numberOfPlayers - 1);
       _actionTags.remove(numberOfPlayers - 1);
       playerPositions.remove(numberOfPlayers - 1);
@@ -1187,8 +1188,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           list.clear();
         }
         boardCards.clear();
-        for (final list in revealedCards) {
-          list.clear();
+        for (final p in players) {
+          p.revealedCards.fillRange(0, p.revealedCards.length, null);
         }
         opponentIndex = null;
         actions.clear();
@@ -1232,7 +1233,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardCards: List<CardModel>.from(boardCards),
       revealedCards: [
         for (int i = 0; i < numberOfPlayers; i++)
-          List<CardModel>.from(revealedCards[i])
+          [for (final c in players[i].revealedCards) if (c != null) c]
       ],
       opponentIndex: opponentIndex,
       actions: List<ActionEntry>.from(actions),
@@ -1274,10 +1275,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardCards
         ..clear()
         ..addAll(hand.boardCards);
-      for (int i = 0; i < revealedCards.length; i++) {
-        revealedCards[i]
-          ..clear()
-          ..addAll(i < hand.revealedCards.length ? hand.revealedCards[i] : []);
+      for (int i = 0; i < players.length; i++) {
+        final list = players[i].revealedCards;
+        list.fillRange(0, list.length, null);
+        if (i < hand.revealedCards.length) {
+          final from = hand.revealedCards[i];
+          for (int j = 0; j < list.length && j < from.length; j++) {
+            list[j] = from[j];
+          }
+        }
       }
       opponentIndex = hand.opponentIndex;
       actions
@@ -2023,8 +2029,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           mainAxisSize: MainAxisSize.min,
           children: List.generate(2, (i) {
             final idx = opponentIndex ?? activePlayerIndex;
-            final list = idx != null ? revealedCards[idx] : <CardModel>[];
-            final card = i < list.length ? list[i] : null;
+            final list = idx != null
+                ? players[idx].revealedCards
+                : List<CardModel?>.filled(2, null);
+            final card = list[i];
             final isRed = card?.suit == '♥' || card?.suit == '♦';
             return GestureDetector(
               onTap: () => _onOpponentCardTap(i),
@@ -2482,7 +2490,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             tag: tag,
             cards: index == heroIndex
                 ? playerCards[index]
-                : revealedCards[index],
+                : players[index]
+                    .revealedCards
+                    .whereType<CardModel>()
+                    .toList(),
             lastAction: lastAction?.action,
             showLastIndicator: lastStreetAction?.playerIndex == index,
             isActive: isActive,
