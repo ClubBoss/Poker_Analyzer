@@ -2474,12 +2474,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           a.street == currentStreet &&
           (a.action == 'bet' ||
               a.action == 'raise' ||
-              a.action == 'call') &&
+              a.action == 'call' ||
+              a.action == 'all-in') &&
           a.amount != null) {
         lastAmountAction = a;
         break;
       }
     }
+    final int currentBet = lastAmountAction?.amount ?? 0;
 
     final invested = _streetInvestments[currentStreet]?[index] ?? 0;
 
@@ -2553,6 +2555,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         .toList()
                     : [],
             streetInvestment: invested,
+            currentBet: currentBet,
             lastAction: lastAction?.action,
             showLastIndicator: lastStreetAction?.playerIndex == index,
             isActive: isActive,
