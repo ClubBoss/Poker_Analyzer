@@ -10,6 +10,8 @@ class ActionSyncService extends ChangeNotifier {
     'River': [],
   };
 
+  final List<ActionEntry> _history = [];
+
   void addOrUpdate(ActionEntry entry) {
     final list = actions[entry.street]!;
     final index = list.indexWhere((e) => e.playerName == entry.playerName);
@@ -17,6 +19,7 @@ class ActionSyncService extends ChangeNotifier {
       list[index] = entry;
     } else {
       list.add(entry);
+      _history.add(entry);
     }
     notifyListeners();
   }
@@ -25,7 +28,18 @@ class ActionSyncService extends ChangeNotifier {
   void undoLastAction(String street) {
     final list = actions[street];
     if (list != null && list.isNotEmpty) {
-      list.removeLast();
+      final removed = list.removeLast();
+      _history.remove(removed);
+      notifyListeners();
+    }
+  }
+
+  /// Removes the last added action across all streets, if any.
+  void undoLastGlobal() {
+    if (_history.isNotEmpty) {
+      final last = _history.removeLast();
+      final list = actions[last.street];
+      list?.remove(last);
       notifyListeners();
     }
   }
@@ -34,6 +48,9 @@ class ActionSyncService extends ChangeNotifier {
   void clearStreet(String street) {
     final list = actions[street];
     if (list != null && list.isNotEmpty) {
+      for (final a in list) {
+        _history.remove(a);
+      }
       list.clear();
       notifyListeners();
     }
