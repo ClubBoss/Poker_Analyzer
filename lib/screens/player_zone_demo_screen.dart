@@ -19,7 +19,7 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
   final List<String> _streetNames = const ['Preflop', 'Flop', 'Turn', 'River'];
   final List<String> _players = const ['Alice', 'Bob', 'Carol'];
   final List<List<CardModel>> _cards = [[], [], []];
-  final List<int> _stacks = const [100, 75, 200];
+  final Map<int, int> _stackSizes = const {0: 100, 1: 75, 2: 200};
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,8 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
                     street: _streetNames[_street],
                     position: null,
                     cards: _cards[index],
-                    stackSize: _stacks[index],
+                    stackSizes: _stackSizes,
+                    playerIndex: index,
                     isHero: index == 0,
                     isFolded: false,
                     onCardsSelected: (i, c) {},
