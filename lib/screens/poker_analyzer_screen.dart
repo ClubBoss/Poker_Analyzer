@@ -99,6 +99,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showCenterChip = false;
   Timer? _centerChipTimer;
   late AnimationController _centerChipController;
+  bool _showAllRevealedCards = false;
 
 
   List<String> _positionsForPlayers(int count) {
@@ -2179,6 +2180,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     ? 'SPR: ${sprValue.toStringAsFixed(1)}'
                     : null,
                   ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: ElevatedButton(
+                      onPressed: () => setState(
+                          () => _showAllRevealedCards = !_showAllRevealedCards),
+                      child: const Text('Показать все карты'),
+                    ),
+                  ),
                 )
               ],
             ),
@@ -2490,10 +2502,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             tag: tag,
             cards: index == heroIndex
                 ? playerCards[index]
-                : players[index]
-                    .revealedCards
-                    .whereType<CardModel>()
-                    .toList(),
+                : (_showAllRevealedCards || index == opponentIndex)
+                    ? players[index]
+                        .revealedCards
+                        .whereType<CardModel>()
+                        .toList()
+                    : [],
             lastAction: lastAction?.action,
             showLastIndicator: lastStreetAction?.playerIndex == index,
             isActive: isActive,
