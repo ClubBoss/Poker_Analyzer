@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/card_model.dart';
@@ -10,6 +12,8 @@ import 'current_bet_label.dart';
 import 'player_stack_label.dart';
 import 'stack_bar_widget.dart';
 import 'bet_chip_animation.dart';
+
+final Map<String, _PlayerZoneWidgetState> _playerZoneRegistry = {};
 
 class PlayerZoneWidget extends StatefulWidget {
   final String playerName;
@@ -66,6 +70,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late int _currentBet;
   String? _actionTagText;
   OverlayEntry? _betEntry;
+  bool _winnerHighlight = false;
+  Timer? _highlightTimer;
 
   @override
   void initState() {
@@ -73,6 +79,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _playerType = widget.playerType;
     _currentBet = widget.currentBet;
     _actionTagText = widget.actionTagText;
+    _playerZoneRegistry[widget.playerName] = this;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -85,6 +92,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   @override
   void didUpdateWidget(covariant PlayerZoneWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.playerName != oldWidget.playerName) {
+      _playerZoneRegistry.remove(oldWidget.playerName);
+      _playerZoneRegistry[widget.playerName] = this;
+    }
     if (widget.isActive && !oldWidget.isActive) {
       _controller
         ..reset()
@@ -112,6 +123,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     setState(() => _currentBet = bet);
   }
 
+  void highlightWinner() {
+    _highlightTimer?.cancel();
+    setState(() => _winnerHighlight = true);
+    _highlightTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _winnerHighlight = false);
+    });
+  }
+
   void _playBetAnimation(int amount) {
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
@@ -135,6 +154,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   @override
   void dispose() {
+    _playerZoneRegistry.remove(widget.playerName);
+    _highlightTimer?.cancel();
     _betEntry?.remove();
     _controller.dispose();
     super.dispose();
@@ -384,6 +405,22 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       child: result,
     );
 
+    if (_winnerHighlight) {
+      result = Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12 * widget.scale),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.amber.withOpacity(0.8),
+              blurRadius: 20,
+              spreadRadius: 4,
+            ),
+          ],
+        ),
+        child: result,
+      );
+    }
+
     if (widget.isActive) {
       result = FadeTransition(
         opacity: Tween(begin: 0.85, end: 1.0).animate(
@@ -623,5 +660,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   String _capitalize(String s) =>
       s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
+}
+
+/// Highlights the [PlayerZoneWidget] for the given [playerName].
+/// This should be called before [showWinPotAnimation] to visually
+/// indicate the winner.
+void showWinnerHighlight(BuildContext context, String playerName) {
+  final state = _playerZoneRegistry[playerName];
+  state?.highlightWinner();
 }
 
