@@ -20,7 +20,6 @@ class SessionDetailScreen extends StatelessWidget {
     required this.result,
   });
 
-  String _formatDate(DateTime d) => formatDateTime(d);
 
   Future<TrainingPack?> _loadPack() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -107,7 +106,7 @@ class SessionDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _formatDate(result.date),
+                  formatDateTime(result.date),
                   style: const TextStyle(color: Colors.white70),
                 ),
                 if (hasMistakes) ...[

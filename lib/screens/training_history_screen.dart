@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fl_chart/fl_chart.dart';
+
+import '../theme/app_colors.dart';
+import '../widgets/common/accuracy_chart.dart';
+import '../widgets/common/history_list_item.dart';
 
 import '../models/training_result.dart';
 import '../helpers/date_utils.dart';
@@ -24,7 +27,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     _loadHistory();
   }
 
-  String _formatDate(DateTime d) => formatDateTime(d);
 
   Future<void> _loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
@@ -64,93 +66,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     return sum / list.length;
   }
 
-  Widget _buildAccuracyChart(List<TrainingResult> sessions) {
-    if (sessions.length < 2) return const SizedBox.shrink();
-
-    sessions = [...sessions]..sort((a, b) => a.date.compareTo(b.date));
-    final spots = <FlSpot>[];
-    for (var i = 0; i < sessions.length; i++) {
-      spots.add(FlSpot(i.toDouble(), sessions[i].accuracy));
-    }
-    final step = (sessions.length / 6).ceil();
-
-    final barData = LineChartBarData(
-      spots: spots,
-      color: Colors.greenAccent,
-      barWidth: 2,
-      isCurved: true,
-      dotData: FlDotData(show: false),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        height: 200,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFF2A2B2E),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: LineChart(
-          LineChartData(
-            minY: 0,
-            maxY: 100,
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              horizontalInterval: 20,
-              getDrawingHorizontalLine: (value) =>
-                  FlLine(color: Colors.white24, strokeWidth: 1),
-            ),
-            titlesData: FlTitlesData(
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  interval: 20,
-                  reservedSize: 30,
-                  getTitlesWidget: (value, meta) => Text(
-                    value.toInt().toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                ),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  interval: 1,
-                  getTitlesWidget: (value, meta) {
-                    final index = value.toInt();
-                    if (index < 0 || index >= sessions.length) {
-                      return const SizedBox.shrink();
-                    }
-                    if (index % step != 0 && index != sessions.length - 1) {
-                      return const SizedBox.shrink();
-                    }
-                    final d = sessions[index].date;
-                    final label =
-                        '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                    return Text(label,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10));
-                  },
-                ),
-              ),
-            ),
-            borderData: FlBorderData(
-              show: true,
-              border: const Border(
-                left: BorderSide(color: Colors.white24),
-                bottom: BorderSide(color: Colors.white24),
-              ),
-            ),
-            lineBarsData: [barData],
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +80,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           ),
         ],
       ),
-      backgroundColor: const Color(0xFF1B1C1E),
+      backgroundColor: AppColors.background,
       body: _history.isEmpty
           ? const Center(
               child: Text(
@@ -183,7 +98,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       const SizedBox(width: 8),
                       DropdownButton<int>(
                         value: _filterDays,
-                        dropdownColor: const Color(0xFF2A2B2E),
+                        dropdownColor: AppColors.cardBackground,
                         style: const TextStyle(color: Colors.white),
                         items: const [
                           DropdownMenuItem(value: 7, child: Text('7 days')),
@@ -212,7 +127,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 ),
                 Builder(builder: (context) {
                   final filtered = _getFilteredHistory();
-                  return _buildAccuracyChart(filtered);
+                  return AccuracyChart(sessions: filtered);
                 }),
                 Expanded(
                   child: Builder(builder: (context) {
@@ -221,27 +136,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       padding: const EdgeInsets.all(16),
                       itemBuilder: (context, index) {
                         final result = filtered[index];
-                        final accuracy = result.accuracy.toStringAsFixed(1);
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2A2B2E),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            _formatDate(result.date),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          subtitle: Text(
-                            'Correct: ${result.correct} / ${result.total}',
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                          trailing: Text(
-                            '$accuracy%',
-                            style: const TextStyle(color: Colors.greenAccent),
-                          ),
-                        ),
-                      );
+                        return HistoryListItem(result: result);
                       },
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemCount: filtered.length,

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import '../theme/app_colors.dart';
+import '../widgets/common/explanation_text.dart';
+import '../widgets/common/summary_card.dart';
+
 import '../models/error_entry.dart';
 import '../models/training_result.dart';
 
@@ -62,9 +66,8 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
 
     Widget body;
     if (completed) {
-      final accuracy = _totalAnswered > 0
-          ? _correctCount * 100 / _totalAnswered
-          : 0.0;
+      final accuracy =
+          _totalAnswered > 0 ? _correctCount * 100 / _totalAnswered : 0.0;
       final message = _correctCount == _totalAnswered
           ? 'Perfect!'
           : accuracy >= 80
@@ -74,35 +77,11 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
       body = Column(
         children: [
           const Spacer(),
-          Card(
-            color: const Color(0xFF2A2B2E),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Summary',
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Correct: $_correctCount / $_totalAnswered',
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    message,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _restart,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
+          SummaryCard(
+            correctCount: _correctCount,
+            totalAnswered: _totalAnswered,
+            message: message,
+            onRetry: _restart,
           ),
         ],
       );
@@ -134,7 +113,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF2A2B2E),
+              color: AppColors.cardBackground,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -156,7 +135,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                 const SizedBox(height: 8),
                 DropdownButton<String>(
                   value: _selectedAction,
-                  dropdownColor: const Color(0xFF2A2B2E),
+                  dropdownColor: AppColors.cardBackground,
                   hint: const Text(
                     'Select your action',
                     style: TextStyle(color: Colors.white70),
@@ -177,43 +156,10 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                 ),
                 if (_showCorrect) ...[
                   const SizedBox(height: 8),
-                  Text(
-                    'Your Action: $_selectedAction',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _selectedAction == error.correctAction
-                        ? '✅ Correct'
-                        : '❌ Mistake',
-                    style: TextStyle(
-                      color: _selectedAction == error.correctAction
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Correct Action: ${error.correctAction}',
-                    style: const TextStyle(color: Colors.green),
-                  ),
-                  const SizedBox(height: 4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Explanation: ',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                          text: error.aiExplanation,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
+                  ExplanationText(
+                    selectedAction: _selectedAction ?? '',
+                    correctAction: error.correctAction,
+                    explanation: error.aiExplanation,
                   ),
                 ],
               ],
@@ -263,7 +209,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
         title: const Text('Retry Mistakes'),
         centerTitle: true,
       ),
-      backgroundColor: const Color(0xFF1B1C1E),
+      backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: body,
