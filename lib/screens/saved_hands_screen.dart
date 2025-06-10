@@ -1,30 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/saved_hand.dart';
+import '../services/saved_hand_service.dart';
 
-class SavedHandsScreen extends StatefulWidget {
+class SavedHandsScreen extends StatelessWidget {
   const SavedHandsScreen({super.key});
 
   @override
-  State<SavedHandsScreen> createState() => _SavedHandsScreenState();
-}
-
-class _SavedHandsScreenState extends State<SavedHandsScreen> {
-  final List<SavedHand> _savedHands = [];
-
-  void _deleteHand(int index) {
-    setState(() {
-      _savedHands.removeAt(index);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final service = context.watch<SavedHandService>();
+    final savedHands = service.hands;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Сохранённые раздачи'),
         centerTitle: true,
       ),
-      body: _savedHands.isEmpty
+      body: savedHands.isEmpty
           ? const Center(
               child: Text(
                 'Нет сохранённых раздач.',
@@ -33,10 +24,10 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
             )
           : ListView.separated(
               padding: const EdgeInsets.all(16),
-              itemCount: _savedHands.length,
+              itemCount: savedHands.length,
               separatorBuilder: (_, __) => const Divider(color: Colors.white12),
               itemBuilder: (context, index) {
-                final hand = _savedHands[index];
+                final hand = savedHands[index];
                 final title = hand.comment ?? 'Раздача ${index + 1}';
                 return Dismissible(
                   key: ValueKey(index),
@@ -47,7 +38,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                     color: Colors.red,
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
-                  onDismissed: (_) => _deleteHand(index),
+                  onDismissed: (_) => service.removeAt(index),
                   child: ListTile(
                     tileColor: const Color(0xFF2A2B2E),
                     title: Text(

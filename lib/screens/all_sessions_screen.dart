@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../helpers/date_utils.dart';
 
 import '../models/training_pack.dart';
 import 'session_detail_screen.dart';
@@ -56,21 +57,9 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
     _loadHistory();
   }
 
-  String _formatDate(DateTime d) {
-    final day = d.day.toString().padLeft(2, '0');
-    final month = d.month.toString().padLeft(2, '0');
-    final year = d.year.toString();
-    final hour = d.hour.toString().padLeft(2, '0');
-    final minute = d.minute.toString().padLeft(2, '0');
-    return '$day.$month.$year $hour:$minute';
-  }
+  String _formatDate(DateTime d) => formatDateTime(d);
 
-  String _formatDay(DateTime d) {
-    final day = d.day.toString().padLeft(2, '0');
-    final month = d.month.toString().padLeft(2, '0');
-    final year = d.year.toString();
-    return '$day.$month.$year';
-  }
+  String _formatDay(DateTime d) => formatDate(d);
 
   String get _dateFilterText {
     if (_dateRange == null) return 'Все даты';
