@@ -2158,6 +2158,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             CollapsibleActionHistory(
               actions: visibleActions,
               playerPositions: playerPositions,
+              heroIndex: heroIndex,
             ),
             Expanded(
               child: SingleChildScrollView(
