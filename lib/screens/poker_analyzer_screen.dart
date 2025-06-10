@@ -1383,6 +1383,129 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  /// Load a training spot represented as a JSON-like map.
+  ///
+  /// Expected keys:
+  /// - `playerCards`: List<List<Map>> where each map has `rank` and `suit`.
+  /// - `boardCards`: same card maps for community cards.
+  /// - `actions`: List of {street, playerIndex, action, amount}.
+  /// - `heroIndex`: int specifying hero seat.
+  /// - `numberOfPlayers`: total players at the table.
+  /// - `playerTypes`: optional list of player type names.
+  /// - `positions`: list of position strings for each player.
+  /// - `stacks`: optional list of stack sizes.
+  void loadTrainingSpot(Map<String, dynamic> data) {
+    final pcData = data['playerCards'] as List? ?? [];
+    final parsedPlayerCards = <List<CardModel>>[];
+    for (final list in pcData) {
+      final cards = <CardModel>[];
+      if (list is List) {
+        for (final c in list) {
+          if (c is Map) {
+            cards.add(
+                CardModel(rank: c['rank'] as String, suit: c['suit'] as String));
+          }
+        }
+      }
+      parsedPlayerCards.add(cards);
+    }
+
+    final boardData = data['boardCards'] as List? ?? [];
+    final parsedBoard = <CardModel>[for (final c in boardData)
+      if (c is Map)
+        CardModel(rank: c['rank'] as String, suit: c['suit'] as String)
+    ];
+
+    final actionsData = data['actions'] as List? ?? [];
+    final parsedActions = <ActionEntry>[for (final a in actionsData)
+      if (a is Map)
+        ActionEntry(a['street'] as int, a['playerIndex'] as int,
+            a['action'] as String,
+            amount: (a['amount'] as num?)?.toInt())
+    ];
+
+    final newHeroIndex = data['heroIndex'] as int? ?? 0;
+    final newPlayerCount = data['numberOfPlayers'] as int? ?? parsedPlayerCards.length;
+
+    final positionsList = [for (final p in (data['positions'] as List? ?? [])) p as String];
+    final newHeroPos = newHeroIndex < positionsList.length
+        ? positionsList[newHeroIndex]
+        : (positionsList.isNotEmpty ? positionsList.last : 'BTN');
+    final posMap = <int, String>{};
+    for (int i = 0; i < positionsList.length; i++) {
+      posMap[i] = positionsList[i];
+    }
+
+    final typesList = data['playerTypes'] as List?;
+    final typeMap = <int, PlayerType>{};
+    if (typesList != null) {
+      for (int i = 0; i < typesList.length; i++) {
+        final t = typesList[i];
+        if (t is String) {
+          typeMap[i] = PlayerType.values.firstWhere(
+              (e) => e.name == t,
+              orElse: () => PlayerType.unknown);
+        }
+      }
+    }
+
+    final stacksList = data['stacks'] as List?;
+    final stackMap = <int, int>{};
+    if (stacksList != null) {
+      for (int i = 0; i < stacksList.length; i++) {
+        final s = stacksList[i];
+        if (s is num) stackMap[i] = s.toInt();
+      }
+    }
+
+    setState(() {
+      for (final list in playerCards) {
+        list.clear();
+      }
+      for (int i = 0; i < parsedPlayerCards.length; i++) {
+        playerCards[i].addAll(parsedPlayerCards[i]);
+      }
+      boardCards
+        ..clear()
+        ..addAll(parsedBoard);
+      for (final p in players) {
+        p.revealedCards.fillRange(0, p.revealedCards.length, null);
+      }
+
+      heroIndex = newHeroIndex;
+      numberOfPlayers = newPlayerCount;
+      _heroPosition = newHeroPos;
+
+      actions
+        ..clear()
+        ..addAll(parsedActions);
+
+      stackSizes
+        ..clear()
+        ..addAll(stackMap);
+
+      playerPositions
+        ..clear()
+        ..addAll(posMap);
+
+      playerTypes
+        ..clear()
+        ..addAll(typeMap.isNotEmpty
+            ? typeMap
+            : {for (final k in posMap.keys) k: PlayerType.unknown});
+
+      opponentIndex = null;
+      _commentController.clear();
+      _tagsController.clear();
+      _recalculatePots();
+      _recalculateStreetInvestments();
+      currentStreet = 0;
+      _playbackIndex = 0;
+      _animatedPlayersPerStreet.clear();
+      _updatePlaybackState();
+    });
+  }
+
   Future<void> saveCurrentHand() async {
     final controller = TextEditingController();
     final result = await showDialog<String>(
