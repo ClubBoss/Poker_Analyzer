@@ -1307,6 +1307,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       opponentIndex: opponentIndex,
       actions: List<ActionEntry>.from(actions),
       stackSizes: Map<int, int>.from(_initialStacks),
+      remainingStacks: {
+        for (int i = 0; i < numberOfPlayers; i++)
+          i: _stackManager.getStackForPlayer(i)
+      },
       playerPositions: Map<int, String>.from(playerPositions),
       playerTypes: Map<int, PlayerType>.from(playerTypes),
       comment: _commentController.text.isNotEmpty ? _commentController.text : null,
@@ -1361,7 +1365,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _initialStacks
         ..clear()
         ..addAll(hand.stackSizes);
-      _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+      _stackManager = StackManager(
+        Map<int, int>.from(_initialStacks),
+        remainingStacks: hand.remainingStacks,
+      );
       stackSizes
         ..clear()
         ..addAll(_stackManager.currentStacks);
