@@ -3,6 +3,7 @@ import '../models/action_entry.dart';
 import 'detailed_action_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 
+import 'street_pot_widget.dart';
 /// Whether action hints (tooltips) should be shown. TODO: load from preferences.
 const bool kShowActionHints = true;
 
@@ -221,6 +222,10 @@ class StreetActionsList extends StatelessWidget {
               ],
             ),
           ),
+        StreetPotWidget(
+          streetIndex: street,
+          potSize: pots[street],
+        ),
       ],
     );
   }
