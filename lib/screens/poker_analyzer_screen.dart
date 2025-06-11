@@ -2328,6 +2328,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final effectiveStack = _calculateEffectiveStack(fromActions: visibleActions);
+    final currentStreetEffectiveStack = _calculateEffectiveStackForStreet(currentStreet);
     final pot = _pots[currentStreet];
     final double? sprValue =
         pot > 0 ? effectiveStack / pot : null;
@@ -2368,6 +2369,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 });
               }
             },
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Text(
+                'Effective Stack (Current Street): $currentStreetEffectiveStack BB',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ),
             Expanded(
               flex: 7,
