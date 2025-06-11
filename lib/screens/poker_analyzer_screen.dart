@@ -35,6 +35,7 @@ import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/bet_chip_animation.dart';
 import '../widgets/chip_animation_overlay.dart';
+import '../widgets/mini_stack_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 import '../models/player_model.dart';
@@ -2879,6 +2880,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         child: PlayerStackChips(
           stack: stack,
           scale: scale * 0.9,
+        ),
+      ),
+      Positioned(
+        left: centerX + dx + (cos(angle) < 0 ? -45 * scale : 30 * scale),
+        top: centerY + dy + bias + 50 * scale,
+        child: MiniStackWidget(
+          stack: stack,
+          scale: scale * 0.8,
         ),
       ),
       if (lastAction != null)
