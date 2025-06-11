@@ -1290,13 +1290,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
 
-  int _totalInvestedAmount(int index) {
-    int total = 0;
-    for (int s = 0; s < _pots.length; s++) {
-      total += _stackManager.getInvestmentForStreet(index, s);
-    }
-    return total;
-  }
 
   Future<void> _showDebugPanel() async {
     await showDialog<void>(
@@ -1311,7 +1304,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               for (int i = 0; i < numberOfPlayers; i++)
                 Text(
                   'Player ${i + 1}: Initial ${_initialStacks[i] ?? 0}, '
-                  'Invested ${_totalInvestedAmount(i)}, '
+                  'Invested ${_stackManager.getTotalInvested(i)}, '
                   'Remaining ${_stackManager.getStackForPlayer(i)}',
                 ),
             ],
