@@ -793,6 +793,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return minStack ?? 0;
   }
 
+  /// Calculates the effective stack size at the end of [street].
+  ///
+  /// For each active player their initial stack is reduced by the total
+  /// amount invested up to and including the given [street]. Folded players
+  /// (before or on this street) are ignored. The smallest remaining stack
+  /// among all active players is returned.
+  int _calculateEffectiveStackForStreet(int street) {
+    final visibleActions = actions.take(_playbackIndex).toList();
+    int? minStack;
+    for (int index = 0; index < numberOfPlayers; index++) {
+      final folded = visibleActions.any((a) =>
+          a.playerIndex == index && a.action == 'fold' && a.street <= street);
+      if (folded) continue;
+
+      final initial = _initialStacks[index] ?? 0;
+      int invested = 0;
+      for (int s = 0; s <= street; s++) {
+        invested += _stackManager.getInvestmentForStreet(index, s);
+      }
+      final remaining = initial - invested;
+
+      if (minStack == null || remaining < minStack) {
+        minStack = remaining;
+      }
+    }
+    return minStack ?? 0;
+  }
+
   /// Returns the remaining stack for [playerIndex] after subtracting all
   /// investments made by this player. If the player is not present in
   /// [stackSizes], `0` is returned.
