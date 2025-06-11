@@ -798,6 +798,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return minStack ?? 0;
   }
 
+  /// Returns the remaining stack for [playerIndex] after subtracting all
+  /// investments made by this player. If the player is not present in
+  /// [stackSizes], `0` is returned.
+  int getRemainingStack(int playerIndex) {
+    final baseStack = stackSizes[playerIndex];
+    if (baseStack == null) return 0;
+    final invested = _streetInvestments.getTotalInvestment(playerIndex);
+    return baseStack - invested;
+  }
+
   void _updatePlaybackState() {
     final subset = actions.take(_playbackIndex).toList();
     if (_playbackIndex == 0) {
