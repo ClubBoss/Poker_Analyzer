@@ -40,6 +40,8 @@ class PlayerZoneWidget extends StatefulWidget {
   final bool showHint;
   /// Whether to display the player type label under the stack.
   final bool showPlayerTypeLabel;
+  /// Player's remaining stack after subtracting investments.
+  final int? remainingStack;
   final String? actionTagText;
   final void Function(int, CardModel) onCardsSelected;
   /// Starting stack value representing 100% for the stack bar.
@@ -66,6 +68,7 @@ class PlayerZoneWidget extends StatefulWidget {
     this.highlightLastAction = false,
     this.showHint = false,
     this.showPlayerTypeLabel = false,
+    this.remainingStack,
     this.actionTagText,
     this.maxStackSize = 100,
     this.scale = 1.0,
@@ -82,6 +85,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late int _currentBet;
   late List<CardModel> _cards;
   int? _stack;
+  int? _remainingStack;
   String? _actionTagText;
   OverlayEntry? _betEntry;
   OverlayEntry? _betOverlayEntry;
@@ -103,6 +107,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         (widget.stackSizes != null && widget.playerIndex != null
             ? widget.stackSizes![widget.playerIndex!]
             : null);
+    _remainingStack = widget.remainingStack;
     _playerZoneRegistry[widget.playerName] = this;
     _controller = AnimationController(
       vsync: this,
@@ -153,6 +158,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             : null);
     if (newStack != oldStack) {
       setState(() => _stack = newStack);
+    }
+    if (widget.remainingStack != oldWidget.remainingStack) {
+      setState(() => _remainingStack = widget.remainingStack);
     }
   }
 
@@ -367,6 +375,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final int? stack = _stack;
+    final int? remaining = _remainingStack;
     final nameStyle = TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
@@ -430,6 +439,15 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   ),
               ],
             ),
+            if (!widget.isFolded && remaining != null)
+              Padding(
+                padding: EdgeInsets.only(top: 2.0 * widget.scale),
+                child: Text(
+                  'Осталось: $remaining',
+                  style: stackStyle,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             if (widget.position != null)
               Padding(
                 padding: EdgeInsets.only(top: 2.0 * widget.scale),
