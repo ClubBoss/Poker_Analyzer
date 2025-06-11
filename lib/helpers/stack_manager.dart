@@ -6,10 +6,15 @@ class StackManager {
   final Map<int, int> _initialStacks;
   final Map<int, StackWithInvestments> _currentStacks = {};
 
-  StackManager(Map<int, int> initialStacks)
+  StackManager(Map<int, int> initialStacks, {Map<int, int>? remainingStacks})
       : _initialStacks = Map<int, int>.from(initialStacks) {
     for (final entry in _initialStacks.entries) {
-      _currentStacks[entry.key] = StackWithInvestments(entry.value);
+      final sw = StackWithInvestments(entry.value);
+      final remaining = remainingStacks?[entry.key];
+      if (remaining != null && remaining < entry.value) {
+        sw.addInvestment(0, entry.value - remaining);
+      }
+      _currentStacks[entry.key] = sw;
     }
   }
 
