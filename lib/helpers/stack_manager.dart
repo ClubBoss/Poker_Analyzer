@@ -35,4 +35,8 @@ class StackManager {
   /// Returns the stack for a specific [playerIndex].
   int getStackForPlayer(int playerIndex) =>
       _currentStacks[playerIndex]?.remainingStack ?? 0;
+
+  /// Returns the chips invested by [playerIndex] on [street].
+  int getInvestmentForStreet(int playerIndex, int street) =>
+      _currentStacks[playerIndex]?.getInvestmentForStreet(street) ?? 0;
 }
