@@ -38,6 +38,8 @@ class PlayerZoneWidget extends StatefulWidget {
   final bool isActive;
   final bool highlightLastAction;
   final bool showHint;
+  /// Whether to display the player type label under the stack.
+  final bool showPlayerTypeLabel;
   final String? actionTagText;
   final void Function(int, CardModel) onCardsSelected;
   /// Starting stack value representing 100% for the stack bar.
@@ -63,6 +65,7 @@ class PlayerZoneWidget extends StatefulWidget {
     this.isActive = false,
     this.highlightLastAction = false,
     this.showHint = false,
+    this.showPlayerTypeLabel = false,
     this.actionTagText,
     this.maxStackSize = 100,
     this.scale = 1.0,
@@ -577,6 +580,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           onLongPress: _editStack,
           child: PlayerStackLabel(stack: stack, scale: widget.scale),
         ),
+        if (widget.showPlayerTypeLabel)
+          AnimatedOpacity(
+            opacity: widget.showPlayerTypeLabel ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 300),
+            child: Padding(
+              padding: EdgeInsets.only(top: 2.0 * widget.scale),
+              child: Text(
+                _playerTypeLabel(_playerType),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10 * widget.scale,
+                ),
+              ),
+            ),
+          ),
         StackBarWidget(
           stack: stack,
           maxStack: widget.maxStackSize,
