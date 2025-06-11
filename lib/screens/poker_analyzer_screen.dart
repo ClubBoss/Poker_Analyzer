@@ -41,6 +41,7 @@ import '../widgets/action_timeline_widget.dart';
 import '../models/street_investments.dart';
 import '../helpers/pot_calculator.dart';
 import '../widgets/chip_moving_widget.dart';
+import '../helpers/stack_manager.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -71,7 +72,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final List<int> _pots = List.filled(4, 0);
   final StreetInvestments _streetInvestments = StreetInvestments();
   final PotCalculator _potCalculator = PotCalculator();
-  final Map<int, int> stackSizes = {
+  final Map<int, int> _initialStacks = {
     0: 120,
     1: 80,
     2: 100,
@@ -83,6 +84,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     8: 105,
     9: 100,
   };
+  final Map<int, int> stackSizes = {};
+  late StackManager _stackManager;
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
   Set<String> get allTags =>
@@ -455,7 +458,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _editPlayerInfo(int index) async {
     final stackController =
-        TextEditingController(text: (stackSizes[index] ?? 0).toString());
+        TextEditingController(text: (_initialStacks[index] ?? 0).toString());
     PlayerType type = playerTypes[index] ?? PlayerType.unknown;
     bool isHeroSelected = index == heroIndex;
     CardModel? card1 =
@@ -608,9 +611,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     if (confirmed == true) {
       final int newStack =
-          int.tryParse(stackController.text) ?? stackSizes[index] ?? 0;
+          int.tryParse(stackController.text) ?? _initialStacks[index] ?? 0;
       setState(() {
-        stackSizes[index] = newStack;
+        _initialStacks[index] = newStack;
         playerTypes[index] = type;
         if (isHeroSelected) {
           heroIndex = index;
@@ -623,6 +626,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           if (card2 != null) cards.add(card2!);
           playerCards[index] = cards;
         }
+        _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+        _updatePlaybackState();
       });
     }
   }
@@ -634,6 +639,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+    stackSizes.addAll(_stackManager.currentStacks);
     playerPositions = Map.fromIterables(
       List.generate(numberOfPlayers, (i) => i),
       getPositionList(numberOfPlayers),
@@ -798,6 +805,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _recalculateStreetInvestments(fromActions: subset);
     _updatePots(fromActions: subset);
+    _stackManager.applyActions(subset);
+    stackSizes
+      ..clear()
+      ..addAll(_stackManager.currentStacks);
     lastActionPlayerIndex =
         subset.isNotEmpty ? subset.last.playerIndex : null;
   }
@@ -875,19 +886,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  void _applyStackChange(ActionEntry entry, {bool revert = false}) {
-    if (entry.action == 'call' ||
-        entry.action == 'bet' ||
-        entry.action == 'raise') {
-      final amount = entry.amount ?? 0;
-      final current = stackSizes[entry.playerIndex] ?? 0;
-      stackSizes[entry.playerIndex] = revert ? current + amount : current - amount;
-    }
-  }
-
   void _addAction(ActionEntry entry) {
     actions.add(entry);
-    _applyStackChange(entry);
     lastActionPlayerIndex = entry.playerIndex;
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
@@ -913,9 +913,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _updateAction(int index, ActionEntry entry) {
     final old = actions[index];
-    _applyStackChange(old, revert: true);
     actions[index] = entry;
-    _applyStackChange(entry);
     _recalculateStreetInvestments();
     _updatePots();
     if (index == actions.length - 1) {
@@ -942,8 +940,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _editStackSize(int index) async {
     final controller =
-        TextEditingController(text: (stackSizes[index] ?? 0).toString());
-    int? value = stackSizes[index];
+        TextEditingController(text: (_initialStacks[index] ?? 0).toString());
+    int? value = _initialStacks[index];
     final result = await showDialog<int>(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -991,7 +989,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     if (result != null) {
       setState(() {
-        stackSizes[index] = result;
+        _initialStacks[index] = result;
+        _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+        _updatePlaybackState();
       });
     }
   }
@@ -1090,7 +1090,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _deleteAction(int index) {
     setState(() {
       final removed = actions.removeAt(index);
-      _applyStackChange(removed, revert: true);
       _recalculateStreetInvestments();
       _updatePots();
       lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
@@ -1204,7 +1203,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       for (int i = index; i < numberOfPlayers - 1; i++) {
         playerCards[i] = playerCards[i + 1];
         players[i] = players[i + 1];
-        stackSizes[i] = stackSizes[i + 1] ?? 0;
+        _initialStacks[i] = _initialStacks[i + 1] ?? 0;
         _actionTags[i] = _actionTags[i + 1];
         playerPositions[i] = playerPositions[i + 1] ?? '';
         playerTypes[i] = playerTypes[i + 1] ?? PlayerType.unknown;
@@ -1212,7 +1211,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       playerCards[numberOfPlayers - 1] = [];
       players[numberOfPlayers - 1] = PlayerModel(name: 'Player ${numberOfPlayers}');
-      stackSizes.remove(numberOfPlayers - 1);
+      _initialStacks.remove(numberOfPlayers - 1);
       _actionTags.remove(numberOfPlayers - 1);
       playerPositions.remove(numberOfPlayers - 1);
       playerTypes.remove(numberOfPlayers - 1);
@@ -1235,10 +1234,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _updatePositions();
       _recalculateStreetInvestments();
       _updatePots();
-      lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
       if (_playbackIndex > actions.length) {
         _playbackIndex = actions.length;
       }
+      _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+      _updatePlaybackState();
     });
   }
 
@@ -1278,6 +1278,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _animatedPlayersPerStreet.clear();
         lastActionPlayerIndex = null;
         _playbackIndex = 0;
+        _stackManager = StackManager(Map<int, int>.from(_initialStacks));
         _updatePlaybackState();
         playerTypes.clear();
         for (int i = 0; i < _showActionHints.length; i++) {
@@ -1314,7 +1315,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ],
       opponentIndex: opponentIndex,
       actions: List<ActionEntry>.from(actions),
-      stackSizes: Map<int, int>.from(stackSizes),
+      stackSizes: Map<int, int>.from(_initialStacks),
       playerPositions: Map<int, String>.from(playerPositions),
       playerTypes: Map<int, PlayerType>.from(playerTypes),
       comment: _commentController.text.isNotEmpty ? _commentController.text : null,
@@ -1366,9 +1367,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actions
         ..clear()
         ..addAll(hand.actions);
-      stackSizes
+      _initialStacks
         ..clear()
         ..addAll(hand.stackSizes);
+      _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+      stackSizes
+        ..clear()
+        ..addAll(_stackManager.currentStacks);
       playerPositions
         ..clear()
         ..addAll(hand.playerPositions);
@@ -2772,7 +2777,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             onLongPress: () => _editPlayerInfo(index),
             onEdit: () => _editPlayerInfo(index),
             onStackTap: (value) => setState(() {
-              stackSizes[index] = value;
+              _initialStacks[index] = value;
+              _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+              _updatePlaybackState();
             }),
             onRemove: numberOfPlayers > 2 ? () {
               _removePlayer(index);
