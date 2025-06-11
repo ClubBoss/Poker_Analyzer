@@ -13,7 +13,7 @@ import 'chip_widget.dart';
 import 'current_bet_label.dart';
 import 'player_stack_label.dart';
 import 'stack_bar_widget.dart';
-import 'bet_chip_animation.dart';
+import 'chip_moving_widget.dart';
 import 'move_pot_animation.dart';
 
 final Map<String, _PlayerZoneWidgetState> _playerZoneRegistry = {};
@@ -216,10 +216,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => BetChipAnimation(
+      builder: (_) => ChipMovingWidget(
         start: start,
         end: end,
         amount: amount,
+        color: Colors.amber,
         scale: widget.scale,
         onCompleted: () => entry.remove(),
       ),
