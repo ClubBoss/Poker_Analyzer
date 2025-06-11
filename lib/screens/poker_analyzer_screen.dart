@@ -1289,6 +1289,43 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return 'Раздача от $day.$month.$year';
   }
 
+
+  int _totalInvestedAmount(int index) {
+    int total = 0;
+    for (int s = 0; s < _pots.length; s++) {
+      total += _stackManager.getInvestmentForStreet(index, s);
+    }
+    return total;
+  }
+
+  Future<void> _showDebugPanel() async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Stack Diagnostics'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int i = 0; i < numberOfPlayers; i++)
+                Text(
+                  'Player ${i + 1}: Initial ${_initialStacks[i] ?? 0}, '
+                  'Invested ${_totalInvestedAmount(i)}, '
+                  'Remaining ${_stackManager.getStackForPlayer(i)}',
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
   SavedHand _currentSavedHand({String? name}) {
     return SavedHand(
       name: name ?? _defaultHandName(),
@@ -2571,43 +2608,56 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          final data = {
-            'playerCards': [
-              [
-                {'rank': 'A', 'suit': 'h'},
-                {'rank': 'K', 'suit': 'h'},
-              ],
-              [
-                {'rank': 'Q', 'suit': 's'},
-                {'rank': 'Q', 'suit': 'd'},
-              ],
-              [
-                {'rank': 'J', 'suit': 'c'},
-                {'rank': 'J', 'suit': 'd'},
-              ],
-            ],
-            'boardCards': [
-              {'rank': '2', 'suit': 'h'},
-              {'rank': '7', 'suit': 'd'},
-              {'rank': 'T', 'suit': 's'},
-            ],
-            'actions': [
-              {
-                'street': 1,
-                'playerIndex': 0,
-                'action': 'bet',
-                'amount': 40,
-              },
-            ],
-            'positions': ['BTN', 'SB', 'BB'],
-            'heroIndex': 0,
-            'numberOfPlayers': 3,
-          };
-          loadTrainingSpot(data);
-        },
-        child: const Icon(Icons.play_arrow),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'playFab',
+            onPressed: () {
+              final data = {
+                'playerCards': [
+                  [
+                    {'rank': 'A', 'suit': 'h'},
+                    {'rank': 'K', 'suit': 'h'},
+                  ],
+                  [
+                    {'rank': 'Q', 'suit': 's'},
+                    {'rank': 'Q', 'suit': 'd'},
+                  ],
+                  [
+                    {'rank': 'J', 'suit': 'c'},
+                    {'rank': 'J', 'suit': 'd'},
+                  ],
+                ],
+                'boardCards': [
+                  {'rank': '2', 'suit': 'h'},
+                  {'rank': '7', 'suit': 'd'},
+                  {'rank': 'T', 'suit': 's'},
+                ],
+                'actions': [
+                  {
+                    'street': 1,
+                    'playerIndex': 0,
+                    'action': 'bet',
+                    'amount': 40,
+                  },
+                ],
+                'positions': ['BTN', 'SB', 'BB'],
+                'heroIndex': 0,
+                'numberOfPlayers': 3,
+              };
+              loadTrainingSpot(data);
+            },
+            child: const Icon(Icons.play_arrow),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton(
+            heroTag: 'debugFab',
+            onPressed: _showDebugPanel,
+            child: const Icon(Icons.bug_report),
+          ),
+        ],
       ),
     );
   }
