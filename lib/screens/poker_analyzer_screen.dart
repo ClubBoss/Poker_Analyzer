@@ -38,6 +38,7 @@ import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 import '../models/player_model.dart';
 import '../widgets/action_timeline_widget.dart';
+import '../models/street_investments.dart';
 import '../widgets/chip_moving_widget.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
@@ -67,7 +68,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _isPlaying = false;
   Timer? _playbackTimer;
   final List<int> _pots = List.filled(4, 0);
-  final Map<int, Map<int, int>> _streetInvestments = {};
+  final StreetInvestments _streetInvestments = StreetInvestments();
   final Map<int, int> stackSizes = {
     0: 120,
     1: 80,
@@ -785,13 +786,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final list = fromActions ?? actions;
     _streetInvestments.clear();
     for (final a in list) {
-      if (a.action == 'call' || a.action == 'bet' || a.action == 'raise') {
-        final streetMap = _streetInvestments.putIfAbsent(a.street, () => {});
-        streetMap[a.playerIndex] =
-            (streetMap[a.playerIndex] ?? 0) + (a.amount ?? 0);
-      }
-      // Do not remove chip contributions on "fold" so that
-      // folded players still display their invested amount
+      _streetInvestments.addAction(a);
     }
   }
 
@@ -1021,7 +1016,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
     final investments = [
       for (int i = 0; i < 4; i++)
-        _streetInvestments[i]?[playerIndex] ?? 0
+        _streetInvestments.getInvestment(playerIndex, i)
     ];
     final total = investments.fold<int>(0, (sum, v) => sum + v);
     final percent = stack > 0 ? (total / stack * 100) : 0.0;
@@ -2695,7 +2690,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     final int currentBet = lastAmountAction?.amount ?? 0;
 
-    final invested = _streetInvestments[currentStreet]?[index] ?? 0;
+    final invested =
+        _streetInvestments.getInvestment(index, currentStreet);
 
     final Color? actionColor =
         (lastAction?.action == 'bet' || lastAction?.action == 'raise')
@@ -2974,7 +2970,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
 
-    final invested = _streetInvestments[currentStreet]?[index] ?? 0;
+    final invested =
+        _streetInvestments.getInvestment(index, currentStreet);
 
     final Color? actionColor =
         (lastAction?.action == 'bet' || lastAction?.action == 'raise')
