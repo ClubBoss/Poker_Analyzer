@@ -44,6 +44,7 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
                     cards: _cards[index],
                     stackSizes: _stackSizes,
                     playerIndex: index,
+                    remainingStack: _stackSizes[index],
                     isHero: index == 0,
                     isFolded: false,
                     onCardsSelected: (i, c) {},
