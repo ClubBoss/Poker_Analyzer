@@ -40,6 +40,7 @@ import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 import '../models/player_model.dart';
 import '../widgets/action_timeline_widget.dart';
+import '../widgets/chip_moving_widget.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -227,6 +228,48 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     overlay.insert(entryOverlay);
+  }
+
+  void _playChipMovingWidget(ActionEntry entry) {
+    if (!['bet', 'raise', 'call'].contains(entry.action) ||
+        entry.amount == null ||
+        entry.generated) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale = _tableScale();
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY = screen.height / 2 - _centerYOffset(scale);
+    final radiusMod = _radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = _verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final end = Offset(centerX, centerY);
+    final color = entry.action == 'raise'
+        ? Colors.green
+        : entry.action == 'call'
+            ? Colors.blue
+            : Colors.amber;
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (_) => ChipMovingWidget(
+        start: start,
+        end: end,
+        amount: entry.amount!,
+        color: color,
+        scale: scale,
+        onCompleted: () => overlayEntry.remove(),
+      ),
+    );
+    overlay.insert(overlayEntry);
   }
 
   void _addChipAnimation(ActionEntry entry) {
@@ -971,6 +1014,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _recalculateStreetInvestments();
     _triggerCenterChip(entry);
     _playActionChipAnimation(entry);
+    _playChipMovingWidget(entry);
     _addChipAnimation(entry);
     _updatePlaybackState();
   }
@@ -1002,6 +1046,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     _triggerCenterChip(entry);
     _playActionChipAnimation(entry);
+    _playChipMovingWidget(entry);
     _addChipAnimation(entry);
     _updatePlaybackState();
   }
