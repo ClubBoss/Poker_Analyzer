@@ -1272,7 +1272,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         opponentIndex = null;
         actions.clear();
         currentStreet = 0;
-        _pots.fillRange(0, _pots.length, 0);
         _streetInvestments.clear();
         _actionTags.clear();
         _firstActionTaken.clear();
