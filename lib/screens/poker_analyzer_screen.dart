@@ -39,6 +39,7 @@ import '../models/saved_hand.dart';
 import '../models/player_model.dart';
 import '../widgets/action_timeline_widget.dart';
 import '../models/street_investments.dart';
+import '../helpers/pot_calculator.dart';
 import '../widgets/chip_moving_widget.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
@@ -69,6 +70,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _playbackTimer;
   final List<int> _pots = List.filled(4, 0);
   final StreetInvestments _streetInvestments = StreetInvestments();
+  final PotCalculator _potCalculator = PotCalculator();
   final Map<int, int> stackSizes = {
     0: 120,
     1: 80,
@@ -757,28 +759,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         .any((a) => a.action == 'bet' || a.action == 'raise');
   }
 
-  int _calculatePotForStreet(int street, {List<ActionEntry>? fromActions}) {
+  void _updatePots({List<ActionEntry>? fromActions}) {
     final list = fromActions ?? actions;
-    int pot = 0;
-    for (int s = 0; s <= street; s++) {
-      pot += list
-          .where((a) => a.street == s &&
-              (a.action == 'call' || a.action == 'bet' || a.action == 'raise'))
-          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
-    }
-    return pot;
-  }
-
-  void _recalculatePots({List<ActionEntry>? fromActions}) {
-    final list = fromActions ?? actions;
-    int cumulative = 0;
-    for (int s = 0; s < _pots.length; s++) {
-      final streetAmount = list
-          .where((a) => a.street == s &&
-              (a.action == 'call' || a.action == 'bet' || a.action == 'raise'))
-          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
-      cumulative += streetAmount;
-      _pots[s] = cumulative;
+    final pots = _potCalculator.calculatePots(list, _streetInvestments);
+    for (int i = 0; i < _pots.length; i++) {
+      _pots[i] = pots[i];
     }
   }
 
@@ -811,8 +796,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_playbackIndex == 0) {
       _animatedPlayersPerStreet.clear();
     }
-    _recalculatePots(fromActions: subset);
     _recalculateStreetInvestments(fromActions: subset);
+    _updatePots(fromActions: subset);
     lastActionPlayerIndex =
         subset.isNotEmpty ? subset.last.playerIndex : null;
   }
@@ -912,8 +897,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionColor(entry.action),
       entry.amount,
     );
-    _recalculatePots();
     _recalculateStreetInvestments();
+    _updatePots();
     _triggerCenterChip(entry);
     _playUnifiedChipAnimation(entry);
     _updatePlaybackState();
@@ -931,8 +916,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _applyStackChange(old, revert: true);
     actions[index] = entry;
     _applyStackChange(entry);
-    _recalculatePots();
     _recalculateStreetInvestments();
+    _updatePots();
     if (index == actions.length - 1) {
       lastActionPlayerIndex = entry.playerIndex;
     }
@@ -1018,7 +1003,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       for (int i = 0; i < 4; i++)
         _streetInvestments.getInvestment(playerIndex, i)
     ];
-    final total = investments.fold<int>(0, (sum, v) => sum + v);
+    final total = _streetInvestments.getTotalInvestment(playerIndex);
     final percent = stack > 0 ? (total / stack * 100) : 0.0;
 
     showDialog(
@@ -1106,8 +1091,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       final removed = actions.removeAt(index);
       _applyStackChange(removed, revert: true);
-      _recalculatePots();
       _recalculateStreetInvestments();
+      _updatePots();
       lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
       if (_playbackIndex > actions.length) {
         _playbackIndex = actions.length;
@@ -1248,8 +1233,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       numberOfPlayers--;
       _updatePositions();
-      _recalculatePots();
       _recalculateStreetInvestments();
+      _updatePots();
       lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
       if (_playbackIndex > actions.length) {
         _playbackIndex = actions.length;
@@ -1394,8 +1379,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
       _commentController.text = hand.comment ?? '';
       _tagsController.text = hand.tags.join(', ');
-      _recalculatePots();
       _recalculateStreetInvestments();
+      _updatePots();
       currentStreet = 0;
       _playbackIndex = 0;
       _animatedPlayersPerStreet.clear();
@@ -1495,8 +1480,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       currentStreet = 0;
       _playbackIndex = 0;
-      _recalculatePots();
       _recalculateStreetInvestments();
+      _updatePots();
       _updatePlaybackState();
       _updatePositions();
     });
@@ -2413,11 +2398,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       onStreetChanged: (index) {
         setState(() {
           currentStreet = index;
-                  _pots[currentStreet] = _calculatePotForStreet(currentStreet);
-                  _recalculateStreetInvestments();
-                  _actionTags.clear();
-                  _animatedPlayersPerStreet.clear();
-                });
+          _actionTags.clear();
+          _animatedPlayersPerStreet.clear();
+        });
               },
             ),
             StreetActionInputWidget(

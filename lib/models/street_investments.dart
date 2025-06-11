@@ -28,6 +28,20 @@ class StreetInvestments {
     return _investments[s]?[playerIndex] ?? 0;
   }
 
+  /// Returns total chips invested by [playerIndex] across all streets.
+  int getTotalInvestment(int playerIndex) {
+    int total = 0;
+    for (final streetMap in _investments.values) {
+      total += streetMap[playerIndex] ?? 0;
+    }
+    return total;
+  }
+
+  /// Returns total chips invested by all players on [street].
+  int getTotalInvestedOnStreet(int street) {
+    return _investments[street]?.values.fold<int>(0, (sum, v) => sum + v) ?? 0;
+  }
+
   /// Utility to clear all stored investments.
   void clear() => _investments.clear();
 
