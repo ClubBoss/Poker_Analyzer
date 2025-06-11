@@ -44,4 +44,11 @@ class StackManager {
   /// Returns the chips invested by [playerIndex] on [street].
   int getInvestmentForStreet(int playerIndex, int street) =>
       _currentStacks[playerIndex]?.getInvestmentForStreet(street) ?? 0;
+
+  /// Returns total chips invested by [playerIndex] across all streets.
+  int getTotalInvested(int playerIndex) {
+    final sw = _currentStacks[playerIndex];
+    if (sw == null) return 0;
+    return sw.initialStack - sw.remainingStack;
+  }
 }
