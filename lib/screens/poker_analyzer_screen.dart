@@ -2738,6 +2738,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     .whereType<CardModel>()
                     .toList()
                 : playerCards[index],
+            remainingStack: _stackManager.getStackForPlayer(index),
             streetInvestment: invested,
             currentBet: currentBet,
             lastAction: lastAction?.action,
