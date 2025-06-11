@@ -803,12 +803,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_playbackIndex == 0) {
       _animatedPlayersPerStreet.clear();
     }
-    _recalculateStreetInvestments(fromActions: subset);
-    _updatePots(fromActions: subset);
     _stackManager.applyActions(subset);
     stackSizes
       ..clear()
       ..addAll(_stackManager.currentStacks);
+    _recalculateStreetInvestments(fromActions: subset);
+    _updatePots(fromActions: subset);
     lastActionPlayerIndex =
         subset.isNotEmpty ? subset.last.playerIndex : null;
   }
@@ -897,8 +897,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionColor(entry.action),
       entry.amount,
     );
-    _recalculateStreetInvestments();
-    _updatePots();
     _triggerCenterChip(entry);
     _playUnifiedChipAnimation(entry);
     _updatePlaybackState();
@@ -912,10 +910,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _updateAction(int index, ActionEntry entry) {
-    final old = actions[index];
     actions[index] = entry;
-    _recalculateStreetInvestments();
-    _updatePots();
     if (index == actions.length - 1) {
       lastActionPlayerIndex = entry.playerIndex;
     }
@@ -1090,8 +1085,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _deleteAction(int index) {
     setState(() {
       final removed = actions.removeAt(index);
-      _recalculateStreetInvestments();
-      _updatePots();
       lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
       if (_playbackIndex > actions.length) {
         _playbackIndex = actions.length;
@@ -1232,8 +1225,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       numberOfPlayers--;
       _updatePositions();
-      _recalculateStreetInvestments();
-      _updatePots();
       if (_playbackIndex > actions.length) {
         _playbackIndex = actions.length;
       }
@@ -1383,8 +1374,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
       _commentController.text = hand.comment ?? '';
       _tagsController.text = hand.tags.join(', ');
-      _recalculateStreetInvestments();
-      _updatePots();
       currentStreet = 0;
       _playbackIndex = 0;
       _animatedPlayersPerStreet.clear();
@@ -1484,8 +1473,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       currentStreet = 0;
       _playbackIndex = 0;
-      _recalculateStreetInvestments();
-      _updatePots();
       _updatePlaybackState();
       _updatePositions();
     });
