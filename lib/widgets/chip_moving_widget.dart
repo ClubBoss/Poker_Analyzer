@@ -11,7 +11,7 @@ class ChipMovingWidget extends StatefulWidget {
   /// Amount displayed on the chip.
   final int amount;
 
-  /// Chip color.
+  /// Color of the amount text. This also identifies the action type.
   final Color color;
 
   /// Scale factor for sizing.
@@ -80,12 +80,19 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: widget.color,
+          color: Colors.black,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              blurRadius: 4 * widget.scale,
+              offset: const Offset(1, 2),
+            )
+          ],
         ),
         child: Text(
           '${widget.amount}',
           style: TextStyle(
-            color: Colors.white,
+            color: widget.color,
             fontSize: 12 * widget.scale,
             fontWeight: FontWeight.bold,
           ),

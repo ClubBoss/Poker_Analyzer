@@ -33,8 +33,6 @@ import '../widgets/player_stack_chips.dart';
 import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
-import '../widgets/bet_chip_animation.dart';
-import '../widgets/chip_animation_overlay.dart';
 import '../widgets/mini_stack_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
@@ -106,7 +104,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late AnimationController _centerChipController;
   bool _showAllRevealedCards = false;
   bool isPerspectiveSwitched = false;
-  final List<ChipAnimationData> _chipAnimations = [];
 
 
   List<String> _positionsForPlayers(int count) {
@@ -194,43 +191,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void _playActionChipAnimation(ActionEntry entry) {
-    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
-        entry.amount == null ||
-        entry.generated) return;
-    final overlay = Overlay.of(context);
-    if (overlay == null) return;
-    final double scale = _tableScale();
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-    final i =
-        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-    final dx = radiusX * cos(angle);
-    final dy = radiusY * sin(angle);
-    final bias = _verticalBiasFromAngle(angle) * scale;
-    final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-    final end = Offset(centerX, centerY);
-    late OverlayEntry entryOverlay;
-    entryOverlay = OverlayEntry(
-      builder: (_) => BetChipAnimation(
-        start: start,
-        end: end,
-        amount: entry.amount!,
-        scale: scale,
-        onCompleted: () => entryOverlay.remove(),
-      ),
-    );
-    overlay.insert(entryOverlay);
-  }
-
-  void _playChipMovingWidget(ActionEntry entry) {
+  void _playUnifiedChipAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call'].contains(entry.action) ||
         entry.amount == null ||
         entry.generated) return;
@@ -270,60 +231,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     overlay.insert(overlayEntry);
-  }
-
-  void _addChipAnimation(ActionEntry entry) {
-    if (!['bet', 'raise', 'call'].contains(entry.action) ||
-        entry.amount == null ||
-        entry.generated) return;
-    final double scale = _tableScale();
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-    final i =
-        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-    final dx = radiusX * cos(angle);
-    final dy = radiusY * sin(angle);
-    final bias = _verticalBiasFromAngle(angle) * scale;
-    final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-    final end = Offset(centerX, centerY);
-
-    final controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    );
-    final color = entry.action == 'raise'
-        ? Colors.green
-        : entry.action == 'call'
-            ? Colors.blue
-            : Colors.amber;
-    late ChipAnimationData data;
-    data = ChipAnimationData(
-      start: start,
-      end: end,
-      amount: entry.amount!,
-      color: color,
-      scale: scale,
-      controller: controller,
-    );
-    controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-        if (mounted) {
-          setState(() => _chipAnimations.remove(data));
-        }
-      }
-    });
-    setState(() {
-      _chipAnimations.add(data);
-    });
-    controller.forward();
   }
 
   String _formatAmount(int amount) {
@@ -1013,9 +920,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _recalculatePots();
     _recalculateStreetInvestments();
     _triggerCenterChip(entry);
-    _playActionChipAnimation(entry);
-    _playChipMovingWidget(entry);
-    _addChipAnimation(entry);
+    _playUnifiedChipAnimation(entry);
     _updatePlaybackState();
   }
 
@@ -1045,9 +950,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       entry.amount,
     );
     _triggerCenterChip(entry);
-    _playActionChipAnimation(entry);
-    _playChipMovingWidget(entry);
-    _addChipAnimation(entry);
+    _playUnifiedChipAnimation(entry);
     _updatePlaybackState();
   }
 
@@ -2060,9 +1963,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackTimer?.cancel();
     _centerChipTimer?.cancel();
     _centerChipController.dispose();
-    for (final a in _chipAnimations) {
-      a.controller.dispose();
-    }
     _commentController.dispose();
     _tagsController.dispose();
     super.dispose();
@@ -2450,7 +2350,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     _buildBetStacksOverlay(scale),
                     _buildInvestedChipsOverlay(scale),
                   _buildPotAndBetsOverlay(scale),
-                  ChipAnimationOverlay(animations: _chipAnimations),
                   ActionHistoryOverlay(
                     actions: actions,
                     playbackIndex: _playbackIndex,
