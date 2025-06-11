@@ -43,6 +43,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final int streetInvestment;
   /// Last bet amount placed by the player on the current street.
   final int currentBet;
+  /// Remaining stack after subtracting investments.
+  final int? remainingStack;
 
   const PlayerInfoWidget({
     super.key,
@@ -70,12 +72,14 @@ class PlayerInfoWidget extends StatelessWidget {
     this.streetInvestment = 0,
     this.currentBet = 0,
     this.showLastIndicator = false,
+    this.remainingStack,
   });
 
   String _format(int value) => NumberFormat.decimalPattern().format(value);
 
   @override
   Widget build(BuildContext context) {
+    const stackStyle = TextStyle(color: Colors.white70, fontSize: 12);
     final borderColor = isActive
         ? Colors.orangeAccent
         : isHero
@@ -182,6 +186,14 @@ class PlayerInfoWidget extends StatelessWidget {
                 ),
             ],
           ),
+          if (remainingStack != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                'Осталось: $remainingStack BB',
+                style: stackStyle,
+              ),
+            ),
           if (positionLabel != null)
             Padding(
               padding: const EdgeInsets.only(top: 2),
@@ -328,9 +340,9 @@ class PlayerInfoWidget extends StatelessWidget {
                 onStackTap!(result);
               }
             },
-            child: Text(
+          child: Text(
               'Stack: \$stack',
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              style: stackStyle,
             ),
           ),
           if (tag.isNotEmpty) ...[
