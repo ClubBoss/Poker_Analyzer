@@ -70,7 +70,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _isPlaying = false;
   Timer? _playbackTimer;
   final List<int> _pots = List.filled(4, 0);
-  final StreetInvestments _streetInvestments = StreetInvestments();
   final PotCalculator _potCalculator = PotCalculator();
   final Map<int, int> _initialStacks = {
     0: 120,
@@ -768,17 +767,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _updatePots({List<ActionEntry>? fromActions}) {
     final list = fromActions ?? actions;
-    final pots = _potCalculator.calculatePots(list, _streetInvestments);
+    final investments = StreetInvestments();
+    for (final a in list) {
+      investments.addAction(a);
+    }
+    final pots = _potCalculator.calculatePots(list, investments);
     for (int i = 0; i < _pots.length; i++) {
       _pots[i] = pots[i];
-    }
-  }
-
-  void _recalculateStreetInvestments({List<ActionEntry>? fromActions}) {
-    final list = fromActions ?? actions;
-    _streetInvestments.clear();
-    for (final a in list) {
-      _streetInvestments.addAction(a);
     }
   }
 
@@ -802,10 +797,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// investments made by this player. If the player is not present in
   /// [stackSizes], `0` is returned.
   int getRemainingStack(int playerIndex) {
-    final baseStack = stackSizes[playerIndex];
-    if (baseStack == null) return 0;
-    final invested = _streetInvestments.getTotalInvestment(playerIndex);
-    return baseStack - invested;
+    return stackSizes[playerIndex] ?? 0;
   }
 
   void _updatePlaybackState() {
@@ -817,7 +809,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     stackSizes
       ..clear()
       ..addAll(_stackManager.currentStacks);
-    _recalculateStreetInvestments(fromActions: subset);
     _updatePots(fromActions: subset);
     lastActionPlayerIndex =
         subset.isNotEmpty ? subset.last.playerIndex : null;
@@ -1006,9 +997,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
     final investments = [
       for (int i = 0; i < 4; i++)
-        _streetInvestments.getInvestment(playerIndex, i)
+        _stackManager.getInvestmentForStreet(playerIndex, i)
     ];
-    final total = _streetInvestments.getTotalInvestment(playerIndex);
+    final total = investments.fold(0, (sum, v) => sum + v);
     final percent = stack > 0 ? (total / stack * 100) : 0.0;
 
     showDialog(
@@ -1273,7 +1264,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         opponentIndex = null;
         actions.clear();
         currentStreet = 0;
-        _streetInvestments.clear();
         _actionTags.clear();
         _firstActionTaken.clear();
         _animatedPlayersPerStreet.clear();
@@ -2675,7 +2665,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final int currentBet = lastAmountAction?.amount ?? 0;
 
     final invested =
-        _streetInvestments.getInvestment(index, currentStreet);
+        _stackManager.getInvestmentForStreet(index, currentStreet);
 
     final Color? actionColor =
         (lastAction?.action == 'bet' || lastAction?.action == 'raise')
@@ -2957,7 +2947,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     final invested =
-        _streetInvestments.getInvestment(index, currentStreet);
+        _stackManager.getInvestmentForStreet(index, currentStreet);
 
     final Color? actionColor =
         (lastAction?.action == 'bet' || lastAction?.action == 'raise')
