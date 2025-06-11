@@ -821,6 +821,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return minStack ?? 0;
   }
 
+  /// Calculates the effective stack size for every street and returns a map
+  /// with human-readable street names as keys.
+  ///
+  /// This helper does not update any UI and can be used for exporting data or
+  /// further analytics.
+  Map<String, int> calculateEffectiveStacksPerStreet() {
+    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
+    final Map<String, int> stacks = {};
+    for (int street = 0; street < streetNames.length; street++) {
+      stacks[streetNames[street]] = _calculateEffectiveStackForStreet(street);
+    }
+    return stacks;
+  }
+
   /// Returns the remaining stack for [playerIndex] after subtracting all
   /// investments made by this player. If the player is not present in
   /// [stackSizes], `0` is returned.
