@@ -137,6 +137,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Indicates if evaluation processing is currently running.
   bool _processingEvaluations = false;
 
+  /// Whether the evaluation queue was restored from disk on startup.
+  bool _evaluationQueueResumed = false;
+
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
 
@@ -689,6 +692,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _applySavedHand(widget.initialHand!);
     }
     Future(() => _cleanupOldEvaluationBackups());
+    Future.microtask(_loadSavedEvaluationQueue);
   }
 
   @override
@@ -901,6 +905,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _pendingEvaluations.clear();
       _completedEvaluations.clear();
     });
+    _persistEvaluationQueue();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Evaluation queue cleared')),
@@ -1444,6 +1449,55 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  /// Persist the current evaluation queue to disk.
+  Future<void> _persistEvaluationQueue() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/evaluation_current_queue.json');
+      final data = [for (final e in _pendingEvaluations) e.toJson()];
+      await file.writeAsString(jsonEncode(data));
+    } catch (_) {}
+  }
+
+  /// Load persisted evaluation queue if available.
+  Future<void> _loadSavedEvaluationQueue() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/evaluation_current_queue.json');
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        final decoded = jsonDecode(content);
+        if (decoded is List) {
+          final items = <ActionEvaluationRequest>[];
+          for (final item in decoded) {
+            if (item is Map) {
+              try {
+                items.add(ActionEvaluationRequest.fromJson(
+                    Map<String, dynamic>.from(item)));
+              } catch (_) {}
+            }
+          }
+          if (mounted) {
+            setState(() {
+              _pendingEvaluations
+                ..clear()
+                ..addAll(items);
+              _evaluationQueueResumed = items.isNotEmpty;
+            });
+          } else {
+            _evaluationQueueResumed = items.isNotEmpty;
+            _pendingEvaluations
+              ..clear()
+              ..addAll(items);
+          }
+        }
+        try {
+          await file.delete();
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
   Future<void> _processEvaluationQueue() async {
     if (_processingEvaluations || _pendingEvaluations.isEmpty) return;
     setState(() {
@@ -1455,12 +1509,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) {
         _processingEvaluations = false;
+        _persistEvaluationQueue();
         return;
       }
       setState(() {
         _pendingEvaluations.removeAt(0);
         _completedEvaluations.add(req);
       });
+      _persistEvaluationQueue();
       // Update debug panel if it's currently visible.
       _debugPanelSetState?.call(() {});
     }
@@ -1468,9 +1524,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       setState(() {
         _processingEvaluations = false;
       });
+      _persistEvaluationQueue();
       _debugPanelSetState?.call(() {});
     } else {
       _processingEvaluations = false;
+      _persistEvaluationQueue();
     }
   }
 
@@ -1608,6 +1666,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..clear()
           ..addAll(items);
       });
+      _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Imported ${items.length} evaluations')),
       );
@@ -1685,6 +1744,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..clear()
           ..addAll(items);
       });
+      _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Restored ${items.length} evaluations')),
       );
@@ -1737,6 +1797,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..clear()
           ..addAll(allItems);
       });
+      _persistEvaluationQueue();
 
       final msg = failed == 0
           ? 'Imported ${allItems.length} evaluations from ${result.files.length} files'
@@ -1980,7 +2041,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const Text('Playback Pause State:'),
               Text('Is Playback Paused: ${_activeTimer == null}'),
               const SizedBox(height: 12),
-              const Text('Action Evaluation Queue:'),
+              Row(
+                children: [
+                  const Text('Action Evaluation Queue:'),
+                  if (_evaluationQueueResumed)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 4.0),
+                      child: Text(
+                        '(Resumed from saved state)',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ),
+                ],
+              ),
               Text('Pending Action Evaluations: ${_pendingEvaluations.length}'),
               Text('Processed: ${_completedEvaluations.length} / ${_pendingEvaluations.length + _completedEvaluations.length}'),
               const SizedBox(height: 12),
@@ -2293,6 +2366,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _updatePlaybackState();
       _updatePositions();
     });
+    _persistEvaluationQueue();
   }
 
   /// Load a training spot represented as a JSON-like map.
