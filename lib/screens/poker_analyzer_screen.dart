@@ -1363,6 +1363,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   Text('Player ${entry.key + 1}: ${entry.value}'),
                 const SizedBox(height: 12),
               ],
+              if (hand.playerTypes != null) ...[
+                const Text('Player Types:'),
+                for (final entry in hand.playerTypes!.entries)
+                  Text('Player ${entry.key + 1}: ${entry.value.name}'),
+                const SizedBox(height: 12),
+              ],
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
