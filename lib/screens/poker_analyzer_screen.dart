@@ -101,6 +101,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Map<int, PlayerType> playerTypes = {};
 
   bool debugLayout = false;
+  bool _isDebugPanelOpen = false;
   final Set<int> _expandedHistoryStreets = {};
   final Map<int, Set<int>> _animatedPlayersPerStreet = {};
 
@@ -1360,6 +1361,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _pots[currentStreet] > 0 ? hudEffStack / _pots[currentStreet] : null;
     final String? hudSprText =
         hudSprValue != null ? 'SPR: ${hudSprValue.toStringAsFixed(1)}' : null;
+    setState(() {
+      _isDebugPanelOpen = true;
+    });
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -1580,6 +1584,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               Text('HUD SPR Text: ${hudSprText ?? '(none)'}'),
               const SizedBox(height: 12),
+              const Text('Debug Menu Visibility:'),
+              Text('Is Debug Menu Open: $_isDebugPanelOpen'),
+              const SizedBox(height: 12),
             ],
           ),
         ),
@@ -1591,6 +1598,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ],
       ),
     );
+    setState(() {
+      _isDebugPanelOpen = false;
+    });
   }
   SavedHand _currentSavedHand({String? name}) {
     final stacks = calculateEffectiveStacksPerStreet();
