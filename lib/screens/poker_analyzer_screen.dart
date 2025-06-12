@@ -1,9 +1,12 @@
 import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -1351,6 +1354,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return 'Раздача от $day.$month.$year';
   }
 
+  Future<void> _exportEvaluationQueue() async {
+    if (_pendingEvaluations.isEmpty) return;
+    final dir = await getApplicationDocumentsDirectory();
+    final fileName =
+        'evaluation_queue_${DateTime.now().millisecondsSinceEpoch}.json';
+    final file = File('${dir.path}/$fileName');
+    final data = [for (final e in _pendingEvaluations) e.toJson()];
+    await file.writeAsString(jsonEncode(data));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Файл сохранён: $fileName'),
+        action: SnackBarAction(
+          label: 'Открыть',
+          onPressed: () => OpenFile.open(file.path),
+        ),
+      ),
+    );
+  }
+
 
 
   Future<void> _showDebugPanel() async {
@@ -1662,6 +1685,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
         ),
         actions: [
+          TextButton(
+            onPressed: _exportEvaluationQueue,
+            child: const Text('Export Evaluation Queue'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
