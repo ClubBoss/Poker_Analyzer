@@ -117,6 +117,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Validation notes loaded from a saved hand's export data.
   Map<String, String>? _validationNotes;
 
+  String? _expectedAction;
+  String? _feedbackText;
+
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -1493,6 +1496,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .toList(),
       isFavorite: false,
       date: DateTime.now(),
+      expectedAction: _expectedAction,
+      feedbackText: _feedbackText,
       effectiveStacksPerStreet: stacks,
       validationNotes: notes,
     );
@@ -1557,6 +1562,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _tagsController.text = hand.tags.join(', ');
       _savedEffectiveStacks = hand.effectiveStacksPerStreet;
       _validationNotes = hand.validationNotes;
+      _expectedAction = hand.expectedAction;
+      _feedbackText = hand.feedbackText;
       currentStreet = 0;
       _playbackIndex = 0;
       _animatedPlayersPerStreet.clear();
@@ -1618,6 +1625,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
 
+    final expected = data['expectedAction'] as String?;
+    final feedback = data['feedbackText'] as String?;
+
     final newHeroIndex = data['heroIndex'] as int? ?? 0;
     final newPlayerCount =
         data['numberOfPlayers'] as int? ?? pcData.length;
@@ -1658,6 +1668,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackIndex = 0;
       _updatePlaybackState();
       _updatePositions();
+      _expectedAction = expected;
+      _feedbackText = feedback;
     });
   }
 
