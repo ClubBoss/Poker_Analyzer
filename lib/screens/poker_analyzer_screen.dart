@@ -120,6 +120,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   String? _expectedAction;
   String? _feedbackText;
 
+  /// Queue of pending action evaluation tasks.
+  final List<dynamic> _pendingEvaluations = [];
+
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -1559,6 +1562,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               const Text('Playback Pause State:'),
               Text('Is Playback Paused: ${_activeTimer == null}'),
+              const SizedBox(height: 12),
+              const Text('Action Evaluation Queue:'),
+              Text('Pending Action Evaluations: ${_pendingEvaluations.length}'),
               const SizedBox(height: 12),
             ],
           ),
