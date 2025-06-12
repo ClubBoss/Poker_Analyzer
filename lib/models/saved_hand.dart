@@ -29,6 +29,7 @@ class SavedHand {
   final List<int>? collapsedHistoryStreets;
   final List<int>? firstActionTaken;
   final Map<int, String?>? actionTags;
+  /// Pending action evaluation requests queued when the hand was saved.
   final List<ActionEvaluationRequest>? pendingEvaluations;
 
   SavedHand({
