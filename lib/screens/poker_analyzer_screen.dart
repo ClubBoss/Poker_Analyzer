@@ -1415,12 +1415,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     : 'Board Cards: (empty)',
               ),
               const SizedBox(height: 12),
-              for (int i = 0; i < hand.numberOfPlayers; i++) ...[
+              for (int i = 0; i < numberOfPlayers; i++) ...[
                 Text(
-                  (i < hand.revealedCards.length &&
-                          hand.revealedCards[i].isNotEmpty)
+                  players[i]
+                          .revealedCards
+                          .whereType<CardModel>()
+                          .isNotEmpty
                       ? 'Player ${i + 1} Revealed: ' +
-                          hand.revealedCards[i]
+                          players[i]
+                              .revealedCards
+                              .whereType<CardModel>()
                               .map(_cardToDebugString)
                               .join(' ')
                       : 'Player ${i + 1} Revealed: (none)',
