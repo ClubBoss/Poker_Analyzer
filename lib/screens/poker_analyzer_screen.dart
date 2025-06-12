@@ -131,6 +131,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Queue of pending action evaluation tasks.
   final List<ActionEvaluationRequest> _pendingEvaluations = [];
 
+  /// Completed action evaluations.
+  final List<ActionEvaluationRequest> _completedEvaluations = [];
+
+  /// Indicates if evaluation processing is currently running.
+  bool _processingEvaluations = false;
+
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -1413,6 +1419,32 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
+  Future<void> _processEvaluationQueue() async {
+    if (_processingEvaluations || _pendingEvaluations.isEmpty) return;
+    setState(() {
+      _processingEvaluations = true;
+    });
+    while (_pendingEvaluations.isNotEmpty) {
+      final req = _pendingEvaluations.first;
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) {
+        _processingEvaluations = false;
+        return;
+      }
+      setState(() {
+        _pendingEvaluations.removeAt(0);
+        _completedEvaluations.add(req);
+      });
+    }
+    if (mounted) {
+      setState(() {
+        _processingEvaluations = false;
+      });
+    } else {
+      _processingEvaluations = false;
+    }
+  }
+
   Future<void> _cleanupOldEvaluationBackups() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -1918,6 +1950,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               const Text('Action Evaluation Queue:'),
               Text('Pending Action Evaluations: ${_pendingEvaluations.length}'),
+              Text('Processed: ${_completedEvaluations.length} / ${_pendingEvaluations.length + _completedEvaluations.length}'),
               const SizedBox(height: 12),
               const Text('Evaluation Queue Tools:'),
               Wrap(
@@ -1935,6 +1968,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _bulkImportEvaluationQueue,
                     child: const Text('Bulk Import Evaluation Queue'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.isEmpty || _processingEvaluations ? null : _processEvaluationQueue,
+                    child: const Text('Start Evaluation Processing'),
                   ),
                 ],
               ),
@@ -2756,6 +2793,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _activeTimer?.cancel();
     _playbackTimer?.cancel();
     _centerChipTimer?.cancel();
+    _processingEvaluations = false;
     _centerChipController.dispose();
     _commentController.dispose();
     _tagsController.dispose();
