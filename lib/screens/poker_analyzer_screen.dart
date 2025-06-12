@@ -1402,6 +1402,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .toList(),
       isFavorite: false,
       date: DateTime.now(),
+      effectiveStacksPerStreet: calculateEffectiveStacksPerStreet(),
     );
   }
 

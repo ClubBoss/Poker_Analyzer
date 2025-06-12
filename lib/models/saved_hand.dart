@@ -23,6 +23,7 @@ class SavedHand {
   final DateTime date;
   final String? expectedAction;
   final String? feedbackText;
+  final Map<String, int>? effectiveStacksPerStreet;
 
   SavedHand({
     required this.name,
@@ -44,6 +45,7 @@ class SavedHand {
     DateTime? date,
     this.expectedAction,
     this.feedbackText,
+    this.effectiveStacksPerStreet,
     revealedCards,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
@@ -70,6 +72,7 @@ class SavedHand {
     DateTime? date,
     String? expectedAction,
     String? feedbackText,
+    Map<String, int>? effectiveStacksPerStreet,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -96,6 +99,8 @@ class SavedHand {
       date: date ?? this.date,
       expectedAction: expectedAction ?? this.expectedAction,
       feedbackText: feedbackText ?? this.feedbackText,
+      effectiveStacksPerStreet:
+          effectiveStacksPerStreet ?? this.effectiveStacksPerStreet,
     );
   }
 
@@ -139,6 +144,8 @@ class SavedHand {
         'date': date.toIso8601String(),
         if (expectedAction != null) 'expectedAction': expectedAction,
         if (feedbackText != null) 'feedbackText': feedbackText,
+        if (effectiveStacksPerStreet != null)
+          'effectiveStacksPerStreet': effectiveStacksPerStreet,
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -191,6 +198,13 @@ class SavedHand {
     final tags = [for (final t in (json['tags'] as List? ?? [])) t as String];
     final isFavorite = json['isFavorite'] as bool? ?? false;
     final date = DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now();
+    Map<String, int>? effStacks;
+    if (json['effectiveStacksPerStreet'] != null) {
+      effStacks = <String, int>{};
+      (json['effectiveStacksPerStreet'] as Map).forEach((key, value) {
+        effStacks![key as String] = value as int;
+      });
+    }
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -225,6 +239,7 @@ class SavedHand {
       date: date,
       expectedAction: json['expectedAction'] as String?,
       feedbackText: json['feedbackText'] as String?,
+      effectiveStacksPerStreet: effStacks,
     );
   }
 }
