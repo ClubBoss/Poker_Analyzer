@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
@@ -1519,6 +1520,178 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _importEvaluationQueue() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      if (result == null || result.files.isEmpty) return;
+      final path = result.files.single.path;
+      if (path == null) return;
+      final content = await File(path).readAsString();
+      final decoded = jsonDecode(content);
+      if (decoded is! List) throw const FormatException();
+      final items = <ActionEvaluationRequest>[];
+      for (final item in decoded) {
+        if (item is Map) {
+          try {
+            items.add(ActionEvaluationRequest.fromJson(
+                Map<String, dynamic>.from(item)));
+          } catch (_) {}
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(items);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Imported ${items.length} evaluations')),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to import queue')),
+        );
+      }
+    }
+  }
+
+  Future<void> _restoreEvaluationQueue() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_backups');
+      if (!await backupDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No backup files found')),
+          );
+        }
+        return;
+      }
+
+      final files = await backupDir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.json'))
+          .cast<File>()
+          .toList();
+      if (files.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No backup files found')),
+          );
+        }
+        return;
+      }
+
+      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+
+      final selected = await showDialog<File>(
+        context: context,
+        builder: (context) => SimpleDialog(
+          title: const Text('Select Backup'),
+          children: [
+            for (final f in files)
+              SimpleDialogOption(
+                onPressed: () => Navigator.pop(context, f),
+                child: Text(f.uri.pathSegments.last),
+              ),
+          ],
+        ),
+      );
+
+      if (selected == null) return;
+
+      final content = await selected.readAsString();
+      final decoded = jsonDecode(content);
+      if (decoded is! List) throw const FormatException();
+
+      final items = <ActionEvaluationRequest>[];
+      for (final item in decoded) {
+        if (item is Map) {
+          try {
+            items.add(ActionEvaluationRequest.fromJson(
+                Map<String, dynamic>.from(item)));
+          } catch (_) {}
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(items);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Restored ${items.length} evaluations')),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to restore queue')),
+        );
+      }
+    }
+  }
+
+  Future<void> _bulkImportEvaluationQueue() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        allowMultiple: true,
+      );
+      if (result == null || result.files.isEmpty) return;
+
+      final allItems = <ActionEvaluationRequest>[];
+      int failed = 0;
+      for (final f in result.files) {
+        final path = f.path;
+        if (path == null) {
+          failed++;
+          continue;
+        }
+        try {
+          final content = await File(path).readAsString();
+          final decoded = jsonDecode(content);
+          if (decoded is! List) throw const FormatException();
+          for (final item in decoded) {
+            if (item is Map) {
+              try {
+                allItems.add(ActionEvaluationRequest.fromJson(
+                    Map<String, dynamic>.from(item)));
+              } catch (_) {}
+            }
+          }
+        } catch (_) {
+          failed++;
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(allItems);
+      });
+
+      final msg = failed == 0
+          ? 'Imported ${allItems.length} evaluations from ${result.files.length} files'
+          : 'Imported ${allItems.length} evaluations, $failed files skipped';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bulk import failed')),
+        );
+      }
+    }
+  }
+
 
 
   Future<void> _showDebugPanel() async {
@@ -1745,6 +1918,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               const Text('Action Evaluation Queue:'),
               Text('Pending Action Evaluations: ${_pendingEvaluations.length}'),
+              const SizedBox(height: 12),
+              const Text('Evaluation Queue Tools:'),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ElevatedButton(
+                    onPressed: _importEvaluationQueue,
+                    child: const Text('Import Evaluation Queue'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _restoreEvaluationQueue,
+                    child: const Text('Restore Evaluation Queue'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _bulkImportEvaluationQueue,
+                    child: const Text('Bulk Import Evaluation Queue'),
+                  ),
+                ],
+              ),
               const SizedBox(height: 12),
               const Text('HUD Overlay State:'),
               Text('HUD Street Name: $hudStreetName'),
