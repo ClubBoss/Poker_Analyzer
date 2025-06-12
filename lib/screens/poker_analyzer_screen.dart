@@ -1528,6 +1528,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ),
                 const SizedBox(height: 12),
               ],
+              const Text('Chip Animation State:'),
+              Text(() {
+                final action = _centerChipAction;
+                if (action == null) return 'Center Chip Action: (null)';
+                var result = 'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
+                if (action.amount != null) result += ', Amount ${action.amount}';
+                return 'Center Chip Action: ' + result;
+              }()),
+              const SizedBox(height: 12),
+              Text('Show Center Chip: $_showCenterChip'),
+              const SizedBox(height: 12),
             ],
           ),
         ),
