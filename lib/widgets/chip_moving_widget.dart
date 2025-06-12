@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 /// A chip that smoothly moves from a start point to an end point.
 class ChipMovingWidget extends StatefulWidget {
+  /// Number of ChipMovingWidget instances currently animating.
+  static int activeCount = 0;
   /// Global start position of the chip.
   final Offset start;
 
@@ -41,6 +43,7 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
   @override
   void initState() {
     super.initState();
+    ChipMovingWidget.activeCount++;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
@@ -55,6 +58,7 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
 
   @override
   void dispose() {
+    ChipMovingWidget.activeCount--;
     _controller.dispose();
     super.dispose();
   }
