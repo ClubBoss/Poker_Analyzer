@@ -1483,6 +1483,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 for (final entry in _validationNotes!.entries)
                   Text('${entry.key}: ${entry.value}'),
               ],
+              const SizedBox(height: 12),
+              const Text('Playback Diagnostics:'),
+              Text('Preflop Actions: '
+                  '${actions.where((a) => a.street == 0).length}'),
+              Text('Flop Actions: '
+                  '${actions.where((a) => a.street == 1).length}'),
+              Text('Turn Actions: '
+                  '${actions.where((a) => a.street == 2).length}'),
+              Text('River Actions: '
+                  '${actions.where((a) => a.street == 3).length}'),
+              const SizedBox(height: 12),
+              Text('Total Actions: ${actions.length}'),
             ],
           ),
         ),
