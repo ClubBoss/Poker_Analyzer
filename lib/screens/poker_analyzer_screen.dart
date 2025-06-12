@@ -1396,6 +1396,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
   SavedHand _currentSavedHand({String? name}) {
+    final stacks = calculateEffectiveStacksPerStreet();
+    Map<String, String>? notes;
+    if (_savedEffectiveStacks != null) {
+      const names = ['Preflop', 'Flop', 'Turn', 'River'];
+      notes = {};
+      for (int s = 0; s < names.length; s++) {
+        final live = _calculateEffectiveStackForStreet(s);
+        final exported = _savedEffectiveStacks![names[s]];
+        if (exported != live) {
+          notes![names[s]] = 'live $live vs saved ${exported ?? 'N/A'}';
+        }
+      }
+      if (notes.isEmpty) notes = null;
+    }
     return SavedHand(
       name: name ?? _defaultHandName(),
       heroIndex: heroIndex,
@@ -1427,7 +1441,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .toList(),
       isFavorite: false,
       date: DateTime.now(),
-      effectiveStacksPerStreet: calculateEffectiveStacksPerStreet(),
+      effectiveStacksPerStreet: stacks,
+      validationNotes: notes,
     );
   }
 

@@ -24,6 +24,7 @@ class SavedHand {
   final String? expectedAction;
   final String? feedbackText;
   final Map<String, int>? effectiveStacksPerStreet;
+  final Map<String, String>? validationNotes;
 
   SavedHand({
     required this.name,
@@ -46,6 +47,7 @@ class SavedHand {
     this.expectedAction,
     this.feedbackText,
     this.effectiveStacksPerStreet,
+    this.validationNotes,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
@@ -72,6 +74,7 @@ class SavedHand {
     String? expectedAction,
     String? feedbackText,
     Map<String, int>? effectiveStacksPerStreet,
+    Map<String, String>? validationNotes,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -100,6 +103,7 @@ class SavedHand {
       feedbackText: feedbackText ?? this.feedbackText,
       effectiveStacksPerStreet:
           effectiveStacksPerStreet ?? this.effectiveStacksPerStreet,
+      validationNotes: validationNotes ?? this.validationNotes,
     );
   }
 
@@ -145,6 +149,7 @@ class SavedHand {
         if (feedbackText != null) 'feedbackText': feedbackText,
         if (effectiveStacksPerStreet != null)
           'effectiveStacksPerStreet': effectiveStacksPerStreet,
+        if (validationNotes != null) 'validationNotes': validationNotes,
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -204,6 +209,13 @@ class SavedHand {
         effStacks![key as String] = value as int;
       });
     }
+    Map<String, String>? notes;
+    if (json['validationNotes'] != null) {
+      notes = <String, String>{};
+      (json['validationNotes'] as Map).forEach((key, value) {
+        notes![key as String] = value as String;
+      });
+    }
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -239,6 +251,7 @@ class SavedHand {
       expectedAction: json['expectedAction'] as String?,
       feedbackText: json['feedbackText'] as String?,
       effectiveStacksPerStreet: effStacks,
+      validationNotes: notes,
     );
   }
 }
