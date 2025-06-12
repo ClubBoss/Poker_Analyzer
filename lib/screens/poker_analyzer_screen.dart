@@ -1434,6 +1434,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               Text(
                   'Current Street: ${['Preflop', 'Flop', 'Turn', 'River'][currentStreet]}'),
               const SizedBox(height: 12),
+              Text('Playback Index: $_playbackIndex / ${actions.length}'),
+              const SizedBox(height: 12),
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
