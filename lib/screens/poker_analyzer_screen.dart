@@ -1369,6 +1369,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   Text('Player ${entry.key + 1}: ${entry.value.name}'),
                 const SizedBox(height: 12),
               ],
+              if (hand.comment != null) ...[
+                const Text('Comment:'),
+                Text(hand.comment!),
+                const SizedBox(height: 12),
+              ],
+              if (hand.tags.isNotEmpty) ...[
+                const Text('Tags:'),
+                for (final tag in hand.tags) Text(tag),
+                const SizedBox(height: 12),
+              ],
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
