@@ -1368,6 +1368,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   Text('${entry.key}: ${entry.value}')
               else
                 const Text('No export data available'),
+              if (_savedEffectiveStacks != null) ...[
+                const SizedBox(height: 12),
+                const Text('Validation:'),
+                for (int s = 0; s < 4; s++)
+                  Text(() {
+                    const names = ['Preflop', 'Flop', 'Turn', 'River'];
+                    final name = names[s];
+                    final live = _calculateEffectiveStackForStreet(s);
+                    final exported = _savedEffectiveStacks![name];
+                    if (exported == live) {
+                      return '$name: ✅';
+                    }
+                    return '$name: ❌ live $live vs export ${exported ?? 'N/A'}';
+                  }()),
+              ],
             ],
           ),
         ),
