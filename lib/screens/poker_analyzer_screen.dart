@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -1374,6 +1375,48 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
+  Future<void> _importEvaluationQueue() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is! List) throw const FormatException();
+      final List<ActionEvaluationRequest> loaded = [];
+      for (final item in data) {
+        if (item is Map) {
+          try {
+            loaded.add(ActionEvaluationRequest.fromJson(
+                Map<String, dynamic>.from(item as Map)));
+          } catch (_) {
+            // skip invalid entry
+          }
+        }
+      }
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(loaded);
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Загружено ${loaded.length} запросов')),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ошибка загрузки файла')),
+        );
+      }
+    }
+  }
+
 
 
   Future<void> _showDebugPanel() async {
@@ -1688,6 +1731,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextButton(
             onPressed: _exportEvaluationQueue,
             child: const Text('Export Evaluation Queue'),
+          ),
+          TextButton(
+            onPressed: _importEvaluationQueue,
+            child: const Text('Import Evaluation Queue'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
