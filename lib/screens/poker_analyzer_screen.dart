@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -1403,6 +1404,60 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
+  Future<void> _restoreEvaluationQueue() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final backupDir = Directory('${dir.path}/evaluation_backups');
+    if (!await backupDir.exists()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No backups found')),
+        );
+      }
+      return;
+    }
+
+    final result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Select Backup File',
+      initialDirectory: backupDir.path,
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is! List) throw const FormatException('Invalid format');
+      final items = <ActionEvaluationRequest>[];
+      for (final item in data) {
+        if (item is Map) {
+          items.add(ActionEvaluationRequest.fromJson(
+              Map<String, dynamic>.from(item as Map)));
+        }
+      }
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(items);
+      });
+      if (mounted) {
+        final name = path.split(Platform.pathSeparator).last;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Queue restored from $name')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to restore backup')),
+        );
+      }
+    }
+  }
+
 
 
   Future<void> _showDebugPanel() async {
@@ -1717,6 +1772,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextButton(
             onPressed: _exportEvaluationQueue,
             child: const Text('Export Evaluation Queue'),
+          ),
+          TextButton(
+            onPressed: _restoreEvaluationQueue,
+            child: const Text('Restore Evaluation Queue'),
           ),
           TextButton(
             onPressed: _backupEvaluationQueue,
