@@ -1687,6 +1687,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       if (notes.isEmpty) notes = null;
     }
+    final collapsed = [
+      for (int i = 0; i < 4; i++)
+        if (!_expandedHistoryStreets.contains(i)) i
+    ];
     return SavedHand(
       name: name ?? _defaultHandName(),
       heroIndex: heroIndex,
@@ -1722,6 +1726,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       feedbackText: _feedbackText,
       effectiveStacksPerStreet: stacks,
       validationNotes: notes,
+      collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
     );
   }
 
@@ -1786,6 +1791,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _validationNotes = hand.validationNotes;
       _expectedAction = hand.expectedAction;
       _feedbackText = hand.feedbackText;
+      _expandedHistoryStreets
+        ..clear()
+        ..addAll([
+          for (int i = 0; i < 4; i++)
+            if (hand.collapsedHistoryStreets == null ||
+                !hand.collapsedHistoryStreets!.contains(i))
+              i
+        ]);
       currentStreet = 0;
       _playbackIndex = hand.actions.length;
       _animatedPlayersPerStreet.clear();
