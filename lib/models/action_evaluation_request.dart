@@ -1,3 +1,4 @@
+/// Represents an action queued for evaluation by the analysis engine.
 class ActionEvaluationRequest {
   final int street;
   final int playerIndex;
