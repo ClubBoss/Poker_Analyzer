@@ -26,6 +26,7 @@ class SavedHand {
   final Map<String, int>? effectiveStacksPerStreet;
   final Map<String, String>? validationNotes;
   final List<int>? collapsedHistoryStreets;
+  final List<int>? firstActionTaken;
 
   SavedHand({
     required this.name,
@@ -50,6 +51,7 @@ class SavedHand {
     this.effectiveStacksPerStreet,
     this.validationNotes,
     this.collapsedHistoryStreets,
+    this.firstActionTaken,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
@@ -78,6 +80,7 @@ class SavedHand {
     Map<String, int>? effectiveStacksPerStreet,
     Map<String, String>? validationNotes,
     List<int>? collapsedHistoryStreets,
+    List<int>? firstActionTaken,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -109,6 +112,7 @@ class SavedHand {
       validationNotes: validationNotes ?? this.validationNotes,
       collapsedHistoryStreets:
           collapsedHistoryStreets ?? this.collapsedHistoryStreets,
+      firstActionTaken: firstActionTaken ?? this.firstActionTaken,
     );
   }
 
@@ -157,6 +161,8 @@ class SavedHand {
         if (validationNotes != null) 'validationNotes': validationNotes,
         if (collapsedHistoryStreets != null)
           'collapsedHistoryStreets': collapsedHistoryStreets,
+        if (firstActionTaken != null)
+          'firstActionTaken': firstActionTaken,
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -227,6 +233,10 @@ class SavedHand {
     if (json['collapsedHistoryStreets'] != null) {
       collapsed = [for (final i in (json['collapsedHistoryStreets'] as List)) i as int];
     }
+    List<int>? firsts;
+    if (json['firstActionTaken'] != null) {
+      firsts = [for (final i in (json['firstActionTaken'] as List)) i as int];
+    }
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -264,6 +274,7 @@ class SavedHand {
       effectiveStacksPerStreet: effStacks,
       validationNotes: notes,
       collapsedHistoryStreets: collapsed,
+      firstActionTaken: firsts,
     );
   }
 }
