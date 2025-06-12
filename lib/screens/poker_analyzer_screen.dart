@@ -1440,6 +1440,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               Text('Last Action Player Index: ${lastActionPlayerIndex ?? 'None'}'),
               const SizedBox(height: 12),
+              for (int i = 0; i < numberOfPlayers; i++) ...[
+                Text('Player ${i + 1} Cards: ${playerCards[i].length}'),
+                const SizedBox(height: 12),
+              ],
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
