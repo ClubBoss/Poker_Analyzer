@@ -110,6 +110,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showAllRevealedCards = false;
   bool isPerspectiveSwitched = false;
 
+  /// Stores effective stacks loaded from a saved hand's export data.
+  Map<String, int>? _savedEffectiveStacks;
+
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -1358,6 +1361,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       'Turn',
                       'River',
                     ][s] + ': ${_calculateEffectiveStackForStreet(s)}'),
+              const SizedBox(height: 12),
+              const Text('Effective Stacks (from export data):'),
+              if (_savedEffectiveStacks != null)
+                for (final entry in _savedEffectiveStacks!.entries)
+                  Text('${entry.key}: ${entry.value}')
+              else
+                const Text('No export data available'),
             ],
           ),
         ),
@@ -1463,6 +1473,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
       _commentController.text = hand.comment ?? '';
       _tagsController.text = hand.tags.join(', ');
+      _savedEffectiveStacks = hand.effectiveStacksPerStreet;
       currentStreet = 0;
       _playbackIndex = 0;
       _animatedPlayersPerStreet.clear();
