@@ -2520,6 +2520,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final visibleActions = actions.take(_playbackIndex).toList();
+    final savedActions = _currentSavedHand().actions;
     final double scale = _tableScale();
     final double infoScale = numberOfPlayers > 8 ? 0.85 : 1.0;
     final tableWidth = screenSize.width * 0.9;
@@ -2659,6 +2660,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       ),
     ),
+    Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Column(
+        children: List.generate(
+          4,
+          (i) => CollapsibleStreetSection(
+            street: i,
+            actions: savedActions,
+            pots: _pots,
+            stackSizes: stackSizes,
+            playerPositions: playerPositions,
+            onEdit: _editAction,
+            onDelete: _deleteAction,
+            visibleCount: _playbackIndex,
+            evaluateActionQuality: _evaluateActionQuality,
+          ),
+        ),
+      ),
+    ),
     ActionHistoryExpansionTile(
       actions: visibleActions,
       playerPositions: playerPositions,
@@ -2774,19 +2794,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Column(
-                      children: List.generate(4, (i) => CollapsibleStreetSection(
-                        street: i,
-                        actions: actions,
-                        pots: _pots,
-                        stackSizes: stackSizes,
-                        playerPositions: playerPositions,
-                        onEdit: _editAction,
-                        onDelete: _deleteAction,
-                        visibleCount: _playbackIndex,
-                        evaluateActionQuality: _evaluateActionQuality,
-                      )),
-                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: TextField(
