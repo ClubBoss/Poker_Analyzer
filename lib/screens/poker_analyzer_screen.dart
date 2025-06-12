@@ -137,6 +137,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Indicates if evaluation processing is currently running.
   bool _processingEvaluations = false;
 
+  /// Allows updating the debug panel while it's open.
+  StateSetter? _debugPanelSetState;
+
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -1424,6 +1427,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _processingEvaluations = true;
     });
+    _debugPanelSetState?.call(() {});
     while (_pendingEvaluations.isNotEmpty) {
       final req = _pendingEvaluations.first;
       await Future.delayed(const Duration(milliseconds: 500));
@@ -1435,11 +1439,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _pendingEvaluations.removeAt(0);
         _completedEvaluations.add(req);
       });
+      // Update debug panel if it's currently visible.
+      _debugPanelSetState?.call(() {});
     }
     if (mounted) {
       setState(() {
         _processingEvaluations = false;
       });
+      _debugPanelSetState?.call(() {});
     } else {
       _processingEvaluations = false;
     }
@@ -1740,13 +1747,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
     await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Stack Diagnostics'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          _debugPanelSetState = setState;
+          return AlertDialog(
+            title: const Text('Stack Diagnostics'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
               for (int i = 0; i < numberOfPlayers; i++)
                 Text(
                   'Player ${i + 1}: Initial ${_initialStacks[i] ?? 0}, '
@@ -1976,6 +1986,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ],
               ),
               const SizedBox(height: 12),
+              const Text('Evaluation Results:'),
+              Builder(
+                builder: (context) {
+                  final results = _completedEvaluations.length > 50
+                      ? _completedEvaluations.sublist(_completedEvaluations.length - 50)
+                      : _completedEvaluations;
+                  if (results.isEmpty) {
+                    return const Text('No evaluations completed yet.');
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final r in results)
+                        Text('Player ${r.playerIndex}, Street ${r.street}, Action ${r.action}'),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
               const Text('HUD Overlay State:'),
               Text('HUD Street Name: $hudStreetName'),
               const SizedBox(height: 12),
@@ -2086,6 +2115,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _isDebugPanelOpen = false;
     });
+    _debugPanelSetState = null;
   }
   SavedHand _currentSavedHand({String? name}) {
     final stacks = calculateEffectiveStacksPerStreet();
