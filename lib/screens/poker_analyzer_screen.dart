@@ -1587,6 +1587,73 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const Text('Debug Menu Visibility:'),
               Text('Is Debug Menu Open: $_isDebugPanelOpen'),
               const SizedBox(height: 12),
+              const Text('Full Export Consistency:'),
+              Text(() {
+                final match = hand.numberOfPlayers == numberOfPlayers;
+                return match
+                    ? 'numberOfPlayers: ✅'
+                    : 'numberOfPlayers: ❌ '
+                        '${hand.numberOfPlayers} vs $numberOfPlayers';
+              }()),
+              Text(() {
+                final match = hand.heroIndex == heroIndex;
+                return match
+                    ? 'heroIndex: ✅'
+                    : 'heroIndex: ❌ ${hand.heroIndex} vs $heroIndex';
+              }()),
+              Text(() {
+                final match = hand.heroPosition == _heroPosition;
+                return match
+                    ? 'heroPosition: ✅'
+                    : 'heroPosition: ❌ '
+                        '${hand.heroPosition} vs $_heroPosition';
+              }()),
+              Text(() {
+                final match = mapEquals(hand.playerPositions, playerPositions);
+                return match
+                    ? 'playerPositions: ✅'
+                    : 'playerPositions: ❌ '
+                        '${hand.playerPositions} vs $playerPositions';
+              }()),
+              Text(() {
+                final match = mapEquals(hand.stackSizes, _initialStacks);
+                return match
+                    ? 'stackSizes: ✅'
+                    : 'stackSizes: ❌ '
+                        '${hand.stackSizes} vs $_initialStacks';
+              }()),
+              Text(() {
+                final match = hand.actions.length == actions.length;
+                return match
+                    ? 'actions.length: ✅'
+                    : 'actions.length: ❌ '
+                        '${hand.actions.length} vs ${actions.length}';
+              }()),
+              Text(() {
+                final live = boardCards.map((c) => c.toString()).join(' ');
+                final saved = hand.boardCards.map((c) => c.toString()).join(' ');
+                return live == saved
+                    ? 'boardCards: ✅'
+                    : 'boardCards: ❌ $saved vs $live';
+              }()),
+              Text(() {
+                final live = [
+                  for (final p in players)
+                    p.revealedCards
+                        .whereType<CardModel>()
+                        .map((c) => c.toString())
+                        .join(' ')
+                ];
+                final saved = [
+                  for (final list in hand.revealedCards)
+                    list.map((c) => c.toString()).join(' ')
+                ];
+                final match = listEquals(live, saved);
+                return match
+                    ? 'revealedCards: ✅'
+                    : 'revealedCards: ❌ $saved vs $live';
+              }()),
+              const SizedBox(height: 12),
               const Text('Theme Diagnostics:'),
               Text('Current Theme: ${Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'}'),
               const SizedBox(height: 12),
