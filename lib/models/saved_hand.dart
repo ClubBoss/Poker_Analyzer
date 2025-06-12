@@ -27,6 +27,7 @@ class SavedHand {
   final Map<String, String>? validationNotes;
   final List<int>? collapsedHistoryStreets;
   final List<int>? firstActionTaken;
+  final Map<int, String?>? actionTags;
 
   SavedHand({
     required this.name,
@@ -52,6 +53,7 @@ class SavedHand {
     this.validationNotes,
     this.collapsedHistoryStreets,
     this.firstActionTaken,
+    this.actionTags,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
@@ -81,6 +83,7 @@ class SavedHand {
     Map<String, String>? validationNotes,
     List<int>? collapsedHistoryStreets,
     List<int>? firstActionTaken,
+    Map<int, String?>? actionTags,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -113,6 +116,10 @@ class SavedHand {
       collapsedHistoryStreets:
           collapsedHistoryStreets ?? this.collapsedHistoryStreets,
       firstActionTaken: firstActionTaken ?? this.firstActionTaken,
+      actionTags: actionTags ??
+          (this.actionTags == null
+              ? null
+              : Map<int, String?>.from(this.actionTags!)),
     );
   }
 
@@ -163,6 +170,9 @@ class SavedHand {
           'collapsedHistoryStreets': collapsedHistoryStreets,
         if (firstActionTaken != null)
           'firstActionTaken': firstActionTaken,
+        if (actionTags != null)
+          'actionTags':
+              actionTags!.map((k, v) => MapEntry(k.toString(), v)),
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -237,6 +247,13 @@ class SavedHand {
     if (json['firstActionTaken'] != null) {
       firsts = [for (final i in (json['firstActionTaken'] as List)) i as int];
     }
+    Map<int, String?>? aTags;
+    if (json['actionTags'] != null) {
+      aTags = <int, String?>{};
+      (json['actionTags'] as Map).forEach((key, value) {
+        aTags![int.parse(key as String)] = value as String?;
+      });
+    }
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -275,6 +292,7 @@ class SavedHand {
       validationNotes: notes,
       collapsedHistoryStreets: collapsed,
       firstActionTaken: firsts,
+      actionTags: aTags,
     );
   }
 }

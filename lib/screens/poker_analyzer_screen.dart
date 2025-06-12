@@ -1729,6 +1729,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
       firstActionTaken:
           _firstActionTaken.isEmpty ? null : _firstActionTaken.toList(),
+      actionTags:
+          _actionTags.isEmpty ? null : Map<int, String?>.from(_actionTags),
     );
   }
 
@@ -1796,6 +1798,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _firstActionTaken
         ..clear()
         ..addAll(hand.firstActionTaken ?? []);
+      _actionTags
+        ..clear()
+        ..addAll(hand.actionTags ?? {});
       _expandedHistoryStreets
         ..clear()
         ..addAll([
