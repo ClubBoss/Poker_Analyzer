@@ -1375,51 +1375,65 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportEvaluationQueue() async {
     if (_pendingEvaluations.isEmpty) return;
-    final dir = await getApplicationDocumentsDirectory();
-    final fileName =
-        'evaluation_queue_${DateTime.now().millisecondsSinceEpoch}.json';
-    final file = File('${dir.path}/$fileName');
-    final data = [for (final e in _pendingEvaluations) e.toJson()];
-    await file.writeAsString(jsonEncode(data));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Файл сохранён: $fileName'),
-        action: SnackBarAction(
-          label: 'Открыть',
-          onPressed: () => OpenFile.open(file.path),
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final fileName =
+          'evaluation_queue_${DateTime.now().millisecondsSinceEpoch}.json';
+      final file = File('${dir.path}/$fileName');
+      final data = [for (final e in _pendingEvaluations) e.toJson()];
+      await file.writeAsString(jsonEncode(data));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Файл сохранён: $fileName'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () => OpenFile.open(file.path),
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Не удалось экспортировать очередь')),
+      );
+    }
   }
 
   Future<void> _backupEvaluationQueue() async {
     if (_pendingEvaluations.isEmpty) return;
-    final dir = await getApplicationDocumentsDirectory();
-    final backupDir = Directory('${dir.path}/evaluation_backups');
-    await backupDir.create(recursive: true);
-    final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-    final fileName = 'evaluation_backup_${timestamp}.json';
-    final file = File('${backupDir.path}/$fileName');
-    final data = [for (final e in _pendingEvaluations) e.toJson()];
-    await file.writeAsString(jsonEncode(data));
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_backups');
+      await backupDir.create(recursive: true);
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+      final fileName = 'evaluation_backup_${timestamp}.json';
+      final file = File('${backupDir.path}/$fileName');
+      final data = [for (final e in _pendingEvaluations) e.toJson()];
+      await file.writeAsString(jsonEncode(data));
 
-    final files = await backupDir
-        .list()
-        .where((e) => e is File && e.path.endsWith('.json'))
-        .cast<File>()
-        .toList();
-    files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-    for (var i = 5; i < files.length; i++) {
-      try {
-        await files[i].delete();
-      } catch (_) {}
+      final files = await backupDir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.json'))
+          .cast<File>()
+          .toList();
+      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      for (var i = 5; i < files.length; i++) {
+        try {
+          await files[i].delete();
+        } catch (_) {}
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Backup created: $fileName')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Не удалось создать бэкап')),
+      );
     }
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Backup created: $fileName')),
-    );
   }
 
   Future<void> _processEvaluationQueue() async {
