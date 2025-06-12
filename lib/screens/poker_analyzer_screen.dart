@@ -1436,6 +1436,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               Text('Playback Index: $_playbackIndex / ${actions.length}'),
               const SizedBox(height: 12),
+              Text('Active Player Index: ${activePlayerIndex ?? 'None'}'),
+              const SizedBox(height: 12),
+              Text('Last Action Player Index: ${lastActionPlayerIndex ?? 'None'}'),
+              const SizedBox(height: 12),
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
