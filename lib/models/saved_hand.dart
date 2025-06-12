@@ -1,6 +1,7 @@
 import 'card_model.dart';
 import 'action_entry.dart';
 import 'player_model.dart';
+import 'action_evaluation_request.dart';
 
 class SavedHand {
   final String name;
@@ -28,6 +29,7 @@ class SavedHand {
   final List<int>? collapsedHistoryStreets;
   final List<int>? firstActionTaken;
   final Map<int, String?>? actionTags;
+  final List<ActionEvaluationRequest>? pendingEvaluations;
 
   SavedHand({
     required this.name,
@@ -54,6 +56,7 @@ class SavedHand {
     this.collapsedHistoryStreets,
     this.firstActionTaken,
     this.actionTags,
+    this.pendingEvaluations,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
@@ -84,6 +87,7 @@ class SavedHand {
     List<int>? collapsedHistoryStreets,
     List<int>? firstActionTaken,
     Map<int, String?>? actionTags,
+    List<ActionEvaluationRequest>? pendingEvaluations,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -120,6 +124,22 @@ class SavedHand {
           (this.actionTags == null
               ? null
               : Map<int, String?>.from(this.actionTags!)),
+      pendingEvaluations:
+          pendingEvaluations ??
+              (this.pendingEvaluations == null
+                  ? null
+                  : [
+                      for (final e in this.pendingEvaluations!)
+                        ActionEvaluationRequest(
+                          street: e.street,
+                          playerIndex: e.playerIndex,
+                          action: e.action,
+                          amount: e.amount,
+                          metadata: e.metadata == null
+                              ? null
+                              : Map<String, dynamic>.from(e.metadata!),
+                        )
+                    ]),
     );
   }
 
@@ -173,6 +193,8 @@ class SavedHand {
         if (actionTags != null)
           'actionTags':
               actionTags!.map((k, v) => MapEntry(k.toString(), v)),
+        if (pendingEvaluations != null)
+          'pendingEvaluations': [for (final e in pendingEvaluations!) e.toJson()],
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -254,6 +276,14 @@ class SavedHand {
         aTags![int.parse(key as String)] = value as String?;
       });
     }
+    List<ActionEvaluationRequest>? pending;
+    if (json['pendingEvaluations'] != null) {
+      pending = [
+        for (final e in (json['pendingEvaluations'] as List))
+          ActionEvaluationRequest.fromJson(
+              Map<String, dynamic>.from(e as Map))
+      ];
+    }
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -293,6 +323,7 @@ class SavedHand {
       collapsedHistoryStreets: collapsed,
       firstActionTaken: firsts,
       actionTags: aTags,
+      pendingEvaluations: pending,
     );
   }
 }

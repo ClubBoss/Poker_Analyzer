@@ -37,6 +37,7 @@ import '../widgets/mini_stack_widget.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 import '../models/player_model.dart';
+import '../models/action_evaluation_request.dart';
 import '../widgets/action_timeline_widget.dart';
 import '../models/street_investments.dart';
 import '../helpers/pot_calculator.dart';
@@ -122,7 +123,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   String? _feedbackText;
 
   /// Queue of pending action evaluation tasks.
-  final List<dynamic> _pendingEvaluations = [];
+  final List<ActionEvaluationRequest> _pendingEvaluations = [];
 
 
   List<String> _positionsForPlayers(int count) {
@@ -1731,6 +1732,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           _firstActionTaken.isEmpty ? null : _firstActionTaken.toList(),
       actionTags:
           _actionTags.isEmpty ? null : Map<int, String?>.from(_actionTags),
+      pendingEvaluations:
+          _pendingEvaluations.isEmpty ? null : List<ActionEvaluationRequest>.from(_pendingEvaluations),
     );
   }
 
@@ -1801,6 +1804,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionTags
         ..clear()
         ..addAll(hand.actionTags ?? {});
+      _pendingEvaluations
+        ..clear()
+        ..addAll(hand.pendingEvaluations ?? []);
       _expandedHistoryStreets
         ..clear()
         ..addAll([
