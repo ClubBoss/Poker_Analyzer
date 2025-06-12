@@ -676,6 +676,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (widget.initialHand != null) {
       _applySavedHand(widget.initialHand!);
     }
+    Future(() => _cleanupOldEvaluationBackups());
   }
 
   @override
@@ -1401,6 +1402,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Backup created: $fileName')),
     );
+  }
+
+  Future<void> _cleanupOldEvaluationBackups() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_backups');
+      if (!await backupDir.exists()) return;
+
+      final threshold = DateTime.now().subtract(const Duration(days: 30));
+      final files = await backupDir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.json'))
+          .cast<File>()
+          .toList();
+
+      for (final file in files) {
+        try {
+          final stat = await file.stat();
+          if (stat.modified.isBefore(threshold)) {
+            await file.delete();
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
   }
 
 
