@@ -102,7 +102,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
-  final Set<int> _animatedPlayersPerStreet = {};
+  final Map<int, Set<int>> _animatedPlayersPerStreet = {};
 
   ActionEntry? _centerChipAction;
   bool _showCenterChip = false;
@@ -1544,6 +1544,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               Text('Center Chip Animation Value: ${_centerChipController.value.toStringAsFixed(2)}'),
               const SizedBox(height: 12),
+              const Text('Street Transition State:'),
+              Text(
+                'Current Animated Players Per Street: '
+                '${_animatedPlayersPerStreet[currentStreet]?.length ?? 0}',
+              ),
+              const SizedBox(height: 12),
+              for (final entry in _animatedPlayersPerStreet.entries) ...[
+                Text('Street ${entry.key} Animated Count: ${entry.value.length}'),
+                const SizedBox(height: 12),
+              ],
             ],
           ),
         ),
@@ -2312,9 +2322,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final start =
             Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset.lerp(start, Offset(centerX, centerY), 0.2)!;
-        final animate = !_animatedPlayersPerStreet.contains(index);
+        final streetSet =
+            _animatedPlayersPerStreet.putIfAbsent(currentStreet, () => <int>{});
+        final animate = !streetSet.contains(index);
         if (animate) {
-          _animatedPlayersPerStreet.add(index);
+          streetSet.add(index);
         }
         chips.add(Positioned.fill(
           child: BetChipsOnTable(
@@ -2449,9 +2461,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final bias = _verticalBiasFromAngle(angle) * scale;
         final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset(centerX, centerY);
-        final animate = !_animatedPlayersPerStreet.contains(index);
+        final streetSet =
+            _animatedPlayersPerStreet.putIfAbsent(currentStreet, () => <int>{});
+        final animate = !streetSet.contains(index);
         if (animate) {
-          _animatedPlayersPerStreet.add(index);
+          streetSet.add(index);
         }
         items.add(Positioned.fill(
           child: BetChipsOnTable(
@@ -2719,7 +2733,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         setState(() {
           currentStreet = index;
           _actionTags.clear();
-          _animatedPlayersPerStreet.clear();
+          _animatedPlayersPerStreet
+              .putIfAbsent(index, () => <int>{});
         });
               },
             ),
