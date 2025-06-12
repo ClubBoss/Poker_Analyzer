@@ -25,6 +25,7 @@ class SavedHand {
   final String? feedbackText;
   final Map<String, int>? effectiveStacksPerStreet;
   final Map<String, String>? validationNotes;
+  final List<int>? collapsedHistoryStreets;
 
   SavedHand({
     required this.name,
@@ -48,6 +49,7 @@ class SavedHand {
     this.feedbackText,
     this.effectiveStacksPerStreet,
     this.validationNotes,
+    this.collapsedHistoryStreets,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
@@ -75,6 +77,7 @@ class SavedHand {
     String? feedbackText,
     Map<String, int>? effectiveStacksPerStreet,
     Map<String, String>? validationNotes,
+    List<int>? collapsedHistoryStreets,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -104,6 +107,8 @@ class SavedHand {
       effectiveStacksPerStreet:
           effectiveStacksPerStreet ?? this.effectiveStacksPerStreet,
       validationNotes: validationNotes ?? this.validationNotes,
+      collapsedHistoryStreets:
+          collapsedHistoryStreets ?? this.collapsedHistoryStreets,
     );
   }
 
@@ -150,6 +155,8 @@ class SavedHand {
         if (effectiveStacksPerStreet != null)
           'effectiveStacksPerStreet': effectiveStacksPerStreet,
         if (validationNotes != null) 'validationNotes': validationNotes,
+        if (collapsedHistoryStreets != null)
+          'collapsedHistoryStreets': collapsedHistoryStreets,
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -216,6 +223,10 @@ class SavedHand {
         notes![key as String] = value as String;
       });
     }
+    List<int>? collapsed;
+    if (json['collapsedHistoryStreets'] != null) {
+      collapsed = [for (final i in (json['collapsedHistoryStreets'] as List)) i as int];
+    }
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -252,6 +263,7 @@ class SavedHand {
       feedbackText: json['feedbackText'] as String?,
       effectiveStacksPerStreet: effStacks,
       validationNotes: notes,
+      collapsedHistoryStreets: collapsed,
     );
   }
 }
