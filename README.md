@@ -23,6 +23,8 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
 - Save and load played hands
 - View training history and overall statistics
 - Share your results via exported files
+- Pending evaluations are stored in saved hand exports so queued
+  action analysis persists when reloading a session
 
 ![screenshot](flutter_01.png)
 
