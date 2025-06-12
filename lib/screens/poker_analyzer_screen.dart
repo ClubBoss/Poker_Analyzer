@@ -42,6 +42,7 @@ import '../models/street_investments.dart';
 import '../helpers/pot_calculator.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../helpers/stack_manager.dart';
+import '../helpers/date_utils.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -1379,6 +1380,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 for (final tag in hand.tags) Text(tag),
                 const SizedBox(height: 12),
               ],
+              if (hand.opponentIndex != null) ...[
+                Text('Opponent: Player ${hand.opponentIndex! + 1}'),
+                const SizedBox(height: 12),
+              ],
+              Text('Hero Position: ${hand.heroPosition}'),
+              const SizedBox(height: 12),
+              Text('Players at table: ${hand.numberOfPlayers}'),
+              const SizedBox(height: 12),
+              Text('Saved: ${formatDateTime(hand.date)}'),
+              const SizedBox(height: 12),
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
