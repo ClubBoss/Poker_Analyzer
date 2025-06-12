@@ -319,6 +319,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return entry.amount != null ? '$cap ${entry.amount}' : cap;
   }
 
+  String _cardToDebugString(CardModel card) {
+    const suits = {'♠': 's', '♥': 'h', '♦': 'd', '♣': 'c'};
+    return '${card.rank}${suits[card.suit] ?? card.suit}';
+  }
+
   Widget _playerTypeIcon(PlayerType? type) {
     switch (type) {
       case PlayerType.shark:
@@ -1401,6 +1406,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 Text('Feedback: ${hand.feedbackText}'),
                 const SizedBox(height: 12),
               ],
+              Text(
+                hand.boardCards.isNotEmpty
+                    ? 'Board Cards: ' +
+                        hand.boardCards
+                            .map(_cardToDebugString)
+                            .join(' ')
+                    : 'Board Cards: (empty)',
+              ),
+              const SizedBox(height: 12),
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
