@@ -1415,6 +1415,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     : 'Board Cards: (empty)',
               ),
               const SizedBox(height: 12),
+              for (int i = 0; i < hand.numberOfPlayers; i++) ...[
+                Text(
+                  (i < hand.revealedCards.length &&
+                          hand.revealedCards[i].isNotEmpty)
+                      ? 'Player ${i + 1} Revealed: ' +
+                          hand.revealedCards[i]
+                              .map(_cardToDebugString)
+                              .join(' ')
+                      : 'Player ${i + 1} Revealed: (none)',
+                ),
+                const SizedBox(height: 12),
+              ],
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
