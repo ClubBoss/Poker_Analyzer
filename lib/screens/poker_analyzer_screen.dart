@@ -1727,6 +1727,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       effectiveStacksPerStreet: stacks,
       validationNotes: notes,
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
+      firstActionTaken:
+          _firstActionTaken.isEmpty ? null : _firstActionTaken.toList(),
     );
   }
 
@@ -1791,6 +1793,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _validationNotes = hand.validationNotes;
       _expectedAction = hand.expectedAction;
       _feedbackText = hand.feedbackText;
+      _firstActionTaken
+        ..clear()
+        ..addAll(hand.firstActionTaken ?? []);
       _expandedHistoryStreets
         ..clear()
         ..addAll([
