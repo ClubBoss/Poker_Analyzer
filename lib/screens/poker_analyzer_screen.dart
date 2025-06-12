@@ -1416,19 +1416,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               ),
               const SizedBox(height: 12),
               for (int i = 0; i < numberOfPlayers; i++) ...[
-                Text(
-                  players[i]
-                          .revealedCards
-                          .whereType<CardModel>()
-                          .isNotEmpty
+                Text(() {
+                  final rc =
+                      i < hand.revealedCards.length ? hand.revealedCards[i] : [];
+                  return rc.isNotEmpty
                       ? 'Player ${i + 1} Revealed: ' +
-                          players[i]
-                              .revealedCards
-                              .whereType<CardModel>()
-                              .map(_cardToDebugString)
-                              .join(' ')
-                      : 'Player ${i + 1} Revealed: (none)',
-                ),
+                          rc.map(_cardToDebugString).join(' ')
+                      : 'Player ${i + 1} Revealed: (none)';
+                }()),
                 const SizedBox(height: 12),
               ],
               Text(
