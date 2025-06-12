@@ -113,6 +113,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Stores effective stacks loaded from a saved hand's export data.
   Map<String, int>? _savedEffectiveStacks;
 
+  /// Validation notes loaded from a saved hand's export data.
+  Map<String, String>? _validationNotes;
+
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -1383,6 +1386,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     return '$name: ❌ live $live vs export ${exported ?? 'N/A'}';
                   }()),
               ],
+              if (_savedEffectiveStacks != null &&
+                  _validationNotes != null &&
+                  _validationNotes!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                const Text('Validation Notes:'),
+                for (final entry in _validationNotes!.entries)
+                  Text('${entry.key}: ${entry.value}'),
+              ],
             ],
           ),
         ),
@@ -1504,6 +1515,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _commentController.text = hand.comment ?? '';
       _tagsController.text = hand.tags.join(', ');
       _savedEffectiveStacks = hand.effectiveStacksPerStreet;
+      _validationNotes = hand.validationNotes;
       currentStreet = 0;
       _playbackIndex = 0;
       _animatedPlayersPerStreet.clear();
