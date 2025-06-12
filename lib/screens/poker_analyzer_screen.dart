@@ -1390,6 +1390,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               Text('Saved: ${formatDateTime(hand.date)}'),
               const SizedBox(height: 12),
+              if (hand.expectedAction != null) ...[
+                Text('Expected Action: ${hand.expectedAction}'),
+                const SizedBox(height: 12),
+              ],
+              if (hand.feedbackText != null) ...[
+                Text('Feedback: ${hand.feedbackText}'),
+                const SizedBox(height: 12),
+              ],
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
