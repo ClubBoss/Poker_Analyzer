@@ -1506,6 +1506,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 const Text('Action Tags: (none)'),
                 const SizedBox(height: 12),
               ],
+              const Text('StackManager Diagnostics:'),
+              for (int i = 0; i < numberOfPlayers; i++) ...[
+                Text(
+                'Player $i StackManager: current ${_stackManager.getStackForPlayer(i)}, invested ${_stackManager.getTotalInvested(i)}',
+                ),
+                const SizedBox(height: 12),
+              ],
             ],
           ),
         ),
