@@ -1340,6 +1340,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> _showDebugPanel() async {
+    final hand = _currentSavedHand();
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -1356,6 +1357,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   'Remaining ${_stackManager.getStackForPlayer(i)}',
                 ),
               const SizedBox(height: 12),
+              if (hand.remainingStacks != null) ...[
+                const Text('Remaining Stacks (from saved hand):'),
+                for (final entry in hand.remainingStacks!.entries)
+                  Text('Player ${entry.key + 1}: ${entry.value}'),
+                const SizedBox(height: 12),
+              ],
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
