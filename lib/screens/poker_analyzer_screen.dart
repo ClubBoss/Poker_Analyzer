@@ -1647,7 +1647,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _expectedAction = hand.expectedAction;
       _feedbackText = hand.feedbackText;
       currentStreet = 0;
-      _playbackIndex = 0;
+      _playbackIndex = hand.actions.length;
       _animatedPlayersPerStreet.clear();
       _updatePlaybackState();
       _updatePositions();
