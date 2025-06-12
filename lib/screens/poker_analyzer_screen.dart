@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -1404,6 +1405,53 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
+  Future<void> _bulkImportEvaluationQueue() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      allowMultiple: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+
+    final List<ActionEvaluationRequest> loaded = [];
+    for (final picked in result.files) {
+      final path = picked.path;
+      if (path == null) continue;
+      try {
+        final content = await File(path).readAsString();
+        final data = jsonDecode(content);
+        if (data is List) {
+          for (final item in data) {
+            if (item is Map) {
+              try {
+                loaded.add(ActionEvaluationRequest.fromJson(
+                    Map<String, dynamic>.from(item as Map)));
+              } catch (_) {}
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (!mounted) return;
+    if (loaded.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ошибка импорта очереди')),
+      );
+      return;
+    }
+
+    setState(() {
+      _pendingEvaluations
+        ..clear()
+        ..addAll(loaded);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Импортировано ${loaded.length} действий')),
+    );
+  }
+
   Future<void> _cleanupOldEvaluationBackups() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -1746,6 +1794,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextButton(
             onPressed: _backupEvaluationQueue,
             child: const Text('Backup Evaluation Queue'),
+          ),
+          TextButton(
+            onPressed: _bulkImportEvaluationQueue,
+            child: const Text('Bulk Import Evaluation Queue'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
