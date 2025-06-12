@@ -1444,6 +1444,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 Text('Player ${i + 1} Cards: ${playerCards[i].length}'),
                 const SizedBox(height: 12),
               ],
+              Text(
+                _firstActionTaken.isNotEmpty
+                    ? 'First Action Taken: ' +
+                        (_firstActionTaken.toList()..sort()).join(', ')
+                    : 'First Action Taken: (none)',
+              ),
+              const SizedBox(height: 12),
               const Text('Effective Stacks:'),
               for (int s = 0; s < 4; s++)
                 Text([
