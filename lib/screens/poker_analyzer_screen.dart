@@ -1495,6 +1495,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   '${actions.where((a) => a.street == 3).length}'),
               const SizedBox(height: 12),
               Text('Total Actions: ${actions.length}'),
+              const SizedBox(height: 12),
+              const Text('Action Tags Diagnostics:'),
+              if (_actionTags.isNotEmpty)
+                for (final entry in _actionTags.entries) ...[
+                  Text('Player ${entry.key + 1} Action Tag: ${entry.value}'),
+                  const SizedBox(height: 12),
+                ]
+              else ...[
+                const Text('Action Tags: (none)'),
+                const SizedBox(height: 12),
+              ],
             ],
           ),
         ),
