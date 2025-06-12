@@ -1520,6 +1520,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               Text('Show All Revealed Cards: $_showAllRevealedCards'),
               const SizedBox(height: 12),
+              const Text('Collapsed Streets State:'),
+              for (int street = 0; street < 4; street++) ...[
+                Text(
+                  'Street $street Collapsed: '
+                  '${!_expandedHistoryStreets.contains(street)}',
+                ),
+                const SizedBox(height: 12),
+              ],
             ],
           ),
         ),
