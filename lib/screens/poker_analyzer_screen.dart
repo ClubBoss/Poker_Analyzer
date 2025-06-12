@@ -1386,8 +1386,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     return '$name: ❌ live $live vs export ${exported ?? 'N/A'}';
                   }()),
               ],
-              if (_savedEffectiveStacks != null &&
-                  _validationNotes != null &&
+              if (_validationNotes != null &&
                   _validationNotes!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 const Text('Validation Notes:'),
