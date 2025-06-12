@@ -46,7 +46,6 @@ class SavedHand {
     this.expectedAction,
     this.feedbackText,
     this.effectiveStacksPerStreet,
-    revealedCards,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
