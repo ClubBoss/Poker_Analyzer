@@ -899,7 +899,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _clearEvaluationQueue() {
     setState(() {
       _pendingEvaluations.clear();
+      _completedEvaluations.clear();
     });
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Evaluation queue cleared')),
+      );
+    }
   }
 
   void _playStepForward() {
@@ -1423,6 +1429,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           await files[i].delete();
         } catch (_) {}
       }
+
+      await _cleanupOldEvaluationBackups();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1996,6 +2004,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _pendingEvaluations.isEmpty || _processingEvaluations ? null : _processEvaluationQueue,
                     child: const Text('Start Evaluation Processing'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.isEmpty && _completedEvaluations.isEmpty
+                        ? null
+                        : _clearEvaluationQueue,
+                    child: const Text('Clear Evaluation Queue'),
                   ),
                 ],
               ),
