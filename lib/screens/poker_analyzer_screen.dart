@@ -1353,6 +1353,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _showDebugPanel() async {
     final hand = _currentSavedHand();
+    final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet];
+    final hudPotText = _formatAmount(_pots[currentStreet]);
+    final int hudEffStack = _calculateEffectiveStackForStreet(currentStreet);
+    final double? hudSprValue =
+        _pots[currentStreet] > 0 ? hudEffStack / _pots[currentStreet] : null;
+    final String? hudSprText =
+        hudSprValue != null ? 'SPR: ${hudSprValue.toStringAsFixed(1)}' : null;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -1565,6 +1572,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 12),
               const Text('Action Evaluation Queue:'),
               Text('Pending Action Evaluations: ${_pendingEvaluations.length}'),
+              const SizedBox(height: 12),
+              const Text('HUD Overlay State:'),
+              Text('HUD Street Name: $hudStreetName'),
+              const SizedBox(height: 12),
+              Text('HUD Pot Text: $hudPotText'),
+              const SizedBox(height: 12),
+              Text('HUD SPR Text: ${hudSprText ?? '(none)'}'),
               const SizedBox(height: 12),
             ],
           ),
