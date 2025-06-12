@@ -880,6 +880,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _updatePlaybackState();
   }
 
+  void _clearEvaluationQueue() {
+    setState(() {
+      _pendingEvaluations.clear();
+    });
+  }
+
   void _playStepForward() {
     if (_playbackIndex < actions.length) {
       setState(() {
@@ -1665,6 +1671,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: _clearEvaluationQueue,
+            child: const Text('Clear Evaluation Queue'),
           ),
         ],
       ),
