@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:archive/archive.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -1428,6 +1430,89 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } catch (_) {}
   }
 
+  Future<void> _exportAllEvaluationBackups() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_backups');
+      if (!await backupDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No backup files found')),
+          );
+        }
+        return;
+      }
+
+      final files = await backupDir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.json'))
+          .cast<File>()
+          .toList();
+
+      if (files.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No backup files found')),
+          );
+        }
+        return;
+      }
+
+      final archive = Archive();
+      for (final file in files) {
+        final data = await file.readAsBytes();
+        final name = file.uri.pathSegments.last;
+        archive.addFile(ArchiveFile(name, data.length, data));
+      }
+
+      final bytes = ZipEncoder().encode(archive);
+      if (bytes == null) throw Exception('Could not create archive');
+
+      final zipName =
+          'evaluation_backups_${DateTime.now().millisecondsSinceEpoch}.zip';
+      final zipFile = File('${dir.path}/$zipName');
+      await zipFile.writeAsBytes(bytes, flush: true);
+
+      if (!mounted) return;
+
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Backups Exported'),
+          content: Text('ZIP file saved: $zipName'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                OpenFile.open(zipFile.path);
+              },
+              child: const Text('Open'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Share.shareXFiles([XFile(zipFile.path)]);
+              },
+              child: const Text('Share'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to export backups')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() {});
+    }
+  }
+
 
 
   Future<void> _showDebugPanel() async {
@@ -1746,6 +1831,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextButton(
             onPressed: _backupEvaluationQueue,
             child: const Text('Backup Evaluation Queue'),
+          ),
+          TextButton(
+            onPressed: _exportAllEvaluationBackups,
+            child: const Text('Export All Backups'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
