@@ -29,3 +29,15 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
 ## Future plans
 
 Cloud sync for saved hands and sessions will be added later.
+
+## Branch naming
+
+All new development branches must start with the `codex/` prefix followed by a
+short task description using ASCII characters only. Replace spaces with hyphens.
+For example:
+
+```
+codex/add-activeplayerindex-debug-panel
+```
+
+Avoid Cyrillic, special characters or other Unicode symbols in branch names.
