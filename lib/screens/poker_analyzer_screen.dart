@@ -1407,9 +1407,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 const SizedBox(height: 12),
               ],
               Text(
-                hand.boardCards.isNotEmpty
+                boardCards.isNotEmpty
                     ? 'Board Cards: ' +
-                        hand.boardCards
+                        boardCards
                             .map(_cardToDebugString)
                             .join(' ')
                     : 'Board Cards: (empty)',
