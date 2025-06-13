@@ -54,40 +54,7 @@ import '../widgets/chip_moving_widget.dart';
 import '../helpers/stack_manager.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
-
-Widget debugDiag(String label, Object? value) => Text('$label: $value');
-Widget debugCheck(String label, bool ok, String a, String b) =>
-    Text(ok ? '$label: ✅' : '$label: ❌ $a vs $b');
-
-Widget debugQueueSection(
-  String label,
-  List<ActionEvaluationRequest> queue,
-  ReorderCallback onReorder,
-) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      debugDiag('$label Queue', queue.length),
-      ReorderableListView.builder(
-        shrinkWrap: true,
-        physics: const ClampingScrollPhysics(),
-        buildDefaultDragHandles: false,
-        itemCount: queue.length,
-        itemBuilder: (context, index) {
-          final r = queue[index];
-          return EvaluationRequestTile(
-            key: ValueKey(r.id),
-            request: r,
-            showDragHandle: true,
-            index: index,
-          );
-        },
-        onReorder: onReorder,
-      ),
-      _DebugPanelState._vGap,
-    ],
-  );
-}
+import '../helpers/debug_helpers.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -3112,11 +3079,6 @@ class _DebugPanelState extends State<_DebugPanel> {
     return TextButton(onPressed: onPressed, child: Text(label));
   }
 
-  Widget _check(String label, bool ok, String a, String b) =>
-      debugCheck(label, ok, a, b);
-
-  Widget _diag(String label, Object? value) => debugDiag(label, value);
-
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) =>
       s._queueSection(label, queue);
 
@@ -3141,7 +3103,7 @@ class _DebugPanelState extends State<_DebugPanel> {
           mainAxisSize: MainAxisSize.min,
           children: [
             for (int i = 0; i < s.numberOfPlayers; i++)
-              _diag(
+              debugDiag(
                 'Player ${i + 1}',
                 'Initial ${s._initialStacks[i] ?? 0}, '
                 'Invested ${s._stackManager.getTotalInvested(i)}, '
@@ -3151,43 +3113,43 @@ class _DebugPanelState extends State<_DebugPanel> {
             if (hand.remainingStacks != null) ...[
               const Text('Remaining Stacks (from saved hand):'),
               for (final entry in hand.remainingStacks!.entries)
-                _diag('Player ${entry.key + 1}', entry.value),
+                debugDiag('Player ${entry.key + 1}', entry.value),
               _vGap,
             ],
             if (hand.playerTypes != null) ...[
               const Text('Player Types:'),
               for (final entry in hand.playerTypes!.entries)
-                _diag('Player ${entry.key + 1}', entry.value.name),
+                debugDiag('Player ${entry.key + 1}', entry.value.name),
               _vGap,
             ],
             if (hand.comment != null) ...[
-              _diag('Comment', hand.comment!),
+              debugDiag('Comment', hand.comment!),
               _vGap,
             ],
             if (hand.tags.isNotEmpty) ...[
               const Text('Tags:'),
-              for (final tag in hand.tags) _diag('Tag', tag),
+              for (final tag in hand.tags) debugDiag('Tag', tag),
               _vGap,
             ],
             if (hand.opponentIndex != null) ...[
-              _diag('Opponent', 'Player ${hand.opponentIndex! + 1}'),
+              debugDiag('Opponent', 'Player ${hand.opponentIndex! + 1}'),
               _vGap,
             ],
-            _diag('Hero Position', hand.heroPosition),
+            debugDiag('Hero Position', hand.heroPosition),
             _vGap,
-            _diag('Players at table', hand.numberOfPlayers),
+            debugDiag('Players at table', hand.numberOfPlayers),
             _vGap,
-            _diag('Saved', formatDateTime(hand.date)),
+            debugDiag('Saved', formatDateTime(hand.date)),
             _vGap,
             if (hand.expectedAction != null) ...[
-              _diag('Expected Action', hand.expectedAction),
+              debugDiag('Expected Action', hand.expectedAction),
               _vGap,
             ],
             if (hand.feedbackText != null) ...[
-              _diag('Feedback', hand.feedbackText),
+              debugDiag('Feedback', hand.feedbackText),
               _vGap,
             ],
-            _diag(
+            debugDiag(
               'Board Cards',
               s.boardCards.isNotEmpty
                   ? s.boardCards.map(s._cardToDebugString).join(' ')
@@ -3195,7 +3157,7 @@ class _DebugPanelState extends State<_DebugPanel> {
             ),
             _vGap,
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              _diag(
+              debugDiag(
                 'Player ${i + 1} Revealed',
                 () {
                   final rc =
@@ -3207,20 +3169,20 @@ class _DebugPanelState extends State<_DebugPanel> {
               ),
               _vGap,
             ],
-            _diag('Current Street',
+            debugDiag('Current Street',
                 ['Preflop', 'Flop', 'Turn', 'River'][s.currentStreet]),
             _vGap,
-            _diag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
+            debugDiag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
             _vGap,
-            _diag('Active Player Index', s.activePlayerIndex ?? 'None'),
+            debugDiag('Active Player Index', s.activePlayerIndex ?? 'None'),
             _vGap,
-            _diag('Last Action Player Index', s.lastActionPlayerIndex ?? 'None'),
+            debugDiag('Last Action Player Index', s.lastActionPlayerIndex ?? 'None'),
             _vGap,
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              _diag('Player ${i + 1} Cards', s.playerCards[i].length),
+              debugDiag('Player ${i + 1} Cards', s.playerCards[i].length),
               _vGap,
             ],
-            _diag(
+            debugDiag(
               'First Action Taken',
               s._firstActionTaken.isNotEmpty
                   ? (s._firstActionTaken.toList()..sort()).join(', ')
@@ -3229,7 +3191,7 @@ class _DebugPanelState extends State<_DebugPanel> {
             _vGap,
             const Text('Effective Stacks:'),
             for (int street = 0; street < 4; street++)
-              _diag(
+              debugDiag(
                 [
                   'Preflop',
                   'Flop',
@@ -3242,9 +3204,9 @@ class _DebugPanelState extends State<_DebugPanel> {
             const Text('Effective Stacks (from export data):'),
             if (s._savedEffectiveStacks != null)
               for (final entry in s._savedEffectiveStacks!.entries)
-                _diag(entry.key, entry.value)
+                debugDiag(entry.key, entry.value)
             else
-              _diag('Export Data', '(none)'),
+              debugDiag('Export Data', '(none)'),
             if (s._savedEffectiveStacks != null) ...[
               _vGap,
               const Text('Validation:'),
@@ -3255,7 +3217,7 @@ class _DebugPanelState extends State<_DebugPanel> {
                   final live = s._calculateEffectiveStackForStreet(st);
                   final exported = s._savedEffectiveStacks![name];
                   final ok = exported == live;
-                  return _diag(
+                  return debugDiag(
                     name,
                     ok ? '✅' : '❌ live $live vs export ${exported ?? 'N/A'}',
                   );
@@ -3265,58 +3227,58 @@ class _DebugPanelState extends State<_DebugPanel> {
               _vGap,
               const Text('Validation Notes:'),
               for (final entry in s._validationNotes!.entries)
-                _diag(entry.key, entry.value),
+                debugDiag(entry.key, entry.value),
             ],
             _vGap,
             const Text('Playback Diagnostics:'),
-            _diag('Preflop Actions',
+            debugDiag('Preflop Actions',
                 s.actions.where((a) => a.street == 0).length),
-            _diag('Flop Actions',
+            debugDiag('Flop Actions',
                 s.actions.where((a) => a.street == 1).length),
-            _diag('Turn Actions',
+            debugDiag('Turn Actions',
                 s.actions.where((a) => a.street == 2).length),
-            _diag('River Actions',
+            debugDiag('River Actions',
                 s.actions.where((a) => a.street == 3).length),
             _vGap,
-            _diag('Total Actions', s.actions.length),
+            debugDiag('Total Actions', s.actions.length),
             _vGap,
             const Text('Action Tags Diagnostics:'),
             if (s._actionTags.isNotEmpty)
               for (final entry in s._actionTags.entries) ...[
-                _diag('Player ${entry.key + 1} Action Tag', entry.value),
+                debugDiag('Player ${entry.key + 1} Action Tag', entry.value),
                 _vGap,
               ]
             else ...[
-              _diag('Action Tags', '(none)'),
+              debugDiag('Action Tags', '(none)'),
               _vGap,
             ],
             const Text('StackManager Diagnostics:'),
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              _diag(
+              debugDiag(
                 'Player $i StackManager',
                 'current ${s._stackManager.getStackForPlayer(i)}, invested ${s._stackManager.getTotalInvested(i)}',
               ),
               _vGap,
             ],
             const Text('Internal State Flags:'),
-            _diag('Debug Layout', s.debugLayout),
+            debugDiag('Debug Layout', s.debugLayout),
             _vGap,
-            _diag('Perspective Switched', s.isPerspectiveSwitched),
+            debugDiag('Perspective Switched', s.isPerspectiveSwitched),
             _vGap,
-            _diag('Show All Revealed Cards', s._showAllRevealedCards),
+            debugDiag('Show All Revealed Cards', s._showAllRevealedCards),
             _vGap,
             _snapshotRetentionSwitch(),
             _vGap,
             const Text('Collapsed Streets State:'),
             for (int street = 0; street < 4; street++) ...[
-              _diag(
+              debugDiag(
                 'Street $street Collapsed',
                 !s._expandedHistoryStreets.contains(street),
               ),
               _vGap,
             ],
             const Text('Chip Animation State:'),
-            _diag(
+            debugDiag(
               'Center Chip Action',
               () {
                 final action = s._centerChipAction;
@@ -3328,42 +3290,42 @@ class _DebugPanelState extends State<_DebugPanel> {
               }(),
             ),
             _vGap,
-            _diag('Show Center Chip', s._showCenterChip),
+            debugDiag('Show Center Chip', s._showCenterChip),
             _vGap,
             const Text('Animation Controllers State:'),
-            _diag('Center Chip Animation Active',
+            debugDiag('Center Chip Animation Active',
                 s._centerChipController.isAnimating),
             _vGap,
-            _diag('Center Chip Animation Value',
+            debugDiag('Center Chip Animation Value',
                 s._centerChipController.value.toStringAsFixed(2)),
             _vGap,
             const Text('Street Transition State:'),
-            _diag(
+            debugDiag(
               'Current Animated Players Per Street',
               s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0,
             ),
             _vGap,
             for (final entry in s._animatedPlayersPerStreet.entries) ...[
-              _diag('Street ${entry.key} Animated Count', entry.value.length),
+              debugDiag('Street ${entry.key} Animated Count', entry.value.length),
               _vGap,
             ],
             const Text('Chip Trail Diagnostics:'),
-            _diag('Animated Chips In Flight', ChipMovingWidget.activeCount),
+            debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
             _vGap,
             const Text('Playback Pause State:'),
-            _diag('Is Playback Paused', s._activeTimer == null),
+            debugDiag('Is Playback Paused', s._activeTimer == null),
             _vGap,
-            _diag(
+            debugDiag(
               'Action Evaluation Queue',
               s._evaluationQueueResumed
                   ? '(Resumed from saved state)'
                   : '(New)',
             ),
-            _diag('Pending Action Evaluations', s._pendingEvaluations.length),
-            _diag(
+            debugDiag('Pending Action Evaluations', s._pendingEvaluations.length),
+            debugDiag(
                 'Processed',
                 '${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}'),
-            _diag('Failed', s._failedEvaluations.length),
+            debugDiag('Failed', s._failedEvaluations.length),
             _vGap,
             ToggleButtons(
               isSelected: [
@@ -3404,7 +3366,7 @@ class _DebugPanelState extends State<_DebugPanel> {
                   sections.add(_queueSection('Completed', s._completedEvaluations));
                 }
                 if (sections.isEmpty) {
-                  return _diag('Queue Items', '(none)');
+                  return debugDiag('Queue Items', '(none)');
                 }
                 return ConstrainedBox(
                   constraints: const BoxConstraints(maxHeight: 300),
@@ -3442,7 +3404,7 @@ class _DebugPanelState extends State<_DebugPanel> {
                   ),
                 ),
                 _hGap,
-                _diag('Delay', '${s._evaluationProcessingDelay} ms'),
+                debugDiag('Delay', '${s._evaluationProcessingDelay} ms'),
               ],
             ),
             _vGap,
@@ -3454,58 +3416,58 @@ class _DebugPanelState extends State<_DebugPanel> {
                         .sublist(s._completedEvaluations.length - 50)
                     : s._completedEvaluations;
                 if (results.isEmpty) {
-                  return _diag('Completed Evaluations', '(none)');
+                  return debugDiag('Completed Evaluations', '(none)');
                 }
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final r in results)
-                      _diag('Player ${r.playerIndex}, Street ${r.street}', r.action),
+                      debugDiag('Player ${r.playerIndex}, Street ${r.street}', r.action),
                   ],
                 );
               },
             ),
             _vGap,
             const Text('Evaluation Queue Statistics:'),
-            _diag('Pending', s._pendingEvaluations.length),
-            _diag('Failed', s._failedEvaluations.length),
-            _diag('Completed', s._completedEvaluations.length),
-            _diag('Total Processed',
+            debugDiag('Pending', s._pendingEvaluations.length),
+            debugDiag('Failed', s._failedEvaluations.length),
+            debugDiag('Completed', s._completedEvaluations.length),
+            debugDiag('Total Processed',
                 s._completedEvaluations.length + s._failedEvaluations.length),
             _vGap,
             const Text('HUD Overlay State:'),
-            _diag('HUD Street Name', hudStreetName),
+            debugDiag('HUD Street Name', hudStreetName),
             _vGap,
-            _diag('HUD Pot Text', hudPotText),
+            debugDiag('HUD Pot Text', hudPotText),
             _vGap,
-            _diag('HUD SPR Text', hudSprText ?? '(none)'),
+            debugDiag('HUD SPR Text', hudSprText ?? '(none)'),
             _vGap,
             const Text('Debug Menu Visibility:'),
-            _diag('Is Debug Menu Open', s._isDebugPanelOpen),
+            debugDiag('Is Debug Menu Open', s._isDebugPanelOpen),
             _vGap,
             const Text('Full Export Consistency:'),
-            _check('numberOfPlayers',
+            debugCheck('numberOfPlayers',
                 hand.numberOfPlayers == s.numberOfPlayers,
                 '${hand.numberOfPlayers}', '${s.numberOfPlayers}'),
-            _check('heroIndex', hand.heroIndex == s.heroIndex,
+            debugCheck('heroIndex', hand.heroIndex == s.heroIndex,
                 '${hand.heroIndex}', '${s.heroIndex}'),
-            _check('heroPosition', hand.heroPosition == s._heroPosition,
+            debugCheck('heroPosition', hand.heroPosition == s._heroPosition,
                 hand.heroPosition, s._heroPosition),
-            _check('playerPositions',
+            debugCheck('playerPositions',
                 mapEquals(hand.playerPositions, s.playerPositions),
                 hand.playerPositions.toString(),
                 s.playerPositions.toString()),
-            _check('stackSizes', mapEquals(hand.stackSizes, s._initialStacks),
+            debugCheck('stackSizes', mapEquals(hand.stackSizes, s._initialStacks),
                 hand.stackSizes.toString(), s._initialStacks.toString()),
-            _check('actions.length', hand.actions.length == s.actions.length,
+            debugCheck('actions.length', hand.actions.length == s.actions.length,
                 '${hand.actions.length}', '${s.actions.length}'),
-            _check(
+            debugCheck(
                 'boardCards',
                 hand.boardCards.map((c) => c.toString()).join(' ') ==
                     s.boardCards.map((c) => c.toString()).join(' '),
                 hand.boardCards.map((c) => c.toString()).join(' '),
                 s.boardCards.map((c) => c.toString()).join(' ')),
-            _check(
+            debugCheck(
                 'revealedCards',
                 listEquals(
                   [
@@ -3533,7 +3495,7 @@ class _DebugPanelState extends State<_DebugPanel> {
                 ].toString()),
             _vGap,
             const Text('Theme Diagnostics:'),
-            _diag('Current Theme',
+            debugDiag('Current Theme',
                 Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'),
             _vGap,
           ],
