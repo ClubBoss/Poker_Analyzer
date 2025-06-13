@@ -489,7 +489,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     await _cleanupOldFiles(_autoBackupsFolder, _autoBackupRetentionLimit);
   }
 
-  Widget _buildQueueSection(String label, List<ActionEvaluationRequest> queue) {
+  Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
     return debugQueueSection(label, queue, (oldIndex, newIndex) {
       if (newIndex > oldIndex) newIndex -= 1;
       setState(() {
@@ -3118,15 +3118,7 @@ class _DebugPanelState extends State<_DebugPanel> {
   Widget _diag(String label, Object? value) => debugDiag(label, value);
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) =>
-      debugQueueSection(label, queue, (oldIndex, newIndex) {
-        if (newIndex > oldIndex) newIndex -= 1;
-        s.setState(() {
-          final item = queue.removeAt(oldIndex);
-          queue.insert(newIndex, item);
-        });
-        s._persistEvaluationQueue();
-        s._debugPanelSetState?.call(() {});
-      });
+      s._queueSection(label, queue);
 
   @override
   Widget build(BuildContext context) {
