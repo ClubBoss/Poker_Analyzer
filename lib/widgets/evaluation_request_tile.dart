@@ -4,7 +4,15 @@ import '../models/action_evaluation_request.dart';
 
 class EvaluationRequestTile extends StatelessWidget {
   final ActionEvaluationRequest request;
-  const EvaluationRequestTile({super.key, required this.request});
+  final bool showDragHandle;
+  final int? index;
+
+  const EvaluationRequestTile({
+    super.key,
+    required this.request,
+    this.showDragHandle = false,
+    this.index,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +30,16 @@ class EvaluationRequestTile extends StatelessWidget {
     final expected = metadata?['expectedAction'] ?? data['expectedAction'];
     final feedback = metadata?['feedbackText'] ?? data['feedbackText'];
 
+    final handle = showDragHandle && index != null
+        ? ReorderableDragStartListener(
+            index: index!,
+            child: const Icon(Icons.drag_handle),
+          )
+        : null;
+
     return Card(
       child: ExpansionTile(
+        trailing: handle,
         title: Text(
           'Player ${request.playerIndex}, Street ${request.street}, '
           '${request.action}${request.amount != null ? ' ${request.amount}' : ''}',

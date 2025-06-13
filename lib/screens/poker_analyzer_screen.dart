@@ -322,6 +322,40 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } catch (_) {}
   }
 
+  Widget _buildQueueSection(String label, List<ActionEvaluationRequest> queue) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label Queue (${queue.length})'),
+        ReorderableListView.builder(
+          shrinkWrap: true,
+          physics: const ClampingScrollPhysics(),
+          buildDefaultDragHandles: false,
+          itemCount: queue.length,
+          itemBuilder: (context, index) {
+            final r = queue[index];
+            return EvaluationRequestTile(
+              key: ValueKey('$label-$index-${r.playerIndex}-${r.street}-${r.action}'),
+              request: r,
+              showDragHandle: true,
+              index: index,
+            );
+          },
+          onReorder: (oldIndex, newIndex) {
+            if (newIndex > oldIndex) newIndex -= 1;
+            setState(() {
+              final item = queue.removeAt(oldIndex);
+              queue.insert(newIndex, item);
+            });
+            _persistEvaluationQueue();
+            _debugPanelSetState?.call(() {});
+          },
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
 
   List<String> _positionsForPlayers(int count) {
     return getPositionList(count);
@@ -2962,30 +2996,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 8),
               Builder(
                 builder: (context) {
-                  final list = <ActionEvaluationRequest>[];
+                  final sections = <Widget>[];
                   if (_queueFilters.contains('pending')) {
-                    list.addAll(_pendingEvaluations);
+                    sections.add(_buildQueueSection('Pending', _pendingEvaluations));
                   }
                   if (_queueFilters.contains('failed')) {
-                    list.addAll(_failedEvaluations);
+                    sections.add(_buildQueueSection('Failed', _failedEvaluations));
                   }
                   if (_queueFilters.contains('completed')) {
-                    list.addAll(_completedEvaluations);
+                    sections.add(_buildQueueSection('Completed', _completedEvaluations));
                   }
-                  if (list.isEmpty) {
+                  if (sections.isEmpty) {
                     return const Text('No items');
                   }
-                  final display =
-                      list.length > 50 ? list.sublist(list.length - 50) : list;
                   return ConstrainedBox(
                     constraints: const BoxConstraints(maxHeight: 300),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: display.length,
-                      itemBuilder: (context, index) {
-                        final r = display[index];
-                        return EvaluationRequestTile(request: r);
-                      },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: sections,
+                      ),
                     ),
                   );
                 },
