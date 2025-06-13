@@ -10,6 +10,7 @@ import 'package:open_file/open_file.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -148,6 +149,38 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
+
+  static const _snapshotRetentionKey = 'snapshot_retention_enabled';
+  bool _snapshotRetentionEnabled = true;
+
+  Future<void> _loadSnapshotRetentionPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getBool(_snapshotRetentionKey);
+    if (mounted) {
+      setState(() {
+        _snapshotRetentionEnabled = value ?? true;
+      });
+    } else {
+      _snapshotRetentionEnabled = value ?? true;
+    }
+    if (_snapshotRetentionEnabled) {
+      await _cleanupOldEvaluationSnapshots();
+    }
+  }
+
+  Future<void> _setSnapshotRetentionEnabled(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_snapshotRetentionKey, value);
+    if (mounted) {
+      setState(() => _snapshotRetentionEnabled = value);
+    } else {
+      _snapshotRetentionEnabled = value;
+    }
+    if (value) {
+      await _cleanupOldEvaluationSnapshots();
+    }
+    _debugPanelSetState?.call(() {});
+  }
 
 
   List<String> _positionsForPlayers(int count) {
@@ -698,7 +731,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _applySavedHand(widget.initialHand!);
     }
     Future(() => _cleanupOldEvaluationBackups());
-    Future(() => _cleanupOldEvaluationSnapshots());
+    Future(() => _loadSnapshotRetentionPreference());
     Future.microtask(_loadSavedEvaluationQueue);
   }
 
@@ -1488,7 +1521,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final file = File('${snapDir.path}/$fileName');
       final data = [for (final e in _pendingEvaluations) e.toJson()];
       await file.writeAsString(jsonEncode(data), flush: true);
-      await _cleanupOldEvaluationSnapshots();
+      if (_snapshotRetentionEnabled) {
+        await _cleanupOldEvaluationSnapshots();
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Snapshot saved: ${file.path}')),
@@ -2201,6 +2236,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               Text('Perspective Switched: $isPerspectiveSwitched'),
               const SizedBox(height: 12),
               Text('Show All Revealed Cards: $_showAllRevealedCards'),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Expanded(child: Text('Enable Snapshot Retention Policy')),
+                  Switch(
+                    value: _snapshotRetentionEnabled,
+                    onChanged: (v) {
+                      _setSnapshotRetentionEnabled(v);
+                    },
+                    activeColor: Colors.orange,
+                  ),
+                ],
+              ),
               const SizedBox(height: 12),
               const Text('Collapsed Streets State:'),
               for (int street = 0; street < 4; street++) ...[
