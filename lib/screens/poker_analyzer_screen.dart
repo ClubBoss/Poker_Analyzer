@@ -137,6 +137,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Indicates if evaluation processing is currently running.
   bool _processingEvaluations = false;
 
+  /// True when a pause of the evaluation processing loop has been requested.
+  bool _pauseProcessingRequested = false;
+
   /// Whether the evaluation queue was restored from disk on startup.
   bool _evaluationQueueResumed = false;
 
@@ -913,6 +916,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _toggleEvaluationProcessingPause() {
+    setState(() {
+      _pauseProcessingRequested = !_pauseProcessingRequested;
+    });
+    _debugPanelSetState?.call(() {});
+    if (!_pauseProcessingRequested && !_processingEvaluations &&
+        _pendingEvaluations.isNotEmpty) {
+      _processEvaluationQueue();
+    }
+  }
+
   void _playStepForward() {
     if (_playbackIndex < actions.length) {
       setState(() {
@@ -1505,6 +1519,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
     _debugPanelSetState?.call(() {});
     while (_pendingEvaluations.isNotEmpty) {
+      if (_pauseProcessingRequested) {
+        break;
+      }
       final req = _pendingEvaluations.first;
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) {
@@ -1519,6 +1536,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _persistEvaluationQueue();
       // Update debug panel if it's currently visible.
       _debugPanelSetState?.call(() {});
+      if (_pauseProcessingRequested) {
+        break;
+      }
     }
     if (mounted) {
       setState(() {
@@ -2077,6 +2097,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _pendingEvaluations.isEmpty || _processingEvaluations ? null : _processEvaluationQueue,
                     child: const Text('Start Evaluation Processing'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.isEmpty && !_processingEvaluations
+                        ? null
+                        : _toggleEvaluationProcessingPause,
+                    child: Text(_pauseProcessingRequested
+                        ? 'Resume Evaluation Processing'
+                        : 'Pause Evaluation Processing'),
                   ),
                   ElevatedButton(
                     onPressed: _pendingEvaluations.isEmpty && _completedEvaluations.isEmpty
@@ -2926,6 +2954,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackTimer?.cancel();
     _centerChipTimer?.cancel();
     _processingEvaluations = false;
+    _pauseProcessingRequested = false;
     _centerChipController.dispose();
     _commentController.dispose();
     _tagsController.dispose();
