@@ -2526,28 +2526,48 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     await _cleanupOldFiles(_snapshotsFolder, _snapshotRetentionLimit);
   }
 
-  Future<void> _exportAllEvaluationBackups() async {
+  Future<void> _exportArchive(String subfolder, String archivePrefix) async {
+    String emptyMsg;
+    String failMsg;
+    String dialogTitle;
+    switch (subfolder) {
+      case _backupsFolder:
+        emptyMsg = 'No backup files found';
+        failMsg = 'Failed to export backups';
+        dialogTitle = 'Save Backups Archive';
+        break;
+      case _autoBackupsFolder:
+        emptyMsg = 'No auto-backup files found';
+        failMsg = 'Failed to export auto-backups';
+        dialogTitle = 'Save Auto-Backups Archive';
+        break;
+      case _snapshotsFolder:
+        emptyMsg = 'No snapshot files found';
+        failMsg = 'Failed to export snapshots';
+        dialogTitle = 'Save Snapshots Archive';
+        break;
+      default:
+        emptyMsg = 'No files found';
+        failMsg = 'Failed to export archive';
+        dialogTitle = 'Save Archive';
+    }
+
     try {
-      final backupDir = await _getBackupDirectory(_backupsFolder);
-      if (!await backupDir.exists()) {
+      final dir = await _getBackupDirectory(subfolder);
+      if (!await dir.exists()) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No backup files found')),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(emptyMsg)));
         }
         return;
       }
 
-      final files = await backupDir
-          .list(recursive: true)
-          .whereType<File>()
-          .toList();
+      final files = await dir.list(recursive: true).whereType<File>().toList();
 
       if (files.isEmpty) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No backup files found')),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(emptyMsg)));
         }
         return;
       }
@@ -2555,17 +2575,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final archive = Archive();
       for (final file in files) {
         final data = await file.readAsBytes();
-        final name = file.path.substring(backupDir.path.length + 1);
+        final name = file.path.substring(dir.path.length + 1);
         archive.addFile(ArchiveFile(name, data.length, data));
       }
 
       final bytes = ZipEncoder().encode(archive);
       if (bytes == null) throw Exception('Could not create archive');
 
-      final fileName =
-          'evaluation_backups_${_timestamp()}.zip';
+      final fileName = '${archivePrefix}_${_timestamp()}.zip';
       final savePath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Backups Archive',
+        dialogTitle: dialogTitle,
         fileName: fileName,
         type: FileType.custom,
         allowedExtensions: ['zip'],
@@ -2577,148 +2596,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       if (!mounted) return;
       final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Archive saved: $name')),
-      );
-    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export backups')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(failMsg)));
       }
     } finally {
       if (mounted) setState(() {});
     }
+  }
+
+  Future<void> _exportAllEvaluationBackups() async {
+    await _exportArchive(_backupsFolder, 'evaluation_backups');
   }
 
   Future<void> _exportAutoBackups() async {
-    try {
-      final backupDir = await _getBackupDirectory(_autoBackupsFolder);
-      if (!await backupDir.exists()) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No auto-backup files found')),
-          );
-        }
-        return;
-      }
-
-      final files = await backupDir
-          .list(recursive: true)
-          .whereType<File>()
-          .toList();
-
-      if (files.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No auto-backup files found')),
-          );
-        }
-        return;
-      }
-
-      final archive = Archive();
-      for (final file in files) {
-        final data = await file.readAsBytes();
-        final name = file.path.substring(backupDir.path.length + 1);
-        archive.addFile(ArchiveFile(name, data.length, data));
-      }
-
-      final bytes = ZipEncoder().encode(archive);
-      if (bytes == null) throw Exception('Could not create archive');
-
-      final fileName =
-          'evaluation_autobackups_${_timestamp()}.zip';
-      final savePath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Auto-Backups Archive',
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: ['zip'],
-      );
-      if (savePath == null) return;
-
-      final zipFile = File(savePath);
-      await zipFile.writeAsBytes(bytes, flush: true);
-
-      if (!mounted) return;
-      final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Archive saved: $name')),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export auto-backups')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() {});
-    }
+    await _exportArchive(_autoBackupsFolder, 'evaluation_autobackups');
   }
 
   Future<void> _exportSnapshots() async {
-    try {
-      final snapDir = await _getBackupDirectory(_snapshotsFolder);
-      if (!await snapDir.exists()) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')),
-          );
-        }
-        return;
-      }
-
-      final files = await snapDir
-          .list(recursive: true)
-          .whereType<File>()
-          .toList();
-
-      if (files.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')),
-          );
-        }
-        return;
-      }
-
-      final archive = Archive();
-      for (final file in files) {
-        final data = await file.readAsBytes();
-        final name = file.path.substring(snapDir.path.length + 1);
-        archive.addFile(ArchiveFile(name, data.length, data));
-      }
-
-      final bytes = ZipEncoder().encode(archive);
-      if (bytes == null) throw Exception('Could not create archive');
-
-      final fileName =
-          'evaluation_snapshots_${_timestamp()}.zip';
-      final savePath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Snapshots Archive',
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: ['zip'],
-      );
-      if (savePath == null) return;
-
-      final zipFile = File(savePath);
-      await zipFile.writeAsBytes(bytes, flush: true);
-
-      if (!mounted) return;
-      final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Archive saved: $name')),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export snapshots')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() {});
-    }
+    await _exportArchive(_snapshotsFolder, 'evaluation_snapshots');
   }
 
   Future<void> _restoreFromAutoBackup() async {
@@ -2778,68 +2677,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _exportAllEvaluationSnapshots() async {
-    try {
-      final snapDir = await _getBackupDirectory(_snapshotsFolder);
-      if (!await snapDir.exists()) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')),
-          );
-        }
-        return;
-      }
-
-      final files = await snapDir
-          .list(recursive: true)
-          .whereType<File>()
-          .toList();
-
-      if (files.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')),
-          );
-        }
-        return;
-      }
-
-      final archive = Archive();
-      for (final file in files) {
-        final data = await file.readAsBytes();
-        final name = file.path.substring(snapDir.path.length + 1);
-        archive.addFile(ArchiveFile(name, data.length, data));
-      }
-
-      final bytes = ZipEncoder().encode(archive);
-      if (bytes == null) throw Exception('Could not create archive');
-
-      final fileName =
-          'evaluation_snapshots_${_timestamp()}.zip';
-      final savePath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Snapshots Archive',
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: ['zip'],
-      );
-      if (savePath == null) return;
-
-      final zipFile = File(savePath);
-      await zipFile.writeAsBytes(bytes, flush: true);
-
-      if (!mounted) return;
-      final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Archive saved: $name')),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export snapshots')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() {});
-    }
+    await _exportArchive(_snapshotsFolder, 'evaluation_snapshots');
   }
 
   Future<void> _importEvaluationQueue() async {
