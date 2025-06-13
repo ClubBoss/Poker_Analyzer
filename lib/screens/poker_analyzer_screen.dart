@@ -163,6 +163,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   static const _snapshotRetentionKey = 'snapshot_retention_enabled';
   static const int _snapshotRetentionLimit = 50;
+  static const int _backupRetentionLimit = 30;
   bool _snapshotRetentionEnabled = true;
 
   static const _processingDelayKey = 'evaluation_processing_delay';
@@ -2181,19 +2182,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final backupDir = Directory('${dir.path}/evaluation_backups');
       if (!await backupDir.exists()) return;
 
-      final threshold = DateTime.now().subtract(const Duration(days: 30));
       final files = await backupDir
           .list()
           .where((e) => e is File && e.path.endsWith('.json'))
           .cast<File>()
           .toList();
 
+      final stats = <File, DateTime>{};
       for (final file in files) {
         try {
           final stat = await file.stat();
-          if (stat.modified.isBefore(threshold)) {
-            await file.delete();
-          }
+          stats[file] = stat.modified;
+        } catch (_) {}
+      }
+
+      final ordered = stats.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      for (final entry in ordered.skip(_backupRetentionLimit)) {
+        try {
+          await entry.key.delete();
         } catch (_) {}
       }
     } catch (_) {}
