@@ -1857,6 +1857,60 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _importEvaluationQueueSnapshot() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      if (!await snapDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No snapshot files found')),
+          );
+        }
+        return;
+      }
+
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        initialDirectory: snapDir.path,
+      );
+      if (result == null || result.files.isEmpty) return;
+      final path = result.files.single.path;
+      if (path == null) return;
+      final content = await File(path).readAsString();
+      final decoded = jsonDecode(content);
+      if (decoded is! List) throw const FormatException();
+      final items = <ActionEvaluationRequest>[];
+      for (final item in decoded) {
+        if (item is Map) {
+          try {
+            items.add(ActionEvaluationRequest.fromJson(
+                Map<String, dynamic>.from(item)));
+          } catch (_) {}
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(items);
+      });
+      _persistEvaluationQueue();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Imported ${items.length} evaluations')),
+      );
+      _debugPanelSetState?.call(() {});
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to import snapshot')),
+        );
+      }
+    }
+  }
+
 
 
   Future<void> _showDebugPanel() async {
@@ -2116,6 +2170,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _bulkImportEvaluationQueue,
                     child: const Text('Bulk Import Evaluation Queue'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _importEvaluationQueueSnapshot,
+                    child: const Text('Import Queue Snapshot'),
                   ),
                   ElevatedButton(
                     onPressed: _exportEvaluationQueueSnapshot,
