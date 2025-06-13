@@ -372,29 +372,35 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final backupDir = Directory('${dir.path}/evaluation_autobackups');
       if (!await backupDir.exists()) return;
 
-      final threshold = DateTime.now().subtract(const Duration(days: 30));
-      final files = <MapEntry<File, DateTime>>[];
-
+      final entries = <MapEntry<File, DateTime>>[];
       await for (final entity in backupDir.list()) {
         if (entity is File && entity.path.endsWith('.json')) {
           try {
             final stat = await entity.stat();
-            if (stat.modified.isBefore(threshold)) {
-              await entity.delete();
-            } else {
-              files.add(MapEntry(entity, stat.modified));
+            entries.add(MapEntry(entity, stat.modified));
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint('Failed to stat ${entity.path}: $e');
             }
-          } catch (_) {}
+          }
         }
       }
 
-      files.sort((a, b) => b.value.compareTo(a.value));
-      for (final entry in files.skip(50)) {
+      entries.sort((a, b) => b.value.compareTo(a.value));
+      for (final entry in entries.skip(50)) {
         try {
           await entry.key.delete();
-        } catch (_) {}
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('Failed to delete ${entry.key.path}: $e');
+          }
+        }
       }
-    } catch (_) {}
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Cleanup error: $e');
+      }
+    }
   }
 
   Widget _buildQueueSection(String label, List<ActionEvaluationRequest> queue) {
