@@ -1245,6 +1245,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _clearCompletedEvaluations() {
+    final count = _completedEvaluations.length;
+    if (count == 0) return;
+    setState(() {
+      _completedEvaluations.clear();
+    });
+    _persistEvaluationQueue();
+    _debugPanelSetState?.call(() {});
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cleared $count completed evaluations')),
+      );
+    }
+  }
+
   void _toggleEvaluationProcessingPause() {
     setState(() {
       _pauseProcessingRequested = !_pauseProcessingRequested;
@@ -3131,6 +3146,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     child: const Text('Clear Evaluation Queue'),
                   ),
                 ],
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                  onPressed: _completedEvaluations.isEmpty
+                      ? null
+                      : _clearCompletedEvaluations,
+                  child: const Text('Clear Completed Evaluations'),
+                ),
               ),
               const SizedBox(height: 8),
               Align(
