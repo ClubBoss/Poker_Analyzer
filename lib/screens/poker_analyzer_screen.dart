@@ -2168,6 +2168,35 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _quickBackupEvaluationQueue() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_backups');
+      await backupDir.create(recursive: true);
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+      final fileName = 'quick_backup_${timestamp}.json';
+      final file = File('${backupDir.path}/$fileName');
+      final data = {
+        'pending': [for (final e in _pendingEvaluations) e.toJson()],
+        'failed': [for (final e in _failedEvaluations) e.toJson()],
+        'completed': [for (final e in _completedEvaluations) e.toJson()],
+      };
+      await file.writeAsString(jsonEncode(data), flush: true);
+      Future(() => _cleanupOldEvaluationBackups());
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Quick backup saved: $fileName')),
+      );
+      _debugPanelSetState?.call(() {});
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to create quick backup')),
+        );
+      }
+    }
+  }
+
   Future<void> _exportEvaluationQueueSnapshot({bool showNotification = true}) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -3701,6 +3730,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _exportEvaluationQueueSnapshot,
                     child: const Text('Export Current Queue Snapshot'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _quickBackupEvaluationQueue,
+                    child: const Text('Quick Backup'),
                   ),
                   ElevatedButton(
                     onPressed: _failedEvaluations.isEmpty
