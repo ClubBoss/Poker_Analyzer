@@ -56,6 +56,7 @@ import '../helpers/stack_manager.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
+part '../widgets/debug_panel.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -3139,31 +3140,6 @@ class _DebugPanelState extends State<_DebugPanel> {
     super.dispose();
   }
 
-  Widget _btn(String label, VoidCallback? onPressed) {
-    return ElevatedButton(onPressed: onPressed, child: Text(label));
-  }
-
-  Widget _buttonsWrap(Map<String, VoidCallback?> actions) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final entry in actions.entries) _btn(entry.key, entry.value),
-      ],
-    );
-  }
-
-  Widget _buttonsColumn(Map<String, VoidCallback?> actions) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final entry in actions.entries) ...[
-          Align(alignment: Alignment.centerLeft, child: _btn(entry.key, entry.value)),
-          if (entry.key != actions.keys.last) _vGap,
-        ],
-      ],
-    );
-  }
 
   Widget _snapshotRetentionSwitch() {
     return Row(
@@ -3191,69 +3167,7 @@ class _DebugPanelState extends State<_DebugPanel> {
     );
   }
 
-  Widget _processingControls() {
-    final disabled = s._pendingEvaluations.isEmpty;
-    return _buttonsWrap({
-      'Process Next':
-          disabled || s._processingEvaluations ? null : s._processNextEvaluation,
-      'Start Evaluation Processing':
-          disabled || s._processingEvaluations ? null : s._processEvaluationQueue,
-      s._pauseProcessingRequested ? 'Resume' : 'Pause':
-          disabled || !s._processingEvaluations ? null : s._toggleEvaluationProcessingPause,
-      'Cancel Evaluation Processing':
-          !s._processingEvaluations && disabled ? null : s._cancelEvaluationProcessing,
-      'Force Evaluation Restart': disabled ? null : s._forceRestartEvaluationProcessing,
-    });
-  }
 
-  Widget _snapshotControls() {
-    return _buttonsColumn({
-      'Retry Failed Evaluations':
-          s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
-      'Export Snapshot Now': s._processingEvaluations
-          ? null
-          : () => s._exportEvaluationQueueSnapshot(showNotification: true),
-      'Backup Queue Now': s._processingEvaluations
-          ? null
-          : () async {
-              await s._backupEvaluationQueue();
-              s._debugPanelSetState?.call(() {});
-            },
-    });
-  }
-
-  Widget _queueTools() {
-    final noQueues =
-        s._pendingEvaluations.isEmpty && s._failedEvaluations.isEmpty && s._completedEvaluations.isEmpty;
-    return _buttonsWrap({
-      'Import Evaluation Queue': s._importEvaluationQueue,
-      'Restore Evaluation Queue': s._restoreEvaluationQueue,
-      'Restore From Auto-Backup': s._restoreFromAutoBackup,
-      'Bulk Import Evaluation Queue': s._bulkImportEvaluationQueue,
-      'Bulk Import Backups': s._bulkImportEvaluationBackups,
-      'Bulk Import Auto-Backups': s._bulkImportAutoBackups,
-      'Import Queue Snapshot': s._importEvaluationQueueSnapshot,
-      'Bulk Import Snapshots': s._bulkImportEvaluationSnapshots,
-      'Export All Snapshots': s._exportAllEvaluationSnapshots,
-      'Import Full Queue State': s._importFullEvaluationQueueState,
-      'Restore Full Queue State': s._restoreFullEvaluationQueueState,
-      'Export Full Queue State': s._exportFullEvaluationQueueState,
-      'Export Current Queue Snapshot': s._exportEvaluationQueueSnapshot,
-      'Quick Backup': s._quickBackupEvaluationQueue,
-      'Import Quick Backups': s._importQuickBackups,
-      'Export All Backups': s._exportAllEvaluationBackups,
-      'Clear Pending': s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
-      'Clear Failed': s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
-      'Clear Completed': s._completedEvaluations.isEmpty ? null : s._clearCompletedQueue,
-      'Clear Evaluation Queue':
-          s._pendingEvaluations.isEmpty && s._completedEvaluations.isEmpty ? null : s._clearEvaluationQueue,
-      'Remove Duplicates': noQueues ? null : s._removeDuplicateEvaluations,
-      'Resolve Conflicts': noQueues ? null : s._resolveQueueConflicts,
-      'Sort Queues': noQueues ? null : s._sortEvaluationQueues,
-      'Clear Completed Evaluations':
-          s._completedEvaluations.isEmpty ? null : s._clearCompletedEvaluations,
-    });
-  }
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
     return TextButton(onPressed: onPressed, child: Text(label));
@@ -3595,12 +3509,79 @@ class _DebugPanelState extends State<_DebugPanel> {
               },
             ),
             _vGap,
-            _processingControls(),
+            _ProcessingControls(
+              queueEmpty: s._pendingEvaluations.isEmpty,
+              processing: s._processingEvaluations,
+              pauseRequested: s._pauseProcessingRequested,
+              processNext: s._processNextEvaluation,
+              startProcessing: s._processEvaluationQueue,
+              togglePause: s._toggleEvaluationProcessingPause,
+              cancelProcessing: s._cancelEvaluationProcessing,
+              forceRestart: s._forceRestartEvaluationProcessing,
+            ),
             _vGap,
-            _snapshotControls(),
+            _SnapshotControls(
+              hasFailed: s._failedEvaluations.isNotEmpty,
+              processing: s._processingEvaluations,
+              retryFailed: s._retryFailedEvaluations,
+              exportSnapshot: () =>
+                  s._exportEvaluationQueueSnapshot(showNotification: true),
+              backupQueue: () async {
+                await s._backupEvaluationQueue();
+                s._debugPanelSetState?.call(() {});
+              },
+            ),
             _vGap,
             const Text('Evaluation Queue Tools:'),
-            _queueTools(),
+            _QueueTools(actions: {
+              'Import Evaluation Queue': s._importEvaluationQueue,
+              'Restore Evaluation Queue': s._restoreEvaluationQueue,
+              'Restore From Auto-Backup': s._restoreFromAutoBackup,
+              'Bulk Import Evaluation Queue': s._bulkImportEvaluationQueue,
+              'Bulk Import Backups': s._bulkImportEvaluationBackups,
+              'Bulk Import Auto-Backups': s._bulkImportAutoBackups,
+              'Import Queue Snapshot': s._importEvaluationQueueSnapshot,
+              'Bulk Import Snapshots': s._bulkImportEvaluationSnapshots,
+              'Export All Snapshots': s._exportAllEvaluationSnapshots,
+              'Import Full Queue State': s._importFullEvaluationQueueState,
+              'Restore Full Queue State': s._restoreFullEvaluationQueueState,
+              'Export Full Queue State': s._exportFullEvaluationQueueState,
+              'Export Current Queue Snapshot': s._exportEvaluationQueueSnapshot,
+              'Quick Backup': s._quickBackupEvaluationQueue,
+              'Import Quick Backups': s._importQuickBackups,
+              'Export All Backups': s._exportAllEvaluationBackups,
+              'Clear Pending':
+                  s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
+              'Clear Failed':
+                  s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
+              'Clear Completed':
+                  s._completedEvaluations.isEmpty ? null : s._clearCompletedQueue,
+              'Clear Evaluation Queue':
+                  s._pendingEvaluations.isEmpty && s._completedEvaluations.isEmpty
+                      ? null
+                      : s._clearEvaluationQueue,
+              'Remove Duplicates':
+                  (s._pendingEvaluations.isEmpty &&
+                          s._failedEvaluations.isEmpty &&
+                          s._completedEvaluations.isEmpty)
+                      ? null
+                      : s._removeDuplicateEvaluations,
+              'Resolve Conflicts':
+                  (s._pendingEvaluations.isEmpty &&
+                          s._failedEvaluations.isEmpty &&
+                          s._completedEvaluations.isEmpty)
+                      ? null
+                      : s._resolveQueueConflicts,
+              'Sort Queues':
+                  (s._pendingEvaluations.isEmpty &&
+                          s._failedEvaluations.isEmpty &&
+                          s._completedEvaluations.isEmpty)
+                      ? null
+                      : s._sortEvaluationQueues,
+              'Clear Completed Evaluations': s._completedEvaluations.isEmpty
+                  ? null
+                  : s._clearCompletedEvaluations,
+            }),
             _vGap,
             Row(
               children: [
