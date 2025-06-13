@@ -3896,6 +3896,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     child: const Text('Import Quick Backups'),
                   ),
                   ElevatedButton(
+                    onPressed: _exportAllEvaluationBackups,
+                    child: const Text('Export All Backups'),
+                  ),
+                  ElevatedButton(
                     onPressed: _failedEvaluations.isEmpty
                         ? null
                         : _retryFailedEvaluations,
