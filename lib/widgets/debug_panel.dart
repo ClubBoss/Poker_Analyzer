@@ -155,9 +155,17 @@ class _SnapshotControls extends StatelessWidget {
     );
   }
 
-  Widget _processingControls() {
+
+class _ProcessingControls extends StatelessWidget {
+  const _ProcessingControls({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
     final disabled = s._pendingEvaluations.isEmpty;
-    return _buttonsWrap({
+    return state._buttonsWrap({
       'Process Next':
           disabled || s._processingEvaluations ? null : s._processNextEvaluation,
       'Start Evaluation Processing':
@@ -169,6 +177,7 @@ class _SnapshotControls extends StatelessWidget {
       'Force Evaluation Restart': disabled ? null : s._forceRestartEvaluationProcessing,
     });
   }
+}
 
 
 
@@ -512,7 +521,7 @@ class _SnapshotControls extends StatelessWidget {
               },
             ),
             _vGap,
-            _processingControls(),
+            _ProcessingControls(state: this),
             _vGap,
             _SnapshotControls(state: this),
             _vGap,
