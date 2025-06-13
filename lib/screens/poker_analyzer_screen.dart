@@ -250,6 +250,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Whether to sort evaluation lists by SPR when displayed in the debug panel.
   bool _sortBySpr = false;
 
+  /// Current search query for filtering evaluation queues in the debug panel.
+  String _searchQuery = '';
+
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
@@ -384,19 +387,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
+  void _setSearchQuery(String value) {
+    if (mounted) {
+      setState(() => _searchQuery = value);
+    } else {
+      _searchQuery = value;
+    }
+    _debugPanelSetState?.call(() {});
+  }
+
   List<ActionEvaluationRequest> _applyAdvancedFilters(
       List<ActionEvaluationRequest> list) {
     final filters = _advancedFilters;
     final sort = _sortBySpr;
-    if (filters.isEmpty && !sort) return list;
+    final search = _searchQuery.trim().toLowerCase();
+    if (filters.isEmpty && !sort && search.isEmpty) return list;
 
     final checkFeedback = filters.contains('feedback');
     final checkOpponent = filters.contains('opponent');
     final checkFailed = filters.contains('failed');
     final checkHighSpr = filters.contains('highspr');
+    final searchActive = search.isNotEmpty;
 
     final shouldFilter =
-        checkFeedback || checkOpponent || checkFailed || checkHighSpr;
+        checkFeedback ||
+            checkOpponent ||
+            checkFailed ||
+            checkHighSpr ||
+            searchActive;
 
     if (!shouldFilter && !sort) {
       return list;
@@ -419,6 +437,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (checkHighSpr) {
         final spr = (md?['spr'] as num?)?.toDouble();
         if (spr == null || spr < 3) return false;
+      }
+
+      if (searchActive) {
+        final feedback = (md?['feedbackText'] as String?) ?? '';
+        final id = r.id;
+        if (!id.toLowerCase().contains(search) &&
+            !feedback.toLowerCase().contains(search)) {
+          return false;
+        }
       }
 
       return true;
@@ -571,7 +598,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
     final filtered = _applyAdvancedFilters(queue);
     return debugQueueSection(label, filtered,
-        _advancedFilters.isEmpty && !_sortBySpr
+        _advancedFilters.isEmpty && !_sortBySpr && _searchQuery.isEmpty
             ? (oldIndex, newIndex) {
                 if (newIndex > oldIndex) newIndex -= 1;
                 setState(() {
@@ -3077,15 +3104,19 @@ class _DebugPanelState extends State<_DebugPanel> {
   static const _vGap = SizedBox(height: 12);
   static const _hGap = SizedBox(width: 8);
 
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     s._debugPanelSetState = setState;
+    _searchController.text = s._searchQuery;
   }
 
   @override
   void dispose() {
     s._debugPanelSetState = null;
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -3510,6 +3541,13 @@ class _DebugPanelState extends State<_DebugPanel> {
             ),
             _vGap,
             _sortBySprSwitch(),
+            _vGap,
+            TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                  labelText: 'Search by ID or Feedback'),
+              onChanged: s._setSearchQuery,
+            ),
             _vGap,
             Builder(
               builder: (context) {
