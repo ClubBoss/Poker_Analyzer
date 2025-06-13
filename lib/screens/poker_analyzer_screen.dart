@@ -402,6 +402,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
+  Future<void> _resetDebugPanelPreferences() async {
+    await _prefs.clearAll();
+    await _loadSnapshotRetentionPreference();
+    await _loadProcessingDelayPreference();
+    await _loadQueueFilterPreference();
+    await _loadAdvancedFilterPreference();
+    await _loadSortBySprPreference();
+    await _loadSearchQueryPreference();
+    _debugPanelSetState?.call(() {});
+  }
+
   List<ActionEvaluationRequest> _applyAdvancedFilters(
       List<ActionEvaluationRequest> list) {
     final filters = _advancedFilters;
@@ -3715,6 +3726,7 @@ class _DebugPanelState extends State<_DebugPanel> {
         _dialogBtn('Export All Snapshots', s._exportAllEvaluationSnapshots),
         _dialogBtn('Close', () => Navigator.pop(context)),
         _dialogBtn('Clear Evaluation Queue', s._clearEvaluationQueue),
+        _dialogBtn('Reset Debug Panel Settings', s._resetDebugPanelPreferences),
       ],
     );
   }

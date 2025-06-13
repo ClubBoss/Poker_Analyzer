@@ -84,5 +84,16 @@ class DebugPanelPreferences {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_searchQueryKey, value);
   }
+
+  /// Clears all stored debug panel preferences.
+  Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_snapshotRetentionKey);
+    await prefs.remove(_processingDelayKey);
+    await prefs.remove(_queueFilterKey);
+    await prefs.remove(_advancedFilterKey);
+    await prefs.remove(_sortBySprKey);
+    await prefs.remove(_searchQueryKey);
+  }
 }
 
