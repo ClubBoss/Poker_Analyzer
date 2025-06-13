@@ -3125,7 +3125,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  Future<void> _importEvaluationQueueSnapshots() async {
+  Future<void> _bulkImportEvaluationSnapshots() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final snapDir = Directory('${dir.path}/evaluation_snapshots');
@@ -3598,8 +3598,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     child: const Text('Import Queue Snapshot'),
                   ),
                   ElevatedButton(
-                    onPressed: _importEvaluationQueueSnapshots,
-                    child: const Text('Import Snapshots'),
+                    onPressed: _bulkImportEvaluationSnapshots,
+                    child: const Text('Bulk Import Snapshots'),
                   ),
                   ElevatedButton(
                     onPressed: _importFullEvaluationQueueState,
