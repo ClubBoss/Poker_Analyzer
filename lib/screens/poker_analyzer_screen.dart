@@ -2019,7 +2019,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   /// Executes a single evaluation request. Override with actual logic.
   Future<void> _executeEvaluation(ActionEvaluationRequest req) async {
-    // Placeholder for heavy evaluation work. This method may throw.
+    // Simulate a delay to mimic time-consuming evaluation work.
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    // Randomly throw an exception with a 20% chance to emulate failures.
+    if (Random().nextDouble() < 0.2) {
+      throw Exception('Simulated evaluation failure');
+    }
   }
 
   Future<void> _processEvaluationQueue() async {
