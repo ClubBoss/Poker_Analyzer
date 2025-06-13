@@ -2978,6 +2978,9 @@ class _DebugPanel extends StatefulWidget {
 class _DebugPanelState extends State<_DebugPanel> {
   _PokerAnalyzerScreenState get s => widget.parent;
 
+  static const _vGap = SizedBox(height: 12);
+  static const _hGap = SizedBox(width: 8);
+
   @override
   void initState() {
     super.initState();
@@ -2994,163 +2997,103 @@ class _DebugPanelState extends State<_DebugPanel> {
     return ElevatedButton(onPressed: onPressed, child: Text(label));
   }
 
-  Widget _processingControls() {
-    return Row(
-      children: [
-        _btn(
-          'Process Next',
-          s._pendingEvaluations.isEmpty || s._processingEvaluations
-              ? null
-              : s._processNextEvaluation,
-        ),
-        const SizedBox(width: 8),
-        _btn(
-          'Start Evaluation Processing',
-          s._pendingEvaluations.isEmpty || s._processingEvaluations
-              ? null
-              : s._processEvaluationQueue,
-        ),
-        const SizedBox(width: 8),
-        _btn(
-          s._pauseProcessingRequested ? 'Resume' : 'Pause',
-          s._pendingEvaluations.isEmpty || !s._processingEvaluations
-              ? null
-              : s._toggleEvaluationProcessingPause,
-        ),
-        const SizedBox(width: 8),
-        _btn(
-          'Cancel Evaluation Processing',
-          !s._processingEvaluations && s._pendingEvaluations.isEmpty
-              ? null
-              : s._cancelEvaluationProcessing,
-        ),
-        const SizedBox(width: 8),
-        _btn(
-          'Force Evaluation Restart',
-          s._pendingEvaluations.isEmpty
-              ? null
-              : s._forceRestartEvaluationProcessing,
-        ),
-      ],
-    );
-  }
-
-  Widget _snapshotControls() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: _btn(
-            'Retry Failed Evaluations',
-            s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: _btn(
-            'Export Snapshot Now',
-            s._processingEvaluations
-                ? null
-                : () => s._exportEvaluationQueueSnapshot(showNotification: true),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: _btn(
-            'Backup Queue Now',
-            s._processingEvaluations
-                ? null
-                : () async {
-                    await s._backupEvaluationQueue();
-                    s._debugPanelSetState?.call(() {});
-                  },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _queueTools() {
+  Widget _buttonsWrap(Map<String, VoidCallback?> actions) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-        _btn('Import Evaluation Queue', s._importEvaluationQueue),
-        _btn('Restore Evaluation Queue', s._restoreEvaluationQueue),
-        _btn('Restore From Auto-Backup', s._restoreFromAutoBackup),
-        _btn('Bulk Import Evaluation Queue', s._bulkImportEvaluationQueue),
-        _btn('Bulk Import Backups', s._bulkImportEvaluationBackups),
-        _btn('Bulk Import Auto-Backups', s._bulkImportAutoBackups),
-        _btn('Import Queue Snapshot', s._importEvaluationQueueSnapshot),
-        _btn('Bulk Import Snapshots', s._bulkImportEvaluationSnapshots),
-        _btn('Export All Snapshots', s._exportAllEvaluationSnapshots),
-        _btn('Import Full Queue State', s._importFullEvaluationQueueState),
-        _btn('Restore Full Queue State', s._restoreFullEvaluationQueueState),
-        _btn('Export Full Queue State', s._exportFullEvaluationQueueState),
-        _btn('Export Current Queue Snapshot', s._exportEvaluationQueueSnapshot),
-        _btn('Quick Backup', s._quickBackupEvaluationQueue),
-        _btn('Import Quick Backups', s._importQuickBackups),
-        _btn('Export All Backups', s._exportAllEvaluationBackups),
-        _btn(
-          'Retry Failed Evaluations',
-          s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
-        ),
-        _btn(
-          'Clear Pending',
-          s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
-        ),
-        _btn(
-          'Clear Failed',
-          s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
-        ),
-        _btn(
-          'Clear Completed',
-          s._completedEvaluations.isEmpty ? null : s._clearCompletedQueue,
-        ),
-        _btn(
-          'Clear Evaluation Queue',
-          s._pendingEvaluations.isEmpty && s._completedEvaluations.isEmpty
-              ? null
-              : s._clearEvaluationQueue,
-        ),
-        _btn(
-          'Remove Duplicates',
-          s._pendingEvaluations.length +
-                      s._failedEvaluations.length +
-                      s._completedEvaluations.length ==
-                  0
-              ? null
-              : s._removeDuplicateEvaluations,
-        ),
-        _btn(
-          'Resolve Conflicts',
-          s._pendingEvaluations.length +
-                      s._failedEvaluations.length +
-                      s._completedEvaluations.length ==
-                  0
-              ? null
-              : s._resolveQueueConflicts,
-        ),
-        _btn(
-          'Sort Queues',
-          s._pendingEvaluations.length +
-                      s._failedEvaluations.length +
-                      s._completedEvaluations.length ==
-                  0
-              ? null
-              : s._sortEvaluationQueues,
-        ),
-        _btn(
-          'Clear Completed Evaluations',
-          s._completedEvaluations.isEmpty
-              ? null
-              : s._clearCompletedEvaluations,
+        for (final entry in actions.entries) _btn(entry.key, entry.value),
+      ],
+    );
+  }
+
+  Widget _buttonsColumn(Map<String, VoidCallback?> actions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final entry in actions.entries) ...[
+          Align(alignment: Alignment.centerLeft, child: _btn(entry.key, entry.value)),
+          if (entry.key != actions.keys.last) _vGap,
+        ],
+      ],
+    );
+  }
+
+  Widget _snapshotRetentionSwitch() {
+    return Row(
+      children: [
+        const Expanded(child: Text('Enable Snapshot Retention Policy')),
+        Switch(
+          value: s._snapshotRetentionEnabled,
+          onChanged: s._setSnapshotRetentionEnabled,
+          activeColor: Colors.orange,
         ),
       ],
     );
+  }
+
+  Widget _processingControls() {
+    final disabled = s._pendingEvaluations.isEmpty;
+    return _buttonsWrap({
+      'Process Next':
+          disabled || s._processingEvaluations ? null : s._processNextEvaluation,
+      'Start Evaluation Processing':
+          disabled || s._processingEvaluations ? null : s._processEvaluationQueue,
+      s._pauseProcessingRequested ? 'Resume' : 'Pause':
+          disabled || !s._processingEvaluations ? null : s._toggleEvaluationProcessingPause,
+      'Cancel Evaluation Processing':
+          !s._processingEvaluations && disabled ? null : s._cancelEvaluationProcessing,
+      'Force Evaluation Restart': disabled ? null : s._forceRestartEvaluationProcessing,
+    });
+  }
+
+  Widget _snapshotControls() {
+    return _buttonsColumn({
+      'Retry Failed Evaluations':
+          s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
+      'Export Snapshot Now': s._processingEvaluations
+          ? null
+          : () => s._exportEvaluationQueueSnapshot(showNotification: true),
+      'Backup Queue Now': s._processingEvaluations
+          ? null
+          : () async {
+              await s._backupEvaluationQueue();
+              s._debugPanelSetState?.call(() {});
+            },
+    });
+  }
+
+  Widget _queueTools() {
+    final noQueues =
+        s._pendingEvaluations.isEmpty && s._failedEvaluations.isEmpty && s._completedEvaluations.isEmpty;
+    return _buttonsWrap({
+      'Import Evaluation Queue': s._importEvaluationQueue,
+      'Restore Evaluation Queue': s._restoreEvaluationQueue,
+      'Restore From Auto-Backup': s._restoreFromAutoBackup,
+      'Bulk Import Evaluation Queue': s._bulkImportEvaluationQueue,
+      'Bulk Import Backups': s._bulkImportEvaluationBackups,
+      'Bulk Import Auto-Backups': s._bulkImportAutoBackups,
+      'Import Queue Snapshot': s._importEvaluationQueueSnapshot,
+      'Bulk Import Snapshots': s._bulkImportEvaluationSnapshots,
+      'Export All Snapshots': s._exportAllEvaluationSnapshots,
+      'Import Full Queue State': s._importFullEvaluationQueueState,
+      'Restore Full Queue State': s._restoreFullEvaluationQueueState,
+      'Export Full Queue State': s._exportFullEvaluationQueueState,
+      'Export Current Queue Snapshot': s._exportEvaluationQueueSnapshot,
+      'Quick Backup': s._quickBackupEvaluationQueue,
+      'Import Quick Backups': s._importQuickBackups,
+      'Export All Backups': s._exportAllEvaluationBackups,
+      'Clear Pending': s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
+      'Clear Failed': s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
+      'Clear Completed': s._completedEvaluations.isEmpty ? null : s._clearCompletedQueue,
+      'Clear Evaluation Queue':
+          s._pendingEvaluations.isEmpty && s._completedEvaluations.isEmpty ? null : s._clearEvaluationQueue,
+      'Remove Duplicates': noQueues ? null : s._removeDuplicateEvaluations,
+      'Resolve Conflicts': noQueues ? null : s._resolveQueueConflicts,
+      'Sort Queues': noQueues ? null : s._sortEvaluationQueues,
+      'Clear Completed Evaluations':
+          s._completedEvaluations.isEmpty ? null : s._clearCompletedEvaluations,
+    });
   }
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
@@ -3160,6 +3103,8 @@ class _DebugPanelState extends State<_DebugPanel> {
   Widget _check(String label, bool ok, String a, String b) {
     return Text(ok ? '$label: ✅' : '$label: ❌ $a vs $b');
   }
+
+  Widget _diag(String label, Object? value) => Text('$label: $value');
 
   @override
   Widget build(BuildContext context) {
@@ -3216,16 +3161,16 @@ class _DebugPanelState extends State<_DebugPanel> {
             ],
             Text('Hero Position: ${hand.heroPosition}'),
             const SizedBox(height: 12),
-            Text('Players at table: ${hand.numberOfPlayers}'),
+            _diag('Players at table', hand.numberOfPlayers),
             const SizedBox(height: 12),
-            Text('Saved: ${formatDateTime(hand.date)}'),
+            _diag('Saved', formatDateTime(hand.date)),
             const SizedBox(height: 12),
             if (hand.expectedAction != null) ...[
-              Text('Expected Action: ${hand.expectedAction}'),
+              _diag('Expected Action', hand.expectedAction),
               const SizedBox(height: 12),
             ],
             if (hand.feedbackText != null) ...[
-              Text('Feedback: ${hand.feedbackText}'),
+              _diag('Feedback', hand.feedbackText),
               const SizedBox(height: 12),
             ],
             Text(
@@ -3246,14 +3191,14 @@ class _DebugPanelState extends State<_DebugPanel> {
               }()),
               const SizedBox(height: 12),
             ],
-            Text(
-                'Current Street: ${['Preflop', 'Flop', 'Turn', 'River'][s.currentStreet]}'),
+            _diag('Current Street',
+                ['Preflop', 'Flop', 'Turn', 'River'][s.currentStreet]),
             const SizedBox(height: 12),
-            Text('Playback Index: ${s._playbackIndex} / ${s.actions.length}'),
+            _diag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
             const SizedBox(height: 12),
-            Text('Active Player Index: ${s.activePlayerIndex ?? 'None'}'),
+            _diag('Active Player Index', s.activePlayerIndex ?? 'None'),
             const SizedBox(height: 12),
-            Text('Last Action Player Index: ${s.lastActionPlayerIndex ?? 'None'}'),
+            _diag('Last Action Player Index', s.lastActionPlayerIndex ?? 'None'),
             const SizedBox(height: 12),
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
               Text('Player ${i + 1} Cards: ${s.playerCards[i].length}'),
@@ -3333,25 +3278,14 @@ class _DebugPanelState extends State<_DebugPanel> {
               const SizedBox(height: 12),
             ],
             const Text('Internal State Flags:'),
-            Text('Debug Layout: ${s.debugLayout}'),
+            _diag('Debug Layout', s.debugLayout),
+            _vGap,
+            _diag('Perspective Switched', s.isPerspectiveSwitched),
+            _vGap,
+            _diag('Show All Revealed Cards', s._showAllRevealedCards),
             const SizedBox(height: 12),
-            Text('Perspective Switched: ${s.isPerspectiveSwitched}'),
-            const SizedBox(height: 12),
-            Text('Show All Revealed Cards: ${s._showAllRevealedCards}'),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Expanded(child: Text('Enable Snapshot Retention Policy')),
-                Switch(
-                  value: s._snapshotRetentionEnabled,
-                  onChanged: (v) {
-                    s._setSnapshotRetentionEnabled(v);
-                  },
-                  activeColor: Colors.orange,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
+            _snapshotRetentionSwitch(),
+            _vGap,
             const Text('Collapsed Streets State:'),
             for (int street = 0; street < 4; street++) ...[
               Text(
@@ -3513,20 +3447,21 @@ class _DebugPanelState extends State<_DebugPanel> {
             ),
             const SizedBox(height: 12),
             const Text('Evaluation Queue Statistics:'),
-            Text('Pending: ${s._pendingEvaluations.length}'),
-            Text('Failed: ${s._failedEvaluations.length}'),
-            Text('Completed: ${s._completedEvaluations.length}'),
-            Text('Total Processed: ${s._completedEvaluations.length + s._failedEvaluations.length}'),
+            _diag('Pending', s._pendingEvaluations.length),
+            _diag('Failed', s._failedEvaluations.length),
+            _diag('Completed', s._completedEvaluations.length),
+            _diag('Total Processed',
+                s._completedEvaluations.length + s._failedEvaluations.length),
             const SizedBox(height: 12),
             const Text('HUD Overlay State:'),
-            Text('HUD Street Name: $hudStreetName'),
+            _diag('HUD Street Name', hudStreetName),
             const SizedBox(height: 12),
-            Text('HUD Pot Text: $hudPotText'),
+            _diag('HUD Pot Text', hudPotText),
             const SizedBox(height: 12),
-            Text('HUD SPR Text: ${hudSprText ?? '(none)'}'),
+            _diag('HUD SPR Text', hudSprText ?? '(none)'),
             const SizedBox(height: 12),
             const Text('Debug Menu Visibility:'),
-            Text('Is Debug Menu Open: ${s._isDebugPanelOpen}'),
+            _diag('Is Debug Menu Open', s._isDebugPanelOpen),
             const SizedBox(height: 12),
             const Text('Full Export Consistency:'),
             _check('numberOfPlayers',
