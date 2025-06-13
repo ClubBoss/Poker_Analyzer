@@ -195,6 +195,41 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
+  Future<void> _cleanupOldFiles(String subfolder, int retentionLimit) async {
+    try {
+      final dir = await _getBackupDirectory(subfolder);
+
+      final entries = <MapEntry<File, DateTime>>[];
+      await for (final entity in dir.list()) {
+        if (entity is File && entity.path.endsWith('.json')) {
+          try {
+            final stat = await entity.stat();
+            entries.add(MapEntry(entity, stat.modified));
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint('Failed to stat ${entity.path}: $e');
+            }
+          }
+        }
+      }
+
+      entries.sort((a, b) => b.value.compareTo(a.value));
+      for (final entry in entries.skip(retentionLimit)) {
+        try {
+          await entry.key.delete();
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('Failed to delete ${entry.key.path}: $e');
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Cleanup error: $e');
+      }
+    }
+  }
+
   static const _snapshotRetentionKey = 'snapshot_retention_enabled';
   static const int _snapshotRetentionLimit = 50;
   static const int _backupRetentionLimit = 30;
@@ -423,38 +458,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _cleanupOldAutoBackups() async {
-    try {
-      final backupDir = await _getBackupDirectory(_autoBackupsFolder);
-
-      final entries = <MapEntry<File, DateTime>>[];
-      await for (final entity in backupDir.list()) {
-        if (entity is File && entity.path.endsWith('.json')) {
-          try {
-            final stat = await entity.stat();
-            entries.add(MapEntry(entity, stat.modified));
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint('Failed to stat ${entity.path}: $e');
-            }
-          }
-        }
-      }
-
-      entries.sort((a, b) => b.value.compareTo(a.value));
-      for (final entry in entries.skip(_autoBackupRetentionLimit)) {
-        try {
-          await entry.key.delete();
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint('Failed to delete ${entry.key.path}: $e');
-          }
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Cleanup error: $e');
-      }
-    }
+    await _cleanupOldFiles(_autoBackupsFolder, _autoBackupRetentionLimit);
   }
 
   Widget _buildQueueSection(String label, List<ActionEvaluationRequest> queue) {
@@ -2515,61 +2519,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _cleanupOldEvaluationBackups() async {
-    try {
-      final backupDir = await _getBackupDirectory(_backupsFolder);
-
-      final files = await backupDir
-          .list()
-          .where((e) => e is File && e.path.endsWith('.json'))
-          .cast<File>()
-          .toList();
-
-      final stats = <File, DateTime>{};
-      for (final file in files) {
-        try {
-          final stat = await file.stat();
-          stats[file] = stat.modified;
-        } catch (_) {}
-      }
-
-      final ordered = stats.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-
-      for (final entry in ordered.skip(_backupRetentionLimit)) {
-        try {
-          await entry.key.delete();
-        } catch (_) {}
-      }
-    } catch (_) {}
+    await _cleanupOldFiles(_backupsFolder, _backupRetentionLimit);
   }
 
   Future<void> _cleanupOldEvaluationSnapshots() async {
-    try {
-      final snapDir = await _getBackupDirectory(_snapshotsFolder);
-
-      final files = await snapDir
-          .list()
-          .where((e) => e is File && e.path.endsWith('.json'))
-          .cast<File>()
-          .toList();
-
-      final stats = <File, DateTime>{};
-      for (final file in files) {
-        try {
-          final stat = await file.stat();
-          stats[file] = stat.modified;
-        } catch (_) {}
-      }
-
-      final ordered = stats.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-
-      for (final entry in ordered.skip(_snapshotRetentionLimit)) {
-        try {
-          await entry.key.delete();
-        } catch (_) {}
-      }
-    } catch (_) {}
+    await _cleanupOldFiles(_snapshotsFolder, _snapshotRetentionLimit);
   }
 
   Future<void> _exportAllEvaluationBackups() async {
