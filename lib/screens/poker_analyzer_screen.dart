@@ -3872,6 +3872,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     child: const Text('Bulk Import Snapshots'),
                   ),
                   ElevatedButton(
+                    onPressed: _exportAllEvaluationSnapshots,
+                    child: const Text('Export All Snapshots'),
+                  ),
+                  ElevatedButton(
                     onPressed: _importFullEvaluationQueueState,
                     child: const Text('Import Full Queue State'),
                   ),
