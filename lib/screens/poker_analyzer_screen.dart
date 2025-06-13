@@ -698,6 +698,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _applySavedHand(widget.initialHand!);
     }
     Future(() => _cleanupOldEvaluationBackups());
+    Future(() => _cleanupOldEvaluationSnapshots());
     Future.microtask(_loadSavedEvaluationQueue);
   }
 
@@ -1487,6 +1488,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final file = File('${snapDir.path}/$fileName');
       final data = [for (final e in _pendingEvaluations) e.toJson()];
       await file.writeAsString(jsonEncode(data), flush: true);
+      await _cleanupOldEvaluationSnapshots();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Snapshot saved: ${file.path}')),
@@ -1616,6 +1618,37 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           if (stat.modified.isBefore(threshold)) {
             await file.delete();
           }
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _cleanupOldEvaluationSnapshots() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      if (!await snapDir.exists()) return;
+
+      final files = await snapDir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.json'))
+          .cast<File>()
+          .toList();
+
+      final stats = <File, DateTime>{};
+      for (final file in files) {
+        try {
+          final stat = await file.stat();
+          stats[file] = stat.modified;
+        } catch (_) {}
+      }
+
+      final ordered = stats.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      for (final entry in ordered.skip(20)) {
+        try {
+          await entry.key.delete();
         } catch (_) {}
       }
     } catch (_) {}
