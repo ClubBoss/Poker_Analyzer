@@ -2608,27 +2608,41 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (path == null) return;
       final content = await File(path).readAsString();
       final decoded = jsonDecode(content);
-      if (decoded is! List) throw const FormatException();
-      final items = <ActionEvaluationRequest>[];
-      for (final item in decoded) {
-        if (item is Map) {
-          try {
-            items.add(ActionEvaluationRequest.fromJson(
-                Map<String, dynamic>.from(item)));
-          } catch (_) {}
-        }
+
+      final List<ActionEvaluationRequest> pending;
+      final List<ActionEvaluationRequest> failed;
+      final List<ActionEvaluationRequest> completed;
+
+      if (decoded is List) {
+        // Legacy snapshot containing only pending evaluations
+        pending = _decodeEvaluationList(decoded);
+        failed = [];
+        completed = [];
+      } else if (decoded is Map) {
+        pending = _decodeEvaluationList(decoded['pending']);
+        failed = _decodeEvaluationList(decoded['failed']);
+        completed = _decodeEvaluationList(decoded['completed']);
+      } else {
+        throw const FormatException();
       }
 
       if (!mounted) return;
       setState(() {
         _pendingEvaluations
           ..clear()
-          ..addAll(items);
-        _failedEvaluations.clear();
+          ..addAll(pending);
+        _failedEvaluations
+          ..clear()
+          ..addAll(failed);
+        _completedEvaluations
+          ..clear()
+          ..addAll(completed);
       });
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported ${items.length} evaluations')),
+        SnackBar(
+            content: Text(
+                'Imported ${pending.length} pending, ${failed.length} failed, ${completed.length} completed evaluations')),
       );
       _debugPanelSetState?.call(() {});
     } catch (_) {
