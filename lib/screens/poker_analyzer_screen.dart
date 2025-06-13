@@ -1634,6 +1634,36 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _processNextEvaluation() async {
+    if (_processingEvaluations || _pendingEvaluations.isEmpty) return;
+    setState(() {
+      _processingEvaluations = true;
+    });
+    _debugPanelSetState?.call(() {});
+    final req = _pendingEvaluations.first;
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) {
+      _processingEvaluations = false;
+      _persistEvaluationQueue();
+      return;
+    }
+    if (_cancelProcessingRequested) {
+      setState(() {
+        _processingEvaluations = false;
+      });
+      _persistEvaluationQueue();
+      _debugPanelSetState?.call(() {});
+      return;
+    }
+    setState(() {
+      _pendingEvaluations.removeAt(0);
+      _completedEvaluations.add(req);
+      _processingEvaluations = false;
+    });
+    _persistEvaluationQueue();
+    _debugPanelSetState?.call(() {});
+  }
+
   Future<void> _cleanupOldEvaluationBackups() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -2330,6 +2360,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _exportEvaluationQueueSnapshot,
                     child: const Text('Export Current Queue Snapshot'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.isEmpty ||
+                            _processingEvaluations
+                        ? null
+                        : _processNextEvaluation,
+                    child: const Text('Process Next Evaluation'),
                   ),
                   ElevatedButton(
                     onPressed: _pendingEvaluations.isEmpty || _processingEvaluations ? null : _processEvaluationQueue,
