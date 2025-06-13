@@ -1899,19 +1899,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       };
       await file.writeAsString(jsonEncode(data), flush: true);
 
-      final files = await backupDir
-          .list()
-          .where((e) => e is File && e.path.endsWith('.json'))
-          .cast<File>()
-          .toList();
-      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-      for (var i = 5; i < files.length; i++) {
-        try {
-          await files[i].delete();
-        } catch (_) {}
-      }
-
-      await _cleanupOldEvaluationBackups();
+      // Run cleanup in the background to avoid blocking UI.
+      Future(() => _cleanupOldEvaluationBackups());
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
