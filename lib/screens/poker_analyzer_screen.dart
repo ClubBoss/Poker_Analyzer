@@ -395,7 +395,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_advancedFilters.contains('failed') && md?['status'] != 'failed') {
       return false;
     }
-    if (_advancedFilters.contains('highSpr')) {
+    if (_advancedFilters.contains('highspr')) {
       final spr = (md?['spr'] as num?)?.toDouble();
       if (spr == null || spr < 3) return false;
     }
@@ -3432,8 +3432,7 @@ class _DebugPanelState extends State<_DebugPanel> {
                   onChanged: (_) => s._toggleAdvancedFilter('feedback'),
                 ),
                 CheckboxListTile(
-                  title:
-                      const Text('Only hands with opponent cards revealed'),
+                  title: const Text('Only hands with opponent cards'),
                   value: s._advancedFilters.contains('opponent'),
                   onChanged: (_) => s._toggleAdvancedFilter('opponent'),
                 ),
@@ -3443,9 +3442,9 @@ class _DebugPanelState extends State<_DebugPanel> {
                   onChanged: (_) => s._toggleAdvancedFilter('failed'),
                 ),
                 CheckboxListTile(
-                  title: const Text('Only high SPR spots (SPR >= 3)'),
-                  value: s._advancedFilters.contains('highSpr'),
-                  onChanged: (_) => s._toggleAdvancedFilter('highSpr'),
+                  title: const Text('Only high SPR (>=3)'),
+                  value: s._advancedFilters.contains('highspr'),
+                  onChanged: (_) => s._toggleAdvancedFilter('highspr'),
                 ),
               ],
             ),
