@@ -138,6 +138,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Evaluations that failed during processing.
   final List<ActionEvaluationRequest> _failedEvaluations = [];
 
+  /// Timer for automatic periodic backups of the evaluation queue.
+  Timer? _autoBackupTimer;
+
+  /// Prevents overlapping automatic backups.
+  bool _autoBackupRunning = false;
+
   /// Indicates if evaluation processing is currently running.
   bool _processingEvaluations = false;
 
@@ -209,6 +215,63 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _evaluationProcessingDelay = value;
     }
     _debugPanelSetState?.call(() {});
+  }
+
+  void _startAutoBackupTimer() {
+    _autoBackupTimer?.cancel();
+    _autoBackupTimer =
+        Timer.periodic(const Duration(minutes: 15), (_) => _autoBackupEvaluationQueue());
+  }
+
+  Future<void> _autoBackupEvaluationQueue() async {
+    if (_autoBackupRunning) return;
+    _autoBackupRunning = true;
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_autobackups');
+      await backupDir.create(recursive: true);
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+      final file = File('${backupDir.path}/auto_${timestamp}.json');
+      final data = {
+        'pending': [for (final e in _pendingEvaluations) e.toJson()],
+        'failed': [for (final e in _failedEvaluations) e.toJson()],
+      };
+      await file.writeAsString(jsonEncode(data), flush: true);
+      await _cleanupOldAutoBackups();
+      if (kDebugMode) {
+        debugPrint('Auto backup created: ${file.path}');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Auto backup error: $e');
+      }
+    } finally {
+      _autoBackupRunning = false;
+    }
+  }
+
+  Future<void> _cleanupOldAutoBackups() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_autobackups');
+      if (!await backupDir.exists()) return;
+
+      final threshold = DateTime.now().subtract(const Duration(days: 30));
+      final files = await backupDir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.json'))
+          .cast<File>()
+          .toList();
+
+      for (final file in files) {
+        try {
+          final stat = await file.stat();
+          if (stat.modified.isBefore(threshold)) {
+            await file.delete();
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
   }
 
 
@@ -763,6 +826,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _loadSnapshotRetentionPreference());
     Future(() => _loadProcessingDelayPreference());
     Future.microtask(_loadSavedEvaluationQueue);
+    Future(() => _cleanupOldAutoBackups());
+    _startAutoBackupTimer();
   }
 
   @override
@@ -3471,6 +3536,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _activeTimer?.cancel();
     _playbackTimer?.cancel();
     _centerChipTimer?.cancel();
+    _autoBackupTimer?.cancel();
     _processingEvaluations = false;
     _pauseProcessingRequested = false;
     _centerChipController.dispose();
