@@ -52,6 +52,31 @@ import '../widgets/chip_moving_widget.dart';
 import '../helpers/stack_manager.dart';
 import '../helpers/date_utils.dart';
 
+/// Determines which evaluations are included when exporting.
+enum EvaluationExportMode {
+  /// Only pending evaluations are exported.
+  pendingOnly,
+
+  /// Pending and failed evaluations are exported.
+  pendingAndFailed,
+
+  /// Pending, failed and completed evaluations are exported.
+  fullState,
+}
+
+extension EvaluationExportModeLabel on EvaluationExportMode {
+  String get label {
+    switch (this) {
+      case EvaluationExportMode.pendingOnly:
+        return 'Pending Only';
+      case EvaluationExportMode.pendingAndFailed:
+        return 'Pending + Failed';
+      case EvaluationExportMode.fullState:
+        return 'Full State (Pending, Failed, Completed)';
+    }
+  }
+}
+
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
 
@@ -165,6 +190,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _processingDelayKey = 'evaluation_processing_delay';
   int _evaluationProcessingDelay = 500;
 
+  static const _exportModeKey = 'evaluation_export_mode';
+  EvaluationExportMode _exportMode = EvaluationExportMode.pendingOnly;
+
   Future<void> _loadSnapshotRetentionPreference() async {
     final prefs = await SharedPreferences.getInstance();
     final value = prefs.getBool(_snapshotRetentionKey);
@@ -213,6 +241,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       setState(() => _evaluationProcessingDelay = value);
     } else {
       _evaluationProcessingDelay = value;
+    }
+    _debugPanelSetState?.call(() {});
+  }
+
+  Future<void> _loadExportModePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getInt(_exportModeKey);
+    final index = stored ?? EvaluationExportMode.pendingOnly.index;
+    final mode = EvaluationExportMode.values
+        .elementAt(index.clamp(0, EvaluationExportMode.values.length - 1));
+    if (mounted) {
+      setState(() => _exportMode = mode);
+    } else {
+      _exportMode = mode;
+    }
+  }
+
+  Future<void> _setExportMode(EvaluationExportMode mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_exportModeKey, mode.index);
+    if (mounted) {
+      setState(() => _exportMode = mode);
+    } else {
+      _exportMode = mode;
     }
     _debugPanelSetState?.call(() {});
   }
@@ -832,6 +884,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _cleanupOldEvaluationBackups());
     Future(() => _loadSnapshotRetentionPreference());
     Future(() => _loadProcessingDelayPreference());
+    Future(() => _loadExportModePreference());
     Future.microtask(_loadSavedEvaluationQueue);
     Future(() => _cleanupOldAutoBackups());
     _startAutoBackupTimer();
@@ -1561,13 +1614,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _exportEvaluationQueue() async {
-    if (_pendingEvaluations.isEmpty) return;
+    final items = <ActionEvaluationRequest>[
+      ..._pendingEvaluations,
+      if (_exportMode != EvaluationExportMode.pendingOnly) ..._failedEvaluations,
+      if (_exportMode == EvaluationExportMode.fullState) ..._completedEvaluations,
+    ];
+    if (items.isEmpty) return;
     try {
       final dir = await getApplicationDocumentsDirectory();
       final fileName =
           'evaluation_queue_${DateTime.now().millisecondsSinceEpoch}.json';
       final file = File('${dir.path}/$fileName');
-      final data = [for (final e in _pendingEvaluations) e.toJson()];
+      final data = [for (final e in items) e.toJson()];
       await file.writeAsString(jsonEncode(data));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1596,10 +1654,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           DateTime.now().toIso8601String().replaceAll(':', '-');
       final file =
           File('${exportDir.path}/queue_export_${timestamp}.json');
-      final data = {
+      final data = <String, dynamic>{
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
+        'failed': _exportMode == EvaluationExportMode.pendingOnly
+            ? []
+            : [for (final e in _failedEvaluations) e.toJson()],
       };
+      if (_exportMode == EvaluationExportMode.fullState) {
+        data['completed'] =
+            [for (final e in _completedEvaluations) e.toJson()];
+      }
       await file.writeAsString(jsonEncode(data), flush: true);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -2831,6 +2895,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         _setProcessingDelay(v.round());
                       },
                     ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Text('Export Mode'),
+                  const SizedBox(width: 12),
+                  DropdownButton<EvaluationExportMode>(
+                    value: _exportMode,
+                    dropdownColor: Colors.grey[900],
+                    items: EvaluationExportMode.values
+                        .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
+                        .toList(),
+                    onChanged: (m) {
+                      if (m != null) _setExportMode(m);
+                    },
                   ),
                 ],
               ),
