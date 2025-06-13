@@ -167,7 +167,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int _evaluationProcessingDelay = 500;
 
   static const _queueFilterKey = 'evaluation_queue_filter';
-  String _queueFilter = 'pending';
+  Set<String> _queueFilters = {'pending'};
 
   Future<void> _loadSnapshotRetentionPreference() async {
     final prefs = await SharedPreferences.getInstance();
@@ -223,25 +223,38 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _loadQueueFilterPreference() async {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_queueFilterKey);
+    final list = prefs.getStringList(_queueFilterKey);
+    final loaded = list?.toSet() ?? {'pending'};
+    if (loaded.isEmpty) loaded.add('pending');
     if (mounted) {
       setState(() {
-        _queueFilter = value ?? 'pending';
+        _queueFilters = loaded;
       });
     } else {
-      _queueFilter = value ?? 'pending';
+      _queueFilters = loaded;
     }
   }
 
-  Future<void> _setQueueFilter(String value) async {
+  Future<void> _setQueueFilters(Set<String> value) async {
+    if (value.isEmpty) value = {'pending'};
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_queueFilterKey, value);
+    await prefs.setStringList(_queueFilterKey, value.toList());
     if (mounted) {
-      setState(() => _queueFilter = value);
+      setState(() => _queueFilters = value);
     } else {
-      _queueFilter = value;
+      _queueFilters = value;
     }
     _debugPanelSetState?.call(() {});
+  }
+
+  void _toggleQueueFilter(String filter) {
+    final updated = Set<String>.from(_queueFilters);
+    if (updated.contains(filter)) {
+      updated.remove(filter);
+    } else {
+      updated.add(filter);
+    }
+    _setQueueFilters(updated);
   }
 
   void _startAutoBackupTimer() {
@@ -2923,13 +2936,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 8),
               ToggleButtons(
                 isSelected: [
-                  _queueFilter == 'pending',
-                  _queueFilter == 'failed',
-                  _queueFilter == 'completed',
+                  _queueFilters.contains('pending'),
+                  _queueFilters.contains('failed'),
+                  _queueFilters.contains('completed'),
                 ],
                 onPressed: (i) {
                   final modes = ['pending', 'failed', 'completed'];
-                  _setQueueFilter(modes[i]);
+                  _toggleQueueFilter(modes[i]);
                 },
                 children: const [
                   Padding(
@@ -2949,16 +2962,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               const SizedBox(height: 8),
               Builder(
                 builder: (context) {
-                  List<ActionEvaluationRequest> list;
-                  switch (_queueFilter) {
-                    case 'failed':
-                      list = _failedEvaluations;
-                      break;
-                    case 'completed':
-                      list = _completedEvaluations;
-                      break;
-                    default:
-                      list = _pendingEvaluations;
+                  final list = <ActionEvaluationRequest>[];
+                  if (_queueFilters.contains('pending')) {
+                    list.addAll(_pendingEvaluations);
+                  }
+                  if (_queueFilters.contains('failed')) {
+                    list.addAll(_failedEvaluations);
+                  }
+                  if (_queueFilters.contains('completed')) {
+                    list.addAll(_completedEvaluations);
                   }
                   if (list.isEmpty) {
                     return const Text('No items');
