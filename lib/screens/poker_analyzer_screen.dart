@@ -2126,6 +2126,84 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _restoreFromAutoBackup() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_autobackups');
+      if (!await backupDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No auto-backup files found')),
+          );
+        }
+        return;
+      }
+
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        initialDirectory: backupDir.path,
+      );
+      if (result == null || result.files.isEmpty) return;
+      final path = result.files.single.path;
+      if (path == null) return;
+
+      final content = await File(path).readAsString();
+      final decoded = jsonDecode(content);
+      if (decoded is! Map) throw const FormatException();
+
+      final pendingDecoded = decoded['pending'];
+      final failedDecoded = decoded['failed'];
+      final pending = <ActionEvaluationRequest>[];
+      final failed = <ActionEvaluationRequest>[];
+
+      if (pendingDecoded is List) {
+        for (final item in pendingDecoded) {
+          if (item is Map) {
+            try {
+              pending.add(ActionEvaluationRequest.fromJson(
+                  Map<String, dynamic>.from(item)));
+            } catch (_) {}
+          }
+        }
+      }
+
+      if (failedDecoded is List) {
+        for (final item in failedDecoded) {
+          if (item is Map) {
+            try {
+              failed.add(ActionEvaluationRequest.fromJson(
+                  Map<String, dynamic>.from(item)));
+            } catch (_) {}
+          }
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(pending);
+        _failedEvaluations
+          ..clear()
+          ..addAll(failed);
+      });
+      _persistEvaluationQueue();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Restored ${pending.length} pending and ${failed.length} failed evaluations')),
+      );
+      _debugPanelSetState?.call(() {});
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to restore auto-backup')),
+        );
+      }
+    }
+  }
+
   Future<void> _exportAllEvaluationSnapshots() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -2677,6 +2755,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _restoreEvaluationQueue,
                     child: const Text('Restore Evaluation Queue'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _restoreFromAutoBackup,
+                    child: const Text('Restore From Auto-Backup'),
                   ),
                   ElevatedButton(
                     onPressed: _bulkImportEvaluationQueue,
