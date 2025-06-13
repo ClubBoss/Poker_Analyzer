@@ -2017,12 +2017,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } catch (_) {}
   }
 
-  /// Executes a single evaluation request. Override with actual logic.
+  /// Executes a single evaluation request.
+  ///
+  /// This stub simply waits briefly and sometimes throws an exception to
+  /// help debug how the UI reacts to evaluation failures.
   Future<void> _executeEvaluation(ActionEvaluationRequest req) async {
-    // Simulate a delay to mimic time-consuming evaluation work.
+    // Delay to mimic heavy evaluation logic.
     await Future.delayed(const Duration(milliseconds: 300));
 
-    // Randomly throw an exception with a 20% chance to emulate failures.
+    // Introduce a 20% chance of failure for testing purposes.
     if (Random().nextDouble() < 0.2) {
       throw Exception('Simulated evaluation failure');
     }
