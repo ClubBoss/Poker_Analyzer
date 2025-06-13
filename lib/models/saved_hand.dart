@@ -140,6 +140,7 @@ class SavedHand {
                           metadata: e.metadata == null
                               ? null
                               : Map<String, dynamic>.from(e.metadata!),
+                          attempts: e.attempts,
                         )
                     ]),
     );

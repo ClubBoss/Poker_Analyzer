@@ -1269,6 +1269,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _retryFailedEvaluations() {
     setState(() {
       if (_failedEvaluations.isNotEmpty) {
+        for (final r in _failedEvaluations) {
+          r.attempts = 0;
+        }
         _pendingEvaluations.insertAll(0, _failedEvaluations);
         _failedEvaluations.clear();
       }
@@ -2053,12 +2056,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       if (_pendingEvaluations.isEmpty) break;
       var success = false;
-      try {
-        await _executeEvaluation(req);
-        success = true;
-      } catch (e, st) {
-        debugPrint('Evaluation error: $e');
-        debugPrintStack(stackTrace: st);
+      while (!success && req.attempts < 3) {
+        try {
+          await _executeEvaluation(req);
+          success = true;
+        } catch (e, st) {
+          debugPrint('Evaluation error: $e');
+          debugPrintStack(stackTrace: st);
+          req.attempts++;
+          if (req.attempts < 3) {
+            await Future.delayed(const Duration(milliseconds: 200));
+          }
+        }
       }
       if (mounted) {
         setState(() {

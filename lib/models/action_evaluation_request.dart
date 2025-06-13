@@ -8,6 +8,7 @@ class ActionEvaluationRequest {
   final String action;
   final int? amount;
   final Map<String, dynamic>? metadata;
+  int attempts;
 
   ActionEvaluationRequest({
     String? id,
@@ -16,6 +17,7 @@ class ActionEvaluationRequest {
     required this.action,
     this.amount,
     this.metadata,
+    this.attempts = 0,
   }) : id = id ?? const Uuid().v4();
 
   Map<String, dynamic> toJson() => {
@@ -25,6 +27,7 @@ class ActionEvaluationRequest {
         'action': action,
         if (amount != null) 'amount': amount,
         if (metadata != null) 'metadata': metadata,
+        'attempts': attempts,
       };
 
   factory ActionEvaluationRequest.fromJson(Map<String, dynamic> json) {
@@ -38,6 +41,7 @@ class ActionEvaluationRequest {
       metadata: json['metadata'] != null
           ? Map<String, dynamic>.from(json['metadata'] as Map)
           : null,
+      attempts: json['attempts'] as int? ?? 0,
     );
   }
 }
