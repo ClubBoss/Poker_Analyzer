@@ -261,7 +261,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _setQueueFilters(updated);
   }
 
-  String _queueEntryId(ActionEvaluationRequest r) {
+  String _queueEntryId(ActionEvaluationRequest r) => r.id;
+
+  String _legacyQueueEntryId(ActionEvaluationRequest r) {
     return '${r.playerIndex}_${r.street}_${r.action}_${r.amount ?? ''}';
   }
 
@@ -271,7 +273,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final remaining = List<ActionEvaluationRequest>.from(list);
     final reordered = <ActionEvaluationRequest>[];
     for (final key in order) {
-      final idx = remaining.indexWhere((e) => _queueEntryId(e) == key);
+      var idx = remaining.indexWhere((e) => e.id == key);
+      if (idx == -1) {
+        idx = remaining.indexWhere((e) => _legacyQueueEntryId(e) == key);
+      }
       if (idx != -1) {
         reordered.add(remaining.removeAt(idx));
       }
@@ -360,7 +365,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           itemBuilder: (context, index) {
             final r = queue[index];
             return EvaluationRequestTile(
-              key: ValueKey('$label-$index-${r.playerIndex}-${r.street}-${r.action}'),
+              key: ValueKey('$label-${r.id}'),
               request: r,
               showDragHandle: true,
               index: index,
