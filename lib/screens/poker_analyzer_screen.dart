@@ -1463,6 +1463,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _exportEvaluationQueueSnapshot() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      await snapDir.create(recursive: true);
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+      final fileName = 'snapshot_${timestamp}.json';
+      final file = File('${snapDir.path}/$fileName');
+      final data = [for (final e in _pendingEvaluations) e.toJson()];
+      await file.writeAsString(jsonEncode(data), flush: true);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Snapshot saved: ${file.path}')),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to export snapshot')),
+        );
+      }
+    }
+  }
+
   /// Persist the current evaluation queue to disk.
   Future<void> _persistEvaluationQueue() async {
     try {
@@ -2093,6 +2116,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _bulkImportEvaluationQueue,
                     child: const Text('Bulk Import Evaluation Queue'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _exportEvaluationQueueSnapshot,
+                    child: const Text('Export Current Queue Snapshot'),
                   ),
                   ElevatedButton(
                     onPressed: _pendingEvaluations.isEmpty || _processingEvaluations ? null : _processEvaluationQueue,
