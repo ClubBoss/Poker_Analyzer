@@ -3127,155 +3127,162 @@ class _DebugPanelState extends State<_DebugPanel> {
           mainAxisSize: MainAxisSize.min,
           children: [
             for (int i = 0; i < s.numberOfPlayers; i++)
-              Text(
-                'Player ${i + 1}: Initial ${s._initialStacks[i] ?? 0}, '
+              _diag(
+                'Player ${i + 1}',
+                'Initial ${s._initialStacks[i] ?? 0}, '
                 'Invested ${s._stackManager.getTotalInvested(i)}, '
                 'Remaining ${s._stackManager.getStackForPlayer(i)}',
               ),
-            const SizedBox(height: 12),
+            _vGap,
             if (hand.remainingStacks != null) ...[
               const Text('Remaining Stacks (from saved hand):'),
               for (final entry in hand.remainingStacks!.entries)
-                Text('Player ${entry.key + 1}: ${entry.value}'),
-              const SizedBox(height: 12),
+                _diag('Player ${entry.key + 1}', entry.value),
+              _vGap,
             ],
             if (hand.playerTypes != null) ...[
               const Text('Player Types:'),
               for (final entry in hand.playerTypes!.entries)
-                Text('Player ${entry.key + 1}: ${entry.value.name}'),
-              const SizedBox(height: 12),
+                _diag('Player ${entry.key + 1}', entry.value.name),
+              _vGap,
             ],
             if (hand.comment != null) ...[
-              const Text('Comment:'),
-              Text(hand.comment!),
-              const SizedBox(height: 12),
+              _diag('Comment', hand.comment!),
+              _vGap,
             ],
             if (hand.tags.isNotEmpty) ...[
               const Text('Tags:'),
-              for (final tag in hand.tags) Text(tag),
-              const SizedBox(height: 12),
+              for (final tag in hand.tags) _diag('Tag', tag),
+              _vGap,
             ],
             if (hand.opponentIndex != null) ...[
-              Text('Opponent: Player ${hand.opponentIndex! + 1}'),
-              const SizedBox(height: 12),
+              _diag('Opponent', 'Player ${hand.opponentIndex! + 1}'),
+              _vGap,
             ],
-            Text('Hero Position: ${hand.heroPosition}'),
-            const SizedBox(height: 12),
+            _diag('Hero Position', hand.heroPosition),
+            _vGap,
             _diag('Players at table', hand.numberOfPlayers),
-            const SizedBox(height: 12),
+            _vGap,
             _diag('Saved', formatDateTime(hand.date)),
-            const SizedBox(height: 12),
+            _vGap,
             if (hand.expectedAction != null) ...[
               _diag('Expected Action', hand.expectedAction),
-              const SizedBox(height: 12),
+              _vGap,
             ],
             if (hand.feedbackText != null) ...[
               _diag('Feedback', hand.feedbackText),
-              const SizedBox(height: 12),
+              _vGap,
             ],
-            Text(
+            _diag(
+              'Board Cards',
               s.boardCards.isNotEmpty
-                  ? 'Board Cards: ' +
-                      s.boardCards.map(s._cardToDebugString).join(' ')
-                  : 'Board Cards: (empty)',
+                  ? s.boardCards.map(s._cardToDebugString).join(' ')
+                  : '(empty)',
             ),
-            const SizedBox(height: 12),
+            _vGap,
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              Text(() {
-                final rc =
-                    i < hand.revealedCards.length ? hand.revealedCards[i] : [];
-                return rc.isNotEmpty
-                    ? 'Player ${i + 1} Revealed: ' +
-                        rc.map(s._cardToDebugString).join(' ')
-                    : 'Player ${i + 1} Revealed: (none)';
-              }()),
-              const SizedBox(height: 12),
+              _diag(
+                'Player ${i + 1} Revealed',
+                () {
+                  final rc =
+                      i < hand.revealedCards.length ? hand.revealedCards[i] : [];
+                  return rc.isNotEmpty
+                      ? rc.map(s._cardToDebugString).join(' ')
+                      : '(none)';
+                }(),
+              ),
+              _vGap,
             ],
             _diag('Current Street',
                 ['Preflop', 'Flop', 'Turn', 'River'][s.currentStreet]),
-            const SizedBox(height: 12),
+            _vGap,
             _diag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
-            const SizedBox(height: 12),
+            _vGap,
             _diag('Active Player Index', s.activePlayerIndex ?? 'None'),
-            const SizedBox(height: 12),
+            _vGap,
             _diag('Last Action Player Index', s.lastActionPlayerIndex ?? 'None'),
-            const SizedBox(height: 12),
+            _vGap,
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              Text('Player ${i + 1} Cards: ${s.playerCards[i].length}'),
-              const SizedBox(height: 12),
+              _diag('Player ${i + 1} Cards', s.playerCards[i].length),
+              _vGap,
             ],
-            Text(
+            _diag(
+              'First Action Taken',
               s._firstActionTaken.isNotEmpty
-                  ? 'First Action Taken: ' +
-                      (s._firstActionTaken.toList()..sort()).join(', ')
-                  : 'First Action Taken: (none)',
+                  ? (s._firstActionTaken.toList()..sort()).join(', ')
+                  : '(none)',
             ),
-            const SizedBox(height: 12),
+            _vGap,
             const Text('Effective Stacks:'),
             for (int street = 0; street < 4; street++)
-              Text([
-                    'Preflop',
-                    'Flop',
-                    'Turn',
-                    'River',
-                  ][street] + ': ${s._calculateEffectiveStackForStreet(street)}'),
-            const SizedBox(height: 12),
+              _diag(
+                [
+                  'Preflop',
+                  'Flop',
+                  'Turn',
+                  'River',
+                ][street],
+                s._calculateEffectiveStackForStreet(street),
+              ),
+            _vGap,
             const Text('Effective Stacks (from export data):'),
             if (s._savedEffectiveStacks != null)
               for (final entry in s._savedEffectiveStacks!.entries)
-                Text('${entry.key}: ${entry.value}')
+                _diag(entry.key, entry.value)
             else
               const Text('No export data available'),
             if (s._savedEffectiveStacks != null) ...[
-              const SizedBox(height: 12),
+              _vGap,
               const Text('Validation:'),
               for (int st = 0; st < 4; st++)
-                Text(() {
+                () {
                   const names = ['Preflop', 'Flop', 'Turn', 'River'];
                   final name = names[st];
                   final live = s._calculateEffectiveStackForStreet(st);
                   final exported = s._savedEffectiveStacks![name];
-                  if (exported == live) {
-                    return '$name: ✅';
-                  }
-                  return '$name: ❌ live $live vs export ${exported ?? 'N/A'}';
-                }()),
+                  final ok = exported == live;
+                  return _diag(
+                    name,
+                    ok ? '✅' : '❌ live $live vs export ${exported ?? 'N/A'}',
+                  );
+                }(),
             ],
             if (s._validationNotes != null && s._validationNotes!.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              _vGap,
               const Text('Validation Notes:'),
               for (final entry in s._validationNotes!.entries)
-                Text('${entry.key}: ${entry.value}'),
+                _diag(entry.key, entry.value),
             ],
-            const SizedBox(height: 12),
+            _vGap,
             const Text('Playback Diagnostics:'),
-            Text('Preflop Actions: '
-                '${s.actions.where((a) => a.street == 0).length}'),
-            Text('Flop Actions: '
-                '${s.actions.where((a) => a.street == 1).length}'),
-            Text('Turn Actions: '
-                '${s.actions.where((a) => a.street == 2).length}'),
-            Text('River Actions: '
-                '${s.actions.where((a) => a.street == 3).length}'),
-            const SizedBox(height: 12),
-            Text('Total Actions: ${s.actions.length}'),
-            const SizedBox(height: 12),
+            _diag('Preflop Actions',
+                s.actions.where((a) => a.street == 0).length),
+            _diag('Flop Actions',
+                s.actions.where((a) => a.street == 1).length),
+            _diag('Turn Actions',
+                s.actions.where((a) => a.street == 2).length),
+            _diag('River Actions',
+                s.actions.where((a) => a.street == 3).length),
+            _vGap,
+            _diag('Total Actions', s.actions.length),
+            _vGap,
             const Text('Action Tags Diagnostics:'),
             if (s._actionTags.isNotEmpty)
               for (final entry in s._actionTags.entries) ...[
-                Text('Player ${entry.key + 1} Action Tag: ${entry.value}'),
-                const SizedBox(height: 12),
+                _diag('Player ${entry.key + 1} Action Tag', entry.value),
+                _vGap,
               ]
             else ...[
-              const Text('Action Tags: (none)'),
-              const SizedBox(height: 12),
+              _diag('Action Tags', '(none)'),
+              _vGap,
             ],
             const Text('StackManager Diagnostics:'),
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              Text(
-                'Player $i StackManager: current ${s._stackManager.getStackForPlayer(i)}, invested ${s._stackManager.getTotalInvested(i)}',
+              _diag(
+                'Player $i StackManager',
+                'current ${s._stackManager.getStackForPlayer(i)}, invested ${s._stackManager.getTotalInvested(i)}',
               ),
-              const SizedBox(height: 12),
+              _vGap,
             ],
             const Text('Internal State Flags:'),
             _diag('Debug Layout', s.debugLayout),
@@ -3283,50 +3290,55 @@ class _DebugPanelState extends State<_DebugPanel> {
             _diag('Perspective Switched', s.isPerspectiveSwitched),
             _vGap,
             _diag('Show All Revealed Cards', s._showAllRevealedCards),
-            const SizedBox(height: 12),
+            _vGap,
             _snapshotRetentionSwitch(),
             _vGap,
             const Text('Collapsed Streets State:'),
             for (int street = 0; street < 4; street++) ...[
-              Text(
-                'Street $street Collapsed: '
-                '${!s._expandedHistoryStreets.contains(street)}',
+              _diag(
+                'Street $street Collapsed',
+                !s._expandedHistoryStreets.contains(street),
               ),
-              const SizedBox(height: 12),
+              _vGap,
             ],
             const Text('Chip Animation State:'),
-            Text(() {
-              final action = s._centerChipAction;
-              if (action == null) return 'Center Chip Action: (null)';
-              var result =
-                  'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
-              if (action.amount != null) result += ', Amount ${action.amount}';
-              return 'Center Chip Action: ' + result;
-            }()),
-            const SizedBox(height: 12),
-            Text('Show Center Chip: ${s._showCenterChip}'),
-            const SizedBox(height: 12),
-            const Text('Animation Controllers State:'),
-            Text('Center Chip Animation Active: ${s._centerChipController.isAnimating}'),
-            const SizedBox(height: 12),
-            Text('Center Chip Animation Value: ${s._centerChipController.value.toStringAsFixed(2)}'),
-            const SizedBox(height: 12),
-            const Text('Street Transition State:'),
-            Text(
-              'Current Animated Players Per Street: '
-              '${s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0}',
+            _diag(
+              'Center Chip Action',
+              () {
+                final action = s._centerChipAction;
+                if (action == null) return '(null)';
+                var result =
+                    'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
+                if (action.amount != null) result += ', Amount ${action.amount}';
+                return result;
+              }(),
             ),
-            const SizedBox(height: 12),
+            _vGap,
+            _diag('Show Center Chip', s._showCenterChip),
+            _vGap,
+            const Text('Animation Controllers State:'),
+            _diag('Center Chip Animation Active',
+                s._centerChipController.isAnimating),
+            _vGap,
+            _diag('Center Chip Animation Value',
+                s._centerChipController.value.toStringAsFixed(2)),
+            _vGap,
+            const Text('Street Transition State:'),
+            _diag(
+              'Current Animated Players Per Street',
+              s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0,
+            ),
+            _vGap,
             for (final entry in s._animatedPlayersPerStreet.entries) ...[
-              Text('Street ${entry.key} Animated Count: ${entry.value.length}'),
-              const SizedBox(height: 12),
+              _diag('Street ${entry.key} Animated Count', entry.value.length),
+              _vGap,
             ],
             const Text('Chip Trail Diagnostics:'),
-            Text('Animated Chips In Flight: ${ChipMovingWidget.activeCount}'),
-            const SizedBox(height: 12),
+            _diag('Animated Chips In Flight', ChipMovingWidget.activeCount),
+            _vGap,
             const Text('Playback Pause State:'),
-            Text('Is Playback Paused: ${s._activeTimer == null}'),
-            const SizedBox(height: 12),
+            _diag('Is Playback Paused', s._activeTimer == null),
+            _vGap,
             Row(
               children: [
                 const Text('Action Evaluation Queue:'),
@@ -3340,11 +3352,12 @@ class _DebugPanelState extends State<_DebugPanel> {
                   ),
               ],
             ),
-            Text('Pending Action Evaluations: ${s._pendingEvaluations.length}'),
-            Text(
-                'Processed: ${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}'),
-            Text('Failed: ${s._failedEvaluations.length}'),
-            const SizedBox(height: 8),
+            _diag('Pending Action Evaluations', s._pendingEvaluations.length),
+            _diag(
+                'Processed',
+                '${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}'),
+            _diag('Failed', s._failedEvaluations.length),
+            _vGap,
             ToggleButtons(
               isSelected: [
                 s._queueFilters.contains('pending'),
@@ -3370,7 +3383,7 @@ class _DebugPanelState extends State<_DebugPanel> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            _vGap,
             Builder(
               builder: (context) {
                 final sections = <Widget>[];
@@ -3397,18 +3410,18 @@ class _DebugPanelState extends State<_DebugPanel> {
                 );
               },
             ),
-            const SizedBox(height: 8),
+            _vGap,
             _processingControls(),
-            const SizedBox(height: 8),
+            _vGap,
             _snapshotControls(),
-            const SizedBox(height: 12),
+            _vGap,
             const Text('Evaluation Queue Tools:'),
             _queueTools(),
-            const SizedBox(height: 12),
+            _vGap,
             Row(
               children: [
                 const Text('Processing Speed'),
-                const SizedBox(width: 12),
+                _hGap,
                 Expanded(
                   child: Slider(
                     value: s._evaluationProcessingDelay.toDouble(),
@@ -3421,11 +3434,11 @@ class _DebugPanelState extends State<_DebugPanel> {
                     },
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text('${s._evaluationProcessingDelay} ms'),
+                _hGap,
+                _diag('Delay', '${s._evaluationProcessingDelay} ms'),
               ],
             ),
-            const SizedBox(height: 12),
+            _vGap,
             const Text('Evaluation Results:'),
             Builder(
               builder: (context) {
@@ -3440,29 +3453,29 @@ class _DebugPanelState extends State<_DebugPanel> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final r in results)
-                      Text('Player ${r.playerIndex}, Street ${r.street}, Action ${r.action}'),
+                      _diag('Player ${r.playerIndex}, Street ${r.street}', r.action),
                   ],
                 );
               },
             ),
-            const SizedBox(height: 12),
+            _vGap,
             const Text('Evaluation Queue Statistics:'),
             _diag('Pending', s._pendingEvaluations.length),
             _diag('Failed', s._failedEvaluations.length),
             _diag('Completed', s._completedEvaluations.length),
             _diag('Total Processed',
                 s._completedEvaluations.length + s._failedEvaluations.length),
-            const SizedBox(height: 12),
+            _vGap,
             const Text('HUD Overlay State:'),
             _diag('HUD Street Name', hudStreetName),
-            const SizedBox(height: 12),
+            _vGap,
             _diag('HUD Pot Text', hudPotText),
-            const SizedBox(height: 12),
+            _vGap,
             _diag('HUD SPR Text', hudSprText ?? '(none)'),
-            const SizedBox(height: 12),
+            _vGap,
             const Text('Debug Menu Visibility:'),
             _diag('Is Debug Menu Open', s._isDebugPanelOpen),
-            const SizedBox(height: 12),
+            _vGap,
             const Text('Full Export Consistency:'),
             _check('numberOfPlayers',
                 hand.numberOfPlayers == s.numberOfPlayers,
@@ -3511,10 +3524,11 @@ class _DebugPanelState extends State<_DebugPanel> {
                         .map((c) => c.toString())
                         .join(' ')
                 ].toString()),
-            const SizedBox(height: 12),
+            _vGap,
             const Text('Theme Diagnostics:'),
-            Text('Current Theme: ${Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'}'),
-            const SizedBox(height: 12),
+            _diag('Current Theme',
+                Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'),
+            _vGap,
           ],
         ),
       ),
