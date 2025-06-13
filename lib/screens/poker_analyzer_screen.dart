@@ -2325,14 +2325,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-
       final content = await File(path).readAsString();
       final decoded = jsonDecode(content);
-      if (decoded is! Map) throw const FormatException();
-
-      final pending = _decodeEvaluationList(decoded['pending']);
-      final failed = _decodeEvaluationList(decoded['failed']);
-      final completed = _decodeEvaluationList(decoded['completed']);
+      final queues = _decodeBackupQueues(decoded);
+      final pending = queues["pending"]!;
+      final failed = queues["failed"]!;
+      final completed = queues["completed"]!;
 
       if (!mounted) return;
       setState(() {
