@@ -153,6 +153,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _snapshotRetentionKey = 'snapshot_retention_enabled';
   bool _snapshotRetentionEnabled = true;
 
+  static const _processingDelayKey = 'evaluation_processing_delay';
+  int _evaluationProcessingDelay = 500;
+
   Future<void> _loadSnapshotRetentionPreference() async {
     final prefs = await SharedPreferences.getInstance();
     final value = prefs.getBool(_snapshotRetentionKey);
@@ -178,6 +181,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     if (value) {
       await _cleanupOldEvaluationSnapshots();
+    }
+    _debugPanelSetState?.call(() {});
+  }
+
+  Future<void> _loadProcessingDelayPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getInt(_processingDelayKey);
+    if (mounted) {
+      setState(() {
+        _evaluationProcessingDelay = (value ?? 500).clamp(100, 2000);
+      });
+    } else {
+      _evaluationProcessingDelay = (value ?? 500).clamp(100, 2000);
+    }
+  }
+
+  Future<void> _setProcessingDelay(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_processingDelayKey, value);
+    if (mounted) {
+      setState(() => _evaluationProcessingDelay = value);
+    } else {
+      _evaluationProcessingDelay = value;
     }
     _debugPanelSetState?.call(() {});
   }
@@ -732,6 +758,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     Future(() => _cleanupOldEvaluationBackups());
     Future(() => _loadSnapshotRetentionPreference());
+    Future(() => _loadProcessingDelayPreference());
     Future.microtask(_loadSavedEvaluationQueue);
   }
 
@@ -1597,7 +1624,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         break;
       }
       final req = _pendingEvaluations.first;
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(Duration(milliseconds: _evaluationProcessingDelay));
       if (!mounted) {
         _processingEvaluations = false;
         _persistEvaluationQueue();
@@ -1641,7 +1668,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
     _debugPanelSetState?.call(() {});
     final req = _pendingEvaluations.first;
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(Duration(milliseconds: _evaluationProcessingDelay));
     if (!mounted) {
       _processingEvaluations = false;
       _persistEvaluationQueue();
@@ -2391,6 +2418,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? null
                         : _clearEvaluationQueue,
                     child: const Text('Clear Evaluation Queue'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Text('Processing Speed'),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Slider(
+                      value: _evaluationProcessingDelay.toDouble(),
+                      min: 100,
+                      max: 2000,
+                      divisions: 19,
+                      label: '${_evaluationProcessingDelay} ms',
+                      onChanged: (v) {
+                        _setProcessingDelay(v.round());
+                      },
+                    ),
                   ),
                 ],
               ),
