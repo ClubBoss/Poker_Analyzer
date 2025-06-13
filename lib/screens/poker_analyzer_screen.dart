@@ -2086,9 +2086,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _restoreFullEvaluationQueueState() async {
     try {
+      final dir = await getApplicationDocumentsDirectory();
+      final exportDir = Directory('${dir.path}/evaluation_exports');
+      if (!await exportDir.exists()) {
+        await exportDir.create(recursive: true);
+      }
+
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
+        initialDirectory: exportDir.path,
       );
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
