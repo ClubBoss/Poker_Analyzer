@@ -3132,6 +3132,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                  onPressed: _processingEvaluations
+                      ? null
+                      : () =>
+                          _exportEvaluationQueueSnapshot(showNotification: true),
+                  child: const Text('Export Snapshot Now'),
+                ),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
