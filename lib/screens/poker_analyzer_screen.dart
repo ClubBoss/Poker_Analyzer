@@ -3004,6 +3004,41 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   );
                 },
               ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.isEmpty ||
+                            _processingEvaluations
+                        ? null
+                        : _processNextEvaluation,
+                    child: const Text('Process Next Evaluation'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.isEmpty || _processingEvaluations
+                        ? null
+                        : _processEvaluationQueue,
+                    child: const Text('Start Evaluation Processing'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.isEmpty && !_processingEvaluations
+                        ? null
+                        : _toggleEvaluationProcessingPause,
+                    child:
+                        Text(_pauseProcessingRequested ? 'Resume' : 'Pause'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed:
+                        !_processingEvaluations && _pendingEvaluations.isEmpty
+                            ? null
+                            : _cancelEvaluationProcessing,
+                    child: const Text('Cancel Evaluation Processing'),
+                  ),
+                ],
+              ),
               const SizedBox(height: 12),
               const Text('Evaluation Queue Tools:'),
               Wrap(
@@ -3037,31 +3072,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _exportEvaluationQueueSnapshot,
                     child: const Text('Export Current Queue Snapshot'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.isEmpty ||
-                            _processingEvaluations
-                        ? null
-                        : _processNextEvaluation,
-                    child: const Text('Process Next Evaluation'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.isEmpty || _processingEvaluations ? null : _processEvaluationQueue,
-                    child: const Text('Start Evaluation Processing'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.isEmpty && !_processingEvaluations
-                        ? null
-                        : _toggleEvaluationProcessingPause,
-                    child: Text(_pauseProcessingRequested
-                        ? 'Resume Evaluation Processing'
-                        : 'Pause Evaluation Processing'),
-                  ),
-                  ElevatedButton(
-                    onPressed: !_processingEvaluations && _pendingEvaluations.isEmpty
-                        ? null
-                        : _cancelEvaluationProcessing,
-                    child: const Text('Cancel Evaluation Processing'),
                   ),
                   ElevatedButton(
                     onPressed: _failedEvaluations.isEmpty
