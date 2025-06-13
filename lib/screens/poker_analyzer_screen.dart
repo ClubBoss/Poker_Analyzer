@@ -247,6 +247,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Set<String> _advancedFilters = {};
   static const _advancedFilterKey = 'evaluation_advanced_filters';
 
+  /// Whether to sort evaluation lists by SPR when displayed in the debug panel.
+  bool _sortBySpr = false;
+
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
@@ -372,17 +375,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _setAdvancedFilters(updated);
   }
 
+  void _setSortBySpr(bool value) {
+    if (mounted) {
+      setState(() => _sortBySpr = value);
+    } else {
+      _sortBySpr = value;
+    }
+    _debugPanelSetState?.call(() {});
+  }
+
   List<ActionEvaluationRequest> _applyAdvancedFilters(
       List<ActionEvaluationRequest> list) {
     final filters = _advancedFilters;
-    if (filters.isEmpty) return list;
+    final sort = _sortBySpr;
+    if (filters.isEmpty && !sort) return list;
 
     final checkFeedback = filters.contains('feedback');
     final checkOpponent = filters.contains('opponent');
     final checkFailed = filters.contains('failed');
     final checkHighSpr = filters.contains('highspr');
 
-    if (!checkFeedback && !checkOpponent && !checkFailed && !checkHighSpr) {
+    final shouldFilter =
+        checkFeedback || checkOpponent || checkFailed || checkHighSpr;
+
+    if (!shouldFilter && !sort) {
       return list;
     }
 
@@ -408,17 +424,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       return true;
     }
 
-    final result = <ActionEvaluationRequest>[];
+    final filtered = <ActionEvaluationRequest>[];
     var modified = false;
     for (final r in list) {
       if (matches(r)) {
-        result.add(r);
+        filtered.add(r);
       } else {
         modified = true;
       }
     }
 
-    return modified ? result : list;
+    var result = modified ? filtered : list;
+
+    if (sort) {
+      final sorted = List<ActionEvaluationRequest>.from(result);
+      sorted.sort((a, b) {
+        final sa = (a.metadata?['spr'] as num?)?.toDouble() ?? -double.infinity;
+        final sb = (b.metadata?['spr'] as num?)?.toDouble() ?? -double.infinity;
+        return sb.compareTo(sa);
+      });
+      result = sorted;
+    }
+
+    return result;
   }
 
   Future<void> _loadQueueResumedPreference() async {
@@ -543,7 +571,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
     final filtered = _applyAdvancedFilters(queue);
     return debugQueueSection(label, filtered,
-        _advancedFilters.isEmpty
+        _advancedFilters.isEmpty && !_sortBySpr
             ? (oldIndex, newIndex) {
                 if (newIndex > oldIndex) newIndex -= 1;
                 setState(() {
@@ -3100,6 +3128,19 @@ class _DebugPanelState extends State<_DebugPanel> {
     );
   }
 
+  Widget _sortBySprSwitch() {
+    return Row(
+      children: [
+        const Expanded(child: Text('Sort by SPR')),
+        Switch(
+          value: s._sortBySpr,
+          onChanged: s._setSortBySpr,
+          activeColor: Colors.orange,
+        ),
+      ],
+    );
+  }
+
   Widget _processingControls() {
     final disabled = s._pendingEvaluations.isEmpty;
     return _buttonsWrap({
@@ -3467,6 +3508,8 @@ class _DebugPanelState extends State<_DebugPanel> {
                 ),
               ],
             ),
+            _vGap,
+            _sortBySprSwitch(),
             _vGap,
             Builder(
               builder: (context) {
