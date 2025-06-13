@@ -1543,6 +1543,84 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _importFullEvaluationQueueState() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final exportDir = Directory('${dir.path}/evaluation_exports');
+      if (!await exportDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No export files found')),
+          );
+        }
+        return;
+      }
+
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        initialDirectory: exportDir.path,
+      );
+      if (result == null || result.files.isEmpty) return;
+      final path = result.files.single.path;
+      if (path == null) return;
+
+      final content = await File(path).readAsString();
+      final decoded = jsonDecode(content);
+      if (decoded is! Map) throw const FormatException();
+
+      final pendingDecoded = decoded['pending'];
+      final failedDecoded = decoded['failed'];
+      final pending = <ActionEvaluationRequest>[];
+      final failed = <ActionEvaluationRequest>[];
+
+      if (pendingDecoded is List) {
+        for (final item in pendingDecoded) {
+          if (item is Map) {
+            try {
+              pending.add(
+                  ActionEvaluationRequest.fromJson(Map<String, dynamic>.from(item)));
+            } catch (_) {}
+          }
+        }
+      }
+
+      if (failedDecoded is List) {
+        for (final item in failedDecoded) {
+          if (item is Map) {
+            try {
+              failed.add(
+                  ActionEvaluationRequest.fromJson(Map<String, dynamic>.from(item)));
+            } catch (_) {}
+          }
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(pending);
+        _failedEvaluations
+          ..clear()
+          ..addAll(failed);
+      });
+      _persistEvaluationQueue();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text('Imported ${pending.length} pending and ${failed.length} failed evaluations')),
+      );
+      _debugPanelSetState?.call(() {});
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to import queue state')),
+        );
+      }
+    }
+  }
+
   Future<void> _backupEvaluationQueue() async {
     if (_pendingEvaluations.isEmpty) return;
     try {
@@ -2479,6 +2557,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _importEvaluationQueueSnapshot,
                     child: const Text('Import Queue Snapshot'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _importFullEvaluationQueueState,
+                    child: const Text('Import Full Queue State'),
                   ),
                   ElevatedButton(
                     onPressed: _exportEvaluationQueueSnapshot,
