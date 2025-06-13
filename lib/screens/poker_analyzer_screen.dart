@@ -140,6 +140,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// True when a pause of the evaluation processing loop has been requested.
   bool _pauseProcessingRequested = false;
 
+  /// True when a cancellation of the evaluation processing loop has been requested.
+  bool _cancelProcessingRequested = false;
+
   /// Whether the evaluation queue was restored from disk on startup.
   bool _evaluationQueueResumed = false;
 
@@ -927,6 +930,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _cancelEvaluationProcessing() {
+    setState(() {
+      _cancelProcessingRequested = true;
+      _pauseProcessingRequested = false;
+      _pendingEvaluations.clear();
+      _processingEvaluations = false;
+    });
+    _persistEvaluationQueue();
+    _debugPanelSetState?.call(() {});
+  }
+
   void _playStepForward() {
     if (_playbackIndex < actions.length) {
       setState(() {
@@ -1542,7 +1556,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
     _debugPanelSetState?.call(() {});
     while (_pendingEvaluations.isNotEmpty) {
-      if (_pauseProcessingRequested) {
+      if (_pauseProcessingRequested || _cancelProcessingRequested) {
         break;
       }
       final req = _pendingEvaluations.first;
@@ -1552,6 +1566,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _persistEvaluationQueue();
         return;
       }
+      if (_cancelProcessingRequested) {
+        break;
+      }
+      if (_pendingEvaluations.isEmpty) break;
       setState(() {
         _pendingEvaluations.removeAt(0);
         _completedEvaluations.add(req);
@@ -1559,18 +1577,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _persistEvaluationQueue();
       // Update debug panel if it's currently visible.
       _debugPanelSetState?.call(() {});
-      if (_pauseProcessingRequested) {
+      if (_pauseProcessingRequested || _cancelProcessingRequested) {
         break;
       }
     }
     if (mounted) {
       setState(() {
         _processingEvaluations = false;
+        _pauseProcessingRequested = false;
+        _cancelProcessingRequested = false;
       });
       _persistEvaluationQueue();
       _debugPanelSetState?.call(() {});
     } else {
       _processingEvaluations = false;
+      _pauseProcessingRequested = false;
+      _cancelProcessingRequested = false;
       _persistEvaluationQueue();
     }
   }
@@ -2239,6 +2261,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     child: Text(_pauseProcessingRequested
                         ? 'Resume Evaluation Processing'
                         : 'Pause Evaluation Processing'),
+                  ),
+                  ElevatedButton(
+                    onPressed: !_processingEvaluations && _pendingEvaluations.isEmpty
+                        ? null
+                        : _cancelEvaluationProcessing,
+                    child: const Text('Cancel Evaluation Processing'),
                   ),
                   ElevatedButton(
                     onPressed: _pendingEvaluations.isEmpty && _completedEvaluations.isEmpty
