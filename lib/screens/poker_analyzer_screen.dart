@@ -257,18 +257,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (!await backupDir.exists()) return;
 
       final threshold = DateTime.now().subtract(const Duration(days: 30));
-      final files = await backupDir
-          .list()
-          .where((e) => e is File && e.path.endsWith('.json'))
-          .cast<File>()
-          .toList();
+      final files = <MapEntry<File, DateTime>>[];
 
-      for (final file in files) {
+      await for (final entity in backupDir.list()) {
+        if (entity is File && entity.path.endsWith('.json')) {
+          try {
+            final stat = await entity.stat();
+            if (stat.modified.isBefore(threshold)) {
+              await entity.delete();
+            } else {
+              files.add(MapEntry(entity, stat.modified));
+            }
+          } catch (_) {}
+        }
+      }
+
+      files.sort((a, b) => b.value.compareTo(a.value));
+      for (final entry in files.skip(50)) {
         try {
-          final stat = await file.stat();
-          if (stat.modified.isBefore(threshold)) {
-            await file.delete();
-          }
+          await entry.key.delete();
         } catch (_) {}
       }
     } catch (_) {}
