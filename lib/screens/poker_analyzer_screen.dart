@@ -359,9 +359,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   String _queueEntryId(ActionEvaluationRequest r) => r.id;
 
-  String _legacyQueueEntryId(ActionEvaluationRequest r) {
-    return '${r.playerIndex}_${r.street}_${r.action}_${r.amount ?? ''}';
-  }
 
   ActionEvaluationRequest _decodeEvaluationRequest(Map<String, dynamic> json) {
     final map = Map<String, dynamic>.from(json);
@@ -417,10 +414,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final remaining = List<ActionEvaluationRequest>.from(list);
     final reordered = <ActionEvaluationRequest>[];
     for (final key in order) {
-      var idx = remaining.indexWhere((e) => e.id == key);
-      if (idx == -1) {
-        idx = remaining.indexWhere((e) => _legacyQueueEntryId(e) == key);
-      }
+      final idx = remaining.indexWhere((e) => e.id == key);
       if (idx != -1) {
         reordered.add(remaining.removeAt(idx));
       }
@@ -788,62 +782,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _tagsController.text = tags.join(', ');
   }
 
-  Future<void> _selectPlayerType(int index) async {
-    const types = [
-      {'key': 'fish', 'icon': '🐟', 'label': 'Fish'},
-      {'key': 'shark', 'icon': '🦈', 'label': 'Shark'},
-      {'key': 'station', 'icon': '☎️', 'label': 'Calling Station'},
-      {'key': 'maniac', 'icon': '🔥', 'label': 'Maniac'},
-      {'key': 'nit', 'icon': '🧊', 'label': 'Nit'},
-      {'key': 'standard', 'icon': '🔘', 'label': 'Standard'},
-    ];
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final t in types)
-              ListTile(
-                leading: Text(t['icon']!, style: const TextStyle(fontSize: 24)),
-                title: Text(t['label']!),
-                onTap: () => Navigator.pop(context, t['key']),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (result != null) {
-      setState(() {
-        playerTypes[index] =
-            PlayerType.values.firstWhere((e) => e.name == result,
-                orElse: () => PlayerType.unknown);
-      });
-    }
-  }
-
-  Future<void> _chooseHeroPosition() async {
-    final options = _positionsForPlayers(numberOfPlayers);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Выбрать позицию Hero'),
-        children: [
-          for (final pos in options)
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, pos),
-              child: Text(pos),
-            ),
-        ],
-      ),
-    );
-    if (result != null) {
-      setState(() {
-        _heroPosition = result;
-        _updatePositions();
-      });
-    }
-  }
 
   Future<void> _editPlayerInfo(int index) async {
     final stackController =
@@ -1140,21 +1078,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  int _calculateCallAmount(int playerIndex, {List<ActionEntry>? fromActions}) {
-    final list = fromActions ?? actions;
-    final streetActions =
-        list.where((a) => a.street == currentStreet).toList();
-    final Map<int, int> bets = {};
-    int highest = 0;
-    for (final a in streetActions) {
-      if (a.action == 'bet' || a.action == 'raise' || a.action == 'call') {
-        bets[a.playerIndex] = (bets[a.playerIndex] ?? 0) + (a.amount ?? 0);
-        highest = max(highest, bets[a.playerIndex]!);
-      }
-    }
-    final playerBet = bets[playerIndex] ?? 0;
-    return max(0, highest - playerBet);
-  }
 
   bool _streetHasBet({List<ActionEntry>? fromActions}) {
     final list = fromActions ?? actions;
@@ -1233,12 +1156,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return stacks;
   }
 
-  /// Returns the remaining stack for [playerIndex] after subtracting all
-  /// investments made by this player. If the player is not present in
-  /// [stackSizes], `0` is returned.
-  int getRemainingStack(int playerIndex) {
-    return stackSizes[playerIndex] ?? 0;
-  }
 
   void _updatePlaybackState() {
     final subset = actions.take(_playbackIndex).toList();
@@ -1643,154 +1560,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  Future<void> _editStackSize(int index) async {
-    final controller =
-        TextEditingController(text: (_initialStacks[index] ?? 0).toString());
-    int? value = _initialStacks[index];
-    final result = await showDialog<int>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: Colors.black87,
-            title: Text(
-              'Стек игрока ${index + 1}',
-              style: const TextStyle(color: Colors.white),
-            ),
-            content: TextField(
-              controller: controller,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white10,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                hintText: 'Введите стек',
-                hintStyle: const TextStyle(color: Colors.white70),
-              ),
-              onChanged: (text) {
-                setState(() => value = int.tryParse(text));
-              },
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Отмена'),
-              ),
-              TextButton(
-                onPressed: value != null && value! > 0
-                    ? () => Navigator.pop(context, value)
-                    : null,
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    if (result != null) {
-      setState(() {
-        _initialStacks[index] = result;
-        _stackManager = StackManager(Map<int, int>.from(_initialStacks));
-        _updatePlaybackState();
-      });
-    }
-  }
-
-  void _showStackInfo(int playerIndex) {
-    final stack = stackSizes[playerIndex] ?? 0;
-    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
-    final investments = [
-      for (int i = 0; i < 4; i++)
-        _stackManager.getInvestmentForStreet(playerIndex, i)
-    ];
-    final total = investments.fold(0, (sum, v) => sum + v);
-    final percent = stack > 0 ? (total / stack * 100) : 0.0;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.black87,
-        title: Text(
-          'Player ${playerIndex + 1} Stack',
-          style: const TextStyle(color: Colors.white),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Stack: $stack',
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 8),
-            for (int i = 0; i < streetNames.length; i++)
-              Text(
-                '${streetNames[i]}: ${investments[i]}',
-                style: const TextStyle(color: Colors.white70),
-              ),
-            const Divider(color: Colors.white24),
-            Text(
-              'Total invested: $total',
-              style: const TextStyle(color: Colors.white),
-            ),
-            Text(
-              '% of original stack: ${percent.toStringAsFixed(1)}%',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showStreetActionsDetails() {
-    final streetActions =
-        actions.where((a) => a.street == currentStreet).toList(growable: false);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.black87,
-        title: Text(
-          ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
-          style: const TextStyle(color: Colors.white),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              for (final a in streetActions)
-                ListTile(
-                  dense: true,
-                  title: Text(
-                    '${playerPositions[a.playerIndex] ?? 'Player ${a.playerIndex + 1}'} '
-                    '— ${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _deleteAction(int index) {
     setState(() {
