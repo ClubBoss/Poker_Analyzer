@@ -3165,6 +3165,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   child: const Text('Export Snapshot Now'),
                 ),
               ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                  onPressed: _processingEvaluations
+                      ? null
+                      : () async {
+                          await _backupEvaluationQueue();
+                          _debugPanelSetState?.call(() {});
+                        },
+                  child: const Text('Backup Queue Now'),
+                ),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
