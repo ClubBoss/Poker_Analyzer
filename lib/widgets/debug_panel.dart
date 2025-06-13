@@ -353,6 +353,38 @@ class _PlaybackDiagnosticsSection extends StatelessWidget {
   }
 }
 
+class _HudOverlayDiagnosticsSection extends StatelessWidget {
+  const _HudOverlayDiagnosticsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
+    final hudPotText = s._formatAmount(s._pots[s.currentStreet]);
+    final int hudEffStack =
+        s._calculateEffectiveStackForStreet(s.currentStreet);
+    final double? hudSprValue = s._pots[s.currentStreet] > 0
+        ? hudEffStack / s._pots[s.currentStreet]
+        : null;
+    final String? hudSprText =
+        hudSprValue != null ? 'SPR: ${hudSprValue.toStringAsFixed(1)}' : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('HUD Overlay State:'),
+        debugDiag('HUD Street Name', hudStreetName),
+        _DebugPanelState._vGap,
+        debugDiag('HUD Pot Text', hudPotText),
+        _DebugPanelState._vGap,
+        debugDiag('HUD SPR Text', hudSprText ?? '(none)'),
+      ],
+    );
+  }
+}
+
 
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
@@ -365,15 +397,6 @@ class _PlaybackDiagnosticsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hand = s._currentSavedHand();
-    final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
-    final hudPotText = s._formatAmount(s._pots[s.currentStreet]);
-    final int hudEffStack =
-        s._calculateEffectiveStackForStreet(s.currentStreet);
-    final double? hudSprValue = s._pots[s.currentStreet] > 0
-        ? hudEffStack / s._pots[s.currentStreet]
-        : null;
-    final String? hudSprText =
-        hudSprValue != null ? 'SPR: ${hudSprValue.toStringAsFixed(1)}' : null;
 
     return AlertDialog(
       title: const Text('Stack Diagnostics'),
@@ -625,12 +648,7 @@ class _PlaybackDiagnosticsSection extends StatelessWidget {
             _vGap,
             _EvaluationResultsSection(state: this),
             _vGap,
-            const Text('HUD Overlay State:'),
-            debugDiag('HUD Street Name', hudStreetName),
-            _vGap,
-            debugDiag('HUD Pot Text', hudPotText),
-            _vGap,
-            debugDiag('HUD SPR Text', hudSprText ?? '(none)'),
+            _HudOverlayDiagnosticsSection(state: this),
             _vGap,
             const Text('Debug Menu Visibility:'),
             debugDiag('Is Debug Menu Open', s._isDebugPanelOpen),
