@@ -12,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -160,6 +161,39 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
+
+  // Backup directories
+  static const String _backupsFolder = 'evaluation_backups';
+  static const String _autoBackupsFolder = 'evaluation_autobackups';
+  static const String _snapshotsFolder = 'evaluation_snapshots';
+  static const String _exportsFolder = 'evaluation_exports';
+
+  Future<Directory> _getBackupDirectory(String subfolder) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final target = Directory('${dir.path}/$subfolder');
+    try {
+      await target.create(recursive: true);
+    } catch (_) {}
+    return target;
+  }
+
+  Future<void> _writeJsonFile(File file, Object data) async {
+    try {
+      await file.writeAsString(jsonEncode(data), flush: true);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Failed to write ${file.path}: $e');
+      }
+      rethrow;
+    }
+  }
+
+  Future<dynamic> _readJsonFile(File file) async {
+    final content = await file.readAsString();
+    return jsonDecode(content);
+  }
+
+  String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
   static const _snapshotRetentionKey = 'snapshot_retention_enabled';
   static const int _snapshotRetentionLimit = 50;
@@ -366,17 +400,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_autoBackupRunning) return;
     _autoBackupRunning = true;
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_autobackups');
-      await backupDir.create(recursive: true);
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-      final file = File('${backupDir.path}/auto_${timestamp}.json');
+      final backupDir = await _getBackupDirectory(_autoBackupsFolder);
+      final file = File('${backupDir.path}/auto_${_timestamp()}.json');
       final data = {
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
         'failed': [for (final e in _failedEvaluations) e.toJson()],
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
-      await file.writeAsString(jsonEncode(data), flush: true);
+      await _writeJsonFile(file, data);
       await _cleanupOldAutoBackups();
       if (kDebugMode) {
         debugPrint('Auto backup created: ${file.path}');
@@ -392,9 +423,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _cleanupOldAutoBackups() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_autobackups');
-      if (!await backupDir.exists()) return;
+      final backupDir = await _getBackupDirectory(_autoBackupsFolder);
 
       final entries = <MapEntry<File, DateTime>>[];
       await for (final entity in backupDir.list()) {
@@ -1968,11 +1997,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_pendingEvaluations.isEmpty) return;
     try {
       final dir = await getApplicationDocumentsDirectory();
-      final fileName =
-          'evaluation_queue_${DateTime.now().millisecondsSinceEpoch}.json';
+      final fileName = 'evaluation_queue_${_timestamp()}.json';
       final file = File('${dir.path}/$fileName');
       final data = [for (final e in _pendingEvaluations) e.toJson()];
-      await file.writeAsString(jsonEncode(data));
+      await _writeJsonFile(file, data);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1993,8 +2021,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportFullEvaluationQueueState() async {
     try {
-      final fileName =
-          'queue_export_${DateTime.now().toIso8601String().replaceAll(':', '-')}.json';
+      final fileName = 'queue_export_${_timestamp()}.json';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Full Queue State',
         fileName: fileName,
@@ -2009,7 +2036,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         'failed': [for (final e in _failedEvaluations) e.toJson()],
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
-      await file.writeAsString(jsonEncode(data), flush: true);
+      await _writeJsonFile(file, data);
 
       if (!mounted) return;
       final name = savePath.split(Platform.pathSeparator).last;
@@ -2027,8 +2054,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _importFullEvaluationQueueState() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final exportDir = Directory('${dir.path}/evaluation_exports');
+      final exportDir = await _getBackupDirectory(_exportsFolder);
       if (!await exportDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2047,8 +2073,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final path = result.files.single.path;
       if (path == null) return;
 
-      final content = await File(path).readAsString();
-      final decoded = jsonDecode(content);
+      final decoded = await _readJsonFile(File(path));
       if (decoded is! Map) throw const FormatException();
 
       final pending = _decodeEvaluationList(decoded['pending']);
@@ -2086,11 +2111,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _restoreFullEvaluationQueueState() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final exportDir = Directory('${dir.path}/evaluation_exports');
-      if (!await exportDir.exists()) {
-        await exportDir.create(recursive: true);
-      }
+      final exportDir = await _getBackupDirectory(_exportsFolder);
 
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -2101,8 +2122,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final path = result.files.single.path;
       if (path == null) return;
 
-      final content = await File(path).readAsString();
-      final decoded = jsonDecode(content);
+      final decoded = await _readJsonFile(File(path));
       if (decoded is! Map) throw const FormatException();
 
       final pending = _decodeEvaluationList(decoded['pending']);
@@ -2140,18 +2160,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _backupEvaluationQueue() async {
     if (_pendingEvaluations.isEmpty) return;
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_backups');
-      await backupDir.create(recursive: true);
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-      final fileName = 'evaluation_backup_${timestamp}.json';
+      final backupDir = await _getBackupDirectory(_backupsFolder);
+      final fileName = 'evaluation_backup_${_timestamp()}.json';
       final file = File('${backupDir.path}/$fileName');
       final data = {
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
         'failed': [for (final e in _failedEvaluations) e.toJson()],
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
-      await file.writeAsString(jsonEncode(data), flush: true);
+      await _writeJsonFile(file, data);
 
       // Run cleanup in the background to avoid blocking UI.
       Future(() => _cleanupOldEvaluationBackups());
@@ -2170,18 +2187,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _quickBackupEvaluationQueue() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_backups');
-      await backupDir.create(recursive: true);
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-      final fileName = 'quick_backup_${timestamp}.json';
+      final backupDir = await _getBackupDirectory(_backupsFolder);
+      final fileName = 'quick_backup_${_timestamp()}.json';
       final file = File('${backupDir.path}/$fileName');
       final data = {
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
         'failed': [for (final e in _failedEvaluations) e.toJson()],
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
-      await file.writeAsString(jsonEncode(data), flush: true);
+      await _writeJsonFile(file, data);
       Future(() => _cleanupOldEvaluationBackups());
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2199,8 +2213,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _importQuickBackups() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_backups');
+      final backupDir = await _getBackupDirectory(_backupsFolder);
       if (!await backupDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2235,8 +2248,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           continue;
         }
         try {
-          final content = await File(path).readAsString();
-          final decoded = jsonDecode(content);
+          final decoded = await _readJsonFile(File(path));
           final queues = _decodeBackupQueues(decoded);
           importedPending.addAll(queues['pending']!);
           importedFailed.addAll(queues['failed']!);
@@ -2275,18 +2287,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportEvaluationQueueSnapshot({bool showNotification = true}) async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final snapDir = Directory('${dir.path}/evaluation_snapshots');
-      await snapDir.create(recursive: true);
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-      final fileName = 'snapshot_${timestamp}.json';
+      final snapDir = await _getBackupDirectory(_snapshotsFolder);
+      final fileName = 'snapshot_${_timestamp()}.json';
       final file = File('${snapDir.path}/$fileName');
       final data = {
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
         'failed': [for (final e in _failedEvaluations) e.toJson()],
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
-      await file.writeAsString(jsonEncode(data), flush: true);
+      await _writeJsonFile(file, data);
       if (_snapshotRetentionEnabled) {
         await _cleanupOldEvaluationSnapshots();
       }
@@ -2321,7 +2330,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         'failed': [for (final e in _failedEvaluations) e.toJson()],
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
-      await file.writeAsString(jsonEncode(data), flush: true);
+      await _writeJsonFile(file, data);
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(
@@ -2343,8 +2352,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final file = File('${dir.path}/evaluation_current_queue.json');
       bool resumed = false;
       if (await file.exists()) {
-        final content = await file.readAsString();
-        final decoded = jsonDecode(content);
+        final decoded = await _readJsonFile(file);
         final pending = <ActionEvaluationRequest>[];
         final failed = <ActionEvaluationRequest>[];
         final completed = <ActionEvaluationRequest>[];
@@ -2532,9 +2540,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _cleanupOldEvaluationBackups() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_backups');
-      if (!await backupDir.exists()) return;
+      final backupDir = await _getBackupDirectory(_backupsFolder);
 
       final files = await backupDir
           .list()
@@ -2563,9 +2569,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _cleanupOldEvaluationSnapshots() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final snapDir = Directory('${dir.path}/evaluation_snapshots');
-      if (!await snapDir.exists()) return;
+      final snapDir = await _getBackupDirectory(_snapshotsFolder);
 
       final files = await snapDir
           .list()
@@ -2594,8 +2598,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportAllEvaluationBackups() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_backups');
+      final backupDir = await _getBackupDirectory(_backupsFolder);
       if (!await backupDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2630,7 +2633,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (bytes == null) throw Exception('Could not create archive');
 
       final fileName =
-          'evaluation_backups_${DateTime.now().millisecondsSinceEpoch}.zip';
+          'evaluation_backups_${_timestamp()}.zip';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Backups Archive',
         fileName: fileName,
@@ -2660,8 +2663,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportAutoBackups() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_autobackups');
+      final backupDir = await _getBackupDirectory(_autoBackupsFolder);
       if (!await backupDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2696,7 +2698,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (bytes == null) throw Exception('Could not create archive');
 
       final fileName =
-          'evaluation_autobackups_${DateTime.now().millisecondsSinceEpoch}.zip';
+          'evaluation_autobackups_${_timestamp()}.zip';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Auto-Backups Archive',
         fileName: fileName,
@@ -2726,8 +2728,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportSnapshots() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      final snapDir = await _getBackupDirectory(_snapshotsFolder);
       if (!await snapDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2762,7 +2763,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (bytes == null) throw Exception('Could not create archive');
 
       final fileName =
-          'evaluation_snapshots_${DateTime.now().millisecondsSinceEpoch}.zip';
+          'evaluation_snapshots_${_timestamp()}.zip';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Snapshots Archive',
         fileName: fileName,
@@ -2792,8 +2793,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _restoreFromAutoBackup() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_autobackups');
+      final backupDir = await _getBackupDirectory(_autoBackupsFolder);
       if (!await backupDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2811,8 +2811,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      final content = await File(path).readAsString();
-      final decoded = jsonDecode(content);
+      final decoded = await _readJsonFile(File(path));
       final queues = _decodeBackupQueues(decoded);
       final pending = queues["pending"]!;
       final failed = queues["failed"]!;
@@ -2850,8 +2849,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportAllEvaluationSnapshots() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      final snapDir = await _getBackupDirectory(_snapshotsFolder);
       if (!await snapDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -2886,7 +2884,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (bytes == null) throw Exception('Could not create archive');
 
       final fileName =
-          'evaluation_snapshots_${DateTime.now().millisecondsSinceEpoch}.zip';
+          'evaluation_snapshots_${_timestamp()}.zip';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Snapshots Archive',
         fileName: fileName,
@@ -2923,8 +2921,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      final content = await File(path).readAsString();
-      final decoded = jsonDecode(content);
+      final decoded = await _readJsonFile(File(path));
       if (decoded is! List) throw const FormatException();
       final items = <ActionEvaluationRequest>[];
       for (final item in decoded) {
@@ -2959,8 +2956,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _restoreEvaluationQueue() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_backups');
+      final backupDir = await _getBackupDirectory(_backupsFolder);
       if (!await backupDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -3002,8 +2998,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       if (selected == null) return;
 
-      final content = await selected.readAsString();
-      final decoded = jsonDecode(content);
+      final decoded = await _readJsonFile(selected);
       final queues = _decodeBackupQueues(decoded);
       final pending = queues['pending']!;
       final failed = queues['failed']!;
@@ -3058,8 +3053,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           continue;
         }
         try {
-          final content = await File(path).readAsString();
-          final decoded = jsonDecode(content);
+          final decoded = await _readJsonFile(File(path));
 
           if (decoded is List) {
             importedPending.addAll(_decodeEvaluationList(decoded));
@@ -3105,8 +3099,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _bulkImportEvaluationBackups() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_backups');
+      final backupDir = await _getBackupDirectory(_backupsFolder);
       if (!await backupDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -3136,8 +3129,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           continue;
         }
         try {
-          final content = await File(path).readAsString();
-          final decoded = jsonDecode(content);
+          final decoded = await _readJsonFile(File(path));
           final queues = _decodeBackupQueues(decoded);
           importedPending.addAll(queues['pending']!);
           importedFailed.addAll(queues['failed']!);
@@ -3176,8 +3168,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _importQuickBackups() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_backups');
+      final backupDir = await _getBackupDirectory(_backupsFolder);
       if (!await backupDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -3212,8 +3203,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           continue;
         }
         try {
-          final content = await File(path).readAsString();
-          final decoded = jsonDecode(content);
+          final decoded = await _readJsonFile(File(path));
           final queues = _decodeBackupQueues(decoded);
           importedPending.addAll(queues['pending']!);
           importedFailed.addAll(queues['failed']!);
@@ -3252,8 +3242,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _bulkImportAutoBackups() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final backupDir = Directory('${dir.path}/evaluation_autobackups');
+      final backupDir = await _getBackupDirectory(_autoBackupsFolder);
       if (!await backupDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -3283,8 +3272,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           continue;
         }
         try {
-          final content = await File(path).readAsString();
-          final decoded = jsonDecode(content);
+          final decoded = await _readJsonFile(File(path));
           final queues = _decodeBackupQueues(decoded);
           importedPending.addAll(queues['pending']!);
           importedFailed.addAll(queues['failed']!);
@@ -3323,8 +3311,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _importEvaluationQueueSnapshot() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      final snapDir = await _getBackupDirectory(_snapshotsFolder);
       if (!await snapDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -3342,8 +3329,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (result == null || result.files.isEmpty) return;
       final path = result.files.single.path;
       if (path == null) return;
-      final content = await File(path).readAsString();
-      final decoded = jsonDecode(content);
+      final decoded = await _readJsonFile(File(path));
 
       final List<ActionEvaluationRequest> pending;
       final List<ActionEvaluationRequest> failed;
@@ -3393,8 +3379,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _bulkImportEvaluationSnapshots() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      final snapDir = await _getBackupDirectory(_snapshotsFolder);
       if (!await snapDir.exists()) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -3424,8 +3409,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           continue;
         }
         try {
-          final content = await File(path).readAsString();
-          final decoded = jsonDecode(content);
+          final decoded = await _readJsonFile(File(path));
 
           if (decoded is List) {
             importedPending.addAll(_decodeEvaluationList(decoded));
