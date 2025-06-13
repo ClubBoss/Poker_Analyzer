@@ -2921,6 +2921,84 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _importEvaluationQueueSnapshots() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      if (!await snapDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No snapshot files found')),
+          );
+        }
+        return;
+      }
+
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        allowMultiple: true,
+        initialDirectory: snapDir.path,
+      );
+      if (result == null || result.files.isEmpty) return;
+
+      final importedPending = <ActionEvaluationRequest>[];
+      final importedFailed = <ActionEvaluationRequest>[];
+      final importedCompleted = <ActionEvaluationRequest>[];
+      int skipped = 0;
+
+      for (final f in result.files) {
+        final path = f.path;
+        if (path == null) {
+          skipped++;
+          continue;
+        }
+        try {
+          final content = await File(path).readAsString();
+          final decoded = jsonDecode(content);
+
+          if (decoded is List) {
+            importedPending.addAll(_decodeEvaluationList(decoded));
+          } else if (decoded is Map) {
+            importedPending.addAll(_decodeEvaluationList(decoded['pending']));
+            importedFailed.addAll(_decodeEvaluationList(decoded['failed']));
+            importedCompleted.addAll(
+                _decodeEvaluationList(decoded['completed']));
+          } else {
+            throw const FormatException();
+          }
+        } catch (_) {
+          skipped++;
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations.addAll(importedPending);
+        _failedEvaluations.addAll(importedFailed);
+        _completedEvaluations.addAll(importedCompleted);
+      });
+      _debugPanelSetState?.call(() {});
+      _persistEvaluationQueue();
+      unawaited(_setEvaluationQueueResumed(false));
+
+      final total =
+          importedPending.length + importedFailed.length + importedCompleted.length;
+      final msg = skipped == 0
+          ? 'Imported $total evaluations from ${result.files.length} files'
+          : 'Imported $total evaluations, $skipped files skipped';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to import snapshots')),
+        );
+      }
+    }
+  }
+
 
 
   Future<void> _showDebugPanel() async {
@@ -3306,6 +3384,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _importEvaluationQueueSnapshot,
                     child: const Text('Import Queue Snapshot'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _importEvaluationQueueSnapshots,
+                    child: const Text('Import Snapshots'),
                   ),
                   ElevatedButton(
                     onPressed: _importFullEvaluationQueueState,
