@@ -177,6 +177,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
+  static const _queueResumedKey = 'evaluation_queue_resumed';
 
   Future<void> _loadSnapshotRetentionPreference() async {
     final prefs = await SharedPreferences.getInstance();
@@ -264,6 +265,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       updated.add(filter);
     }
     _setQueueFilters(updated);
+  }
+
+  Future<void> _loadQueueResumedPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getBool(_queueResumedKey) ?? false;
+    if (mounted) {
+      setState(() => _evaluationQueueResumed = value);
+    } else {
+      _evaluationQueueResumed = value;
+    }
+  }
+
+  Future<void> _setEvaluationQueueResumed(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_queueResumedKey, value);
+    if (mounted) {
+      setState(() => _evaluationQueueResumed = value);
+    } else {
+      _evaluationQueueResumed = value;
+    }
+    _debugPanelSetState?.call(() {});
   }
 
   String _queueEntryId(ActionEvaluationRequest r) => r.id;
@@ -991,6 +1013,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _loadSnapshotRetentionPreference());
     Future(() => _loadProcessingDelayPreference());
     Future(() => _loadQueueFilterPreference());
+    Future(() => _loadQueueResumedPreference());
     Future.microtask(_loadSavedEvaluationQueue);
     Future(() => _cleanupOldAutoBackups());
     _startAutoBackupTimer();
@@ -1208,6 +1231,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _failedEvaluations.clear();
     });
     _persistEvaluationQueue();
+    unawaited(_setEvaluationQueueResumed(false));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Evaluation queue cleared')),
@@ -1994,6 +2018,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/evaluation_current_queue.json');
+      bool resumed = false;
       if (await file.exists()) {
         final content = await file.readAsString();
         final decoded = jsonDecode(content);
@@ -2024,13 +2049,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             _completedEvaluations
               ..clear()
               ..addAll(completed);
-            _evaluationQueueResumed =
+            resumed =
                 pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
+            _evaluationQueueResumed = resumed;
           });
           _debugPanelSetState?.call(() {});
         } else {
-          _evaluationQueueResumed =
+          resumed =
               pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
+          _evaluationQueueResumed = resumed;
           _pendingEvaluations
             ..clear()
             ..addAll(pending);
@@ -2047,7 +2074,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _persistEvaluationQueue();
         _debugPanelSetState?.call(() {});
       }
-    } catch (_) {}
+      await _setEvaluationQueueResumed(resumed);
+    } catch (_) {
+      await _setEvaluationQueueResumed(false);
+    }
   }
 
   /// Executes a single evaluation request.
@@ -2479,6 +2509,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
+      unawaited(_setEvaluationQueueResumed(false));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -2590,6 +2621,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
+      unawaited(_setEvaluationQueueResumed(false));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Imported ${items.length} evaluations')),
       );
@@ -2729,6 +2761,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
+      unawaited(_setEvaluationQueueResumed(false));
 
       final total =
           importedPending.length + importedFailed.length + importedCompleted.length;
@@ -2801,6 +2834,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(completed);
       });
       _persistEvaluationQueue();
+      unawaited(_setEvaluationQueueResumed(false));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
