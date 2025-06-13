@@ -2084,6 +2084,52 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _restoreFullEvaluationQueueState() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      if (result == null || result.files.isEmpty) return;
+      final path = result.files.single.path;
+      if (path == null) return;
+
+      final content = await File(path).readAsString();
+      final decoded = jsonDecode(content);
+      if (decoded is! Map) throw const FormatException();
+
+      final pending = _decodeEvaluationList(decoded['pending']);
+      final failed = _decodeEvaluationList(decoded['failed']);
+      final completed = _decodeEvaluationList(decoded['completed']);
+
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations
+          ..clear()
+          ..addAll(pending);
+        _failedEvaluations
+          ..clear()
+          ..addAll(failed);
+        _completedEvaluations
+          ..clear()
+          ..addAll(completed);
+      });
+      _debugPanelSetState?.call(() {});
+      _persistEvaluationQueue();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Restored ${pending.length} pending, ${failed.length} failed, ${completed.length} completed evaluations')),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to restore full queue state')),
+        );
+      }
+    }
+  }
+
   Future<void> _backupEvaluationQueue() async {
     if (_pendingEvaluations.isEmpty) return;
     try {
@@ -3636,6 +3682,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _importFullEvaluationQueueState,
                     child: const Text('Import Full Queue State'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _restoreFullEvaluationQueueState,
+                    child: const Text('Restore Full Queue State'),
                   ),
                   ElevatedButton(
                     onPressed: _exportFullEvaluationQueueState,
