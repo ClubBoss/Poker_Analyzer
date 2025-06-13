@@ -162,6 +162,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   StateSetter? _debugPanelSetState;
 
   static const _snapshotRetentionKey = 'snapshot_retention_enabled';
+  static const int _snapshotRetentionLimit = 50;
   bool _snapshotRetentionEnabled = true;
 
   static const _processingDelayKey = 'evaluation_processing_delay';
@@ -2206,7 +2207,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final ordered = stats.entries.toList()
         ..sort((a, b) => b.value.compareTo(a.value));
 
-      for (final entry in ordered.skip(20)) {
+      for (final entry in ordered.skip(_snapshotRetentionLimit)) {
         try {
           await entry.key.delete();
         } catch (_) {}
