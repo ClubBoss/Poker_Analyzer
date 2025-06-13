@@ -2901,15 +2901,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (path == null) return;
       final decoded = await _readJsonFile(File(path));
       if (decoded is! List) throw const FormatException();
-      final items = <ActionEvaluationRequest>[];
-      for (final item in decoded) {
-        if (item is Map) {
-          try {
-            items.add(ActionEvaluationRequest.fromJson(
-                Map<String, dynamic>.from(item)));
-          } catch (_) {}
-        }
-      }
+      final items = _decodeEvaluationList(decoded);
       if (!mounted) return;
       setState(() {
         _pendingEvaluations
