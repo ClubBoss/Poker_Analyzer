@@ -488,7 +488,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             _debugPanelSetState?.call(() {});
           },
         ),
-        const SizedBox(height: 12),
+        _DebugPanelState._vGap,
       ],
     );
   }
