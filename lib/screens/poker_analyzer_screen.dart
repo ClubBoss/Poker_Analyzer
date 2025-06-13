@@ -1996,7 +1996,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _exportEvaluationQueue() async {
     if (_pendingEvaluations.isEmpty) return;
     try {
-      final dir = await getApplicationDocumentsDirectory();
+      final dir = await _getBackupDirectory(_exportsFolder);
       final fileName = 'evaluation_queue_${_timestamp()}.json';
       final file = File('${dir.path}/$fileName');
       final data = [for (final e in _pendingEvaluations) e.toJson()];
