@@ -1083,6 +1083,45 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _clearPendingQueue() {
+    if (_pendingEvaluations.isEmpty) return;
+    setState(() {
+      _pendingEvaluations.clear();
+    });
+    _persistEvaluationQueue();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pending queue cleared')),
+      );
+    }
+  }
+
+  void _clearFailedQueue() {
+    if (_failedEvaluations.isEmpty) return;
+    setState(() {
+      _failedEvaluations.clear();
+    });
+    _persistEvaluationQueue();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed queue cleared')),
+      );
+    }
+  }
+
+  void _clearCompletedQueue() {
+    if (_completedEvaluations.isEmpty) return;
+    setState(() {
+      _completedEvaluations.clear();
+    });
+    _persistEvaluationQueue();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Completed queue cleared')),
+      );
+    }
+  }
+
   void _toggleEvaluationProcessingPause() {
     setState(() {
       _pauseProcessingRequested = !_pauseProcessingRequested;
@@ -2889,6 +2928,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? null
                         : _retryFailedEvaluations,
                     child: const Text('Retry Failed Evaluations'),
+                  ),
+                  ElevatedButton(
+                    onPressed:
+                        _pendingEvaluations.isEmpty ? null : _clearPendingQueue,
+                    child: const Text('Clear Pending'),
+                  ),
+                  ElevatedButton(
+                    onPressed:
+                        _failedEvaluations.isEmpty ? null : _clearFailedQueue,
+                    child: const Text('Clear Failed'),
+                  ),
+                  ElevatedButton(
+                    onPressed:
+                        _completedEvaluations.isEmpty ? null : _clearCompletedQueue,
+                    child: const Text('Clear Completed'),
                   ),
                   ElevatedButton(
                     onPressed: _pendingEvaluations.isEmpty && _completedEvaluations.isEmpty
