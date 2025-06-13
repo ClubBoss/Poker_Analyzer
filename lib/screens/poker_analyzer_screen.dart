@@ -290,6 +290,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return items;
   }
 
+  /// Decode a backup JSON object into separate pending, failed and completed
+  /// evaluation lists. Supports both the legacy list-only format containing
+  /// only pending requests and the newer map format with all three queues.
+  Map<String, List<ActionEvaluationRequest>> _decodeBackupQueues(dynamic json) {
+    if (json is List) {
+      return {
+        'pending': _decodeEvaluationList(json),
+        'failed': <ActionEvaluationRequest>[],
+        'completed': <ActionEvaluationRequest>[],
+      };
+    } else if (json is Map) {
+      return {
+        'pending': _decodeEvaluationList(json['pending']),
+        'failed': _decodeEvaluationList(json['failed']),
+        'completed': _decodeEvaluationList(json['completed']),
+      };
+    }
+    throw const FormatException();
+  }
+
   void _applySavedOrder(
       List<ActionEvaluationRequest> list, List<String>? order) {
     if (order == null || order.isEmpty) return;
@@ -2481,22 +2501,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       final content = await selected.readAsString();
       final decoded = jsonDecode(content);
-
-      final List<ActionEvaluationRequest> pending;
-      final List<ActionEvaluationRequest> failed;
-      final List<ActionEvaluationRequest> completed;
-
-      if (decoded is List) {
-        pending = _decodeEvaluationList(decoded);
-        failed = [];
-        completed = [];
-      } else if (decoded is Map) {
-        pending = _decodeEvaluationList(decoded['pending']);
-        failed = _decodeEvaluationList(decoded['failed']);
-        completed = _decodeEvaluationList(decoded['completed']);
-      } else {
-        throw const FormatException();
-      }
+      final queues = _decodeBackupQueues(decoded);
+      final pending = queues['pending']!;
+      final failed = queues['failed']!;
+      final completed = queues['completed']!;
 
       if (!mounted) return;
       setState(() {
