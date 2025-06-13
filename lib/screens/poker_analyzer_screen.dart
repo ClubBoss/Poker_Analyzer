@@ -261,6 +261,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final data = {
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
         'failed': [for (final e in _failedEvaluations) e.toJson()],
+        'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
       await file.writeAsString(jsonEncode(data), flush: true);
       await _cleanupOldAutoBackups();
@@ -1665,6 +1666,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final data = {
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
         'failed': [for (final e in _failedEvaluations) e.toJson()],
+        'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
       await file.writeAsString(jsonEncode(data), flush: true);
       if (mounted) {
@@ -1709,8 +1711,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       final pendingDecoded = decoded['pending'];
       final failedDecoded = decoded['failed'];
+      final completedDecoded = decoded['completed'];
       final pending = <ActionEvaluationRequest>[];
       final failed = <ActionEvaluationRequest>[];
+      final completed = <ActionEvaluationRequest>[];
 
       if (pendingDecoded is List) {
         for (final item in pendingDecoded) {
@@ -1734,6 +1738,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
       }
 
+      if (completedDecoded is List) {
+        for (final item in completedDecoded) {
+          if (item is Map) {
+            try {
+              completed.add(ActionEvaluationRequest.fromJson(
+                  Map<String, dynamic>.from(item)));
+            } catch (_) {}
+          }
+        }
+      }
+
       if (!mounted) return;
       setState(() {
         _pendingEvaluations
@@ -1742,12 +1757,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _failedEvaluations
           ..clear()
           ..addAll(failed);
+        _completedEvaluations
+          ..clear()
+          ..addAll(completed);
       });
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content:
-                Text('Imported ${pending.length} pending and ${failed.length} failed evaluations')),
+            content: Text(
+                'Imported ${pending.length} pending, ${failed.length} failed, ${completed.length} completed evaluations')),
       );
       _debugPanelSetState?.call(() {});
     } catch (_) {
@@ -1768,8 +1786,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
       final fileName = 'evaluation_backup_${timestamp}.json';
       final file = File('${backupDir.path}/$fileName');
-      final data = [for (final e in _pendingEvaluations) e.toJson()];
-      await file.writeAsString(jsonEncode(data));
+      final data = {
+        'pending': [for (final e in _pendingEvaluations) e.toJson()],
+        'failed': [for (final e in _failedEvaluations) e.toJson()],
+        'completed': [for (final e in _completedEvaluations) e.toJson()],
+      };
+      await file.writeAsString(jsonEncode(data), flush: true);
 
       final files = await backupDir
           .list()
@@ -1831,8 +1853,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final data = {
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
         'failed': [for (final e in _failedEvaluations) e.toJson()],
+        'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
-      await file.writeAsString(jsonEncode(data));
+      await file.writeAsString(jsonEncode(data), flush: true);
     } catch (_) {}
   }
 
@@ -1846,6 +1869,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final decoded = jsonDecode(content);
         final pending = <ActionEvaluationRequest>[];
         final failed = <ActionEvaluationRequest>[];
+        final completed = <ActionEvaluationRequest>[];
         if (decoded is List) {
           for (final item in decoded) {
             if (item is Map) {
@@ -1868,11 +1892,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             }
           }
           final f = decoded['failed'];
+          final c = decoded['completed'];
           if (f is List) {
             for (final item in f) {
               if (item is Map) {
                 try {
                   failed.add(ActionEvaluationRequest.fromJson(
+                      Map<String, dynamic>.from(item)));
+                } catch (_) {}
+              }
+            }
+          }
+          if (c is List) {
+            for (final item in c) {
+              if (item is Map) {
+                try {
+                  completed.add(ActionEvaluationRequest.fromJson(
                       Map<String, dynamic>.from(item)));
                 } catch (_) {}
               }
@@ -1887,16 +1922,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             _failedEvaluations
               ..clear()
               ..addAll(failed);
-            _evaluationQueueResumed = pending.isNotEmpty || failed.isNotEmpty;
+            _completedEvaluations
+              ..clear()
+              ..addAll(completed);
+            _evaluationQueueResumed =
+                pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
           });
         } else {
-          _evaluationQueueResumed = pending.isNotEmpty || failed.isNotEmpty;
+          _evaluationQueueResumed =
+              pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
           _pendingEvaluations
             ..clear()
             ..addAll(pending);
           _failedEvaluations
             ..clear()
             ..addAll(failed);
+          _completedEvaluations
+            ..clear()
+            ..addAll(completed);
         }
         try {
           await file.delete();
@@ -2220,8 +2263,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       final pendingDecoded = decoded['pending'];
       final failedDecoded = decoded['failed'];
+      final completedDecoded = decoded['completed'];
       final pending = <ActionEvaluationRequest>[];
       final failed = <ActionEvaluationRequest>[];
+      final completed = <ActionEvaluationRequest>[];
 
       if (pendingDecoded is List) {
         for (final item in pendingDecoded) {
@@ -2245,6 +2290,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
       }
 
+      if (completedDecoded is List) {
+        for (final item in completedDecoded) {
+          if (item is Map) {
+            try {
+              completed.add(ActionEvaluationRequest.fromJson(
+                  Map<String, dynamic>.from(item)));
+            } catch (_) {}
+          }
+        }
+      }
+
       if (!mounted) return;
       setState(() {
         _pendingEvaluations
@@ -2253,12 +2309,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _failedEvaluations
           ..clear()
           ..addAll(failed);
+        _completedEvaluations
+          ..clear()
+          ..addAll(completed);
       });
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                'Restored ${pending.length} pending and ${failed.length} failed evaluations')),
+                'Restored ${pending.length} pending, ${failed.length} failed, ${completed.length} completed evaluations')),
       );
       _debugPanelSetState?.call(() {});
     } catch (_) {
@@ -2407,28 +2466,75 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       final content = await selected.readAsString();
       final decoded = jsonDecode(content);
-      if (decoded is! List) throw const FormatException();
 
-      final items = <ActionEvaluationRequest>[];
-      for (final item in decoded) {
-        if (item is Map) {
-          try {
-            items.add(ActionEvaluationRequest.fromJson(
-                Map<String, dynamic>.from(item)));
-          } catch (_) {}
+      final pending = <ActionEvaluationRequest>[];
+      final failed = <ActionEvaluationRequest>[];
+      final completed = <ActionEvaluationRequest>[];
+
+      if (decoded is List) {
+        for (final item in decoded) {
+          if (item is Map) {
+            try {
+              pending.add(ActionEvaluationRequest.fromJson(
+                  Map<String, dynamic>.from(item)));
+            } catch (_) {}
+          }
         }
+      } else if (decoded is Map) {
+        final p = decoded['pending'];
+        final f = decoded['failed'];
+        final c = decoded['completed'];
+        if (p is List) {
+          for (final item in p) {
+            if (item is Map) {
+              try {
+                pending.add(ActionEvaluationRequest.fromJson(
+                    Map<String, dynamic>.from(item)));
+              } catch (_) {}
+            }
+          }
+        }
+        if (f is List) {
+          for (final item in f) {
+            if (item is Map) {
+              try {
+                failed.add(ActionEvaluationRequest.fromJson(
+                    Map<String, dynamic>.from(item)));
+              } catch (_) {}
+            }
+          }
+        }
+        if (c is List) {
+          for (final item in c) {
+            if (item is Map) {
+              try {
+                completed.add(ActionEvaluationRequest.fromJson(
+                    Map<String, dynamic>.from(item)));
+              } catch (_) {}
+            }
+          }
+        }
+      } else {
+        throw const FormatException();
       }
 
       if (!mounted) return;
       setState(() {
         _pendingEvaluations
           ..clear()
-          ..addAll(items);
-        _failedEvaluations.clear();
+          ..addAll(pending);
+        _failedEvaluations
+          ..clear()
+          ..addAll(failed);
+        _completedEvaluations
+          ..clear()
+          ..addAll(completed);
       });
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Restored ${items.length} evaluations')),
+        SnackBar(
+            content: Text(
+                'Restored ${pending.length} pending, ${failed.length} failed, ${completed.length} completed evaluations')),
       );
     } catch (_) {
       if (mounted) {
