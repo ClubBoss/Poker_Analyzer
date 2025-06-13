@@ -1337,6 +1337,68 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _resolveQueueConflicts() {
+    try {
+      var removed = 0;
+      setState(() {
+        final seen = <String>{};
+
+        final newCompleted = <ActionEvaluationRequest>[];
+        for (final e in _completedEvaluations) {
+          if (seen.add(e.id)) {
+            newCompleted.add(e);
+          } else {
+            removed++;
+          }
+        }
+
+        final newFailed = <ActionEvaluationRequest>[];
+        for (final e in _failedEvaluations) {
+          if (seen.add(e.id)) {
+            newFailed.add(e);
+          } else {
+            removed++;
+          }
+        }
+
+        final newPending = <ActionEvaluationRequest>[];
+        for (final e in _pendingEvaluations) {
+          if (seen.add(e.id)) {
+            newPending.add(e);
+          } else {
+            removed++;
+          }
+        }
+
+        _completedEvaluations
+          ..clear()
+          ..addAll(newCompleted);
+        _failedEvaluations
+          ..clear()
+          ..addAll(newFailed);
+        _pendingEvaluations
+          ..clear()
+          ..addAll(newPending);
+      });
+
+      if (removed > 0) {
+        _persistEvaluationQueue();
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Resolved $removed conflicts')),
+        );
+      }
+      _debugPanelSetState?.call(() {});
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to resolve conflicts')),
+        );
+      }
+    }
+  }
+
   void _toggleEvaluationProcessingPause() {
     setState(() {
       _pauseProcessingRequested = !_pauseProcessingRequested;
@@ -3436,6 +3498,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? null
                         : _removeDuplicateEvaluations,
                     child: const Text('Remove Duplicates'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.length +
+                                _failedEvaluations.length +
+                                _completedEvaluations.length ==
+                            0
+                        ? null
+                        : _resolveQueueConflicts,
+                    child: const Text('Resolve Conflicts'),
                   ),
                 ],
               ),
