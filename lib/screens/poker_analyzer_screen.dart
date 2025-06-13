@@ -3317,6 +3317,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       },
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  Text('${_evaluationProcessingDelay} ms'),
                 ],
               ),
               const SizedBox(height: 12),
