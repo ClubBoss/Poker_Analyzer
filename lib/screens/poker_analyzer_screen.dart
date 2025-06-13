@@ -1859,24 +1859,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportFullEvaluationQueueState() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final exportDir = Directory('${dir.path}/evaluation_exports');
-      await exportDir.create(recursive: true);
-      final timestamp =
-          DateTime.now().toIso8601String().replaceAll(':', '-');
-      final file =
-          File('${exportDir.path}/queue_export_${timestamp}.json');
+      final fileName =
+          'queue_export_${DateTime.now().toIso8601String().replaceAll(':', '-')}.json';
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Full Queue State',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      if (savePath == null) return;
+
+      final file = File(savePath);
       final data = {
         'pending': [for (final e in _pendingEvaluations) e.toJson()],
         'failed': [for (final e in _failedEvaluations) e.toJson()],
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
       await file.writeAsString(jsonEncode(data), flush: true);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Queue exported: ${file.path}')),
-        );
-      }
+
+      if (!mounted) return;
+      final name = savePath.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Queue exported: $name')),
+      );
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -3265,6 +3270,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _importFullEvaluationQueueState,
                     child: const Text('Import Full Queue State'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _exportFullEvaluationQueueState,
+                    child: const Text('Export Full Queue State'),
                   ),
                   ElevatedButton(
                     onPressed: _exportEvaluationQueueSnapshot,
