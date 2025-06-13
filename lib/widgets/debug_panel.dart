@@ -322,6 +322,37 @@ class _EvaluationResultsSection extends StatelessWidget {
   }
 }
 
+class _PlaybackDiagnosticsSection extends StatelessWidget {
+  const _PlaybackDiagnosticsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        debugDiag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
+        _DebugPanelState._vGap,
+        debugDiag('Active Player Index', s.activePlayerIndex ?? 'None'),
+        _DebugPanelState._vGap,
+        debugDiag('Last Action Player Index', s.lastActionPlayerIndex ?? 'None'),
+        _DebugPanelState._vGap,
+        debugDiag(
+          'First Action Taken',
+          s._firstActionTaken.isNotEmpty
+              ? (s._firstActionTaken.toList()..sort()).join(', ')
+              : '(none)',
+        ),
+        _DebugPanelState._vGap,
+        const Text('Playback Pause State:'),
+        debugDiag('Is Playback Paused', s._activeTimer == null),
+      ],
+    );
+  }
+}
+
 
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
@@ -421,23 +452,12 @@ class _EvaluationResultsSection extends StatelessWidget {
             debugDiag('Current Street',
                 ['Preflop', 'Flop', 'Turn', 'River'][s.currentStreet]),
             _vGap,
-            debugDiag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
-            _vGap,
-            debugDiag('Active Player Index', s.activePlayerIndex ?? 'None'),
-            _vGap,
-            debugDiag('Last Action Player Index', s.lastActionPlayerIndex ?? 'None'),
+            _PlaybackDiagnosticsSection(state: this),
             _vGap,
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
               debugDiag('Player ${i + 1} Cards', s.playerCards[i].length),
               _vGap,
             ],
-            debugDiag(
-              'First Action Taken',
-              s._firstActionTaken.isNotEmpty
-                  ? (s._firstActionTaken.toList()..sort()).join(', ')
-                  : '(none)',
-            ),
-            _vGap,
             const Text('Effective Stacks:'),
             for (int street = 0; street < 4; street++)
               debugDiag(
@@ -560,9 +580,6 @@ class _EvaluationResultsSection extends StatelessWidget {
             ],
             const Text('Chip Trail Diagnostics:'),
             debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
-            _vGap,
-            const Text('Playback Pause State:'),
-            debugDiag('Is Playback Paused', s._activeTimer == null),
             _vGap,
             debugDiag(
               'Action Evaluation Queue',
