@@ -25,7 +25,8 @@ class EvaluationRequestTile extends StatelessWidget {
         key == 'playerIndex' ||
         key == 'street' ||
         key == 'action' ||
-        key == 'amount');
+        key == 'amount' ||
+        key == 'id');
 
     final expected = metadata?['expectedAction'] ?? data['expectedAction'];
     final feedback = metadata?['feedbackText'] ?? data['feedbackText'];

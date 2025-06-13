@@ -132,6 +132,7 @@ class SavedHand {
                   : [
                       for (final e in this.pendingEvaluations!)
                         ActionEvaluationRequest(
+                          id: e.id,
                           street: e.street,
                           playerIndex: e.playerIndex,
                           action: e.action,
