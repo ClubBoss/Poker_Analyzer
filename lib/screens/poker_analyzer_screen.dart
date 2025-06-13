@@ -2535,44 +2535,50 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
       if (result == null || result.files.isEmpty) return;
 
-      final allItems = <ActionEvaluationRequest>[];
-      int failed = 0;
+      final importedPending = <ActionEvaluationRequest>[];
+      final importedFailed = <ActionEvaluationRequest>[];
+      final importedCompleted = <ActionEvaluationRequest>[];
+      int skipped = 0;
+
       for (final f in result.files) {
         final path = f.path;
         if (path == null) {
-          failed++;
+          skipped++;
           continue;
         }
         try {
           final content = await File(path).readAsString();
           final decoded = jsonDecode(content);
-          if (decoded is! List) throw const FormatException();
-          for (final item in decoded) {
-            if (item is Map) {
-              try {
-                allItems.add(ActionEvaluationRequest.fromJson(
-                    Map<String, dynamic>.from(item)));
-              } catch (_) {}
-            }
+
+          if (decoded is List) {
+            importedPending.addAll(_decodeEvaluationList(decoded));
+          } else if (decoded is Map) {
+            importedPending.addAll(_decodeEvaluationList(decoded['pending']));
+            importedFailed.addAll(_decodeEvaluationList(decoded['failed']));
+            importedCompleted.addAll(
+                _decodeEvaluationList(decoded['completed']));
+          } else {
+            throw const FormatException();
           }
         } catch (_) {
-          failed++;
+          skipped++;
         }
       }
 
       if (!mounted) return;
       setState(() {
-        _pendingEvaluations
-          ..clear()
-          ..addAll(allItems);
-        _failedEvaluations.clear();
+        _pendingEvaluations.addAll(importedPending);
+        _failedEvaluations.addAll(importedFailed);
+        _completedEvaluations.addAll(importedCompleted);
       });
       _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
 
-      final msg = failed == 0
-          ? 'Imported ${allItems.length} evaluations from ${result.files.length} files'
-          : 'Imported ${allItems.length} evaluations, $failed files skipped';
+      final total =
+          importedPending.length + importedFailed.length + importedCompleted.length;
+      final msg = skipped == 0
+          ? 'Imported $total evaluations from ${result.files.length} files'
+          : 'Imported $total evaluations, $skipped files skipped';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(msg)),
       );
