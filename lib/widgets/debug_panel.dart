@@ -45,6 +45,54 @@ class _DebugPanelState extends State<DebugPanel> {
     );
   }
 
+class _QueueTools extends StatelessWidget {
+  const _QueueTools({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    final bool noQueues = s._pendingEvaluations.isEmpty &&
+        s._failedEvaluations.isEmpty &&
+        s._completedEvaluations.isEmpty;
+
+    return state._buttonsWrap(<String, VoidCallback?>{
+      'Import Evaluation Queue': s._importEvaluationQueue,
+      'Restore Evaluation Queue': s._restoreEvaluationQueue,
+      'Restore From Auto-Backup': s._restoreFromAutoBackup,
+      'Bulk Import Evaluation Queue': s._bulkImportEvaluationQueue,
+      'Bulk Import Backups': s._bulkImportEvaluationBackups,
+      'Bulk Import Auto-Backups': s._bulkImportAutoBackups,
+      'Import Queue Snapshot': s._importEvaluationQueueSnapshot,
+      'Bulk Import Snapshots': s._bulkImportEvaluationSnapshots,
+      'Export All Snapshots': s._exportAllEvaluationSnapshots,
+      'Import Full Queue State': s._importFullEvaluationQueueState,
+      'Restore Full Queue State': s._restoreFullEvaluationQueueState,
+      'Export Full Queue State': s._exportFullEvaluationQueueState,
+      'Export Current Queue Snapshot': s._exportEvaluationQueueSnapshot,
+      'Quick Backup': s._quickBackupEvaluationQueue,
+      'Import Quick Backups': s._importQuickBackups,
+      'Export All Backups': s._exportAllEvaluationBackups,
+      'Clear Pending':
+          s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
+      'Clear Failed':
+          s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
+      'Clear Completed':
+          s._completedEvaluations.isEmpty ? null : s._clearCompletedQueue,
+      'Clear Evaluation Queue': s._pendingEvaluations.isEmpty &&
+              s._completedEvaluations.isEmpty
+          ? null
+          : s._clearEvaluationQueue,
+      'Remove Duplicates': noQueues ? null : s._removeDuplicateEvaluations,
+      'Resolve Conflicts': noQueues ? null : s._resolveQueueConflicts,
+      'Sort Queues': noQueues ? null : s._sortEvaluationQueues,
+      'Clear Completed Evaluations':
+          s._completedEvaluations.isEmpty ? null : s._clearCompletedEvaluations,
+    });
+  }
+}
+
   Widget _buttonsColumn(Map<String, VoidCallback?> actions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,38 +162,6 @@ class _DebugPanelState extends State<DebugPanel> {
     });
   }
 
-  Widget _queueTools() {
-    final noQueues =
-        s._pendingEvaluations.isEmpty && s._failedEvaluations.isEmpty && s._completedEvaluations.isEmpty;
-    return _buttonsWrap({
-      'Import Evaluation Queue': s._importEvaluationQueue,
-      'Restore Evaluation Queue': s._restoreEvaluationQueue,
-      'Restore From Auto-Backup': s._restoreFromAutoBackup,
-      'Bulk Import Evaluation Queue': s._bulkImportEvaluationQueue,
-      'Bulk Import Backups': s._bulkImportEvaluationBackups,
-      'Bulk Import Auto-Backups': s._bulkImportAutoBackups,
-      'Import Queue Snapshot': s._importEvaluationQueueSnapshot,
-      'Bulk Import Snapshots': s._bulkImportEvaluationSnapshots,
-      'Export All Snapshots': s._exportAllEvaluationSnapshots,
-      'Import Full Queue State': s._importFullEvaluationQueueState,
-      'Restore Full Queue State': s._restoreFullEvaluationQueueState,
-      'Export Full Queue State': s._exportFullEvaluationQueueState,
-      'Export Current Queue Snapshot': s._exportEvaluationQueueSnapshot,
-      'Quick Backup': s._quickBackupEvaluationQueue,
-      'Import Quick Backups': s._importQuickBackups,
-      'Export All Backups': s._exportAllEvaluationBackups,
-      'Clear Pending': s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
-      'Clear Failed': s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
-      'Clear Completed': s._completedEvaluations.isEmpty ? null : s._clearCompletedQueue,
-      'Clear Evaluation Queue':
-          s._pendingEvaluations.isEmpty && s._completedEvaluations.isEmpty ? null : s._clearEvaluationQueue,
-      'Remove Duplicates': noQueues ? null : s._removeDuplicateEvaluations,
-      'Resolve Conflicts': noQueues ? null : s._resolveQueueConflicts,
-      'Sort Queues': noQueues ? null : s._sortEvaluationQueues,
-      'Clear Completed Evaluations':
-          s._completedEvaluations.isEmpty ? null : s._clearCompletedEvaluations,
-    });
-  }
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
     return TextButton(onPressed: onPressed, child: Text(label));
@@ -492,7 +508,7 @@ class _DebugPanelState extends State<DebugPanel> {
             _snapshotControls(),
             _vGap,
             const Text('Evaluation Queue Tools:'),
-            _queueTools(),
+            _QueueTools(state: this),
             _vGap,
             Row(
               children: [
@@ -622,3 +638,4 @@ class _DebugPanelState extends State<DebugPanel> {
       ],
     );
   }
+
