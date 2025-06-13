@@ -93,6 +93,30 @@ class _QueueTools extends StatelessWidget {
   }
 }
 
+class _SnapshotControls extends StatelessWidget {
+  const _SnapshotControls({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return state._buttonsColumn({
+      'Retry Failed Evaluations':
+          s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
+      'Export Snapshot Now': s._processingEvaluations
+          ? null
+          : () => s._exportEvaluationQueueSnapshot(showNotification: true),
+      'Backup Queue Now': s._processingEvaluations
+          ? null
+          : () async {
+              await s._backupEvaluationQueue();
+              s._debugPanelSetState?.call(() {});
+            },
+    });
+  }
+}
+
   Widget _buttonsColumn(Map<String, VoidCallback?> actions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,21 +170,6 @@ class _QueueTools extends StatelessWidget {
     });
   }
 
-  Widget _snapshotControls() {
-    return _buttonsColumn({
-      'Retry Failed Evaluations':
-          s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
-      'Export Snapshot Now': s._processingEvaluations
-          ? null
-          : () => s._exportEvaluationQueueSnapshot(showNotification: true),
-      'Backup Queue Now': s._processingEvaluations
-          ? null
-          : () async {
-              await s._backupEvaluationQueue();
-              s._debugPanelSetState?.call(() {});
-            },
-    });
-  }
 
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
@@ -505,7 +514,7 @@ class _QueueTools extends StatelessWidget {
             _vGap,
             _processingControls(),
             _vGap,
-            _snapshotControls(),
+            _SnapshotControls(state: this),
             _vGap,
             const Text('Evaluation Queue Tools:'),
             _QueueTools(state: this),
