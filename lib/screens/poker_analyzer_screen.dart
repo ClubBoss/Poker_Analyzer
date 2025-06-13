@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../widgets/player_zone_widget.dart';
@@ -265,6 +266,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   String _legacyQueueEntryId(ActionEvaluationRequest r) {
     return '${r.playerIndex}_${r.street}_${r.action}_${r.amount ?? ''}';
+  }
+
+  ActionEvaluationRequest _decodeEvaluationRequest(Map<String, dynamic> json) {
+    final map = Map<String, dynamic>.from(json);
+    if (map['id'] == null || map['id'] is! String || (map['id'] as String).isEmpty) {
+      map['id'] = const Uuid().v4();
+    }
+    return ActionEvaluationRequest.fromJson(map);
   }
 
   void _applySavedOrder(
@@ -1798,8 +1807,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (final item in pendingDecoded) {
           if (item is Map) {
             try {
-              pending.add(
-                  ActionEvaluationRequest.fromJson(Map<String, dynamic>.from(item)));
+              pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
             } catch (_) {}
           }
         }
@@ -1809,8 +1817,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (final item in failedDecoded) {
           if (item is Map) {
             try {
-              failed.add(
-                  ActionEvaluationRequest.fromJson(Map<String, dynamic>.from(item)));
+              failed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
             } catch (_) {}
           }
         }
@@ -1820,8 +1827,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (final item in completedDecoded) {
           if (item is Map) {
             try {
-              completed.add(ActionEvaluationRequest.fromJson(
-                  Map<String, dynamic>.from(item)));
+              completed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
             } catch (_) {}
           }
         }
@@ -1964,8 +1970,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           for (final item in decoded) {
             if (item is Map) {
               try {
-                pending.add(
-                    ActionEvaluationRequest.fromJson(Map<String, dynamic>.from(item)));
+                pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
               } catch (_) {}
             }
           }
@@ -1975,8 +1980,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             for (final item in p) {
               if (item is Map) {
                 try {
-                  pending.add(ActionEvaluationRequest.fromJson(
-                      Map<String, dynamic>.from(item)));
+                  pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
                 } catch (_) {}
               }
             }
@@ -1987,8 +1991,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             for (final item in f) {
               if (item is Map) {
                 try {
-                  failed.add(ActionEvaluationRequest.fromJson(
-                      Map<String, dynamic>.from(item)));
+                  failed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
                 } catch (_) {}
               }
             }
@@ -1997,8 +2000,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           for (final item in c) {
             if (item is Map) {
               try {
-                completed.add(ActionEvaluationRequest.fromJson(
-                    Map<String, dynamic>.from(item)));
+                completed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
               } catch (_) {}
             }
           }
@@ -2371,8 +2373,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (final item in pendingDecoded) {
           if (item is Map) {
             try {
-              pending.add(ActionEvaluationRequest.fromJson(
-                  Map<String, dynamic>.from(item)));
+              pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
             } catch (_) {}
           }
         }
@@ -2382,8 +2383,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (final item in failedDecoded) {
           if (item is Map) {
             try {
-              failed.add(ActionEvaluationRequest.fromJson(
-                  Map<String, dynamic>.from(item)));
+              failed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
             } catch (_) {}
           }
         }
@@ -2393,8 +2393,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (final item in completedDecoded) {
           if (item is Map) {
             try {
-              completed.add(ActionEvaluationRequest.fromJson(
-                  Map<String, dynamic>.from(item)));
+              completed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
             } catch (_) {}
           }
         }
@@ -2576,8 +2575,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (final item in decoded) {
           if (item is Map) {
             try {
-              pending.add(ActionEvaluationRequest.fromJson(
-                  Map<String, dynamic>.from(item)));
+              pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
             } catch (_) {}
           }
         }
@@ -2589,8 +2587,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           for (final item in p) {
             if (item is Map) {
               try {
-                pending.add(ActionEvaluationRequest.fromJson(
-                    Map<String, dynamic>.from(item)));
+                pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
               } catch (_) {}
             }
           }
@@ -2599,8 +2596,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           for (final item in f) {
             if (item is Map) {
               try {
-                failed.add(ActionEvaluationRequest.fromJson(
-                    Map<String, dynamic>.from(item)));
+                failed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
               } catch (_) {}
             }
           }
@@ -2609,8 +2605,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           for (final item in c) {
             if (item is Map) {
               try {
-                completed.add(ActionEvaluationRequest.fromJson(
-                    Map<String, dynamic>.from(item)));
+                completed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
               } catch (_) {}
             }
           }
