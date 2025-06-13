@@ -135,6 +135,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Completed action evaluations.
   final List<ActionEvaluationRequest> _completedEvaluations = [];
 
+  /// Evaluations that failed during processing.
+  final List<ActionEvaluationRequest> _failedEvaluations = [];
+
   /// Indicates if evaluation processing is currently running.
   bool _processingEvaluations = false;
 
@@ -971,6 +974,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _pendingEvaluations.clear();
       _completedEvaluations.clear();
+      _failedEvaluations.clear();
     });
     _persistEvaluationQueue();
     if (mounted) {
@@ -997,6 +1001,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _pauseProcessingRequested = false;
       _pendingEvaluations.clear();
       _processingEvaluations = false;
+    });
+    _persistEvaluationQueue();
+    _debugPanelSetState?.call(() {});
+  }
+
+  void _retryFailedEvaluations() {
+    setState(() {
+      if (_failedEvaluations.isNotEmpty) {
+        _pendingEvaluations.insertAll(0, _failedEvaluations);
+        _failedEvaluations.clear();
+      }
     });
     _persistEvaluationQueue();
     _debugPanelSetState?.call(() {});
@@ -1569,7 +1584,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/evaluation_current_queue.json');
-      final data = [for (final e in _pendingEvaluations) e.toJson()];
+      final data = {
+        'pending': [for (final e in _pendingEvaluations) e.toJson()],
+        'failed': [for (final e in _failedEvaluations) e.toJson()],
+      };
       await file.writeAsString(jsonEncode(data));
     } catch (_) {}
   }
@@ -1582,29 +1600,59 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (await file.exists()) {
         final content = await file.readAsString();
         final decoded = jsonDecode(content);
+        final pending = <ActionEvaluationRequest>[];
+        final failed = <ActionEvaluationRequest>[];
         if (decoded is List) {
-          final items = <ActionEvaluationRequest>[];
           for (final item in decoded) {
             if (item is Map) {
               try {
-                items.add(ActionEvaluationRequest.fromJson(
-                    Map<String, dynamic>.from(item)));
+                pending.add(
+                    ActionEvaluationRequest.fromJson(Map<String, dynamic>.from(item)));
               } catch (_) {}
             }
           }
-          if (mounted) {
-            setState(() {
-              _pendingEvaluations
-                ..clear()
-                ..addAll(items);
-              _evaluationQueueResumed = items.isNotEmpty;
-            });
-          } else {
-            _evaluationQueueResumed = items.isNotEmpty;
+        } else if (decoded is Map) {
+          final p = decoded['pending'];
+          if (p is List) {
+            for (final item in p) {
+              if (item is Map) {
+                try {
+                  pending.add(ActionEvaluationRequest.fromJson(
+                      Map<String, dynamic>.from(item)));
+                } catch (_) {}
+              }
+            }
+          }
+          final f = decoded['failed'];
+          if (f is List) {
+            for (final item in f) {
+              if (item is Map) {
+                try {
+                  failed.add(ActionEvaluationRequest.fromJson(
+                      Map<String, dynamic>.from(item)));
+                } catch (_) {}
+              }
+            }
+          }
+        }
+        if (mounted) {
+          setState(() {
             _pendingEvaluations
               ..clear()
-              ..addAll(items);
-          }
+              ..addAll(pending);
+            _failedEvaluations
+              ..clear()
+              ..addAll(failed);
+            _evaluationQueueResumed = pending.isNotEmpty || failed.isNotEmpty;
+          });
+        } else {
+          _evaluationQueueResumed = pending.isNotEmpty || failed.isNotEmpty;
+          _pendingEvaluations
+            ..clear()
+            ..addAll(pending);
+          _failedEvaluations
+            ..clear()
+            ..addAll(failed);
         }
         try {
           await file.delete();
@@ -1634,10 +1682,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         break;
       }
       if (_pendingEvaluations.isEmpty) break;
-      setState(() {
-        _pendingEvaluations.removeAt(0);
-        _completedEvaluations.add(req);
-      });
+      try {
+        setState(() {
+          _pendingEvaluations.removeAt(0);
+          _completedEvaluations.add(req);
+        });
+      } catch (e) {
+        setState(() {
+          _pendingEvaluations.removeAt(0);
+          _failedEvaluations.add(req);
+        });
+      }
       _persistEvaluationQueue();
       // Update debug panel if it's currently visible.
       _debugPanelSetState?.call(() {});
@@ -1682,11 +1737,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _debugPanelSetState?.call(() {});
       return;
     }
-    setState(() {
-      _pendingEvaluations.removeAt(0);
-      _completedEvaluations.add(req);
-      _processingEvaluations = false;
-    });
+    try {
+      setState(() {
+        _pendingEvaluations.removeAt(0);
+        _completedEvaluations.add(req);
+        _processingEvaluations = false;
+      });
+    } catch (e) {
+      setState(() {
+        _pendingEvaluations.removeAt(0);
+        _failedEvaluations.add(req);
+        _processingEvaluations = false;
+      });
+    }
     _persistEvaluationQueue();
     _debugPanelSetState?.call(() {});
   }
@@ -1904,6 +1967,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _pendingEvaluations
           ..clear()
           ..addAll(items);
+        _failedEvaluations.clear();
       });
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1982,6 +2046,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _pendingEvaluations
           ..clear()
           ..addAll(items);
+        _failedEvaluations.clear();
       });
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2035,6 +2100,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _pendingEvaluations
           ..clear()
           ..addAll(allItems);
+        _failedEvaluations.clear();
       });
       _persistEvaluationQueue();
 
@@ -2092,6 +2158,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _pendingEvaluations
           ..clear()
           ..addAll(items);
+        _failedEvaluations.clear();
       });
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2362,6 +2429,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               ),
               Text('Pending Action Evaluations: ${_pendingEvaluations.length}'),
               Text('Processed: ${_completedEvaluations.length} / ${_pendingEvaluations.length + _completedEvaluations.length}'),
+              Text('Failed: ${_failedEvaluations.length}'),
               const SizedBox(height: 12),
               const Text('Evaluation Queue Tools:'),
               Wrap(
@@ -2412,6 +2480,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? null
                         : _cancelEvaluationProcessing,
                     child: const Text('Cancel Evaluation Processing'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _failedEvaluations.isEmpty
+                        ? null
+                        : _retryFailedEvaluations,
+                    child: const Text('Retry Failed Evaluations'),
                   ),
                   ElevatedButton(
                     onPressed: _pendingEvaluations.isEmpty && _completedEvaluations.isEmpty
