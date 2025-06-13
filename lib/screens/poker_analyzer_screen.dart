@@ -1399,6 +1399,38 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  int _compareEvaluationRequests(
+      ActionEvaluationRequest a, ActionEvaluationRequest b) {
+    final streetComp = a.street.compareTo(b.street);
+    if (streetComp != 0) return streetComp;
+    final playerComp = a.playerIndex.compareTo(b.playerIndex);
+    if (playerComp != 0) return playerComp;
+    return a.action.compareTo(b.action);
+  }
+
+  void _sortEvaluationQueues() {
+    try {
+      setState(() {
+        _pendingEvaluations.sort(_compareEvaluationRequests);
+        _failedEvaluations.sort(_compareEvaluationRequests);
+        _completedEvaluations.sort(_compareEvaluationRequests);
+      });
+      _persistEvaluationQueue();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Queues sorted')),
+        );
+      }
+      _debugPanelSetState?.call(() {});
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to sort queues')),
+        );
+      }
+    }
+  }
+
   void _toggleEvaluationProcessingPause() {
     setState(() {
       _pauseProcessingRequested = !_pauseProcessingRequested;
@@ -3657,6 +3689,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? null
                         : _resolveQueueConflicts,
                     child: const Text('Resolve Conflicts'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.length +
+                                _failedEvaluations.length +
+                                _completedEvaluations.length ==
+                            0
+                        ? null
+                        : _sortEvaluationQueues,
+                    child: const Text('Sort Queues'),
                   ),
                 ],
               ),
