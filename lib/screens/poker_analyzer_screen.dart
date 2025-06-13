@@ -1297,6 +1297,46 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  int _deduplicateList(
+      List<ActionEvaluationRequest> list, Set<String> seenIds) {
+    final originalLength = list.length;
+    final unique = <ActionEvaluationRequest>[];
+    for (final entry in list) {
+      if (seenIds.add(entry.id)) unique.add(entry);
+    }
+    list
+      ..clear()
+      ..addAll(unique);
+    return originalLength - unique.length;
+  }
+
+  void _removeDuplicateEvaluations() {
+    try {
+      var removed = 0;
+      setState(() {
+        final seen = <String>{};
+        removed += _deduplicateList(_pendingEvaluations, seen);
+        removed += _deduplicateList(_failedEvaluations, seen);
+        removed += _deduplicateList(_completedEvaluations, seen);
+      });
+      if (removed > 0) {
+        _persistEvaluationQueue();
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Removed $removed duplicate entries')),
+        );
+      }
+      _debugPanelSetState?.call(() {});
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to remove duplicates')),
+        );
+      }
+    }
+  }
+
   void _toggleEvaluationProcessingPause() {
     setState(() {
       _pauseProcessingRequested = !_pauseProcessingRequested;
@@ -3305,6 +3345,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? null
                         : _clearEvaluationQueue,
                     child: const Text('Clear Evaluation Queue'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.length +
+                                _failedEvaluations.length +
+                                _completedEvaluations.length ==
+                            0
+                        ? null
+                        : _removeDuplicateEvaluations,
+                    child: const Text('Remove Duplicates'),
                   ),
                 ],
               ),
