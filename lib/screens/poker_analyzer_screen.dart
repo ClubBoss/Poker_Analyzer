@@ -2017,6 +2017,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } catch (_) {}
   }
 
+  /// Executes a single evaluation request. Override with actual logic.
+  Future<void> _executeEvaluation(ActionEvaluationRequest req) async {
+    // Placeholder for heavy evaluation work. This method may throw.
+  }
+
   Future<void> _processEvaluationQueue() async {
     if (_processingEvaluations || _pendingEvaluations.isEmpty) return;
     setState(() {
@@ -2038,16 +2043,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         break;
       }
       if (_pendingEvaluations.isEmpty) break;
+      var success = false;
       try {
+        await _executeEvaluation(req);
+        success = true;
+      } catch (e, st) {
+        debugPrint('Evaluation error: $e');
+        debugPrintStack(stackTrace: st);
+      }
+      if (mounted) {
         setState(() {
           _pendingEvaluations.removeAt(0);
-          _completedEvaluations.add(req);
+          (success ? _completedEvaluations : _failedEvaluations).add(req);
         });
-      } catch (e) {
-        setState(() {
-          _pendingEvaluations.removeAt(0);
-          _failedEvaluations.add(req);
-        });
+      } else {
+        _pendingEvaluations.removeAt(0);
+        (success ? _completedEvaluations : _failedEvaluations).add(req);
       }
       _persistEvaluationQueue();
       // Update debug panel if it's currently visible.
