@@ -180,16 +180,14 @@ class _ProcessingControls extends StatelessWidget {
 }
 
 
+class _DiagnosticsSection extends StatelessWidget {
+  const _DiagnosticsSection({required this.state});
 
-  TextButton _dialogBtn(String label, VoidCallback onPressed) {
-    return TextButton(onPressed: onPressed, child: Text(label));
-  }
-
-  Widget _queueSection(String label, List<ActionEvaluationRequest> queue) =>
-      s._queueSection(label, queue);
+  final _DebugPanelState state;
 
   @override
   Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
     final hand = s._currentSavedHand();
     final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
     final hudPotText = s._formatAmount(s._pots[s.currentStreet]);
@@ -201,6 +199,311 @@ class _ProcessingControls extends StatelessWidget {
     final String? hudSprText =
         hudSprValue != null ? 'SPR: ${hudSprValue.toStringAsFixed(1)}' : null;
 
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (int i = 0; i < s.numberOfPlayers; i++)
+          debugDiag(
+            'Player ${i + 1}',
+            'Initial ${s._initialStacks[i] ?? 0}, '
+                'Invested ${s._stackManager.getTotalInvested(i)}, '
+                'Remaining ${s._stackManager.getStackForPlayer(i)}',
+          ),
+        _vGap,
+        if (hand.remainingStacks != null) ...[
+          const Text('Remaining Stacks (from saved hand):'),
+          for (final entry in hand.remainingStacks!.entries)
+            debugDiag('Player ${entry.key + 1}', entry.value),
+          _vGap,
+        ],
+        if (hand.playerTypes != null) ...[
+          const Text('Player Types:'),
+          for (final entry in hand.playerTypes!.entries)
+            debugDiag('Player ${entry.key + 1}', entry.value.name),
+          _vGap,
+        ],
+        if (hand.comment != null) ...[
+          debugDiag('Comment', hand.comment!),
+          _vGap,
+        ],
+        if (hand.tags.isNotEmpty) ...[
+          const Text('Tags:'),
+          for (final tag in hand.tags) debugDiag('Tag', tag),
+          _vGap,
+        ],
+        if (hand.opponentIndex != null) ...[
+          debugDiag('Opponent', 'Player ${hand.opponentIndex! + 1}'),
+          _vGap,
+        ],
+        debugDiag('Hero Position', hand.heroPosition),
+        _vGap,
+        debugDiag('Players at table', hand.numberOfPlayers),
+        _vGap,
+        debugDiag('Saved', formatDateTime(hand.date)),
+        _vGap,
+        if (hand.expectedAction != null) ...[
+          debugDiag('Expected Action', hand.expectedAction),
+          _vGap,
+        ],
+        if (hand.feedbackText != null) ...[
+          debugDiag('Feedback', hand.feedbackText),
+          _vGap,
+        ],
+        debugDiag(
+          'Board Cards',
+          s.boardCards.isNotEmpty
+              ? s.boardCards.map(s._cardToDebugString).join(' ')
+              : '(empty)',
+        ),
+        _vGap,
+        for (int i = 0; i < s.numberOfPlayers; i++) ...[
+          debugDiag(
+            'Player ${i + 1} Revealed',
+            () {
+              final rc =
+                  i < hand.revealedCards.length ? hand.revealedCards[i] : [];
+              return rc.isNotEmpty
+                  ? rc.map(s._cardToDebugString).join(' ')
+                  : '(none)';
+            }(),
+          ),
+          _vGap,
+        ],
+        debugDiag('Current Street',
+            ['Preflop', 'Flop', 'Turn', 'River'][s.currentStreet]),
+        _vGap,
+        debugDiag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
+        _vGap,
+        debugDiag('Active Player Index', s.activePlayerIndex ?? 'None'),
+        _vGap,
+        debugDiag('Last Action Player Index', s.lastActionPlayerIndex ?? 'None'),
+        _vGap,
+        for (int i = 0; i < s.numberOfPlayers; i++) ...[
+          debugDiag('Player ${i + 1} Cards', s.playerCards[i].length),
+          _vGap,
+        ],
+        debugDiag(
+          'First Action Taken',
+          s._firstActionTaken.isNotEmpty
+              ? (s._firstActionTaken.toList()..sort()).join(', ')
+              : '(none)',
+        ),
+        _vGap,
+        const Text('Effective Stacks:'),
+        for (int street = 0; street < 4; street++)
+          debugDiag(
+            [
+              'Preflop',
+              'Flop',
+              'Turn',
+              'River',
+            ][street],
+            s._calculateEffectiveStackForStreet(street),
+          ),
+        _vGap,
+        const Text('Effective Stacks (from export data):'),
+        if (s._savedEffectiveStacks != null)
+          for (final entry in s._savedEffectiveStacks!.entries)
+            debugDiag(entry.key, entry.value)
+        else
+          debugDiag('Export Data', '(none)'),
+        if (s._savedEffectiveStacks != null) ...[
+          _vGap,
+          const Text('Validation:'),
+          for (int st = 0; st < 4; st++)
+            () {
+              const names = ['Preflop', 'Flop', 'Turn', 'River'];
+              final name = names[st];
+              final live = s._calculateEffectiveStackForStreet(st);
+              final exported = s._savedEffectiveStacks![name];
+              final ok = exported == live;
+              return debugDiag(
+                name,
+                ok ? '✅' : '❌ live $live vs export ${exported ?? 'N/A'}',
+              );
+            }(),
+        ],
+        if (s._validationNotes != null && s._validationNotes!.isNotEmpty) ...[
+          _vGap,
+          const Text('Validation Notes:'),
+          for (final entry in s._validationNotes!.entries)
+            debugDiag(entry.key, entry.value),
+        ],
+        _vGap,
+        const Text('Playback Diagnostics:'),
+        debugDiag('Preflop Actions',
+            s.actions.where((a) => a.street == 0).length),
+        debugDiag('Flop Actions',
+            s.actions.where((a) => a.street == 1).length),
+        debugDiag('Turn Actions',
+            s.actions.where((a) => a.street == 2).length),
+        debugDiag('River Actions',
+            s.actions.where((a) => a.street == 3).length),
+        _vGap,
+        debugDiag('Total Actions', s.actions.length),
+        _vGap,
+        const Text('Action Tags Diagnostics:'),
+        if (s._actionTags.isNotEmpty)
+          for (final entry in s._actionTags.entries) ...[
+            debugDiag('Player ${entry.key + 1} Action Tag', entry.value),
+            _vGap,
+          ]
+        else ...[
+          debugDiag('Action Tags', '(none)'),
+          _vGap,
+        ],
+        const Text('StackManager Diagnostics:'),
+        for (int i = 0; i < s.numberOfPlayers; i++) ...[
+          debugDiag(
+            'Player $i StackManager',
+            'current ${s._stackManager.getStackForPlayer(i)}, invested ${s._stackManager.getTotalInvested(i)}',
+          ),
+          _vGap,
+        ],
+        const Text('Internal State Flags:'),
+        debugDiag('Debug Layout', s.debugLayout),
+        _vGap,
+        debugDiag('Perspective Switched', s.isPerspectiveSwitched),
+        _vGap,
+        debugDiag('Show All Revealed Cards', s._showAllRevealedCards),
+        _vGap,
+        state._snapshotRetentionSwitch(),
+        _vGap,
+        const Text('Collapsed Streets State:'),
+        for (int street = 0; street < 4; street++) ...[
+          debugDiag(
+            'Street $street Collapsed',
+            !s._expandedHistoryStreets.contains(street),
+          ),
+          _vGap,
+        ],
+        const Text('Chip Animation State:'),
+        debugDiag(
+          'Center Chip Action',
+          () {
+            final action = s._centerChipAction;
+            if (action == null) return '(null)';
+            var result =
+                'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
+            if (action.amount != null) result += ', Amount ${action.amount}';
+            return result;
+          }(),
+        ),
+        _vGap,
+        debugDiag('Show Center Chip', s._showCenterChip),
+        _vGap,
+        const Text('Animation Controllers State:'),
+        debugDiag('Center Chip Animation Active',
+            s._centerChipController.isAnimating),
+        _vGap,
+        debugDiag('Center Chip Animation Value',
+            s._centerChipController.value.toStringAsFixed(2)),
+        _vGap,
+        const Text('Street Transition State:'),
+        debugDiag(
+          'Current Animated Players Per Street',
+          s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0,
+        ),
+        _vGap,
+        for (final entry in s._animatedPlayersPerStreet.entries) ...[
+          debugDiag('Street ${entry.key} Animated Count', entry.value.length),
+          _vGap,
+        ],
+        const Text('Chip Trail Diagnostics:'),
+        debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
+        _vGap,
+        const Text('Playback Pause State:'),
+        debugDiag('Is Playback Paused', s._activeTimer == null),
+        _vGap,
+        debugDiag(
+          'Action Evaluation Queue',
+          s._evaluationQueueResumed
+              ? '(Resumed from saved state)'
+              : '(New)',
+        ),
+        debugDiag('Pending Action Evaluations', s._pendingEvaluations.length),
+        debugDiag(
+            'Processed',
+            '${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}'),
+        debugDiag('Failed', s._failedEvaluations.length),
+        _vGap,
+        const Text('HUD Overlay State:'),
+        debugDiag('HUD Street Name', hudStreetName),
+        _vGap,
+        debugDiag('HUD Pot Text', hudPotText),
+        _vGap,
+        debugDiag('HUD SPR Text', hudSprText ?? '(none)'),
+        _vGap,
+        const Text('Debug Menu Visibility:'),
+        debugDiag('Is Debug Menu Open', s._isDebugPanelOpen),
+        _vGap,
+        const Text('Full Export Consistency:'),
+        debugCheck('numberOfPlayers',
+            hand.numberOfPlayers == s.numberOfPlayers,
+            '${hand.numberOfPlayers}', '${s.numberOfPlayers}'),
+        debugCheck('heroIndex', hand.heroIndex == s.heroIndex,
+            '${hand.heroIndex}', '${s.heroIndex}'),
+        debugCheck('heroPosition', hand.heroPosition == s._heroPosition,
+            hand.heroPosition, s._heroPosition),
+        debugCheck('playerPositions',
+            mapEquals(hand.playerPositions, s.playerPositions),
+            hand.playerPositions.toString(),
+            s.playerPositions.toString()),
+        debugCheck('stackSizes', mapEquals(hand.stackSizes, s._initialStacks),
+            hand.stackSizes.toString(), s._initialStacks.toString()),
+        debugCheck('actions.length', hand.actions.length == s.actions.length,
+            '${hand.actions.length}', '${s.actions.length}'),
+        debugCheck(
+            'boardCards',
+            hand.boardCards.map((c) => c.toString()).join(' ') ==
+                s.boardCards.map((c) => c.toString()).join(' '),
+            hand.boardCards.map((c) => c.toString()).join(' '),
+            s.boardCards.map((c) => c.toString()).join(' ')),
+        debugCheck(
+            'revealedCards',
+            listEquals(
+              [
+                for (final p in s.players)
+                  p.revealedCards
+                      .whereType<CardModel>()
+                      .map((c) => c.toString())
+                      .join(' ')
+              ],
+              [
+                for (final list in hand.revealedCards)
+                  list.map((c) => c.toString()).join(' ')
+              ],
+            ),
+            [
+              for (final list in hand.revealedCards)
+                list.map((c) => c.toString()).join(' ')
+            ].toString(),
+            [
+              for (final p in s.players)
+                p.revealedCards
+                    .whereType<CardModel>()
+                    .map((c) => c.toString())
+                    .join(' ')
+            ].toString()),
+        _vGap,
+        const Text('Theme Diagnostics:'),
+        debugDiag('Current Theme',
+            Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'),
+        _vGap,
+      ],
+    );
+  }
+}
+
+
+  TextButton _dialogBtn(String label, VoidCallback onPressed) {
+    return TextButton(onPressed: onPressed, child: Text(label));
+  }
+
+  Widget _queueSection(String label, List<ActionEvaluationRequest> queue) =>
+      s._queueSection(label, queue);
+
     return AlertDialog(
       title: const Text('Stack Diagnostics'),
       content: SingleChildScrollView(
@@ -208,231 +511,7 @@ class _ProcessingControls extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (int i = 0; i < s.numberOfPlayers; i++)
-              debugDiag(
-                'Player ${i + 1}',
-                'Initial ${s._initialStacks[i] ?? 0}, '
-                'Invested ${s._stackManager.getTotalInvested(i)}, '
-                'Remaining ${s._stackManager.getStackForPlayer(i)}',
-              ),
-            _vGap,
-            if (hand.remainingStacks != null) ...[
-              const Text('Remaining Stacks (from saved hand):'),
-              for (final entry in hand.remainingStacks!.entries)
-                debugDiag('Player ${entry.key + 1}', entry.value),
-              _vGap,
-            ],
-            if (hand.playerTypes != null) ...[
-              const Text('Player Types:'),
-              for (final entry in hand.playerTypes!.entries)
-                debugDiag('Player ${entry.key + 1}', entry.value.name),
-              _vGap,
-            ],
-            if (hand.comment != null) ...[
-              debugDiag('Comment', hand.comment!),
-              _vGap,
-            ],
-            if (hand.tags.isNotEmpty) ...[
-              const Text('Tags:'),
-              for (final tag in hand.tags) debugDiag('Tag', tag),
-              _vGap,
-            ],
-            if (hand.opponentIndex != null) ...[
-              debugDiag('Opponent', 'Player ${hand.opponentIndex! + 1}'),
-              _vGap,
-            ],
-            debugDiag('Hero Position', hand.heroPosition),
-            _vGap,
-            debugDiag('Players at table', hand.numberOfPlayers),
-            _vGap,
-            debugDiag('Saved', formatDateTime(hand.date)),
-            _vGap,
-            if (hand.expectedAction != null) ...[
-              debugDiag('Expected Action', hand.expectedAction),
-              _vGap,
-            ],
-            if (hand.feedbackText != null) ...[
-              debugDiag('Feedback', hand.feedbackText),
-              _vGap,
-            ],
-            debugDiag(
-              'Board Cards',
-              s.boardCards.isNotEmpty
-                  ? s.boardCards.map(s._cardToDebugString).join(' ')
-                  : '(empty)',
-            ),
-            _vGap,
-            for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              debugDiag(
-                'Player ${i + 1} Revealed',
-                () {
-                  final rc =
-                      i < hand.revealedCards.length ? hand.revealedCards[i] : [];
-                  return rc.isNotEmpty
-                      ? rc.map(s._cardToDebugString).join(' ')
-                      : '(none)';
-                }(),
-              ),
-              _vGap,
-            ],
-            debugDiag('Current Street',
-                ['Preflop', 'Flop', 'Turn', 'River'][s.currentStreet]),
-            _vGap,
-            debugDiag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
-            _vGap,
-            debugDiag('Active Player Index', s.activePlayerIndex ?? 'None'),
-            _vGap,
-            debugDiag('Last Action Player Index', s.lastActionPlayerIndex ?? 'None'),
-            _vGap,
-            for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              debugDiag('Player ${i + 1} Cards', s.playerCards[i].length),
-              _vGap,
-            ],
-            debugDiag(
-              'First Action Taken',
-              s._firstActionTaken.isNotEmpty
-                  ? (s._firstActionTaken.toList()..sort()).join(', ')
-                  : '(none)',
-            ),
-            _vGap,
-            const Text('Effective Stacks:'),
-            for (int street = 0; street < 4; street++)
-              debugDiag(
-                [
-                  'Preflop',
-                  'Flop',
-                  'Turn',
-                  'River',
-                ][street],
-                s._calculateEffectiveStackForStreet(street),
-              ),
-            _vGap,
-            const Text('Effective Stacks (from export data):'),
-            if (s._savedEffectiveStacks != null)
-              for (final entry in s._savedEffectiveStacks!.entries)
-                debugDiag(entry.key, entry.value)
-            else
-              debugDiag('Export Data', '(none)'),
-            if (s._savedEffectiveStacks != null) ...[
-              _vGap,
-              const Text('Validation:'),
-              for (int st = 0; st < 4; st++)
-                () {
-                  const names = ['Preflop', 'Flop', 'Turn', 'River'];
-                  final name = names[st];
-                  final live = s._calculateEffectiveStackForStreet(st);
-                  final exported = s._savedEffectiveStacks![name];
-                  final ok = exported == live;
-                  return debugDiag(
-                    name,
-                    ok ? '✅' : '❌ live $live vs export ${exported ?? 'N/A'}',
-                  );
-                }(),
-            ],
-            if (s._validationNotes != null && s._validationNotes!.isNotEmpty) ...[
-              _vGap,
-              const Text('Validation Notes:'),
-              for (final entry in s._validationNotes!.entries)
-                debugDiag(entry.key, entry.value),
-            ],
-            _vGap,
-            const Text('Playback Diagnostics:'),
-            debugDiag('Preflop Actions',
-                s.actions.where((a) => a.street == 0).length),
-            debugDiag('Flop Actions',
-                s.actions.where((a) => a.street == 1).length),
-            debugDiag('Turn Actions',
-                s.actions.where((a) => a.street == 2).length),
-            debugDiag('River Actions',
-                s.actions.where((a) => a.street == 3).length),
-            _vGap,
-            debugDiag('Total Actions', s.actions.length),
-            _vGap,
-            const Text('Action Tags Diagnostics:'),
-            if (s._actionTags.isNotEmpty)
-              for (final entry in s._actionTags.entries) ...[
-                debugDiag('Player ${entry.key + 1} Action Tag', entry.value),
-                _vGap,
-              ]
-            else ...[
-              debugDiag('Action Tags', '(none)'),
-              _vGap,
-            ],
-            const Text('StackManager Diagnostics:'),
-            for (int i = 0; i < s.numberOfPlayers; i++) ...[
-              debugDiag(
-                'Player $i StackManager',
-                'current ${s._stackManager.getStackForPlayer(i)}, invested ${s._stackManager.getTotalInvested(i)}',
-              ),
-              _vGap,
-            ],
-            const Text('Internal State Flags:'),
-            debugDiag('Debug Layout', s.debugLayout),
-            _vGap,
-            debugDiag('Perspective Switched', s.isPerspectiveSwitched),
-            _vGap,
-            debugDiag('Show All Revealed Cards', s._showAllRevealedCards),
-            _vGap,
-            _snapshotRetentionSwitch(),
-            _vGap,
-            const Text('Collapsed Streets State:'),
-            for (int street = 0; street < 4; street++) ...[
-              debugDiag(
-                'Street $street Collapsed',
-                !s._expandedHistoryStreets.contains(street),
-              ),
-              _vGap,
-            ],
-            const Text('Chip Animation State:'),
-            debugDiag(
-              'Center Chip Action',
-              () {
-                final action = s._centerChipAction;
-                if (action == null) return '(null)';
-                var result =
-                    'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
-                if (action.amount != null) result += ', Amount ${action.amount}';
-                return result;
-              }(),
-            ),
-            _vGap,
-            debugDiag('Show Center Chip', s._showCenterChip),
-            _vGap,
-            const Text('Animation Controllers State:'),
-            debugDiag('Center Chip Animation Active',
-                s._centerChipController.isAnimating),
-            _vGap,
-            debugDiag('Center Chip Animation Value',
-                s._centerChipController.value.toStringAsFixed(2)),
-            _vGap,
-            const Text('Street Transition State:'),
-            debugDiag(
-              'Current Animated Players Per Street',
-              s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0,
-            ),
-            _vGap,
-            for (final entry in s._animatedPlayersPerStreet.entries) ...[
-              debugDiag('Street ${entry.key} Animated Count', entry.value.length),
-              _vGap,
-            ],
-            const Text('Chip Trail Diagnostics:'),
-            debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
-            _vGap,
-            const Text('Playback Pause State:'),
-            debugDiag('Is Playback Paused', s._activeTimer == null),
-            _vGap,
-            debugDiag(
-              'Action Evaluation Queue',
-              s._evaluationQueueResumed
-                  ? '(Resumed from saved state)'
-                  : '(New)',
-            ),
-            debugDiag('Pending Action Evaluations', s._pendingEvaluations.length),
-            debugDiag(
-                'Processed',
-                '${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}'),
-            debugDiag('Failed', s._failedEvaluations.length),
-            _vGap,
+            _DiagnosticsSection(state: this),
             ToggleButtons(
               isSelected: [
                 s._queueFilters.contains('pending'),
@@ -520,124 +599,6 @@ class _ProcessingControls extends StatelessWidget {
                 );
               },
             ),
-            _vGap,
-            _ProcessingControls(state: this),
-            _vGap,
-            _SnapshotControls(state: this),
-            _vGap,
-            const Text('Evaluation Queue Tools:'),
-            _QueueTools(state: this),
-            _vGap,
-            Row(
-              children: [
-                const Text('Processing Speed'),
-                _hGap,
-                Expanded(
-                  child: Slider(
-                    value: s._evaluationProcessingDelay.toDouble(),
-                    min: 100,
-                    max: 2000,
-                    divisions: 19,
-                    label: '${s._evaluationProcessingDelay} ms',
-                    onChanged: (v) {
-                      s._setProcessingDelay(v.round());
-                    },
-                  ),
-                ),
-                _hGap,
-                debugDiag('Delay', '${s._evaluationProcessingDelay} ms'),
-              ],
-            ),
-            _vGap,
-            const Text('Evaluation Results:'),
-            Builder(
-              builder: (context) {
-                final results = s._completedEvaluations.length > 50
-                    ? s._completedEvaluations
-                        .sublist(s._completedEvaluations.length - 50)
-                    : s._completedEvaluations;
-                if (results.isEmpty) {
-                  return debugDiag('Completed Evaluations', '(none)');
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final r in results)
-                      debugDiag('Player ${r.playerIndex}, Street ${r.street}', r.action),
-                  ],
-                );
-              },
-            ),
-            _vGap,
-            const Text('Evaluation Queue Statistics:'),
-            debugDiag('Pending', s._pendingEvaluations.length),
-            debugDiag('Failed', s._failedEvaluations.length),
-            debugDiag('Completed', s._completedEvaluations.length),
-            debugDiag('Total Processed',
-                s._completedEvaluations.length + s._failedEvaluations.length),
-            _vGap,
-            const Text('HUD Overlay State:'),
-            debugDiag('HUD Street Name', hudStreetName),
-            _vGap,
-            debugDiag('HUD Pot Text', hudPotText),
-            _vGap,
-            debugDiag('HUD SPR Text', hudSprText ?? '(none)'),
-            _vGap,
-            const Text('Debug Menu Visibility:'),
-            debugDiag('Is Debug Menu Open', s._isDebugPanelOpen),
-            _vGap,
-            const Text('Full Export Consistency:'),
-            debugCheck('numberOfPlayers',
-                hand.numberOfPlayers == s.numberOfPlayers,
-                '${hand.numberOfPlayers}', '${s.numberOfPlayers}'),
-            debugCheck('heroIndex', hand.heroIndex == s.heroIndex,
-                '${hand.heroIndex}', '${s.heroIndex}'),
-            debugCheck('heroPosition', hand.heroPosition == s._heroPosition,
-                hand.heroPosition, s._heroPosition),
-            debugCheck('playerPositions',
-                mapEquals(hand.playerPositions, s.playerPositions),
-                hand.playerPositions.toString(),
-                s.playerPositions.toString()),
-            debugCheck('stackSizes', mapEquals(hand.stackSizes, s._initialStacks),
-                hand.stackSizes.toString(), s._initialStacks.toString()),
-            debugCheck('actions.length', hand.actions.length == s.actions.length,
-                '${hand.actions.length}', '${s.actions.length}'),
-            debugCheck(
-                'boardCards',
-                hand.boardCards.map((c) => c.toString()).join(' ') ==
-                    s.boardCards.map((c) => c.toString()).join(' '),
-                hand.boardCards.map((c) => c.toString()).join(' '),
-                s.boardCards.map((c) => c.toString()).join(' ')),
-            debugCheck(
-                'revealedCards',
-                listEquals(
-                  [
-                    for (final p in s.players)
-                      p.revealedCards
-                          .whereType<CardModel>()
-                          .map((c) => c.toString())
-                          .join(' ')
-                  ],
-                  [
-                    for (final list in hand.revealedCards)
-                      list.map((c) => c.toString()).join(' ')
-                  ],
-                ),
-                [
-                  for (final list in hand.revealedCards)
-                    list.map((c) => c.toString()).join(' ')
-                ].toString(),
-                [
-                  for (final p in s.players)
-                    p.revealedCards
-                        .whereType<CardModel>()
-                        .map((c) => c.toString())
-                        .join(' ')
-                ].toString()),
-            _vGap,
-            const Text('Theme Diagnostics:'),
-            debugDiag('Current Theme',
-                Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'),
             _vGap,
           ],
         ),
