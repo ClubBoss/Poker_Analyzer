@@ -3174,6 +3174,82 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _importQuickBackups() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_backups');
+      if (!await backupDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No quick backup files found')),
+          );
+        }
+        return;
+      }
+
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        allowMultiple: true,
+        initialDirectory: backupDir.path,
+      );
+      if (result == null || result.files.isEmpty) return;
+
+      final importedPending = <ActionEvaluationRequest>[];
+      final importedFailed = <ActionEvaluationRequest>[];
+      final importedCompleted = <ActionEvaluationRequest>[];
+      int skipped = 0;
+
+      for (final f in result.files) {
+        final path = f.path;
+        if (path == null) {
+          skipped++;
+          continue;
+        }
+        final name = path.split(Platform.pathSeparator).last;
+        if (!name.startsWith('quick_backup_')) {
+          skipped++;
+          continue;
+        }
+        try {
+          final content = await File(path).readAsString();
+          final decoded = jsonDecode(content);
+          final queues = _decodeBackupQueues(decoded);
+          importedPending.addAll(queues['pending']!);
+          importedFailed.addAll(queues['failed']!);
+          importedCompleted.addAll(queues['completed']!);
+        } catch (_) {
+          skipped++;
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _pendingEvaluations.addAll(importedPending);
+        _failedEvaluations.addAll(importedFailed);
+        _completedEvaluations.addAll(importedCompleted);
+      });
+      _debugPanelSetState?.call(() {});
+      _persistEvaluationQueue();
+      unawaited(_setEvaluationQueueResumed(false));
+
+      final total =
+          importedPending.length + importedFailed.length + importedCompleted.length;
+      final msg = skipped == 0
+          ? 'Imported $total evaluations from ${result.files.length} files'
+          : 'Imported $total evaluations, $skipped files skipped';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to import quick backups')),
+        );
+      }
+    }
+  }
+
   Future<void> _bulkImportAutoBackups() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -3778,6 +3854,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ElevatedButton(
                     onPressed: _bulkImportEvaluationBackups,
                     child: const Text('Bulk Import Backups'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _importQuickBackups,
+                    child: const Text('Import Quick Backups'),
                   ),
                   ElevatedButton(
                     onPressed: _bulkImportAutoBackups,
