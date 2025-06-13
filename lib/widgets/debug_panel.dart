@@ -385,6 +385,74 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
   }
 }
 
+class _ExportConsistencySection extends StatelessWidget {
+  const _ExportConsistencySection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    final hand = s._currentSavedHand();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Debug Menu Visibility:'),
+        debugDiag('Is Debug Menu Open', s._isDebugPanelOpen),
+        _DebugPanelState._vGap,
+        const Text('Full Export Consistency:'),
+        debugCheck('numberOfPlayers',
+            hand.numberOfPlayers == s.numberOfPlayers,
+            '${hand.numberOfPlayers}', '${s.numberOfPlayers}'),
+        debugCheck('heroIndex', hand.heroIndex == s.heroIndex,
+            '${hand.heroIndex}', '${s.heroIndex}'),
+        debugCheck('heroPosition', hand.heroPosition == s._heroPosition,
+            hand.heroPosition, s._heroPosition),
+        debugCheck('playerPositions',
+            mapEquals(hand.playerPositions, s.playerPositions),
+            hand.playerPositions.toString(),
+            s.playerPositions.toString()),
+        debugCheck('stackSizes', mapEquals(hand.stackSizes, s._initialStacks),
+            hand.stackSizes.toString(), s._initialStacks.toString()),
+        debugCheck('actions.length', hand.actions.length == s.actions.length,
+            '${hand.actions.length}', '${s.actions.length}'),
+        debugCheck(
+            'boardCards',
+            hand.boardCards.map((c) => c.toString()).join(' ') ==
+                s.boardCards.map((c) => c.toString()).join(' '),
+            hand.boardCards.map((c) => c.toString()).join(' '),
+            s.boardCards.map((c) => c.toString()).join(' ')),
+        debugCheck(
+            'revealedCards',
+            listEquals(
+              [
+                for (final p in s.players)
+                  p.revealedCards
+                      .whereType<CardModel>()
+                      .map((c) => c.toString())
+                      .join(' ')
+              ],
+              [
+                for (final list in hand.revealedCards)
+                  list.map((c) => c.toString()).join(' ')
+              ],
+            ),
+            [
+              for (final list in hand.revealedCards)
+                list.map((c) => c.toString()).join(' ')
+            ].toString(),
+            [
+              for (final p in s.players)
+                p.revealedCards
+                    .whereType<CardModel>()
+                    .map((c) => c.toString())
+                    .join(' ')
+            ].toString()),
+      ],
+    );
+  }
+}
+
 
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
@@ -650,57 +718,7 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
             _vGap,
             _HudOverlayDiagnosticsSection(state: this),
             _vGap,
-            const Text('Debug Menu Visibility:'),
-            debugDiag('Is Debug Menu Open', s._isDebugPanelOpen),
-            _vGap,
-            const Text('Full Export Consistency:'),
-            debugCheck('numberOfPlayers',
-                hand.numberOfPlayers == s.numberOfPlayers,
-                '${hand.numberOfPlayers}', '${s.numberOfPlayers}'),
-            debugCheck('heroIndex', hand.heroIndex == s.heroIndex,
-                '${hand.heroIndex}', '${s.heroIndex}'),
-            debugCheck('heroPosition', hand.heroPosition == s._heroPosition,
-                hand.heroPosition, s._heroPosition),
-            debugCheck('playerPositions',
-                mapEquals(hand.playerPositions, s.playerPositions),
-                hand.playerPositions.toString(),
-                s.playerPositions.toString()),
-            debugCheck('stackSizes', mapEquals(hand.stackSizes, s._initialStacks),
-                hand.stackSizes.toString(), s._initialStacks.toString()),
-            debugCheck('actions.length', hand.actions.length == s.actions.length,
-                '${hand.actions.length}', '${s.actions.length}'),
-            debugCheck(
-                'boardCards',
-                hand.boardCards.map((c) => c.toString()).join(' ') ==
-                    s.boardCards.map((c) => c.toString()).join(' '),
-                hand.boardCards.map((c) => c.toString()).join(' '),
-                s.boardCards.map((c) => c.toString()).join(' ')),
-            debugCheck(
-                'revealedCards',
-                listEquals(
-                  [
-                    for (final p in s.players)
-                      p.revealedCards
-                          .whereType<CardModel>()
-                          .map((c) => c.toString())
-                          .join(' ')
-                  ],
-                  [
-                    for (final list in hand.revealedCards)
-                      list.map((c) => c.toString()).join(' ')
-                  ],
-                ),
-                [
-                  for (final list in hand.revealedCards)
-                    list.map((c) => c.toString()).join(' ')
-                ].toString(),
-                [
-                  for (final p in s.players)
-                    p.revealedCards
-                        .whereType<CardModel>()
-                        .map((c) => c.toString())
-                        .join(' ')
-                ].toString()),
+            _ExportConsistencySection(state: this),
             _vGap,
             const Text('Theme Diagnostics:'),
             debugDiag('Current Theme',
