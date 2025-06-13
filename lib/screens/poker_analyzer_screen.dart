@@ -1908,7 +1908,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  Future<void> _exportEvaluationQueueSnapshot() async {
+  Future<void> _exportEvaluationQueueSnapshot({bool showNotification = true}) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final snapDir = Directory('${dir.path}/evaluation_snapshots');
@@ -1916,20 +1916,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
       final fileName = 'snapshot_${timestamp}.json';
       final file = File('${snapDir.path}/$fileName');
-      final data = [for (final e in _pendingEvaluations) e.toJson()];
+      final data = {
+        'pending': [for (final e in _pendingEvaluations) e.toJson()],
+        'failed': [for (final e in _failedEvaluations) e.toJson()],
+        'completed': [for (final e in _completedEvaluations) e.toJson()],
+      };
       await file.writeAsString(jsonEncode(data), flush: true);
       if (_snapshotRetentionEnabled) {
         await _cleanupOldEvaluationSnapshots();
       }
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Snapshot saved: ${file.path}')),
-      );
+      if (showNotification && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Snapshot saved: ${file.path}')),
+        );
+      }
     } catch (e) {
-      if (mounted) {
+      if (showNotification && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to export snapshot')),
         );
+      } else {
+        debugPrint('Failed to export snapshot: $e');
       }
     }
   }
@@ -2078,6 +2085,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _pendingEvaluations.removeAt(0);
         (success ? _completedEvaluations : _failedEvaluations).add(req);
       }
+      if (success) {
+        _exportEvaluationQueueSnapshot(showNotification: false);
+      }
       _persistEvaluationQueue();
       // Update debug panel if it's currently visible.
       _debugPanelSetState?.call(() {});
@@ -2122,6 +2132,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _debugPanelSetState?.call(() {});
       return;
     }
+    var success = true;
     try {
       setState(() {
         _pendingEvaluations.removeAt(0);
@@ -2129,6 +2140,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _processingEvaluations = false;
       });
     } catch (e) {
+      success = false;
       setState(() {
         _pendingEvaluations.removeAt(0);
         _failedEvaluations.add(req);
@@ -2136,6 +2148,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
     }
     _persistEvaluationQueue();
+    if (success) {
+      _exportEvaluationQueueSnapshot(showNotification: false);
+    }
     _debugPanelSetState?.call(() {});
   }
 
