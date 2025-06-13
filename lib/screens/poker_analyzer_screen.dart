@@ -2371,6 +2371,72 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _exportSnapshots() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final snapDir = Directory('${dir.path}/evaluation_snapshots');
+      if (!await snapDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No snapshot files found')),
+          );
+        }
+        return;
+      }
+
+      final files = await snapDir
+          .list(recursive: true)
+          .whereType<File>()
+          .toList();
+
+      if (files.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No snapshot files found')),
+          );
+        }
+        return;
+      }
+
+      final archive = Archive();
+      for (final file in files) {
+        final data = await file.readAsBytes();
+        final name = file.path.substring(snapDir.path.length + 1);
+        archive.addFile(ArchiveFile(name, data.length, data));
+      }
+
+      final bytes = ZipEncoder().encode(archive);
+      if (bytes == null) throw Exception('Could not create archive');
+
+      final fileName =
+          'evaluation_snapshots_${DateTime.now().millisecondsSinceEpoch}.zip';
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Snapshots Archive',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+      );
+      if (savePath == null) return;
+
+      final zipFile = File(savePath);
+      await zipFile.writeAsBytes(bytes, flush: true);
+
+      if (!mounted) return;
+      final name = savePath.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Archive saved: $name')),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to export snapshots')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() {});
+    }
+  }
+
   Future<void> _restoreFromAutoBackup() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -3331,6 +3397,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextButton(
             onPressed: _exportAutoBackups,
             child: const Text('Export Auto-Backups'),
+          ),
+          TextButton(
+            onPressed: _exportSnapshots,
+            child: const Text('Export Snapshots'),
           ),
           TextButton(
             onPressed: _exportAllEvaluationSnapshots,
