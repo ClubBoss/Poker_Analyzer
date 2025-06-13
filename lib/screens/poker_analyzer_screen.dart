@@ -164,6 +164,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _snapshotRetentionKey = 'snapshot_retention_enabled';
   static const int _snapshotRetentionLimit = 50;
   static const int _backupRetentionLimit = 30;
+  /// Number of automatic queue backups to retain.
   static const int _autoBackupRetentionLimit = 50;
   bool _snapshotRetentionEnabled = true;
 

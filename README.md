@@ -26,6 +26,8 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
 - Pending evaluations are stored in saved hand exports so queued
   action analysis persists when reloading a session, ensuring consistent
   playback even after closing the app
+- Automatic evaluation queue backups run every 15 minutes and keep only
+  the 50 most recent files to save storage
 
 ![screenshot](flutter_01.png)
 
