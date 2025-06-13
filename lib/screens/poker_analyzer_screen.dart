@@ -253,6 +253,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Current search query for filtering evaluation queues in the debug panel.
   String _searchQuery = '';
 
+  static const _searchQueryKey = 'evaluation_search_query';
+
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
@@ -378,6 +380,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _setAdvancedFilters(updated);
   }
 
+  Future<void> _loadSearchQueryPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_searchQueryKey) ?? '';
+    if (mounted) {
+      setState(() => _searchQuery = value);
+    } else {
+      _searchQuery = value;
+    }
+  }
+
   void _setSortBySpr(bool value) {
     if (mounted) {
       setState(() => _sortBySpr = value);
@@ -388,6 +400,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _setSearchQuery(String value) {
+    SharedPreferences.getInstance()
+        .then((prefs) => prefs.setString(_searchQueryKey, value));
     if (mounted) {
       setState(() => _searchQuery = value);
     } else {
@@ -1108,6 +1122,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _loadProcessingDelayPreference());
     Future(() => _loadQueueFilterPreference());
     Future(() => _loadAdvancedFilterPreference());
+    Future(() => _loadSearchQueryPreference());
     Future(() => _loadQueueResumedPreference());
     Future.microtask(_loadSavedEvaluationQueue);
     Future(() => _cleanupOldAutoBackups());
@@ -3546,7 +3561,7 @@ class _DebugPanelState extends State<_DebugPanel> {
               controller: _searchController,
               decoration: const InputDecoration(
                   labelText: 'Search by ID or Feedback'),
-              onChanged: s._setSearchQuery,
+              onChanged: (v) => s._setSearchQuery(v),
             ),
             _vGap,
             Builder(
