@@ -164,6 +164,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _snapshotRetentionKey = 'snapshot_retention_enabled';
   static const int _snapshotRetentionLimit = 50;
   static const int _backupRetentionLimit = 30;
+  static const int _autoBackupRetentionLimit = 50;
   bool _snapshotRetentionEnabled = true;
 
   static const _processingDelayKey = 'evaluation_processing_delay';
@@ -387,7 +388,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
 
       entries.sort((a, b) => b.value.compareTo(a.value));
-      for (final entry in entries.skip(50)) {
+      for (final entry in entries.skip(_autoBackupRetentionLimit)) {
         try {
           await entry.key.delete();
         } catch (e) {
