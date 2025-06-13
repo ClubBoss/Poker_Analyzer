@@ -55,6 +55,10 @@ import '../helpers/stack_manager.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
 
+Widget debugDiag(String label, Object? value) => Text('$label: $value');
+Widget debugCheck(String label, bool ok, String a, String b) =>
+    Text(ok ? '$label: ✅' : '$label: ❌ $a vs $b');
+
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
 
@@ -459,7 +463,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$label Queue (${queue.length})'),
+        debugDiag('$label Queue', queue.length),
         ReorderableListView.builder(
           shrinkWrap: true,
           physics: const ClampingScrollPhysics(),
@@ -3100,11 +3104,10 @@ class _DebugPanelState extends State<_DebugPanel> {
     return TextButton(onPressed: onPressed, child: Text(label));
   }
 
-  Widget _check(String label, bool ok, String a, String b) {
-    return Text(ok ? '$label: ✅' : '$label: ❌ $a vs $b');
-  }
+  Widget _check(String label, bool ok, String a, String b) =>
+      debugCheck(label, ok, a, b);
 
-  Widget _diag(String label, Object? value) => Text('$label: $value');
+  Widget _diag(String label, Object? value) => debugDiag(label, value);
 
   @override
   Widget build(BuildContext context) {
@@ -3230,7 +3233,7 @@ class _DebugPanelState extends State<_DebugPanel> {
               for (final entry in s._savedEffectiveStacks!.entries)
                 _diag(entry.key, entry.value)
             else
-              const Text('No export data available'),
+              _diag('Export Data', '(none)'),
             if (s._savedEffectiveStacks != null) ...[
               _vGap,
               const Text('Validation:'),
@@ -3397,7 +3400,7 @@ class _DebugPanelState extends State<_DebugPanel> {
                   sections.add(s._buildQueueSection('Completed', s._completedEvaluations));
                 }
                 if (sections.isEmpty) {
-                  return const Text('No items');
+                  return _diag('Queue Items', '(none)');
                 }
                 return ConstrainedBox(
                   constraints: const BoxConstraints(maxHeight: 300),
@@ -3447,7 +3450,7 @@ class _DebugPanelState extends State<_DebugPanel> {
                         .sublist(s._completedEvaluations.length - 50)
                     : s._completedEvaluations;
                 if (results.isEmpty) {
-                  return const Text('No evaluations completed yet.');
+                  return _diag('Completed Evaluations', '(none)');
                 }
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
