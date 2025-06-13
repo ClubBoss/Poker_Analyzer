@@ -28,8 +28,9 @@ class ActionEvaluationRequest {
       };
 
   factory ActionEvaluationRequest.fromJson(Map<String, dynamic> json) {
+    final id = json['id'] as String?;
     return ActionEvaluationRequest(
-      id: json['id'] as String?,
+      id: id ?? const Uuid().v4(),
       street: json['street'] as int? ?? 0,
       playerIndex: json['playerIndex'] as int? ?? 0,
       action: json['action'] as String? ?? '',

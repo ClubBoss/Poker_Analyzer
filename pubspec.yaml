@@ -27,7 +27,7 @@ dependencies:
   sticky_headers: ^0.3.0+2
   archive: ^4.0.0
   share_plus: ^7.0.0
-  uuid: ^4.0.0
+  uuid: ^3.0.0
 
 dev_dependencies:
   flutter_test:
