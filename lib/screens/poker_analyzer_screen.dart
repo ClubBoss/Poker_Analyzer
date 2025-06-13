@@ -2072,11 +2072,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (path == null) return;
 
       final decoded = await _readJsonFile(File(path));
-      if (decoded is! Map) throw const FormatException();
-
-      final pending = _decodeEvaluationList(decoded['pending']);
-      final failed = _decodeEvaluationList(decoded['failed']);
-      final completed = _decodeEvaluationList(decoded['completed']);
+      final queues = _decodeBackupQueues(decoded);
+      final pending = queues['pending']!;
+      final failed = queues['failed']!;
+      final completed = queues['completed']!;
 
       if (!mounted) return;
       setState(() {
@@ -2121,11 +2120,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (path == null) return;
 
       final decoded = await _readJsonFile(File(path));
-      if (decoded is! Map) throw const FormatException();
-
-      final pending = _decodeEvaluationList(decoded['pending']);
-      final failed = _decodeEvaluationList(decoded['failed']);
-      final completed = _decodeEvaluationList(decoded['completed']);
+      final queues = _decodeBackupQueues(decoded);
+      final pending = queues['pending']!;
+      final failed = queues['failed']!;
+      final completed = queues['completed']!;
 
       if (!mounted) return;
       setState(() {
@@ -3024,17 +3022,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
         try {
           final decoded = await _readJsonFile(File(path));
-
-          if (decoded is List) {
-            importedPending.addAll(_decodeEvaluationList(decoded));
-          } else if (decoded is Map) {
-            importedPending.addAll(_decodeEvaluationList(decoded['pending']));
-            importedFailed.addAll(_decodeEvaluationList(decoded['failed']));
-            importedCompleted.addAll(
-                _decodeEvaluationList(decoded['completed']));
-          } else {
-            throw const FormatException();
-          }
+          final queues = _decodeBackupQueues(decoded);
+          importedPending.addAll(queues['pending']!);
+          importedFailed.addAll(queues['failed']!);
+          importedCompleted.addAll(queues['completed']!);
         } catch (_) {
           skipped++;
         }
@@ -3300,23 +3291,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final path = result.files.single.path;
       if (path == null) return;
       final decoded = await _readJsonFile(File(path));
-
-      final List<ActionEvaluationRequest> pending;
-      final List<ActionEvaluationRequest> failed;
-      final List<ActionEvaluationRequest> completed;
-
-      if (decoded is List) {
-        // Legacy snapshot containing only pending evaluations
-        pending = _decodeEvaluationList(decoded);
-        failed = [];
-        completed = [];
-      } else if (decoded is Map) {
-        pending = _decodeEvaluationList(decoded['pending']);
-        failed = _decodeEvaluationList(decoded['failed']);
-        completed = _decodeEvaluationList(decoded['completed']);
-      } else {
-        throw const FormatException();
-      }
+      final queues = _decodeBackupQueues(decoded);
+      final pending = queues['pending']!;
+      final failed = queues['failed']!;
+      final completed = queues['completed']!;
 
       if (!mounted) return;
       setState(() {
@@ -3380,17 +3358,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
         try {
           final decoded = await _readJsonFile(File(path));
-
-          if (decoded is List) {
-            importedPending.addAll(_decodeEvaluationList(decoded));
-          } else if (decoded is Map) {
-            importedPending.addAll(_decodeEvaluationList(decoded['pending']));
-            importedFailed.addAll(_decodeEvaluationList(decoded['failed']));
-            importedCompleted.addAll(
-                _decodeEvaluationList(decoded['completed']));
-          } else {
-            throw const FormatException();
-          }
+          final queues = _decodeBackupQueues(decoded);
+          importedPending.addAll(queues['pending']!);
+          importedFailed.addAll(queues['failed']!);
+          importedCompleted.addAll(queues['completed']!);
         } catch (_) {
           skipped++;
         }
