@@ -243,6 +243,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   static const _queueFilterKey = 'evaluation_queue_filter';
   Set<String> _queueFilters = {'pending'};
+  /// Active advanced debug filters for evaluation queue display.
+  Set<String> _advancedFilters = {};
 
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
@@ -335,6 +337,47 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       updated.add(filter);
     }
     _setQueueFilters(updated);
+  }
+
+  void _toggleAdvancedFilter(String filter) {
+    final updated = Set<String>.from(_advancedFilters);
+    if (updated.contains(filter)) {
+      updated.remove(filter);
+    } else {
+      updated.add(filter);
+    }
+    setState(() => _advancedFilters = updated);
+    _debugPanelSetState?.call(() {});
+  }
+
+  List<ActionEvaluationRequest> _applyAdvancedFilters(
+      List<ActionEvaluationRequest> list) {
+    if (_advancedFilters.isEmpty) return list;
+    return [
+      for (final r in list)
+        if (_includeEvaluation(r)) r,
+    ];
+  }
+
+  bool _includeEvaluation(ActionEvaluationRequest r) {
+    final md = r.metadata;
+    if (_advancedFilters.contains('feedback') &&
+        (md?['feedbackText'] == null ||
+            (md?['feedbackText'] as String?)?.isEmpty != false)) {
+      return false;
+    }
+    if (_advancedFilters.contains('opponent') &&
+        ((md?['opponentCards'] as List?)?.isEmpty ?? true)) {
+      return false;
+    }
+    if (_advancedFilters.contains('failed') && md?['status'] != 'failed') {
+      return false;
+    }
+    if (_advancedFilters.contains('highSpr')) {
+      final spr = (md?['spr'] as num?)?.toDouble();
+      if (spr == null || spr < 3) return false;
+    }
+    return true;
   }
 
   Future<void> _loadQueueResumedPreference() async {
@@ -457,15 +500,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
-    return debugQueueSection(label, queue, (oldIndex, newIndex) {
-      if (newIndex > oldIndex) newIndex -= 1;
-      setState(() {
-        final item = queue.removeAt(oldIndex);
-        queue.insert(newIndex, item);
-      });
-      _persistEvaluationQueue();
-      _debugPanelSetState?.call(() {});
-    });
+    final filtered = _applyAdvancedFilters(queue);
+    return debugQueueSection(label, filtered,
+        _advancedFilters.isEmpty
+            ? (oldIndex, newIndex) {
+                if (newIndex > oldIndex) newIndex -= 1;
+                setState(() {
+                  final item = queue.removeAt(oldIndex);
+                  queue.insert(newIndex, item);
+                });
+                _persistEvaluationQueue();
+                _debugPanelSetState?.call(() {});
+              }
+            : (_, __) {});
   }
 
 
@@ -3349,6 +3396,33 @@ class _DebugPanelState extends State<_DebugPanel> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0),
                   child: Text('Completed'),
+                ),
+              ],
+            ),
+            _vGap,
+            ExpansionTile(
+              title: const Text('Advanced Filters'),
+              children: [
+                CheckboxListTile(
+                  title: const Text('Only hands with feedback'),
+                  value: s._advancedFilters.contains('feedback'),
+                  onChanged: (_) => s._toggleAdvancedFilter('feedback'),
+                ),
+                CheckboxListTile(
+                  title:
+                      const Text('Only hands with opponent cards revealed'),
+                  value: s._advancedFilters.contains('opponent'),
+                  onChanged: (_) => s._toggleAdvancedFilter('opponent'),
+                ),
+                CheckboxListTile(
+                  title: const Text('Only failed evaluations'),
+                  value: s._advancedFilters.contains('failed'),
+                  onChanged: (_) => s._toggleAdvancedFilter('failed'),
+                ),
+                CheckboxListTile(
+                  title: const Text('Only high SPR spots (SPR >= 3)'),
+                  value: s._advancedFilters.contains('highSpr'),
+                  onChanged: (_) => s._toggleAdvancedFilter('highSpr'),
                 ),
               ],
             ),
