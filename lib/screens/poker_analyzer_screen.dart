@@ -169,6 +169,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _queueFilterKey = 'evaluation_queue_filter';
   Set<String> _queueFilters = {'pending'};
 
+  static const _pendingOrderKey = 'pending_queue_order';
+  static const _failedOrderKey = 'failed_queue_order';
+  static const _completedOrderKey = 'completed_queue_order';
+
   Future<void> _loadSnapshotRetentionPreference() async {
     final prefs = await SharedPreferences.getInstance();
     final value = prefs.getBool(_snapshotRetentionKey);
@@ -255,6 +259,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       updated.add(filter);
     }
     _setQueueFilters(updated);
+  }
+
+  String _queueEntryId(ActionEvaluationRequest r) {
+    return '${r.playerIndex}_${r.street}_${r.action}_${r.amount ?? ''}';
+  }
+
+  void _applySavedOrder(
+      List<ActionEvaluationRequest> list, List<String>? order) {
+    if (order == null || order.isEmpty) return;
+    final remaining = List<ActionEvaluationRequest>.from(list);
+    final reordered = <ActionEvaluationRequest>[];
+    for (final key in order) {
+      final idx = remaining.indexWhere((e) => _queueEntryId(e) == key);
+      if (idx != -1) {
+        reordered.add(remaining.removeAt(idx));
+      }
+    }
+    reordered.addAll(remaining);
+    list
+      ..clear()
+      ..addAll(reordered);
   }
 
   void _startAutoBackupTimer() {
@@ -1905,6 +1930,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
       await file.writeAsString(jsonEncode(data), flush: true);
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(
+          _pendingOrderKey,
+          [for (final e in _pendingEvaluations) _queueEntryId(e)]);
+      await prefs.setStringList(
+          _failedOrderKey,
+          [for (final e in _failedEvaluations) _queueEntryId(e)]);
+      await prefs.setStringList(
+          _completedOrderKey,
+          [for (final e in _completedEvaluations) _queueEntryId(e)]);
     } catch (_) {}
   }
 
@@ -1951,18 +1987,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 } catch (_) {}
               }
             }
-          }
-          if (c is List) {
-            for (final item in c) {
-              if (item is Map) {
-                try {
-                  completed.add(ActionEvaluationRequest.fromJson(
-                      Map<String, dynamic>.from(item)));
-                } catch (_) {}
-              }
+        }
+        if (c is List) {
+          for (final item in c) {
+            if (item is Map) {
+              try {
+                completed.add(ActionEvaluationRequest.fromJson(
+                    Map<String, dynamic>.from(item)));
+              } catch (_) {}
             }
           }
         }
+      }
+
+        final prefs = await SharedPreferences.getInstance();
+        _applySavedOrder(pending, prefs.getStringList(_pendingOrderKey));
+        _applySavedOrder(failed, prefs.getStringList(_failedOrderKey));
+        _applySavedOrder(completed, prefs.getStringList(_completedOrderKey));
+
         if (mounted) {
           setState(() {
             _pendingEvaluations
@@ -1977,6 +2019,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             _evaluationQueueResumed =
                 pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
           });
+          _debugPanelSetState?.call(() {});
         } else {
           _evaluationQueueResumed =
               pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
@@ -1993,6 +2036,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         try {
           await file.delete();
         } catch (_) {}
+        _debugPanelSetState?.call(() {});
       }
     } catch (_) {}
   }
