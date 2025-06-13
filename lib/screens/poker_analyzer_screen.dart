@@ -370,6 +370,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     throw const FormatException();
   }
 
+  Map<String, dynamic> _currentQueueState() => {
+        'pending': [for (final e in _pendingEvaluations) e.toJson()],
+        'failed': [for (final e in _failedEvaluations) e.toJson()],
+        'completed': [for (final e in _completedEvaluations) e.toJson()],
+      };
+
   void _applySavedOrder(
       List<ActionEvaluationRequest> list, List<String>? order) {
     if (order == null || order.isEmpty) return;
@@ -402,12 +408,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     try {
       final backupDir = await _getBackupDirectory(_autoBackupsFolder);
       final file = File('${backupDir.path}/auto_${_timestamp()}.json');
-      final data = {
-        'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
-        'completed': [for (final e in _completedEvaluations) e.toJson()],
-      };
-      await _writeJsonFile(file, data);
+      await _writeJsonFile(file, _currentQueueState());
       await _cleanupOldAutoBackups();
       if (kDebugMode) {
         debugPrint('Auto backup created: ${file.path}');
@@ -2021,22 +2022,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _exportFullEvaluationQueueState() async {
     try {
+      final exportDir = await _getBackupDirectory(_exportsFolder);
       final fileName = 'queue_export_${_timestamp()}.json';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Full Queue State',
         fileName: fileName,
         type: FileType.custom,
         allowedExtensions: ['json'],
+        initialDirectory: exportDir.path,
       );
       if (savePath == null) return;
 
       final file = File(savePath);
-      final data = {
-        'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
-        'completed': [for (final e in _completedEvaluations) e.toJson()],
-      };
-      await _writeJsonFile(file, data);
+      await _writeJsonFile(file, _currentQueueState());
 
       if (!mounted) return;
       final name = savePath.split(Platform.pathSeparator).last;
@@ -2163,12 +2161,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final backupDir = await _getBackupDirectory(_backupsFolder);
       final fileName = 'evaluation_backup_${_timestamp()}.json';
       final file = File('${backupDir.path}/$fileName');
-      final data = {
-        'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
-        'completed': [for (final e in _completedEvaluations) e.toJson()],
-      };
-      await _writeJsonFile(file, data);
+      await _writeJsonFile(file, _currentQueueState());
 
       // Run cleanup in the background to avoid blocking UI.
       Future(() => _cleanupOldEvaluationBackups());
@@ -2190,12 +2183,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final backupDir = await _getBackupDirectory(_backupsFolder);
       final fileName = 'quick_backup_${_timestamp()}.json';
       final file = File('${backupDir.path}/$fileName');
-      final data = {
-        'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
-        'completed': [for (final e in _completedEvaluations) e.toJson()],
-      };
-      await _writeJsonFile(file, data);
+      await _writeJsonFile(file, _currentQueueState());
       Future(() => _cleanupOldEvaluationBackups());
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2290,12 +2278,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final snapDir = await _getBackupDirectory(_snapshotsFolder);
       final fileName = 'snapshot_${_timestamp()}.json';
       final file = File('${snapDir.path}/$fileName');
-      final data = {
-        'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
-        'completed': [for (final e in _completedEvaluations) e.toJson()],
-      };
-      await _writeJsonFile(file, data);
+      await _writeJsonFile(file, _currentQueueState());
       if (_snapshotRetentionEnabled) {
         await _cleanupOldEvaluationSnapshots();
       }
@@ -2325,12 +2308,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/evaluation_current_queue.json');
-      final data = {
-        'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
-        'completed': [for (final e in _completedEvaluations) e.toJson()],
-      };
-      await _writeJsonFile(file, data);
+      await _writeJsonFile(file, _currentQueueState());
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(
