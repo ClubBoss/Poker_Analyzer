@@ -59,6 +59,36 @@ Widget debugDiag(String label, Object? value) => Text('$label: $value');
 Widget debugCheck(String label, bool ok, String a, String b) =>
     Text(ok ? '$label: ✅' : '$label: ❌ $a vs $b');
 
+Widget debugQueueSection(
+  String label,
+  List<ActionEvaluationRequest> queue,
+  ReorderCallback onReorder,
+) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      debugDiag('$label Queue', queue.length),
+      ReorderableListView.builder(
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+        buildDefaultDragHandles: false,
+        itemCount: queue.length,
+        itemBuilder: (context, index) {
+          final r = queue[index];
+          return EvaluationRequestTile(
+            key: ValueKey(r.id),
+            request: r,
+            showDragHandle: true,
+            index: index,
+          );
+        },
+        onReorder: onReorder,
+      ),
+      _DebugPanelState._vGap,
+    ],
+  );
+}
+
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
 
@@ -460,37 +490,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Widget _buildQueueSection(String label, List<ActionEvaluationRequest> queue) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        debugDiag('$label Queue', queue.length),
-        ReorderableListView.builder(
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          buildDefaultDragHandles: false,
-          itemCount: queue.length,
-          itemBuilder: (context, index) {
-            final r = queue[index];
-            return EvaluationRequestTile(
-              key: ValueKey(r.id),
-              request: r,
-              showDragHandle: true,
-              index: index,
-            );
-          },
-          onReorder: (oldIndex, newIndex) {
-            if (newIndex > oldIndex) newIndex -= 1;
-            setState(() {
-              final item = queue.removeAt(oldIndex);
-              queue.insert(newIndex, item);
-            });
-            _persistEvaluationQueue();
-            _debugPanelSetState?.call(() {});
-          },
-        ),
-        _DebugPanelState._vGap,
-      ],
-    );
+    return debugQueueSection(label, queue, (oldIndex, newIndex) {
+      if (newIndex > oldIndex) newIndex -= 1;
+      setState(() {
+        final item = queue.removeAt(oldIndex);
+        queue.insert(newIndex, item);
+      });
+      _persistEvaluationQueue();
+      _debugPanelSetState?.call(() {});
+    });
   }
 
 
@@ -3109,6 +3117,17 @@ class _DebugPanelState extends State<_DebugPanel> {
 
   Widget _diag(String label, Object? value) => debugDiag(label, value);
 
+  Widget _queueSection(String label, List<ActionEvaluationRequest> queue) =>
+      debugQueueSection(label, queue, (oldIndex, newIndex) {
+        if (newIndex > oldIndex) newIndex -= 1;
+        s.setState(() {
+          final item = queue.removeAt(oldIndex);
+          queue.insert(newIndex, item);
+        });
+        s._persistEvaluationQueue();
+        s._debugPanelSetState?.call(() {});
+      });
+
   @override
   Widget build(BuildContext context) {
     final hand = s._currentSavedHand();
@@ -3384,13 +3403,13 @@ class _DebugPanelState extends State<_DebugPanel> {
               builder: (context) {
                 final sections = <Widget>[];
                 if (s._queueFilters.contains('pending')) {
-                  sections.add(s._buildQueueSection('Pending', s._pendingEvaluations));
+                  sections.add(_queueSection('Pending', s._pendingEvaluations));
                 }
                 if (s._queueFilters.contains('failed')) {
-                  sections.add(s._buildQueueSection('Failed', s._failedEvaluations));
+                  sections.add(_queueSection('Failed', s._failedEvaluations));
                 }
                 if (s._queueFilters.contains('completed')) {
-                  sections.add(s._buildQueueSection('Completed', s._completedEvaluations));
+                  sections.add(_queueSection('Completed', s._completedEvaluations));
                 }
                 if (sections.isEmpty) {
                   return _diag('Queue Items', '(none)');
