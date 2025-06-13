@@ -365,7 +365,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           itemBuilder: (context, index) {
             final r = queue[index];
             return EvaluationRequestTile(
-              key: ValueKey('$label-${r.id}'),
+              key: ValueKey(r.id),
               request: r,
               showDragHandle: true,
               index: index,
@@ -2041,6 +2041,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         try {
           await file.delete();
         } catch (_) {}
+        _persistEvaluationQueue();
         _debugPanelSetState?.call(() {});
       }
     } catch (_) {}
