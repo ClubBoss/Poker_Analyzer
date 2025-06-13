@@ -374,32 +374,38 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   List<ActionEvaluationRequest> _applyAdvancedFilters(
       List<ActionEvaluationRequest> list) {
-    if (_advancedFilters.isEmpty) return list;
-    return [
-      for (final r in list)
-        if (_includeEvaluation(r)) r,
-    ];
-  }
+    final filters = _advancedFilters;
+    if (filters.isEmpty) return list;
 
-  bool _includeEvaluation(ActionEvaluationRequest r) {
-    final md = r.metadata;
-    if (_advancedFilters.contains('feedback') &&
-        (md?['feedbackText'] == null ||
-            (md?['feedbackText'] as String?)?.isEmpty != false)) {
-      return false;
+    final checkFeedback = filters.contains('feedback');
+    final checkOpponent = filters.contains('opponent');
+    final checkFailed = filters.contains('failed');
+    final checkHighSpr = filters.contains('highspr');
+
+    final result = <ActionEvaluationRequest>[];
+    for (final r in list) {
+      final md = r.metadata;
+
+      if (checkFeedback) {
+        final text = md?['feedbackText'] as String?;
+        if (text == null || text.isEmpty) continue;
+      }
+
+      if (checkOpponent && ((md?['opponentCards'] as List?)?.isEmpty ?? true)) {
+        continue;
+      }
+
+      if (checkFailed && md?['status'] != 'failed') continue;
+
+      if (checkHighSpr) {
+        final spr = (md?['spr'] as num?)?.toDouble();
+        if (spr == null || spr < 3) continue;
+      }
+
+      result.add(r);
     }
-    if (_advancedFilters.contains('opponent') &&
-        ((md?['opponentCards'] as List?)?.isEmpty ?? true)) {
-      return false;
-    }
-    if (_advancedFilters.contains('failed') && md?['status'] != 'failed') {
-      return false;
-    }
-    if (_advancedFilters.contains('highspr')) {
-      final spr = (md?['spr'] as num?)?.toDouble();
-      if (spr == null || spr < 3) return false;
-    }
-    return true;
+
+    return result;
   }
 
   Future<void> _loadQueueResumedPreference() async {
