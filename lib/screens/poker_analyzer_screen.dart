@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../helpers/debug_panel_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../models/card_model.dart';
@@ -231,21 +232,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  static const _snapshotRetentionKey = 'snapshot_retention_enabled';
   static const int _snapshotRetentionLimit = 50;
   static const int _backupRetentionLimit = 30;
   /// Number of automatic queue backups to retain.
   static const int _autoBackupRetentionLimit = 50;
+  final DebugPanelPreferences _prefs = DebugPanelPreferences();
   bool _snapshotRetentionEnabled = true;
 
-  static const _processingDelayKey = 'evaluation_processing_delay';
   int _evaluationProcessingDelay = 500;
 
-  static const _queueFilterKey = 'evaluation_queue_filter';
   Set<String> _queueFilters = {'pending'};
   /// Active advanced debug filters for evaluation queue display.
   Set<String> _advancedFilters = {};
-  static const _advancedFilterKey = 'evaluation_advanced_filters';
 
   /// Whether to sort evaluation lists by SPR when displayed in the debug panel.
   bool _sortBySpr = false;
@@ -253,22 +251,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Current search query for filtering evaluation queues in the debug panel.
   String _searchQuery = '';
 
-  static const _searchQueryKey = 'evaluation_search_query';
-
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
   static const _queueResumedKey = 'evaluation_queue_resumed';
 
   Future<void> _loadSnapshotRetentionPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getBool(_snapshotRetentionKey);
+    final value = await _prefs.getSnapshotRetentionEnabled();
     if (mounted) {
       setState(() {
-        _snapshotRetentionEnabled = value ?? true;
+        _snapshotRetentionEnabled = value;
       });
     } else {
-      _snapshotRetentionEnabled = value ?? true;
+      _snapshotRetentionEnabled = value;
     }
     if (_snapshotRetentionEnabled) {
       await _cleanupOldEvaluationSnapshots();
@@ -276,8 +271,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _setSnapshotRetentionEnabled(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_snapshotRetentionKey, value);
+    await _prefs.setSnapshotRetentionEnabled(value);
     if (mounted) {
       setState(() => _snapshotRetentionEnabled = value);
     } else {
@@ -290,20 +284,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _loadProcessingDelayPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getInt(_processingDelayKey);
+    final value = await _prefs.getProcessingDelay();
     if (mounted) {
       setState(() {
-        _evaluationProcessingDelay = (value ?? 500).clamp(100, 2000);
+        _evaluationProcessingDelay = value;
       });
     } else {
-      _evaluationProcessingDelay = (value ?? 500).clamp(100, 2000);
+      _evaluationProcessingDelay = value;
     }
   }
 
   Future<void> _setProcessingDelay(int value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_processingDelayKey, value);
+    await _prefs.setProcessingDelay(value);
     if (mounted) {
       setState(() => _evaluationProcessingDelay = value);
     } else {
@@ -313,10 +305,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _loadQueueFilterPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_queueFilterKey);
-    final loaded = list?.toSet() ?? {'pending'};
-    if (loaded.isEmpty) loaded.add('pending');
+    final loaded = await _prefs.getQueueFilters();
     if (mounted) {
       setState(() {
         _queueFilters = loaded;
@@ -327,9 +316,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _setQueueFilters(Set<String> value) async {
-    if (value.isEmpty) value = {'pending'};
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_queueFilterKey, value.toList());
+    await _prefs.setQueueFilters(value);
     if (mounted) {
       setState(() => _queueFilters = value);
     } else {
@@ -349,9 +336,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _loadAdvancedFilterPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = prefs.getStringList(_advancedFilterKey);
-    final loaded = list?.toSet() ?? {};
+    final loaded = await _prefs.getAdvancedFilters();
     if (mounted) {
       setState(() => _advancedFilters = loaded);
     } else {
@@ -360,8 +345,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _setAdvancedFilters(Set<String> value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_advancedFilterKey, value.toList());
+    await _prefs.setAdvancedFilters(value);
     if (mounted) {
       setState(() => _advancedFilters = value);
     } else {
@@ -381,8 +365,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _loadSearchQueryPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_searchQueryKey) ?? '';
+    final value = await _prefs.getSearchQuery();
     if (mounted) {
       setState(() => _searchQuery = value);
     } else {
@@ -390,7 +373,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _loadSortBySprPreference() async {
+    final value = await _prefs.getSortBySpr();
+    if (mounted) {
+      setState(() => _sortBySpr = value);
+    } else {
+      _sortBySpr = value;
+    }
+  }
+
   void _setSortBySpr(bool value) {
+    _prefs.setSortBySpr(value);
     if (mounted) {
       setState(() => _sortBySpr = value);
     } else {
@@ -400,8 +393,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _setSearchQuery(String value) {
-    SharedPreferences.getInstance()
-        .then((prefs) => prefs.setString(_searchQueryKey, value));
+    _prefs.setSearchQuery(value);
     if (mounted) {
       setState(() => _searchQuery = value);
     } else {
@@ -1123,6 +1115,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _loadQueueFilterPreference());
     Future(() => _loadAdvancedFilterPreference());
     Future(() => _loadSearchQueryPreference());
+    Future(() => _loadSortBySprPreference());
     Future(() => _loadQueueResumedPreference());
     Future.microtask(_loadSavedEvaluationQueue);
     Future(() => _cleanupOldAutoBackups());
