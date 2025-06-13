@@ -1941,6 +1941,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  /// Schedule snapshot export without awaiting the result.
+  void _scheduleSnapshotExport() {
+    unawaited(_exportEvaluationQueueSnapshot(showNotification: false));
+  }
+
   /// Persist the current evaluation queue to disk.
   Future<void> _persistEvaluationQueue() async {
     try {
@@ -2086,7 +2091,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         (success ? _completedEvaluations : _failedEvaluations).add(req);
       }
       if (success) {
-        _exportEvaluationQueueSnapshot(showNotification: false);
+        _scheduleSnapshotExport();
       }
       _persistEvaluationQueue();
       // Update debug panel if it's currently visible.
@@ -2149,7 +2154,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _persistEvaluationQueue();
     if (success) {
-      _exportEvaluationQueueSnapshot(showNotification: false);
+      _scheduleSnapshotExport();
     }
     _debugPanelSetState?.call(() {});
   }
