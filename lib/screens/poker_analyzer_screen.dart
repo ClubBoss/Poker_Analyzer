@@ -2297,7 +2297,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  Future<void> _exportAutoBackupsArchive() async {
+  Future<void> _exportAutoBackups() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final backupDir = Directory('${dir.path}/evaluation_autobackups');
@@ -2311,9 +2311,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
 
       final files = await backupDir
-          .list()
-          .where((e) => e is File && e.path.endsWith('.json'))
-          .cast<File>()
+          .list(recursive: true)
+          .whereType<File>()
           .toList();
 
       if (files.isEmpty) {
@@ -2328,21 +2327,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final archive = Archive();
       for (final file in files) {
         final data = await file.readAsBytes();
-        final name = file.uri.pathSegments.last;
+        final name = file.path.substring(backupDir.path.length + 1);
         archive.addFile(ArchiveFile(name, data.length, data));
       }
 
       final bytes = ZipEncoder().encode(archive);
       if (bytes == null) throw Exception('Could not create archive');
 
-      final timestamp =
-          DateTime.now().toIso8601String().replaceAll(':', '-');
-      final zipFile = File('${dir.path}/autobackups_$timestamp.zip');
+      final fileName =
+          'evaluation_autobackups_${DateTime.now().millisecondsSinceEpoch}.zip';
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Auto-Backups Archive',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+      );
+      if (savePath == null) return;
+
+      final zipFile = File(savePath);
       await zipFile.writeAsBytes(bytes, flush: true);
 
       if (!mounted) return;
+      final name = savePath.split(Platform.pathSeparator).last;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Auto-backups exported: ${zipFile.path}')),
+        SnackBar(content: Text('Archive saved: $name')),
       );
     } catch (_) {
       if (mounted) {
@@ -2350,6 +2358,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           const SnackBar(content: Text('Failed to export auto-backups')),
         );
       }
+    } finally {
+      if (mounted) setState(() {});
     }
   }
 
@@ -3311,8 +3321,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             child: const Text('Export All Backups'),
           ),
           TextButton(
-            onPressed: _exportAutoBackupsArchive,
-            child: const Text('Export Auto-Backups Archive'),
+            onPressed: _exportAutoBackups,
+            child: const Text('Export Auto-Backups'),
           ),
           TextButton(
             onPressed: _exportAllEvaluationSnapshots,
