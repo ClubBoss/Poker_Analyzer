@@ -1205,6 +1205,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         const SnackBar(content: Text('Evaluation queue cleared')),
       );
     }
+    _debugPanelSetState?.call(() {});
   }
 
   void _clearPendingQueue() {
@@ -1218,6 +1219,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         const SnackBar(content: Text('Pending queue cleared')),
       );
     }
+    _debugPanelSetState?.call(() {});
   }
 
   void _clearFailedQueue() {
@@ -1231,6 +1233,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         const SnackBar(content: Text('Failed queue cleared')),
       );
     }
+    _debugPanelSetState?.call(() {});
   }
 
   void _clearCompletedQueue() {
@@ -1244,6 +1247,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         const SnackBar(content: Text('Completed queue cleared')),
       );
     }
+    _debugPanelSetState?.call(() {});
   }
 
   void _clearCompletedEvaluations() {
