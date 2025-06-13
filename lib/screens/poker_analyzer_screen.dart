@@ -1319,6 +1319,32 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
+  Future<void> _forceRestartEvaluationProcessing() async {
+    if (_processingEvaluations) {
+      setState(() {
+        _cancelProcessingRequested = true;
+        _pauseProcessingRequested = false;
+      });
+      _debugPanelSetState?.call(() {});
+      while (_processingEvaluations) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _processingEvaluations = false;
+        _cancelProcessingRequested = false;
+      });
+    } else {
+      _processingEvaluations = false;
+      _cancelProcessingRequested = false;
+    }
+    _debugPanelSetState?.call(() {});
+    if (_pendingEvaluations.isNotEmpty) {
+      _processEvaluationQueue();
+    }
+  }
+
   void _retryFailedEvaluations() {
     setState(() {
       if (_failedEvaluations.isNotEmpty) {
@@ -3191,6 +3217,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                             ? null
                             : _cancelEvaluationProcessing,
                     child: const Text('Cancel Evaluation Processing'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _pendingEvaluations.isEmpty
+                        ? null
+                        : _forceRestartEvaluationProcessing,
+                    child: const Text('Force Evaluation Restart'),
                   ),
                 ],
               ),
