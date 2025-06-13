@@ -28,6 +28,7 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
   playback even after closing the app
 - Automatic evaluation queue backups run every 15 minutes and keep only
   the 50 most recent files to save storage
+- Import and export the full evaluation queue state through the debug panel
 
 ![screenshot](flutter_01.png)
 
