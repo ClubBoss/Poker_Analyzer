@@ -1515,6 +1515,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _exportFullEvaluationQueueState() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final exportDir = Directory('${dir.path}/evaluation_exports');
+      await exportDir.create(recursive: true);
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-');
+      final file =
+          File('${exportDir.path}/queue_export_${timestamp}.json');
+      final data = {
+        'pending': [for (final e in _pendingEvaluations) e.toJson()],
+        'failed': [for (final e in _failedEvaluations) e.toJson()],
+      };
+      await file.writeAsString(jsonEncode(data), flush: true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Queue exported: ${file.path}')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to export queue')),
+        );
+      }
+    }
+  }
+
   Future<void> _backupEvaluationQueue() async {
     if (_pendingEvaluations.isEmpty) return;
     try {
@@ -2621,6 +2649,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextButton(
             onPressed: _exportEvaluationQueue,
             child: const Text('Export Evaluation Queue'),
+          ),
+          TextButton(
+            onPressed: _exportFullEvaluationQueueState,
+            child: const Text('Export Full Queue State'),
           ),
           TextButton(
             onPressed: _backupEvaluationQueue,
