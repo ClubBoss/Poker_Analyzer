@@ -2990,6 +2990,177 @@ class _DebugPanelState extends State<_DebugPanel> {
     super.dispose();
   }
 
+  Widget _btn(String label, VoidCallback? onPressed) {
+    return ElevatedButton(onPressed: onPressed, child: Text(label));
+  }
+
+  Widget _processingControls() {
+    return Row(
+      children: [
+        _btn(
+          'Process Next',
+          s._pendingEvaluations.isEmpty || s._processingEvaluations
+              ? null
+              : s._processNextEvaluation,
+        ),
+        const SizedBox(width: 8),
+        _btn(
+          'Start Evaluation Processing',
+          s._pendingEvaluations.isEmpty || s._processingEvaluations
+              ? null
+              : s._processEvaluationQueue,
+        ),
+        const SizedBox(width: 8),
+        _btn(
+          s._pauseProcessingRequested ? 'Resume' : 'Pause',
+          s._pendingEvaluations.isEmpty || !s._processingEvaluations
+              ? null
+              : s._toggleEvaluationProcessingPause,
+        ),
+        const SizedBox(width: 8),
+        _btn(
+          'Cancel Evaluation Processing',
+          !s._processingEvaluations && s._pendingEvaluations.isEmpty
+              ? null
+              : s._cancelEvaluationProcessing,
+        ),
+        const SizedBox(width: 8),
+        _btn(
+          'Force Evaluation Restart',
+          s._pendingEvaluations.isEmpty
+              ? null
+              : s._forceRestartEvaluationProcessing,
+        ),
+      ],
+    );
+  }
+
+  Widget _snapshotControls() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _btn(
+            'Retry Failed Evaluations',
+            s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _btn(
+            'Export Snapshot Now',
+            s._processingEvaluations
+                ? null
+                : () => s._exportEvaluationQueueSnapshot(showNotification: true),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _btn(
+            'Backup Queue Now',
+            s._processingEvaluations
+                ? null
+                : () async {
+                    await s._backupEvaluationQueue();
+                    s._debugPanelSetState?.call(() {});
+                  },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _queueTools() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _btn('Import Evaluation Queue', s._importEvaluationQueue),
+        _btn('Restore Evaluation Queue', s._restoreEvaluationQueue),
+        _btn('Restore From Auto-Backup', s._restoreFromAutoBackup),
+        _btn('Bulk Import Evaluation Queue', s._bulkImportEvaluationQueue),
+        _btn('Bulk Import Backups', s._bulkImportEvaluationBackups),
+        _btn('Bulk Import Auto-Backups', s._bulkImportAutoBackups),
+        _btn('Import Queue Snapshot', s._importEvaluationQueueSnapshot),
+        _btn('Bulk Import Snapshots', s._bulkImportEvaluationSnapshots),
+        _btn('Export All Snapshots', s._exportAllEvaluationSnapshots),
+        _btn('Import Full Queue State', s._importFullEvaluationQueueState),
+        _btn('Restore Full Queue State', s._restoreFullEvaluationQueueState),
+        _btn('Export Full Queue State', s._exportFullEvaluationQueueState),
+        _btn('Export Current Queue Snapshot', s._exportEvaluationQueueSnapshot),
+        _btn('Quick Backup', s._quickBackupEvaluationQueue),
+        _btn('Import Quick Backups', s._importQuickBackups),
+        _btn('Export All Backups', s._exportAllEvaluationBackups),
+        _btn(
+          'Retry Failed Evaluations',
+          s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
+        ),
+        _btn(
+          'Clear Pending',
+          s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
+        ),
+        _btn(
+          'Clear Failed',
+          s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
+        ),
+        _btn(
+          'Clear Completed',
+          s._completedEvaluations.isEmpty ? null : s._clearCompletedQueue,
+        ),
+        _btn(
+          'Clear Evaluation Queue',
+          s._pendingEvaluations.isEmpty && s._completedEvaluations.isEmpty
+              ? null
+              : s._clearEvaluationQueue,
+        ),
+        _btn(
+          'Remove Duplicates',
+          s._pendingEvaluations.length +
+                      s._failedEvaluations.length +
+                      s._completedEvaluations.length ==
+                  0
+              ? null
+              : s._removeDuplicateEvaluations,
+        ),
+        _btn(
+          'Resolve Conflicts',
+          s._pendingEvaluations.length +
+                      s._failedEvaluations.length +
+                      s._completedEvaluations.length ==
+                  0
+              ? null
+              : s._resolveQueueConflicts,
+        ),
+        _btn(
+          'Sort Queues',
+          s._pendingEvaluations.length +
+                      s._failedEvaluations.length +
+                      s._completedEvaluations.length ==
+                  0
+              ? null
+              : s._sortEvaluationQueues,
+        ),
+        _btn(
+          'Clear Completed Evaluations',
+          s._completedEvaluations.isEmpty
+              ? null
+              : s._clearCompletedEvaluations,
+        ),
+      ],
+    );
+  }
+
+  TextButton _dialogBtn(String label, VoidCallback onPressed) {
+    return TextButton(onPressed: onPressed, child: Text(label));
+  }
+
+  Widget _check(String label, bool ok, String a, String b) {
+    return Text(ok ? '$label: ✅' : '$label: ❌ $a vs $b');
+  }
+
   @override
   Widget build(BuildContext context) {
     final hand = s._currentSavedHand();
@@ -3293,224 +3464,12 @@ class _DebugPanelState extends State<_DebugPanel> {
               },
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.isEmpty || s._processingEvaluations
-                      ? null
-                      : s._processNextEvaluation,
-                  child: const Text('Process Next Evaluation'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.isEmpty || s._processingEvaluations
-                      ? null
-                      : s._processEvaluationQueue,
-                  child: const Text('Start Evaluation Processing'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.isEmpty || !s._processingEvaluations
-                      ? null
-                      : s._toggleEvaluationProcessingPause,
-                  child: Text(s._pauseProcessingRequested ? 'Resume' : 'Pause'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed:
-                      !s._processingEvaluations && s._pendingEvaluations.isEmpty
-                          ? null
-                          : s._cancelEvaluationProcessing,
-                  child: const Text('Cancel Evaluation Processing'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.isEmpty
-                      ? null
-                      : s._forceRestartEvaluationProcessing,
-                  child: const Text('Force Evaluation Restart'),
-                ),
-              ],
-            ),
+            _processingControls(),
             const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed:
-                    s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
-                child: const Text('Retry Failed Evaluations'),
-              ),
-            ),
+            _snapshotControls(),
             const SizedBox(height: 12),
             const Text('Evaluation Queue Tools:'),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ElevatedButton(
-                  onPressed: s._importEvaluationQueue,
-                  child: const Text('Import Evaluation Queue'),
-                ),
-                ElevatedButton(
-                  onPressed: s._restoreEvaluationQueue,
-                  child: const Text('Restore Evaluation Queue'),
-                ),
-                ElevatedButton(
-                  onPressed: s._restoreFromAutoBackup,
-                  child: const Text('Restore From Auto-Backup'),
-                ),
-                ElevatedButton(
-                  onPressed: s._bulkImportEvaluationQueue,
-                  child: const Text('Bulk Import Evaluation Queue'),
-                ),
-                ElevatedButton(
-                  onPressed: s._bulkImportEvaluationBackups,
-                  child: const Text('Bulk Import Backups'),
-                ),
-                ElevatedButton(
-                  onPressed: s._importQuickBackups,
-                  child: const Text('Import Quick Backups'),
-                ),
-                ElevatedButton(
-                  onPressed: s._bulkImportAutoBackups,
-                  child: const Text('Bulk Import Auto-Backups'),
-                ),
-                ElevatedButton(
-                  onPressed: s._importEvaluationQueueSnapshot,
-                  child: const Text('Import Queue Snapshot'),
-                ),
-                ElevatedButton(
-                  onPressed: s._bulkImportEvaluationSnapshots,
-                  child: const Text('Bulk Import Snapshots'),
-                ),
-                ElevatedButton(
-                  onPressed: s._exportAllEvaluationSnapshots,
-                  child: const Text('Export All Snapshots'),
-                ),
-                ElevatedButton(
-                  onPressed: s._importFullEvaluationQueueState,
-                  child: const Text('Import Full Queue State'),
-                ),
-                ElevatedButton(
-                  onPressed: s._restoreFullEvaluationQueueState,
-                  child: const Text('Restore Full Queue State'),
-                ),
-                ElevatedButton(
-                  onPressed: s._exportFullEvaluationQueueState,
-                  child: const Text('Export Full Queue State'),
-                ),
-                ElevatedButton(
-                  onPressed: s._exportEvaluationQueueSnapshot,
-                  child: const Text('Export Current Queue Snapshot'),
-                ),
-                ElevatedButton(
-                  onPressed: s._exportAllEvaluationSnapshots,
-                  child: const Text('Export All Snapshots'),
-                ),
-                ElevatedButton(
-                  onPressed: s._quickBackupEvaluationQueue,
-                  child: const Text('Quick Backup'),
-                ),
-                ElevatedButton(
-                  onPressed: s._importQuickBackups,
-                  child: const Text('Import Quick Backups'),
-                ),
-                ElevatedButton(
-                  onPressed: s._exportAllEvaluationBackups,
-                  child: const Text('Export All Backups'),
-                ),
-                ElevatedButton(
-                  onPressed: s._failedEvaluations.isEmpty
-                      ? null
-                      : s._retryFailedEvaluations,
-                  child: const Text('Retry Failed Evaluations'),
-                ),
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.isEmpty
-                          ? null
-                          : s._clearPendingQueue,
-                  child: const Text('Clear Pending'),
-                ),
-                ElevatedButton(
-                  onPressed:
-                      s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
-                  child: const Text('Clear Failed'),
-                ),
-                ElevatedButton(
-                  onPressed: s._completedEvaluations.isEmpty
-                          ? null
-                          : s._clearCompletedQueue,
-                  child: const Text('Clear Completed'),
-                ),
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.isEmpty &&
-                          s._completedEvaluations.isEmpty
-                      ? null
-                      : s._clearEvaluationQueue,
-                  child: const Text('Clear Evaluation Queue'),
-                ),
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.length +
-                              s._failedEvaluations.length +
-                              s._completedEvaluations.length ==
-                          0
-                      ? null
-                      : s._removeDuplicateEvaluations,
-                  child: const Text('Remove Duplicates'),
-                ),
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.length +
-                              s._failedEvaluations.length +
-                              s._completedEvaluations.length ==
-                          0
-                      ? null
-                      : s._resolveQueueConflicts,
-                  child: const Text('Resolve Conflicts'),
-                ),
-                ElevatedButton(
-                  onPressed: s._pendingEvaluations.length +
-                              s._failedEvaluations.length +
-                              s._completedEvaluations.length ==
-                          0
-                      ? null
-                      : s._sortEvaluationQueues,
-                  child: const Text('Sort Queues'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: s._completedEvaluations.isEmpty
-                    ? null
-                    : s._clearCompletedEvaluations,
-                child: const Text('Clear Completed Evaluations'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: s._processingEvaluations
-                    ? null
-                    : () => s._exportEvaluationQueueSnapshot(showNotification: true),
-                child: const Text('Export Snapshot Now'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: s._processingEvaluations
-                    ? null
-                    : () async {
-                        await s._backupEvaluationQueue();
-                        s._debugPanelSetState?.call(() {});
-                      },
-                child: const Text('Backup Queue Now'),
-              ),
-            ),
+            _queueTools(),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -3570,71 +3529,53 @@ class _DebugPanelState extends State<_DebugPanel> {
             Text('Is Debug Menu Open: ${s._isDebugPanelOpen}'),
             const SizedBox(height: 12),
             const Text('Full Export Consistency:'),
-            Text(() {
-              final match = hand.numberOfPlayers == s.numberOfPlayers;
-              return match
-                  ? 'numberOfPlayers: ✅'
-                  : 'numberOfPlayers: ❌ '
-                      '${hand.numberOfPlayers} vs ${s.numberOfPlayers}';
-            }()),
-            Text(() {
-              final match = hand.heroIndex == s.heroIndex;
-              return match
-                  ? 'heroIndex: ✅'
-                  : 'heroIndex: ❌ ${hand.heroIndex} vs ${s.heroIndex}';
-            }()),
-            Text(() {
-              final match = hand.heroPosition == s._heroPosition;
-              return match
-                  ? 'heroPosition: ✅'
-                  : 'heroPosition: ❌ '
-                      '${hand.heroPosition} vs ${s._heroPosition}';
-            }()),
-            Text(() {
-              final match = mapEquals(hand.playerPositions, s.playerPositions);
-              return match
-                  ? 'playerPositions: ✅'
-                  : 'playerPositions: ❌ '
-                      '${hand.playerPositions} vs ${s.playerPositions}';
-            }()),
-            Text(() {
-              final match = mapEquals(hand.stackSizes, s._initialStacks);
-              return match
-                  ? 'stackSizes: ✅'
-                  : 'stackSizes: ❌ '
-                      '${hand.stackSizes} vs ${s._initialStacks}';
-            }()),
-            Text(() {
-              final match = hand.actions.length == s.actions.length;
-              return match
-                  ? 'actions.length: ✅'
-                  : 'actions.length: ❌ '
-                      '${hand.actions.length} vs ${s.actions.length}';
-            }()),
-            Text(() {
-              final live = s.boardCards.map((c) => c.toString()).join(' ');
-              final saved = hand.boardCards.map((c) => c.toString()).join(' ');
-              return live == saved
-                  ? 'boardCards: ✅'
-                  : 'boardCards: ❌ $saved vs $live';
-            }()),
-            Text(() {
-              final live = [
-                for (final p in s.players)
-                  p.revealedCards
-                      .whereType<CardModel>()
-                      .map((c) => c.toString())
-                      .join(' ')
-              ];
-              final saved = [
-                for (final list in hand.revealedCards)
-                  list.map((c) => c.toString()).join(' ')
-              ];
-              final match = listEquals(live, saved);
-              return match
-                  ? 'revealedCards: ✅'
-                  : 'revealedCards: ❌ $saved vs $live';
-            }()),
+            _check('numberOfPlayers',
+                hand.numberOfPlayers == s.numberOfPlayers,
+                '${hand.numberOfPlayers}', '${s.numberOfPlayers}'),
+            _check('heroIndex', hand.heroIndex == s.heroIndex,
+                '${hand.heroIndex}', '${s.heroIndex}'),
+            _check('heroPosition', hand.heroPosition == s._heroPosition,
+                hand.heroPosition, s._heroPosition),
+            _check('playerPositions',
+                mapEquals(hand.playerPositions, s.playerPositions),
+                hand.playerPositions.toString(),
+                s.playerPositions.toString()),
+            _check('stackSizes', mapEquals(hand.stackSizes, s._initialStacks),
+                hand.stackSizes.toString(), s._initialStacks.toString()),
+            _check('actions.length', hand.actions.length == s.actions.length,
+                '${hand.actions.length}', '${s.actions.length}'),
+            _check(
+                'boardCards',
+                hand.boardCards.map((c) => c.toString()).join(' ') ==
+                    s.boardCards.map((c) => c.toString()).join(' '),
+                hand.boardCards.map((c) => c.toString()).join(' '),
+                s.boardCards.map((c) => c.toString()).join(' ')),
+            _check(
+                'revealedCards',
+                listEquals(
+                  [
+                    for (final p in s.players)
+                      p.revealedCards
+                          .whereType<CardModel>()
+                          .map((c) => c.toString())
+                          .join(' ')
+                  ],
+                  [
+                    for (final list in hand.revealedCards)
+                      list.map((c) => c.toString()).join(' ')
+                  ],
+                ),
+                [
+                  for (final list in hand.revealedCards)
+                    list.map((c) => c.toString()).join(' ')
+                ].toString(),
+                [
+                  for (final p in s.players)
+                    p.revealedCards
+                        .whereType<CardModel>()
+                        .map((c) => c.toString())
+                        .join(' ')
+                ].toString()),
             const SizedBox(height: 12),
             const Text('Theme Diagnostics:'),
             Text('Current Theme: ${Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'}'),
@@ -3643,42 +3584,15 @@ class _DebugPanelState extends State<_DebugPanel> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: s._exportEvaluationQueue,
-          child: const Text('Export Evaluation Queue'),
-        ),
-        TextButton(
-          onPressed: s._exportFullEvaluationQueueState,
-          child: const Text('Export Full Queue State'),
-        ),
-        TextButton(
-          onPressed: s._backupEvaluationQueue,
-          child: const Text('Backup Evaluation Queue'),
-        ),
-        TextButton(
-          onPressed: s._exportAllEvaluationBackups,
-          child: const Text('Export All Backups'),
-        ),
-        TextButton(
-          onPressed: s._exportAutoBackups,
-          child: const Text('Export Auto-Backups'),
-        ),
-        TextButton(
-          onPressed: s._exportSnapshots,
-          child: const Text('Export Snapshots'),
-        ),
-        TextButton(
-          onPressed: s._exportAllEvaluationSnapshots,
-          child: const Text('Export All Snapshots'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
-        TextButton(
-          onPressed: s._clearEvaluationQueue,
-          child: const Text('Clear Evaluation Queue'),
-        ),
+        _dialogBtn('Export Evaluation Queue', s._exportEvaluationQueue),
+        _dialogBtn('Export Full Queue State', s._exportFullEvaluationQueueState),
+        _dialogBtn('Backup Evaluation Queue', s._backupEvaluationQueue),
+        _dialogBtn('Export All Backups', s._exportAllEvaluationBackups),
+        _dialogBtn('Export Auto-Backups', s._exportAutoBackups),
+        _dialogBtn('Export Snapshots', s._exportSnapshots),
+        _dialogBtn('Export All Snapshots', s._exportAllEvaluationSnapshots),
+        _dialogBtn('Close', () => Navigator.pop(context)),
+        _dialogBtn('Clear Evaluation Queue', s._clearEvaluationQueue),
       ],
     );
   }
