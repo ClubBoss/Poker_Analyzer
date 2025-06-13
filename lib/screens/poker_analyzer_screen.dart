@@ -3342,18 +3342,11 @@ class _DebugPanelState extends State<_DebugPanel> {
             const Text('Playback Pause State:'),
             _diag('Is Playback Paused', s._activeTimer == null),
             _vGap,
-            Row(
-              children: [
-                const Text('Action Evaluation Queue:'),
-                if (s._evaluationQueueResumed)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0),
-                    child: Text(
-                      '(Resumed from saved state)',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ),
-              ],
+            _diag(
+              'Action Evaluation Queue',
+              s._evaluationQueueResumed
+                  ? '(Resumed from saved state)'
+                  : '(New)',
             ),
             _diag('Pending Action Evaluations', s._pendingEvaluations.length),
             _diag(
