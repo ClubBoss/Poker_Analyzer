@@ -245,6 +245,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Set<String> _queueFilters = {'pending'};
   /// Active advanced debug filters for evaluation queue display.
   Set<String> _advancedFilters = {};
+  static const _advancedFilterKey = 'evaluation_advanced_filters';
 
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
@@ -339,6 +340,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _setQueueFilters(updated);
   }
 
+  Future<void> _loadAdvancedFilterPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_advancedFilterKey);
+    final loaded = list?.toSet() ?? {};
+    if (mounted) {
+      setState(() => _advancedFilters = loaded);
+    } else {
+      _advancedFilters = loaded;
+    }
+  }
+
+  Future<void> _setAdvancedFilters(Set<String> value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_advancedFilterKey, value.toList());
+    if (mounted) {
+      setState(() => _advancedFilters = value);
+    } else {
+      _advancedFilters = value;
+    }
+    _debugPanelSetState?.call(() {});
+  }
+
   void _toggleAdvancedFilter(String filter) {
     final updated = Set<String>.from(_advancedFilters);
     if (updated.contains(filter)) {
@@ -346,8 +369,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } else {
       updated.add(filter);
     }
-    setState(() => _advancedFilters = updated);
-    _debugPanelSetState?.call(() {});
+    _setAdvancedFilters(updated);
   }
 
   List<ActionEvaluationRequest> _applyAdvancedFilters(
@@ -1011,6 +1033,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _loadSnapshotRetentionPreference());
     Future(() => _loadProcessingDelayPreference());
     Future(() => _loadQueueFilterPreference());
+    Future(() => _loadAdvancedFilterPreference());
     Future(() => _loadQueueResumedPreference());
     Future.microtask(_loadSavedEvaluationQueue);
     Future(() => _cleanupOldAutoBackups());
