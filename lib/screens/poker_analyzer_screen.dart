@@ -165,6 +165,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _processingDelayKey = 'evaluation_processing_delay';
   int _evaluationProcessingDelay = 500;
 
+  static const _queueFilterKey = 'evaluation_queue_filter';
+  String _queueFilter = 'pending';
+
   Future<void> _loadSnapshotRetentionPreference() async {
     final prefs = await SharedPreferences.getInstance();
     final value = prefs.getBool(_snapshotRetentionKey);
@@ -213,6 +216,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       setState(() => _evaluationProcessingDelay = value);
     } else {
       _evaluationProcessingDelay = value;
+    }
+    _debugPanelSetState?.call(() {});
+  }
+
+  Future<void> _loadQueueFilterPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_queueFilterKey);
+    if (mounted) {
+      setState(() {
+        _queueFilter = value ?? 'pending';
+      });
+    } else {
+      _queueFilter = value ?? 'pending';
+    }
+  }
+
+  Future<void> _setQueueFilter(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_queueFilterKey, value);
+    if (mounted) {
+      setState(() => _queueFilter = value);
+    } else {
+      _queueFilter = value;
     }
     _debugPanelSetState?.call(() {});
   }
@@ -832,6 +858,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _cleanupOldEvaluationBackups());
     Future(() => _loadSnapshotRetentionPreference());
     Future(() => _loadProcessingDelayPreference());
+    Future(() => _loadQueueFilterPreference());
     Future.microtask(_loadSavedEvaluationQueue);
     Future(() => _cleanupOldAutoBackups());
     _startAutoBackupTimer();
@@ -2742,6 +2769,62 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               Text('Pending Action Evaluations: ${_pendingEvaluations.length}'),
               Text('Processed: ${_completedEvaluations.length} / ${_pendingEvaluations.length + _completedEvaluations.length}'),
               Text('Failed: ${_failedEvaluations.length}'),
+              const SizedBox(height: 8),
+              ToggleButtons(
+                isSelected: [
+                  _queueFilter == 'pending',
+                  _queueFilter == 'failed',
+                  _queueFilter == 'completed',
+                ],
+                onPressed: (i) {
+                  final modes = ['pending', 'failed', 'completed'];
+                  _setQueueFilter(modes[i]);
+                },
+                children: const [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text('Pending'),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text('Failed'),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text('Completed'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Builder(
+                builder: (context) {
+                  List<ActionEvaluationRequest> list;
+                  switch (_queueFilter) {
+                    case 'failed':
+                      list = _failedEvaluations;
+                      break;
+                    case 'completed':
+                      list = _completedEvaluations;
+                      break;
+                    default:
+                      list = _pendingEvaluations;
+                  }
+                  if (list.isEmpty) {
+                    return const Text('No items');
+                  }
+                  final display =
+                      list.length > 50 ? list.sublist(list.length - 50) : list;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final r in display)
+                        Text(
+                          'Player ${r.playerIndex}, Street ${r.street}, Action ${r.action}${r.amount != null ? ' ${r.amount}' : ''}',
+                        ),
+                    ],
+                  );
+                },
+              ),
               const SizedBox(height: 12),
               const Text('Evaluation Queue Tools:'),
               Wrap(
