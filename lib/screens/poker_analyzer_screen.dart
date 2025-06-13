@@ -3892,6 +3892,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     child: const Text('Export Current Queue Snapshot'),
                   ),
                   ElevatedButton(
+                    onPressed: _exportAllEvaluationSnapshots,
+                    child: const Text('Export All Snapshots'),
+                  ),
+                  ElevatedButton(
                     onPressed: _quickBackupEvaluationQueue,
                     child: const Text('Quick Backup'),
                   ),
