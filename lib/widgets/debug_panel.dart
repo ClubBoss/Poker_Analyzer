@@ -283,6 +283,45 @@ class _QueueDisplaySection extends StatelessWidget {
   }
 }
 
+class _EvaluationResultsSection extends StatelessWidget {
+  const _EvaluationResultsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    final results = s._completedEvaluations.length > 50
+        ? s._completedEvaluations
+            .sublist(s._completedEvaluations.length - 50)
+        : s._completedEvaluations;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Evaluation Results:'),
+        if (results.isEmpty)
+          debugDiag('Completed Evaluations', '(none)')
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final r in results)
+                debugDiag(
+                    'Player ${r.playerIndex}, Street ${r.street}', r.action),
+            ],
+          ),
+        _DebugPanelState._vGap,
+        const Text('Evaluation Queue Statistics:'),
+        debugDiag('Pending', s._pendingEvaluations.length),
+        debugDiag('Failed', s._failedEvaluations.length),
+        debugDiag('Completed', s._completedEvaluations.length),
+        debugDiag('Total Processed',
+            s._completedEvaluations.length + s._failedEvaluations.length),
+      ],
+    );
+  }
+}
+
 
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
@@ -567,32 +606,7 @@ class _QueueDisplaySection extends StatelessWidget {
               ],
             ),
             _vGap,
-            const Text('Evaluation Results:'),
-            Builder(
-              builder: (context) {
-                final results = s._completedEvaluations.length > 50
-                    ? s._completedEvaluations
-                        .sublist(s._completedEvaluations.length - 50)
-                    : s._completedEvaluations;
-                if (results.isEmpty) {
-                  return debugDiag('Completed Evaluations', '(none)');
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final r in results)
-                      debugDiag('Player ${r.playerIndex}, Street ${r.street}', r.action),
-                  ],
-                );
-              },
-            ),
-            _vGap,
-            const Text('Evaluation Queue Statistics:'),
-            debugDiag('Pending', s._pendingEvaluations.length),
-            debugDiag('Failed', s._failedEvaluations.length),
-            debugDiag('Completed', s._completedEvaluations.length),
-            debugDiag('Total Processed',
-                s._completedEvaluations.length + s._failedEvaluations.length),
+            _EvaluationResultsSection(state: this),
             _vGap,
             const Text('HUD Overlay State:'),
             debugDiag('HUD Street Name', hudStreetName),
