@@ -382,30 +382,43 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final checkFailed = filters.contains('failed');
     final checkHighSpr = filters.contains('highspr');
 
-    final result = <ActionEvaluationRequest>[];
-    for (final r in list) {
+    if (!checkFeedback && !checkOpponent && !checkFailed && !checkHighSpr) {
+      return list;
+    }
+
+    bool matches(ActionEvaluationRequest r) {
       final md = r.metadata;
 
       if (checkFeedback) {
         final text = md?['feedbackText'] as String?;
-        if (text == null || text.isEmpty) continue;
+        if (text == null || text.isEmpty) return false;
       }
 
       if (checkOpponent && ((md?['opponentCards'] as List?)?.isEmpty ?? true)) {
-        continue;
+        return false;
       }
 
-      if (checkFailed && md?['status'] != 'failed') continue;
+      if (checkFailed && md?['status'] != 'failed') return false;
 
       if (checkHighSpr) {
         final spr = (md?['spr'] as num?)?.toDouble();
-        if (spr == null || spr < 3) continue;
+        if (spr == null || spr < 3) return false;
       }
 
-      result.add(r);
+      return true;
     }
 
-    return result;
+    final result = <ActionEvaluationRequest>[];
+    var modified = false;
+    for (final r in list) {
+      if (matches(r)) {
+        result.add(r);
+      } else {
+        modified = true;
+      }
+    }
+
+    return modified ? result : list;
   }
 
   Future<void> _loadQueueResumedPreference() async {
