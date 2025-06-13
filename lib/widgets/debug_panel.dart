@@ -179,6 +179,110 @@ class _ProcessingControls extends StatelessWidget {
   }
 }
 
+class _QueueDisplaySection extends StatelessWidget {
+  const _QueueDisplaySection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ToggleButtons(
+          isSelected: [
+            s._queueFilters.contains('pending'),
+            s._queueFilters.contains('failed'),
+            s._queueFilters.contains('completed'),
+          ],
+          onPressed: (i) {
+            final modes = ['pending', 'failed', 'completed'];
+            s._toggleQueueFilter(modes[i]);
+          },
+          children: const [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text('Pending'),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text('Failed'),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text('Completed'),
+            ),
+          ],
+        ),
+        _DebugPanelState._vGap,
+        ExpansionTile(
+          title: const Text('Advanced Filters'),
+          children: [
+            CheckboxListTile(
+              title: const Text('Only hands with feedback'),
+              value: s._advancedFilters.contains('feedback'),
+              onChanged: (_) => s._toggleAdvancedFilter('feedback'),
+            ),
+            CheckboxListTile(
+              title: const Text('Only hands with opponent cards'),
+              value: s._advancedFilters.contains('opponent'),
+              onChanged: (_) => s._toggleAdvancedFilter('opponent'),
+            ),
+            CheckboxListTile(
+              title: const Text('Only failed evaluations'),
+              value: s._advancedFilters.contains('failed'),
+              onChanged: (_) => s._toggleAdvancedFilter('failed'),
+            ),
+            CheckboxListTile(
+              title: const Text('Only high SPR (>=3)'),
+              value: s._advancedFilters.contains('highspr'),
+              onChanged: (_) => s._toggleAdvancedFilter('highspr'),
+            ),
+          ],
+        ),
+        _DebugPanelState._vGap,
+        state._sortBySprSwitch(),
+        _DebugPanelState._vGap,
+        TextField(
+          controller: state._searchController,
+          decoration:
+              const InputDecoration(labelText: 'Search by ID or Feedback'),
+          onChanged: (v) => s._setSearchQuery(v),
+        ),
+        _DebugPanelState._vGap,
+        Builder(
+          builder: (context) {
+            final sections = <Widget>[];
+            if (s._queueFilters.contains('pending')) {
+              sections.add(state._queueSection('Pending', s._pendingEvaluations));
+            }
+            if (s._queueFilters.contains('failed')) {
+              sections.add(state._queueSection('Failed', s._failedEvaluations));
+            }
+            if (s._queueFilters.contains('completed')) {
+              sections
+                  .add(state._queueSection('Completed', s._completedEvaluations));
+            }
+            if (sections.isEmpty) {
+              return debugDiag('Queue Items', '(none)');
+            }
+            return ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 300),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: sections,
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
 
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
@@ -433,93 +537,7 @@ class _ProcessingControls extends StatelessWidget {
                 '${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}'),
             debugDiag('Failed', s._failedEvaluations.length),
             _vGap,
-            ToggleButtons(
-              isSelected: [
-                s._queueFilters.contains('pending'),
-                s._queueFilters.contains('failed'),
-                s._queueFilters.contains('completed'),
-              ],
-              onPressed: (i) {
-                final modes = ['pending', 'failed', 'completed'];
-                s._toggleQueueFilter(modes[i]);
-              },
-              children: const [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text('Pending'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text('Failed'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text('Completed'),
-                ),
-              ],
-            ),
-            _vGap,
-            ExpansionTile(
-              title: const Text('Advanced Filters'),
-              children: [
-                CheckboxListTile(
-                  title: const Text('Only hands with feedback'),
-                  value: s._advancedFilters.contains('feedback'),
-                  onChanged: (_) => s._toggleAdvancedFilter('feedback'),
-                ),
-                CheckboxListTile(
-                  title: const Text('Only hands with opponent cards'),
-                  value: s._advancedFilters.contains('opponent'),
-                  onChanged: (_) => s._toggleAdvancedFilter('opponent'),
-                ),
-                CheckboxListTile(
-                  title: const Text('Only failed evaluations'),
-                  value: s._advancedFilters.contains('failed'),
-                  onChanged: (_) => s._toggleAdvancedFilter('failed'),
-                ),
-                CheckboxListTile(
-                  title: const Text('Only high SPR (>=3)'),
-                  value: s._advancedFilters.contains('highspr'),
-                  onChanged: (_) => s._toggleAdvancedFilter('highspr'),
-                ),
-              ],
-            ),
-            _vGap,
-            _sortBySprSwitch(),
-            _vGap,
-            TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(
-                  labelText: 'Search by ID or Feedback'),
-              onChanged: (v) => s._setSearchQuery(v),
-            ),
-            _vGap,
-            Builder(
-              builder: (context) {
-                final sections = <Widget>[];
-                if (s._queueFilters.contains('pending')) {
-                  sections.add(_queueSection('Pending', s._pendingEvaluations));
-                }
-                if (s._queueFilters.contains('failed')) {
-                  sections.add(_queueSection('Failed', s._failedEvaluations));
-                }
-                if (s._queueFilters.contains('completed')) {
-                  sections.add(_queueSection('Completed', s._completedEvaluations));
-                }
-                if (sections.isEmpty) {
-                  return debugDiag('Queue Items', '(none)');
-                }
-                return ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 300),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: sections,
-                    ),
-                  ),
-                );
-              },
-            ),
+            _QueueDisplaySection(state: this),
             _vGap,
             _ProcessingControls(state: this),
             _vGap,
