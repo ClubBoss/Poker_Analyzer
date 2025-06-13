@@ -3039,6 +3039,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                  onPressed:
+                      _failedEvaluations.isEmpty ? null : _retryFailedEvaluations,
+                  child: const Text('Retry Failed Evaluations'),
+                ),
+              ),
               const SizedBox(height: 12),
               const Text('Evaluation Queue Tools:'),
               Wrap(
