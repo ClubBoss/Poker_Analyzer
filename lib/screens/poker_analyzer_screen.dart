@@ -276,6 +276,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return ActionEvaluationRequest.fromJson(map);
   }
 
+  List<ActionEvaluationRequest> _decodeEvaluationList(dynamic list) {
+    final items = <ActionEvaluationRequest>[];
+    if (list is List) {
+      for (final item in list) {
+        if (item is Map) {
+          try {
+            items.add(_decodeEvaluationRequest(Map<String, dynamic>.from(item)));
+          } catch (_) {}
+        }
+      }
+    }
+    return items;
+  }
+
   void _applySavedOrder(
       List<ActionEvaluationRequest> list, List<String>? order) {
     if (order == null || order.isEmpty) return;
@@ -1796,42 +1810,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final decoded = jsonDecode(content);
       if (decoded is! Map) throw const FormatException();
 
-      final pendingDecoded = decoded['pending'];
-      final failedDecoded = decoded['failed'];
-      final completedDecoded = decoded['completed'];
-      final pending = <ActionEvaluationRequest>[];
-      final failed = <ActionEvaluationRequest>[];
-      final completed = <ActionEvaluationRequest>[];
-
-      if (pendingDecoded is List) {
-        for (final item in pendingDecoded) {
-          if (item is Map) {
-            try {
-              pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-            } catch (_) {}
-          }
-        }
-      }
-
-      if (failedDecoded is List) {
-        for (final item in failedDecoded) {
-          if (item is Map) {
-            try {
-              failed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-            } catch (_) {}
-          }
-        }
-      }
-
-      if (completedDecoded is List) {
-        for (final item in completedDecoded) {
-          if (item is Map) {
-            try {
-              completed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-            } catch (_) {}
-          }
-        }
-      }
+      final pending = _decodeEvaluationList(decoded['pending']);
+      final failed = _decodeEvaluationList(decoded['failed']);
+      final completed = _decodeEvaluationList(decoded['completed']);
 
       if (!mounted) return;
       setState(() {
@@ -1967,45 +1948,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final failed = <ActionEvaluationRequest>[];
         final completed = <ActionEvaluationRequest>[];
         if (decoded is List) {
-          for (final item in decoded) {
-            if (item is Map) {
-              try {
-                pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-              } catch (_) {}
-            }
-          }
+          pending.addAll(_decodeEvaluationList(decoded));
         } else if (decoded is Map) {
-          final p = decoded['pending'];
-          if (p is List) {
-            for (final item in p) {
-              if (item is Map) {
-                try {
-                  pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-                } catch (_) {}
-              }
-            }
-          }
-          final f = decoded['failed'];
-          final c = decoded['completed'];
-          if (f is List) {
-            for (final item in f) {
-              if (item is Map) {
-                try {
-                  failed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-                } catch (_) {}
-              }
-            }
+          pending.addAll(_decodeEvaluationList(decoded['pending']));
+          failed.addAll(_decodeEvaluationList(decoded['failed']));
+          completed.addAll(_decodeEvaluationList(decoded['completed']));
         }
-        if (c is List) {
-          for (final item in c) {
-            if (item is Map) {
-              try {
-                completed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-              } catch (_) {}
-            }
-          }
-        }
-      }
 
         final prefs = await SharedPreferences.getInstance();
         _applySavedOrder(pending, prefs.getStringList(_pendingOrderKey));
@@ -2362,42 +2310,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final decoded = jsonDecode(content);
       if (decoded is! Map) throw const FormatException();
 
-      final pendingDecoded = decoded['pending'];
-      final failedDecoded = decoded['failed'];
-      final completedDecoded = decoded['completed'];
-      final pending = <ActionEvaluationRequest>[];
-      final failed = <ActionEvaluationRequest>[];
-      final completed = <ActionEvaluationRequest>[];
-
-      if (pendingDecoded is List) {
-        for (final item in pendingDecoded) {
-          if (item is Map) {
-            try {
-              pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-            } catch (_) {}
-          }
-        }
-      }
-
-      if (failedDecoded is List) {
-        for (final item in failedDecoded) {
-          if (item is Map) {
-            try {
-              failed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-            } catch (_) {}
-          }
-        }
-      }
-
-      if (completedDecoded is List) {
-        for (final item in completedDecoded) {
-          if (item is Map) {
-            try {
-              completed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-            } catch (_) {}
-          }
-        }
-      }
+      final pending = _decodeEvaluationList(decoded['pending']);
+      final failed = _decodeEvaluationList(decoded['failed']);
+      final completed = _decodeEvaluationList(decoded['completed']);
 
       if (!mounted) return;
       setState(() {
@@ -2567,49 +2482,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final content = await selected.readAsString();
       final decoded = jsonDecode(content);
 
-      final pending = <ActionEvaluationRequest>[];
-      final failed = <ActionEvaluationRequest>[];
-      final completed = <ActionEvaluationRequest>[];
+      final List<ActionEvaluationRequest> pending;
+      final List<ActionEvaluationRequest> failed;
+      final List<ActionEvaluationRequest> completed;
 
       if (decoded is List) {
-        for (final item in decoded) {
-          if (item is Map) {
-            try {
-              pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-            } catch (_) {}
-          }
-        }
+        pending = _decodeEvaluationList(decoded);
+        failed = [];
+        completed = [];
       } else if (decoded is Map) {
-        final p = decoded['pending'];
-        final f = decoded['failed'];
-        final c = decoded['completed'];
-        if (p is List) {
-          for (final item in p) {
-            if (item is Map) {
-              try {
-                pending.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-              } catch (_) {}
-            }
-          }
-        }
-        if (f is List) {
-          for (final item in f) {
-            if (item is Map) {
-              try {
-                failed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-              } catch (_) {}
-            }
-          }
-        }
-        if (c is List) {
-          for (final item in c) {
-            if (item is Map) {
-              try {
-                completed.add(_decodeEvaluationRequest(item.cast<String, dynamic>()));
-              } catch (_) {}
-            }
-          }
-        }
+        pending = _decodeEvaluationList(decoded['pending']);
+        failed = _decodeEvaluationList(decoded['failed']);
+        completed = _decodeEvaluationList(decoded['completed']);
       } else {
         throw const FormatException();
       }
