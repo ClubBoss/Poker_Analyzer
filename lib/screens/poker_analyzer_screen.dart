@@ -2956,708 +2956,733 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
 
-
   Future<void> _showDebugPanel() async {
-    final hand = _currentSavedHand();
-    final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet];
-    final hudPotText = _formatAmount(_pots[currentStreet]);
-    final int hudEffStack = _calculateEffectiveStackForStreet(currentStreet);
-    final double? hudSprValue =
-        _pots[currentStreet] > 0 ? hudEffStack / _pots[currentStreet] : null;
-    final String? hudSprText =
-        hudSprValue != null ? 'SPR: ${hudSprValue.toStringAsFixed(1)}' : null;
-    setState(() {
-      _isDebugPanelOpen = true;
-    });
+    setState(() => _isDebugPanelOpen = true);
     await showDialog<void>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          _debugPanelSetState = setState;
-          return AlertDialog(
-            title: const Text('Stack Diagnostics'),
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-              for (int i = 0; i < numberOfPlayers; i++)
-                Text(
-                  'Player ${i + 1}: Initial ${_initialStacks[i] ?? 0}, '
-                  'Invested ${_stackManager.getTotalInvested(i)}, '
-                  'Remaining ${_stackManager.getStackForPlayer(i)}',
-                ),
-              const SizedBox(height: 12),
-              if (hand.remainingStacks != null) ...[
-                const Text('Remaining Stacks (from saved hand):'),
-                for (final entry in hand.remainingStacks!.entries)
-                  Text('Player ${entry.key + 1}: ${entry.value}'),
-                const SizedBox(height: 12),
-              ],
-              if (hand.playerTypes != null) ...[
-                const Text('Player Types:'),
-                for (final entry in hand.playerTypes!.entries)
-                  Text('Player ${entry.key + 1}: ${entry.value.name}'),
-                const SizedBox(height: 12),
-              ],
-              if (hand.comment != null) ...[
-                const Text('Comment:'),
-                Text(hand.comment!),
-                const SizedBox(height: 12),
-              ],
-              if (hand.tags.isNotEmpty) ...[
-                const Text('Tags:'),
-                for (final tag in hand.tags) Text(tag),
-                const SizedBox(height: 12),
-              ],
-              if (hand.opponentIndex != null) ...[
-                Text('Opponent: Player ${hand.opponentIndex! + 1}'),
-                const SizedBox(height: 12),
-              ],
-              Text('Hero Position: ${hand.heroPosition}'),
-              const SizedBox(height: 12),
-              Text('Players at table: ${hand.numberOfPlayers}'),
-              const SizedBox(height: 12),
-              Text('Saved: ${formatDateTime(hand.date)}'),
-              const SizedBox(height: 12),
-              if (hand.expectedAction != null) ...[
-                Text('Expected Action: ${hand.expectedAction}'),
-                const SizedBox(height: 12),
-              ],
-              if (hand.feedbackText != null) ...[
-                Text('Feedback: ${hand.feedbackText}'),
-                const SizedBox(height: 12),
-              ],
-              Text(
-                boardCards.isNotEmpty
-                    ? 'Board Cards: ' +
-                        boardCards
-                            .map(_cardToDebugString)
-                            .join(' ')
-                    : 'Board Cards: (empty)',
-              ),
-              const SizedBox(height: 12),
-              for (int i = 0; i < numberOfPlayers; i++) ...[
-                Text(() {
-                  final rc =
-                      i < hand.revealedCards.length ? hand.revealedCards[i] : [];
-                  return rc.isNotEmpty
-                      ? 'Player ${i + 1} Revealed: ' +
-                          rc.map(_cardToDebugString).join(' ')
-                      : 'Player ${i + 1} Revealed: (none)';
-                }()),
-                const SizedBox(height: 12),
-              ],
-              Text(
-                  'Current Street: ${['Preflop', 'Flop', 'Turn', 'River'][currentStreet]}'),
-              const SizedBox(height: 12),
-              Text('Playback Index: $_playbackIndex / ${actions.length}'),
-              const SizedBox(height: 12),
-              Text('Active Player Index: ${activePlayerIndex ?? 'None'}'),
-              const SizedBox(height: 12),
-              Text('Last Action Player Index: ${lastActionPlayerIndex ?? 'None'}'),
-              const SizedBox(height: 12),
-              for (int i = 0; i < numberOfPlayers; i++) ...[
-                Text('Player ${i + 1} Cards: ${playerCards[i].length}'),
-                const SizedBox(height: 12),
-              ],
-              Text(
-                _firstActionTaken.isNotEmpty
-                    ? 'First Action Taken: ' +
-                        (_firstActionTaken.toList()..sort()).join(', ')
-                    : 'First Action Taken: (none)',
-              ),
-              const SizedBox(height: 12),
-              const Text('Effective Stacks:'),
-              for (int s = 0; s < 4; s++)
-                Text([
-                      'Preflop',
-                      'Flop',
-                      'Turn',
-                      'River',
-                    ][s] + ': ${_calculateEffectiveStackForStreet(s)}'),
-              const SizedBox(height: 12),
-              const Text('Effective Stacks (from export data):'),
-              if (_savedEffectiveStacks != null)
-                for (final entry in _savedEffectiveStacks!.entries)
-                  Text('${entry.key}: ${entry.value}')
-              else
-                const Text('No export data available'),
-              if (_savedEffectiveStacks != null) ...[
-                const SizedBox(height: 12),
-                const Text('Validation:'),
-                for (int s = 0; s < 4; s++)
-                  Text(() {
-                    const names = ['Preflop', 'Flop', 'Turn', 'River'];
-                    final name = names[s];
-                    final live = _calculateEffectiveStackForStreet(s);
-                    final exported = _savedEffectiveStacks![name];
-                    if (exported == live) {
-                      return '$name: ✅';
-                    }
-                    return '$name: ❌ live $live vs export ${exported ?? 'N/A'}';
-                  }()),
-              ],
-              if (_validationNotes != null &&
-                  _validationNotes!.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                const Text('Validation Notes:'),
-                for (final entry in _validationNotes!.entries)
-                  Text('${entry.key}: ${entry.value}'),
-              ],
-              const SizedBox(height: 12),
-              const Text('Playback Diagnostics:'),
-              Text('Preflop Actions: '
-                  '${actions.where((a) => a.street == 0).length}'),
-              Text('Flop Actions: '
-                  '${actions.where((a) => a.street == 1).length}'),
-              Text('Turn Actions: '
-                  '${actions.where((a) => a.street == 2).length}'),
-              Text('River Actions: '
-                  '${actions.where((a) => a.street == 3).length}'),
-              const SizedBox(height: 12),
-              Text('Total Actions: ${actions.length}'),
-              const SizedBox(height: 12),
-              const Text('Action Tags Diagnostics:'),
-              if (_actionTags.isNotEmpty)
-                for (final entry in _actionTags.entries) ...[
-                  Text('Player ${entry.key + 1} Action Tag: ${entry.value}'),
-                  const SizedBox(height: 12),
-                ]
-              else ...[
-                const Text('Action Tags: (none)'),
-                const SizedBox(height: 12),
-              ],
-              const Text('StackManager Diagnostics:'),
-              for (int i = 0; i < numberOfPlayers; i++) ...[
-                Text(
-                'Player $i StackManager: current ${_stackManager.getStackForPlayer(i)}, invested ${_stackManager.getTotalInvested(i)}',
-                ),
-                const SizedBox(height: 12),
-              ],
-              const Text('Internal State Flags:'),
-              Text('Debug Layout: $debugLayout'),
-              const SizedBox(height: 12),
-              Text('Perspective Switched: $isPerspectiveSwitched'),
-              const SizedBox(height: 12),
-              Text('Show All Revealed Cards: $_showAllRevealedCards'),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Expanded(child: Text('Enable Snapshot Retention Policy')),
-                  Switch(
-                    value: _snapshotRetentionEnabled,
-                    onChanged: (v) {
-                      _setSnapshotRetentionEnabled(v);
-                    },
-                    activeColor: Colors.orange,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              const Text('Collapsed Streets State:'),
-              for (int street = 0; street < 4; street++) ...[
-                Text(
-                  'Street $street Collapsed: '
-                  '${!_expandedHistoryStreets.contains(street)}',
-                ),
-                const SizedBox(height: 12),
-              ],
-              const Text('Chip Animation State:'),
-              Text(() {
-                final action = _centerChipAction;
-                if (action == null) return 'Center Chip Action: (null)';
-                var result = 'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
-                if (action.amount != null) result += ', Amount ${action.amount}';
-                return 'Center Chip Action: ' + result;
-              }()),
-              const SizedBox(height: 12),
-              Text('Show Center Chip: $_showCenterChip'),
-              const SizedBox(height: 12),
-              const Text('Animation Controllers State:'),
-              Text('Center Chip Animation Active: ${_centerChipController.isAnimating}'),
-              const SizedBox(height: 12),
-              Text('Center Chip Animation Value: ${_centerChipController.value.toStringAsFixed(2)}'),
-              const SizedBox(height: 12),
-              const Text('Street Transition State:'),
-              Text(
-                'Current Animated Players Per Street: '
-                '${_animatedPlayersPerStreet[currentStreet]?.length ?? 0}',
-              ),
-              const SizedBox(height: 12),
-              for (final entry in _animatedPlayersPerStreet.entries) ...[
-                Text('Street ${entry.key} Animated Count: ${entry.value.length}'),
-                const SizedBox(height: 12),
-              ],
-              const Text('Chip Trail Diagnostics:'),
-              Text('Animated Chips In Flight: ${ChipMovingWidget.activeCount}'),
-              const SizedBox(height: 12),
-              const Text('Playback Pause State:'),
-              Text('Is Playback Paused: ${_activeTimer == null}'),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Text('Action Evaluation Queue:'),
-                  if (_evaluationQueueResumed)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 4.0),
-                      child: Text(
-                        '(Resumed from saved state)',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ),
-                ],
-              ),
-              Text('Pending Action Evaluations: ${_pendingEvaluations.length}'),
-              Text('Processed: ${_completedEvaluations.length} / ${_pendingEvaluations.length + _completedEvaluations.length}'),
-              Text('Failed: ${_failedEvaluations.length}'),
-              const SizedBox(height: 8),
-              ToggleButtons(
-                isSelected: [
-                  _queueFilters.contains('pending'),
-                  _queueFilters.contains('failed'),
-                  _queueFilters.contains('completed'),
-                ],
-                onPressed: (i) {
-                  final modes = ['pending', 'failed', 'completed'];
-                  _toggleQueueFilter(modes[i]);
-                },
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('Pending'),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('Failed'),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('Completed'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Builder(
-                builder: (context) {
-                  final sections = <Widget>[];
-                  if (_queueFilters.contains('pending')) {
-                    sections.add(_buildQueueSection('Pending', _pendingEvaluations));
-                  }
-                  if (_queueFilters.contains('failed')) {
-                    sections.add(_buildQueueSection('Failed', _failedEvaluations));
-                  }
-                  if (_queueFilters.contains('completed')) {
-                    sections.add(_buildQueueSection('Completed', _completedEvaluations));
-                  }
-                  if (sections.isEmpty) {
-                    return const Text('No items');
-                  }
-                  return ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 300),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: sections,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.isEmpty ||
-                            _processingEvaluations
-                        ? null
-                        : _processNextEvaluation,
-                    child: const Text('Process Next Evaluation'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.isEmpty || _processingEvaluations
-                        ? null
-                        : _processEvaluationQueue,
-                    child: const Text('Start Evaluation Processing'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.isEmpty && !_processingEvaluations
-                        ? null
-                        : _toggleEvaluationProcessingPause,
-                    child:
-                        Text(_pauseProcessingRequested ? 'Resume' : 'Pause'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed:
-                        !_processingEvaluations && _pendingEvaluations.isEmpty
-                            ? null
-                            : _cancelEvaluationProcessing,
-                    child: const Text('Cancel Evaluation Processing'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.isEmpty
-                        ? null
-                        : _forceRestartEvaluationProcessing,
-                    child: const Text('Force Evaluation Restart'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ElevatedButton(
-                  onPressed:
-                      _failedEvaluations.isEmpty ? null : _retryFailedEvaluations,
-                  child: const Text('Retry Failed Evaluations'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text('Evaluation Queue Tools:'),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  ElevatedButton(
-                    onPressed: _importEvaluationQueue,
-                    child: const Text('Import Evaluation Queue'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _restoreEvaluationQueue,
-                    child: const Text('Restore Evaluation Queue'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _restoreFromAutoBackup,
-                    child: const Text('Restore From Auto-Backup'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _bulkImportEvaluationQueue,
-                    child: const Text('Bulk Import Evaluation Queue'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _bulkImportEvaluationBackups,
-                    child: const Text('Bulk Import Backups'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _importQuickBackups,
-                    child: const Text('Import Quick Backups'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _bulkImportAutoBackups,
-                    child: const Text('Bulk Import Auto-Backups'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _importEvaluationQueueSnapshot,
-                    child: const Text('Import Queue Snapshot'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _bulkImportEvaluationSnapshots,
-                    child: const Text('Bulk Import Snapshots'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _exportAllEvaluationSnapshots,
-                    child: const Text('Export All Snapshots'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _importFullEvaluationQueueState,
-                    child: const Text('Import Full Queue State'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _restoreFullEvaluationQueueState,
-                    child: const Text('Restore Full Queue State'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _exportFullEvaluationQueueState,
-                    child: const Text('Export Full Queue State'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _exportEvaluationQueueSnapshot,
-                    child: const Text('Export Current Queue Snapshot'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _exportAllEvaluationSnapshots,
-                    child: const Text('Export All Snapshots'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _quickBackupEvaluationQueue,
-                    child: const Text('Quick Backup'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _importQuickBackups,
-                    child: const Text('Import Quick Backups'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _exportAllEvaluationBackups,
-                    child: const Text('Export All Backups'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _failedEvaluations.isEmpty
-                        ? null
-                        : _retryFailedEvaluations,
-                    child: const Text('Retry Failed Evaluations'),
-                  ),
-                  ElevatedButton(
-                    onPressed:
-                        _pendingEvaluations.isEmpty ? null : _clearPendingQueue,
-                    child: const Text('Clear Pending'),
-                  ),
-                  ElevatedButton(
-                    onPressed:
-                        _failedEvaluations.isEmpty ? null : _clearFailedQueue,
-                    child: const Text('Clear Failed'),
-                  ),
-                  ElevatedButton(
-                    onPressed:
-                        _completedEvaluations.isEmpty ? null : _clearCompletedQueue,
-                    child: const Text('Clear Completed'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.isEmpty && _completedEvaluations.isEmpty
-                        ? null
-                        : _clearEvaluationQueue,
-                    child: const Text('Clear Evaluation Queue'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.length +
-                                _failedEvaluations.length +
-                                _completedEvaluations.length ==
-                            0
-                        ? null
-                        : _removeDuplicateEvaluations,
-                    child: const Text('Remove Duplicates'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.length +
-                                _failedEvaluations.length +
-                                _completedEvaluations.length ==
-                            0
-                        ? null
-                        : _resolveQueueConflicts,
-                    child: const Text('Resolve Conflicts'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _pendingEvaluations.length +
-                                _failedEvaluations.length +
-                                _completedEvaluations.length ==
-                            0
-                        ? null
-                        : _sortEvaluationQueues,
-                    child: const Text('Sort Queues'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ElevatedButton(
-                  onPressed: _completedEvaluations.isEmpty
-                      ? null
-                      : _clearCompletedEvaluations,
-                  child: const Text('Clear Completed Evaluations'),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ElevatedButton(
-                  onPressed: _processingEvaluations
-                      ? null
-                      : () =>
-                          _exportEvaluationQueueSnapshot(showNotification: true),
-                  child: const Text('Export Snapshot Now'),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ElevatedButton(
-                  onPressed: _processingEvaluations
-                      ? null
-                      : () async {
-                          await _backupEvaluationQueue();
-                          _debugPanelSetState?.call(() {});
-                        },
-                  child: const Text('Backup Queue Now'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Text('Processing Speed'),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Slider(
-                      value: _evaluationProcessingDelay.toDouble(),
-                      min: 100,
-                      max: 2000,
-                      divisions: 19,
-                      label: '${_evaluationProcessingDelay} ms',
-                      onChanged: (v) {
-                        _setProcessingDelay(v.round());
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text('${_evaluationProcessingDelay} ms'),
-                ],
-              ),
-              const SizedBox(height: 12),
-              const Text('Evaluation Results:'),
-              Builder(
-                builder: (context) {
-                  final results = _completedEvaluations.length > 50
-                      ? _completedEvaluations.sublist(_completedEvaluations.length - 50)
-                      : _completedEvaluations;
-                  if (results.isEmpty) {
-                    return const Text('No evaluations completed yet.');
-                  }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final r in results)
-                        Text('Player ${r.playerIndex}, Street ${r.street}, Action ${r.action}'),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-              const Text('Evaluation Queue Statistics:'),
-              Text('Pending: ${_pendingEvaluations.length}'),
-              Text('Failed: ${_failedEvaluations.length}'),
-              Text('Completed: ${_completedEvaluations.length}'),
-              Text('Total Processed: ${_completedEvaluations.length + _failedEvaluations.length}'),
-              const SizedBox(height: 12),
-              const Text('HUD Overlay State:'),
-              Text('HUD Street Name: $hudStreetName'),
-              const SizedBox(height: 12),
-              Text('HUD Pot Text: $hudPotText'),
-              const SizedBox(height: 12),
-              Text('HUD SPR Text: ${hudSprText ?? '(none)'}'),
-              const SizedBox(height: 12),
-              const Text('Debug Menu Visibility:'),
-              Text('Is Debug Menu Open: $_isDebugPanelOpen'),
-              const SizedBox(height: 12),
-              const Text('Full Export Consistency:'),
-              Text(() {
-                final match = hand.numberOfPlayers == numberOfPlayers;
-                return match
-                    ? 'numberOfPlayers: ✅'
-                    : 'numberOfPlayers: ❌ '
-                        '${hand.numberOfPlayers} vs $numberOfPlayers';
-              }()),
-              Text(() {
-                final match = hand.heroIndex == heroIndex;
-                return match
-                    ? 'heroIndex: ✅'
-                    : 'heroIndex: ❌ ${hand.heroIndex} vs $heroIndex';
-              }()),
-              Text(() {
-                final match = hand.heroPosition == _heroPosition;
-                return match
-                    ? 'heroPosition: ✅'
-                    : 'heroPosition: ❌ '
-                        '${hand.heroPosition} vs $_heroPosition';
-              }()),
-              Text(() {
-                final match = mapEquals(hand.playerPositions, playerPositions);
-                return match
-                    ? 'playerPositions: ✅'
-                    : 'playerPositions: ❌ '
-                        '${hand.playerPositions} vs $playerPositions';
-              }()),
-              Text(() {
-                final match = mapEquals(hand.stackSizes, _initialStacks);
-                return match
-                    ? 'stackSizes: ✅'
-                    : 'stackSizes: ❌ '
-                        '${hand.stackSizes} vs $_initialStacks';
-              }()),
-              Text(() {
-                final match = hand.actions.length == actions.length;
-                return match
-                    ? 'actions.length: ✅'
-                    : 'actions.length: ❌ '
-                        '${hand.actions.length} vs ${actions.length}';
-              }()),
-              Text(() {
-                final live = boardCards.map((c) => c.toString()).join(' ');
-                final saved = hand.boardCards.map((c) => c.toString()).join(' ');
-                return live == saved
-                    ? 'boardCards: ✅'
-                    : 'boardCards: ❌ $saved vs $live';
-              }()),
-              Text(() {
-                final live = [
-                  for (final p in players)
-                    p.revealedCards
-                        .whereType<CardModel>()
-                        .map((c) => c.toString())
-                        .join(' ')
-                ];
-                final saved = [
-                  for (final list in hand.revealedCards)
-                    list.map((c) => c.toString()).join(' ')
-                ];
-                final match = listEquals(live, saved);
-                return match
-                    ? 'revealedCards: ✅'
-                    : 'revealedCards: ❌ $saved vs $live';
-              }()),
-              const SizedBox(height: 12),
-              const Text('Theme Diagnostics:'),
-              Text('Current Theme: ${Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'}'),
-              const SizedBox(height: 12),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _exportEvaluationQueue,
-            child: const Text('Export Evaluation Queue'),
-          ),
-          TextButton(
-            onPressed: _exportFullEvaluationQueueState,
-            child: const Text('Export Full Queue State'),
-          ),
-          TextButton(
-            onPressed: _backupEvaluationQueue,
-            child: const Text('Backup Evaluation Queue'),
-          ),
-          TextButton(
-            onPressed: _exportAllEvaluationBackups,
-            child: const Text('Export All Backups'),
-          ),
-          TextButton(
-            onPressed: _exportAutoBackups,
-            child: const Text('Export Auto-Backups'),
-          ),
-          TextButton(
-            onPressed: _exportSnapshots,
-            child: const Text('Export Snapshots'),
-          ),
-          TextButton(
-            onPressed: _exportAllEvaluationSnapshots,
-            child: const Text('Export All Snapshots'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          TextButton(
-            onPressed: _clearEvaluationQueue,
-            child: const Text('Clear Evaluation Queue'),
-          ),
-        ],
-      ),
+      builder: (context) => _DebugPanel(parent: this),
     );
-    setState(() {
-      _isDebugPanelOpen = false;
-    });
+    setState(() => _isDebugPanelOpen = false);
     _debugPanelSetState = null;
   }
+
+class _DebugPanel extends StatefulWidget {
+  final _PokerAnalyzerScreenState parent;
+
+  const _DebugPanel({required this.parent});
+
+  @override
+  State<_DebugPanel> createState() => _DebugPanelState();
+}
+
+class _DebugPanelState extends State<_DebugPanel> {
+  _PokerAnalyzerScreenState get s => widget.parent;
+
+  @override
+  void initState() {
+    super.initState();
+    s._debugPanelSetState = setState;
+  }
+
+  @override
+  void dispose() {
+    s._debugPanelSetState = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hand = s._currentSavedHand();
+    final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
+    final hudPotText = s._formatAmount(s._pots[s.currentStreet]);
+    final int hudEffStack =
+        s._calculateEffectiveStackForStreet(s.currentStreet);
+    final double? hudSprValue = s._pots[s.currentStreet] > 0
+        ? hudEffStack / s._pots[s.currentStreet]
+        : null;
+    final String? hudSprText =
+        hudSprValue != null ? 'SPR: ${hudSprValue.toStringAsFixed(1)}' : null;
+
+    return AlertDialog(
+      title: const Text('Stack Diagnostics'),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (int i = 0; i < s.numberOfPlayers; i++)
+              Text(
+                'Player ${i + 1}: Initial ${s._initialStacks[i] ?? 0}, '
+                'Invested ${s._stackManager.getTotalInvested(i)}, '
+                'Remaining ${s._stackManager.getStackForPlayer(i)}',
+              ),
+            const SizedBox(height: 12),
+            if (hand.remainingStacks != null) ...[
+              const Text('Remaining Stacks (from saved hand):'),
+              for (final entry in hand.remainingStacks!.entries)
+                Text('Player ${entry.key + 1}: ${entry.value}'),
+              const SizedBox(height: 12),
+            ],
+            if (hand.playerTypes != null) ...[
+              const Text('Player Types:'),
+              for (final entry in hand.playerTypes!.entries)
+                Text('Player ${entry.key + 1}: ${entry.value.name}'),
+              const SizedBox(height: 12),
+            ],
+            if (hand.comment != null) ...[
+              const Text('Comment:'),
+              Text(hand.comment!),
+              const SizedBox(height: 12),
+            ],
+            if (hand.tags.isNotEmpty) ...[
+              const Text('Tags:'),
+              for (final tag in hand.tags) Text(tag),
+              const SizedBox(height: 12),
+            ],
+            if (hand.opponentIndex != null) ...[
+              Text('Opponent: Player ${hand.opponentIndex! + 1}'),
+              const SizedBox(height: 12),
+            ],
+            Text('Hero Position: ${hand.heroPosition}'),
+            const SizedBox(height: 12),
+            Text('Players at table: ${hand.numberOfPlayers}'),
+            const SizedBox(height: 12),
+            Text('Saved: ${formatDateTime(hand.date)}'),
+            const SizedBox(height: 12),
+            if (hand.expectedAction != null) ...[
+              Text('Expected Action: ${hand.expectedAction}'),
+              const SizedBox(height: 12),
+            ],
+            if (hand.feedbackText != null) ...[
+              Text('Feedback: ${hand.feedbackText}'),
+              const SizedBox(height: 12),
+            ],
+            Text(
+              s.boardCards.isNotEmpty
+                  ? 'Board Cards: ' +
+                      s.boardCards.map(s._cardToDebugString).join(' ')
+                  : 'Board Cards: (empty)',
+            ),
+            const SizedBox(height: 12),
+            for (int i = 0; i < s.numberOfPlayers; i++) ...[
+              Text(() {
+                final rc =
+                    i < hand.revealedCards.length ? hand.revealedCards[i] : [];
+                return rc.isNotEmpty
+                    ? 'Player ${i + 1} Revealed: ' +
+                        rc.map(s._cardToDebugString).join(' ')
+                    : 'Player ${i + 1} Revealed: (none)';
+              }()),
+              const SizedBox(height: 12),
+            ],
+            Text(
+                'Current Street: ${['Preflop', 'Flop', 'Turn', 'River'][s.currentStreet]}'),
+            const SizedBox(height: 12),
+            Text('Playback Index: ${s._playbackIndex} / ${s.actions.length}'),
+            const SizedBox(height: 12),
+            Text('Active Player Index: ${s.activePlayerIndex ?? 'None'}'),
+            const SizedBox(height: 12),
+            Text('Last Action Player Index: ${s.lastActionPlayerIndex ?? 'None'}'),
+            const SizedBox(height: 12),
+            for (int i = 0; i < s.numberOfPlayers; i++) ...[
+              Text('Player ${i + 1} Cards: ${s.playerCards[i].length}'),
+              const SizedBox(height: 12),
+            ],
+            Text(
+              s._firstActionTaken.isNotEmpty
+                  ? 'First Action Taken: ' +
+                      (s._firstActionTaken.toList()..sort()).join(', ')
+                  : 'First Action Taken: (none)',
+            ),
+            const SizedBox(height: 12),
+            const Text('Effective Stacks:'),
+            for (int street = 0; street < 4; street++)
+              Text([
+                    'Preflop',
+                    'Flop',
+                    'Turn',
+                    'River',
+                  ][street] + ': ${s._calculateEffectiveStackForStreet(street)}'),
+            const SizedBox(height: 12),
+            const Text('Effective Stacks (from export data):'),
+            if (s._savedEffectiveStacks != null)
+              for (final entry in s._savedEffectiveStacks!.entries)
+                Text('${entry.key}: ${entry.value}')
+            else
+              const Text('No export data available'),
+            if (s._savedEffectiveStacks != null) ...[
+              const SizedBox(height: 12),
+              const Text('Validation:'),
+              for (int st = 0; st < 4; st++)
+                Text(() {
+                  const names = ['Preflop', 'Flop', 'Turn', 'River'];
+                  final name = names[st];
+                  final live = s._calculateEffectiveStackForStreet(st);
+                  final exported = s._savedEffectiveStacks![name];
+                  if (exported == live) {
+                    return '$name: ✅';
+                  }
+                  return '$name: ❌ live $live vs export ${exported ?? 'N/A'}';
+                }()),
+            ],
+            if (s._validationNotes != null && s._validationNotes!.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              const Text('Validation Notes:'),
+              for (final entry in s._validationNotes!.entries)
+                Text('${entry.key}: ${entry.value}'),
+            ],
+            const SizedBox(height: 12),
+            const Text('Playback Diagnostics:'),
+            Text('Preflop Actions: '
+                '${s.actions.where((a) => a.street == 0).length}'),
+            Text('Flop Actions: '
+                '${s.actions.where((a) => a.street == 1).length}'),
+            Text('Turn Actions: '
+                '${s.actions.where((a) => a.street == 2).length}'),
+            Text('River Actions: '
+                '${s.actions.where((a) => a.street == 3).length}'),
+            const SizedBox(height: 12),
+            Text('Total Actions: ${s.actions.length}'),
+            const SizedBox(height: 12),
+            const Text('Action Tags Diagnostics:'),
+            if (s._actionTags.isNotEmpty)
+              for (final entry in s._actionTags.entries) ...[
+                Text('Player ${entry.key + 1} Action Tag: ${entry.value}'),
+                const SizedBox(height: 12),
+              ]
+            else ...[
+              const Text('Action Tags: (none)'),
+              const SizedBox(height: 12),
+            ],
+            const Text('StackManager Diagnostics:'),
+            for (int i = 0; i < s.numberOfPlayers; i++) ...[
+              Text(
+                'Player $i StackManager: current ${s._stackManager.getStackForPlayer(i)}, invested ${s._stackManager.getTotalInvested(i)}',
+              ),
+              const SizedBox(height: 12),
+            ],
+            const Text('Internal State Flags:'),
+            Text('Debug Layout: ${s.debugLayout}'),
+            const SizedBox(height: 12),
+            Text('Perspective Switched: ${s.isPerspectiveSwitched}'),
+            const SizedBox(height: 12),
+            Text('Show All Revealed Cards: ${s._showAllRevealedCards}'),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Expanded(child: Text('Enable Snapshot Retention Policy')),
+                Switch(
+                  value: s._snapshotRetentionEnabled,
+                  onChanged: (v) {
+                    s._setSnapshotRetentionEnabled(v);
+                  },
+                  activeColor: Colors.orange,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text('Collapsed Streets State:'),
+            for (int street = 0; street < 4; street++) ...[
+              Text(
+                'Street $street Collapsed: '
+                '${!s._expandedHistoryStreets.contains(street)}',
+              ),
+              const SizedBox(height: 12),
+            ],
+            const Text('Chip Animation State:'),
+            Text(() {
+              final action = s._centerChipAction;
+              if (action == null) return 'Center Chip Action: (null)';
+              var result =
+                  'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
+              if (action.amount != null) result += ', Amount ${action.amount}';
+              return 'Center Chip Action: ' + result;
+            }()),
+            const SizedBox(height: 12),
+            Text('Show Center Chip: ${s._showCenterChip}'),
+            const SizedBox(height: 12),
+            const Text('Animation Controllers State:'),
+            Text('Center Chip Animation Active: ${s._centerChipController.isAnimating}'),
+            const SizedBox(height: 12),
+            Text('Center Chip Animation Value: ${s._centerChipController.value.toStringAsFixed(2)}'),
+            const SizedBox(height: 12),
+            const Text('Street Transition State:'),
+            Text(
+              'Current Animated Players Per Street: '
+              '${s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0}',
+            ),
+            const SizedBox(height: 12),
+            for (final entry in s._animatedPlayersPerStreet.entries) ...[
+              Text('Street ${entry.key} Animated Count: ${entry.value.length}'),
+              const SizedBox(height: 12),
+            ],
+            const Text('Chip Trail Diagnostics:'),
+            Text('Animated Chips In Flight: ${ChipMovingWidget.activeCount}'),
+            const SizedBox(height: 12),
+            const Text('Playback Pause State:'),
+            Text('Is Playback Paused: ${s._activeTimer == null}'),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Action Evaluation Queue:'),
+                if (s._evaluationQueueResumed)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0),
+                    child: Text(
+                      '(Resumed from saved state)',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ),
+              ],
+            ),
+            Text('Pending Action Evaluations: ${s._pendingEvaluations.length}'),
+            Text(
+                'Processed: ${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}'),
+            Text('Failed: ${s._failedEvaluations.length}'),
+            const SizedBox(height: 8),
+            ToggleButtons(
+              isSelected: [
+                s._queueFilters.contains('pending'),
+                s._queueFilters.contains('failed'),
+                s._queueFilters.contains('completed'),
+              ],
+              onPressed: (i) {
+                final modes = ['pending', 'failed', 'completed'];
+                s._toggleQueueFilter(modes[i]);
+              },
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text('Pending'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text('Failed'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text('Completed'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Builder(
+              builder: (context) {
+                final sections = <Widget>[];
+                if (s._queueFilters.contains('pending')) {
+                  sections.add(s._buildQueueSection('Pending', s._pendingEvaluations));
+                }
+                if (s._queueFilters.contains('failed')) {
+                  sections.add(s._buildQueueSection('Failed', s._failedEvaluations));
+                }
+                if (s._queueFilters.contains('completed')) {
+                  sections.add(s._buildQueueSection('Completed', s._completedEvaluations));
+                }
+                if (sections.isEmpty) {
+                  return const Text('No items');
+                }
+                return ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 300),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: sections,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.isEmpty || s._processingEvaluations
+                      ? null
+                      : s._processNextEvaluation,
+                  child: const Text('Process Next Evaluation'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.isEmpty || s._processingEvaluations
+                      ? null
+                      : s._processEvaluationQueue,
+                  child: const Text('Start Evaluation Processing'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.isEmpty || !s._processingEvaluations
+                      ? null
+                      : s._toggleEvaluationProcessingPause,
+                  child: Text(s._pauseProcessingRequested ? 'Resume' : 'Pause'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed:
+                      !s._processingEvaluations && s._pendingEvaluations.isEmpty
+                          ? null
+                          : s._cancelEvaluationProcessing,
+                  child: const Text('Cancel Evaluation Processing'),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.isEmpty
+                      ? null
+                      : s._forceRestartEvaluationProcessing,
+                  child: const Text('Force Evaluation Restart'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed:
+                    s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
+                child: const Text('Retry Failed Evaluations'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text('Evaluation Queue Tools:'),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ElevatedButton(
+                  onPressed: s._importEvaluationQueue,
+                  child: const Text('Import Evaluation Queue'),
+                ),
+                ElevatedButton(
+                  onPressed: s._restoreEvaluationQueue,
+                  child: const Text('Restore Evaluation Queue'),
+                ),
+                ElevatedButton(
+                  onPressed: s._restoreFromAutoBackup,
+                  child: const Text('Restore From Auto-Backup'),
+                ),
+                ElevatedButton(
+                  onPressed: s._bulkImportEvaluationQueue,
+                  child: const Text('Bulk Import Evaluation Queue'),
+                ),
+                ElevatedButton(
+                  onPressed: s._bulkImportEvaluationBackups,
+                  child: const Text('Bulk Import Backups'),
+                ),
+                ElevatedButton(
+                  onPressed: s._importQuickBackups,
+                  child: const Text('Import Quick Backups'),
+                ),
+                ElevatedButton(
+                  onPressed: s._bulkImportAutoBackups,
+                  child: const Text('Bulk Import Auto-Backups'),
+                ),
+                ElevatedButton(
+                  onPressed: s._importEvaluationQueueSnapshot,
+                  child: const Text('Import Queue Snapshot'),
+                ),
+                ElevatedButton(
+                  onPressed: s._bulkImportEvaluationSnapshots,
+                  child: const Text('Bulk Import Snapshots'),
+                ),
+                ElevatedButton(
+                  onPressed: s._exportAllEvaluationSnapshots,
+                  child: const Text('Export All Snapshots'),
+                ),
+                ElevatedButton(
+                  onPressed: s._importFullEvaluationQueueState,
+                  child: const Text('Import Full Queue State'),
+                ),
+                ElevatedButton(
+                  onPressed: s._restoreFullEvaluationQueueState,
+                  child: const Text('Restore Full Queue State'),
+                ),
+                ElevatedButton(
+                  onPressed: s._exportFullEvaluationQueueState,
+                  child: const Text('Export Full Queue State'),
+                ),
+                ElevatedButton(
+                  onPressed: s._exportEvaluationQueueSnapshot,
+                  child: const Text('Export Current Queue Snapshot'),
+                ),
+                ElevatedButton(
+                  onPressed: s._exportAllEvaluationSnapshots,
+                  child: const Text('Export All Snapshots'),
+                ),
+                ElevatedButton(
+                  onPressed: s._quickBackupEvaluationQueue,
+                  child: const Text('Quick Backup'),
+                ),
+                ElevatedButton(
+                  onPressed: s._importQuickBackups,
+                  child: const Text('Import Quick Backups'),
+                ),
+                ElevatedButton(
+                  onPressed: s._exportAllEvaluationBackups,
+                  child: const Text('Export All Backups'),
+                ),
+                ElevatedButton(
+                  onPressed: s._failedEvaluations.isEmpty
+                      ? null
+                      : s._retryFailedEvaluations,
+                  child: const Text('Retry Failed Evaluations'),
+                ),
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.isEmpty
+                          ? null
+                          : s._clearPendingQueue,
+                  child: const Text('Clear Pending'),
+                ),
+                ElevatedButton(
+                  onPressed:
+                      s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
+                  child: const Text('Clear Failed'),
+                ),
+                ElevatedButton(
+                  onPressed: s._completedEvaluations.isEmpty
+                          ? null
+                          : s._clearCompletedQueue,
+                  child: const Text('Clear Completed'),
+                ),
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.isEmpty &&
+                          s._completedEvaluations.isEmpty
+                      ? null
+                      : s._clearEvaluationQueue,
+                  child: const Text('Clear Evaluation Queue'),
+                ),
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.length +
+                              s._failedEvaluations.length +
+                              s._completedEvaluations.length ==
+                          0
+                      ? null
+                      : s._removeDuplicateEvaluations,
+                  child: const Text('Remove Duplicates'),
+                ),
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.length +
+                              s._failedEvaluations.length +
+                              s._completedEvaluations.length ==
+                          0
+                      ? null
+                      : s._resolveQueueConflicts,
+                  child: const Text('Resolve Conflicts'),
+                ),
+                ElevatedButton(
+                  onPressed: s._pendingEvaluations.length +
+                              s._failedEvaluations.length +
+                              s._completedEvaluations.length ==
+                          0
+                      ? null
+                      : s._sortEvaluationQueues,
+                  child: const Text('Sort Queues'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: s._completedEvaluations.isEmpty
+                    ? null
+                    : s._clearCompletedEvaluations,
+                child: const Text('Clear Completed Evaluations'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: s._processingEvaluations
+                    ? null
+                    : () => s._exportEvaluationQueueSnapshot(showNotification: true),
+                child: const Text('Export Snapshot Now'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: s._processingEvaluations
+                    ? null
+                    : () async {
+                        await s._backupEvaluationQueue();
+                        s._debugPanelSetState?.call(() {});
+                      },
+                child: const Text('Backup Queue Now'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Processing Speed'),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Slider(
+                    value: s._evaluationProcessingDelay.toDouble(),
+                    min: 100,
+                    max: 2000,
+                    divisions: 19,
+                    label: '${s._evaluationProcessingDelay} ms',
+                    onChanged: (v) {
+                      s._setProcessingDelay(v.round());
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text('${s._evaluationProcessingDelay} ms'),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text('Evaluation Results:'),
+            Builder(
+              builder: (context) {
+                final results = s._completedEvaluations.length > 50
+                    ? s._completedEvaluations
+                        .sublist(s._completedEvaluations.length - 50)
+                    : s._completedEvaluations;
+                if (results.isEmpty) {
+                  return const Text('No evaluations completed yet.');
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final r in results)
+                      Text('Player ${r.playerIndex}, Street ${r.street}, Action ${r.action}'),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            const Text('Evaluation Queue Statistics:'),
+            Text('Pending: ${s._pendingEvaluations.length}'),
+            Text('Failed: ${s._failedEvaluations.length}'),
+            Text('Completed: ${s._completedEvaluations.length}'),
+            Text('Total Processed: ${s._completedEvaluations.length + s._failedEvaluations.length}'),
+            const SizedBox(height: 12),
+            const Text('HUD Overlay State:'),
+            Text('HUD Street Name: $hudStreetName'),
+            const SizedBox(height: 12),
+            Text('HUD Pot Text: $hudPotText'),
+            const SizedBox(height: 12),
+            Text('HUD SPR Text: ${hudSprText ?? '(none)'}'),
+            const SizedBox(height: 12),
+            const Text('Debug Menu Visibility:'),
+            Text('Is Debug Menu Open: ${s._isDebugPanelOpen}'),
+            const SizedBox(height: 12),
+            const Text('Full Export Consistency:'),
+            Text(() {
+              final match = hand.numberOfPlayers == s.numberOfPlayers;
+              return match
+                  ? 'numberOfPlayers: ✅'
+                  : 'numberOfPlayers: ❌ '
+                      '${hand.numberOfPlayers} vs ${s.numberOfPlayers}';
+            }()),
+            Text(() {
+              final match = hand.heroIndex == s.heroIndex;
+              return match
+                  ? 'heroIndex: ✅'
+                  : 'heroIndex: ❌ ${hand.heroIndex} vs ${s.heroIndex}';
+            }()),
+            Text(() {
+              final match = hand.heroPosition == s._heroPosition;
+              return match
+                  ? 'heroPosition: ✅'
+                  : 'heroPosition: ❌ '
+                      '${hand.heroPosition} vs ${s._heroPosition}';
+            }()),
+            Text(() {
+              final match = mapEquals(hand.playerPositions, s.playerPositions);
+              return match
+                  ? 'playerPositions: ✅'
+                  : 'playerPositions: ❌ '
+                      '${hand.playerPositions} vs ${s.playerPositions}';
+            }()),
+            Text(() {
+              final match = mapEquals(hand.stackSizes, s._initialStacks);
+              return match
+                  ? 'stackSizes: ✅'
+                  : 'stackSizes: ❌ '
+                      '${hand.stackSizes} vs ${s._initialStacks}';
+            }()),
+            Text(() {
+              final match = hand.actions.length == s.actions.length;
+              return match
+                  ? 'actions.length: ✅'
+                  : 'actions.length: ❌ '
+                      '${hand.actions.length} vs ${s.actions.length}';
+            }()),
+            Text(() {
+              final live = s.boardCards.map((c) => c.toString()).join(' ');
+              final saved = hand.boardCards.map((c) => c.toString()).join(' ');
+              return live == saved
+                  ? 'boardCards: ✅'
+                  : 'boardCards: ❌ $saved vs $live';
+            }()),
+            Text(() {
+              final live = [
+                for (final p in s.players)
+                  p.revealedCards
+                      .whereType<CardModel>()
+                      .map((c) => c.toString())
+                      .join(' ')
+              ];
+              final saved = [
+                for (final list in hand.revealedCards)
+                  list.map((c) => c.toString()).join(' ')
+              ];
+              final match = listEquals(live, saved);
+              return match
+                  ? 'revealedCards: ✅'
+                  : 'revealedCards: ❌ $saved vs $live';
+            }()),
+            const SizedBox(height: 12),
+            const Text('Theme Diagnostics:'),
+            Text('Current Theme: ${Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'}'),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: s._exportEvaluationQueue,
+          child: const Text('Export Evaluation Queue'),
+        ),
+        TextButton(
+          onPressed: s._exportFullEvaluationQueueState,
+          child: const Text('Export Full Queue State'),
+        ),
+        TextButton(
+          onPressed: s._backupEvaluationQueue,
+          child: const Text('Backup Evaluation Queue'),
+        ),
+        TextButton(
+          onPressed: s._exportAllEvaluationBackups,
+          child: const Text('Export All Backups'),
+        ),
+        TextButton(
+          onPressed: s._exportAutoBackups,
+          child: const Text('Export Auto-Backups'),
+        ),
+        TextButton(
+          onPressed: s._exportSnapshots,
+          child: const Text('Export Snapshots'),
+        ),
+        TextButton(
+          onPressed: s._exportAllEvaluationSnapshots,
+          child: const Text('Export All Snapshots'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+        TextButton(
+          onPressed: s._clearEvaluationQueue,
+          child: const Text('Clear Evaluation Queue'),
+        ),
+      ],
+    );
+  }
+
   SavedHand _currentSavedHand({String? name}) {
     final stacks = calculateEffectiveStacksPerStreet();
     Map<String, String>? notes;
