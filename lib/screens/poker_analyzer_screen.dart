@@ -2245,9 +2245,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
 
       final files = await backupDir
-          .list()
-          .where((e) => e is File && e.path.endsWith('.json'))
-          .cast<File>()
+          .list(recursive: true)
+          .whereType<File>()
           .toList();
 
       if (files.isEmpty) {
@@ -2262,46 +2261,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final archive = Archive();
       for (final file in files) {
         final data = await file.readAsBytes();
-        final name = file.uri.pathSegments.last;
+        final name = file.path.substring(backupDir.path.length + 1);
         archive.addFile(ArchiveFile(name, data.length, data));
       }
 
       final bytes = ZipEncoder().encode(archive);
       if (bytes == null) throw Exception('Could not create archive');
 
-      final zipName =
+      final fileName =
           'evaluation_backups_${DateTime.now().millisecondsSinceEpoch}.zip';
-      final zipFile = File('${dir.path}/$zipName');
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Backups Archive',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+      );
+      if (savePath == null) return;
+
+      final zipFile = File(savePath);
       await zipFile.writeAsBytes(bytes, flush: true);
 
       if (!mounted) return;
-
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Backups Exported'),
-          content: Text('ZIP file saved: $zipName'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                OpenFile.open(zipFile.path);
-              },
-              child: const Text('Open'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Share.shareXFiles([XFile(zipFile.path)]);
-              },
-              child: const Text('Share'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
+      final name = savePath.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Archive saved: $name')),
       );
     } catch (e) {
       if (mounted) {
