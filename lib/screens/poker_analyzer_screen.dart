@@ -51,6 +51,7 @@ import '../helpers/pot_calculator.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../helpers/stack_manager.dart';
 import '../helpers/date_utils.dart';
+import '../widgets/evaluation_request_tile.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -1761,6 +1762,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..clear()
           ..addAll(completed);
       });
+      _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -2313,6 +2315,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..clear()
           ..addAll(completed);
       });
+      _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -2406,6 +2409,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(items);
         _failedEvaluations.clear();
       });
+      _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Imported ${items.length} evaluations')),
@@ -2530,6 +2534,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..clear()
           ..addAll(completed);
       });
+      _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -2586,6 +2591,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(allItems);
         _failedEvaluations.clear();
       });
+      _debugPanelSetState?.call(() {});
       _persistEvaluationQueue();
 
       final msg = failed == 0
@@ -2959,14 +2965,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   }
                   final display =
                       list.length > 50 ? list.sublist(list.length - 50) : list;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final r in display)
-                        Text(
-                          'Player ${r.playerIndex}, Street ${r.street}, Action ${r.action}${r.amount != null ? ' ${r.amount}' : ''}',
-                        ),
-                    ],
+                  return ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 300),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: display.length,
+                      itemBuilder: (context, index) {
+                        final r = display[index];
+                        return EvaluationRequestTile(request: r);
+                      },
+                    ),
                   );
                 },
               ),
