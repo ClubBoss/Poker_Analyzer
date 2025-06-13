@@ -2063,6 +2063,62 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _exportAutoBackupsArchive() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/evaluation_autobackups');
+      if (!await backupDir.exists()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No auto-backup files found')),
+          );
+        }
+        return;
+      }
+
+      final files = await backupDir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.json'))
+          .cast<File>()
+          .toList();
+
+      if (files.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No auto-backup files found')),
+          );
+        }
+        return;
+      }
+
+      final archive = Archive();
+      for (final file in files) {
+        final data = await file.readAsBytes();
+        final name = file.uri.pathSegments.last;
+        archive.addFile(ArchiveFile(name, data.length, data));
+      }
+
+      final bytes = ZipEncoder().encode(archive);
+      if (bytes == null) throw Exception('Could not create archive');
+
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-');
+      final zipFile = File('${dir.path}/autobackups_$timestamp.zip');
+      await zipFile.writeAsBytes(bytes, flush: true);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Auto-backups exported: ${zipFile.path}')),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to export auto-backups')),
+        );
+      }
+    }
+  }
+
   Future<void> _exportAllEvaluationSnapshots() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -2808,6 +2864,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextButton(
             onPressed: _exportAllEvaluationBackups,
             child: const Text('Export All Backups'),
+          ),
+          TextButton(
+            onPressed: _exportAutoBackupsArchive,
+            child: const Text('Export Auto-Backups Archive'),
           ),
           TextButton(
             onPressed: _exportAllEvaluationSnapshots,
