@@ -654,6 +654,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _onPlayerCountChanged(int value) {
+    setState(() {
+      numberOfPlayers = value;
+      playerPositions = Map.fromIterables(
+        List.generate(numberOfPlayers, (i) => i),
+        getPositionList(numberOfPlayers),
+      );
+      for (int i = 0; i < numberOfPlayers; i++) {
+        playerTypes.putIfAbsent(i, () => PlayerType.unknown);
+      }
+      playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
+      _updatePositions();
+    });
+  }
+
   String _positionLabelForIndex(int index) {
     final pos = playerPositions[index];
     if (pos == null) return '';
@@ -3862,32 +3877,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             bottom: MediaQuery.of(context).viewInsets.bottom + 16,
           ),
           child: Column(
-          children: [
-            DropdownButton<int>(
-              value: numberOfPlayers,
-              dropdownColor: Colors.black,
-              style: const TextStyle(color: Colors.white),
-              iconEnabledColor: Colors.white,
-              items: [
-                for (int i = 2; i <= 10; i++)
-                  DropdownMenuItem(value: i, child: Text('Игроков: $i')),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    numberOfPlayers = value;
-                    playerPositions = Map.fromIterables(
-                      List.generate(numberOfPlayers, (i) => i),
-                      getPositionList(numberOfPlayers),
-                    );
-                    for (int i = 0; i < numberOfPlayers; i++) {
-                    playerTypes.putIfAbsent(i, () => PlayerType.unknown);
-                  }
-                  playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
-                  _updatePositions();
-                });
-              }
-            },
+            children: [
+            _PlayerCountSelector(
+              numberOfPlayers: numberOfPlayers,
+              playerPositions: playerPositions,
+              playerTypes: playerTypes,
+              onChanged: _onPlayerCountChanged,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -5133,6 +5128,39 @@ class _PerspectiveSwitchButton extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
       ),
+    );
+  }
+}
+
+class _PlayerCountSelector extends StatelessWidget {
+  final int numberOfPlayers;
+  final Map<int, String> playerPositions;
+  final Map<int, PlayerType> playerTypes;
+  final ValueChanged<int> onChanged;
+
+  const _PlayerCountSelector({
+    required this.numberOfPlayers,
+    required this.playerPositions,
+    required this.playerTypes,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<int>(
+      value: numberOfPlayers,
+      dropdownColor: Colors.black,
+      style: const TextStyle(color: Colors.white),
+      iconEnabledColor: Colors.white,
+      items: [
+        for (int i = 2; i <= 10; i++)
+          DropdownMenuItem(value: i, child: Text('Игроков: $i')),
+      ],
+      onChanged: (value) {
+        if (value != null) {
+          onChanged(value);
+        }
+      },
     );
   }
 }
