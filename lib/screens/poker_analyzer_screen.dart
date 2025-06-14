@@ -1440,17 +1440,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _retryFailedEvaluations() {
-    setState(() {
-      if (_failedEvaluations.isNotEmpty) {
-        for (final r in _failedEvaluations) {
-          r.attempts = 0;
-        }
-        _pendingEvaluations.insertAll(0, _failedEvaluations);
-        _failedEvaluations.clear();
+    _queueManager.retryFailedEvaluations().then((_) {
+      if (mounted) {
+        setState(() {});
       }
+      _persistEvaluationQueue();
+      _debugPanelSetState?.call(() {});
     });
-    _persistEvaluationQueue();
-    _debugPanelSetState?.call(() {});
   }
 
   void _playStepForward() {
