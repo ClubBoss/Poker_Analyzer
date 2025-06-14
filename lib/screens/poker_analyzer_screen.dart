@@ -11,7 +11,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../helpers/debug_panel_preferences.dart';
 import '../services/evaluation_queue_service.dart';
 import '../services/debug_preferences_service.dart';
 import 'package:uuid/uuid.dart';
@@ -110,7 +109,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, String?> _actionTags = {};
 
   bool debugLayout = false;
-  bool _isDebugPanelOpen = false;
   final Set<int> _expandedHistoryStreets = {};
 
   ActionEntry? _centerChipAction;
@@ -142,9 +140,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool get _cancelProcessingRequested => _queueService.cancelRequested;
   set _cancelProcessingRequested(bool v) => _queueService.cancelRequested = v;
 
-  bool _queueResumed = false;
-  bool get _evaluationQueueResumed => _queueResumed;
-  set _evaluationQueueResumed(bool v) => _queueResumed = v;
 
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
@@ -222,12 +217,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const int _backupRetentionLimit = 30;
   /// Number of automatic queue backups to retain.
   static const int _autoBackupRetentionLimit = 50;
-  final DebugPanelPreferences _prefs = DebugPanelPreferences();
   final DebugPreferencesService _debugPrefs = DebugPreferencesService();
-
-  Set<String> _queueFilters = {'pending'};
-  /// Active advanced debug filters for evaluation queue display.
-  Set<String> _advancedFilters = {};
 
   /// Evaluation processing delay, snapshot retention and other debug
   /// preferences are managed by [_debugPrefs].
@@ -235,229 +225,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
-  static const _queueResumedKey = 'evaluation_queue_resumed';
 
-  Future<void> _loadSnapshotRetentionPreference() async {
-    await _debugPrefs.loadSnapshotRetentionPreference();
-    if (mounted) setState(() {});
-    if (_debugPrefs.snapshotRetentionEnabled) {
-      await _cleanupOldEvaluationSnapshots();
-    }
-  }
 
-  Future<void> _setSnapshotRetentionEnabled(bool value) async {
-    await _debugPrefs.setSnapshotRetentionEnabled(value);
-    if (mounted) setState(() {});
-    if (value) {
-      await _cleanupOldEvaluationSnapshots();
-    }
-    _debugPanelSetState?.call(() {});
-  }
-
-  Future<void> _loadProcessingDelayPreference() async {
-    await _debugPrefs.loadProcessingDelayPreference();
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _setProcessingDelay(int value) async {
-    await _debugPrefs.setProcessingDelay(value);
-    if (mounted) setState(() {});
-    _debugPanelSetState?.call(() {});
-  }
-
-  Future<void> _loadQueueFilterPreference() async {
-    final loaded = await _prefs.getQueueFilters();
-    if (mounted) {
-      setState(() {
-        _queueFilters = loaded;
-      });
-    } else {
-      _queueFilters = loaded;
-    }
-  }
-
-  Future<void> _setQueueFilters(Set<String> value) async {
-    await _prefs.setQueueFilters(value);
-    if (mounted) {
-      setState(() => _queueFilters = value);
-    } else {
-      _queueFilters = value;
-    }
-    _debugPanelSetState?.call(() {});
-  }
-
-  void _toggleQueueFilter(String filter) {
-    final updated = Set<String>.from(_queueFilters);
-    if (updated.contains(filter)) {
-      updated.remove(filter);
-    } else {
-      updated.add(filter);
-    }
-    _setQueueFilters(updated);
-  }
-
-  Future<void> _loadAdvancedFilterPreference() async {
-    final loaded = await _prefs.getAdvancedFilters();
-    if (mounted) {
-      setState(() => _advancedFilters = loaded);
-    } else {
-      _advancedFilters = loaded;
-    }
-  }
-
-  Future<void> _setAdvancedFilters(Set<String> value) async {
-    await _prefs.setAdvancedFilters(value);
-    if (mounted) {
-      setState(() => _advancedFilters = value);
-    } else {
-      _advancedFilters = value;
-    }
-    _debugPanelSetState?.call(() {});
-  }
-
-  void _toggleAdvancedFilter(String filter) {
-    final updated = Set<String>.from(_advancedFilters);
-    if (updated.contains(filter)) {
-      updated.remove(filter);
-    } else {
-      updated.add(filter);
-    }
-    _setAdvancedFilters(updated);
-  }
-
-  Future<void> _loadSearchQueryPreference() async {
-    await _debugPrefs.loadSearchQueryPreference();
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _loadSortBySprPreference() async {
-    await _debugPrefs.loadSortBySprPreference();
-    if (mounted) setState(() {});
-  }
-
-  void _setSortBySpr(bool value) {
-    _debugPrefs.setSortBySpr(value);
-    if (mounted) setState(() {});
-    _debugPanelSetState?.call(() {});
-  }
-
-  void _setSearchQuery(String value) {
-    _debugPrefs.setSearchQuery(value);
-    if (mounted) setState(() {});
-    _debugPanelSetState?.call(() {});
-  }
-
-  Future<void> _resetDebugPanelPreferences() async {
-    await _debugPrefs.clearAll();
-    await _loadSnapshotRetentionPreference();
-    await _loadProcessingDelayPreference();
-    await _loadQueueFilterPreference();
-    await _loadAdvancedFilterPreference();
-    await _loadSortBySprPreference();
-    await _loadSearchQueryPreference();
-    _debugPanelSetState?.call(() {});
-  }
-
-  List<ActionEvaluationRequest> _applyAdvancedFilters(
-      List<ActionEvaluationRequest> list) {
-    final filters = _advancedFilters;
-    final sort = _debugPrefs.sortBySpr;
-    final search = _debugPrefs.searchQuery.trim().toLowerCase();
-    if (filters.isEmpty && !sort && search.isEmpty) return list;
-
-    final checkFeedback = filters.contains('feedback');
-    final checkOpponent = filters.contains('opponent');
-    final checkFailed = filters.contains('failed');
-    final checkHighSpr = filters.contains('highspr');
-    final searchActive = search.isNotEmpty;
-
-    final shouldFilter =
-        checkFeedback ||
-            checkOpponent ||
-            checkFailed ||
-            checkHighSpr ||
-            searchActive;
-
-    if (!shouldFilter && !sort) {
-      return list;
-    }
-
-    bool matches(ActionEvaluationRequest r) {
-      final md = r.metadata;
-
-      if (checkFeedback) {
-        final text = md?['feedbackText'] as String?;
-        if (text == null || text.isEmpty) return false;
-      }
-
-      if (checkOpponent && ((md?['opponentCards'] as List?)?.isEmpty ?? true)) {
-        return false;
-      }
-
-      if (checkFailed && md?['status'] != 'failed') return false;
-
-      if (checkHighSpr) {
-        final spr = (md?['spr'] as num?)?.toDouble();
-        if (spr == null || spr < 3) return false;
-      }
-
-      if (searchActive) {
-        final feedback = (md?['feedbackText'] as String?) ?? '';
-        final id = r.id;
-        if (!id.toLowerCase().contains(search) &&
-            !feedback.toLowerCase().contains(search)) {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    final filtered = <ActionEvaluationRequest>[];
-    var modified = false;
-    for (final r in list) {
-      if (matches(r)) {
-        filtered.add(r);
-      } else {
-        modified = true;
-      }
-    }
-
-    var result = modified ? filtered : list;
-
-    if (sort) {
-      final sorted = List<ActionEvaluationRequest>.from(result);
-      sorted.sort((a, b) {
-        final sa = (a.metadata?['spr'] as num?)?.toDouble() ?? -double.infinity;
-        final sb = (b.metadata?['spr'] as num?)?.toDouble() ?? -double.infinity;
-        return sb.compareTo(sa);
-      });
-      result = sorted;
-    }
-
-    return result;
-  }
-
-  Future<void> _loadQueueResumedPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getBool(_queueResumedKey) ?? false;
-    if (mounted) {
-      setState(() => _evaluationQueueResumed = value);
-    } else {
-      _evaluationQueueResumed = value;
-    }
-  }
-
-  Future<void> _setEvaluationQueueResumed(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_queueResumedKey, value);
-    if (mounted) {
-      setState(() => _evaluationQueueResumed = value);
-    } else {
-      _evaluationQueueResumed = value;
-    }
-    _debugPanelSetState?.call(() {});
-  }
 
   String _queueEntryId(ActionEvaluationRequest r) => r.id;
 
@@ -558,9 +327,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
-    final filtered = _applyAdvancedFilters(queue);
+    final filtered = _debugPrefs.applyAdvancedFilters(queue);
     return debugQueueSection(label, filtered,
-        _advancedFilters.isEmpty && !_debugPrefs.sortBySpr &&
+        _debugPrefs.advancedFilters.isEmpty && !_debugPrefs.sortBySpr &&
             _debugPrefs.searchQuery.isEmpty
             ? (oldIndex, newIndex) {
                 if (newIndex > oldIndex) newIndex -= 1;
@@ -839,13 +608,37 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _applySavedHand(widget.initialHand!);
     }
     Future(() => _cleanupOldEvaluationBackups());
-    Future(() => _loadSnapshotRetentionPreference());
-    Future(() => _loadProcessingDelayPreference());
-    Future(() => _loadQueueFilterPreference());
-    Future(() => _loadAdvancedFilterPreference());
-    Future(() => _loadSearchQueryPreference());
-    Future(() => _loadSortBySprPreference());
-    Future(() => _loadQueueResumedPreference());
+    Future(() async {
+      await _debugPrefs.loadSnapshotRetentionPreference();
+      if (_debugPrefs.snapshotRetentionEnabled) {
+        await _cleanupOldEvaluationSnapshots();
+      }
+      setState(() {});
+    });
+    Future(() async {
+      await _debugPrefs.loadProcessingDelayPreference();
+      setState(() {});
+    });
+    Future(() async {
+      await _debugPrefs.loadQueueFilterPreference();
+      setState(() {});
+    });
+    Future(() async {
+      await _debugPrefs.loadAdvancedFilterPreference();
+      setState(() {});
+    });
+    Future(() async {
+      await _debugPrefs.loadSearchQueryPreference();
+      setState(() {});
+    });
+    Future(() async {
+      await _debugPrefs.loadSortBySprPreference();
+      setState(() {});
+    });
+    Future(() async {
+      await _debugPrefs.loadQueueResumedPreference();
+      setState(() {});
+    });
     Future.microtask(_queueService.loadQueueSnapshot);
     Future(() => _backupManager.cleanupOldAutoBackups());
     _backupManager.startAutoBackupTimer();
@@ -917,7 +710,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _failedEvaluations.clear();
     });
     _queueService.persist();
-    unawaited(_setEvaluationQueueResumed(false));
+    unawaited(_debugPrefs.setEvaluationQueueResumed(false));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Evaluation queue cleared')),
@@ -1589,13 +1382,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               ..addAll(completed);
             resumed =
                 pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
-            _evaluationQueueResumed = resumed;
+            s._debugPrefs.setEvaluationQueueResumed(resumed);
           });
           _debugPanelSetState?.call(() {});
         } else {
           resumed =
               pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
-          _evaluationQueueResumed = resumed;
+          s._debugPrefs.setEvaluationQueueResumed(resumed);
           _pendingEvaluations
             ..clear()
             ..addAll(pending);
@@ -1612,9 +1405,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _queueService.persist();
         _debugPanelSetState?.call(() {});
       }
-      await _setEvaluationQueueResumed(resumed);
+      await s._debugPrefs.setEvaluationQueueResumed(resumed);
     } catch (_) {
-      await _setEvaluationQueueResumed(false);
+      await s._debugPrefs.setEvaluationQueueResumed(false);
     }
   }
 
@@ -1784,7 +1577,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _debugPanelSetState?.call(() {});
       _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
+      unawaited(_debugPrefs.setEvaluationQueueResumed(false));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -1807,7 +1600,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _importEvaluationQueue() async {
     await _backupManager.importEvaluationQueue(context);
     _debugPanelSetState?.call(() {});
-    unawaited(_setEvaluationQueueResumed(false));
+    unawaited(_debugPrefs.setEvaluationQueueResumed(false));
   }
 
   Future<void> _restoreEvaluationQueue() async {
@@ -1853,7 +1646,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _debugPanelSetState?.call(() {});
       _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
+      unawaited(_debugPrefs.setEvaluationQueueResumed(false));
 
       final total =
           importedPending.length + importedFailed.length + importedCompleted.length;
@@ -1922,7 +1715,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _debugPanelSetState?.call(() {});
       _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
+      unawaited(_debugPrefs.setEvaluationQueueResumed(false));
 
       final total =
           importedPending.length + importedFailed.length + importedCompleted.length;
@@ -1996,7 +1789,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _debugPanelSetState?.call(() {});
       _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
+      unawaited(_debugPrefs.setEvaluationQueueResumed(false));
 
       final total =
           importedPending.length + importedFailed.length + importedCompleted.length;
@@ -2054,7 +1847,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(completed);
       });
       _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
+      unawaited(_debugPrefs.setEvaluationQueueResumed(false));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -2120,7 +1913,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _debugPanelSetState?.call(() {});
       _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
+      unawaited(_debugPrefs.setEvaluationQueueResumed(false));
 
       final total =
           importedPending.length + importedFailed.length + importedCompleted.length;
@@ -2141,13 +1934,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> _showDebugPanel() async {
-    setState(() => _isDebugPanelOpen = true);
+    setState(() => _debugPrefs.isDebugPanelOpen = true);
     await showDialog<void>(
       context: context,
       builder: (context) => _DebugPanelDialog(parent: this),
     );
-    setState(() => _isDebugPanelOpen = false);
+    setState(() => _debugPrefs.isDebugPanelOpen = false);
     _debugPanelSetState = null;
+  }
+
+  Future<void> _resetDebugPanelPreferences() async {
+    await _debugPrefs.clearAll();
+    if (_debugPrefs.snapshotRetentionEnabled) {
+      await _cleanupOldEvaluationSnapshots();
+    }
+    setState(() {});
+    _debugPanelSetState?.call(() {});
   }
 
 
@@ -5045,7 +4847,12 @@ class _SnapshotControls extends StatelessWidget {
         const Expanded(child: Text('Enable Snapshot Retention Policy')),
         Switch(
           value: s._debugPrefs.snapshotRetentionEnabled,
-          onChanged: s._setSnapshotRetentionEnabled,
+          onChanged: (v) async {
+            await s._debugPrefs.setSnapshotRetentionEnabled(v);
+            if (v) await s._cleanupOldEvaluationSnapshots();
+            s.setState(() {});
+            s._debugPanelSetState?.call(() {});
+          },
           activeColor: Colors.orange,
         ),
       ],
@@ -5058,7 +4865,11 @@ class _SnapshotControls extends StatelessWidget {
         const Expanded(child: Text('Sort by SPR')),
         Switch(
           value: s._debugPrefs.sortBySpr,
-          onChanged: s._setSortBySpr,
+          onChanged: (v) {
+            s._debugPrefs.setSortBySpr(v);
+            s.setState(() {});
+            s._debugPanelSetState?.call(() {});
+          },
           activeColor: Colors.orange,
         ),
       ],
@@ -5102,13 +4913,15 @@ class _QueueDisplaySection extends StatelessWidget {
       children: [
         ToggleButtons(
           isSelected: [
-            s._queueFilters.contains('pending'),
-            s._queueFilters.contains('failed'),
-            s._queueFilters.contains('completed'),
+            s._debugPrefs.queueFilters.contains('pending'),
+            s._debugPrefs.queueFilters.contains('failed'),
+            s._debugPrefs.queueFilters.contains('completed'),
           ],
           onPressed: (i) {
             final modes = ['pending', 'failed', 'completed'];
-            s._toggleQueueFilter(modes[i]);
+            s._debugPrefs.toggleQueueFilter(modes[i]);
+            s.setState(() {});
+            s._debugPanelSetState?.call(() {});
           },
           children: const [
             Padding(
@@ -5131,23 +4944,39 @@ class _QueueDisplaySection extends StatelessWidget {
           children: [
             CheckboxListTile(
               title: const Text('Only hands with feedback'),
-              value: s._advancedFilters.contains('feedback'),
-              onChanged: (_) => s._toggleAdvancedFilter('feedback'),
+              value: s._debugPrefs.advancedFilters.contains('feedback'),
+              onChanged: (_) {
+                s._debugPrefs.toggleAdvancedFilter('feedback');
+                s.setState(() {});
+                s._debugPanelSetState?.call(() {});
+              },
             ),
             CheckboxListTile(
               title: const Text('Only hands with opponent cards'),
-              value: s._advancedFilters.contains('opponent'),
-              onChanged: (_) => s._toggleAdvancedFilter('opponent'),
+              value: s._debugPrefs.advancedFilters.contains('opponent'),
+              onChanged: (_) {
+                s._debugPrefs.toggleAdvancedFilter('opponent');
+                s.setState(() {});
+                s._debugPanelSetState?.call(() {});
+              },
             ),
             CheckboxListTile(
               title: const Text('Only failed evaluations'),
-              value: s._advancedFilters.contains('failed'),
-              onChanged: (_) => s._toggleAdvancedFilter('failed'),
+              value: s._debugPrefs.advancedFilters.contains('failed'),
+              onChanged: (_) {
+                s._debugPrefs.toggleAdvancedFilter('failed');
+                s.setState(() {});
+                s._debugPanelSetState?.call(() {});
+              },
             ),
             CheckboxListTile(
               title: const Text('Only high SPR (>=3)'),
-              value: s._advancedFilters.contains('highspr'),
-              onChanged: (_) => s._toggleAdvancedFilter('highspr'),
+              value: s._debugPrefs.advancedFilters.contains('highspr'),
+              onChanged: (_) {
+                s._debugPrefs.toggleAdvancedFilter('highspr');
+                s.setState(() {});
+                s._debugPanelSetState?.call(() {});
+              },
             ),
           ],
         ),
@@ -5158,21 +4987,25 @@ class _QueueDisplaySection extends StatelessWidget {
           controller: state._searchController,
           decoration:
               const InputDecoration(labelText: 'Search by ID or Feedback'),
-          onChanged: (v) => s._setSearchQuery(v),
+          onChanged: (v) {
+            s._debugPrefs.setSearchQuery(v);
+            s.setState(() {});
+            s._debugPanelSetState?.call(() {});
+          },
         ),
         _DebugPanelDialogState._vGap,
         Builder(
           builder: (context) {
             final sections = <Widget>[];
-            if (s._queueFilters.contains('pending')) {
+            if (s._debugPrefs.queueFilters.contains('pending')) {
               sections.add(state._queueSection('Pending', s._pendingEvaluations));
             }
-            if (s._queueFilters.contains('failed')) {
+            if (s._debugPrefs.queueFilters.contains('failed')) {
               sections.add(state._queueSection('Failed', s._failedEvaluations));
             }
-            if (s._queueFilters.contains('completed')) {
-              sections
-                  .add(state._queueSection('Completed', s._completedEvaluations));
+            if (s._debugPrefs.queueFilters.contains('completed')) {
+              sections.add(
+                  state._queueSection('Completed', s._completedEvaluations));
             }
             if (sections.isEmpty) {
               return debugDiag('Queue Items', '(none)');
@@ -5357,7 +5190,7 @@ class _EvaluationQueueDiagnosticsSection extends StatelessWidget {
       children: [
         debugDiag(
           'Action Evaluation Queue',
-          s._evaluationQueueResumed ? '(Resumed from saved state)' : '(New)',
+          s._debugPrefs.queueResumed ? '(Resumed from saved state)' : '(New)',
         ),
         debugDiag('Pending Action Evaluations', s._pendingEvaluations.length),
         debugDiag(
@@ -5383,7 +5216,7 @@ class _ExportConsistencySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Debug Menu Visibility:'),
-        debugDiag('Is Debug Menu Open', s._isDebugPanelOpen),
+        debugDiag('Is Debug Menu Open', s._debugPrefs.isDebugPanelOpen),
         _DebugPanelDialogState._vGap,
         const Text('Full Export Consistency:'),
         debugCheck('numberOfPlayers',
@@ -5742,8 +5575,10 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
                     max: 2000,
                     divisions: 19,
                     label: '${s._debugPrefs.processingDelay} ms',
-                    onChanged: (v) {
-                      s._setProcessingDelay(v.round());
+                    onChanged: (v) async {
+                      await s._debugPrefs.setProcessingDelay(v.round());
+                      s.setState(() {});
+                      s._debugPanelSetState?.call(() {});
                     },
                   ),
                 ),
