@@ -4091,9 +4091,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       ),
                     ),
                     const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text('🔍 Проанализировать'),
+                    _AnalyzeButtonSection(
+                      onAnalyze: () {},
                     ),
                   ],
                 ),
@@ -5243,6 +5242,22 @@ class _PlayerCountSelector extends StatelessWidget {
           onChanged(value);
         }
       },
+    );
+  }
+}
+
+class _AnalyzeButtonSection extends StatelessWidget {
+  final VoidCallback onAnalyze;
+
+  const _AnalyzeButtonSection({
+    required this.onAnalyze,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onAnalyze,
+      child: const Text('🔍 Проанализировать'),
     );
   }
 }
