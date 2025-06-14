@@ -4066,33 +4066,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onReset: _resetHand,
               ),
             ),
-            _CollapsibleActionHistorySection(
-              actions: visibleActions,
-              playerPositions: playerPositions,
-              heroIndex: heroIndex,
-            ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _HandNotesSection(commentController: _commentController, tagsController: _tagsController),
-                    _StreetActionsSection(
-                      street: currentStreet,
-                      actions: actions,
-                      pots: _pots,
-                      stackSizes: stackSizes,
-                      playerPositions: playerPositions,
-                      onEdit: _editAction,
-                      onDelete: _deleteAction,
-                      visibleCount: _playbackIndex,
-                      evaluateActionQuality: _evaluateActionQuality,
-                    ),
-                    const SizedBox(height: 10),
-                    _AnalyzeButtonSection(
-                      onAnalyze: () {},
-                    ),
-                  ],
-                ),
+              child: _HandEditorSection(
+                historyActions: visibleActions,
+                playerPositions: playerPositions,
+                heroIndex: heroIndex,
+                commentController: _commentController,
+                tagsController: _tagsController,
+                currentStreet: currentStreet,
+                actions: actions,
+                pots: _pots,
+                stackSizes: stackSizes,
+                onEdit: _editAction,
+                onDelete: _deleteAction,
+                visibleCount: _playbackIndex,
+                evaluateActionQuality: _evaluateActionQuality,
+                onAnalyze: () {},
               ),
             ),
           ],
@@ -5318,6 +5307,77 @@ class _AnalyzeButtonSection extends StatelessWidget {
     return TextButton(
       onPressed: onAnalyze,
       child: const Text('🔍 Проанализировать'),
+    );
+  }
+}
+
+class _HandEditorSection extends StatelessWidget {
+  final List<ActionEntry> historyActions;
+  final Map<int, String> playerPositions;
+  final int heroIndex;
+  final TextEditingController commentController;
+  final TextEditingController tagsController;
+  final int currentStreet;
+  final List<ActionEntry> actions;
+  final List<int> pots;
+  final Map<int, int> stackSizes;
+  final void Function(int, ActionEntry) onEdit;
+  final void Function(int) onDelete;
+  final int? visibleCount;
+  final String Function(ActionEntry)? evaluateActionQuality;
+  final VoidCallback onAnalyze;
+
+  const _HandEditorSection({
+    required this.historyActions,
+    required this.playerPositions,
+    required this.heroIndex,
+    required this.commentController,
+    required this.tagsController,
+    required this.currentStreet,
+    required this.actions,
+    required this.pots,
+    required this.stackSizes,
+    required this.onEdit,
+    required this.onDelete,
+    required this.visibleCount,
+    required this.evaluateActionQuality,
+    required this.onAnalyze,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _CollapsibleActionHistorySection(
+          actions: historyActions,
+          playerPositions: playerPositions,
+          heroIndex: heroIndex,
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _HandNotesSection(
+                    commentController: commentController,
+                    tagsController: tagsController),
+                _StreetActionsSection(
+                  street: currentStreet,
+                  actions: actions,
+                  pots: pots,
+                  stackSizes: stackSizes,
+                  playerPositions: playerPositions,
+                  onEdit: onEdit,
+                  onDelete: onDelete,
+                  visibleCount: visibleCount,
+                  evaluateActionQuality: evaluateActionQuality,
+                ),
+                const SizedBox(height: 10),
+                _AnalyzeButtonSection(onAnalyze: onAnalyze),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
