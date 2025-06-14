@@ -55,13 +55,19 @@ class EvaluationQueueManager {
       if (kDebugMode) {
         debugPrint('Failed to write ${file.path}: $e');
       }
-      rethrow;
     }
   }
 
   Future<dynamic> _readJson(File file) async {
-    final content = await file.readAsString();
-    return jsonDecode(content);
+    try {
+      final content = await file.readAsString();
+      return jsonDecode(content);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Failed to read ${file.path}: $e');
+      }
+      return null;
+    }
   }
 
   String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
@@ -156,7 +162,11 @@ class EvaluationQueueManager {
       await prefs.setStringList(_pendingOrderKey, [for (final e in pending) _queueEntryId(e)]);
       await prefs.setStringList(_failedOrderKey, [for (final e in failed) _queueEntryId(e)]);
       await prefs.setStringList(_completedOrderKey, [for (final e in completed) _queueEntryId(e)]);
-    } catch (_) {}
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Persist error: $e');
+      }
+    }
   }
 
   Future<void> addToQueue(ActionEvaluationRequest req) async {
@@ -223,7 +233,11 @@ class EvaluationQueueManager {
         ..clear()
         ..addAll(queues['completed']!);
       await _persist();
-    } catch (_) {}
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Failed to import from clipboard: $e');
+      }
+    }
   }
 
   /// Copy the current evaluation queue state to the clipboard as JSON.
@@ -274,7 +288,11 @@ class EvaluationQueueManager {
         ..clear()
         ..addAll(queues['completed']!);
       await _persist();
-    } catch (_) {}
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Failed to load snapshot: $e');
+      }
+    }
   }
 
   void applySavedOrder(List<ActionEvaluationRequest> list, List<String>? order) {
