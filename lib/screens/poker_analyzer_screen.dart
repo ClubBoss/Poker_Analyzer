@@ -4215,11 +4215,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     onCardSelected: selectBoardCard,
                     visibleActions: visibleActions,
                   ),
-                  _buildOpponentCardRow(scale),
-                  for (int i = 0; i < numberOfPlayers; i++) ..._buildPlayerWidgets(i, scale),
-                  for (int i = 0; i < numberOfPlayers; i++) ..._buildChipTrail(i, scale),
-                    _buildBetStacksOverlay(scale),
-                    _buildInvestedChipsOverlay(scale),
+                  _PlayerZonesSection(
+                    numberOfPlayers: numberOfPlayers,
+                    scale: scale,
+                    playerPositions: playerPositions,
+                    opponentCardRowBuilder: _buildOpponentCardRow,
+                    playerBuilder: _buildPlayerWidgets,
+                    chipTrailBuilder: _buildChipTrail,
+                  ),
+                  _buildBetStacksOverlay(scale),
+                  _buildInvestedChipsOverlay(scale),
                   _buildPotAndBetsOverlay(scale),
                   ActionHistoryOverlay(
                     actions: actions,
@@ -4902,6 +4907,35 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       )
     ];
+  }
+}
+
+class _PlayerZonesSection extends StatelessWidget {
+  final int numberOfPlayers;
+  final double scale;
+  final Map<int, String> playerPositions;
+  final Widget Function(double) opponentCardRowBuilder;
+  final List<Widget> Function(int, double) playerBuilder;
+  final List<Widget> Function(int, double) chipTrailBuilder;
+
+  const _PlayerZonesSection({
+    required this.numberOfPlayers,
+    required this.scale,
+    required this.playerPositions,
+    required this.opponentCardRowBuilder,
+    required this.playerBuilder,
+    required this.chipTrailBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        opponentCardRowBuilder(scale),
+        for (int i = 0; i < numberOfPlayers; i++) ...playerBuilder(i, scale),
+        for (int i = 0; i < numberOfPlayers; i++) ...chipTrailBuilder(i, scale),
+      ],
+    );
   }
 }
 
