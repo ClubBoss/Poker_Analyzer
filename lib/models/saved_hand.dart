@@ -39,6 +39,10 @@ class SavedHand {
   final Map<int, String?>? actionTags;
   /// Pending action evaluation requests queued when the hand was saved.
   final List<ActionEvaluationRequest>? pendingEvaluations;
+  /// Undo history stack preserving past action states.
+  final List<List<ActionEntry>>? undoStack;
+  /// Redo history stack preserving reverted action states.
+  final List<List<ActionEntry>>? redoStack;
   /// Index in the action list used when the hand was last viewed.
   final int playbackIndex;
 
@@ -73,6 +77,8 @@ class SavedHand {
     this.foldedPlayers,
     this.actionTags,
     this.pendingEvaluations,
+    this.undoStack,
+    this.redoStack,
     this.playbackIndex = 0,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
@@ -110,6 +116,8 @@ class SavedHand {
     List<int>? foldedPlayers,
     Map<int, String?>? actionTags,
     List<ActionEvaluationRequest>? pendingEvaluations,
+    List<List<ActionEntry>>? undoStack,
+    List<List<ActionEntry>>? redoStack,
     int? playbackIndex,
   }) {
     return SavedHand(
@@ -173,6 +181,20 @@ class SavedHand {
                           attempts: e.attempts,
                         )
                     ]),
+      undoStack: undoStack ??
+          (this.undoStack == null
+              ? null
+              : [
+                  for (final list in this.undoStack!)
+                    [for (final a in list) ActionEntry(a.street, a.playerIndex, a.action, amount: a.amount, generated: a.generated, timestamp: a.timestamp)]
+                ]),
+      redoStack: redoStack ??
+          (this.redoStack == null
+              ? null
+              : [
+                  for (final list in this.redoStack!)
+                    [for (final a in list) ActionEntry(a.street, a.playerIndex, a.action, amount: a.amount, generated: a.generated, timestamp: a.timestamp)]
+                ]),
       playbackIndex: playbackIndex ?? this.playbackIndex,
     );
   }
@@ -234,6 +256,36 @@ class SavedHand {
               actionTags!.map((k, v) => MapEntry(k.toString(), v)),
         if (pendingEvaluations != null)
           'pendingEvaluations': [for (final e in pendingEvaluations!) e.toJson()],
+        if (undoStack != null)
+          'undoStack': [
+            for (final list in undoStack!)
+              [
+                for (final a in list)
+                  {
+                    'street': a.street,
+                    'playerIndex': a.playerIndex,
+                    'action': a.action,
+                    'amount': a.amount,
+                    'generated': a.generated,
+                    'timestamp': a.timestamp.toIso8601String(),
+                  }
+              ]
+          ],
+        if (redoStack != null)
+          'redoStack': [
+            for (final list in redoStack!)
+              [
+                for (final a in list)
+                  {
+                    'street': a.street,
+                    'playerIndex': a.playerIndex,
+                    'action': a.action,
+                    'amount': a.amount,
+                    'generated': a.generated,
+                    'timestamp': a.timestamp.toIso8601String(),
+                  }
+              ]
+          ],
         'playbackIndex': playbackIndex,
       };
 
@@ -330,6 +382,42 @@ class SavedHand {
               Map<String, dynamic>.from(e as Map))
       ];
     }
+    List<List<ActionEntry>>? undo;
+    if (json['undoStack'] != null) {
+      undo = [
+        for (final list in (json['undoStack'] as List))
+          [
+            for (final a in (list as List))
+              ActionEntry(
+                a['street'] as int,
+                a['playerIndex'] as int,
+                a['action'] as String,
+                amount: a['amount'] as int?,
+                generated: a['generated'] as bool? ?? false,
+                timestamp: DateTime.tryParse(a['timestamp'] as String? ?? '') ??
+                    DateTime.now(),
+              )
+          ]
+      ];
+    }
+    List<List<ActionEntry>>? redo;
+    if (json['redoStack'] != null) {
+      redo = [
+        for (final list in (json['redoStack'] as List))
+          [
+            for (final a in (list as List))
+              ActionEntry(
+                a['street'] as int,
+                a['playerIndex'] as int,
+                a['action'] as String,
+                amount: a['amount'] as int?,
+                generated: a['generated'] as bool? ?? false,
+                timestamp: DateTime.tryParse(a['timestamp'] as String? ?? '') ??
+                    DateTime.now(),
+              )
+          ]
+      ];
+    }
     final playbackIndex = json['playbackIndex'] as int? ?? 0;
     final commentCursor = json['commentCursor'] as int?;
     final tagsCursor = json['tagsCursor'] as int?;
@@ -378,6 +466,8 @@ class SavedHand {
       foldedPlayers: folded,
       actionTags: aTags,
       pendingEvaluations: pending,
+      undoStack: undo,
+      redoStack: redo,
       playbackIndex: playbackIndex,
     );
   }

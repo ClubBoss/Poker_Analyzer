@@ -108,6 +108,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
   final Set<int> _foldedPlayers = {};
+  final List<List<ActionEntry>> _undoStack = [];
+  final List<List<ActionEntry>> _redoStack = [];
 
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
@@ -2187,6 +2189,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           _actionTags.isEmpty ? null : Map<int, String?>.from(_actionTags),
       pendingEvaluations:
           _pendingEvaluations.isEmpty ? null : List<ActionEvaluationRequest>.from(_pendingEvaluations),
+      undoStack: _undoStack.isEmpty
+          ? null
+          : [for (final list in _undoStack) List<ActionEntry>.from(list)],
+      redoStack: _redoStack.isEmpty
+          ? null
+          : [for (final list in _redoStack) List<ActionEntry>.from(list)],
       playbackIndex: _playbackManager.playbackIndex,
     );
   }
@@ -2264,6 +2272,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _pendingEvaluations
         ..clear()
         ..addAll(hand.pendingEvaluations ?? []);
+      _undoStack
+        ..clear()
+        ..addAll([
+          for (final list in hand.undoStack ?? [])
+            List<ActionEntry>.from(list)
+        ]);
+      _redoStack
+        ..clear()
+        ..addAll([
+          for (final list in hand.redoStack ?? [])
+            List<ActionEntry>.from(list)
+        ]);
       _foldedPlayers
         ..clear()
         ..addAll(hand.foldedPlayers ??
