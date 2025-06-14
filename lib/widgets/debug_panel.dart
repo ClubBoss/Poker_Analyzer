@@ -448,6 +448,24 @@ class _StreetTransitionDiagnosticsSection extends StatelessWidget {
   }
 }
 
+class _ChipTrailDiagnosticsSection extends StatelessWidget {
+  const _ChipTrailDiagnosticsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Chip Trail Diagnostics:'),
+        debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
+      ],
+    );
+  }
+}
+
 class _ExportConsistencySection extends StatelessWidget {
   const _ExportConsistencySection({required this.state});
 
@@ -758,8 +776,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             _CenterChipDiagnosticsSection(state: this),
             _vGap,
             _StreetTransitionDiagnosticsSection(state: this),
-            const Text('Chip Trail Diagnostics:'),
-            debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
+            _ChipTrailDiagnosticsSection(state: this),
             _vGap,
             debugDiag(
               'Action Evaluation Queue',
