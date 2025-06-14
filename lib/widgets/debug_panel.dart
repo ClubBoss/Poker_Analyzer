@@ -508,6 +508,43 @@ class _ThemeDiagnosticsSection extends StatelessWidget {
   }
 }
 
+class _CenterChipDiagnosticsSection extends StatelessWidget {
+  const _CenterChipDiagnosticsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Chip Animation State:'),
+        debugDiag(
+          'Center Chip Action',
+          () {
+            final action = s._centerChipAction;
+            if (action == null) return '(null)';
+            var result =
+                'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
+            if (action.amount != null) result += ', Amount ${action.amount}';
+            return result;
+          }(),
+        ),
+        _DebugPanelState._vGap,
+        debugDiag('Show Center Chip', s._showCenterChip),
+        _DebugPanelState._vGap,
+        const Text('Animation Controllers State:'),
+        debugDiag('Center Chip Animation Active',
+            s._centerChipController.isAnimating),
+        _DebugPanelState._vGap,
+        debugDiag('Center Chip Animation Value',
+            s._centerChipController.value.toStringAsFixed(2)),
+      ],
+    );
+  }
+}
+
 
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
