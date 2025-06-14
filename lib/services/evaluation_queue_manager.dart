@@ -33,7 +33,10 @@ class EvaluationQueueManager {
   bool snapshotRetentionEnabled = true;
   int processingDelay = 500;
 
+  // Cached application documents directory path to avoid repeated lookups.
   late final String _documentsDirPath;
+
+  // Cached SharedPreferences instance for quick persistence operations.
   late final SharedPreferences _sharedPrefs;
   late final Future<void> _initFuture;
 
@@ -161,6 +164,7 @@ class EvaluationQueueManager {
         'completed': [for (final e in completed) e.toJson()],
       };
 
+  /// Persist queue state to disk and preferences using cached resources.
   Future<void> _persist() async {
     try {
       await _initFuture;
