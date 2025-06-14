@@ -4149,16 +4149,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? 'SPR: ${sprValue.toStringAsFixed(1)}'
                         : null,
                   ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: ElevatedButton(
-                      onPressed: () => setState(
-                          () => _showAllRevealedCards = !_showAllRevealedCards),
-                      child: const Text('Показать все карты'),
-                    ),
-                  ),
+                _RevealAllCardsButton(
+                  showAllRevealedCards: _showAllRevealedCards,
+                  onToggle: () => setState(
+                      () => _showAllRevealedCards = !_showAllRevealedCards),
                 )
               ],
         ),
@@ -5101,6 +5095,30 @@ class _PerspectiveSwitchButton extends StatelessWidget {
         child: const Text(
           '👁 Смотреть от лица',
           style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class _RevealAllCardsButton extends StatelessWidget {
+  final bool showAllRevealedCards;
+  final VoidCallback onToggle;
+
+  const _RevealAllCardsButton({
+    required this.showAllRevealedCards,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: ElevatedButton(
+          onPressed: onToggle,
+          child: const Text('Показать все карты'),
         ),
       ),
     );
