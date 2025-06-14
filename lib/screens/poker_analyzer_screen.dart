@@ -2169,6 +2169,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .map((t) => t.trim())
           .where((t) => t.isNotEmpty)
           .toList(),
+      commentCursor: _commentController.selection.baseOffset >= 0
+          ? _commentController.selection.baseOffset
+          : null,
+      tagsCursor: _tagsController.selection.baseOffset >= 0
+          ? _tagsController.selection.baseOffset
+          : null,
       isFavorite: false,
       date: DateTime.now(),
       effectiveStacksPerStreet: stacks,
@@ -2238,6 +2244,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
       _commentController.text = hand.comment ?? '';
       _tagsController.text = hand.tags.join(', ');
+      _commentController.selection = TextSelection.collapsed(
+          offset: hand.commentCursor != null &&
+                  hand.commentCursor! <= _commentController.text.length
+              ? hand.commentCursor!
+              : _commentController.text.length);
+      _tagsController.selection = TextSelection.collapsed(
+          offset:
+              hand.tagsCursor != null && hand.tagsCursor! <= _tagsController.text.length
+                  ? hand.tagsCursor!
+                  : _tagsController.text.length);
       _actionTags
         ..clear()
         ..addAll(hand.actionTags ?? {});
