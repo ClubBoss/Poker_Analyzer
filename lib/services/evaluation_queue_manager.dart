@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -32,16 +33,24 @@ class EvaluationQueueManager {
   bool snapshotRetentionEnabled = true;
   int processingDelay = 500;
 
+  late final String _documentsDirPath;
+  late final SharedPreferences _sharedPrefs;
+  late final Future<void> _initFuture;
+
   EvaluationQueueManager() {
-    Future.microtask(() async {
-      snapshotRetentionEnabled = await _prefs.getSnapshotRetentionEnabled();
-      processingDelay = await _prefs.getProcessingDelay();
-    });
+    _initFuture = _initialize();
+  }
+
+  Future<void> _initialize() async {
+    snapshotRetentionEnabled = await _prefs.getSnapshotRetentionEnabled();
+    processingDelay = await _prefs.getProcessingDelay();
+    _documentsDirPath = (await getApplicationDocumentsDirectory()).path;
+    _sharedPrefs = await SharedPreferences.getInstance();
   }
 
   Future<Directory> _getDir(String subfolder) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final target = Directory('${dir.path}/$subfolder');
+    await _initFuture;
+    final target = Directory('$_documentsDirPath/$subfolder');
     try {
       await target.create(recursive: true);
     } catch (_) {}
@@ -154,14 +163,16 @@ class EvaluationQueueManager {
 
   Future<void> _persist() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/evaluation_current_queue.json');
+      await _initFuture;
+      final file = File('$_documentsDirPath/evaluation_current_queue.json');
       await _writeJson(file, _state());
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_pendingOrderKey, [for (final e in pending) _queueEntryId(e)]);
-      await prefs.setStringList(_failedOrderKey, [for (final e in failed) _queueEntryId(e)]);
-      await prefs.setStringList(_completedOrderKey, [for (final e in completed) _queueEntryId(e)]);
+      await _sharedPrefs.setStringList(_pendingOrderKey,
+          [for (final e in pending) _queueEntryId(e)]);
+      await _sharedPrefs.setStringList(_failedOrderKey,
+          [for (final e in failed) _queueEntryId(e)]);
+      await _sharedPrefs.setStringList(_completedOrderKey,
+          [for (final e in completed) _queueEntryId(e)]);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Persist error: $e');
