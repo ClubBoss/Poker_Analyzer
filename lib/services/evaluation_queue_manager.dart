@@ -206,6 +206,22 @@ class EvaluationQueueManager {
     }
   }
 
+  Future<bool> _processSingleEvaluation(ActionEvaluationRequest req) async {
+    var success = false;
+    while (!success && req.attempts < 3) {
+      try {
+        await _execute(req);
+        success = true;
+      } catch (_) {
+        req.attempts++;
+        if (req.attempts < 3) {
+          await Future.delayed(const Duration(milliseconds: 200));
+        }
+      }
+    }
+    return success;
+  }
+
   Future<void> processQueue() async {
     if (processing ||
         await _queueLock.synchronized(() => pending.isEmpty)) return;
@@ -216,18 +232,7 @@ class EvaluationQueueManager {
       await Future.delayed(Duration(milliseconds: processingDelay));
       if (cancelRequested) break;
       if (await _queueLock.synchronized(() => pending.isEmpty)) break;
-      var success = false;
-      while (!success && req.attempts < 3) {
-        try {
-          await _execute(req);
-          success = true;
-        } catch (_) {
-          req.attempts++;
-          if (req.attempts < 3) {
-            await Future.delayed(const Duration(milliseconds: 200));
-          }
-        }
-      }
+      final success = await _processSingleEvaluation(req);
       await _queueLock.synchronized(() {
         if (pending.isNotEmpty) {
           pending.removeAt(0);
