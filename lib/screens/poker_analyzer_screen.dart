@@ -677,6 +677,133 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() => _playerManager.selectBoardCard(index, card));
   }
 
+  Future<Map<String, dynamic>?> _showActionPicker() {
+    final TextEditingController controller = TextEditingController();
+    String? selected;
+    return showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) {
+          final bool needAmount = selected == 'bet' || selected == 'raise';
+          return Padding(
+            padding: MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, {'action': 'check'}),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Check'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, {'action': 'call'}),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Call'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => setModal(() => selected = 'bet'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Bet'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => setModal(() => selected = 'raise'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Raise'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, {'action': 'fold'}),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Fold'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, {'action': 'all-in'}),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('All-In'),
+                ),
+                if (needAmount) ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white10,
+                      hintText: 'Amount',
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      final int? amt = int.tryParse(controller.text);
+                      if (amt != null) {
+                        Navigator.pop(ctx, {
+                          'action': selected,
+                          'amount': amt,
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueGrey,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Confirm'),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    ).whenComplete(controller.dispose);
+  }
+
+  Future<void> _onPlayerTap(int index) async {
+    setState(() => activePlayerIndex = index);
+    final result = await _showActionPicker();
+    if (result == null) return;
+    String action = result['action'] as String;
+    int? amount = result['amount'] as int?;
+    if (action == 'all-in') {
+      amount = _stackService.getStackForPlayer(index);
+    }
+    final entry = ActionEntry(currentStreet, index, action, amount: amount);
+    onActionSelected(entry);
+  }
+
 
   bool _streetHasBet({List<ActionEntry>? fromActions}) {
     final list = fromActions ?? actions;
@@ -2724,7 +2851,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ? _playerManager.playerPositions[index]
                 : null,
             onCardTap: (cardIndex) => _onPlayerCardTap(index, cardIndex),
-            onTap: () => setState(() => activePlayerIndex = index),
+            onTap: () => _onPlayerTap(index),
             onDoubleTap: () => setState(() {
               _playerManager.setHeroIndex(index);
             }),
