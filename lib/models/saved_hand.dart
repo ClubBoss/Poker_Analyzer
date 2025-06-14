@@ -13,6 +13,7 @@ class SavedHand {
   /// Revealed cards for each player. Empty lists if unknown.
   final List<List<CardModel>> revealedCards;
   final int? opponentIndex;
+  final int? activePlayerIndex;
   final List<ActionEntry> actions;
   final Map<int, int> stackSizes;
   final Map<int, int>? remainingStacks;
@@ -42,6 +43,7 @@ class SavedHand {
     required this.boardCards,
     List<List<CardModel>>? revealedCards,
     this.opponentIndex,
+    this.activePlayerIndex,
     required this.actions,
     required this.stackSizes,
     this.remainingStacks,
@@ -74,6 +76,7 @@ class SavedHand {
     List<CardModel>? boardCards,
     List<List<CardModel>>? revealedCards,
     int? opponentIndex,
+    int? activePlayerIndex,
     List<ActionEntry>? actions,
     Map<int, int>? stackSizes,
     Map<int, int>? remainingStacks,
@@ -104,6 +107,7 @@ class SavedHand {
       revealedCards: revealedCards ??
           [for (final list in this.revealedCards) List<CardModel>.from(list)],
       opponentIndex: opponentIndex ?? this.opponentIndex,
+      activePlayerIndex: activePlayerIndex ?? this.activePlayerIndex,
       actions: actions ?? List<ActionEntry>.from(this.actions),
       stackSizes: stackSizes ?? Map<int, int>.from(this.stackSizes),
       remainingStacks: remainingStacks ??
@@ -168,6 +172,7 @@ class SavedHand {
             [for (final c in list) {'rank': c.rank, 'suit': c.suit}]
         ],
         if (opponentIndex != null) 'opponentIndex': opponentIndex,
+        if (activePlayerIndex != null) 'activePlayerIndex': activePlayerIndex,
         'actions': [
           for (final a in actions)
             {
@@ -228,6 +233,7 @@ class SavedHand {
         ]
     ];
     final oppIndex = json['opponentIndex'] as int?;
+    final activeIndex = json['activePlayerIndex'] as int?;
     final acts = [
       for (final a in (json['actions'] as List? ?? []))
         ActionEntry(
@@ -322,6 +328,7 @@ class SavedHand {
       boardCards: board,
       revealedCards: rc,
       opponentIndex: oppIndex,
+      activePlayerIndex: activeIndex,
       actions: acts,
       stackSizes: stack,
       remainingStacks: remaining,
