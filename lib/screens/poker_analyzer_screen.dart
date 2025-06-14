@@ -1941,6 +1941,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  Future<void> _exportQueueToClipboard() async {
+    await _queueManager.exportToClipboard();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Queue copied to clipboard')),
+    );
+  }
+
+  Future<void> _importQueueFromClipboard() async {
+    await _queueManager.importFromClipboard();
+    if (!mounted) return;
+    setState(() {});
+    _debugPanelSetState?.call(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Queue imported from clipboard')),
+    );
+  }
+
   Future<void> _exportFullEvaluationQueueState() async {
     try {
       final exportDir = await _getBackupDirectory(_exportsFolder);

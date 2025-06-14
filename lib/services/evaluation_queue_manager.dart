@@ -216,6 +216,7 @@ class EvaluationQueueManager {
     await _persist();
   }
 
+  /// Replace the current evaluation queue with data taken from the clipboard.
   Future<void> importFromClipboard() async {
     try {
       final data = await Clipboard.getData('text/plain');
@@ -235,6 +236,7 @@ class EvaluationQueueManager {
     } catch (_) {}
   }
 
+  /// Copy the current evaluation queue state to the clipboard as JSON.
   Future<void> exportToClipboard() async {
     final jsonStr = jsonEncode(_state());
     await Clipboard.setData(ClipboardData(text: jsonStr));
