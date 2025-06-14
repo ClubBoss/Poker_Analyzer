@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/action_entry.dart';
+import '../helpers/action_formatting_helper.dart';
 
 class ActionHistoryOverlay extends StatelessWidget {
   final List<ActionEntry> actions;
@@ -18,31 +19,7 @@ class ActionHistoryOverlay extends StatelessWidget {
     this.onToggleStreet,
   }) : super(key: key);
 
-  Color _actionColor(String action) {
-    switch (action) {
-      case 'fold':
-        return Colors.red[700]!;
-      case 'call':
-        return Colors.blue[700]!;
-      case 'raise':
-        return Colors.green[600]!;
-      case 'bet':
-        return Colors.amber[700]!;
-      case 'check':
-        return Colors.grey[700]!;
-      default:
-        return Colors.black;
-    }
-  }
-
-  Color _actionTextColor(String action) {
-    switch (action) {
-      case 'bet':
-        return Colors.black;
-      default:
-        return Colors.white;
-    }
-  }
+  // Color helpers moved to [ActionFormattingHelper].
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +40,13 @@ class ActionHistoryOverlay extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
         margin: const EdgeInsets.only(right: 4, bottom: 4),
         decoration: BoxDecoration(
-          color: _actionColor(a.action).withOpacity(0.8),
+          color: ActionFormattingHelper.actionColor(a.action).withOpacity(0.8),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: _actionTextColor(a.action),
+            color: ActionFormattingHelper.actionTextColor(a.action),
             fontSize: 11 * scale,
           ),
         ),
