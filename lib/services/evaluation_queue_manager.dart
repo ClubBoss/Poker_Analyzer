@@ -177,8 +177,16 @@ class EvaluationQueueManager {
     try {
       await _initFuture;
       final file = File('$_documentsDirPath/evaluation_current_queue.json');
+      final tmpFile = File('${file.path}.tmp');
       final state = await _state();
-      await _writeJson(file, state);
+      await _writeJson(tmpFile, state);
+      try {
+        await tmpFile.rename(file.path);
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Failed to replace ${file.path}: $e');
+        }
+      }
 
       final pendingIds = await _queueLock
           .synchronized(() => [for (final e in pending) _queueEntryId(e)]);
