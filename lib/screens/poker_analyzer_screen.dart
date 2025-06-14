@@ -775,9 +775,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void selectBoardCard(int index, CardModel card) {
+    final count = boardCards.length;
+    if (index == 3 && count < 3) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Add Flop cards before adding the Turn')),
+        );
+      }
+      return;
+    }
+    if (index == 4 && count < 4) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Add the Turn before adding the River')),
+        );
+      }
+      return;
+    }
     setState(() {
       _recordSnapshot();
       _playerManager.selectBoardCard(index, card);
+      boardStreet = _inferBoardStreet();
+      currentStreet = boardStreet;
       _updateRevealedBoardCards();
     });
   }
