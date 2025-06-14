@@ -20,6 +20,10 @@ class SavedHand {
   final Map<int, PlayerType>? playerTypes;
   final String? comment;
   final List<String> tags;
+  /// Cursor offset within the comment field when the hand was saved.
+  final int? commentCursor;
+  /// Cursor offset within the tags field when the hand was saved.
+  final int? tagsCursor;
   final bool isFavorite;
   final DateTime date;
   final String? expectedAction;
@@ -49,6 +53,8 @@ class SavedHand {
     this.playerTypes,
     this.comment,
     List<String>? tags,
+    this.commentCursor,
+    this.tagsCursor,
     this.isFavorite = false,
     DateTime? date,
     this.expectedAction,
@@ -81,6 +87,8 @@ class SavedHand {
     Map<int, PlayerType>? playerTypes,
     String? comment,
     List<String>? tags,
+    int? commentCursor,
+    int? tagsCursor,
     bool? isFavorite,
     DateTime? date,
     String? expectedAction,
@@ -114,6 +122,8 @@ class SavedHand {
       playerTypes: playerTypes ?? this.playerTypes,
       comment: comment ?? this.comment,
       tags: tags ?? List<String>.from(this.tags),
+      commentCursor: commentCursor ?? this.commentCursor,
+      tagsCursor: tagsCursor ?? this.tagsCursor,
       isFavorite: isFavorite ?? this.isFavorite,
       date: date ?? this.date,
       expectedAction: expectedAction ?? this.expectedAction,
@@ -189,6 +199,8 @@ class SavedHand {
               playerTypes!.map((k, v) => MapEntry(k.toString(), v.name)),
         if (comment != null) 'comment': comment,
         'tags': tags,
+        if (commentCursor != null) 'commentCursor': commentCursor,
+        if (tagsCursor != null) 'tagsCursor': tagsCursor,
         'isFavorite': isFavorite,
         'date': date.toIso8601String(),
         if (expectedAction != null) 'expectedAction': expectedAction,
@@ -299,6 +311,8 @@ class SavedHand {
               Map<String, dynamic>.from(e as Map))
       ];
     }
+    final commentCursor = json['commentCursor'] as int?;
+    final tagsCursor = json['tagsCursor'] as int?;
     Map<int, PlayerType> types = {};
     if (json['playerTypes'] != null) {
       (json['playerTypes'] as Map).forEach((key, value) {
@@ -329,6 +343,8 @@ class SavedHand {
       playerTypes: types,
       comment: json['comment'] as String?,
       tags: tags,
+      commentCursor: commentCursor,
+      tagsCursor: tagsCursor,
       isFavorite: isFavorite,
       date: date,
       expectedAction: json['expectedAction'] as String?,
