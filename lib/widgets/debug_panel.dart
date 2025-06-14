@@ -466,6 +466,32 @@ class _ChipTrailDiagnosticsSection extends StatelessWidget {
   }
 }
 
+class _EvaluationQueueDiagnosticsSection extends StatelessWidget {
+  const _EvaluationQueueDiagnosticsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        debugDiag(
+          'Action Evaluation Queue',
+          s._evaluationQueueResumed ? '(Resumed from saved state)' : '(New)',
+        ),
+        debugDiag('Pending Action Evaluations', s._pendingEvaluations.length),
+        debugDiag(
+          'Processed',
+          '${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}',
+        ),
+        debugDiag('Failed', s._failedEvaluations.length),
+      ],
+    );
+  }
+}
+
 class _ExportConsistencySection extends StatelessWidget {
   const _ExportConsistencySection({required this.state});
 
@@ -813,17 +839,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             _StreetTransitionDiagnosticsSection(state: this),
             _ChipTrailDiagnosticsSection(state: this),
             _vGap,
-            debugDiag(
-              'Action Evaluation Queue',
-              s._evaluationQueueResumed
-                  ? '(Resumed from saved state)'
-                  : '(New)',
-            ),
-            debugDiag('Pending Action Evaluations', s._pendingEvaluations.length),
-            debugDiag(
-                'Processed',
-                '${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}'),
-            debugDiag('Failed', s._failedEvaluations.length),
+            _EvaluationQueueDiagnosticsSection(state: this),
             _vGap,
             _QueueDisplaySection(state: this),
             _vGap,
