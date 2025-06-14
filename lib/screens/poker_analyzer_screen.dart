@@ -13,6 +13,7 @@ import 'package:archive/archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/debug_panel_preferences.dart';
 import '../services/evaluation_queue_manager.dart';
+import '../services/playback_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../models/card_model.dart';
@@ -82,9 +83,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int? opponentIndex;
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
-  int _playbackIndex = 0;
-  bool _isPlaying = false;
-  Timer? _playbackTimer;
+  late final PlaybackService _playback;
   final List<int> _pots = List.filled(4, 0);
   final PotCalculator _potCalculator = PotCalculator();
   final Map<int, int> _initialStacks = {
@@ -967,6 +966,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
+    _playback = PlaybackService()..addListener(_onPlaybackChanged);
     _queueManager = EvaluationQueueManager();
     _centerChipController = AnimationController(
       vsync: this,
@@ -1130,7 +1130,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// (before or on this street) are ignored. The smallest remaining stack
   /// among all active players is returned.
   int _calculateEffectiveStackForStreet(int street) {
-    final visibleActions = actions.take(_playbackIndex).toList();
+    final visibleActions = actions.take(_playback.playbackIndex).toList();
     int? minStack;
     for (int index = 0; index < numberOfPlayers; index++) {
       final folded = visibleActions.any((a) =>
@@ -1167,8 +1167,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   void _updatePlaybackState() {
-    final subset = actions.take(_playbackIndex).toList();
-    if (_playbackIndex == 0) {
+    final subset = actions.take(_playback.playbackIndex).toList();
+    if (_playback.playbackIndex == 0) {
       _animatedPlayersPerStreet.clear();
     }
     _stackManager.applyActions(subset);
@@ -1182,6 +1182,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _updateVisibleActions() {
     _updatePlaybackState();
+  }
+
+  void _onPlaybackChanged() {
+    setState(() {
+      _updatePlaybackState();
+    });
   }
 
   void _clearEvaluationQueue() {
@@ -1453,48 +1459,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
-  void _playStepForward() {
-    if (_playbackIndex < actions.length) {
-      setState(() {
-        _playbackIndex++;
-      });
-      _updatePlaybackState();
-    } else {
-      _pausePlayback();
-    }
+  void _startPlayback() {
+    _playback.play(actions.length);
   }
 
   void _pausePlayback() {
-    _playbackTimer?.cancel();
-    _isPlaying = false;
-  }
-
-  void _startPlayback() {
-    _pausePlayback();
-    setState(() {
-      _isPlaying = true;
-      if (_playbackIndex == actions.length) {
-        _playbackIndex = 0;
-      }
-    });
-    _updatePlaybackState();
-    _playbackTimer =
-        Timer.periodic(const Duration(seconds: 1), (_) => _playStepForward());
+    _playback.pause();
   }
 
   void _stepForward() {
-    _pausePlayback();
-    _playStepForward();
+    _playback.stepForward(actions.length);
   }
 
   void _stepBackward() {
-    _pausePlayback();
-    if (_playbackIndex > 0) {
-      setState(() {
-        _playbackIndex--;
-      });
-      _updatePlaybackState();
-    }
+    _playback.stepBackward();
   }
 
   void _addAutoFolds(ActionEntry entry) {
@@ -1574,8 +1552,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       final removed = actions.removeAt(index);
       lastActionPlayerIndex = actions.isNotEmpty ? actions.last.playerIndex : null;
-      if (_playbackIndex > actions.length) {
-        _playbackIndex = actions.length;
+      if (_playback.playbackIndex > actions.length) {
+        _playback.seek(actions.length, actions.length);
       }
       // Update action tag for player whose action was removed
       try {
@@ -1713,8 +1691,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       numberOfPlayers--;
       _updatePositions();
-      if (_playbackIndex > actions.length) {
-        _playbackIndex = actions.length;
+      if (_playback.playbackIndex > actions.length) {
+        _playback.seek(actions.length, actions.length);
       }
       _stackManager = StackManager(Map<int, int>.from(_initialStacks));
       _updatePlaybackState();
@@ -1755,7 +1733,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _firstActionTaken.clear();
         _animatedPlayersPerStreet.clear();
         lastActionPlayerIndex = null;
-        _playbackIndex = 0;
+        _playback.reset();
         _stackManager = StackManager(Map<int, int>.from(_initialStacks));
         _updatePlaybackState();
         playerTypes.clear();
@@ -3034,7 +3012,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               i
         ]);
       currentStreet = 0;
-      _playbackIndex = hand.actions.length;
+      _playback.seek(hand.actions.length, hand.actions.length);
       _animatedPlayersPerStreet.clear();
       _updatePlaybackState();
       _updatePositions();
@@ -3135,7 +3113,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..addAll(newPositions);
 
       currentStreet = 0;
-      _playbackIndex = 0;
+      _playback.reset();
       _updatePlaybackState();
       _updatePositions();
       _expectedAction = expected;
@@ -3596,7 +3574,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void dispose() {
     _activeTimer?.cancel();
-    _playbackTimer?.cancel();
+    _playback.dispose();
     _centerChipTimer?.cancel();
     _queueManager.cleanup();
     _centerChipController.dispose();
@@ -3612,7 +3590,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final visibleActions = actions.take(_playbackIndex).toList();
+    final visibleActions = actions.take(_playback.playbackIndex).toList();
     final savedActions = _currentSavedHand().actions;
     final double scale = _tableScale();
     final viewIndex = _viewIndex();
@@ -3707,7 +3685,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                   _ActionHistorySection(
                     actions: actions,
-                    playbackIndex: _playbackIndex,
+                    playbackIndex: _playback.playbackIndex,
                     playerPositions: playerPositions,
                     expandedStreets: _expandedHistoryStreets,
                     onToggleStreet: (index) {
@@ -3756,7 +3734,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             playerPositions: playerPositions,
             onEdit: _editAction,
             onDelete: _deleteAction,
-            visibleCount: _playbackIndex,
+            visibleCount: _playback.playbackIndex,
             evaluateActionQuality: _evaluateActionQuality,
           ),
         ),
@@ -3769,7 +3747,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       stackSizes: stackSizes,
       onEdit: _editAction,
       onDelete: _deleteAction,
-      visibleCount: _playbackIndex,
+      visibleCount: _playback.playbackIndex,
       evaluateActionQuality: _evaluateActionQuality,
     ),
     StreetActionsWidget(
@@ -3794,12 +3772,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             ),
             ActionTimelineWidget(
               actions: visibleActions,
-              playbackIndex: _playbackIndex,
+              playbackIndex: _playback.playbackIndex,
               onTap: (index) {
-                setState(() {
-                  _playbackIndex = index;
-                  _updateVisibleActions(); // Перестраиваем экран
-                });
+                _playback.seek(index, actions.length);
               },
               playerPositions: playerPositions,
               scale: scale,
@@ -3807,19 +3782,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: _PlaybackAndHandControls(
-                isPlaying: _isPlaying,
-                playbackIndex: _playbackIndex,
+                isPlaying: _playback.isPlaying,
+                playbackIndex: _playback.playbackIndex,
                 actionCount: actions.length,
                 onPlay: _startPlayback,
                 onPause: _pausePlayback,
                 onStepBackward: _stepBackward,
                 onStepForward: _stepForward,
                 onSeek: (v) {
-                  _pausePlayback();
-                  setState(() {
-                    _playbackIndex = v.round();
-                  });
-                  _updatePlaybackState();
+                  _playback.seek(v.round(), actions.length);
                 },
                 onSave: () => saveCurrentHand(),
                 onLoadLast: loadLastSavedHand,
@@ -3844,7 +3815,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 stackSizes: stackSizes,
                 onEdit: _editAction,
                 onDelete: _deleteAction,
-                visibleCount: _playbackIndex,
+                visibleCount: _playback.playbackIndex,
                 evaluateActionQuality: _evaluateActionQuality,
                 onAnalyze: () {},
               ),
@@ -3919,7 +3890,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
-    final visibleActions = actions.take(_playbackIndex).toList();
+    final visibleActions = actions.take(_playback.playbackIndex).toList();
 
     ActionEntry? lastStreetAction;
     for (final a in visibleActions.reversed) {
@@ -4234,7 +4205,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
-    final visibleActions = actions.take(_playbackIndex).toList();
+    final visibleActions = actions.take(_playback.playbackIndex).toList();
 
     final index = (i + _viewIndex()) % numberOfPlayers;
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
@@ -5982,7 +5953,7 @@ class _PlaybackDiagnosticsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        debugDiag('Playback Index', '${s._playbackIndex} / ${s.actions.length}'),
+        debugDiag('Playback Index', '${s._playback.playbackIndex} / ${s.actions.length}'),
         _DebugPanelDialogState._vGap,
         debugDiag('Active Player Index', s.activePlayerIndex ?? 'None'),
         _DebugPanelDialogState._vGap,
