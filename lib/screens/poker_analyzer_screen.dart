@@ -4879,6 +4879,62 @@ class _PlaybackControlsSection extends StatelessWidget {
   }
 }
 
+class _SaveLoadControlsSection extends StatelessWidget {
+  final VoidCallback onSave;
+  final VoidCallback onLoadLast;
+  final VoidCallback onLoadByName;
+  final VoidCallback onExportLast;
+  final VoidCallback onExportAll;
+  final VoidCallback onImport;
+  final VoidCallback onImportAll;
+
+  const _SaveLoadControlsSection({
+    required this.onSave,
+    required this.onLoadLast,
+    required this.onLoadByName,
+    required this.onExportLast,
+    required this.onExportAll,
+    required this.onImport,
+    required this.onImportAll,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.save, color: Colors.white),
+          onPressed: onSave,
+        ),
+        IconButton(
+          icon: const Icon(Icons.folder_open, color: Colors.white),
+          onPressed: onLoadLast,
+        ),
+        IconButton(
+          icon: const Icon(Icons.list, color: Colors.white),
+          onPressed: onLoadByName,
+        ),
+        IconButton(
+          icon: const Icon(Icons.upload, color: Colors.white),
+          onPressed: onExportLast,
+        ),
+        IconButton(
+          icon: const Icon(Icons.file_upload, color: Colors.white),
+          onPressed: onExportAll,
+        ),
+        IconButton(
+          icon: const Icon(Icons.download, color: Colors.white),
+          onPressed: onImport,
+        ),
+        IconButton(
+          icon: const Icon(Icons.file_download, color: Colors.white),
+          onPressed: onImportAll,
+        ),
+      ],
+    );
+  }
+}
+
 class _PlaybackAndHandControls extends StatelessWidget {
   final bool isPlaying;
   final int playbackIndex;
@@ -4920,37 +4976,14 @@ class _PlaybackAndHandControls extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.save, color: Colors.white),
-              onPressed: onSave,
-            ),
-            IconButton(
-              icon: const Icon(Icons.folder_open, color: Colors.white),
-              onPressed: onLoadLast,
-            ),
-            IconButton(
-              icon: const Icon(Icons.list, color: Colors.white),
-              onPressed: onLoadByName,
-            ),
-            IconButton(
-              icon: const Icon(Icons.upload, color: Colors.white),
-              onPressed: onExportLast,
-            ),
-            IconButton(
-              icon: const Icon(Icons.file_upload, color: Colors.white),
-              onPressed: onExportAll,
-            ),
-            IconButton(
-              icon: const Icon(Icons.download, color: Colors.white),
-              onPressed: onImport,
-            ),
-            IconButton(
-              icon: const Icon(Icons.file_download, color: Colors.white),
-              onPressed: onImportAll,
-            ),
-          ],
+        _SaveLoadControlsSection(
+          onSave: onSave,
+          onLoadLast: onLoadLast,
+          onLoadByName: onLoadByName,
+          onExportLast: onExportLast,
+          onExportAll: onExportAll,
+          onImport: onImport,
+          onImportAll: onImportAll,
         ),
         const SizedBox(height: 10),
         _PlaybackControlsSection(
