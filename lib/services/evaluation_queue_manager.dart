@@ -259,9 +259,9 @@ class EvaluationQueueManager {
       final decoded = jsonDecode(data.text!);
       // Validate structure before replacing queues
       if (decoded is Map &&
-          decoded['pending'] is List &&
-          decoded['failed'] is List &&
-          decoded['completed'] is List) {
+          decoded.containsKey('pending') && decoded['pending'] is List &&
+          decoded.containsKey('failed') && decoded['failed'] is List &&
+          decoded.containsKey('completed') && decoded['completed'] is List) {
         final queues = _decodeQueues(decoded);
         await _queueLock.synchronized(() {
           pending
@@ -276,7 +276,7 @@ class EvaluationQueueManager {
           ..addAll(queues['completed']!);
         await _persist();
       } else if (kDebugMode) {
-        debugPrint('Invalid queue data in clipboard');
+        debugPrint('Invalid clipboard data format');
       }
     } catch (e) {
       if (kDebugMode) {
