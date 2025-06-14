@@ -258,26 +258,28 @@ class EvaluationQueueManager {
       if (data == null || data.text == null) return;
       final decoded = jsonDecode(data.text!);
       // Validate structure before replacing queues
-      if (decoded is Map &&
-          decoded['pending'] is List &&
-          decoded['failed'] is List &&
-          decoded['completed'] is List) {
-        final queues = _decodeQueues(decoded);
-        await _queueLock.synchronized(() {
-          pending
-            ..clear()
-            ..addAll(queues['pending']!);
-        });
-        failed
-          ..clear()
-          ..addAll(queues['failed']!);
-        completed
-          ..clear()
-          ..addAll(queues['completed']!);
-        await _persist();
-      } else if (kDebugMode) {
-        debugPrint('Invalid queue data in clipboard');
+      if (decoded is! Map ||
+          decoded['pending'] is! List ||
+          decoded['failed'] is! List ||
+          decoded['completed'] is! List) {
+        if (kDebugMode) {
+          debugPrint('Invalid clipboard data format');
+        }
+        return;
       }
+      final queues = _decodeQueues(decoded);
+      await _queueLock.synchronized(() {
+        pending
+          ..clear()
+          ..addAll(queues['pending']!);
+      });
+      failed
+        ..clear()
+        ..addAll(queues['failed']!);
+      completed
+        ..clear()
+        ..addAll(queues['completed']!);
+      await _persist();
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Failed to import from clipboard: $e');
