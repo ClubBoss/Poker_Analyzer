@@ -385,6 +385,23 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
   }
 }
 
+class _ChipTrailDiagnosticsSection extends StatelessWidget {
+  const _ChipTrailDiagnosticsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Chip Trail Diagnostics:'),
+        debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
+      ],
+    );
+  }
+}
+
 class _ExportConsistencySection extends StatelessWidget {
   const _ExportConsistencySection({required this.state});
 
@@ -687,8 +704,7 @@ class _ThemeDiagnosticsSection extends StatelessWidget {
               debugDiag('Street ${entry.key} Animated Count', entry.value.length),
               _vGap,
             ],
-            const Text('Chip Trail Diagnostics:'),
-            debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
+            _ChipTrailDiagnosticsSection(state: this),
             _vGap,
             debugDiag(
               'Action Evaluation Queue',
