@@ -2639,35 +2639,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           )
         : 0.0;
 
-    // Glow parameters for the active player highlight
-    final double avatarRadius = 55 * scale * infoScale;
-    final double highlightRadius = avatarRadius + 6 * scale;
-
     final widgets = <Widget>[
       if (isActive)
-        Positioned(
-          left: centerX + dx - highlightRadius,
-          top: centerY + dy + bias - highlightRadius,
-          child: IgnorePointer(
-            child: Container(
-              width: highlightRadius * 2,
-              height: highlightRadius * 2,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.green.withOpacity(0.6),
-                  width: 4 * scale,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.green.withOpacity(0.4),
-                    blurRadius: 12 * scale,
-                    spreadRadius: 4 * scale,
-                  ),
-                ],
-              ),
-            ),
-          ),
+        _ActivePlayerHighlight(
+          position: Offset(centerX + dx, centerY + dy),
+          scale: scale * infoScale,
+          bias: bias,
         ),
       // action arrow behind player widgets
       Positioned(
@@ -2988,6 +2965,48 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       )
     ];
+  }
+}
+
+class _ActivePlayerHighlight extends StatelessWidget {
+  final Offset position;
+  final double scale;
+  final double bias;
+
+  const _ActivePlayerHighlight({
+    required this.position,
+    required this.scale,
+    required this.bias,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double avatarRadius = 55 * scale;
+    final double highlightRadius = avatarRadius + 6 * scale;
+    return Positioned(
+      left: position.dx - highlightRadius,
+      top: position.dy + bias - highlightRadius,
+      child: IgnorePointer(
+        child: Container(
+          width: highlightRadius * 2,
+          height: highlightRadius * 2,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.green.withOpacity(0.6),
+              width: 4 * scale,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.green.withOpacity(0.4),
+                blurRadius: 12 * scale,
+                spreadRadius: 4 * scale,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
