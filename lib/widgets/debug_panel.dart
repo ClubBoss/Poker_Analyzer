@@ -534,6 +534,28 @@ class _ExportConsistencySection extends StatelessWidget {
   }
 }
 
+class _InternalStateFlagsSection extends StatelessWidget {
+  const _InternalStateFlagsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Internal State Flags:'),
+        debugDiag('Debug Layout', s.debugLayout),
+        _DebugPanelState._vGap,
+        debugDiag('Perspective Switched', s.isPerspectiveSwitched),
+        _DebugPanelState._vGap,
+        debugDiag('Show All Revealed Cards', s._showAllRevealedCards),
+      ],
+    );
+  }
+}
+
 class _ThemeDiagnosticsSection extends StatelessWidget {
   const _ThemeDiagnosticsSection({required this.state});
 
@@ -756,12 +778,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
               ),
               _vGap,
             ],
-            const Text('Internal State Flags:'),
-            debugDiag('Debug Layout', s.debugLayout),
-            _vGap,
-            debugDiag('Perspective Switched', s.isPerspectiveSwitched),
-            _vGap,
-            debugDiag('Show All Revealed Cards', s._showAllRevealedCards),
+            _InternalStateFlagsSection(state: this),
             _vGap,
             _snapshotRetentionSwitch(),
             _vGap,
