@@ -312,8 +312,21 @@ class EvaluationQueueManager {
           .cast<File>()
           .toList();
       if (files.isEmpty) return;
-      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-      final decoded = await _readJson(files.first);
+      final entries = <MapEntry<File, DateTime>>[];
+      for (final f in files) {
+        try {
+          final stat = await f.stat();
+          entries.add(MapEntry(f, stat.modified));
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('Failed to stat ${f.path}: $e');
+          }
+        }
+      }
+      if (entries.isEmpty) return;
+      entries.sort((a, b) => b.value.compareTo(a.value));
+      final file = entries.first.key;
+      final decoded = await _readJson(file);
       final queues = _decodeQueues(decoded);
       await _queueLock.synchronized(() {
         pending
