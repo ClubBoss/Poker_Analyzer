@@ -28,6 +28,7 @@ class SavedHand {
   final Map<String, String>? validationNotes;
   final List<int>? collapsedHistoryStreets;
   final List<int>? firstActionTaken;
+  final List<int>? foldedPlayers;
   final Map<int, String?>? actionTags;
   /// Pending action evaluation requests queued when the hand was saved.
   final List<ActionEvaluationRequest>? pendingEvaluations;
@@ -56,6 +57,7 @@ class SavedHand {
     this.validationNotes,
     this.collapsedHistoryStreets,
     this.firstActionTaken,
+    this.foldedPlayers,
     this.actionTags,
     this.pendingEvaluations,
   })  : tags = tags ?? [],
@@ -87,6 +89,7 @@ class SavedHand {
     Map<String, String>? validationNotes,
     List<int>? collapsedHistoryStreets,
     List<int>? firstActionTaken,
+    List<int>? foldedPlayers,
     Map<int, String?>? actionTags,
     List<ActionEvaluationRequest>? pendingEvaluations,
   }) {
@@ -121,6 +124,10 @@ class SavedHand {
       collapsedHistoryStreets:
           collapsedHistoryStreets ?? this.collapsedHistoryStreets,
       firstActionTaken: firstActionTaken ?? this.firstActionTaken,
+      foldedPlayers: foldedPlayers ??
+          (this.foldedPlayers == null
+              ? null
+              : List<int>.from(this.foldedPlayers!)),
       actionTags: actionTags ??
           (this.actionTags == null
               ? null
@@ -193,6 +200,7 @@ class SavedHand {
           'collapsedHistoryStreets': collapsedHistoryStreets,
         if (firstActionTaken != null)
           'firstActionTaken': firstActionTaken,
+        if (foldedPlayers != null) 'foldedPlayers': foldedPlayers,
         if (actionTags != null)
           'actionTags':
               actionTags!.map((k, v) => MapEntry(k.toString(), v)),
@@ -272,6 +280,10 @@ class SavedHand {
     if (json['firstActionTaken'] != null) {
       firsts = [for (final i in (json['firstActionTaken'] as List)) i as int];
     }
+    List<int>? folded;
+    if (json['foldedPlayers'] != null) {
+      folded = [for (final i in (json['foldedPlayers'] as List)) i as int];
+    }
     Map<int, String?>? aTags;
     if (json['actionTags'] != null) {
       aTags = <int, String?>{};
@@ -325,6 +337,7 @@ class SavedHand {
       validationNotes: notes,
       collapsedHistoryStreets: collapsed,
       firstActionTaken: firsts,
+      foldedPlayers: folded,
       actionTags: aTags,
       pendingEvaluations: pending,
     );

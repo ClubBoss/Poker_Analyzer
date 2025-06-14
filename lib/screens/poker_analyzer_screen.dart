@@ -2173,6 +2173,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       date: DateTime.now(),
       effectiveStacksPerStreet: stacks,
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
+      foldedPlayers:
+          _foldedPlayers.isEmpty ? null : List<int>.from(_foldedPlayers),
       actionTags:
           _actionTags.isEmpty ? null : Map<int, String?>.from(_actionTags),
       pendingEvaluations:
@@ -2242,6 +2244,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _pendingEvaluations
         ..clear()
         ..addAll(hand.pendingEvaluations ?? []);
+      _foldedPlayers
+        ..clear()
+        ..addAll(hand.foldedPlayers ??
+            [for (final a in hand.actions) if (a.action == 'fold') a.playerIndex]);
       _expandedHistoryStreets
         ..clear()
         ..addAll([
@@ -2255,7 +2261,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackManager.animatedPlayersPerStreet.clear();
       _playbackManager.updatePlaybackState();
       _playerManager.updatePositions();
-      _recomputeFoldedPlayers();
+      if (hand.foldedPlayers == null) {
+        _recomputeFoldedPlayers();
+      }
     });
     _queueService.persist();
   }
