@@ -62,6 +62,7 @@ import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
+import '../services/backup_manager_service.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -147,6 +148,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
+  late BackupManagerService _backupManager;
 
   // Backup directories
   static const String _backupsFolder = 'evaluation_backups';
@@ -815,6 +817,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void initState() {
     super.initState();
     _queueService = EvaluationQueueService();
+    _backupManager = BackupManagerService(
+      queueService: _queueService,
+      debugPrefs: _debugPrefs,
+    );
     _centerChipController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -841,8 +847,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _loadSortBySprPreference());
     Future(() => _loadQueueResumedPreference());
     Future.microtask(_queueService.loadQueueSnapshot);
-    Future(() => _cleanupOldAutoBackups());
-    _startAutoBackupTimer();
+    Future(() => _backupManager.cleanupOldAutoBackups());
+    _backupManager.startAutoBackupTimer();
   }
 
   @override
@@ -1406,77 +1412,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _exportEvaluationQueue() async {
-    if (_pendingEvaluations.isEmpty) return;
-    try {
-      final dir = await _getBackupDirectory(_exportsFolder);
-      final fileName = 'evaluation_queue_${_timestamp()}.json';
-      final file = File('${dir.path}/$fileName');
-      final data = [for (final e in _pendingEvaluations) e.toJson()];
-      await _writeJsonFile(file, data);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $fileName'),
-          action: SnackBarAction(
-            label: 'Открыть',
-            onPressed: () => OpenFile.open(file.path),
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Не удалось экспортировать очередь')),
-      );
-    }
+    await _backupManager.exportEvaluationQueue(context);
   }
 
   Future<void> _exportQueueToClipboard() async {
-    await _queueService.exportToClipboard();
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Queue copied to clipboard')),
-    );
+    await _backupManager.exportQueueToClipboard(context);
   }
 
   Future<void> _importQueueFromClipboard() async {
-    await _queueService.importFromClipboard();
-    if (!mounted) return;
+    await _backupManager.importQueueFromClipboard(context);
     setState(() {});
     _debugPanelSetState?.call(() {});
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Queue imported from clipboard')),
-    );
   }
 
   Future<void> _exportFullEvaluationQueueState() async {
-    try {
-      final exportDir = await _getBackupDirectory(_exportsFolder);
-      final fileName = 'queue_export_${_timestamp()}.json';
-      final savePath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Full Queue State',
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        initialDirectory: exportDir.path,
-      );
-      if (savePath == null) return;
-
-      final file = File(savePath);
-      await _writeJsonFile(file, _currentQueueState());
-
-      if (!mounted) return;
-      final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Queue exported: $name')),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export queue')),
-        );
-      }
-    }
+    await _backupManager.exportFullQueueState(context);
   }
 
   Future<void> _importFullEvaluationQueueState() async {
@@ -1583,151 +1533,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _backupEvaluationQueue() async {
-    if (_pendingEvaluations.isEmpty) return;
-    try {
-      final backupDir = await _getBackupDirectory(_backupsFolder);
-      final fileName = 'evaluation_backup_${_timestamp()}.json';
-      final file = File('${backupDir.path}/$fileName');
-      await _writeJsonFile(file, _currentQueueState());
-
-      // Run cleanup in the background to avoid blocking UI.
-      Future(() => _cleanupOldEvaluationBackups());
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Backup created: $fileName')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Не удалось создать бэкап')),
-      );
-    }
+    await _backupManager.backupEvaluationQueue(context);
   }
 
   Future<void> _quickBackupEvaluationQueue() async {
-    try {
-      final backupDir = await _getBackupDirectory(_backupsFolder);
-      final fileName = 'quick_backup_${_timestamp()}.json';
-      final file = File('${backupDir.path}/$fileName');
-      await _writeJsonFile(file, _currentQueueState());
-      Future(() => _cleanupOldEvaluationBackups());
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Quick backup saved: $fileName')),
-      );
-      _debugPanelSetState?.call(() {});
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create quick backup')),
-        );
-      }
-    }
+    await _backupManager.quickBackupEvaluationQueue(context);
+    _debugPanelSetState?.call(() {});
   }
 
   Future<void> _importQuickBackups() async {
-    try {
-      final backupDir = await _getBackupDirectory(_backupsFolder);
-      if (!await backupDir.exists()) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No backup files found')),
-          );
-        }
-        return;
-      }
-
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        allowMultiple: true,
-        initialDirectory: backupDir.path,
-      );
-      if (result == null || result.files.isEmpty) return;
-
-      final importedPending = <ActionEvaluationRequest>[];
-      final importedFailed = <ActionEvaluationRequest>[];
-      final importedCompleted = <ActionEvaluationRequest>[];
-      int skipped = 0;
-
-      for (final f in result.files) {
-        final path = f.path;
-        if (path == null) {
-          skipped++;
-          continue;
-        }
-        final name = path.split(Platform.pathSeparator).last;
-        if (!name.startsWith('quick_backup_')) {
-          skipped++;
-          continue;
-        }
-        try {
-          final decoded = await _readJsonFile(File(path));
-          final queues = _decodeBackupQueues(decoded);
-          importedPending.addAll(queues['pending']!);
-          importedFailed.addAll(queues['failed']!);
-          importedCompleted.addAll(queues['completed']!);
-        } catch (_) {
-          skipped++;
-        }
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _pendingEvaluations.addAll(importedPending);
-        _failedEvaluations.addAll(importedFailed);
-        _completedEvaluations.addAll(importedCompleted);
-      });
-      _debugPanelSetState?.call(() {});
-      _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
-
-      final total =
-          importedPending.length + importedFailed.length + importedCompleted.length;
-      final msg = skipped == 0
-          ? 'Imported $total evaluations from ${result.files.length} files'
-          : 'Imported $total evaluations, $skipped files skipped';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import quick backups')),
-        );
-      }
-    }
+    await _backupManager.importQuickBackups(context);
+    _debugPanelSetState?.call(() {});
   }
 
   Future<void> _exportEvaluationQueueSnapshot({bool showNotification = true}) async {
-    try {
-      final snapDir = await _getBackupDirectory(_snapshotsFolder);
-      final fileName = 'snapshot_${_timestamp()}.json';
-      final file = File('${snapDir.path}/$fileName');
-      await _writeJsonFile(file, _currentQueueState());
-      if (_debugPrefs.snapshotRetentionEnabled) {
-        await _cleanupOldEvaluationSnapshots();
-      }
-      if (showNotification && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Snapshot saved: ${file.path}')),
-        );
-      }
-    } catch (e) {
-      if (showNotification && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export snapshot')),
-        );
-      } else {
-        debugPrint('Failed to export snapshot: $e');
-      }
-    }
+    await _backupManager.exportEvaluationQueueSnapshot(
+      context,
+      showNotification: showNotification,
+    );
   }
 
   /// Schedule snapshot export without awaiting the result.
   void _scheduleSnapshotExport() {
-    unawaited(_exportEvaluationQueueSnapshot(showNotification: false));
+    unawaited(
+      _backupManager.exportEvaluationQueueSnapshot(
+        context,
+        showNotification: false,
+      ),
+    );
   }
 
   /// Load persisted evaluation queue if available.
@@ -1821,11 +1654,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _cleanupOldEvaluationBackups() async {
-    await _cleanupOldFiles(_backupsFolder, _backupRetentionLimit);
+    await _backupManager.cleanupOldEvaluationBackups();
   }
 
   Future<void> _cleanupOldEvaluationSnapshots() async {
-    await _cleanupOldFiles(_snapshotsFolder, _snapshotRetentionLimit);
+    await _backupManager.cleanupOldEvaluationSnapshots();
   }
 
   Future<void> _exportArchive(String subfolder, String archivePrefix) async {
@@ -1983,115 +1816,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _importEvaluationQueue() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
-      if (result == null || result.files.isEmpty) return;
-      final path = result.files.single.path;
-      if (path == null) return;
-      final decoded = await _readJsonFile(File(path));
-      if (decoded is! List) throw const FormatException();
-      final items = _decodeEvaluationList(decoded);
-      if (!mounted) return;
-      setState(() {
-        _pendingEvaluations
-          ..clear()
-          ..addAll(items);
-        _failedEvaluations.clear();
-      });
-      _debugPanelSetState?.call(() {});
-      _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported ${items.length} evaluations')),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import queue')),
-        );
-      }
-    }
+    await _backupManager.importEvaluationQueue(context);
+    _debugPanelSetState?.call(() {});
+    unawaited(_setEvaluationQueueResumed(false));
   }
 
   Future<void> _restoreEvaluationQueue() async {
-    try {
-      final backupDir = await _getBackupDirectory(_backupsFolder);
-      if (!await backupDir.exists()) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No backup files found')),
-          );
-        }
-        return;
-      }
-
-      final files = await backupDir
-          .list()
-          .where((e) => e is File && e.path.endsWith('.json'))
-          .cast<File>()
-          .toList();
-      if (files.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No backup files found')),
-          );
-        }
-        return;
-      }
-
-      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-
-      final selected = await showDialog<File>(
-        context: context,
-        builder: (context) => SimpleDialog(
-          title: const Text('Select Backup'),
-          children: [
-            for (final f in files)
-              SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, f),
-                child: Text(f.uri.pathSegments.last),
-              ),
-          ],
-        ),
-      );
-
-      if (selected == null) return;
-
-      final decoded = await _readJsonFile(selected);
-      final queues = _decodeBackupQueues(decoded);
-      final pending = queues['pending']!;
-      final failed = queues['failed']!;
-      final completed = queues['completed']!;
-
-      if (!mounted) return;
-      setState(() {
-        _pendingEvaluations
-          ..clear()
-          ..addAll(pending);
-        _failedEvaluations
-          ..clear()
-          ..addAll(failed);
-        _completedEvaluations
-          ..clear()
-          ..addAll(completed);
-      });
-      _debugPanelSetState?.call(() {});
-      _queueService.persist();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Restored ${pending.length} pending, ${failed.length} failed, ${completed.length} completed evaluations')),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to restore queue')),
-        );
-      }
-    }
+    await _backupManager.restoreEvaluationQueue(context);
   }
 
   Future<void> _bulkImportEvaluationQueue() async {
@@ -2222,77 +1953,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _importQuickBackups() async {
-    try {
-      final backupDir = await _getBackupDirectory(_backupsFolder);
-      if (!await backupDir.exists()) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No quick backup files found')),
-          );
-        }
-        return;
-      }
-
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        allowMultiple: true,
-        initialDirectory: backupDir.path,
-      );
-      if (result == null || result.files.isEmpty) return;
-
-      final importedPending = <ActionEvaluationRequest>[];
-      final importedFailed = <ActionEvaluationRequest>[];
-      final importedCompleted = <ActionEvaluationRequest>[];
-      int skipped = 0;
-
-      for (final f in result.files) {
-        final path = f.path;
-        if (path == null) {
-          skipped++;
-          continue;
-        }
-        final name = path.split(Platform.pathSeparator).last;
-        if (!name.startsWith('quick_backup_')) {
-          skipped++;
-          continue;
-        }
-        try {
-          final decoded = await _readJsonFile(File(path));
-          final queues = _decodeBackupQueues(decoded);
-          importedPending.addAll(queues['pending']!);
-          importedFailed.addAll(queues['failed']!);
-          importedCompleted.addAll(queues['completed']!);
-        } catch (_) {
-          skipped++;
-        }
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _pendingEvaluations.addAll(importedPending);
-        _failedEvaluations.addAll(importedFailed);
-        _completedEvaluations.addAll(importedCompleted);
-      });
-      _debugPanelSetState?.call(() {});
-      _queueService.persist();
-      unawaited(_setEvaluationQueueResumed(false));
-
-      final total =
-          importedPending.length + importedFailed.length + importedCompleted.length;
-      final msg = skipped == 0
-          ? 'Imported $total evaluations from ${result.files.length} files'
-          : 'Imported $total evaluations, $skipped files skipped';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import quick backups')),
-        );
-      }
-    }
+    await _backupManager.importQuickBackups(context);
+    _debugPanelSetState?.call(() {});
   }
 
   Future<void> _bulkImportAutoBackups() async {
