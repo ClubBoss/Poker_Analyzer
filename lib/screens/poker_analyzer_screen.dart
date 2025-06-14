@@ -4076,19 +4076,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 child: Column(
                   children: [
                     _HandNotesSection(commentController: _commentController, tagsController: _tagsController),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: StreetActionsList(
-                        street: currentStreet,
-                        actions: actions,
-                        pots: _pots,
-                        stackSizes: stackSizes,
-                        playerPositions: playerPositions,
-                        onEdit: _editAction,
-                        onDelete: _deleteAction,
-                        visibleCount: _playbackIndex,
-                        evaluateActionQuality: _evaluateActionQuality,
-                      ),
+                    _StreetActionsSection(
+                      street: currentStreet,
+                      actions: actions,
+                      pots: _pots,
+                      stackSizes: stackSizes,
+                      playerPositions: playerPositions,
+                      onEdit: _editAction,
+                      onDelete: _deleteAction,
+                      visibleCount: _playbackIndex,
+                      evaluateActionQuality: _evaluateActionQuality,
                     ),
                     const SizedBox(height: 10),
                     _AnalyzeButtonSection(
@@ -5209,6 +5206,48 @@ class _HandNotesSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _StreetActionsSection extends StatelessWidget {
+  final int street;
+  final List<ActionEntry> actions;
+  final List<int> pots;
+  final Map<int, int> stackSizes;
+  final Map<int, String> playerPositions;
+  final void Function(int, ActionEntry) onEdit;
+  final void Function(int) onDelete;
+  final int? visibleCount;
+  final String Function(ActionEntry)? evaluateActionQuality;
+
+  const _StreetActionsSection({
+    required this.street,
+    required this.actions,
+    required this.pots,
+    required this.stackSizes,
+    required this.playerPositions,
+    required this.onEdit,
+    required this.onDelete,
+    this.visibleCount,
+    this.evaluateActionQuality,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: StreetActionsList(
+        street: street,
+        actions: actions,
+        pots: pots,
+        stackSizes: stackSizes,
+        playerPositions: playerPositions,
+        onEdit: onEdit,
+        onDelete: onDelete,
+        visibleCount: visibleCount,
+        evaluateActionQuality: evaluateActionQuality,
+      ),
     );
   }
 }
