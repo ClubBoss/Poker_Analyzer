@@ -4066,7 +4066,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onReset: _resetHand,
               ),
             ),
-            CollapsibleActionHistory(
+            _CollapsibleActionHistorySection(
               actions: visibleActions,
               playerPositions: playerPositions,
               heroIndex: heroIndex,
@@ -5159,6 +5159,27 @@ class _PlaybackAndHandControls extends StatelessWidget {
           child: const Text('Сбросить раздачу'),
         ),
       ],
+    );
+  }
+}
+
+class _CollapsibleActionHistorySection extends StatelessWidget {
+  final List<ActionEntry> actions;
+  final Map<int, String> playerPositions;
+  final int heroIndex;
+
+  const _CollapsibleActionHistorySection({
+    required this.actions,
+    required this.playerPositions,
+    required this.heroIndex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CollapsibleActionHistory(
+      actions: actions,
+      playerPositions: playerPositions,
+      heroIndex: heroIndex,
     );
   }
 }
