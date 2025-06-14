@@ -4208,7 +4208,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       fit: BoxFit.contain,
                     ),
                   ),
-                  BoardDisplay(
+                  _BoardCardsSection(
                     scale: scale,
                     currentStreet: currentStreet,
                     boardCards: boardCards,
@@ -4902,6 +4902,33 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       )
     ];
+  }
+}
+
+class _BoardCardsSection extends StatelessWidget {
+  final double scale;
+  final int currentStreet;
+  final List<CardModel> boardCards;
+  final List<ActionEntry> visibleActions;
+  final void Function(int, CardModel) onCardSelected;
+
+  const _BoardCardsSection({
+    required this.scale,
+    required this.currentStreet,
+    required this.boardCards,
+    required this.onCardSelected,
+    required this.visibleActions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BoardDisplay(
+      scale: scale,
+      currentStreet: currentStreet,
+      boardCards: boardCards,
+      onCardSelected: onCardSelected,
+      visibleActions: visibleActions,
+    );
   }
 }
 
