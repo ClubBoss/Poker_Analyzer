@@ -574,6 +574,30 @@ class _ThemeDiagnosticsSection extends StatelessWidget {
   }
 }
 
+class _CollapsedStreetsSection extends StatelessWidget {
+  const _CollapsedStreetsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Collapsed Streets State:'),
+        for (int street = 0; street < 4; street++) ...[
+          debugDiag(
+            'Street \$street Collapsed',
+            !s._expandedHistoryStreets.contains(street),
+          ),
+          _DebugPanelState._vGap,
+        ],
+      ],
+    );
+  }
+}
+
 class _CenterChipDiagnosticsSection extends StatelessWidget {
   const _CenterChipDiagnosticsSection({required this.state});
 
@@ -782,14 +806,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             _vGap,
             _snapshotRetentionSwitch(),
             _vGap,
-            const Text('Collapsed Streets State:'),
-            for (int street = 0; street < 4; street++) ...[
-              debugDiag(
-                'Street $street Collapsed',
-                !s._expandedHistoryStreets.contains(street),
-              ),
-              _vGap,
-            ],
+            _CollapsedStreetsSection(state: this),
+            _vGap,
             _CenterChipDiagnosticsSection(state: this),
             _vGap,
             _StreetTransitionDiagnosticsSection(state: this),
