@@ -5057,6 +5057,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
   }
 }
 
+/// Collapsed view of action history with tabs for each street.
 class _CollapsibleActionHistorySection extends StatelessWidget {
   final List<ActionEntry> actions;
   final Map<int, String> playerPositions;
