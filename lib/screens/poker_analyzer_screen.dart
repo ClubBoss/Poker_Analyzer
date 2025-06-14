@@ -92,7 +92,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Map<int, int> get _initialStacks => _playerManager.initialStacks;
   List<bool> get _showActionHints => _playerManager.showActionHints;
   final List<CardModel> revealedBoardCards = [];
-  int? opponentIndex;
+  int? get opponentIndex => _playerManager.opponentIndex;
+  set opponentIndex(int? v) => _playerManager.opponentIndex = v;
   int currentStreet = 0;
   final List<ActionEntry> actions = [];
   late PlaybackManagerService _playbackManager;
@@ -1376,14 +1377,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     if (confirm == true) {
       setState(() {
-        for (final list in _playerManager.playerCards) {
-          list.clear();
-        }
-        _playerManager.boardCards.clear();
-        for (final p in _playerManager.players) {
-          p.revealedCards.fillRange(0, p.revealedCards.length, null);
-        }
-        opponentIndex = null;
+        _playerManager.reset();
         actions.clear();
         currentStreet = 0;
         _actionTags.clear();
@@ -1393,10 +1387,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
         _playbackManager.stackService = _stackService;
         _playbackManager.resetHand();
-        _playerManager.playerTypes.clear();
-        for (int i = 0; i < _playerManager.showActionHints.length; i++) {
-          _playerManager.showActionHints[i] = true;
-        }
         _commentController.clear();
         _tagsController.clear();
       });

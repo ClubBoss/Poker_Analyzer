@@ -173,10 +173,10 @@ class PlayerManagerService extends ChangeNotifier {
 
   void removePlayer(
     int index, {
-    required int heroIndexOverride,
-    required List<ActionEntry> actions,
-    required Map<int, String?> actionTags,
-    required List<bool> hintFlags,
+      required int heroIndexOverride,
+      required List<ActionEntry> actions,
+      required Map<int, String?> actionTags,
+      required List<bool> hintFlags,
   }) {
     if (numberOfPlayers <= 2) return;
 
@@ -229,6 +229,23 @@ class PlayerManagerService extends ChangeNotifier {
 
     numberOfPlayers--;
     updatePositions();
+  }
+
+  /// Reset all player-related state to defaults while preserving stack sizes.
+  void reset() {
+    for (final list in playerCards) {
+      list.clear();
+    }
+    boardCards.clear();
+    for (final p in players) {
+      p.revealedCards.fillRange(0, p.revealedCards.length, null);
+    }
+    opponentIndex = null;
+    playerTypes.clear();
+    for (int i = 0; i < showActionHints.length; i++) {
+      showActionHints[i] = true;
+    }
+    notifyListeners();
   }
 }
 
