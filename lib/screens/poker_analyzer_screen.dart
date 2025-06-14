@@ -1105,6 +1105,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _removeFutureActionsForPlayer(
+      int playerIndex, int street, int fromIndex) {
+    final toRemove = <int>[];
+    for (int i = actions.length - 1; i > fromIndex; i--) {
+      final a = actions[i];
+      if (a.playerIndex == playerIndex && a.street >= street) {
+        toRemove.add(i);
+      }
+    }
+    if (toRemove.isEmpty) return;
+    for (final idx in toRemove) {
+      actions.removeAt(idx);
+    }
+    if (_playbackManager.playbackIndex > actions.length) {
+      _playbackManager.seek(actions.length);
+    }
+    try {
+      final last =
+          actions.lastWhere((a) => a.playerIndex == playerIndex);
+      _actionTags[playerIndex] =
+          '${last.action}${last.amount != null ? ' ${last.amount}' : ''}';
+    } catch (_) {
+      _actionTags.remove(playerIndex);
+    }
+    _recomputeFoldedPlayers();
+    _playbackManager.updatePlaybackState();
+  }
+
 
   void _addAutoFolds(ActionEntry entry) {
     final street = entry.street;
@@ -1122,6 +1150,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (final i in toFold) {
       final autoFold = ActionEntry(street, i, 'fold', generated: true);
       _addAction(autoFold);
+      _removeFutureActionsForPlayer(i, street, actions.length - 1);
       inserted = true;
     }
     if (inserted) {
@@ -1154,6 +1183,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _addAutoFolds(entry);
       _addAction(entry);
+      if (entry.action == 'fold') {
+        _removeFutureActionsForPlayer(
+            entry.playerIndex, entry.street, actions.length - 1);
+      }
     });
   }
 
@@ -1176,6 +1209,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _editAction(int index, ActionEntry entry) {
     setState(() {
       _updateAction(index, entry);
+      if (entry.action == 'fold') {
+        _removeFutureActionsForPlayer(entry.playerIndex, entry.street, index);
+      }
     });
   }
 
