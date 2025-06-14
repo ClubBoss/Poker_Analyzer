@@ -60,6 +60,7 @@ import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
 import '../helpers/table_geometry_helper.dart';
+import '../helpers/action_formatting_helper.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -702,64 +703,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
-  String _formatAmount(int amount) {
-    final digits = amount.toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < digits.length; i++) {
-      if (i > 0 && (digits.length - i) % 3 == 0) {
-        buffer.write(' ');
-      }
-      buffer.write(digits[i]);
-    }
-    return buffer.toString();
-  }
-
-  Color _actionColor(String action) {
-    switch (action) {
-      case 'fold':
-        return Colors.red[700]!;
-      case 'call':
-        return Colors.blue[700]!;
-      case 'raise':
-        return Colors.green[600]!;
-      case 'bet':
-        return Colors.amber[700]!;
-      case 'all-in':
-        return Colors.purpleAccent;
-      case 'check':
-        return Colors.grey[700]!;
-      default:
-        return Colors.black;
-    }
-  }
-
-  Color _actionTextColor(String action) {
-    switch (action) {
-      case 'bet':
-        return Colors.black;
-      default:
-        return Colors.white;
-    }
-  }
-
-  IconData? _actionIcon(String action) {
-    switch (action) {
-      case 'fold':
-        return Icons.close;
-      case 'call':
-        return Icons.call;
-      case 'raise':
-        return Icons.arrow_upward;
-      case 'bet':
-        return Icons.trending_up;
-      case 'all-in':
-        return Icons.flash_on;
-      case 'check':
-        return Icons.remove;
-      default:
-        return null;
-    }
-  }
+  // Formatting helpers moved to [ActionFormattingHelper].
 
   String _actionLabel(ActionEntry entry) {
     return entry.amount != null
@@ -767,11 +711,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         : entry.action;
   }
 
-  String _formatLastAction(ActionEntry entry) {
-    final a = entry.action;
-    final cap = a.isNotEmpty ? a[0].toUpperCase() + a.substring(1) : a;
-    return entry.amount != null ? '$cap ${entry.amount}' : cap;
-  }
+
 
   String _cardToDebugString(CardModel card) {
     const suits = {'♠': 's', '♥': 'h', '♦': 'd', '♣': 'c'};
@@ -1375,8 +1315,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     setPlayerLastAction(
       players[entry.playerIndex].name,
-      _formatLastAction(entry),
-      _actionColor(entry.action),
+      ActionFormattingHelper.formatLastAction(entry),
+      ActionFormattingHelper.actionColor(entry.action),
       entry.amount,
     );
     _triggerCenterChip(entry);
@@ -1401,8 +1341,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     setPlayerLastAction(
       players[entry.playerIndex].name,
-      _formatLastAction(entry),
-      _actionColor(entry.action),
+      ActionFormattingHelper.formatLastAction(entry),
+      ActionFormattingHelper.actionColor(entry.action),
       entry.amount,
     );
     _triggerCenterChip(entry);
@@ -3558,7 +3498,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     centerChipAction: _centerChipAction,
                     showCenterChip: _showCenterChip,
                     centerChipController: _centerChipController,
-                    actionColor: _actionColor,
+                    actionColor: ActionFormattingHelper.actionColor,
                   ),
                   _ActionHistorySection(
                     actions: actions,
@@ -3583,8 +3523,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   _HudOverlaySection(
                     streetName:
                         ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
-                    potText: _formatAmount(_pots[currentStreet]),
-                    stackText: _formatAmount(effectiveStack),
+                    potText:
+                        ActionFormattingHelper.formatAmount(_pots[currentStreet]),
+                    stackText:
+                        ActionFormattingHelper.formatAmount(effectiveStack),
                     sprText: sprValue != null
                         ? 'SPR: ${sprValue.toStringAsFixed(1)}'
                         : null,
@@ -3947,7 +3889,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           top: centerY + dy + bias - 80 * scale,
           child: ChipAmountWidget(
             amount: lastAmountAction!.amount!.toDouble(),
-            color: _actionColor(lastAmountAction!.action),
+            color: ActionFormattingHelper.actionColor(
+                lastAmountAction!.action),
             scale: scale,
           ),
         ),
@@ -4524,7 +4467,8 @@ class _InvestedChipsOverlaySection extends StatelessWidget {
             .toList();
         final lastAction =
             playerActions.isNotEmpty ? playerActions.last : null;
-        final color = state._actionColor(lastAction?.action ?? 'bet');
+        final color =
+            ActionFormattingHelper.actionColor(lastAction?.action ?? 'bet');
         final start =
             Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset.lerp(start, Offset(centerX, centerY), 0.2)!;
@@ -5857,7 +5801,8 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final _PokerAnalyzerScreenState s = state.s;
     final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
-    final hudPotText = s._formatAmount(s._pots[s.currentStreet]);
+    final hudPotText =
+        ActionFormattingHelper.formatAmount(s._pots[s.currentStreet]);
     final int hudEffStack = s._stackService.calculateEffectiveStackForStreet(
         s.currentStreet, s.actions, s.numberOfPlayers);
     final double? hudSprValue = s._pots[s.currentStreet] > 0
