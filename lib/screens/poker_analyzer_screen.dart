@@ -112,7 +112,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool debugLayout = false;
   bool _isDebugPanelOpen = false;
   final Set<int> _expandedHistoryStreets = {};
-  final Map<int, Set<int>> _animatedPlayersPerStreet = {};
 
   ActionEntry? _centerChipAction;
   bool _showCenterChip = false;
@@ -1382,7 +1381,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         currentStreet = 0;
         _actionTags.clear();
         _firstActionTaken.clear();
-        _animatedPlayersPerStreet.clear();
+        _playbackManager.animatedPlayersPerStreet.clear();
         _stackService =
             StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
         _playbackManager.stackService = _stackService;
@@ -2296,7 +2295,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ]);
       currentStreet = 0;
       _playbackManager.seek(hand.actions.length);
-      _animatedPlayersPerStreet.clear();
+      _playbackManager.animatedPlayersPerStreet.clear();
       _playbackManager.updatePlaybackState();
       _playerManager.updatePositions();
     });
@@ -2965,7 +2964,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     viewIndex: viewIndex,
                     actions: actions,
                     pots: _playbackManager.pots,
-                    animatedPlayersPerStreet: _animatedPlayersPerStreet,
+                    animatedPlayersPerStreet:
+                        _playbackManager.animatedPlayersPerStreet,
                     centerChipAction: _centerChipAction,
                     showCenterChip: _showCenterChip,
                     centerChipController: _centerChipController,
@@ -3046,7 +3046,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         setState(() {
           currentStreet = index;
           _actionTags.clear();
-          _animatedPlayersPerStreet
+          _playbackManager.animatedPlayersPerStreet
               .putIfAbsent(index, () => <int>{});
         });
               },
@@ -3944,7 +3944,7 @@ class _InvestedChipsOverlaySection extends StatelessWidget {
         final start =
             Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset.lerp(start, Offset(centerX, centerY), 0.2)!;
-        final streetSet = state._animatedPlayersPerStreet
+        final streetSet = state._playbackManager.animatedPlayersPerStreet
             .putIfAbsent(state.currentStreet, () => <int>{});
         final animate = !streetSet.contains(index);
         if (animate) {
@@ -5312,10 +5312,12 @@ class _StreetTransitionDiagnosticsSection extends StatelessWidget {
         const Text('Street Transition State:'),
         debugDiag(
           'Current Animated Players Per Street',
-          s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0,
+          s._playbackManager.animatedPlayersPerStreet[s.currentStreet]?.length ??
+              0,
         ),
         _DebugPanelDialogState._vGap,
-        for (final entry in s._animatedPlayersPerStreet.entries) ...[
+        for (final entry
+            in s._playbackManager.animatedPlayersPerStreet.entries) ...[
           debugDiag('Street ${entry.key} Animated Count', entry.value.length),
           _DebugPanelDialogState._vGap,
         ],
