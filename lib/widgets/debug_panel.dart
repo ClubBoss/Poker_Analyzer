@@ -422,6 +422,32 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
   }
 }
 
+class _StreetTransitionDiagnosticsSection extends StatelessWidget {
+  const _StreetTransitionDiagnosticsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final _PokerAnalyzerScreenState s = state.s;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Street Transition State:'),
+        debugDiag(
+          'Current Animated Players Per Street',
+          s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0,
+        ),
+        _DebugPanelState._vGap,
+        for (final entry in s._animatedPlayersPerStreet.entries) ...[
+          debugDiag('Street ${entry.key} Animated Count', entry.value.length),
+          _DebugPanelState._vGap,
+        ],
+      ],
+    );
+  }
+}
+
 class _ExportConsistencySection extends StatelessWidget {
   const _ExportConsistencySection({required this.state});
 
@@ -731,16 +757,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             ],
             _CenterChipDiagnosticsSection(state: this),
             _vGap,
-            const Text('Street Transition State:'),
-            debugDiag(
-              'Current Animated Players Per Street',
-              s._animatedPlayersPerStreet[s.currentStreet]?.length ?? 0,
-            ),
-            _vGap,
-            for (final entry in s._animatedPlayersPerStreet.entries) ...[
-              debugDiag('Street ${entry.key} Animated Count', entry.value.length),
-              _vGap,
-            ],
+            _StreetTransitionDiagnosticsSection(state: this),
             const Text('Chip Trail Diagnostics:'),
             debugDiag('Animated Chips In Flight', ChipMovingWidget.activeCount),
             _vGap,
