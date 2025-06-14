@@ -312,8 +312,12 @@ class EvaluationQueueManager {
           .cast<File>()
           .toList();
       if (files.isEmpty) return;
-      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
-      final decoded = await _readJson(files.first);
+
+      final fileStats = await Future.wait(
+        files.map((f) async => MapEntry(f, await f.stat())),
+      );
+      fileStats.sort((a, b) => b.value.modified.compareTo(a.value.modified));
+      final decoded = await _readJson(fileStats.first.key);
       final queues = _decodeQueues(decoded);
       await _queueLock.synchronized(() {
         pending
