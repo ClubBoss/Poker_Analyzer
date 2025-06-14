@@ -64,15 +64,28 @@ import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
 
-enum _ActionChangeType { add, edit, delete }
+enum _ActionChangeType { add, edit, delete, board }
 
 class _ActionHistoryEntry {
   final _ActionChangeType type;
   final int index;
   final ActionEntry? oldEntry;
   final ActionEntry? newEntry;
+  final List<CardModel>? oldBoard;
+  final List<CardModel>? newBoard;
+  final int? oldStreet;
+  final int? newStreet;
 
-  _ActionHistoryEntry(this.type, this.index,{this.oldEntry,this.newEntry});
+  _ActionHistoryEntry(
+    this.type,
+    this.index, {
+    this.oldEntry,
+    this.newEntry,
+    this.oldBoard,
+    this.newBoard,
+    this.oldStreet,
+    this.newStreet,
+  });
 }
 
 class _StateSnapshot {
@@ -496,6 +509,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addAll(boardCards.take(visibleCount));
   }
 
+  void _syncStreetWithBoard() {
+    final len = boardCards.length;
+    int newStreet;
+    if (len >= 5) {
+      newStreet = 3;
+    } else if (len == 4) {
+      newStreet = 2;
+    } else if (len == 3) {
+      newStreet = 1;
+    } else {
+      newStreet = 0;
+    }
+    currentStreet = newStreet;
+  }
+
   // Formatting helpers moved to [ActionFormattingHelper].
 
   String _actionLabel(ActionEntry entry) {
@@ -742,8 +770,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void selectBoardCard(int index, CardModel card) {
     setState(() {
       _recordSnapshot();
+      final prevBoard = List<CardModel>.from(boardCards);
+      final prevStreet = currentStreet;
       _playerManager.selectBoardCard(index, card);
+      _syncStreetWithBoard();
       _updateRevealedBoardCards();
+      _undoStack.add(_ActionHistoryEntry(
+        _ActionChangeType.board,
+        index,
+        oldBoard: prevBoard,
+        newBoard: List<CardModel>.from(boardCards),
+        oldStreet: prevStreet,
+        newStreet: currentStreet,
+      ));
+      _redoStack.clear();
+      _playbackManager.updatePlaybackState();
     });
   }
 
@@ -1384,6 +1425,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         case _ActionChangeType.delete:
           _addAction(op.oldEntry!, index: op.index, recordHistory: false);
           break;
+        case _ActionChangeType.board:
+          boardCards
+            ..clear()
+            ..addAll(op.oldBoard ?? []);
+          currentStreet = op.oldStreet ?? currentStreet;
+          _updateRevealedBoardCards();
+          _playbackManager.updatePlaybackState();
+          break;
       }
       _redoStack.add(op);
       if (snap != null) {
@@ -1409,6 +1458,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           break;
         case _ActionChangeType.delete:
           _deleteAction(op.index, recordHistory: false, withSetState: false);
+          break;
+        case _ActionChangeType.board:
+          boardCards
+            ..clear()
+            ..addAll(op.newBoard ?? []);
+          currentStreet = op.newStreet ?? currentStreet;
+          _updateRevealedBoardCards();
+          _playbackManager.updatePlaybackState();
           break;
       }
       _undoStack.add(op);
