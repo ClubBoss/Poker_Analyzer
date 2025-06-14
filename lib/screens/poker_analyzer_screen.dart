@@ -148,8 +148,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   set _pauseProcessingRequested(bool v) => _queueManager.pauseRequested = v;
   bool get _cancelProcessingRequested => _queueManager.cancelRequested;
   set _cancelProcessingRequested(bool v) => _queueManager.cancelRequested = v;
-  bool get _evaluationQueueResumed => _queueManager.queueResumed;
-  set _evaluationQueueResumed(bool v) => _queueManager.queueResumed = v;
+
+  bool _queueResumed = false;
+  bool get _evaluationQueueResumed => _queueResumed;
+  set _evaluationQueueResumed(bool v) => _queueResumed = v;
 
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
