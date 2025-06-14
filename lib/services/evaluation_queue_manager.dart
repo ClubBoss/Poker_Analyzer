@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 import '../helpers/debug_panel_preferences.dart';
 import '../models/action_evaluation_request.dart';
 import 'snapshot_service.dart';
+import 'retry_evaluation_service.dart';
 
 class EvaluationQueueManager {
   final List<ActionEvaluationRequest> pending = [];
@@ -42,9 +43,11 @@ class EvaluationQueueManager {
   // Cached SharedPreferences instance for quick persistence operations.
   late final SharedPreferences _sharedPrefs;
   late final SnapshotService _snapshotService;
+  late final RetryEvaluationService _retryService;
   late final Future<void> _initFuture;
 
-  EvaluationQueueManager() {
+  EvaluationQueueManager({RetryEvaluationService? retryService}) {
+    _retryService = retryService ?? RetryEvaluationService();
     _initFuture = _initialize();
   }
 
@@ -160,6 +163,9 @@ class EvaluationQueueManager {
     }
   }
 
+  /// Exposes persistence for external helpers.
+  Future<void> persist() async => _persist();
+
   Future<void> addToQueue(ActionEvaluationRequest req) async {
     await _queueLock.synchronized(() => pending.add(req));
     await _persist();
@@ -173,19 +179,7 @@ class EvaluationQueueManager {
   }
 
   Future<bool> _processSingleEvaluation(ActionEvaluationRequest req) async {
-    var success = false;
-    while (!success && req.attempts < 3) {
-      try {
-        await _execute(req);
-        success = true;
-      } catch (_) {
-        req.attempts++;
-        if (req.attempts < 3) {
-          await Future.delayed(const Duration(milliseconds: 200));
-        }
-      }
-    }
-    return success;
+    return _retryService.processEvaluation(req, _execute);
   }
 
   Future<void> processQueue() async {
@@ -283,6 +277,11 @@ class EvaluationQueueManager {
       ..clear()
       ..addAll(queues['completed']!);
     await _persist();
+  }
+
+  /// Moves failed requests back into the pending queue.
+  Future<void> retryFailedEvaluations() async {
+    await _retryService.retryFailedEvaluations(this);
   }
 
   void applySavedOrder(List<ActionEvaluationRequest> list, List<String>? order) {
