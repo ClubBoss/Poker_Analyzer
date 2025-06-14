@@ -103,7 +103,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Set<String> get allTags => _handManager.allTags;
   Set<String> get tagFilters => _handManager.tagFilters;
   set tagFilters(Set<String> v) => _handManager.tagFilters = v;
-  final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
@@ -118,14 +117,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showAllRevealedCards = false;
   bool isPerspectiveSwitched = false;
 
-  /// Stores effective stacks loaded from a saved hand's export data.
-  Map<String, int>? _savedEffectiveStacks;
-
-  /// Validation notes loaded from a saved hand's export data.
-  Map<String, String>? _validationNotes;
-
-  String? _expectedAction;
-  String? _feedbackText;
 
   /// Handles evaluation queue state and processing.
   late final EvaluationQueueService _queueService;
@@ -1173,7 +1164,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         actions.clear();
         currentStreet = 0;
         _actionTags.clear();
-        _firstActionTaken.clear();
         _playbackManager.animatedPlayersPerStreet.clear();
         _stackService =
             StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
@@ -1956,20 +1946,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   SavedHand _currentSavedHand({String? name}) {
     final stacks =
         _stackService.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
-    Map<String, String>? notes;
-    if (_savedEffectiveStacks != null) {
-      const names = ['Preflop', 'Flop', 'Turn', 'River'];
-      notes = {};
-      for (int s = 0; s < names.length; s++) {
-        final live = _stackService.calculateEffectiveStackForStreet(
-            s, actions, numberOfPlayers);
-        final exported = _savedEffectiveStacks![names[s]];
-        if (exported != live) {
-          notes![names[s]] = 'live $live vs saved ${exported ?? 'N/A'}';
-        }
-      }
-      if (notes.isEmpty) notes = null;
-    }
     final collapsed = [
       for (int i = 0; i < 4; i++)
         if (!_expandedHistoryStreets.contains(i)) i
@@ -2005,13 +1981,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .toList(),
       isFavorite: false,
       date: DateTime.now(),
-      expectedAction: _expectedAction,
-      feedbackText: _feedbackText,
       effectiveStacksPerStreet: stacks,
-      validationNotes: notes,
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
-      firstActionTaken:
-          _firstActionTaken.isEmpty ? null : _firstActionTaken.toList(),
       actionTags:
           _actionTags.isEmpty ? null : Map<int, String?>.from(_actionTags),
       pendingEvaluations:
@@ -2074,13 +2045,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
       _commentController.text = hand.comment ?? '';
       _tagsController.text = hand.tags.join(', ');
-      _savedEffectiveStacks = hand.effectiveStacksPerStreet;
-      _validationNotes = hand.validationNotes;
-      _expectedAction = hand.expectedAction;
-      _feedbackText = hand.feedbackText;
-      _firstActionTaken
-        ..clear()
-        ..addAll(hand.firstActionTaken ?? []);
       _actionTags
         ..clear()
         ..addAll(hand.actionTags ?? {});
@@ -2157,8 +2121,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
 
-    final expected = data['expectedAction'] as String?;
-    final feedback = data['feedbackText'] as String?;
 
     final newHeroIndex = data['heroIndex'] as int? ?? 0;
     final newPlayerCount =
@@ -2200,8 +2162,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackManager.resetHand();
       _playbackManager.updatePlaybackState();
       _playerManager.updatePositions();
-      _expectedAction = expected;
-      _feedbackText = feedback;
     });
   }
 
@@ -4698,13 +4658,6 @@ class _PlaybackDiagnosticsSection extends StatelessWidget {
         debugDiag('Last Action Player Index',
             s._playbackManager.lastActionPlayerIndex ?? 'None'),
         _DebugPanelDialogState._vGap,
-        debugDiag(
-          'First Action Taken',
-          s._firstActionTaken.isNotEmpty
-              ? (s._firstActionTaken.toList()..sort()).join(', ')
-              : '(none)',
-        ),
-        _DebugPanelDialogState._vGap,
         const Text('Playback Pause State:'),
         debugDiag('Is Playback Paused', s._activeTimer == null),
       ],
@@ -5094,36 +5047,6 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
                 s._stackService.calculateEffectiveStackForStreet(
                     street, s.actions, s.numberOfPlayers),
               ),
-            _vGap,
-            const Text('Effective Stacks (from export data):'),
-            if (s._savedEffectiveStacks != null)
-              for (final entry in s._savedEffectiveStacks!.entries)
-                debugDiag(entry.key, entry.value)
-            else
-              debugDiag('Export Data', '(none)'),
-            if (s._savedEffectiveStacks != null) ...[
-              _vGap,
-              const Text('Validation:'),
-              for (int st = 0; st < 4; st++)
-                () {
-                  const names = ['Preflop', 'Flop', 'Turn', 'River'];
-                  final name = names[st];
-                  final live = s._stackService.calculateEffectiveStackForStreet(
-                      st, s.actions, s.numberOfPlayers);
-                  final exported = s._savedEffectiveStacks![name];
-                  final ok = exported == live;
-                  return debugDiag(
-                    name,
-                    ok ? '✅' : '❌ live $live vs export ${exported ?? 'N/A'}',
-                  );
-                }(),
-            ],
-            if (s._validationNotes != null && s._validationNotes!.isNotEmpty) ...[
-              _vGap,
-              const Text('Validation Notes:'),
-              for (final entry in s._validationNotes!.entries)
-                debugDiag(entry.key, entry.value),
-            ],
             _vGap,
             const Text('Playback Diagnostics:'),
             debugDiag('Preflop Actions',
