@@ -12,7 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/debug_panel_preferences.dart';
-import '../services/evaluation_queue_manager.dart';
+import '../services/evaluation_queue_service.dart';
 import '../services/debug_preferences_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
@@ -129,17 +129,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   String? _feedbackText;
 
   /// Handles evaluation queue state and processing.
-  late final EvaluationQueueManager _queueManager;
+  late final EvaluationQueueService _queueService;
 
-  List<ActionEvaluationRequest> get _pendingEvaluations => _queueManager.pending;
-  List<ActionEvaluationRequest> get _completedEvaluations => _queueManager.completed;
-  List<ActionEvaluationRequest> get _failedEvaluations => _queueManager.failed;
-  bool get _processingEvaluations => _queueManager.processing;
-  set _processingEvaluations(bool v) => _queueManager.processing = v;
-  bool get _pauseProcessingRequested => _queueManager.pauseRequested;
-  set _pauseProcessingRequested(bool v) => _queueManager.pauseRequested = v;
-  bool get _cancelProcessingRequested => _queueManager.cancelRequested;
-  set _cancelProcessingRequested(bool v) => _queueManager.cancelRequested = v;
+  List<ActionEvaluationRequest> get _pendingEvaluations => _queueService.pending;
+  List<ActionEvaluationRequest> get _completedEvaluations => _queueService.completed;
+  List<ActionEvaluationRequest> get _failedEvaluations => _queueService.failed;
+  bool get _processingEvaluations => _queueService.processing;
+  set _processingEvaluations(bool v) => _queueService.processing = v;
+  bool get _pauseProcessingRequested => _queueService.pauseRequested;
+  set _pauseProcessingRequested(bool v) => _queueService.pauseRequested = v;
+  bool get _cancelProcessingRequested => _queueService.cancelRequested;
+  set _cancelProcessingRequested(bool v) => _queueService.cancelRequested = v;
 
   bool _queueResumed = false;
   bool get _evaluationQueueResumed => _queueResumed;
@@ -566,7 +566,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   final item = queue.removeAt(oldIndex);
                   queue.insert(newIndex, item);
                 });
-                _persistEvaluationQueue();
+                _queueService.persist();
                 _debugPanelSetState?.call(() {});
               }
             : (_, __) {});
@@ -814,7 +814,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
-    _queueManager = EvaluationQueueManager();
+    _queueService = EvaluationQueueService();
     _centerChipController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -840,7 +840,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _loadSearchQueryPreference());
     Future(() => _loadSortBySprPreference());
     Future(() => _loadQueueResumedPreference());
-    Future.microtask(_queueManager.loadQueueSnapshot);
+    Future.microtask(_queueService.loadQueueSnapshot);
     Future(() => _cleanupOldAutoBackups());
     _startAutoBackupTimer();
   }
@@ -910,7 +910,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _completedEvaluations.clear();
       _failedEvaluations.clear();
     });
-    _persistEvaluationQueue();
+    _queueService.persist();
     unawaited(_setEvaluationQueueResumed(false));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -925,7 +925,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _pendingEvaluations.clear();
     });
-    _persistEvaluationQueue();
+    _queueService.persist();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pending queue cleared')),
@@ -939,7 +939,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _failedEvaluations.clear();
     });
-    _persistEvaluationQueue();
+    _queueService.persist();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed queue cleared')),
@@ -953,7 +953,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _completedEvaluations.clear();
     });
-    _persistEvaluationQueue();
+    _queueService.persist();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Completed queue cleared')),
@@ -968,7 +968,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _completedEvaluations.clear();
     });
-    _persistEvaluationQueue();
+    _queueService.persist();
     _debugPanelSetState?.call(() {});
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1000,7 +1000,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         removed += _deduplicateList(_completedEvaluations, seen);
       });
       if (removed > 0) {
-        _persistEvaluationQueue();
+        _queueService.persist();
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1062,7 +1062,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
 
       if (removed > 0) {
-        _persistEvaluationQueue();
+        _queueService.persist();
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1095,7 +1095,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _failedEvaluations.sort(_compareEvaluationRequests);
         _completedEvaluations.sort(_compareEvaluationRequests);
       });
-      _persistEvaluationQueue();
+      _queueService.persist();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Queues sorted')),
@@ -1118,7 +1118,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
     if (!_pauseProcessingRequested && !_processingEvaluations &&
         _pendingEvaluations.isNotEmpty) {
-      _queueManager.processQueue();
+      _queueService.processQueue();
     }
   }
 
@@ -1129,7 +1129,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _pendingEvaluations.clear();
       _processingEvaluations = false;
     });
-    _persistEvaluationQueue();
+    _queueService.persist();
     _debugPanelSetState?.call(() {});
   }
 
@@ -1155,16 +1155,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _debugPanelSetState?.call(() {});
     if (_pendingEvaluations.isNotEmpty) {
-      _queueManager.processQueue();
+      _queueService.processQueue();
     }
   }
 
   void _retryFailedEvaluations() {
-    _queueManager.retryFailedEvaluations().then((_) {
+    _queueService.retryFailedEvaluations().then((_) {
       if (mounted) {
         setState(() {});
       }
-      _persistEvaluationQueue();
+      _queueService.persist();
       _debugPanelSetState?.call(() {});
     });
   }
@@ -1432,7 +1432,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _exportQueueToClipboard() async {
-    await _queueManager.exportToClipboard();
+    await _queueService.exportToClipboard();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Queue copied to clipboard')),
@@ -1440,7 +1440,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _importQueueFromClipboard() async {
-    await _queueManager.importFromClipboard();
+    await _queueService.importFromClipboard();
     if (!mounted) return;
     setState(() {});
     _debugPanelSetState?.call(() {});
@@ -1519,7 +1519,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(completed);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -1567,7 +1567,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(completed);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -1680,7 +1680,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _completedEvaluations.addAll(importedCompleted);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
 
       final total =
@@ -1728,26 +1728,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Schedule snapshot export without awaiting the result.
   void _scheduleSnapshotExport() {
     unawaited(_exportEvaluationQueueSnapshot(showNotification: false));
-  }
-
-  /// Persist the current evaluation queue to disk.
-  Future<void> _persistEvaluationQueue() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/evaluation_current_queue.json');
-      await _writeJsonFile(file, _currentQueueState());
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(
-          _pendingOrderKey,
-          [for (final e in _pendingEvaluations) _queueEntryId(e)]);
-      await prefs.setStringList(
-          _failedOrderKey,
-          [for (final e in _failedEvaluations) _queueEntryId(e)]);
-      await prefs.setStringList(
-          _completedOrderKey,
-          [for (final e in _completedEvaluations) _queueEntryId(e)]);
-    } catch (_) {}
   }
 
   /// Load persisted evaluation queue if available.
@@ -1807,7 +1787,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         try {
           await file.delete();
         } catch (_) {}
-        _persistEvaluationQueue();
+        _queueService.persist();
         _debugPanelSetState?.call(() {});
       }
       await _setEvaluationQueueResumed(resumed);
@@ -1831,12 +1811,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _processEvaluationQueue() async {
-    await _queueManager.processQueue();
+    await _queueService.processQueue();
     if (mounted) setState(() {});
   }
 
   Future<void> _processNextEvaluation() async {
-    await _queueManager.processQueue();
+    await _queueService.processQueue();
     if (mounted) setState(() {});
   }
 
@@ -1981,7 +1961,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(completed);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -2022,7 +2002,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _failedEvaluations.clear();
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Imported ${items.length} evaluations')),
@@ -2099,7 +2079,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(completed);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
@@ -2152,7 +2132,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _completedEvaluations.addAll(importedCompleted);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
 
       final total =
@@ -2221,7 +2201,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _completedEvaluations.addAll(importedCompleted);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
 
       final total =
@@ -2295,7 +2275,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _completedEvaluations.addAll(importedCompleted);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
 
       final total =
@@ -2364,7 +2344,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _completedEvaluations.addAll(importedCompleted);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
 
       final total =
@@ -2422,7 +2402,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..clear()
           ..addAll(completed);
       });
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -2488,7 +2468,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _completedEvaluations.addAll(importedCompleted);
       });
       _debugPanelSetState?.call(() {});
-      _persistEvaluationQueue();
+      _queueService.persist();
       unawaited(_setEvaluationQueueResumed(false));
 
       final total =
@@ -2668,7 +2648,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackManager.updatePlaybackState();
       _playerManager.updatePositions();
     });
-    _persistEvaluationQueue();
+    _queueService.persist();
   }
 
   /// Load a training spot represented as a JSON-like map.
@@ -3227,7 +3207,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _activeTimer?.cancel();
     _playbackManager.dispose();
     _centerChipTimer?.cancel();
-    _queueManager.cleanup();
+    _queueService.cleanup();
     _centerChipController.dispose();
     _commentController.dispose();
     _tagsController.dispose();
