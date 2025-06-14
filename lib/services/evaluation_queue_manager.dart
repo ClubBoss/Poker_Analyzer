@@ -312,17 +312,19 @@ class EvaluationQueueManager {
           .cast<File>()
           .toList();
       if (files.isEmpty) return;
-      final entries = <MapEntry<File, DateTime>>[];
-      for (final f in files) {
+      final results = await Future.wait(files.map((f) async {
         try {
           final stat = await f.stat();
-          entries.add(MapEntry(f, stat.modified));
+          return MapEntry(f, stat.modified);
         } catch (e) {
           if (kDebugMode) {
             debugPrint('Failed to stat ${f.path}: $e');
           }
+          return null;
         }
-      }
+      }));
+      final entries =
+          results.whereType<MapEntry<File, DateTime>>().toList();
       if (entries.isEmpty) return;
       entries.sort((a, b) => b.value.compareTo(a.value));
       final file = entries.first.key;
