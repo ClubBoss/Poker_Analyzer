@@ -4760,7 +4760,7 @@ class _TableBackgroundSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final tableWidth = screenSize.width * 0.9;
+    final tableWidth = screenSize.width * 0.9 * scale;
 
     return Center(
       child: Image.asset(
