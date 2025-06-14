@@ -1,6 +1,6 @@
 import '../models/action_evaluation_request.dart';
 import 'evaluation_executor_service.dart';
-import 'evaluation_queue_manager.dart';
+import 'evaluation_queue_service.dart';
 
 /// Handles retry operations for evaluation requests.
 class RetryEvaluationService {
@@ -33,7 +33,7 @@ class RetryEvaluationService {
 
   /// Moves all failed evaluations back to the pending queue and resets their
   /// attempt counters.
-  Future<void> retryFailedEvaluations(EvaluationQueueManager manager) async {
+  Future<void> retryFailedEvaluations(EvaluationQueueService manager) async {
     if (manager.failed.isEmpty) return;
     for (final r in manager.failed) {
       r.attempts = 0;

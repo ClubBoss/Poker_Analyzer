@@ -15,7 +15,7 @@ import 'snapshot_service.dart';
 import 'retry_evaluation_service.dart';
 import 'evaluation_executor_service.dart';
 
-class EvaluationQueueManager {
+class EvaluationQueueService {
   final List<ActionEvaluationRequest> pending = [];
   final List<ActionEvaluationRequest> completed = [];
   final List<ActionEvaluationRequest> failed = [];
@@ -47,7 +47,7 @@ class EvaluationQueueManager {
   late final RetryEvaluationService _retryService;
   late final Future<void> _initFuture;
 
-  EvaluationQueueManager({
+  EvaluationQueueService({
     EvaluationExecutorService? executorService,
     RetryEvaluationService? retryService,
   }) {
