@@ -453,6 +453,24 @@ class _ExportConsistencySection extends StatelessWidget {
   }
 }
 
+class _ThemeDiagnosticsSection extends StatelessWidget {
+  const _ThemeDiagnosticsSection({required this.state});
+
+  final _DebugPanelState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Theme Diagnostics:'),
+        debugDiag('Current Theme',
+            Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'),
+      ],
+    );
+  }
+}
+
 
 
   TextButton _dialogBtn(String label, VoidCallback onPressed) {
@@ -720,9 +738,7 @@ class _ExportConsistencySection extends StatelessWidget {
             _vGap,
             _ExportConsistencySection(state: this),
             _vGap,
-            const Text('Theme Diagnostics:'),
-            debugDiag('Current Theme',
-                Theme.of(context).brightness == Brightness.dark ? 'Dark' : 'Light'),
+            _ThemeDiagnosticsSection(state: this),
             _vGap,
           ],
         ),
