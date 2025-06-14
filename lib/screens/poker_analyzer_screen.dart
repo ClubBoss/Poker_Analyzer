@@ -12,6 +12,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/debug_panel_preferences.dart';
+import '../services/evaluation_queue_manager.dart';
 part '../widgets/debug_panel.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
@@ -135,32 +136,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   String? _expectedAction;
   String? _feedbackText;
 
-  /// Queue of pending action evaluation tasks.
-  final List<ActionEvaluationRequest> _pendingEvaluations = [];
+  /// Handles evaluation queue state and processing.
+  late final EvaluationQueueManager _queueManager;
 
-  /// Completed action evaluations.
-  final List<ActionEvaluationRequest> _completedEvaluations = [];
-
-  /// Evaluations that failed during processing.
-  final List<ActionEvaluationRequest> _failedEvaluations = [];
-
-  /// Timer for automatic periodic backups of the evaluation queue.
-  Timer? _autoBackupTimer;
-
-  /// Prevents overlapping automatic backups.
-  bool _autoBackupRunning = false;
-
-  /// Indicates if evaluation processing is currently running.
-  bool _processingEvaluations = false;
-
-  /// True when a pause of the evaluation processing loop has been requested.
-  bool _pauseProcessingRequested = false;
-
-  /// True when a cancellation of the evaluation processing loop has been requested.
-  bool _cancelProcessingRequested = false;
-
-  /// Whether the evaluation queue was restored from disk on startup.
-  bool _evaluationQueueResumed = false;
+  List<ActionEvaluationRequest> get _pendingEvaluations => _queueManager.pending;
+  List<ActionEvaluationRequest> get _completedEvaluations => _queueManager.completed;
+  List<ActionEvaluationRequest> get _failedEvaluations => _queueManager.failed;
+  bool get _processingEvaluations => _queueManager.processing;
+  set _processingEvaluations(bool v) => _queueManager.processing = v;
+  bool get _pauseProcessingRequested => _queueManager.pauseRequested;
+  set _pauseProcessingRequested(bool v) => _queueManager.pauseRequested = v;
+  bool get _cancelProcessingRequested => _queueManager.cancelRequested;
+  set _cancelProcessingRequested(bool v) => _queueManager.cancelRequested = v;
+  bool get _evaluationQueueResumed => _queueManager.queueResumed;
+  set _evaluationQueueResumed(bool v) => _queueManager.queueResumed = v;
 
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
@@ -1117,6 +1106,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
+    _queueManager = EvaluationQueueManager();
     _centerChipController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -1144,7 +1134,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future(() => _loadSearchQueryPreference());
     Future(() => _loadSortBySprPreference());
     Future(() => _loadQueueResumedPreference());
-    Future.microtask(_loadSavedEvaluationQueue);
+    Future.microtask(_queueManager.loadQueueSnapshot);
     Future(() => _cleanupOldAutoBackups());
     _startAutoBackupTimer();
   }
@@ -1547,7 +1537,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
     if (!_pauseProcessingRequested && !_processingEvaluations &&
         _pendingEvaluations.isNotEmpty) {
-      _processEvaluationQueue();
+      _queueManager.processQueue();
     }
   }
 
@@ -1584,7 +1574,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _debugPanelSetState?.call(() {});
     if (_pendingEvaluations.isNotEmpty) {
-      _processEvaluationQueue();
+      _queueManager.processQueue();
     }
   }
 
@@ -2333,116 +2323,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _processEvaluationQueue() async {
-    if (_processingEvaluations || _pendingEvaluations.isEmpty) return;
-    setState(() {
-      _processingEvaluations = true;
-    });
-    _debugPanelSetState?.call(() {});
-    while (_pendingEvaluations.isNotEmpty) {
-      if (_pauseProcessingRequested || _cancelProcessingRequested) {
-        break;
-      }
-      final req = _pendingEvaluations.first;
-      await Future.delayed(Duration(milliseconds: _evaluationProcessingDelay));
-      if (!mounted) {
-        _processingEvaluations = false;
-        _persistEvaluationQueue();
-        return;
-      }
-      if (_cancelProcessingRequested) {
-        break;
-      }
-      if (_pendingEvaluations.isEmpty) break;
-      var success = false;
-      while (!success && req.attempts < 3) {
-        try {
-          await _executeEvaluation(req);
-          success = true;
-        } catch (e, st) {
-          debugPrint('Evaluation error: $e');
-          debugPrintStack(stackTrace: st);
-          req.attempts++;
-          if (req.attempts < 3) {
-            await Future.delayed(const Duration(milliseconds: 200));
-          }
-        }
-      }
-      if (mounted) {
-        setState(() {
-          _pendingEvaluations.removeAt(0);
-          (success ? _completedEvaluations : _failedEvaluations).add(req);
-        });
-      } else {
-        _pendingEvaluations.removeAt(0);
-        (success ? _completedEvaluations : _failedEvaluations).add(req);
-      }
-      if (success) {
-        _scheduleSnapshotExport();
-      }
-      _persistEvaluationQueue();
-      // Update debug panel if it's currently visible.
-      _debugPanelSetState?.call(() {});
-      if (_pauseProcessingRequested || _cancelProcessingRequested) {
-        break;
-      }
-    }
-    if (mounted) {
-      setState(() {
-        _processingEvaluations = false;
-        _pauseProcessingRequested = false;
-        _cancelProcessingRequested = false;
-      });
-      _persistEvaluationQueue();
-      _debugPanelSetState?.call(() {});
-    } else {
-      _processingEvaluations = false;
-      _pauseProcessingRequested = false;
-      _cancelProcessingRequested = false;
-      _persistEvaluationQueue();
-    }
+    await _queueManager.processQueue();
+    if (mounted) setState(() {});
   }
 
   Future<void> _processNextEvaluation() async {
-    if (_processingEvaluations || _pendingEvaluations.isEmpty) return;
-    setState(() {
-      _processingEvaluations = true;
-    });
-    _debugPanelSetState?.call(() {});
-    final req = _pendingEvaluations.first;
-    await Future.delayed(Duration(milliseconds: _evaluationProcessingDelay));
-    if (!mounted) {
-      _processingEvaluations = false;
-      _persistEvaluationQueue();
-      return;
-    }
-    if (_cancelProcessingRequested) {
-      setState(() {
-        _processingEvaluations = false;
-      });
-      _persistEvaluationQueue();
-      _debugPanelSetState?.call(() {});
-      return;
-    }
-    var success = true;
-    try {
-      setState(() {
-        _pendingEvaluations.removeAt(0);
-        _completedEvaluations.add(req);
-        _processingEvaluations = false;
-      });
-    } catch (e) {
-      success = false;
-      setState(() {
-        _pendingEvaluations.removeAt(0);
-        _failedEvaluations.add(req);
-        _processingEvaluations = false;
-      });
-    }
-    _persistEvaluationQueue();
-    if (success) {
-      _scheduleSnapshotExport();
-    }
-    _debugPanelSetState?.call(() {});
+    await _queueManager.processQueue();
+    if (mounted) setState(() {});
   }
 
   Future<void> _cleanupOldEvaluationBackups() async {
@@ -3832,9 +3719,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _activeTimer?.cancel();
     _playbackTimer?.cancel();
     _centerChipTimer?.cancel();
-    _autoBackupTimer?.cancel();
-    _processingEvaluations = false;
-    _pauseProcessingRequested = false;
+    _queueManager.cleanup();
     _centerChipController.dispose();
     _commentController.dispose();
     _tagsController.dispose();
