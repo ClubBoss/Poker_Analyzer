@@ -3863,62 +3863,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return Stack(children: chips);
   }
 
-  Widget _buildInvestedChipsOverlay(double scale) {
-    final screenSize = MediaQuery.of(context).size;
-    final tableWidth = screenSize.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    final List<Widget> chips = [];
-    for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + _viewIndex()) % numberOfPlayers;
-      final invested = actions
-          .where((a) =>
-              a.playerIndex == index &&
-              a.street == currentStreet &&
-              (a.action == 'call' || a.action == 'bet' || a.action == 'raise') &&
-              a.amount != null)
-          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
-      if (invested > 0) {
-        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias = _verticalBiasFromAngle(angle) * scale;
-
-        final playerActions = actions
-            .where((a) => a.playerIndex == index && a.street == currentStreet)
-            .toList();
-        final lastAction =
-            playerActions.isNotEmpty ? playerActions.last : null;
-        final color = _actionColor(lastAction?.action ?? 'bet');
-        final start =
-            Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-        final end = Offset.lerp(start, Offset(centerX, centerY), 0.2)!;
-        final streetSet =
-            _animatedPlayersPerStreet.putIfAbsent(currentStreet, () => <int>{});
-        final animate = !streetSet.contains(index);
-        if (animate) {
-          streetSet.add(index);
-        }
-        chips.add(Positioned.fill(
-          child: BetChipsOnTable(
-            start: start,
-            end: end,
-            chipCount: (invested / 20).clamp(1, 5).round(),
-            color: color,
-            scale: scale,
-            animate: animate,
-          ),
-        ));
-      }
-    }
-    return Stack(children: chips);
-  }
-
   Widget _buildBetStacksOverlay(double scale) {
     final screenSize = MediaQuery.of(context).size;
     final tableWidth = screenSize.width * 0.9;
@@ -4106,7 +4050,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     chipTrailBuilder: _buildChipTrail,
                   ),
                   _buildBetStacksOverlay(scale),
-                  _buildInvestedChipsOverlay(scale),
+                  _InvestedChipsOverlaySection(
+                    scale: scale,
+                    state: this,
+                  ),
                   _PotAndBetsOverlaySection(
                     scale: scale,
                     numberOfPlayers: numberOfPlayers,
@@ -4992,6 +4939,74 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     }
 
     return Stack(children: items);
+  }
+}
+
+class _InvestedChipsOverlaySection extends StatelessWidget {
+  final double scale;
+  final _PokerAnalyzerScreenState state;
+
+  const _InvestedChipsOverlaySection({
+    required this.scale,
+    required this.state,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(state.context).size;
+    final tableWidth = screenSize.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screenSize.width / 2 + 10;
+    final centerY = screenSize.height / 2 - state._centerYOffset(scale);
+    final radiusMod = state._radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    final List<Widget> chips = [];
+    for (int i = 0; i < state.numberOfPlayers; i++) {
+      final index = (i + state._viewIndex()) % state.numberOfPlayers;
+      final invested = state.actions
+          .where((a) =>
+              a.playerIndex == index &&
+              a.street == state.currentStreet &&
+              (a.action == 'call' || a.action == 'bet' || a.action == 'raise') &&
+              a.amount != null)
+          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
+      if (invested > 0) {
+        final angle = 2 * pi * i / state.numberOfPlayers + pi / 2;
+        final dx = radiusX * cos(angle);
+        final dy = radiusY * sin(angle);
+        final bias = state._verticalBiasFromAngle(angle) * scale;
+
+        final playerActions = state.actions
+            .where((a) =>
+                a.playerIndex == index && a.street == state.currentStreet)
+            .toList();
+        final lastAction =
+            playerActions.isNotEmpty ? playerActions.last : null;
+        final color = state._actionColor(lastAction?.action ?? 'bet');
+        final start =
+            Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+        final end = Offset.lerp(start, Offset(centerX, centerY), 0.2)!;
+        final streetSet = state._animatedPlayersPerStreet
+            .putIfAbsent(state.currentStreet, () => <int>{});
+        final animate = !streetSet.contains(index);
+        if (animate) {
+          streetSet.add(index);
+        }
+        chips.add(Positioned.fill(
+          child: BetChipsOnTable(
+            start: start,
+            end: end,
+            chipCount: (invested / 20).clamp(1, 5).round(),
+            color: color,
+            scale: scale,
+            animate: animate,
+          ),
+        ));
+      }
+    }
+    return Stack(children: chips);
   }
 }
 
