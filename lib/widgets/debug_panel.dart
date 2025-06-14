@@ -385,43 +385,6 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
   }
 }
 
-class _CenterChipDiagnosticsSection extends StatelessWidget {
-  const _CenterChipDiagnosticsSection({required this.state});
-
-  final _DebugPanelState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final _PokerAnalyzerScreenState s = state.s;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Chip Animation State:'),
-        debugDiag(
-          'Center Chip Action',
-          () {
-            final action = s._centerChipAction;
-            if (action == null) return '(null)';
-            var result =
-                'Street ${action.street}, Player ${action.playerIndex}, Action ${action.action}';
-            if (action.amount != null) result += ', Amount ${action.amount}';
-            return result;
-          }(),
-        ),
-        _DebugPanelState._vGap,
-        debugDiag('Show Center Chip', s._showCenterChip),
-        _DebugPanelState._vGap,
-        const Text('Animation Controllers State:'),
-        debugDiag('Center Chip Animation Active',
-            s._centerChipController.isAnimating),
-        _DebugPanelState._vGap,
-        debugDiag('Center Chip Animation Value',
-            s._centerChipController.value.toStringAsFixed(2)),
-      ],
-    );
-  }
-}
-
 class _StreetTransitionDiagnosticsSection extends StatelessWidget {
   const _StreetTransitionDiagnosticsSection({required this.state});
 
@@ -837,6 +800,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             _CenterChipDiagnosticsSection(state: this),
             _vGap,
             _StreetTransitionDiagnosticsSection(state: this),
+            _vGap,
             _ChipTrailDiagnosticsSection(state: this),
             _vGap,
             _EvaluationQueueDiagnosticsSection(state: this),
@@ -878,7 +842,6 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             _ExportConsistencySection(state: this),
             _vGap,
             _ThemeDiagnosticsSection(state: this),
-            _vGap,
           ],
         ),
       ),
