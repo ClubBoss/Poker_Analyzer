@@ -86,11 +86,13 @@ class _ActionHistoryEntry {
 
 class _StateSnapshot {
   final int street;
+  final int boardStreet;
   final List<CardModel> board;
   final int playbackIndex;
 
   _StateSnapshot({
     required this.street,
+    required this.boardStreet,
     required this.board,
     required this.playbackIndex,
   });
@@ -495,6 +497,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   _StateSnapshot _currentSnapshot() => _StateSnapshot(
         street: currentStreet,
+        boardStreet: boardStreet,
         board: List<CardModel>.from(boardCards),
         playbackIndex: _playbackManager.playbackIndex,
       );
@@ -509,6 +512,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     boardCards
       ..clear()
       ..addAll(snap.board);
+    boardStreet = snap.boardStreet;
+    if (currentStreet != boardStreet) {
+      currentStreet = boardStreet;
+    }
     _playbackManager.seek(snap.playbackIndex);
     _updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
@@ -927,9 +934,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final newBoardStreet = _inferBoardStreet();
     if (newBoardStreet != boardStreet) {
       boardStreet = newBoardStreet;
-      if (currentStreet > boardStreet) {
-        currentStreet = boardStreet;
-      }
+      currentStreet = boardStreet;
       _playbackManager.updatePlaybackState();
     }
     _updateRevealedBoardCards();
@@ -1425,7 +1430,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _undoAction() {
-    if (_undoStack.isEmpty) return;
+    if (_undoStack.isEmpty) {
+      if (_undoSnapshots.isEmpty) return;
+      setState(() {
+        final snap = _undoSnapshots.removeLast();
+        _redoSnapshots.add(_currentSnapshot());
+        _applySnapshot(snap);
+      });
+      _debugPanelSetState?.call(() {});
+      return;
+    }
     setState(() {
       final op = _undoStack.removeLast();
       final snap =
@@ -1454,7 +1468,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _redoAction() {
-    if (_redoStack.isEmpty) return;
+    if (_redoStack.isEmpty) {
+      if (_redoSnapshots.isEmpty) return;
+      setState(() {
+        final snap = _redoSnapshots.removeLast();
+        _undoSnapshots.add(_currentSnapshot());
+        _applySnapshot(snap);
+      });
+      _debugPanelSetState?.call(() {});
+      return;
+    }
     setState(() {
       final op = _redoStack.removeLast();
       final snap =
