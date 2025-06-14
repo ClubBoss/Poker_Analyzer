@@ -4135,17 +4135,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       });
                     },
                   ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: TextButton(
-                      onPressed: () => setState(
-                          () => isPerspectiveSwitched = !isPerspectiveSwitched),
-                      child: const Text(
-                        '👁 Смотреть от лица',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                  _PerspectiveSwitchButton(
+                    isPerspectiveSwitched: isPerspectiveSwitched,
+                    onToggle: () => setState(
+                        () => isPerspectiveSwitched = !isPerspectiveSwitched),
                   ),
                   _HudOverlaySection(
                     streetName:
@@ -5084,6 +5077,31 @@ class _HudOverlaySection extends StatelessWidget {
         potText: potText,
         stackText: stackText,
         sprText: sprText,
+      ),
+    );
+  }
+}
+
+class _PerspectiveSwitchButton extends StatelessWidget {
+  final bool isPerspectiveSwitched;
+  final VoidCallback onToggle;
+
+  const _PerspectiveSwitchButton({
+    required this.isPerspectiveSwitched,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 8,
+      right: 8,
+      child: TextButton(
+        onPressed: onToggle,
+        child: const Text(
+          '👁 Смотреть от лица',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
