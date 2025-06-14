@@ -931,179 +931,38 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> _editPlayerInfo(int index) async {
-    final stackController =
-        TextEditingController(text: (_initialStacks[index] ?? 0).toString());
-    PlayerType type = playerTypes[index] ?? PlayerType.unknown;
-    bool isHeroSelected = index == heroIndex;
-    CardModel? card1 =
-        playerCards[index].isNotEmpty ? playerCards[index][0] : null;
-    CardModel? card2 =
-        playerCards[index].length > 1 ? playerCards[index][1] : null;
     final disableCards = index != heroIndex;
 
-    const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-    const suits = ['♠', '♥', '♦', '♣'];
-
-    final confirmed = await showDialog<bool>(
+    await showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: Colors.grey[900],
-            title: const Text('Edit Player', style: TextStyle(color: Colors.white)),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: stackController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Stack',
-                      labelStyle: const TextStyle(color: Colors.white70),
-                      filled: true,
-                      fillColor: Colors.white10,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    value: type.name,
-                    dropdownColor: Colors.grey[900],
-                    decoration: const InputDecoration(
-                      labelText: 'Type',
-                      labelStyle: TextStyle(color: Colors.white70),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 'standard', child: Text('standard')),
-                      DropdownMenuItem(value: 'nit', child: Text('nit')),
-                      DropdownMenuItem(value: 'fish', child: Text('fish')),
-                      DropdownMenuItem(value: 'maniac', child: Text('maniac')),
-                      DropdownMenuItem(value: 'shark', child: Text('shark')),
-                      DropdownMenuItem(value: 'station', child: Text('station')),
-                    ],
-                    onChanged: (v) => setState(() =>
-                        type = PlayerType.values.firstWhere(
-                          (e) => e.name == v,
-                          orElse: () => PlayerType.unknown,
-                        )),
-                  ),
-                  const SizedBox(height: 12),
-                  SwitchListTile(
-                    value: isHeroSelected,
-                    title: const Text('Hero', style: TextStyle(color: Colors.white)),
-                    onChanged: (v) => setState(() => isHeroSelected = v),
-                    activeColor: Colors.orange,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        children: [
-                          DropdownButton<String>(
-                            value: card1?.rank,
-                            hint: const Text('Rank', style: TextStyle(color: Colors.white54)),
-                            dropdownColor: Colors.grey[900],
-                            items: ranks
-                                .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                                .toList(),
-                            onChanged: disableCards
-                                ? null
-                                : (v) => setState(() => card1 = v != null && card1 != null
-                                    ? CardModel(rank: v, suit: card1!.suit)
-                                    : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
-                          ),
-                          DropdownButton<String>(
-                            value: card1?.suit,
-                            hint: const Text('Suit', style: TextStyle(color: Colors.white54)),
-                            dropdownColor: Colors.grey[900],
-                            items: suits
-                                .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                                .toList(),
-                            onChanged: disableCards
-                                ? null
-                                : (v) => setState(() => card1 = v != null && card1 != null
-                                    ? CardModel(rank: card1!.rank, suit: v)
-                                    : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          DropdownButton<String>(
-                            value: card2?.rank,
-                            hint: const Text('Rank', style: TextStyle(color: Colors.white54)),
-                            dropdownColor: Colors.grey[900],
-                            items: ranks
-                                .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                                .toList(),
-                            onChanged: disableCards
-                                ? null
-                                : (v) => setState(() => card2 = v != null && card2 != null
-                                    ? CardModel(rank: v, suit: card2!.suit)
-                                    : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
-                          ),
-                          DropdownButton<String>(
-                            value: card2?.suit,
-                            hint: const Text('Suit', style: TextStyle(color: Colors.white54)),
-                            dropdownColor: Colors.grey[900],
-                            items: suits
-                                .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                                .toList(),
-                            onChanged: disableCards
-                                ? null
-                                : (v) => setState(() => card2 = v != null && card2 != null
-                                    ? CardModel(rank: card2!.rank, suit: v)
-                                    : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('OK'),
-              ),
-            ],
-          );
+      builder: (context) => _PlayerEditorSection(
+        initialStack: _initialStacks[index] ?? 0,
+        initialType: playerTypes[index] ?? PlayerType.unknown,
+        isHeroSelected: index == heroIndex,
+        card1: playerCards[index].isNotEmpty ? playerCards[index][0] : null,
+        card2: playerCards[index].length > 1 ? playerCards[index][1] : null,
+        disableCards: disableCards,
+        onSave: (stack, type, isHero, c1, c2) {
+          setState(() {
+            _initialStacks[index] = stack;
+            playerTypes[index] = type;
+            if (isHero) {
+              heroIndex = index;
+            } else if (heroIndex == index) {
+              heroIndex = 0;
+            }
+            if (!disableCards) {
+              final cards = <CardModel>[];
+              if (c1 != null) cards.add(c1);
+              if (c2 != null) cards.add(c2);
+              playerCards[index] = cards;
+            }
+            _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+            _updatePlaybackState();
+          });
         },
       ),
     );
-
-    if (confirmed == true) {
-      final int newStack =
-          int.tryParse(stackController.text) ?? _initialStacks[index] ?? 0;
-      setState(() {
-        _initialStacks[index] = newStack;
-        playerTypes[index] = type;
-        if (isHeroSelected) {
-          heroIndex = index;
-        } else if (heroIndex == index) {
-          heroIndex = 0;
-        }
-        if (!disableCards) {
-          final cards = <CardModel>[];
-          if (card1 != null) cards.add(card1!);
-          if (card2 != null) cards.add(card2!);
-          playerCards[index] = cards;
-        }
-        _stackManager = StackManager(Map<int, int>.from(_initialStacks));
-        _updatePlaybackState();
-      });
-    }
   }
 
   @override
@@ -5218,6 +5077,199 @@ class _AnalyzeButtonSection extends StatelessWidget {
     return TextButton(
       onPressed: onAnalyze,
       child: const Text('🔍 Проанализировать'),
+    );
+  }
+}
+
+class _PlayerEditorSection extends StatefulWidget {
+  final int initialStack;
+  final PlayerType initialType;
+  final bool isHeroSelected;
+  final CardModel? card1;
+  final CardModel? card2;
+  final bool disableCards;
+  final void Function(int, PlayerType, bool, CardModel?, CardModel?) onSave;
+
+  const _PlayerEditorSection({
+    required this.initialStack,
+    required this.initialType,
+    required this.isHeroSelected,
+    this.card1,
+    this.card2,
+    this.disableCards = false,
+    required this.onSave,
+  });
+
+  @override
+  State<_PlayerEditorSection> createState() => _PlayerEditorSectionState();
+}
+
+class _PlayerEditorSectionState extends State<_PlayerEditorSection> {
+  late TextEditingController _stackController;
+  late PlayerType _type;
+  late bool _isHero;
+  CardModel? _card1;
+  CardModel? _card2;
+
+  static const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+  static const suits = ['♠', '♥', '♦', '♣'];
+
+  @override
+  void initState() {
+    super.initState();
+    _stackController = TextEditingController(text: widget.initialStack.toString());
+    _type = widget.initialType;
+    _isHero = widget.isHeroSelected;
+    _card1 = widget.card1;
+    _card2 = widget.card2;
+  }
+
+  @override
+  void dispose() {
+    _stackController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.grey[900],
+      title: const Text('Edit Player', style: TextStyle(color: Colors.white)),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _stackController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Stack',
+                labelStyle: const TextStyle(color: Colors.white70),
+                filled: true,
+                fillColor: Colors.white10,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: _type.name,
+              dropdownColor: Colors.grey[900],
+              decoration: const InputDecoration(
+                labelText: 'Type',
+                labelStyle: TextStyle(color: Colors.white70),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'standard', child: Text('standard')),
+                DropdownMenuItem(value: 'nit', child: Text('nit')),
+                DropdownMenuItem(value: 'fish', child: Text('fish')),
+                DropdownMenuItem(value: 'maniac', child: Text('maniac')),
+                DropdownMenuItem(value: 'shark', child: Text('shark')),
+                DropdownMenuItem(value: 'station', child: Text('station')),
+              ],
+              onChanged: (v) {
+                if (v != null) {
+                  setState(() =>
+                      _type = PlayerType.values.firstWhere(
+                        (e) => e.name == v,
+                        orElse: () => PlayerType.unknown,
+                      ));
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              value: _isHero,
+              title: const Text('Hero', style: TextStyle(color: Colors.white)),
+              onChanged: (v) => setState(() => _isHero = v),
+              activeColor: Colors.orange,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    DropdownButton<String>(
+                      value: _card1?.rank,
+                      hint: const Text('Rank', style: TextStyle(color: Colors.white54)),
+                      dropdownColor: Colors.grey[900],
+                      items: ranks
+                          .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                          .toList(),
+                      onChanged: widget.disableCards
+                          ? null
+                          : (v) => setState(() => _card1 = v != null && _card1 != null
+                              ? CardModel(rank: v, suit: _card1!.suit)
+                              : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
+                    ),
+                    DropdownButton<String>(
+                      value: _card1?.suit,
+                      hint: const Text('Suit', style: TextStyle(color: Colors.white54)),
+                      dropdownColor: Colors.grey[900],
+                      items: suits
+                          .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                          .toList(),
+                      onChanged: widget.disableCards
+                          ? null
+                          : (v) => setState(() => _card1 = v != null && _card1 != null
+                              ? CardModel(rank: _card1!.rank, suit: v)
+                              : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    DropdownButton<String>(
+                      value: _card2?.rank,
+                      hint: const Text('Rank', style: TextStyle(color: Colors.white54)),
+                      dropdownColor: Colors.grey[900],
+                      items: ranks
+                          .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                          .toList(),
+                      onChanged: widget.disableCards
+                          ? null
+                          : (v) => setState(() => _card2 = v != null && _card2 != null
+                              ? CardModel(rank: v, suit: _card2!.suit)
+                              : (v != null ? CardModel(rank: v, suit: suits.first) : null)),
+                    ),
+                    DropdownButton<String>(
+                      value: _card2?.suit,
+                      hint: const Text('Suit', style: TextStyle(color: Colors.white54)),
+                      dropdownColor: Colors.grey[900],
+                      items: suits
+                          .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                          .toList(),
+                      onChanged: widget.disableCards
+                          ? null
+                          : (v) => setState(() => _card2 = v != null && _card2 != null
+                              ? CardModel(rank: _card2!.rank, suit: v)
+                              : (v != null ? CardModel(rank: ranks.first, suit: v) : null)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            final stack = int.tryParse(_stackController.text) ?? widget.initialStack;
+            widget.onSave(stack, _type, _isHero, _card1, _card2);
+            Navigator.pop(context);
+          },
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }
