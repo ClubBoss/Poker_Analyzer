@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -17,26 +16,17 @@ class EvaluationQueueManager {
   final List<ActionEvaluationRequest> completed = [];
   final List<ActionEvaluationRequest> failed = [];
 
-  Timer? _autoBackupTimer;
-  bool _autoBackupRunning = false;
+  /// Indicates if queue processing is underway.
   bool processing = false;
   bool pauseRequested = false;
   bool cancelRequested = false;
-  bool queueResumed = false;
 
-  static const String _backupsFolder = 'evaluation_backups';
-  static const String _autoBackupsFolder = 'evaluation_autobackups';
   static const String _snapshotsFolder = 'evaluation_snapshots';
-  static const String _exportsFolder = 'evaluation_exports';
-
   static const int _snapshotRetentionLimit = 50;
-  static const int _backupRetentionLimit = 30;
-  static const int _autoBackupRetentionLimit = 50;
 
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
-  static const _queueResumedKey = 'evaluation_queue_resumed';
 
   final DebugPanelPreferences _prefs = DebugPanelPreferences();
   bool snapshotRetentionEnabled = true;
@@ -304,6 +294,6 @@ class EvaluationQueueManager {
   }
 
   Future<void> cleanup() async {
-    _autoBackupTimer?.cancel();
+    // Placeholder for any cleanup logic when disposing the manager.
   }
 }
