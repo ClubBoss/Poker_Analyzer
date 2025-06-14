@@ -4120,20 +4120,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     centerChipController: _centerChipController,
                     actionColor: _actionColor,
                   ),
-                  ActionHistoryOverlay(
+                  _ActionHistorySection(
                     actions: actions,
                     playbackIndex: _playbackIndex,
                     playerPositions: playerPositions,
-                      expandedStreets: _expandedHistoryStreets,
-                      onToggleStreet: (index) {
-                        setState(() {
-                          if (_expandedHistoryStreets.contains(index)) {
-                            _expandedHistoryStreets.remove(index);
-                          } else {
-                            _expandedHistoryStreets.add(index);
-                          }
-                        });
-                      },
+                    expandedStreets: _expandedHistoryStreets,
+                    onToggleStreet: (index) {
+                      setState(() {
+                        if (_expandedHistoryStreets.contains(index)) {
+                          _expandedHistoryStreets.remove(index);
+                        } else {
+                          _expandedHistoryStreets.add(index);
+                        }
+                      });
+                    },
                   ),
                   Positioned(
                     top: 8,
@@ -5007,6 +5007,33 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     }
 
     return Stack(children: items);
+  }
+}
+
+class _ActionHistorySection extends StatelessWidget {
+  final List<ActionEntry> actions;
+  final int playbackIndex;
+  final Map<int, String> playerPositions;
+  final Set<int> expandedStreets;
+  final ValueChanged<int> onToggleStreet;
+
+  const _ActionHistorySection({
+    required this.actions,
+    required this.playbackIndex,
+    required this.playerPositions,
+    required this.expandedStreets,
+    required this.onToggleStreet,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionHistoryOverlay(
+      actions: actions,
+      playbackIndex: playbackIndex,
+      playerPositions: playerPositions,
+      expandedStreets: expandedStreets,
+      onToggleStreet: onToggleStreet,
+    );
   }
 }
 
