@@ -64,6 +64,24 @@ import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
 
+class _AnalyzerStateSnapshot {
+  final List<ActionEntry> actions;
+  final Set<int> foldedPlayers;
+  final Map<int, String?> actionTags;
+  final int playbackIndex;
+  final int currentStreet;
+  final Set<int> expandedHistoryStreets;
+
+  _AnalyzerStateSnapshot({
+    required this.actions,
+    required this.foldedPlayers,
+    required this.actionTags,
+    required this.playbackIndex,
+    required this.currentStreet,
+    required this.expandedHistoryStreets,
+  });
+}
+
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
 
@@ -111,6 +129,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
+
+  final List<_AnalyzerStateSnapshot> _undoStack = [];
+  final List<_AnalyzerStateSnapshot> _redoStack = [];
 
   ActionEntry? _centerChipAction;
   bool _showCenterChip = false;
@@ -439,6 +460,71 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (final a in actions)
           if (a.action == 'fold') a.playerIndex
       });
+  }
+
+  void _pushUndoState() {
+    _undoStack.add(
+      _AnalyzerStateSnapshot(
+        actions: List<ActionEntry>.from(actions),
+        foldedPlayers: Set<int>.from(_foldedPlayers),
+        actionTags: Map<int, String?>.from(_actionTags),
+        playbackIndex: _playbackManager.playbackIndex,
+        currentStreet: currentStreet,
+        expandedHistoryStreets: Set<int>.from(_expandedHistoryStreets),
+      ),
+    );
+    if (_undoStack.length > 100) _undoStack.removeAt(0);
+  }
+
+  void _restoreSnapshot(_AnalyzerStateSnapshot s) {
+    actions
+      ..clear()
+      ..addAll(s.actions);
+    _foldedPlayers
+      ..clear()
+      ..addAll(s.foldedPlayers);
+    _actionTags
+      ..clear()
+      ..addAll(s.actionTags);
+    currentStreet = s.currentStreet;
+    _expandedHistoryStreets
+      ..clear()
+      ..addAll(s.expandedHistoryStreets);
+    _playbackManager.seek(s.playbackIndex);
+    _recomputeFoldedPlayers();
+    _playbackManager.updatePlaybackState();
+  }
+
+  void undo() {
+    if (_undoStack.isEmpty) return;
+    _redoStack.add(
+      _AnalyzerStateSnapshot(
+        actions: List<ActionEntry>.from(actions),
+        foldedPlayers: Set<int>.from(_foldedPlayers),
+        actionTags: Map<int, String?>.from(_actionTags),
+        playbackIndex: _playbackManager.playbackIndex,
+        currentStreet: currentStreet,
+        expandedHistoryStreets: Set<int>.from(_expandedHistoryStreets),
+      ),
+    );
+    final last = _undoStack.removeLast();
+    setState(() => _restoreSnapshot(last));
+  }
+
+  void redo() {
+    if (_redoStack.isEmpty) return;
+    _undoStack.add(
+      _AnalyzerStateSnapshot(
+        actions: List<ActionEntry>.from(actions),
+        foldedPlayers: Set<int>.from(_foldedPlayers),
+        actionTags: Map<int, String?>.from(_actionTags),
+        playbackIndex: _playbackManager.playbackIndex,
+        currentStreet: currentStreet,
+        expandedHistoryStreets: Set<int>.from(_expandedHistoryStreets),
+      ),
+    );
+    final last = _redoStack.removeLast();
+    setState(() => _restoreSnapshot(last));
   }
 
   // Formatting helpers moved to [ActionFormattingHelper].
@@ -1161,7 +1247,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _addAction(ActionEntry entry) {
+    _pushUndoState();
+    if (actions.isNotEmpty) {
+      final last = actions.last;
+      if (last.playerIndex == entry.playerIndex && last.street == entry.street) {
+        actions[actions.length - 1] = entry;
+        _redoStack.clear();
+        _recomputeFoldedPlayers();
+        _actionTags[entry.playerIndex] =
+            '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
+        setPlayerLastAction(
+          players[entry.playerIndex].name,
+          ActionFormattingHelper.formatLastAction(entry),
+          ActionFormattingHelper.actionColor(entry.action),
+          entry.amount,
+        );
+        _triggerCenterChip(entry);
+        _playUnifiedChipAnimation(entry);
+        _recomputeFoldedPlayers();
+        _playbackManager.updatePlaybackState();
+        return;
+      }
+    }
     actions.add(entry);
+    _redoStack.clear();
     if (entry.action == 'fold') {
       _foldedPlayers.add(entry.playerIndex);
     }
@@ -1191,6 +1300,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _updateAction(int index, ActionEntry entry) {
+    _pushUndoState();
+    _redoStack.clear();
     actions[index] = entry;
     _recomputeFoldedPlayers();
     _actionTags[entry.playerIndex] =
@@ -1218,7 +1329,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _deleteAction(int index) {
     setState(() {
+      _pushUndoState();
       final removed = actions.removeAt(index);
+      _redoStack.clear();
       if (_playbackManager.playbackIndex > actions.length) {
         _playbackManager.seek(actions.length);
       }
