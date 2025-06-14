@@ -3865,55 +3865,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
 
-  Widget _buildOpponentCardRow(double scale) {
-    return Positioned.fill(
-      child: Align(
-        alignment: const Alignment(0, -0.8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(2, (i) {
-            final idx = opponentIndex ?? activePlayerIndex;
-            final list = idx != null
-                ? players[idx].revealedCards
-                : List<CardModel?>.filled(2, null);
-            final card = list[i];
-            final isRed = card?.suit == '♥' || card?.suit == '♦';
-            return GestureDetector(
-              onTap: () => _onOpponentCardTap(i),
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 36 * scale,
-                height: 52 * scale,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(card == null ? 0.3 : 1),
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
-                      blurRadius: 3,
-                      offset: const Offset(1, 2),
-                    )
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: card != null
-                    ? Text(
-                        '${card.rank}${card.suit}',
-                        style: TextStyle(
-                          color: isRed ? Colors.red : Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18 * scale,
-                        ),
-                      )
-                    : Image.asset('assets/cards/card_back.png', fit: BoxFit.cover),
-              ),
-            );
-          }),
-        ),
-      ),
-    );
-  }
 
 
   @override
@@ -4006,7 +3957,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     numberOfPlayers: numberOfPlayers,
                     scale: scale,
                     playerPositions: playerPositions,
-                    opponentCardRowBuilder: _buildOpponentCardRow,
+                    opponentCardRow: _OpponentCardRowSection(
+                      scale: scale,
+                      players: players,
+                      activePlayerIndex: activePlayerIndex,
+                      opponentIndex: opponentIndex,
+                      onCardTap: _onOpponentCardTap,
+                    ),
                     playerBuilder: _buildPlayerWidgets,
                     chipTrailBuilder: _buildChipTrail,
                   ),
@@ -4704,7 +4661,7 @@ class _PlayerZonesSection extends StatelessWidget {
   final int numberOfPlayers;
   final double scale;
   final Map<int, String> playerPositions;
-  final Widget Function(double) opponentCardRowBuilder;
+  final Widget opponentCardRow;
   final List<Widget> Function(int, double) playerBuilder;
   final List<Widget> Function(int, double) chipTrailBuilder;
 
@@ -4712,7 +4669,7 @@ class _PlayerZonesSection extends StatelessWidget {
     required this.numberOfPlayers,
     required this.scale,
     required this.playerPositions,
-    required this.opponentCardRowBuilder,
+    required this.opponentCardRow,
     required this.playerBuilder,
     required this.chipTrailBuilder,
   });
@@ -4721,10 +4678,80 @@ class _PlayerZonesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        opponentCardRowBuilder(scale),
+        opponentCardRow,
         for (int i = 0; i < numberOfPlayers; i++) ...playerBuilder(i, scale),
         for (int i = 0; i < numberOfPlayers; i++) ...chipTrailBuilder(i, scale),
       ],
+    );
+  }
+}
+
+class _OpponentCardRowSection extends StatelessWidget {
+  final double scale;
+  final List<PlayerModel> players;
+  final int? activePlayerIndex;
+  final int? opponentIndex;
+  final void Function(int) onCardTap;
+
+  const _OpponentCardRowSection({
+    required this.scale,
+    required this.players,
+    required this.activePlayerIndex,
+    required this.opponentIndex,
+    required this.onCardTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Align(
+        alignment: const Alignment(0, -0.8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(2, (i) {
+            final idx = opponentIndex ?? activePlayerIndex;
+            final list = idx != null
+                ? players[idx].revealedCards
+                : List<CardModel?>.filled(2, null);
+            final card = list[i];
+            final isRed = card?.suit == '♥' || card?.suit == '♦';
+            return GestureDetector(
+              onTap: () => onCardTap(i),
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: 36 * scale,
+                height: 52 * scale,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 3,
+                      offset: const Offset(1, 2),
+                    )
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: card != null
+                    ? Text(
+                        '${card.rank}${card.suit}',
+                        style: TextStyle(
+                          color: isRed ? Colors.red : Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18 * scale,
+                        ),
+                      )
+                    : Image.asset(
+                        'assets/cards/card_back.png',
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            );
+          }),
+        ),
+      ),
     );
   }
 }
