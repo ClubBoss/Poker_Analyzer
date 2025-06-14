@@ -678,6 +678,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<Map<String, dynamic>?> _showActionPicker() {
+    final bool hasBet = _streetHasBet();
+    final bool betEnabled = !hasBet;
+    final bool raiseEnabled = hasBet;
     final TextEditingController controller = TextEditingController();
     String? selected;
     return showModalBottomSheet<Map<String, dynamic>>(
@@ -715,7 +718,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ),
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  onPressed: () => setModal(() => selected = 'bet'),
+                  onPressed: betEnabled
+                      ? () => setModal(() => selected = 'bet')
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black87,
                     foregroundColor: Colors.white,
@@ -724,7 +729,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ),
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  onPressed: () => setModal(() => selected = 'raise'),
+                  onPressed: raiseEnabled
+                      ? () => setModal(() => selected = 'raise')
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black87,
                     foregroundColor: Colors.white,
