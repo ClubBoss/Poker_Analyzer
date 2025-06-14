@@ -2187,6 +2187,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           _actionTags.isEmpty ? null : Map<int, String?>.from(_actionTags),
       pendingEvaluations:
           _pendingEvaluations.isEmpty ? null : List<ActionEvaluationRequest>.from(_pendingEvaluations),
+      playbackIndex: _playbackManager.playbackIndex,
     );
   }
 
@@ -2276,7 +2277,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               i
         ]);
       currentStreet = hand.boardStreet;
-      _playbackManager.seek(hand.actions.length);
+      final seekIndex =
+          hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
+      _playbackManager.seek(seekIndex);
       _playbackManager.animatedPlayersPerStreet.clear();
       _playbackManager.updatePlaybackState();
       _playerManager.updatePositions();
