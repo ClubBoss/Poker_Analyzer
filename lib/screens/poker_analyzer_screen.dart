@@ -2639,7 +2639,36 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           )
         : 0.0;
 
+    // Glow parameters for the active player highlight
+    final double avatarRadius = 55 * scale * infoScale;
+    final double highlightRadius = avatarRadius + 6 * scale;
+
     final widgets = <Widget>[
+      if (isActive)
+        Positioned(
+          left: centerX + dx - highlightRadius,
+          top: centerY + dy + bias - highlightRadius,
+          child: IgnorePointer(
+            child: Container(
+              width: highlightRadius * 2,
+              height: highlightRadius * 2,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.green.withOpacity(0.6),
+                  width: 4 * scale,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.4),
+                    blurRadius: 12 * scale,
+                    spreadRadius: 4 * scale,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       // action arrow behind player widgets
       Positioned(
         left: centerX + dx,
