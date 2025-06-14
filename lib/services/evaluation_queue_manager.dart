@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +13,7 @@ import '../helpers/debug_panel_preferences.dart';
 import '../models/action_evaluation_request.dart';
 import 'snapshot_service.dart';
 import 'retry_evaluation_service.dart';
+import 'evaluation_executor_service.dart';
 
 class EvaluationQueueManager {
   final List<ActionEvaluationRequest> pending = [];
@@ -43,11 +43,17 @@ class EvaluationQueueManager {
   // Cached SharedPreferences instance for quick persistence operations.
   late final SharedPreferences _sharedPrefs;
   late final SnapshotService _snapshotService;
+  late final EvaluationExecutorService _executorService;
   late final RetryEvaluationService _retryService;
   late final Future<void> _initFuture;
 
-  EvaluationQueueManager({RetryEvaluationService? retryService}) {
-    _retryService = retryService ?? RetryEvaluationService();
+  EvaluationQueueManager({
+    EvaluationExecutorService? executorService,
+    RetryEvaluationService? retryService,
+  }) {
+    _executorService = executorService ?? EvaluationExecutorService();
+    _retryService =
+        retryService ?? RetryEvaluationService(executorService: _executorService);
     _initFuture = _initialize();
   }
 
@@ -171,15 +177,8 @@ class EvaluationQueueManager {
     await _persist();
   }
 
-  Future<void> _execute(ActionEvaluationRequest req) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (Random().nextDouble() < 0.2) {
-      throw Exception('Simulated evaluation failure');
-    }
-  }
-
   Future<bool> _processSingleEvaluation(ActionEvaluationRequest req) async {
-    return _retryService.processEvaluation(req, _execute);
+    return _retryService.processEvaluation(req);
   }
 
   Future<void> processQueue() async {

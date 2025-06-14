@@ -1,21 +1,25 @@
 import '../models/action_evaluation_request.dart';
+import 'evaluation_executor_service.dart';
 import 'evaluation_queue_manager.dart';
 
 /// Handles retry operations for evaluation requests.
 class RetryEvaluationService {
-  /// Attempts to execute [executor] for [req] until it succeeds or
-  /// [maxAttempts] is reached. The [req]'s `attempts` field will be updated
-  /// on each failure.
+  final EvaluationExecutorService _executorService;
+
+  RetryEvaluationService({EvaluationExecutorService? executorService})
+      : _executorService = executorService ?? EvaluationExecutorService();
+
+  /// Attempts to execute an evaluation until it succeeds or [maxAttempts] is
+  /// reached. The [req]'s `attempts` field will be updated on each failure.
   Future<bool> processEvaluation(
-    ActionEvaluationRequest req,
-    Future<void> Function(ActionEvaluationRequest) executor, {
+    ActionEvaluationRequest req, {
     int maxAttempts = 3,
     Duration retryDelay = const Duration(milliseconds: 200),
   }) async {
     var success = false;
     while (!success && req.attempts < maxAttempts) {
       try {
-        await executor(req);
+        await _executorService.execute(req);
         success = true;
       } catch (_) {
         req.attempts++;
