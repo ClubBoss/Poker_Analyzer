@@ -4075,35 +4075,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: TextField(
-                        controller: _commentController,
-                        maxLines: 3,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          labelText: 'Комментарий к раздаче',
-                          labelStyle: TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.white12,
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: TextField(
-                        controller: _tagsController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          labelText: 'Теги',
-                          labelStyle: TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.white12,
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
+                    _HandNotesSection(commentController: _commentController, tagsController: _tagsController),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: StreetActionsList(
@@ -5189,6 +5161,53 @@ class _PlaybackAndHandControls extends StatelessWidget {
         TextButton(
           onPressed: onReset,
           child: const Text('Сбросить раздачу'),
+        ),
+      ],
+    );
+  }
+}
+
+class _HandNotesSection extends StatelessWidget {
+  final TextEditingController commentController;
+  final TextEditingController tagsController;
+
+  const _HandNotesSection({
+    required this.commentController,
+    required this.tagsController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: TextField(
+            controller: commentController,
+            maxLines: 3,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              labelText: 'Комментарий к раздаче',
+              labelStyle: TextStyle(color: Colors.white),
+              filled: true,
+              fillColor: Colors.white12,
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: TextField(
+            controller: tagsController,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              labelText: 'Теги',
+              labelStyle: TextStyle(color: Colors.white),
+              filled: true,
+              fillColor: Colors.white12,
+              border: OutlineInputBorder(),
+            ),
+          ),
         ),
       ],
     );
