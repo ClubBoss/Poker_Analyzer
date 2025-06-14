@@ -4147,17 +4147,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       ),
                     ),
                   ),
-                  Align(
-                  alignment: Alignment.topRight,
-                  child: HudOverlay(
-                    streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
+                  _HudOverlaySection(
+                    streetName:
+                        ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
                     potText: _formatAmount(_pots[currentStreet]),
                     stackText: _formatAmount(effectiveStack),
-                sprText: sprValue != null
-                    ? 'SPR: ${sprValue.toStringAsFixed(1)}'
-                    : null,
+                    sprText: sprValue != null
+                        ? 'SPR: ${sprValue.toStringAsFixed(1)}'
+                        : null,
                   ),
-                ),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
@@ -5060,6 +5058,33 @@ class _BoardCardsSection extends StatelessWidget {
       boardCards: boardCards,
       onCardSelected: onCardSelected,
       visibleActions: visibleActions,
+    );
+  }
+}
+
+class _HudOverlaySection extends StatelessWidget {
+  final String streetName;
+  final String potText;
+  final String stackText;
+  final String? sprText;
+
+  const _HudOverlaySection({
+    required this.streetName,
+    required this.potText,
+    required this.stackText,
+    this.sprText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topRight,
+      child: HudOverlay(
+        streetName: streetName,
+        potText: potText,
+        stackText: stackText,
+        sprText: sprText,
+      ),
     );
   }
 }
