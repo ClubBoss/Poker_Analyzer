@@ -3939,13 +3939,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Stack(
                   children: [
-                  Center(
-                    child: Image.asset(
-                      'assets/table.png',
-                      width: tableWidth,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
+                  _TableBackgroundSection(scale: scale),
                   _BoardCardsSection(
                     scale: scale,
                     currentStreet: currentStreet,
@@ -4751,6 +4745,28 @@ class _OpponentCardRowSection extends StatelessWidget {
             );
           }),
         ),
+      ),
+    );
+  }
+}
+
+class _TableBackgroundSection extends StatelessWidget {
+  final double scale;
+
+  const _TableBackgroundSection({
+    required this.scale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final tableWidth = screenSize.width * 0.9;
+
+    return Center(
+      child: Image.asset(
+        'assets/table.png',
+        width: tableWidth,
+        fit: BoxFit.contain,
       ),
     );
   }
