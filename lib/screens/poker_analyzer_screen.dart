@@ -2155,6 +2155,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           [for (final c in _playerManager.players[i].revealedCards) if (c != null) c]
       ],
       opponentIndex: opponentIndex,
+      activePlayerIndex: activePlayerIndex,
       actions: List<ActionEntry>.from(actions),
       stackSizes: Map<int, int>.from(_playerManager.initialStacks),
       remainingStacks: {
@@ -2224,6 +2225,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
       }
       opponentIndex = hand.opponentIndex;
+      activePlayerIndex = hand.activePlayerIndex;
       actions
         ..clear()
         ..addAll(hand.actions);
