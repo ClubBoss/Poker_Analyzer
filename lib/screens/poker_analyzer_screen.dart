@@ -77,6 +77,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int numberOfPlayers = 6;
   final List<List<CardModel>> playerCards = List.generate(10, (_) => []);
   final List<CardModel> boardCards = [];
+  final List<CardModel> revealedBoardCards = [];
   final List<PlayerModel> players =
       List.generate(10, (i) => PlayerModel(name: 'Player ${i + 1}'));
   int? opponentIndex;
@@ -3807,6 +3808,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     scale: scale,
                     currentStreet: currentStreet,
                     boardCards: boardCards,
+                    revealedBoardCards: revealedBoardCards,
                     onCardSelected: selectBoardCard,
                     visibleActions: visibleActions,
                   ),
@@ -4876,6 +4878,7 @@ class _BoardCardsSection extends StatelessWidget {
   final double scale;
   final int currentStreet;
   final List<CardModel> boardCards;
+  final List<CardModel> revealedBoardCards;
   final List<ActionEntry> visibleActions;
   final void Function(int, CardModel) onCardSelected;
 
@@ -4883,6 +4886,7 @@ class _BoardCardsSection extends StatelessWidget {
     required this.scale,
     required this.currentStreet,
     required this.boardCards,
+    required this.revealedBoardCards,
     required this.onCardSelected,
     required this.visibleActions,
   });
@@ -4893,6 +4897,7 @@ class _BoardCardsSection extends StatelessWidget {
       scale: scale,
       currentStreet: currentStreet,
       boardCards: boardCards,
+      revealedBoardCards: revealedBoardCards,
       onCardSelected: onCardSelected,
       visibleActions: visibleActions,
     );

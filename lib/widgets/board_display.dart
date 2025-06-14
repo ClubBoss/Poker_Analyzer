@@ -8,6 +8,7 @@ import 'pot_over_board_widget.dart';
 class BoardDisplay extends StatelessWidget {
   final int currentStreet;
   final List<CardModel> boardCards;
+  final List<CardModel> revealedBoardCards;
   final List<ActionEntry> visibleActions;
   final void Function(int, CardModel) onCardSelected;
   final double scale;
@@ -16,6 +17,7 @@ class BoardDisplay extends StatelessWidget {
     Key? key,
     required this.currentStreet,
     required this.boardCards,
+    required this.revealedBoardCards,
     required this.visibleActions,
     required this.onCardSelected,
     this.scale = 1.0,
@@ -28,7 +30,7 @@ class BoardDisplay extends StatelessWidget {
         BoardCardsWidget(
           scale: scale,
           currentStreet: currentStreet,
-          boardCards: boardCards,
+          boardCards: revealedBoardCards,
           onCardSelected: onCardSelected,
         ),
         PotOverBoardWidget(
