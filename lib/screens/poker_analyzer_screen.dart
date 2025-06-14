@@ -4815,6 +4815,70 @@ class _PerspectiveSwitchButton extends StatelessWidget {
   }
 }
 
+class _PlaybackControlsSection extends StatelessWidget {
+  final bool isPlaying;
+  final int playbackIndex;
+  final int actionCount;
+  final VoidCallback onPlay;
+  final VoidCallback onPause;
+  final VoidCallback onStepBackward;
+  final VoidCallback onStepForward;
+  final ValueChanged<double> onSeek;
+  final VoidCallback onReset;
+
+  const _PlaybackControlsSection({
+    required this.isPlaying,
+    required this.playbackIndex,
+    required this.actionCount,
+    required this.onPlay,
+    required this.onPause,
+    required this.onStepBackward,
+    required this.onStepForward,
+    required this.onSeek,
+    required this.onReset,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.skip_previous, color: Colors.white),
+              onPressed: onStepBackward,
+            ),
+            IconButton(
+              icon: Icon(
+                isPlaying ? Icons.pause : Icons.play_arrow,
+                color: Colors.white,
+              ),
+              onPressed: isPlaying ? onPause : onPlay,
+            ),
+            IconButton(
+              icon: const Icon(Icons.skip_next, color: Colors.white),
+              onPressed: onStepForward,
+            ),
+            Expanded(
+              child: Slider(
+                value: playbackIndex.toDouble(),
+                min: 0,
+                max: actionCount > 0 ? actionCount.toDouble() : 1,
+                onChanged: onSeek,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+          onPressed: onReset,
+          child: const Text('Сбросить раздачу'),
+        ),
+      ],
+    );
+  }
+}
+
 class _PlaybackAndHandControls extends StatelessWidget {
   final bool isPlaying;
   final int playbackIndex;
@@ -4859,21 +4923,6 @@ class _PlaybackAndHandControls extends StatelessWidget {
         Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.skip_previous, color: Colors.white),
-              onPressed: onStepBackward,
-            ),
-            IconButton(
-              icon: Icon(
-                isPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.white,
-              ),
-              onPressed: isPlaying ? onPause : onPlay,
-            ),
-            IconButton(
-              icon: const Icon(Icons.skip_next, color: Colors.white),
-              onPressed: onStepForward,
-            ),
-            IconButton(
               icon: const Icon(Icons.save, color: Colors.white),
               onPressed: onSave,
             ),
@@ -4901,20 +4950,19 @@ class _PlaybackAndHandControls extends StatelessWidget {
               icon: const Icon(Icons.file_download, color: Colors.white),
               onPressed: onImportAll,
             ),
-            Expanded(
-              child: Slider(
-                value: playbackIndex.toDouble(),
-                min: 0,
-                max: actionCount > 0 ? actionCount.toDouble() : 1,
-                onChanged: onSeek,
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 10),
-        TextButton(
-          onPressed: onReset,
-          child: const Text('Сбросить раздачу'),
+        _PlaybackControlsSection(
+          isPlaying: isPlaying,
+          playbackIndex: playbackIndex,
+          actionCount: actionCount,
+          onPlay: onPlay,
+          onPause: onPause,
+          onStepBackward: onStepBackward,
+          onStepForward: onStepForward,
+          onSeek: onSeek,
+          onReset: onReset,
         ),
       ],
     );
