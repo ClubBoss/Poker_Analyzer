@@ -2150,6 +2150,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           List<CardModel>.from(_playerManager.playerCards[i])
       ],
       boardCards: List<CardModel>.from(_playerManager.boardCards),
+      boardStreet: currentStreet,
       revealedCards: [
         for (int i = 0; i < _playerManager.numberOfPlayers; i++)
           [for (final c in _playerManager.players[i].revealedCards) if (c != null) c]
@@ -2272,7 +2273,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 !hand.collapsedHistoryStreets!.contains(i))
               i
         ]);
-      currentStreet = 0;
+      currentStreet = hand.boardStreet;
       _playbackManager.seek(hand.actions.length);
       _playbackManager.animatedPlayersPerStreet.clear();
       _playbackManager.updatePlaybackState();

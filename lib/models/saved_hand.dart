@@ -14,6 +14,8 @@ class SavedHand {
   final List<List<CardModel>> revealedCards;
   final int? opponentIndex;
   final List<ActionEntry> actions;
+  /// Street the board was showing when the hand was saved.
+  final int boardStreet;
   final Map<int, int> stackSizes;
   final Map<int, int>? remainingStacks;
   final Map<int, String> playerPositions;
@@ -44,6 +46,7 @@ class SavedHand {
     required this.numberOfPlayers,
     required this.playerCards,
     required this.boardCards,
+    required this.boardStreet,
     List<List<CardModel>>? revealedCards,
     this.opponentIndex,
     required this.actions,
@@ -78,6 +81,7 @@ class SavedHand {
     int? numberOfPlayers,
     List<List<CardModel>>? playerCards,
     List<CardModel>? boardCards,
+    int? boardStreet,
     List<List<CardModel>>? revealedCards,
     int? opponentIndex,
     List<ActionEntry>? actions,
@@ -109,6 +113,7 @@ class SavedHand {
       playerCards: playerCards ??
           [for (final list in this.playerCards) List<CardModel>.from(list)],
       boardCards: boardCards ?? List<CardModel>.from(this.boardCards),
+      boardStreet: boardStreet ?? this.boardStreet,
       revealedCards: revealedCards ??
           [for (final list in this.revealedCards) List<CardModel>.from(list)],
       opponentIndex: opponentIndex ?? this.opponentIndex,
@@ -177,6 +182,7 @@ class SavedHand {
           for (final list in revealedCards)
             [for (final c in list) {'rank': c.rank, 'suit': c.suit}]
         ],
+        'boardStreet': boardStreet,
         if (opponentIndex != null) 'opponentIndex': opponentIndex,
         'actions': [
           for (final a in actions)
@@ -239,6 +245,7 @@ class SavedHand {
             CardModel(rank: c['rank'] as String, suit: c['suit'] as String)
         ]
     ];
+    final boardStreet = json['boardStreet'] as int? ?? 0;
     final oppIndex = json['opponentIndex'] as int?;
     final acts = [
       for (final a in (json['actions'] as List? ?? []))
@@ -334,6 +341,7 @@ class SavedHand {
       numberOfPlayers: json['numberOfPlayers'] as int? ?? 6,
       playerCards: pc,
       boardCards: board,
+      boardStreet: boardStreet,
       revealedCards: rc,
       opponentIndex: oppIndex,
       actions: acts,
