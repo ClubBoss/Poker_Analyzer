@@ -41,6 +41,10 @@ class SavedHand {
   final List<ActionEvaluationRequest>? pendingEvaluations;
   /// Index in the action list used when the hand was last viewed.
   final int playbackIndex;
+  /// States saved for undo operations.
+  final List<SavedHand>? undoStack;
+  /// States saved for redo operations.
+  final List<SavedHand>? redoStack;
 
   SavedHand({
     required this.name,
@@ -74,6 +78,8 @@ class SavedHand {
     this.actionTags,
     this.pendingEvaluations,
     this.playbackIndex = 0,
+    this.undoStack,
+    this.redoStack,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
@@ -111,6 +117,8 @@ class SavedHand {
     Map<int, String?>? actionTags,
     List<ActionEvaluationRequest>? pendingEvaluations,
     int? playbackIndex,
+    List<SavedHand>? undoStack,
+    List<SavedHand>? redoStack,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -174,10 +182,18 @@ class SavedHand {
                         )
                     ]),
       playbackIndex: playbackIndex ?? this.playbackIndex,
+      undoStack: undoStack ??
+          (this.undoStack == null
+              ? null
+              : [for (final h in this.undoStack!) h.copyWith(undoStack: null, redoStack: null)]),
+      redoStack: redoStack ??
+          (this.redoStack == null
+              ? null
+              : [for (final h in this.redoStack!) h.copyWith(undoStack: null, redoStack: null)]),
     );
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({bool includeHistory = true}) => {
         'name': name,
         'heroIndex': heroIndex,
         'heroPosition': heroPosition,
@@ -235,6 +251,10 @@ class SavedHand {
         if (pendingEvaluations != null)
           'pendingEvaluations': [for (final e in pendingEvaluations!) e.toJson()],
         'playbackIndex': playbackIndex,
+        if (includeHistory && undoStack != null)
+          'undoStack': [for (final h in undoStack!) h.toJson(includeHistory: false)],
+        if (includeHistory && redoStack != null)
+          'redoStack': [for (final h in redoStack!) h.toJson(includeHistory: false)],
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -330,6 +350,20 @@ class SavedHand {
               Map<String, dynamic>.from(e as Map))
       ];
     }
+    List<SavedHand>? undoStack;
+    if (json['undoStack'] != null) {
+      undoStack = [
+        for (final h in (json['undoStack'] as List))
+          SavedHand.fromJson(Map<String, dynamic>.from(h as Map))
+      ];
+    }
+    List<SavedHand>? redoStack;
+    if (json['redoStack'] != null) {
+      redoStack = [
+        for (final h in (json['redoStack'] as List))
+          SavedHand.fromJson(Map<String, dynamic>.from(h as Map))
+      ];
+    }
     final playbackIndex = json['playbackIndex'] as int? ?? 0;
     final commentCursor = json['commentCursor'] as int?;
     final tagsCursor = json['tagsCursor'] as int?;
@@ -379,6 +413,8 @@ class SavedHand {
       actionTags: aTags,
       pendingEvaluations: pending,
       playbackIndex: playbackIndex,
+      undoStack: undoStack,
+      redoStack: redoStack,
     );
   }
 }

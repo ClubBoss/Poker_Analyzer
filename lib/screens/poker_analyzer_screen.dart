@@ -112,6 +112,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
 
+  final List<SavedHand> _undoStack = [];
+  final List<SavedHand> _redoStack = [];
+
   ActionEntry? _centerChipAction;
   bool _showCenterChip = false;
   Timer? _centerChipTimer;
@@ -1181,6 +1184,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void onActionSelected(ActionEntry entry) {
     setState(() {
+      _pushUndoSnapshot();
       _addAutoFolds(entry);
       _addAction(entry);
       if (entry.action == 'fold') {
@@ -1208,6 +1212,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _editAction(int index, ActionEntry entry) {
     setState(() {
+      _pushUndoSnapshot();
       _updateAction(index, entry);
       if (entry.action == 'fold') {
         _removeFutureActionsForPlayer(entry.playerIndex, entry.street, index);
@@ -1218,6 +1223,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _deleteAction(int index) {
     setState(() {
+      _pushUndoSnapshot();
       final removed = actions.removeAt(index);
       if (_playbackManager.playbackIndex > actions.length) {
         _playbackManager.seek(actions.length);
@@ -1233,6 +1239,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _recomputeFoldedPlayers();
       _playbackManager.updatePlaybackState();
     });
+  }
+
+  void _pushUndoSnapshot() {
+    _undoStack.add(_currentSavedHand(includeHistory: false));
+    _redoStack.clear();
+    if (_undoStack.length > 100) {
+      _undoStack.removeAt(0);
+    }
+  }
+
+  void _undo() {
+    if (_undoStack.isEmpty) return;
+    final last = _undoStack.removeLast();
+    _redoStack.add(_currentSavedHand(includeHistory: false));
+    _applySavedHand(last, applyHistory: false);
+  }
+
+  void _redo() {
+    if (_redoStack.isEmpty) return;
+    final next = _redoStack.removeLast();
+    _undoStack.add(_currentSavedHand(includeHistory: false));
+    _applySavedHand(next, applyHistory: false);
   }
 
   Future<void> _removeLastPlayerAction(int playerIndex) async {
@@ -1351,6 +1379,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playerManager.reset();
         actions.clear();
         _foldedPlayers.clear();
+        _undoStack.clear();
+        _redoStack.clear();
         currentStreet = 0;
         _actionTags.clear();
         _playbackManager.animatedPlayersPerStreet.clear();
@@ -2133,7 +2163,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
 
-  SavedHand _currentSavedHand({String? name}) {
+  SavedHand _currentSavedHand({String? name, bool includeHistory = true}) {
     final stacks =
         _stackService.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
     final collapsed = [
@@ -2188,6 +2218,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       pendingEvaluations:
           _pendingEvaluations.isEmpty ? null : List<ActionEvaluationRequest>.from(_pendingEvaluations),
       playbackIndex: _playbackManager.playbackIndex,
+      undoStack: includeHistory
+          ? [for (final h in _undoStack) h.copyWith(undoStack: null, redoStack: null)]
+          : null,
+      redoStack: includeHistory
+          ? [for (final h in _redoStack) h.copyWith(undoStack: null, redoStack: null)]
+          : null,
     );
   }
 
@@ -2202,7 +2238,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _applySavedHand(hand);
   }
 
-  void _applySavedHand(SavedHand hand) {
+  void _applySavedHand(SavedHand hand, {bool applyHistory = true}) {
     setState(() {
       _currentHandName = hand.name;
       _playerManager.heroIndex = hand.heroIndex;
@@ -2264,6 +2300,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _pendingEvaluations
         ..clear()
         ..addAll(hand.pendingEvaluations ?? []);
+      if (applyHistory && hand.undoStack != null) {
+        _undoStack
+          ..clear()
+          ..addAll(hand.undoStack!);
+      }
+      if (applyHistory && hand.redoStack != null) {
+        _redoStack
+          ..clear()
+          ..addAll(hand.redoStack!);
+      }
       _foldedPlayers
         ..clear()
         ..addAll(hand.foldedPlayers ??
@@ -5491,6 +5537,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
         _dialogBtn('Export Auto-Backups', s._exportAutoBackups),
         _dialogBtn('Export Snapshots', s._exportSnapshots),
         _dialogBtn('Export All Snapshots', s._exportAllEvaluationSnapshots),
+        _dialogBtn('Undo', s._undoStack.isEmpty ? null : s._undo),
+        _dialogBtn('Redo', s._redoStack.isEmpty ? null : s._redo),
         _dialogBtn('Close', () => Navigator.pop(context)),
         _dialogBtn('Clear Evaluation Queue', s._clearEvaluationQueue),
         _dialogBtn('Reset Debug Panel Settings', s._resetDebugPanelPreferences),
