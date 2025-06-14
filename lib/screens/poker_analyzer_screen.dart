@@ -64,6 +64,17 @@ import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
 
+enum _ActionChangeType { add, edit, delete }
+
+class _ActionHistoryEntry {
+  final _ActionChangeType type;
+  final int index;
+  final ActionEntry? oldEntry;
+  final ActionEntry? newEntry;
+
+  _ActionHistoryEntry(this.type, this.index,{this.oldEntry,this.newEntry});
+}
+
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
 
@@ -108,6 +119,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
   final Set<int> _foldedPlayers = {};
+  final List<_ActionHistoryEntry> _undoStack = [];
+  final List<_ActionHistoryEntry> _redoStack = [];
 
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
@@ -1160,8 +1173,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  void _addAction(ActionEntry entry) {
-    actions.add(entry);
+  void _addAction(ActionEntry entry,
+      {int? index, bool recordHistory = true}) {
+    final insertIndex = index ?? actions.length;
+    if (index != null) {
+      actions.insert(index, entry);
+    } else {
+      actions.add(entry);
+    }
+    if (recordHistory) {
+      _undoStack
+          .add(_ActionHistoryEntry(_ActionChangeType.add, insertIndex, newEntry: entry));
+      _redoStack.clear();
+    }
     if (entry.action == 'fold') {
       _foldedPlayers.add(entry.playerIndex);
     }
@@ -1173,9 +1197,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ActionFormattingHelper.actionColor(entry.action),
       entry.amount,
     );
-    _triggerCenterChip(entry);
-    _playUnifiedChipAnimation(entry);
+    if (recordHistory) {
+      _triggerCenterChip(entry);
+      _playUnifiedChipAnimation(entry);
+    }
     _recomputeFoldedPlayers();
+    if (_playbackManager.playbackIndex > actions.length) {
+      _playbackManager.seek(actions.length);
+    }
     _playbackManager.updatePlaybackState();
   }
 
@@ -1190,8 +1219,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void _updateAction(int index, ActionEntry entry) {
+  void _updateAction(int index, ActionEntry entry,
+      {bool recordHistory = true}) {
+    final previous = actions[index];
     actions[index] = entry;
+    if (recordHistory) {
+      _undoStack.add(_ActionHistoryEntry(_ActionChangeType.edit, index,
+          oldEntry: previous, newEntry: entry));
+      _redoStack.clear();
+    }
     _recomputeFoldedPlayers();
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
@@ -1201,8 +1237,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ActionFormattingHelper.actionColor(entry.action),
       entry.amount,
     );
-    _triggerCenterChip(entry);
-    _playUnifiedChipAnimation(entry);
+    if (recordHistory) {
+      _triggerCenterChip(entry);
+      _playUnifiedChipAnimation(entry);
+    }
     _playbackManager.updatePlaybackState();
   }
 
@@ -1216,9 +1254,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
 
-  void _deleteAction(int index) {
-    setState(() {
+  void _deleteAction(int index,
+      {bool recordHistory = true, bool withSetState = true}) {
+    void perform() {
       final removed = actions.removeAt(index);
+      if (recordHistory) {
+        _undoStack.add(
+            _ActionHistoryEntry(_ActionChangeType.delete, index, oldEntry: removed));
+        _redoStack.clear();
+      }
       if (_playbackManager.playbackIndex > actions.length) {
         _playbackManager.seek(actions.length);
       }
@@ -1232,7 +1276,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       _recomputeFoldedPlayers();
       _playbackManager.updatePlaybackState();
-    });
+    }
+
+    if (withSetState) {
+      setState(perform);
+    } else {
+      perform();
+    }
   }
 
   Future<void> _removeLastPlayerAction(int playerIndex) async {
@@ -1256,8 +1306,50 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     if (confirm == true) {
-      _deleteAction(actionIndex);
+      setState(() {
+        _deleteAction(actionIndex, withSetState: false);
+      });
     }
+  }
+
+  void _undoAction() {
+    if (_undoStack.isEmpty) return;
+    setState(() {
+      final op = _undoStack.removeLast();
+      switch (op.type) {
+        case _ActionChangeType.add:
+          _deleteAction(op.index, recordHistory: false, withSetState: false);
+          break;
+        case _ActionChangeType.edit:
+          _updateAction(op.index, op.oldEntry!, recordHistory: false);
+          break;
+        case _ActionChangeType.delete:
+          _addAction(op.oldEntry!, index: op.index, recordHistory: false);
+          break;
+      }
+      _redoStack.add(op);
+    });
+    _debugPanelSetState?.call(() {});
+  }
+
+  void _redoAction() {
+    if (_redoStack.isEmpty) return;
+    setState(() {
+      final op = _redoStack.removeLast();
+      switch (op.type) {
+        case _ActionChangeType.add:
+          _addAction(op.newEntry!, index: op.index, recordHistory: false);
+          break;
+        case _ActionChangeType.edit:
+          _updateAction(op.index, op.newEntry!, recordHistory: false);
+          break;
+        case _ActionChangeType.delete:
+          _deleteAction(op.index, recordHistory: false, withSetState: false);
+          break;
+      }
+      _undoStack.add(op);
+    });
+    _debugPanelSetState?.call(() {});
   }
 
   Future<void> _removePlayer(int index) async {
@@ -5491,6 +5583,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
         _dialogBtn('Export Auto-Backups', s._exportAutoBackups),
         _dialogBtn('Export Snapshots', s._exportSnapshots),
         _dialogBtn('Export All Snapshots', s._exportAllEvaluationSnapshots),
+        _dialogBtn('Undo', s._undoAction),
+        _dialogBtn('Redo', s._redoAction),
         _dialogBtn('Close', () => Navigator.pop(context)),
         _dialogBtn('Clear Evaluation Queue', s._clearEvaluationQueue),
         _dialogBtn('Reset Debug Panel Settings', s._resetDebugPanelPreferences),
