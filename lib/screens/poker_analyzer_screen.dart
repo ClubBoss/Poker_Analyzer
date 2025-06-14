@@ -4041,67 +4041,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.skip_previous, color: Colors.white),
-                    onPressed: _stepBackward,
-                  ),
-                  IconButton(
-                    icon: Icon(
-                        _isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.white),
-                    onPressed: _isPlaying ? _pausePlayback : _startPlayback,
-                  ),
-                IconButton(
-                    icon: const Icon(Icons.skip_next, color: Colors.white),
-                    onPressed: _stepForward,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.save, color: Colors.white),
-                    onPressed: () => saveCurrentHand(),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.folder_open, color: Colors.white),
-                    onPressed: loadLastSavedHand,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.list, color: Colors.white),
-                    onPressed: () => loadHandByName(),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.upload, color: Colors.white),
-                    onPressed: exportLastSavedHand,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.file_upload, color: Colors.white),
-                    onPressed: exportAllHands,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.download, color: Colors.white),
-                    onPressed: importHandFromClipboard,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.file_download, color: Colors.white),
-                    onPressed: importAllHandsFromClipboard,
-                  ),
-                  Expanded(
-                    child: Slider(
-                      value: _playbackIndex.toDouble(),
-                      min: 0,
-                      max: actions.isNotEmpty
-                          ? actions.length.toDouble()
-                          : 1,
-                      onChanged: (v) {
-                        _pausePlayback();
-                        setState(() {
-                          _playbackIndex = v.round();
-                        });
-                        _updatePlaybackState();
-                      },
-                    ),
-                  ),
-                ],
+              child: _PlaybackAndHandControls(
+                isPlaying: _isPlaying,
+                playbackIndex: _playbackIndex,
+                actionCount: actions.length,
+                onPlay: _startPlayback,
+                onPause: _pausePlayback,
+                onStepBackward: _stepBackward,
+                onStepForward: _stepForward,
+                onSeek: (v) {
+                  _pausePlayback();
+                  setState(() {
+                    _playbackIndex = v.round();
+                  });
+                  _updatePlaybackState();
+                },
+                onSave: () => saveCurrentHand(),
+                onLoadLast: loadLastSavedHand,
+                onLoadByName: () => loadHandByName(),
+                onExportLast: exportLastSavedHand,
+                onExportAll: exportAllHands,
+                onImport: importHandFromClipboard,
+                onImportAll: importAllHandsFromClipboard,
+                onReset: _resetHand,
               ),
             ),
             CollapsibleActionHistory(
@@ -4160,11 +4122,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     TextButton(
                       onPressed: () {},
                       child: const Text('🔍 Проанализировать'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: _resetHand,
-                      child: const Text('Сбросить раздачу'),
                     ),
                   ],
                 ),
@@ -5128,6 +5085,112 @@ class _PerspectiveSwitchButton extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
       ),
+    );
+  }
+}
+
+class _PlaybackAndHandControls extends StatelessWidget {
+  final bool isPlaying;
+  final int playbackIndex;
+  final int actionCount;
+  final VoidCallback onPlay;
+  final VoidCallback onPause;
+  final VoidCallback onStepBackward;
+  final VoidCallback onStepForward;
+  final ValueChanged<double> onSeek;
+  final VoidCallback onSave;
+  final VoidCallback onLoadLast;
+  final VoidCallback onLoadByName;
+  final VoidCallback onExportLast;
+  final VoidCallback onExportAll;
+  final VoidCallback onImport;
+  final VoidCallback onImportAll;
+  final VoidCallback onReset;
+
+  const _PlaybackAndHandControls({
+    required this.isPlaying,
+    required this.playbackIndex,
+    required this.actionCount,
+    required this.onPlay,
+    required this.onPause,
+    required this.onStepBackward,
+    required this.onStepForward,
+    required this.onSeek,
+    required this.onSave,
+    required this.onLoadLast,
+    required this.onLoadByName,
+    required this.onExportLast,
+    required this.onExportAll,
+    required this.onImport,
+    required this.onImportAll,
+    required this.onReset,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.skip_previous, color: Colors.white),
+              onPressed: onStepBackward,
+            ),
+            IconButton(
+              icon: Icon(
+                isPlaying ? Icons.pause : Icons.play_arrow,
+                color: Colors.white,
+              ),
+              onPressed: isPlaying ? onPause : onPlay,
+            ),
+            IconButton(
+              icon: const Icon(Icons.skip_next, color: Colors.white),
+              onPressed: onStepForward,
+            ),
+            IconButton(
+              icon: const Icon(Icons.save, color: Colors.white),
+              onPressed: onSave,
+            ),
+            IconButton(
+              icon: const Icon(Icons.folder_open, color: Colors.white),
+              onPressed: onLoadLast,
+            ),
+            IconButton(
+              icon: const Icon(Icons.list, color: Colors.white),
+              onPressed: onLoadByName,
+            ),
+            IconButton(
+              icon: const Icon(Icons.upload, color: Colors.white),
+              onPressed: onExportLast,
+            ),
+            IconButton(
+              icon: const Icon(Icons.file_upload, color: Colors.white),
+              onPressed: onExportAll,
+            ),
+            IconButton(
+              icon: const Icon(Icons.download, color: Colors.white),
+              onPressed: onImport,
+            ),
+            IconButton(
+              icon: const Icon(Icons.file_download, color: Colors.white),
+              onPressed: onImportAll,
+            ),
+            Expanded(
+              child: Slider(
+                value: playbackIndex.toDouble(),
+                min: 0,
+                max: actionCount > 0 ? actionCount.toDouble() : 1,
+                onChanged: onSeek,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+          onPressed: onReset,
+          child: const Text('Сбросить раздачу'),
+        ),
+      ],
     );
   }
 }
