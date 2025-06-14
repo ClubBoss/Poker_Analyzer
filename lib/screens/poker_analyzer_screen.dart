@@ -27,6 +27,7 @@ import '../widgets/action_history_expansion_tile.dart';
 import 'package:provider/provider.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../theme/constants.dart';
+import '../theme/app_colors.dart';
 import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
 import '../widgets/player_info_widget.dart';
@@ -116,6 +117,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late AnimationController _centerChipController;
   bool _showAllRevealedCards = false;
   bool isPerspectiveSwitched = false;
+  String? _currentHandName;
 
 
   /// Handles evaluation queue state and processing.
@@ -1171,6 +1173,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playbackManager.resetHand();
         _commentController.clear();
         _tagsController.clear();
+        _currentHandName = null;
       });
     }
   }
@@ -2003,6 +2006,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _applySavedHand(SavedHand hand) {
     setState(() {
+      _currentHandName = hand.name;
       _playerManager.heroIndex = hand.heroIndex;
       _playerManager.heroPosition = hand.heroPosition;
       _playerManager.numberOfPlayers = hand.numberOfPlayers;
@@ -2162,6 +2166,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackManager.resetHand();
       _playbackManager.updatePlaybackState();
       _playerManager.updatePositions();
+      _currentHandName = null;
     });
   }
 
@@ -2192,6 +2197,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _addQualityTags();
     final hand = _currentSavedHand(name: handName);
     await _handManager.add(hand);
+    setState(() => _currentHandName = handName);
   }
 
   void loadLastSavedHand() {
@@ -2283,6 +2289,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
           child: Column(
             children: [
+            _HandHeaderSection(
+              handName: _currentHandName ?? 'New Hand',
+              playerCount: numberOfPlayers,
+              streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
+              onEdit: loadHandByName,
+            ),
             _PlayerCountSelector(
               numberOfPlayers: numberOfPlayers,
               playerPositions: playerPositions,
@@ -3744,6 +3756,64 @@ class _StreetActionsSection extends StatelessWidget {
         onDelete: onDelete,
         visibleCount: visibleCount,
         evaluateActionQuality: evaluateActionQuality,
+      ),
+    );
+  }
+}
+
+class _HandHeaderSection extends StatelessWidget {
+  final String handName;
+  final int playerCount;
+  final String streetName;
+  final VoidCallback onEdit;
+
+  const _HandHeaderSection({
+    required this.handName,
+    required this.playerCount,
+    required this.streetName,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppConstants.padding16),
+      child: Card(
+        color: AppColors.cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.radius8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      handName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${playerCount} players • $streetName',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: onEdit,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
