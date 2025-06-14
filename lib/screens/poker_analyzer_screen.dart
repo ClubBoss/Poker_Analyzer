@@ -54,7 +54,7 @@ import '../widgets/action_timeline_widget.dart';
 import '../models/street_investments.dart';
 import '../helpers/pot_calculator.dart';
 import '../widgets/chip_moving_widget.dart';
-import '../helpers/stack_manager.dart';
+import '../services/stack_manager_service.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
@@ -100,8 +100,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     8: 105,
     9: 100,
   };
-  final Map<int, int> stackSizes = {};
-  late StackManager _stackManager;
+  late StackManagerService _stackService;
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
   Set<String> get allTags =>
@@ -917,7 +916,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               if (c2 != null) cards.add(c2);
               playerCards[index] = cards;
             }
-            _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+            _stackService =
+                StackManagerService(Map<int, int>.from(_initialStacks));
             _updatePlaybackState();
           });
         },
@@ -933,8 +933,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _stackManager = StackManager(Map<int, int>.from(_initialStacks));
-    stackSizes.addAll(_stackManager.currentStacks);
+    _stackService = StackManagerService(Map<int, int>.from(_initialStacks));
     playerPositions = Map.fromIterables(
       List.generate(numberOfPlayers, (i) => i),
       getPositionList(numberOfPlayers),
@@ -1068,63 +1067,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  int _calculateEffectiveStack({List<ActionEntry>? fromActions}) {
-    final list = fromActions ?? actions;
-    int? minStack;
-    for (final entry in stackSizes.entries) {
-      final index = entry.key;
-      final folded = list.any((a) =>
-          a.playerIndex == index && a.action == 'fold' && a.street <= currentStreet);
-      if (folded) continue;
-      final stack = entry.value;
-      if (minStack == null || stack < minStack) {
-        minStack = stack;
-      }
-    }
-    return minStack ?? 0;
-  }
 
-  /// Calculates the effective stack size at the end of [street].
-  ///
-  /// For each active player their initial stack is reduced by the total
-  /// amount invested up to and including the given [street]. Folded players
-  /// (before or on this street) are ignored. The smallest remaining stack
-  /// among all active players is returned.
-  int _calculateEffectiveStackForStreet(int street) {
-    final visibleActions = actions.take(_playbackIndex).toList();
-    int? minStack;
-    for (int index = 0; index < numberOfPlayers; index++) {
-      final folded = visibleActions.any((a) =>
-          a.playerIndex == index && a.action == 'fold' && a.street <= street);
-      if (folded) continue;
-
-      final initial = _initialStacks[index] ?? 0;
-      int invested = 0;
-      for (int s = 0; s <= street; s++) {
-        invested += _stackManager.getInvestmentForStreet(index, s);
-      }
-      final remaining = initial - invested;
-
-      if (minStack == null || remaining < minStack) {
-        minStack = remaining;
-      }
-    }
-    return minStack ?? 0;
-  }
-
-  /// Calculates the effective stack size for every street and returns a map
-  /// with human-readable street names as keys.
-  ///
-  /// This helper does not update any UI and can be used for exporting data or
-  /// further analytics.
-  Map<String, int> calculateEffectiveStacksPerStreet() {
-    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
-    final Map<String, int> stacks = {};
-    for (int street = 0; street < streetNames.length; street++) {
-      stacks[streetNames[street]] = _calculateEffectiveStackForStreet(street);
-    }
-    return stacks;
-  }
 
 
   void _updatePlaybackState() {
@@ -1132,10 +1075,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_playbackIndex == 0) {
       _animatedPlayersPerStreet.clear();
     }
-    _stackManager.applyActions(subset);
-    stackSizes
-      ..clear()
-      ..addAll(_stackManager.currentStacks);
+    _stackService.applyActions(subset);
     _updatePots(fromActions: subset);
     lastActionPlayerIndex =
         subset.isNotEmpty ? subset.last.playerIndex : null;
@@ -1673,7 +1613,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (_playbackIndex > actions.length) {
         _playbackIndex = actions.length;
       }
-      _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+      _stackService = StackManagerService(Map<int, int>.from(_initialStacks));
       _updatePlaybackState();
     });
   }
@@ -1713,7 +1653,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _animatedPlayersPerStreet.clear();
         lastActionPlayerIndex = null;
         _playbackIndex = 0;
-        _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+        _stackService = StackManagerService(Map<int, int>.from(_initialStacks));
         _updatePlaybackState();
         playerTypes.clear();
         for (int i = 0; i < _showActionHints.length; i++) {
@@ -2849,13 +2789,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   SavedHand _currentSavedHand({String? name}) {
-    final stacks = calculateEffectiveStacksPerStreet();
+    final stacks =
+        _stackService.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
     Map<String, String>? notes;
     if (_savedEffectiveStacks != null) {
       const names = ['Preflop', 'Flop', 'Turn', 'River'];
       notes = {};
       for (int s = 0; s < names.length; s++) {
-        final live = _calculateEffectiveStackForStreet(s);
+        final live = _stackService.calculateEffectiveStackForStreet(
+            s, actions, numberOfPlayers);
         final exported = _savedEffectiveStacks![names[s]];
         if (exported != live) {
           notes![names[s]] = 'live $live vs saved ${exported ?? 'N/A'}';
@@ -2886,7 +2828,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       stackSizes: Map<int, int>.from(_initialStacks),
       remainingStacks: {
         for (int i = 0; i < numberOfPlayers; i++)
-          i: _stackManager.getStackForPlayer(i)
+          i: _stackService.getStackForPlayer(i)
       },
       playerPositions: Map<int, String>.from(playerPositions),
       playerTypes: Map<int, PlayerType>.from(playerTypes),
@@ -2953,13 +2895,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _initialStacks
         ..clear()
         ..addAll(hand.stackSizes);
-      _stackManager = StackManager(
+      _stackService = StackManagerService(
         Map<int, int>.from(_initialStacks),
         remainingStacks: hand.remainingStacks,
       );
-      stackSizes
-        ..clear()
-        ..addAll(_stackManager.currentStacks);
       playerPositions
         ..clear()
         ..addAll(hand.playerPositions);
@@ -3582,8 +3521,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
-    final effectiveStack = _calculateEffectiveStack(fromActions: visibleActions);
-    final currentStreetEffectiveStack = _calculateEffectiveStackForStreet(currentStreet);
+    final effectiveStack =
+        _stackService.calculateEffectiveStack(currentStreet, visibleActions);
+    final currentStreetEffectiveStack = _stackService
+        .calculateEffectiveStackForStreet(currentStreet, visibleActions, numberOfPlayers);
     final pot = _pots[currentStreet];
     final double? sprValue =
         pot > 0 ? effectiveStack / pot : null;
@@ -3709,7 +3650,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             street: i,
             actions: savedActions,
             pots: _pots,
-            stackSizes: stackSizes,
+            stackSizes: _stackService.stackSizes,
             playerPositions: playerPositions,
             onEdit: _editAction,
             onDelete: _deleteAction,
@@ -3723,7 +3664,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actions: visibleActions,
       playerPositions: playerPositions,
       pots: _pots,
-      stackSizes: stackSizes,
+      stackSizes: _stackService.stackSizes,
       onEdit: _editAction,
       onDelete: _deleteAction,
       visibleCount: _playbackIndex,
@@ -3798,7 +3739,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 currentStreet: currentStreet,
                 actions: actions,
                 pots: _pots,
-                stackSizes: stackSizes,
+                stackSizes: _stackService.stackSizes,
                 onEdit: _editAction,
                 onDelete: _deleteAction,
                 visibleCount: _playbackIndex,
@@ -3893,7 +3834,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = _verticalBiasFromAngle(angle) * scale;
 
     final String position = playerPositions[index] ?? '';
-    final int stack = stackSizes[index] ?? 0;
+    final int stack = _stackService.stackSizes[index] ?? 0;
     final String tag = _actionTags[index] ?? '';
     final bool isActive = activePlayerIndex == index;
     final bool isFolded = visibleActions.any((a) =>
@@ -3925,7 +3866,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final int currentBet = lastAmountAction?.amount ?? 0;
 
     final invested =
-        _stackManager.getInvestmentForStreet(index, currentStreet);
+        _stackService.getInvestmentForStreet(index, currentStreet);
 
     final Color? actionColor =
         (lastAction?.action == 'bet' || lastAction?.action == 'raise')
@@ -3998,7 +3939,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     .whereType<CardModel>()
                     .toList()
                 : playerCards[index],
-            remainingStack: _stackManager.getStackForPlayer(index),
+            remainingStack: _stackService.getStackForPlayer(index),
             streetInvestment: invested,
             currentBet: currentBet,
             lastAction: lastAction?.action,
@@ -4026,7 +3967,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             onEdit: () => _editPlayerInfo(index),
             onStackTap: (value) => setState(() {
               _initialStacks[index] = value;
-              _stackManager = StackManager(Map<int, int>.from(_initialStacks));
+              _stackService =
+                  StackManagerService(Map<int, int>.from(_initialStacks));
               _updatePlaybackState();
             }),
             onRemove: numberOfPlayers > 2 ? () {
@@ -4208,7 +4150,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     final invested =
-        _stackManager.getInvestmentForStreet(index, currentStreet);
+        _stackService.getInvestmentForStreet(index, currentStreet);
 
     final Color? actionColor =
         (lastAction?.action == 'bet' || lastAction?.action == 'raise')
@@ -5969,8 +5911,8 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
     final _PokerAnalyzerScreenState s = state.s;
     final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
     final hudPotText = s._formatAmount(s._pots[s.currentStreet]);
-    final int hudEffStack =
-        s._calculateEffectiveStackForStreet(s.currentStreet);
+    final int hudEffStack = s._stackService.calculateEffectiveStackForStreet(
+        s.currentStreet, s.actions, s.numberOfPlayers);
     final double? hudSprValue = s._pots[s.currentStreet] > 0
         ? hudEffStack / s._pots[s.currentStreet]
         : null;
@@ -6254,8 +6196,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
               debugDiag(
                 'Player ${i + 1}',
                 'Initial ${s._initialStacks[i] ?? 0}, '
-                'Invested ${s._stackManager.getTotalInvested(i)}, '
-                'Remaining ${s._stackManager.getStackForPlayer(i)}',
+                'Invested ${s._stackService.getTotalInvested(i)}, '
+                'Remaining ${s._stackService.getStackForPlayer(i)}',
               ),
             _vGap,
             if (hand.remainingStacks != null) ...[
@@ -6335,7 +6277,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
                   'Turn',
                   'River',
                 ][street],
-                s._calculateEffectiveStackForStreet(street),
+                s._stackService.calculateEffectiveStackForStreet(
+                    street, s.actions, s.numberOfPlayers),
               ),
             _vGap,
             const Text('Effective Stacks (from export data):'),
@@ -6351,7 +6294,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
                 () {
                   const names = ['Preflop', 'Flop', 'Turn', 'River'];
                   final name = names[st];
-                  final live = s._calculateEffectiveStackForStreet(st);
+                  final live = s._stackService.calculateEffectiveStackForStreet(
+                      st, s.actions, s.numberOfPlayers);
                   final exported = s._savedEffectiveStacks![name];
                   final ok = exported == live;
                   return debugDiag(
@@ -6393,7 +6337,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             for (int i = 0; i < s.numberOfPlayers; i++) ...[
               debugDiag(
                 'Player $i StackManager',
-                'current ${s._stackManager.getStackForPlayer(i)}, invested ${s._stackManager.getTotalInvested(i)}',
+                'current ${s._stackService.getStackForPlayer(i)}, invested ${s._stackService.getTotalInvested(i)}',
               ),
               _vGap,
             ],
