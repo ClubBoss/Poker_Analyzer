@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:synchronized/synchronized.dart';
+import 'package:uuid/uuid.dart';
 
 import '../helpers/debug_panel_preferences.dart';
 import '../models/action_evaluation_request.dart';
@@ -16,6 +18,8 @@ class EvaluationQueueManager {
   final List<ActionEvaluationRequest> pending = [];
   final List<ActionEvaluationRequest> completed = [];
   final List<ActionEvaluationRequest> failed = [];
+
+  final Lock _queueLock = Lock();
 
   /// Indicates if queue processing is underway.
   bool processing = false;
@@ -158,21 +162,27 @@ class EvaluationQueueManager {
     throw const FormatException();
   }
 
-  Map<String, dynamic> _state() => {
-        'pending': [for (final e in pending) e.toJson()],
-        'failed': [for (final e in failed) e.toJson()],
-        'completed': [for (final e in completed) e.toJson()],
-      };
+  Future<Map<String, dynamic>> _state() async {
+    final pendingJson = await _queueLock
+        .synchronized(() => [for (final e in pending) e.toJson()]);
+    return {
+      'pending': pendingJson,
+      'failed': [for (final e in failed) e.toJson()],
+      'completed': [for (final e in completed) e.toJson()],
+    };
+  }
 
   /// Persist queue state to disk and preferences using cached resources.
   Future<void> _persist() async {
     try {
       await _initFuture;
       final file = File('$_documentsDirPath/evaluation_current_queue.json');
-      await _writeJson(file, _state());
+      final state = await _state();
+      await _writeJson(file, state);
 
-      await _sharedPrefs.setStringList(_pendingOrderKey,
-          [for (final e in pending) _queueEntryId(e)]);
+      final pendingIds = await _queueLock
+          .synchronized(() => [for (final e in pending) _queueEntryId(e)]);
+      await _sharedPrefs.setStringList(_pendingOrderKey, pendingIds);
       await _sharedPrefs.setStringList(_failedOrderKey,
           [for (final e in failed) _queueEntryId(e)]);
       await _sharedPrefs.setStringList(_completedOrderKey,
@@ -185,7 +195,7 @@ class EvaluationQueueManager {
   }
 
   Future<void> addToQueue(ActionEvaluationRequest req) async {
-    pending.add(req);
+    await _queueLock.synchronized(() => pending.add(req));
     await _persist();
   }
 
@@ -197,14 +207,15 @@ class EvaluationQueueManager {
   }
 
   Future<void> processQueue() async {
-    if (processing || pending.isEmpty) return;
+    if (processing ||
+        await _queueLock.synchronized(() => pending.isEmpty)) return;
     processing = true;
-    while (pending.isNotEmpty) {
+    while (await _queueLock.synchronized(() => pending.isNotEmpty)) {
       if (pauseRequested || cancelRequested) break;
-      final req = pending.first;
+      final req = await _queueLock.synchronized(() => pending.first);
       await Future.delayed(Duration(milliseconds: processingDelay));
       if (cancelRequested) break;
-      if (pending.isEmpty) break;
+      if (await _queueLock.synchronized(() => pending.isEmpty)) break;
       var success = false;
       while (!success && req.attempts < 3) {
         try {
@@ -217,7 +228,11 @@ class EvaluationQueueManager {
           }
         }
       }
-      pending.removeAt(0);
+      await _queueLock.synchronized(() {
+        if (pending.isNotEmpty) {
+          pending.removeAt(0);
+        }
+      });
       (success ? completed : failed).add(req);
       if (success) {
         await saveQueueSnapshot(showNotification: false);
@@ -238,9 +253,11 @@ class EvaluationQueueManager {
       if (data == null || data.text == null) return;
       final decoded = jsonDecode(data.text!);
       final queues = _decodeQueues(decoded);
-      pending
-        ..clear()
-        ..addAll(queues['pending']!);
+      await _queueLock.synchronized(() {
+        pending
+          ..clear()
+          ..addAll(queues['pending']!);
+      });
       failed
         ..clear()
         ..addAll(queues['failed']!);
@@ -257,7 +274,7 @@ class EvaluationQueueManager {
 
   /// Copy the current evaluation queue state to the clipboard as JSON.
   Future<void> exportToClipboard() async {
-    final jsonStr = jsonEncode(_state());
+    final jsonStr = jsonEncode(await _state());
     await Clipboard.setData(ClipboardData(text: jsonStr));
   }
 
@@ -266,7 +283,7 @@ class EvaluationQueueManager {
       final dir = await _getDir(_snapshotsFolder);
       final fileName = 'snapshot_${_timestamp()}.json';
       final file = File('${dir.path}/$fileName');
-      await _writeJson(file, _state());
+      await _writeJson(file, await _state());
       if (snapshotRetentionEnabled) {
         await _cleanupOldFiles(_snapshotsFolder, _snapshotRetentionLimit);
       }
@@ -293,9 +310,11 @@ class EvaluationQueueManager {
       files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
       final decoded = await _readJson(files.first);
       final queues = _decodeQueues(decoded);
-      pending
-        ..clear()
-        ..addAll(queues['pending']!);
+      await _queueLock.synchronized(() {
+        pending
+          ..clear()
+          ..addAll(queues['pending']!);
+      });
       failed
         ..clear()
         ..addAll(queues['failed']!);
