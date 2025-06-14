@@ -2574,14 +2574,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         return;
       }
 
-      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      final entries = await Future.wait(files.map((f) async {
+        try {
+          final stat = await f.stat();
+          return MapEntry(f, stat.modified);
+        } catch (_) {
+          return null;
+        }
+      }));
+      final sortedEntries =
+          entries.whereType<MapEntry<File, DateTime>>().toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
+      final sortedFiles = [for (final e in sortedEntries) e.key];
 
       final selected = await showDialog<File>(
         context: context,
         builder: (context) => SimpleDialog(
           title: const Text('Select Backup'),
           children: [
-            for (final f in files)
+            for (final f in sortedFiles)
               SimpleDialogOption(
                 onPressed: () => Navigator.pop(context, f),
                 child: Text(f.uri.pathSegments.last),
