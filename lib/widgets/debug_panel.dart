@@ -70,6 +70,8 @@ class _QueueTools extends StatelessWidget {
       'Import Full Queue State': s._importFullEvaluationQueueState,
       'Restore Full Queue State': s._restoreFullEvaluationQueueState,
       'Export Full Queue State': s._exportFullEvaluationQueueState,
+      'Export Queue To Clipboard': s._exportQueueToClipboard,
+      'Import Queue From Clipboard': s._importQueueFromClipboard,
       'Export Current Queue Snapshot': s._exportEvaluationQueueSnapshot,
       'Quick Backup': s._quickBackupEvaluationQueue,
       'Import Quick Backups': s._importQuickBackups,
@@ -848,6 +850,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
       actions: [
         _dialogBtn('Export Evaluation Queue', s._exportEvaluationQueue),
         _dialogBtn('Export Full Queue State', s._exportFullEvaluationQueueState),
+        _dialogBtn('Export Queue To Clipboard', s._exportQueueToClipboard),
+        _dialogBtn('Import Queue From Clipboard', s._importQueueFromClipboard),
         _dialogBtn('Backup Evaluation Queue', s._backupEvaluationQueue),
         _dialogBtn('Export All Backups', s._exportAllEvaluationBackups),
         _dialogBtn('Export Auto-Backups', s._exportAutoBackups),
