@@ -3863,45 +3863,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return Stack(children: chips);
   }
 
-  Widget _buildBetStacksOverlay(double scale) {
-    final screenSize = MediaQuery.of(context).size;
-    final tableWidth = screenSize.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    final List<Widget> chips = [];
-    for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + _viewIndex()) % numberOfPlayers;
-      final invested = actions
-          .where((a) =>
-              a.playerIndex == index &&
-              a.street == currentStreet &&
-              (a.action == 'call' || a.action == 'bet' || a.action == 'raise') &&
-              a.amount != null)
-          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
-      if (invested > 0) {
-        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias = _verticalBiasFromAngle(angle) * scale;
-
-        final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-        final pos = Offset.lerp(start, Offset(centerX, centerY), 0.15)!;
-
-        final chipScale = scale * 0.8;
-        chips.add(Positioned(
-          left: pos.dx - 8 * chipScale,
-          top: pos.dy - 8 * chipScale,
-          child: BetStackChips(amount: invested, scale: chipScale),
-        ));
-      }
-    }
-    return Stack(children: chips);
-  }
 
 
   Widget _buildOpponentCardRow(double scale) {
@@ -4049,7 +4010,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     playerBuilder: _buildPlayerWidgets,
                     chipTrailBuilder: _buildChipTrail,
                   ),
-                  _buildBetStacksOverlay(scale),
+                  _BetStacksOverlaySection(
+                    scale: scale,
+                    state: this,
+                  ),
                   _InvestedChipsOverlaySection(
                     scale: scale,
                     state: this,
@@ -4939,6 +4903,57 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     }
 
     return Stack(children: items);
+  }
+}
+
+class _BetStacksOverlaySection extends StatelessWidget {
+  final double scale;
+  final _PokerAnalyzerScreenState state;
+
+  const _BetStacksOverlaySection({
+    required this.scale,
+    required this.state,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(state.context).size;
+    final tableWidth = screenSize.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screenSize.width / 2 + 10;
+    final centerY = screenSize.height / 2 - state._centerYOffset(scale);
+    final radiusMod = state._radiusModifier();
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    final List<Widget> chips = [];
+    for (int i = 0; i < state.numberOfPlayers; i++) {
+      final index = (i + state._viewIndex()) % state.numberOfPlayers;
+      final invested = state.actions
+          .where((a) =>
+              a.playerIndex == index &&
+              a.street == state.currentStreet &&
+              (a.action == 'call' || a.action == 'bet' || a.action == 'raise') &&
+              a.amount != null)
+          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
+      if (invested > 0) {
+        final angle = 2 * pi * i / state.numberOfPlayers + pi / 2;
+        final dx = radiusX * cos(angle);
+        final dy = radiusY * sin(angle);
+        final bias = state._verticalBiasFromAngle(angle) * scale;
+
+        final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+        final pos = Offset.lerp(start, Offset(centerX, centerY), 0.15)!;
+
+        final chipScale = scale * 0.8;
+        chips.add(Positioned(
+          left: pos.dx - 8 * chipScale,
+          top: pos.dy - 8 * chipScale,
+          child: BetStackChips(amount: invested, scale: chipScale),
+        ));
+      }
+    }
+    return Stack(children: chips);
   }
 }
 
