@@ -677,7 +677,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       result = ClipRect(
         child: ColorFiltered(
           colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-          child: Opacity(opacity: 0.6, child: result),
+          child: Opacity(opacity: 0.4, child: result),
         ),
       );
     }

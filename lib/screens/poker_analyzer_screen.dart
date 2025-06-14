@@ -107,6 +107,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int? activePlayerIndex;
   Timer? _activeTimer;
   final Map<int, String?> _actionTags = {};
+  final Set<int> _foldedPlayers = {};
 
   bool debugLayout = false;
   final Set<int> _expandedHistoryStreets = {};
@@ -429,6 +430,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     overlay.insert(overlayEntry);
+  }
+
+  void _recomputeFoldedPlayers() {
+    _foldedPlayers
+      ..clear()
+      ..addAll({
+        for (final a in actions)
+          if (a.action == 'fold') a.playerIndex
+      });
   }
 
   // Formatting helpers moved to [ActionFormattingHelper].
@@ -1116,6 +1126,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _addAction(ActionEntry entry) {
     actions.add(entry);
+    if (entry.action == 'fold') {
+      _foldedPlayers.add(entry.playerIndex);
+    }
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     setPlayerLastAction(
@@ -1126,6 +1139,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     _triggerCenterChip(entry);
     _playUnifiedChipAnimation(entry);
+    _recomputeFoldedPlayers();
     _playbackManager.updatePlaybackState();
   }
 
@@ -1138,6 +1152,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _updateAction(int index, ActionEntry entry) {
     actions[index] = entry;
+    _recomputeFoldedPlayers();
     _actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     setPlayerLastAction(
@@ -1172,6 +1187,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       } catch (_) {
         _actionTags.remove(removed.playerIndex);
       }
+      _recomputeFoldedPlayers();
       _playbackManager.updatePlaybackState();
     });
   }
@@ -1291,6 +1307,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       setState(() {
         _playerManager.reset();
         actions.clear();
+        _foldedPlayers.clear();
         currentStreet = 0;
         _actionTags.clear();
         _playbackManager.animatedPlayersPerStreet.clear();
@@ -2195,6 +2212,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackManager.animatedPlayersPerStreet.clear();
       _playbackManager.updatePlaybackState();
       _playerManager.updatePositions();
+      _recomputeFoldedPlayers();
     });
     _queueService.persist();
   }
@@ -2284,6 +2302,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actions
         ..clear()
         ..addAll(newActions);
+
+      _recomputeFoldedPlayers();
 
       playerPositions
         ..clear()
@@ -2721,10 +2741,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final int stack = _stackService.stackSizes[index] ?? 0;
     final String tag = _actionTags[index] ?? '';
     final bool isActive = activePlayerIndex == index;
-    final bool isFolded = visibleActions.any((a) =>
-        a.playerIndex == index &&
-        a.action == 'fold' &&
-        a.street <= currentStreet);
+    final bool isFolded = _foldedPlayers.contains(index);
 
     ActionEntry? lastAction;
     for (final a in visibleActions.reversed) {
