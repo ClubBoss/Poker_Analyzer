@@ -3826,43 +3826,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     super.dispose();
   }
 
-  Widget _buildBetChipsOverlay(double scale) {
-    final screenSize = MediaQuery.of(context).size;
-    final tableWidth = screenSize.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    final List<Widget> chips = [];
-    for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + _viewIndex()) % numberOfPlayers;
-      final playerActions = actions
-          .where((a) => a.playerIndex == index && a.street == currentStreet)
-          .toList();
-      if (playerActions.isEmpty) continue;
-      final lastAction = playerActions.last;
-      if (['bet', 'raise', 'call'].contains(lastAction.action) &&
-          lastAction.amount != null) {
-        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias = _verticalBiasFromAngle(angle) * scale;
-        chips.add(Positioned(
-          left: centerX + dx - 10 * scale,
-          top: centerY + dy + bias - 80 * scale,
-          child: ChipWidget(
-            amount: lastAction.amount!,
-            scale: 0.8 * scale,
-          ),
-        ));
-      }
-    }
-    return Stack(children: chips);
-  }
-
 
 
 
