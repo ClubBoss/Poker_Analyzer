@@ -400,7 +400,12 @@ class PlayerInfoWidget extends StatelessWidget {
 
 
     if (isFolded) {
-      result = Opacity(opacity: 0.5, child: result);
+      result = ClipRect(
+        child: ColorFiltered(
+          colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+          child: Opacity(opacity: 0.4, child: result),
+        ),
+      );
     }
 
     if (onEdit != null || onLongPress != null) {
