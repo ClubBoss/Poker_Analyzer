@@ -13,6 +13,7 @@ import 'package:archive/archive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/debug_panel_preferences.dart';
 import '../services/evaluation_queue_manager.dart';
+import '../services/debug_preferences_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../models/card_model.dart';
@@ -229,19 +230,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Number of automatic queue backups to retain.
   static const int _autoBackupRetentionLimit = 50;
   final DebugPanelPreferences _prefs = DebugPanelPreferences();
-  bool _snapshotRetentionEnabled = true;
-
-  int _evaluationProcessingDelay = 500;
+  final DebugPreferencesService _debugPrefs = DebugPreferencesService();
 
   Set<String> _queueFilters = {'pending'};
   /// Active advanced debug filters for evaluation queue display.
   Set<String> _advancedFilters = {};
 
-  /// Whether to sort evaluation lists by SPR when displayed in the debug panel.
-  bool _sortBySpr = false;
-
-  /// Current search query for filtering evaluation queues in the debug panel.
-  String _searchQuery = '';
+  /// Evaluation processing delay, snapshot retention and other debug
+  /// preferences are managed by [_debugPrefs].
 
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
@@ -249,26 +245,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _queueResumedKey = 'evaluation_queue_resumed';
 
   Future<void> _loadSnapshotRetentionPreference() async {
-    final value = await _prefs.getSnapshotRetentionEnabled();
-    if (mounted) {
-      setState(() {
-        _snapshotRetentionEnabled = value;
-      });
-    } else {
-      _snapshotRetentionEnabled = value;
-    }
-    if (_snapshotRetentionEnabled) {
+    await _debugPrefs.loadSnapshotRetentionPreference();
+    if (mounted) setState(() {});
+    if (_debugPrefs.snapshotRetentionEnabled) {
       await _cleanupOldEvaluationSnapshots();
     }
   }
 
   Future<void> _setSnapshotRetentionEnabled(bool value) async {
-    await _prefs.setSnapshotRetentionEnabled(value);
-    if (mounted) {
-      setState(() => _snapshotRetentionEnabled = value);
-    } else {
-      _snapshotRetentionEnabled = value;
-    }
+    await _debugPrefs.setSnapshotRetentionEnabled(value);
+    if (mounted) setState(() {});
     if (value) {
       await _cleanupOldEvaluationSnapshots();
     }
@@ -276,23 +262,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _loadProcessingDelayPreference() async {
-    final value = await _prefs.getProcessingDelay();
-    if (mounted) {
-      setState(() {
-        _evaluationProcessingDelay = value;
-      });
-    } else {
-      _evaluationProcessingDelay = value;
-    }
+    await _debugPrefs.loadProcessingDelayPreference();
+    if (mounted) setState(() {});
   }
 
   Future<void> _setProcessingDelay(int value) async {
-    await _prefs.setProcessingDelay(value);
-    if (mounted) {
-      setState(() => _evaluationProcessingDelay = value);
-    } else {
-      _evaluationProcessingDelay = value;
-    }
+    await _debugPrefs.setProcessingDelay(value);
+    if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
 
@@ -357,45 +333,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _loadSearchQueryPreference() async {
-    final value = await _prefs.getSearchQuery();
-    if (mounted) {
-      setState(() => _searchQuery = value);
-    } else {
-      _searchQuery = value;
-    }
+    await _debugPrefs.loadSearchQueryPreference();
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadSortBySprPreference() async {
-    final value = await _prefs.getSortBySpr();
-    if (mounted) {
-      setState(() => _sortBySpr = value);
-    } else {
-      _sortBySpr = value;
-    }
+    await _debugPrefs.loadSortBySprPreference();
+    if (mounted) setState(() {});
   }
 
   void _setSortBySpr(bool value) {
-    _prefs.setSortBySpr(value);
-    if (mounted) {
-      setState(() => _sortBySpr = value);
-    } else {
-      _sortBySpr = value;
-    }
+    _debugPrefs.setSortBySpr(value);
+    if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
 
   void _setSearchQuery(String value) {
-    _prefs.setSearchQuery(value);
-    if (mounted) {
-      setState(() => _searchQuery = value);
-    } else {
-      _searchQuery = value;
-    }
+    _debugPrefs.setSearchQuery(value);
+    if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _resetDebugPanelPreferences() async {
-    await _prefs.clearAll();
+    await _debugPrefs.clearAll();
     await _loadSnapshotRetentionPreference();
     await _loadProcessingDelayPreference();
     await _loadQueueFilterPreference();
@@ -408,8 +368,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   List<ActionEvaluationRequest> _applyAdvancedFilters(
       List<ActionEvaluationRequest> list) {
     final filters = _advancedFilters;
-    final sort = _sortBySpr;
-    final search = _searchQuery.trim().toLowerCase();
+    final sort = _debugPrefs.sortBySpr;
+    final search = _debugPrefs.searchQuery.trim().toLowerCase();
     if (filters.isEmpty && !sort && search.isEmpty) return list;
 
     final checkFeedback = filters.contains('feedback');
@@ -607,7 +567,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
     final filtered = _applyAdvancedFilters(queue);
     return debugQueueSection(label, filtered,
-        _advancedFilters.isEmpty && !_sortBySpr && _searchQuery.isEmpty
+        _advancedFilters.isEmpty && !_debugPrefs.sortBySpr &&
+            _debugPrefs.searchQuery.isEmpty
             ? (oldIndex, newIndex) {
                 if (newIndex > oldIndex) newIndex -= 1;
                 setState(() {
@@ -2073,7 +2034,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final fileName = 'snapshot_${_timestamp()}.json';
       final file = File('${snapDir.path}/$fileName');
       await _writeJsonFile(file, _currentQueueState());
-      if (_snapshotRetentionEnabled) {
+      if (_debugPrefs.snapshotRetentionEnabled) {
         await _cleanupOldEvaluationSnapshots();
       }
       if (showNotification && mounted) {
@@ -5664,7 +5625,7 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
   void initState() {
     super.initState();
     s._debugPanelSetState = setState;
-    _searchController.text = s._searchQuery;
+    _searchController.text = s._debugPrefs.searchQuery;
   }
 
   @override
@@ -5779,7 +5740,7 @@ class _SnapshotControls extends StatelessWidget {
       children: [
         const Expanded(child: Text('Enable Snapshot Retention Policy')),
         Switch(
-          value: s._snapshotRetentionEnabled,
+          value: s._debugPrefs.snapshotRetentionEnabled,
           onChanged: s._setSnapshotRetentionEnabled,
           activeColor: Colors.orange,
         ),
@@ -5792,7 +5753,7 @@ class _SnapshotControls extends StatelessWidget {
       children: [
         const Expanded(child: Text('Sort by SPR')),
         Switch(
-          value: s._sortBySpr,
+          value: s._debugPrefs.sortBySpr,
           onChanged: s._setSortBySpr,
           activeColor: Colors.orange,
         ),
@@ -6465,18 +6426,18 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
                 _hGap,
                 Expanded(
                   child: Slider(
-                    value: s._evaluationProcessingDelay.toDouble(),
+                    value: s._debugPrefs.processingDelay.toDouble(),
                     min: 100,
                     max: 2000,
                     divisions: 19,
-                    label: '${s._evaluationProcessingDelay} ms',
+                    label: '${s._debugPrefs.processingDelay} ms',
                     onChanged: (v) {
                       s._setProcessingDelay(v.round());
                     },
                   ),
                 ),
                 _hGap,
-                debugDiag('Delay', '${s._evaluationProcessingDelay} ms'),
+                debugDiag('Delay', '${s._debugPrefs.processingDelay} ms'),
               ],
             ),
             _vGap,
