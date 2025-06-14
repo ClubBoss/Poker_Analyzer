@@ -5,7 +5,6 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
@@ -13,6 +12,7 @@ import 'package:uuid/uuid.dart';
 
 import '../helpers/debug_panel_preferences.dart';
 import '../models/action_evaluation_request.dart';
+import 'snapshot_service.dart';
 
 class EvaluationQueueManager {
   final List<ActionEvaluationRequest> pending = [];
@@ -26,7 +26,6 @@ class EvaluationQueueManager {
   bool pauseRequested = false;
   bool cancelRequested = false;
 
-  static const String _snapshotsFolder = 'evaluation_snapshots';
   static const int _snapshotRetentionLimit = 50;
 
   static const _pendingOrderKey = 'pending_queue_order';
@@ -42,6 +41,7 @@ class EvaluationQueueManager {
 
   // Cached SharedPreferences instance for quick persistence operations.
   late final SharedPreferences _sharedPrefs;
+  late final SnapshotService _snapshotService;
   late final Future<void> _initFuture;
 
   EvaluationQueueManager() {
@@ -53,15 +53,8 @@ class EvaluationQueueManager {
     processingDelay = await _prefs.getProcessingDelay();
     _documentsDirPath = (await getApplicationDocumentsDirectory()).path;
     _sharedPrefs = await SharedPreferences.getInstance();
-  }
-
-  Future<Directory> _getDir(String subfolder) async {
-    await _initFuture;
-    final target = Directory('$_documentsDirPath/$subfolder');
-    try {
-      await target.create(recursive: true);
-    } catch (_) {}
-    return target;
+    _snapshotService =
+        SnapshotService(_documentsDirPath, _snapshotRetentionLimit);
   }
 
   Future<void> _writeJson(File file, Object data) async {
@@ -83,41 +76,6 @@ class EvaluationQueueManager {
         debugPrint('Failed to read ${file.path}: $e');
       }
       return null;
-    }
-  }
-
-  String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
-
-  Future<void> _cleanupOldFiles(String subfolder, int limit) async {
-    try {
-      final dir = await _getDir(subfolder);
-      final entries = <MapEntry<File, DateTime>>[];
-      await for (final entity in dir.list()) {
-        if (entity is File && entity.path.endsWith('.json')) {
-          try {
-            final stat = await entity.stat();
-            entries.add(MapEntry(entity, stat.modified));
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint('Failed to stat ${entity.path}: $e');
-            }
-          }
-        }
-      }
-      entries.sort((a, b) => b.value.compareTo(a.value));
-      for (final entry in entries.skip(limit)) {
-        try {
-          await entry.key.delete();
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint('Failed to delete ${entry.key.path}: $e');
-          }
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Cleanup error: $e');
-      }
     }
   }
 
@@ -300,69 +258,31 @@ class EvaluationQueueManager {
   }
 
   Future<void> saveQueueSnapshot({bool showNotification = true}) async {
-    try {
-      final dir = await _getDir(_snapshotsFolder);
-      final fileName = 'snapshot_${_timestamp()}.json';
-      final file = File('${dir.path}/$fileName');
-      await _writeJson(file, await _state());
-      if (snapshotRetentionEnabled) {
-        await _cleanupOldFiles(_snapshotsFolder, _snapshotRetentionLimit);
-      }
-      if (showNotification && kDebugMode) {
-        debugPrint('Snapshot saved: ${file.path}');
-      }
-    } catch (e) {
-      if (showNotification && kDebugMode) {
-        debugPrint('Failed to export snapshot: $e');
-      }
-    }
+    await _initFuture;
+    await _snapshotService.saveQueueSnapshot(
+      await _state(),
+      showNotification: showNotification,
+      snapshotRetentionEnabled: snapshotRetentionEnabled,
+    );
   }
 
   Future<void> loadQueueSnapshot() async {
-    try {
-      final dir = await _getDir(_snapshotsFolder);
-      if (!await dir.exists()) return;
-      final files = await dir
-          .list()
-          .where((e) => e is File && e.path.endsWith('.json'))
-          .cast<File>()
-          .toList();
-      if (files.isEmpty) return;
-      final results = await Future.wait(files.map((f) async {
-        try {
-          final stat = await f.stat();
-          return MapEntry(f, stat.modified);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint('Failed to stat ${f.path}: $e');
-          }
-          return null;
-        }
-      }));
-      final entries =
-          results.whereType<MapEntry<File, DateTime>>().toList();
-      if (entries.isEmpty) return;
-      entries.sort((a, b) => b.value.compareTo(a.value));
-      final file = entries.first.key;
-      final decoded = await _readJson(file);
-      final queues = _decodeQueues(decoded);
-      await _queueLock.synchronized(() {
-        pending
-          ..clear()
-          ..addAll(queues['pending']!);
-      });
-      failed
+    await _initFuture;
+    final decoded = await _snapshotService.loadQueueSnapshot();
+    if (decoded == null) return;
+    final queues = _decodeQueues(decoded);
+    await _queueLock.synchronized(() {
+      pending
         ..clear()
-        ..addAll(queues['failed']!);
-      completed
-        ..clear()
-        ..addAll(queues['completed']!);
-      await _persist();
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Failed to load snapshot: $e');
-      }
-    }
+        ..addAll(queues['pending']!);
+    });
+    failed
+      ..clear()
+      ..addAll(queues['failed']!);
+    completed
+      ..clear()
+      ..addAll(queues['completed']!);
+    await _persist();
   }
 
   void applySavedOrder(List<ActionEvaluationRequest> list, List<String>? order) {
