@@ -39,6 +39,8 @@ class SavedHand {
   final Map<int, String?>? actionTags;
   /// Pending action evaluation requests queued when the hand was saved.
   final List<ActionEvaluationRequest>? pendingEvaluations;
+  /// Index in the action list used when the hand was last viewed.
+  final int playbackIndex;
 
   SavedHand({
     required this.name,
@@ -71,6 +73,7 @@ class SavedHand {
     this.foldedPlayers,
     this.actionTags,
     this.pendingEvaluations,
+    this.playbackIndex = 0,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
@@ -107,6 +110,7 @@ class SavedHand {
     List<int>? foldedPlayers,
     Map<int, String?>? actionTags,
     List<ActionEvaluationRequest>? pendingEvaluations,
+    int? playbackIndex,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -169,6 +173,7 @@ class SavedHand {
                           attempts: e.attempts,
                         )
                     ]),
+      playbackIndex: playbackIndex ?? this.playbackIndex,
     );
   }
 
@@ -229,6 +234,7 @@ class SavedHand {
               actionTags!.map((k, v) => MapEntry(k.toString(), v)),
         if (pendingEvaluations != null)
           'pendingEvaluations': [for (final e in pendingEvaluations!) e.toJson()],
+        'playbackIndex': playbackIndex,
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -324,6 +330,7 @@ class SavedHand {
               Map<String, dynamic>.from(e as Map))
       ];
     }
+    final playbackIndex = json['playbackIndex'] as int? ?? 0;
     final commentCursor = json['commentCursor'] as int?;
     final tagsCursor = json['tagsCursor'] as int?;
     Map<int, PlayerType> types = {};
@@ -371,6 +378,7 @@ class SavedHand {
       foldedPlayers: folded,
       actionTags: aTags,
       pendingEvaluations: pending,
+      playbackIndex: playbackIndex,
     );
   }
 }
