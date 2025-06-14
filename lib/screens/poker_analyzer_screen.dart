@@ -2763,6 +2763,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       ),
       Positioned(
+        left: centerX + dx - 20 * scale,
+        top: centerY + dy + bias + 84 * scale,
+        child: Text(
+          '$stack BB',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12 * scale,
+            shadows: const [Shadow(color: Colors.black54, offset: Offset(1, 1), blurRadius: 2)],
+          ),
+        ),
+      ),
+      Positioned(
         left: centerX + dx + (cos(angle) < 0 ? -45 * scale : 30 * scale),
         top: centerY + dy + bias + 50 * scale,
         child: MiniStackWidget(
