@@ -25,7 +25,7 @@ import '../widgets/action_history_overlay.dart';
 import '../widgets/collapsible_action_history.dart';
 import '../widgets/action_history_expansion_tile.dart';
 import 'package:provider/provider.dart';
-import '../services/saved_hand_storage_service.dart';
+import '../services/saved_hand_manager_service.dart';
 import '../theme/constants.dart';
 import '../widgets/detailed_action_bottom_sheet.dart';
 import '../widgets/chip_widget.dart';
@@ -74,8 +74,8 @@ class PokerAnalyzerScreen extends StatefulWidget {
 
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
-  late SavedHandStorageService _savedHandService;
-  List<SavedHand> get savedHands => _savedHandService.hands;
+  late SavedHandManagerService _handManager;
+  List<SavedHand> get savedHands => _handManager.hands;
   late PlayerManagerService _playerManager;
   int get heroIndex => _playerManager.heroIndex;
   set heroIndex(int v) => _playerManager.heroIndex = v;
@@ -100,9 +100,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late StackManagerService _stackService;
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
-  Set<String> get allTags =>
-      savedHands.expand((hand) => hand.tags).toSet();
-  Set<String> tagFilters = {};
+  Set<String> get allTags => _handManager.allTags;
+  Set<String> get tagFilters => _handManager.tagFilters;
+  set tagFilters(Set<String> v) => _handManager.tagFilters = v;
   final Set<int> _firstActionTaken = {};
   int? activePlayerIndex;
   Timer? _activeTimer;
@@ -647,7 +647,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _savedHandService = context.read<SavedHandStorageService>();
+    _handManager = context.read<SavedHandManagerService>();
   }
 
   void selectCard(int index, CardModel card) {
@@ -2231,7 +2231,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final handName = result.trim().isEmpty ? _defaultHandName() : result.trim();
     _addQualityTags();
     final hand = _currentSavedHand(name: handName);
-    await _savedHandService.add(hand);
+    await _handManager.add(hand);
   }
 
   void loadLastSavedHand() {
@@ -2241,416 +2241,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> loadHandByName() async {
-    if (savedHands.isEmpty) return;
-    String filter = '';
-    Set<String> localFilters = {...tagFilters};
-    final selected = await showDialog<SavedHand>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateDialog) {
-          final query = filter.toLowerCase();
-          final filtered = [
-            for (final hand in savedHands)
-              if ((query.isEmpty ||
-                      hand.tags.any((t) => t.toLowerCase().contains(query)) ||
-                      hand.name.toLowerCase().contains(query) ||
-                      (hand.comment?.toLowerCase().contains(query) ?? false)) &&
-                  (localFilters.isEmpty ||
-                      localFilters.every((tag) => hand.tags.contains(tag))))
-                hand
-          ];
-          return AlertDialog(
-            title: const Text('Выберите раздачу'),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    decoration:
-                        const InputDecoration(hintText: 'Поиск'),
-                    onChanged: (value) => setStateDialog(() => filter = value),
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      onPressed: () async {
-                        await showModalBottomSheet<void>(
-                          context: context,
-                          builder: (context) => StatefulBuilder(
-                            builder: (context, setStateSheet) {
-                              final tags = allTags.toList()..sort();
-                              if (tags.isEmpty) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(AppConstants.padding16),
-                                  child: Text('Нет тегов'),
-                                );
-                              }
-                              return ListView(
-                                shrinkWrap: true,
-                                children: [
-                                  for (final tag in tags)
-                                    CheckboxListTile(
-                                      title: Text(tag),
-                                      value: localFilters.contains(tag),
-                                      onChanged: (checked) {
-                                        setStateSheet(() {
-                                          if (checked == true) {
-                                            localFilters.add(tag);
-                                          } else {
-                                            localFilters.remove(tag);
-                                          }
-                                          tagFilters = Set.from(localFilters);
-                                        });
-                                        setStateDialog(() {});
-                                      },
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                        );
-                        setState(() {
-                          tagFilters = Set.from(localFilters);
-                        });
-                        setStateDialog(() {});
-                      },
-                      child: const Text('Фильтр по тегам'),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Flexible(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: filtered.length,
-                      itemBuilder: (context, index) {
-                        final hand = filtered[index];
-                        final savedIndex = savedHands.indexOf(hand);
-                        final title =
-                            hand.name.isNotEmpty ? hand.name : 'Без названия';
-                        return ListTile(
-                          dense: true,
-                          title: Text(
-                            title,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: () {
-                            final items = <Widget>[];
-                            if (hand.tags.isNotEmpty) {
-                              items.add(Text(
-                                hand.tags.join(', '),
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 12,
-                                ),
-                              ));
-                            }
-                            if (hand.comment?.isNotEmpty ?? false) {
-                              items.add(Text(
-                                hand.comment!,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 11,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ));
-                            }
-                            return items.isEmpty
-                                ? null
-                                : Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: items,
-                                  );
-                          }(),
-                          onTap: () => Navigator.pop(context, hand),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () async {
-                          final nameController =
-                              TextEditingController(text: hand.name);
-                          final tagsController =
-                              TextEditingController(text: hand.tags.join(', '));
-                          final commentController =
-                              TextEditingController(text: hand.comment ?? '');
-
-                          await showModalBottomSheet<void>(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (context) => Padding(
-                              padding: EdgeInsets.only(
-                                bottom:
-                                    MediaQuery.of(context).viewInsets.bottom,
-                                left: 16,
-                                right: 16,
-                                top: 16,
-                              ),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    TextField(
-                                      controller: nameController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Название'),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Autocomplete<String>(
-                                      optionsBuilder: (TextEditingValue value) {
-                                        final input = value.text.toLowerCase();
-                                        if (input.isEmpty) {
-                                          return const Iterable<String>.empty();
-                                        }
-                                        return allTags.where((tag) =>
-                                            tag.toLowerCase().contains(input));
-                                      },
-                                      displayStringForOption: (opt) => opt,
-                                      onSelected: (selection) {
-                                        final tags = tagsController.text
-                                            .split(',')
-                                            .map((t) => t.trim())
-                                            .where((t) => t.isNotEmpty)
-                                            .toSet();
-                                        if (tags.add(selection)) {
-                                          tagsController.text = tags.join(', ');
-                                          tagsController.selection =
-                                              TextSelection.fromPosition(
-                                                  TextPosition(
-                                                      offset: tagsController
-                                                          .text.length));
-                                        }
-                                      },
-                                      fieldViewBuilder: (context,
-                                          textEditingController,
-                                          focusNode,
-                                          onFieldSubmitted) {
-                                        textEditingController.text =
-                                            tagsController.text;
-                                        textEditingController.selection =
-                                            tagsController.selection;
-                                        textEditingController.addListener(() {
-                                          if (tagsController.text !=
-                                              textEditingController.text) {
-                                            tagsController.value =
-                                                textEditingController.value;
-                                          }
-                                        });
-                                        tagsController.addListener(() {
-                                          if (textEditingController.text !=
-                                              tagsController.text) {
-                                            textEditingController.value =
-                                                tagsController.value;
-                                          }
-                                        });
-                                        return TextField(
-                                          controller: textEditingController,
-                                          focusNode: focusNode,
-                                          decoration: const InputDecoration(
-                                              labelText: 'Теги'),
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextField(
-                                      controller: commentController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Комментарий'),
-                                      keyboardType: TextInputType.multiline,
-                                      maxLines: null,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('Отмена'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-
-                          final newName = nameController.text.trim();
-                          final newTags = tagsController.text
-                              .split(',')
-                              .map((t) => t.trim())
-                              .where((t) => t.isNotEmpty)
-                              .toList();
-                          final newComment = commentController.text.trim();
-
-                          final old = savedHands[savedIndex];
-                          final oldName = old.name.trim();
-                          final oldTags = old.tags
-                              .map((t) => t.trim())
-                              .where((t) => t.isNotEmpty)
-                              .toList();
-                          final oldComment = old.comment?.trim() ?? '';
-
-                          final hasChanges =
-                              newName != oldName ||
-                                  !listEquals(newTags, oldTags) ||
-                                  newComment != oldComment;
-
-                          if (hasChanges) {
-                            final updated = SavedHand(
-                                name: newName,
-                                heroIndex: old.heroIndex,
-                                heroPosition: old.heroPosition,
-                                numberOfPlayers: old.numberOfPlayers,
-                                playerCards: [
-                                  for (final list in old.playerCards)
-                                    List<CardModel>.from(list)
-                                ],
-                                boardCards: List<CardModel>.from(old.boardCards),
-                                actions: List<ActionEntry>.from(old.actions),
-                                stackSizes: Map<int, int>.from(old.stackSizes),
-                                playerPositions:
-                                    Map<int, String>.from(old.playerPositions),
-                                playerTypes: old.playerTypes == null
-                                    ? null
-                                    : Map<int, PlayerType>.from(old.playerTypes!),
-                                comment:
-                                    newComment.isNotEmpty ? newComment : null,
-                                tags: newTags,
-                                isFavorite: old.isFavorite,
-                                date: old.date,
-                              );
-                            await _savedHandService.update(savedIndex, updated);
-                            setStateDialog(() {});
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Раздача обновлена')),
-                            );
-                          }
-
-                          nameController.dispose();
-                          tagsController.dispose();
-                          commentController.dispose();
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Удалить раздачу?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: const Text('Отмена'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Удалить'),
-                                ),
-                              ],
-                            ),
-                          );
-                          if (confirm == true) {
-                            await _savedHandService.removeAt(savedIndex);
-                            setStateDialog(() {});
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
+    final selected = await _handManager.selectHand(context);
     if (selected != null) {
       _applySavedHand(selected);
     }
   }
 
+
   Future<void> exportLastSavedHand() async {
-    if (savedHands.isEmpty) return;
-    final jsonStr = jsonEncode(savedHands.last.toJson());
-    await Clipboard.setData(ClipboardData(text: jsonStr));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Раздача скопирована.')),
-    );
+    await _handManager.exportLastHand(context);
   }
 
   Future<void> exportAllHands() async {
-    if (savedHands.isEmpty) return;
-    final jsonStr =
-        jsonEncode([for (final hand in savedHands) hand.toJson()]);
-    await Clipboard.setData(ClipboardData(text: jsonStr));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content:
-              Text('${savedHands.length} hands exported to clipboard')),
-    );
+    await _handManager.exportAllHands(context);
   }
 
   Future<void> importHandFromClipboard() async {
-    final data = await Clipboard.getData('text/plain');
-    if (data == null || data.text == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Неверный формат данных.')),
-      );
-      return;
-    }
-    try {
-      loadHand(data.text!);
-    } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Неверный формат данных.')),
-      );
+    final hand = await _handManager.importHandFromClipboard(context);
+    if (hand != null) {
+      _applySavedHand(hand);
     }
   }
 
   Future<void> importAllHandsFromClipboard() async {
-    final data = await Clipboard.getData('text/plain');
-    if (data == null || data.text == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid data format')),
-      );
-      return;
-    }
-
-    try {
-      final parsed = jsonDecode(data.text!);
-      if (parsed is! List) throw const FormatException();
-
-      int count = 0;
-      for (final item in parsed) {
-        if (item is Map<String, dynamic>) {
-          try {
-            await _savedHandService.add(SavedHand.fromJson(item));
-            count++;
-          } catch (_) {
-            // skip invalid hand objects
-          }
-        }
-      }
-
-      if (count > 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Imported $count hands')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid data format')),
-        );
-      }
-    } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid data format')),
-      );
-    }
+    await _handManager.importAllHandsFromClipboard(context);
   }
 
 
