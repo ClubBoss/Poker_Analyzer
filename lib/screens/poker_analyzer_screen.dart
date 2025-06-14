@@ -59,6 +59,7 @@ import '../services/stack_manager_service.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
+import '../helpers/table_geometry_helper.dart';
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
@@ -628,29 +629,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
 
-  double _verticalBiasFromAngle(double angle) {
-    return 90 + 20 * sin(angle);
-  }
-
-  double _tableScale() {
-    final extraPlayers = max(0, numberOfPlayers - 6);
-    return (1.0 - extraPlayers * 0.05).clamp(0.75, 1.0);
-  }
-
-  double _centerYOffset(double scale) {
-    double base;
-    if (numberOfPlayers > 6) {
-      base = 200.0 + (numberOfPlayers - 6) * 10.0;
-    } else {
-      base = 140.0 - (6 - numberOfPlayers) * 10.0;
-    }
-    return base * scale;
-  }
-
-  double _radiusModifier() {
-    return (1 + (6 - numberOfPlayers) * 0.05).clamp(0.8, 1.2);
-  }
-
   int _viewIndex() {
     if (isPerspectiveSwitched && opponentIndex != null) {
       return opponentIndex!;
@@ -686,13 +664,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         entry.generated) return;
     final overlay = Overlay.of(context);
     if (overlay == null) return;
-    final double scale = _tableScale();
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
     final i =
@@ -700,7 +680,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
-    final bias = _verticalBiasFromAngle(angle) * scale;
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
     final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
     final end = Offset(centerX, centerY);
     final color = entry.action == 'raise'
@@ -3485,14 +3465,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final screenSize = MediaQuery.of(context).size;
     final visibleActions = actions.take(_playbackService.playbackIndex).toList();
     final savedActions = _currentSavedHand().actions;
-    final double scale = _tableScale();
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
     final viewIndex = _viewIndex();
     final double infoScale = numberOfPlayers > 8 ? 0.85 : 1.0;
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
+    final centerY = screenSize.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
@@ -3784,8 +3766,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
+    final centerY = screenSize.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod =
+        TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
@@ -3804,7 +3788,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
-    final bias = _verticalBiasFromAngle(angle) * scale;
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
 
     final String position = playerPositions[index] ?? '';
     final int stack = _stackService.stackSizes[index] ?? 0;
@@ -4102,8 +4086,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - _centerYOffset(scale);
-    final radiusMod = _radiusModifier();
+    final centerY = screenSize.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
@@ -4114,7 +4099,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
-    final bias = _verticalBiasFromAngle(angle) * scale;
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
 
     ActionEntry? lastAction;
     for (final a in visibleActions.reversed) {
@@ -4310,23 +4295,6 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.actionColor,
   });
 
-  double _centerYOffset() {
-    double base;
-    if (numberOfPlayers > 6) {
-      base = 200.0 + (numberOfPlayers - 6) * 10.0;
-    } else {
-      base = 140.0 - (6 - numberOfPlayers) * 10.0;
-    }
-    return base * scale;
-  }
-
-  double _radiusModifier() {
-    return (1 + (6 - numberOfPlayers) * 0.05).clamp(0.8, 1.2);
-  }
-
-  double _verticalBiasFromAngle(double angle) {
-    return 90 + 20 * sin(angle);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -4334,8 +4302,9 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - _centerYOffset();
-    final radiusMod = _radiusModifier();
+    final centerY = screenSize.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
@@ -4408,7 +4377,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
         final angle = 2 * pi * i / numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
-        final bias = _verticalBiasFromAngle(angle) * scale;
+        final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
         final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset(centerX, centerY);
         final streetSet =
@@ -4475,8 +4444,9 @@ class _BetStacksOverlaySection extends StatelessWidget {
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - state._centerYOffset(scale);
-    final radiusMod = state._radiusModifier();
+    final centerY = screenSize.height / 2 -
+        TableGeometryHelper.centerYOffset(state.numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(state.numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
@@ -4494,7 +4464,7 @@ class _BetStacksOverlaySection extends StatelessWidget {
         final angle = 2 * pi * i / state.numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
-        final bias = state._verticalBiasFromAngle(angle) * scale;
+        final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
 
         final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final pos = Offset.lerp(start, Offset(centerX, centerY), 0.15)!;
@@ -4526,8 +4496,9 @@ class _InvestedChipsOverlaySection extends StatelessWidget {
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 - state._centerYOffset(scale);
-    final radiusMod = state._radiusModifier();
+    final centerY = screenSize.height / 2 -
+        TableGeometryHelper.centerYOffset(state.numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(state.numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
@@ -4545,7 +4516,7 @@ class _InvestedChipsOverlaySection extends StatelessWidget {
         final angle = 2 * pi * i / state.numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
-        final bias = state._verticalBiasFromAngle(angle) * scale;
+        final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
 
         final playerActions = state.actions
             .where((a) =>
