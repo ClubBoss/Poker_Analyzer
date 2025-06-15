@@ -302,4 +302,198 @@ class EvaluationQueueService {
   Future<void> cleanup() async {
     // Placeholder for any cleanup logic when disposing the manager.
   }
+
+  /// Load queue state persisted to disk on a previous run.
+  ///
+  /// Returns `true` if any queued items were loaded.
+  Future<bool> loadSavedQueue() async {
+    await _initFuture;
+    final file = File('$_documentsDirPath/evaluation_current_queue.json');
+    bool resumed = false;
+    if (await file.exists()) {
+      final decoded = await _readJson(file);
+      if (decoded != null) {
+        final queues = _decodeQueues(decoded);
+        await _queueLock.synchronized(() {
+          pending
+            ..clear()
+            ..addAll(queues['pending']!);
+        });
+        failed
+          ..clear()
+          ..addAll(queues['failed']!);
+        completed
+          ..clear()
+          ..addAll(queues['completed']!);
+
+        applySavedOrder(pending, _sharedPrefs.getStringList(_pendingOrderKey));
+        applySavedOrder(failed, _sharedPrefs.getStringList(_failedOrderKey));
+        applySavedOrder(completed, _sharedPrefs.getStringList(_completedOrderKey));
+
+        resumed =
+            pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
+        await _persist();
+      }
+      try {
+        await file.delete();
+      } catch (_) {}
+    }
+    return resumed;
+  }
+
+  /// Remove all queued evaluations and persist the empty state.
+  Future<void> clearQueue() async {
+    await _queueLock.synchronized(pending.clear);
+    failed.clear();
+    completed.clear();
+    await _persist();
+  }
+
+  /// Remove only pending evaluations.
+  Future<void> clearPending() async {
+    await _queueLock.synchronized(pending.clear);
+    await _persist();
+  }
+
+  /// Remove only failed evaluations.
+  Future<void> clearFailed() async {
+    failed.clear();
+    await _persist();
+  }
+
+  /// Remove only completed evaluations.
+  Future<void> clearCompleted() async {
+    completed.clear();
+    await _persist();
+  }
+
+  int _deduplicateList(List<ActionEvaluationRequest> list, Set<String> seenIds) {
+    final originalLength = list.length;
+    final unique = <ActionEvaluationRequest>[];
+    for (final entry in list) {
+      if (seenIds.add(entry.id)) unique.add(entry);
+    }
+    list
+      ..clear()
+      ..addAll(unique);
+    return originalLength - unique.length;
+  }
+
+  /// Remove duplicate entries across all queues. Returns the number removed.
+  Future<int> removeDuplicateEvaluations() async {
+    int removed = 0;
+    await _queueLock.synchronized(() {
+      final seen = <String>{};
+      removed += _deduplicateList(pending, seen);
+      removed += _deduplicateList(failed, seen);
+      removed += _deduplicateList(completed, seen);
+    });
+    if (removed > 0) {
+      await _persist();
+    }
+    return removed;
+  }
+
+  /// Ensure a request only exists in one of the queues. Returns items removed.
+  Future<int> resolveQueueConflicts() async {
+    int removed = 0;
+    await _queueLock.synchronized(() {
+      final seen = <String>{};
+
+      final newCompleted = <ActionEvaluationRequest>[];
+      for (final e in completed) {
+        if (seen.add(e.id)) {
+          newCompleted.add(e);
+        } else {
+          removed++;
+        }
+      }
+
+      final newFailed = <ActionEvaluationRequest>[];
+      for (final e in failed) {
+        if (seen.add(e.id)) {
+          newFailed.add(e);
+        } else {
+          removed++;
+        }
+      }
+
+      final newPending = <ActionEvaluationRequest>[];
+      for (final e in pending) {
+        if (seen.add(e.id)) {
+          newPending.add(e);
+        } else {
+          removed++;
+        }
+      }
+
+      completed
+        ..clear()
+        ..addAll(newCompleted);
+      failed
+        ..clear()
+        ..addAll(newFailed);
+      pending
+        ..clear()
+        ..addAll(newPending);
+    });
+
+    if (removed > 0) {
+      await _persist();
+    }
+    return removed;
+  }
+
+  int _compareEvaluationRequests(
+      ActionEvaluationRequest a, ActionEvaluationRequest b) {
+    final streetComp = a.street.compareTo(b.street);
+    if (streetComp != 0) return streetComp;
+    final playerComp = a.playerIndex.compareTo(b.playerIndex);
+    if (playerComp != 0) return playerComp;
+    return a.action.compareTo(b.action);
+  }
+
+  /// Sort all queues by street, player index and action.
+  Future<void> sortQueues() async {
+    await _queueLock.synchronized(() {
+      pending.sort(_compareEvaluationRequests);
+      failed.sort(_compareEvaluationRequests);
+      completed.sort(_compareEvaluationRequests);
+    });
+    await _persist();
+  }
+
+  /// Toggle paused processing state. When resuming, processing restarts if
+  /// pending items exist.
+  Future<void> togglePauseProcessing() async {
+    pauseRequested = !pauseRequested;
+    if (!pauseRequested && !processing && pending.isNotEmpty) {
+      await processQueue();
+    }
+  }
+
+  /// Cancel processing and clear the pending queue.
+  Future<void> cancelProcessing() async {
+    cancelRequested = true;
+    pauseRequested = false;
+    await _queueLock.synchronized(pending.clear);
+    processing = false;
+    await _persist();
+  }
+
+  /// Force stop any running processing and restart if pending items remain.
+  Future<void> forceRestartProcessing() async {
+    if (processing) {
+      cancelRequested = true;
+      pauseRequested = false;
+      while (processing) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+    }
+    processing = false;
+    cancelRequested = false;
+    if (pending.isNotEmpty) {
+      await processQueue();
+    }
+  }
 }
