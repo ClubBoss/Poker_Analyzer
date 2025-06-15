@@ -779,7 +779,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       duration: _boardRevealDuration,
     );
     _timelineController = ScrollController();
-    _playerManager = PlayerManagerService()..addListener(_onPlayerManagerChanged);
+    _playerManager = context.read<PlayerManagerService>()
+      ..addListener(_onPlayerManagerChanged);
     _stackService =
         StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
     _playbackManager = PlaybackManagerService(
