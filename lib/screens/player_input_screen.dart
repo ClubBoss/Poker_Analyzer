@@ -5,6 +5,7 @@ import 'training_packs_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/action_sync_service.dart';
 import '../services/current_hand_context_service.dart';
+import '../services/player_manager_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -95,10 +96,13 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => PokerAnalyzerScreen(
-                        key: key,
-                        actionSync: context.read<ActionSyncService>(),
-                        handContext: CurrentHandContextService(),
+                      builder: (_) => ChangeNotifierProvider(
+                        create: (_) => PlayerManagerService(),
+                        child: PokerAnalyzerScreen(
+                          key: key,
+                          actionSync: context.read<ActionSyncService>(),
+                          handContext: CurrentHandContextService(),
+                        ),
                       ),
                     ),
                   );
@@ -117,9 +121,12 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                 if (text.isNotEmpty) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => PokerAnalyzerScreen(
-                        actionSync: context.read<ActionSyncService>(),
-                        handContext: CurrentHandContextService(),
+                      builder: (context) => ChangeNotifierProvider(
+                        create: (_) => PlayerManagerService(),
+                        child: PokerAnalyzerScreen(
+                          actionSync: context.read<ActionSyncService>(),
+                          handContext: CurrentHandContextService(),
+                        ),
                       ),
                     ),
                   );
