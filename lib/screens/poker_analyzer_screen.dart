@@ -63,6 +63,7 @@ import '../helpers/debug_helpers.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
+import '../services/transition_lock_service.dart';
 
 enum _ActionChangeType { add, edit, delete }
 
@@ -158,9 +159,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _centerChipTimer;
   late AnimationController _centerChipController;
   bool _showAllRevealedCards = false;
-  bool _boardTransitioning = false;
+  late final TransitionLockService _transitionLock;
   // Prevents undo/redo operations while the board transition animation runs.
-  bool _undoRedoTransitionLock = false;
   Timer? _boardTransitionTimer;
   final GlobalKey<_BoardCardsSectionState> _boardKey =
       GlobalKey<_BoardCardsSectionState>();
@@ -171,7 +171,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _safeSetState(VoidCallback fn, {bool ignoreTransitionLock = false}) {
     if (!mounted) return;
-    if (_boardTransitioning && !ignoreTransitionLock) return;
+    if (_transitionLock.boardTransitioning && !ignoreTransitionLock) return;
     setState(fn);
   }
 
@@ -409,21 +409,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   void setPosition(int playerIndex, String position) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _safeSetState(() {
       _playerManager.setPosition(playerIndex, position);
     });
   }
 
   void _setHeroIndex(int index) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _safeSetState(() {
       _playerManager.setHeroIndex(index);
     });
   }
 
   void _onPlayerCountChanged(int value) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _safeSetState(() {
       _playerManager.onPlayerCountChanged(value);
     });
@@ -637,7 +637,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _reverseStreet() {
-    if (_boardTransitioning || !_canReverseStreet()) return;
+    if (_transitionLock.boardTransitioning || !_canReverseStreet()) return;
     _recordSnapshot();
     _changeStreet(currentStreet - 1);
   }
@@ -645,13 +645,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _canAdvanceStreet() => currentStreet < boardStreet;
 
   void _advanceStreet() {
-    if (_boardTransitioning || !_canAdvanceStreet()) return;
+    if (_transitionLock.boardTransitioning || !_canAdvanceStreet()) return;
     _recordSnapshot();
     _changeStreet(currentStreet + 1);
   }
 
   void _changeStreet(int street) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _cancelBoardReveal();
     street = street.clamp(0, boardStreet);
     if (street == currentStreet) return;
@@ -680,11 +680,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       milliseconds: _boardRevealDuration.inMilliseconds +
           _boardRevealStagger.inMilliseconds * (revealCount > 1 ? revealCount - 1 : 0),
     );
-    _boardTransitioning = true;
-    _undoRedoTransitionLock = true;
+    _transitionLock.boardTransitioning = true;
+    _transitionLock.undoRedoTransitionLock = true;
     _boardTransitionTimer = Timer(duration, () {
-      _boardTransitioning = false;
-      _undoRedoTransitionLock = false;
+      _transitionLock.boardTransitioning = false;
+      _transitionLock.undoRedoTransitionLock = false;
       if (mounted) {
         _safeSetState(() {}, ignoreTransitionLock: true);
       }
@@ -693,35 +693,35 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _cancelBoardReveal() {
     _boardKey.currentState?.cancelPendingReveals();
-    if (_boardTransitioning) {
+    if (_transitionLock.boardTransitioning) {
       _boardTransitionTimer?.cancel();
-      _boardTransitioning = false;
-      _undoRedoTransitionLock = false;
+      _transitionLock.boardTransitioning = false;
+      _transitionLock.undoRedoTransitionLock = false;
     }
   }
 
   void _play() {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _playbackManager.startPlayback();
   }
 
   void _pause() {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _playbackManager.pausePlayback();
   }
 
   void _stepBackwardPlayback() {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _playbackManager.stepBackward();
   }
 
   void _stepForwardPlayback() {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _playbackManager.stepForward();
   }
 
   void _seekPlayback(double value) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _playbackManager.seek(value.round());
     _playbackManager.updatePlaybackState();
   }
@@ -875,7 +875,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> _editPlayerInfo(int index) async {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     final disableCards = index != _playerManager.heroIndex;
 
     await showDialog(
@@ -892,7 +892,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             : null,
         disableCards: disableCards,
         onSave: (stack, type, isHero, c1, c2) {
-          if (_boardTransitioning) return;
+          if (_transitionLock.boardTransitioning) return;
           _safeSetState(() {
             final cards = <CardModel>[];
             if (c1 != null) cards.add(c1);
@@ -918,6 +918,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
+    _transitionLock = TransitionLockService();
     _queueService = EvaluationQueueService();
     _backupManager = BackupManagerService(
       queueService: _queueService,
@@ -997,7 +998,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onPlayerCardTap(int index, int cardIndex) async {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     final current =
         cardIndex < playerCards[index].length ? playerCards[index][cardIndex] : null;
     final selectedCard = await showCardSelector(
@@ -1014,21 +1015,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onPlayerTimeExpired(int index) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     if (activePlayerIndex == index) {
       _safeSetState(() => activePlayerIndex = null);
     }
   }
 
   Future<void> _onOpponentCardTap(int cardIndex) async {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     if (opponentIndex == null) opponentIndex = activePlayerIndex;
     final idx = opponentIndex ?? 0;
     await _onRevealedCardTap(idx, cardIndex);
   }
 
   Future<void> _onRevealedCardTap(int playerIndex, int cardIndex) async {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     final current = players[playerIndex].revealedCards[cardIndex];
     final selected = await showCardSelector(
       context,
@@ -1086,7 +1087,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void selectBoardCard(int index, CardModel card) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     if (!_canEditBoard(index)) return;
     final current = index < boardCards.length ? boardCards[index] : null;
     if (_isDuplicateSelection(card, current)) {
@@ -1102,7 +1103,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _removeBoardCard(int index) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     if (index >= boardCards.length) return;
     _safeSetState(() {
       _recordSnapshot();
@@ -1234,7 +1235,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onPlayerTap(int index) async {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _safeSetState(() => activePlayerIndex = index);
     final result = await _showActionPicker();
     if (result == null) return;
@@ -1606,7 +1607,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _addAction(ActionEntry entry,
       {int? index, bool recordHistory = true}) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     final prevStreet = currentStreet;
     final inferred = _inferBoardStreet();
     if (inferred > currentStreet) {
@@ -1699,7 +1700,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _editAction(int index, ActionEntry entry) {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     _safeSetState(() {
       _updateAction(index, entry);
       if (entry.action == 'fold') {
@@ -1774,7 +1775,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _undoAction() {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     _cancelBoardReveal();
     if (_undoStack.isEmpty) {
       if (_undoSnapshots.isEmpty) return;
@@ -1817,7 +1818,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _redoAction() {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     _cancelBoardReveal();
     if (_redoStack.isEmpty) {
       if (_redoSnapshots.isEmpty) return;
@@ -1860,7 +1861,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _previousStreet() {
-    if (_boardTransitioning || currentStreet <= 0) return;
+    if (_transitionLock.boardTransitioning || currentStreet <= 0) return;
     _safeSetState(() {
       _recordSnapshot();
       currentStreet--;
@@ -1875,7 +1876,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _nextStreet() {
-    if (_boardTransitioning || currentStreet >= boardStreet) return;
+    if (_transitionLock.boardTransitioning || currentStreet >= boardStreet) return;
     _safeSetState(() {
       _recordSnapshot();
       currentStreet++;
@@ -1890,7 +1891,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _removePlayer(int index) async {
-    if (_boardTransitioning) return;
+    if (_transitionLock.boardTransitioning) return;
     if (_playerManager.numberOfPlayers <= 2) return;
 
     int updatedHeroIndex = _playerManager.heroIndex;
@@ -3043,7 +3044,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> saveCurrentHand() async {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
@@ -3074,14 +3075,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void loadLastSavedHand() {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     if (savedHands.isEmpty) return;
     final hand = savedHands.last;
     _applySavedHand(hand);
   }
 
   Future<void> loadHandByName() async {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     final selected = await _handManager.selectHand(context);
     if (selected != null) {
       _applySavedHand(selected);
@@ -3090,17 +3091,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> exportLastSavedHand() async {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     await _handManager.exportLastHand(context);
   }
 
   Future<void> exportAllHands() async {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     await _handManager.exportAllHands(context);
   }
 
   Future<void> importHandFromClipboard() async {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     final hand = await _handManager.importHandFromClipboard(context);
     if (hand != null) {
       _applySavedHand(hand);
@@ -3108,7 +3109,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> importAllHandsFromClipboard() async {
-    if (_undoRedoTransitionLock || _boardTransitioning) return;
+    if (_transitionLock.undoRedoTransitionLock || _transitionLock.boardTransitioning) return;
     await _handManager.importAllHandsFromClipboard(context);
   }
 
@@ -3181,8 +3182,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               numberOfPlayers: numberOfPlayers,
               playerPositions: playerPositions,
               playerTypes: playerTypes,
-              onChanged: _boardTransitioning ? null : _onPlayerCountChanged,
-              disabled: _boardTransitioning,
+              onChanged: _transitionLock.boardTransitioning ? null : _onPlayerCountChanged,
+              disabled: _transitionLock.boardTransitioning,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -3199,7 +3200,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   children: [
                   _TableBackgroundSection(scale: scale),
                   AbsorbPointer(
-                    absorbing: _boardTransitioning,
+                    absorbing: _transitionLock.boardTransitioning,
                     child: _BoardCardsSection(
                       key: _boardKey,
                       scale: scale,
@@ -3210,7 +3211,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       onCardLongPress: _removeBoardCard,
                       canEditBoard: _canEditBoard,
                       usedCards: _usedCardKeys(),
-                      editingDisabled: _boardTransitioning,
+                      editingDisabled: _transitionLock.boardTransitioning,
                       visibleActions: visibleActions,
                     ),
                   ),
@@ -3219,14 +3220,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     scale: scale,
                     playerPositions: playerPositions,
                     opponentCardRow: AbsorbPointer(
-                      absorbing: _boardTransitioning,
+                      absorbing: _transitionLock.boardTransitioning,
                       child: _OpponentCardRowSection(
                         scale: scale,
                         players: players,
                         activePlayerIndex: activePlayerIndex,
                         opponentIndex: opponentIndex,
                         onCardTap:
-                            _boardTransitioning ? null : _onOpponentCardTap,
+                            _transitionLock.boardTransitioning ? null : _onOpponentCardTap,
                       ),
                     ),
                     playerBuilder: _buildPlayerWidgets,
@@ -3285,7 +3286,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? 'SPR: ${sprValue.toStringAsFixed(1)}'
                         : null,
                   ),
-                  if (_boardTransitioning)
+                  if (_transitionLock.boardTransitioning)
                     const _BoardTransitionBusyIndicator(),
                 _RevealAllCardsButton(
                   showAllRevealedCards: _showAllRevealedCards,
@@ -3299,7 +3300,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: AbsorbPointer(
-        absorbing: _boardTransitioning,
+        absorbing: _transitionLock.boardTransitioning,
         child: Column(
           children: List.generate(
             4,
@@ -3319,7 +3320,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     ),
     AbsorbPointer(
-      absorbing: _boardTransitioning,
+      absorbing: _transitionLock.boardTransitioning,
       child: ActionHistoryExpansionTile(
         actions: visibleActions,
         playerPositions: playerPositions,
@@ -3334,9 +3335,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       currentStreet: currentStreet,
       canGoPrev: _canReverseStreet(),
       onPrevStreet:
-          _boardTransitioning ? null : () => _safeSetState(_reverseStreet),
+          _transitionLock.boardTransitioning ? null : () => _safeSetState(_reverseStreet),
       onStreetChanged: (index) {
-        if (_boardTransitioning) return;
+        if (_transitionLock.boardTransitioning) return;
         _safeSetState(() {
           _recordSnapshot();
           _changeStreet(index);
@@ -3344,7 +3345,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       },
             ),
             AbsorbPointer(
-              absorbing: _boardTransitioning,
+              absorbing: _transitionLock.boardTransitioning,
               child: StreetActionInputWidget(
                 currentStreet: currentStreet,
                 numberOfPlayers: numberOfPlayers,
@@ -3353,10 +3354,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onAdd: onActionSelected,
                 onEdit: _editAction,
                 onDelete: _deleteAction,
+                safeSetState: _safeSetState,
+                transitionLock: _transitionLock,
               ),
             ),
             AbsorbPointer(
-              absorbing: _boardTransitioning,
+              absorbing: _transitionLock.boardTransitioning,
               child: ActionTimelineWidget(
                 actions: visibleActions,
                 playbackIndex: _playbackManager.playbackIndex,
@@ -3390,12 +3393,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onImport: importHandFromClipboard,
                 onImportAll: importAllHandsFromClipboard,
                 onReset: _resetHand,
-                disabled: _boardTransitioning || _undoRedoTransitionLock,
+                disabled: _transitionLock.boardTransitioning || _transitionLock.undoRedoTransitionLock,
               ),
             ),
             Expanded(
               child: AbsorbPointer(
-                absorbing: _boardTransitioning,
+                absorbing: _transitionLock.boardTransitioning,
                 child: _HandEditorSection(
                   historyActions: visibleActions,
                   playerPositions: playerPositions,
@@ -3599,7 +3602,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         child: Transform.scale(
           scale: infoScale,
           child: AbsorbPointer(
-            absorbing: _boardTransitioning,
+            absorbing: _transitionLock.boardTransitioning,
             child: PlayerInfoWidget(
             position: position,
             stack: stack,
@@ -3635,17 +3638,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     _playerManager.playerPositions[index] == 'BB')
                 ? _playerManager.playerPositions[index]
                 : null,
-            timersDisabled: _boardTransitioning,
-            onCardTap: _boardTransitioning
+            timersDisabled: _transitionLock.boardTransitioning,
+            onCardTap: _transitionLock.boardTransitioning
                 ? null
                 : (cardIndex) => _onPlayerCardTap(index, cardIndex),
             onTap: () => _onPlayerTap(index),
-            onDoubleTap: _boardTransitioning
+            onDoubleTap: _transitionLock.boardTransitioning
                 ? null
                 : () => _setHeroIndex(index),
-            onLongPress: _boardTransitioning ? null : () => _editPlayerInfo(index),
-            onEdit: _boardTransitioning ? null : () => _editPlayerInfo(index),
-            onStackTap: _boardTransitioning
+            onLongPress: _transitionLock.boardTransitioning ? null : () => _editPlayerInfo(index),
+            onEdit: _transitionLock.boardTransitioning ? null : () => _editPlayerInfo(index),
+            onStackTap: _transitionLock.boardTransitioning
                 ? null
                 : (value) => _safeSetState(() {
                       _playerManager.setInitialStack(index, value);
@@ -3654,7 +3657,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       _playbackManager.stackService = _stackService;
                       _playbackManager.updatePlaybackState();
                     }),
-            onRemove: _playerManager.numberOfPlayers > 2 && !_boardTransitioning
+            onRemove: _playerManager.numberOfPlayers > 2 && !_transitionLock.boardTransitioning
                 ? () {
                     _removePlayer(index);
                   }
@@ -5287,6 +5290,9 @@ class _RevealAllCardsButton extends StatelessWidget {
   }
 }
 
+typedef SafeSetState = void Function(VoidCallback fn,
+    {bool ignoreTransitionLock});
+
 class StreetActionInputWidget extends StatefulWidget {
   final int currentStreet;
   final int numberOfPlayers;
@@ -5295,6 +5301,8 @@ class StreetActionInputWidget extends StatefulWidget {
   final void Function(ActionEntry) onAdd;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
+  final SafeSetState safeSetState;
+  final TransitionLockService transitionLock;
 
   const StreetActionInputWidget({
     super.key,
@@ -5305,6 +5313,8 @@ class StreetActionInputWidget extends StatefulWidget {
     required this.onAdd,
     required this.onEdit,
     required this.onDelete,
+    required this.safeSetState,
+    required this.transitionLock,
   });
 
   @override
@@ -5315,6 +5325,10 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
   int _player = 0;
   String _action = 'fold';
   final TextEditingController _controller = TextEditingController();
+
+  void _safeSetState(VoidCallback fn, {bool ignoreTransitionLock = false}) {
+    widget.safeSetState(fn, ignoreTransitionLock: ignoreTransitionLock);
+  }
 
   bool get _needAmount =>
       _action == 'bet' || _action == 'raise' || _action == 'call';
@@ -5358,8 +5372,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                       )
                   ],
                   onChanged: (v) =>
-                      ctx.findAncestorStateOfType<_PokerAnalyzerScreenState>()?
-                          ._safeSetState(() => setState(() => p = v ?? p)),
+                      widget.safeSetState(() => setState(() => p = v ?? p)),
                 ),
                 const SizedBox(height: 8),
                 DropdownButton<String>(
@@ -5372,8 +5385,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                     DropdownMenuItem(value: 'raise', child: Text('raise')),
                   ],
                   onChanged: (v) =>
-                      ctx.findAncestorStateOfType<_PokerAnalyzerScreenState>()?
-                          ._safeSetState(() => setState(() => act = v ?? act)),
+                      widget.safeSetState(() => setState(() => act = v ?? act)),
                 ),
                 if (need)
                   TextField(
@@ -5523,7 +5535,7 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
   VoidCallback? _transitionSafe(VoidCallback? cb) {
     if (cb == null) return null;
     return () {
-      if (s._boardTransitioning) return;
+      if (s._transitionLock.boardTransitioning) return;
       cb();
     };
   }
@@ -5532,7 +5544,7 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
       {bool disableDuringTransition = false}) {
     final cb =
         disableDuringTransition ? _transitionSafe(onPressed) : onPressed;
-    final disabled = disableDuringTransition && s._boardTransitioning;
+    final disabled = disableDuringTransition && s._transitionLock.boardTransitioning;
     return ElevatedButton(onPressed: disabled ? null : cb, child: Text(label));
   }
 
@@ -6169,7 +6181,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
       {bool disableDuringTransition = false}) {
     final cb =
         disableDuringTransition ? _transitionSafe(onPressed) : onPressed;
-    final disabled = disableDuringTransition && s._boardTransitioning;
+    final disabled = disableDuringTransition && s._transitionLock.boardTransitioning;
     return TextButton(onPressed: disabled ? null : cb, child: Text(label));
   }
 
@@ -6392,13 +6404,13 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             disableDuringTransition: true),
         _dialogBtn(
           'Undo',
-          s._boardTransitioning || s._undoRedoTransitionLock
+          s._transitionLock.boardTransitioning || s._transitionLock.undoRedoTransitionLock
               ? null
               : s._undoAction,
         ),
         _dialogBtn(
           'Redo',
-          s._boardTransitioning || s._undoRedoTransitionLock
+          s._transitionLock.boardTransitioning || s._transitionLock.undoRedoTransitionLock
               ? null
               : s._redoAction,
         ),
