@@ -795,13 +795,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   bool _validateBoardAddition(int index) {
-    if (index == 3 && !_isBoardStageComplete(1)) {
-      _showBoardSkipWarning(_stageNames[1], _stageNames[2]);
-      return false;
-    }
-    if (index == 4 && !_isBoardStageComplete(2)) {
-      _showBoardSkipWarning(_stageNames[2], _stageNames[3]);
-      return false;
+    // Determine which stage the index represents: 1 = Flop, 2 = Turn, 3 = River
+    final stage =
+        index <= 2 ? 1 : index == 3 ? 2 : 3;
+    if (stage > 1) {
+      final prevStage = stage - 1;
+      if (!_isBoardStageComplete(prevStage)) {
+        _showBoardSkipWarning(
+          _stageNames[prevStage],
+          _stageNames[stage],
+        );
+        return false;
+      }
     }
     return true;
   }
