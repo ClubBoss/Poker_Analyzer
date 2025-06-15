@@ -804,12 +804,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final prevName = _stageNames[prevStage];
     final nextName = _stageNames[nextStage];
     final count = _stageCardCounts[prevStage];
+    final cardWord = count == 1 ? 'card' : 'cards';
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
         SnackBar(
           content: Text(
-            'Please complete the $prevName by adding $count cards before editing the $nextName.',
+            'Please complete the $prevName by adding $count $cardWord before editing the $nextName.',
           ),
         ),
       );
