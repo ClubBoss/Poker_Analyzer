@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../models/saved_hand.dart';
-import '../services/saved_hand_storage_service.dart';
+import '../services/saved_hand_manager_service.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../widgets/saved_hand_detail_sheet.dart';
@@ -32,8 +32,8 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final storage = context.watch<SavedHandStorageService>();
-    final allHands = storage.hands;
+    final handManager = context.watch<SavedHandManagerService>();
+    final allHands = handManager.hands;
     final tags = <String>{for (final h in allHands) ...h.tags};
     final positions = <String>{for (final h in allHands) h.heroPosition};
 
@@ -133,7 +133,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                         hand: hand,
                         onFavoriteToggle: () {
                           final updated = hand.copyWith(isFavorite: !hand.isFavorite);
-                          storage.update(originalIndex, updated);
+                          handManager.update(originalIndex, updated);
                         },
                         onTap: () async {
                           await showModalBottomSheet(
@@ -147,7 +147,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                               hand: hand,
                               onDelete: () {
                                 Navigator.pop(context);
-                                storage.removeAt(originalIndex);
+                                handManager.removeAt(originalIndex);
                               },
                               onExportJson: () => _exportJson(hand),
                               onExportCsv: () => _exportCsv(hand),
