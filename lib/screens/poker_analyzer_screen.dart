@@ -681,6 +681,32 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _play() {
+    if (_boardTransitioning) return;
+    _playbackManager.startPlayback();
+  }
+
+  void _pause() {
+    if (_boardTransitioning) return;
+    _playbackManager.pausePlayback();
+  }
+
+  void _stepBackwardPlayback() {
+    if (_boardTransitioning) return;
+    _playbackManager.stepBackward();
+  }
+
+  void _stepForwardPlayback() {
+    if (_boardTransitioning) return;
+    _playbackManager.stepForward();
+  }
+
+  void _seekPlayback(double value) {
+    if (_boardTransitioning) return;
+    _playbackManager.seek(value.round());
+    _playbackManager.updatePlaybackState();
+  }
+
   _StateSnapshot _currentSnapshot() => _StateSnapshot(
         street: currentStreet,
         boardStreet: boardStreet,
@@ -3319,13 +3345,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 isPlaying: _playbackManager.isPlaying,
                 playbackIndex: _playbackManager.playbackIndex,
                 actionCount: actions.length,
-                onPlay: () => _playbackManager.startPlayback(),
-                onPause: _playbackManager.pausePlayback,
-                onStepBackward: _playbackManager.stepBackward,
-                onStepForward: () => _playbackManager.stepForward(),
-                onSeek: (v) {
-                  _playbackManager.seek(v.round());
-                },
+                onPlay: _play,
+                onPause: _pause,
+                onStepBackward: _stepBackwardPlayback,
+                onStepForward: _stepForwardPlayback,
+                onSeek: _seekPlayback,
                 onSave: () => saveCurrentHand(),
                 onLoadLast: loadLastSavedHand,
                 onLoadByName: () => loadHandByName(),
