@@ -14,6 +14,7 @@ import 'backup_manager_service.dart';
 import 'debug_preferences_service.dart';
 import 'transition_lock_service.dart';
 import 'current_hand_context_service.dart';
+import 'folded_players_service.dart';
 
 class HandRestoreService {
   HandRestoreService({
@@ -41,7 +42,7 @@ class HandRestoreService {
   final TransitionLockService lockService;
   final CurrentHandContextService handContext;
   final List<ActionEvaluationRequest> pendingEvaluations;
-  final Set<int> foldedPlayers;
+  final FoldedPlayersService foldedPlayers;
   final List<CardModel> revealedBoardCards;
   final void Function(String) setCurrentHandName;
   final void Function(int?) setActivePlayerIndex;
@@ -106,10 +107,14 @@ class HandRestoreService {
     pendingEvaluations
       ..clear()
       ..addAll(hand.pendingEvaluations ?? []);
-    foldedPlayers
-      ..clear()
-      ..addAll(hand.foldedPlayers ??
-          [for (final a in hand.actions) if (a.action == 'fold') a.playerIndex]);
+    if (hand.foldedPlayers != null) {
+      foldedPlayers.setFrom(hand.foldedPlayers!);
+    } else {
+      foldedPlayers.setFrom({
+        for (final a in hand.actions)
+          if (a.action == 'fold') a.playerIndex
+      });
+    }
     actionSync.setExpandedStreets([
       for (int i = 0; i < 4; i++)
         if (hand.collapsedHistoryStreets == null ||
@@ -169,12 +174,7 @@ class HandRestoreService {
   }
 
   void _recomputeFoldedPlayers() {
-    foldedPlayers
-      ..clear()
-      ..addAll({
-        for (final a in actionSync.analyzerActions)
-          if (a.action == 'fold') a.playerIndex
-      });
+    foldedPlayers.recompute(actionSync.analyzerActions);
   }
 }
 
