@@ -162,6 +162,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   // Prevents undo/redo operations while the board transition animation runs.
   bool _undoRedoTransitionLock = false;
   Timer? _boardTransitionTimer;
+  final List<VoidCallback> _postTransitionCallbacks = [];
   final GlobalKey<_BoardCardsSectionState> _boardKey =
       GlobalKey<_BoardCardsSectionState>();
   late final ScrollController _timelineController;
@@ -534,11 +535,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _showCenterChip = true;
     });
     _centerChipTimer = Timer(const Duration(milliseconds: 1000), () {
-      if (!mounted) return;
-      _centerChipController.reverse();
-      setState(() {
-        _showCenterChip = false;
-        _centerChipAction = null;
+      _runAfterTransition(() {
+        if (!mounted) return;
+        _centerChipController.reverse();
+        setState(() {
+          _showCenterChip = false;
+          _centerChipAction = null;
+        });
       });
     });
   }
@@ -666,6 +669,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.updatePlaybackState();
   }
 
+  void _runPostTransitionCallbacks() {
+    for (final cb in List<VoidCallback>.from(_postTransitionCallbacks)) {
+      cb();
+    }
+    _postTransitionCallbacks.clear();
+  }
+
+  void _runAfterTransition(VoidCallback action) {
+    if (_boardTransitioning) {
+      _postTransitionCallbacks.add(action);
+    } else {
+      action();
+    }
+  }
+
   void _startBoardTransition() {
     _boardTransitionTimer?.cancel();
     final targetVisible = _stageCardCounts[currentStreet];
@@ -682,9 +700,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           _boardTransitioning = false;
           _undoRedoTransitionLock = false;
         });
+        _runPostTransitionCallbacks();
       } else {
         _boardTransitioning = false;
         _undoRedoTransitionLock = false;
+        _runPostTransitionCallbacks();
       }
     });
   }
@@ -695,6 +715,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _boardTransitionTimer?.cancel();
       _boardTransitioning = false;
       _undoRedoTransitionLock = false;
+      _runPostTransitionCallbacks();
     }
   }
 
@@ -949,31 +970,45 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (_debugPrefs.snapshotRetentionEnabled) {
         await _cleanupOldEvaluationSnapshots();
       }
-      setState(() {});
+      _runAfterTransition(() {
+        if (mounted) setState(() {});
+      });
     });
     Future(() async {
       await _debugPrefs.loadProcessingDelayPreference();
-      setState(() {});
+      _runAfterTransition(() {
+        if (mounted) setState(() {});
+      });
     });
     Future(() async {
       await _debugPrefs.loadQueueFilterPreference();
-      setState(() {});
+      _runAfterTransition(() {
+        if (mounted) setState(() {});
+      });
     });
     Future(() async {
       await _debugPrefs.loadAdvancedFilterPreference();
-      setState(() {});
+      _runAfterTransition(() {
+        if (mounted) setState(() {});
+      });
     });
     Future(() async {
       await _debugPrefs.loadSearchQueryPreference();
-      setState(() {});
+      _runAfterTransition(() {
+        if (mounted) setState(() {});
+      });
     });
     Future(() async {
       await _debugPrefs.loadSortBySprPreference();
-      setState(() {});
+      _runAfterTransition(() {
+        if (mounted) setState(() {});
+      });
     });
     Future(() async {
       await _debugPrefs.loadQueueResumedPreference();
-      setState(() {});
+      _runAfterTransition(() {
+        if (mounted) setState(() {});
+      });
     });
     Future.microtask(_queueService.loadQueueSnapshot);
     Future(() => _backupManager.cleanupOldAutoBackups());
@@ -1254,7 +1289,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onPlaybackManagerChanged() {
-    if (mounted) {
+    _runAfterTransition(() {
+      if (!mounted) return;
       setState(() {});
       if (_animateTimeline && _timelineController.hasClients) {
         _animateTimeline = false;
@@ -1264,7 +1300,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           curve: Curves.easeOut,
         );
       }
-    }
+    });
   }
 
   void _onPlayerManagerChanged() {
@@ -1274,7 +1310,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackManager.updatePlaybackState();
     }
     _updateRevealedBoardCards();
-    if (mounted) setState(() {});
+    _runAfterTransition(() {
+      if (mounted) setState(() {});
+    });
   }
 
 
@@ -1523,9 +1561,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
     if (mounted) {
-      setState(() {
-        _processingEvaluations = false;
-        _cancelProcessingRequested = false;
+      _runAfterTransition(() {
+        if (!mounted) return;
+        setState(() {
+          _processingEvaluations = false;
+          _cancelProcessingRequested = false;
+        });
       });
     } else {
       _processingEvaluations = false;
@@ -1539,9 +1580,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _retryFailedEvaluations() {
     _queueService.retryFailedEvaluations().then((_) {
-      if (mounted) {
-        setState(() {});
-      }
+      _runAfterTransition(() {
+        if (mounted) setState(() {});
+      });
       _queueService.persist();
       _debugPanelSetState?.call(() {});
     });
