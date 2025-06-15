@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/player_zone_action_entry.dart';
+import '../models/action_entry.dart' as an;
 
 class ActionSyncService extends ChangeNotifier {
   final Map<String, List<ActionEntry>> actions = {
@@ -62,5 +63,73 @@ class ActionSyncService extends ChangeNotifier {
       list.clear();
       notifyListeners();
     }
+  }
+
+  // --- Poker analyzer actions ---
+  final List<an.ActionEntry> analyzerActions = [];
+  final List<List<an.ActionEntry>> _undoAnalyzer = [];
+  final List<List<an.ActionEntry>> _redoAnalyzer = [];
+
+  void _pushUndo() {
+    _undoAnalyzer.add([for (final a in analyzerActions) _clone(a)]);
+    if (_undoAnalyzer.length > 100) _undoAnalyzer.removeAt(0);
+  }
+
+  an.ActionEntry _clone(an.ActionEntry a) => an.ActionEntry(
+        a.street,
+        a.playerIndex,
+        a.action,
+        amount: a.amount,
+        generated: a.generated,
+        timestamp: a.timestamp,
+      );
+
+  void addAnalyzerAction(an.ActionEntry entry, {int? index}) {
+    _pushUndo();
+    if (index == null) {
+      analyzerActions.add(entry);
+    } else {
+      analyzerActions.insert(index, entry);
+    }
+    _redoAnalyzer.clear();
+    notifyListeners();
+  }
+
+  void updateAnalyzerAction(int index, an.ActionEntry entry) {
+    if (index < 0 || index >= analyzerActions.length) return;
+    _pushUndo();
+    analyzerActions[index] = entry;
+    _redoAnalyzer.clear();
+    notifyListeners();
+  }
+
+  void deleteAnalyzerAction(int index) {
+    if (index < 0 || index >= analyzerActions.length) return;
+    _pushUndo();
+    analyzerActions.removeAt(index);
+    _redoAnalyzer.clear();
+    notifyListeners();
+  }
+
+  bool undoAnalyzerAction() {
+    if (_undoAnalyzer.isEmpty) return false;
+    _redoAnalyzer.add([for (final a in analyzerActions) _clone(a)]);
+    final snap = _undoAnalyzer.removeLast();
+    analyzerActions
+      ..clear()
+      ..addAll(snap);
+    notifyListeners();
+    return true;
+  }
+
+  bool redoAnalyzerAction() {
+    if (_redoAnalyzer.isEmpty) return false;
+    _undoAnalyzer.add([for (final a in analyzerActions) _clone(a)]);
+    final snap = _redoAnalyzer.removeLast();
+    analyzerActions
+      ..clear()
+      ..addAll(snap);
+    notifyListeners();
+    return true;
   }
 }
