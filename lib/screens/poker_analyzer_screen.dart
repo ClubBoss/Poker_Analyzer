@@ -816,6 +816,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// warning and returns `false`.
   bool _canAddBoardCard(int index) {
     final stage = _stageForBoardIndex(index);
+    if (index > boardCards.length) {
+      final expectedStage = _stageForBoardIndex(boardCards.length);
+      _showBoardSkipWarning(
+        _stageNames[expectedStage],
+        _stageNames[stage],
+      );
+      return false;
+    }
     if (!_isBoardStageComplete(stage - 1)) {
       _showBoardSkipWarning(_stageNames[stage - 1], _stageNames[stage]);
       return false;
