@@ -14,7 +14,14 @@ import 'backup_manager_service.dart';
 import 'debug_preferences_service.dart';
 import 'transition_lock_service.dart';
 import 'current_hand_context_service.dart';
+
 import 'folded_players_service.dart';
+
+/// Restores a [SavedHand] object by updating all runtime services.
+///
+/// The service synchronizes stacks, player states, board cards, queued
+/// evaluations and playback settings. It keeps restoration logic out of the
+/// UI while ensuring the analyzer state can be rebuilt from persisted data.
 
 class HandRestoreService {
   HandRestoreService({
