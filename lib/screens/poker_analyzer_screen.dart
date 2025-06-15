@@ -3157,12 +3157,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     numberOfPlayers: numberOfPlayers,
                     scale: scale,
                     playerPositions: playerPositions,
-                    opponentCardRow: _OpponentCardRowSection(
-                      scale: scale,
-                      players: players,
-                      activePlayerIndex: activePlayerIndex,
-                      opponentIndex: opponentIndex,
-                      onCardTap: _onOpponentCardTap,
+                    opponentCardRow: AbsorbPointer(
+                      absorbing: _boardTransitioning,
+                      child: _OpponentCardRowSection(
+                        scale: scale,
+                        players: players,
+                        activePlayerIndex: activePlayerIndex,
+                        opponentIndex: opponentIndex,
+                        onCardTap:
+                            _boardTransitioning ? null : _onOpponentCardTap,
+                      ),
                     ),
                     playerBuilder: _buildPlayerWidgets,
                     chipTrailBuilder: _buildChipTrail,
@@ -3553,7 +3557,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     _playerManager.playerPositions[index] == 'BB')
                 ? _playerManager.playerPositions[index]
                 : null,
-            onCardTap: (cardIndex) => _onPlayerCardTap(index, cardIndex),
+            onCardTap: _boardTransitioning
+                ? null
+                : (cardIndex) => _onPlayerCardTap(index, cardIndex),
             onTap: () => _onPlayerTap(index),
             onDoubleTap: () => setState(() {
               _playerManager.setHeroIndex(index);
@@ -3874,14 +3880,14 @@ class _OpponentCardRowSection extends StatelessWidget {
   final List<PlayerModel> players;
   final int? activePlayerIndex;
   final int? opponentIndex;
-  final void Function(int) onCardTap;
+  final void Function(int)? onCardTap;
 
   const _OpponentCardRowSection({
     required this.scale,
     required this.players,
     required this.activePlayerIndex,
     required this.opponentIndex,
-    required this.onCardTap,
+    this.onCardTap,
   });
 
   @override
@@ -3899,7 +3905,7 @@ class _OpponentCardRowSection extends StatelessWidget {
             final card = list[i];
             final isRed = card?.suit == '♥' || card?.suit == '♦';
             return GestureDetector(
-              onTap: () => onCardTap(i),
+              onTap: onCardTap != null ? () => onCardTap!(i) : null,
               behavior: HitTestBehavior.opaque,
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
