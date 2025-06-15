@@ -1,18 +1,20 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/player_zone_action_entry.dart';
+import '../models/action_entry.dart';
+import '../models/player_zone_action_entry.dart' as pz;
+import '../models/card_model.dart';
 
 class ActionSyncService extends ChangeNotifier {
-  final Map<String, List<ActionEntry>> actions = {
+  final Map<String, List<pz.ActionEntry>> actions = {
     'Preflop': [],
     'Flop': [],
     'Turn': [],
     'River': [],
   };
 
-  final List<ActionEntry> _history = [];
+  final List<pz.ActionEntry> _history = [];
 
-  void addOrUpdate(ActionEntry entry) {
+  void addOrUpdate(pz.ActionEntry entry) {
     final list = actions[entry.street]!;
     final index = list.indexWhere((e) => e.playerName == entry.playerName);
     if (index >= 0) {
@@ -25,7 +27,7 @@ class ActionSyncService extends ChangeNotifier {
   }
 
   /// Updates an existing action entry at the given index for the street.
-  void updateAction(String street, int index, ActionEntry newEntry) {
+  void updateAction(String street, int index, pz.ActionEntry newEntry) {
     final list = actions[street];
     if (list == null || index < 0 || index >= list.length) return;
     list[index] = newEntry;
@@ -63,4 +65,166 @@ class ActionSyncService extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // ----- PokerAnalyzer synchronization -----
+
+  final List<ActionEntry> analyzerActions = [];
+  final List<ActionHistoryEntry> _undoStack = [];
+  final List<ActionHistoryEntry> _redoStack = [];
+  final List<ActionSnapshot> _undoSnapshots = [];
+  final List<ActionSnapshot> _redoSnapshots = [];
+
+  void recordSnapshot(ActionSnapshot snap) {
+    _undoSnapshots.add(snap);
+    _redoSnapshots.clear();
+  }
+
+  void addAnalyzerAction(ActionEntry entry,
+      {int? index, bool recordHistory = true, required int prevStreet, required int newStreet}) {
+    final insertIndex = index ?? analyzerActions.length;
+    if (index != null) {
+      analyzerActions.insert(index, entry);
+    } else {
+      analyzerActions.add(entry);
+    }
+    if (recordHistory) {
+      _undoStack.add(ActionHistoryEntry(ActionChangeType.add, insertIndex,
+          newEntry: entry, prevStreet: prevStreet, newStreet: newStreet));
+      _redoStack.clear();
+    }
+    notifyListeners();
+  }
+
+  void updateAnalyzerAction(int index, ActionEntry entry,
+      {bool recordHistory = true, required int street}) {
+    final previous = analyzerActions[index];
+    analyzerActions[index] = entry;
+    if (recordHistory) {
+      _undoStack.add(ActionHistoryEntry(ActionChangeType.edit, index,
+          oldEntry: previous,
+          newEntry: entry,
+          prevStreet: street,
+          newStreet: street));
+      _redoStack.clear();
+    }
+    notifyListeners();
+  }
+
+  void deleteAnalyzerAction(int index,
+      {bool recordHistory = true, required int street}) {
+    final removed = analyzerActions.removeAt(index);
+    if (recordHistory) {
+      _undoStack.add(ActionHistoryEntry(ActionChangeType.delete, index,
+          oldEntry: removed,
+          prevStreet: street,
+          newStreet: street));
+      _redoStack.clear();
+    }
+    notifyListeners();
+  }
+
+  UndoRedoResult undo(ActionSnapshot currentSnapshot) {
+    if (_undoStack.isEmpty) {
+      if (_undoSnapshots.isEmpty) {
+        return UndoRedoResult(null, null);
+      }
+      final snap = _undoSnapshots.removeLast();
+      _redoSnapshots.add(currentSnapshot);
+      return UndoRedoResult(null, snap);
+    }
+    final op = _undoStack.removeLast();
+    ActionSnapshot? snap;
+    if (_undoSnapshots.isNotEmpty) {
+      snap = _undoSnapshots.removeLast();
+      _redoSnapshots.add(currentSnapshot);
+    }
+    switch (op.type) {
+      case ActionChangeType.add:
+        analyzerActions.removeAt(op.index);
+        break;
+      case ActionChangeType.edit:
+        analyzerActions[op.index] = op.oldEntry!;
+        break;
+      case ActionChangeType.delete:
+        analyzerActions.insert(op.index, op.oldEntry!);
+        break;
+    }
+    _redoStack.add(op);
+    notifyListeners();
+    return UndoRedoResult(op, snap);
+  }
+
+  UndoRedoResult redo(ActionSnapshot currentSnapshot) {
+    if (_redoStack.isEmpty) {
+      if (_redoSnapshots.isEmpty) {
+        return UndoRedoResult(null, null);
+      }
+      final snap = _redoSnapshots.removeLast();
+      _undoSnapshots.add(currentSnapshot);
+      return UndoRedoResult(null, snap);
+    }
+    final op = _redoStack.removeLast();
+    ActionSnapshot? snap;
+    if (_redoSnapshots.isNotEmpty) {
+      snap = _redoSnapshots.removeLast();
+      _undoSnapshots.add(currentSnapshot);
+    }
+    switch (op.type) {
+      case ActionChangeType.add:
+        analyzerActions.insert(op.index, op.newEntry!);
+        break;
+      case ActionChangeType.edit:
+        analyzerActions[op.index] = op.newEntry!;
+        break;
+      case ActionChangeType.delete:
+        analyzerActions.removeAt(op.index);
+        break;
+    }
+    _undoStack.add(op);
+    notifyListeners();
+    return UndoRedoResult(op, snap);
+  }
+}
+
+enum ActionChangeType { add, edit, delete }
+
+class ActionHistoryEntry {
+  final ActionChangeType type;
+  final int index;
+  final ActionEntry? oldEntry;
+  final ActionEntry? newEntry;
+  final int prevStreet;
+  final int newStreet;
+
+  ActionHistoryEntry(
+    this.type,
+    this.index, {
+    this.oldEntry,
+    this.newEntry,
+    required this.prevStreet,
+    required this.newStreet,
+  });
+}
+
+class ActionSnapshot {
+  final int street;
+  final int boardStreet;
+  final List<CardModel> board;
+  final int playbackIndex;
+  final Set<int> expandedStreets;
+
+  ActionSnapshot({
+    required this.street,
+    required this.boardStreet,
+    required this.board,
+    required this.playbackIndex,
+    required this.expandedStreets,
+  });
+}
+
+class UndoRedoResult {
+  final ActionHistoryEntry? entry;
+  final ActionSnapshot? snapshot;
+
+  UndoRedoResult(this.entry, this.snapshot);
 }
