@@ -834,7 +834,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return true;
   }
 
-  bool _canEditBoard(int index) => _isBoardEditAllowed(index);
+  bool _canEditBoard(int index) {
+    _ensureBoardStreetConsistent();
+    return _isBoardEditAllowed(index);
+  }
 
   void selectBoardCard(int index, CardModel card) {
     if (!_canEditBoard(index)) return;
