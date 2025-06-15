@@ -89,12 +89,14 @@ class _StateSnapshot {
   final int boardStreet;
   final List<CardModel> board;
   final int playbackIndex;
+  final Set<int> expandedStreets;
 
   _StateSnapshot({
     required this.street,
     required this.boardStreet,
     required this.board,
     required this.playbackIndex,
+    required this.expandedStreets,
   });
 }
 
@@ -571,11 +573,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
   }
 
+  void _autoCollapseStreets() {
+    for (int i = 0; i < 4; i++) {
+      if (!actions.any((a) => a.street == i)) {
+        _expandedHistoryStreets.remove(i);
+      }
+    }
+  }
+
   _StateSnapshot _currentSnapshot() => _StateSnapshot(
         street: currentStreet,
         boardStreet: boardStreet,
         board: List<CardModel>.from(boardCards),
         playbackIndex: _playbackManager.playbackIndex,
+        expandedStreets: Set<int>.from(_expandedHistoryStreets),
       );
 
   void _recordSnapshot() {
@@ -593,6 +604,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (currentStreet != boardStreet) {
       currentStreet = boardStreet;
     }
+    _expandedHistoryStreets
+      ..clear()
+      ..addAll(snap.expandedStreets);
     _playbackManager.seek(snap.playbackIndex);
     _updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
@@ -1444,6 +1458,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } else {
       actions.add(entry);
     }
+    _expandedHistoryStreets.add(entry.street);
     if (recordHistory) {
       _undoStack.add(_ActionHistoryEntry(_ActionChangeType.add, insertIndex,
           newEntry: entry, prevStreet: prevStreet, newStreet: currentStreet));
@@ -1548,6 +1563,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _actionTags.remove(removed.playerIndex);
       }
       _recomputeFoldedPlayers();
+      _autoCollapseStreets();
       _playbackManager.updatePlaybackState();
     }
 
@@ -1592,6 +1608,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final snap = _undoSnapshots.removeLast();
         _redoSnapshots.add(_currentSnapshot());
         _applySnapshot(snap);
+        _autoCollapseStreets();
       });
       _debugPanelSetState?.call(() {});
       return;
@@ -1614,6 +1631,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       currentStreet = op.prevStreet;
       _updateRevealedBoardCards();
       _playbackManager.updatePlaybackState();
+      _autoCollapseStreets();
       _redoStack.add(op);
       if (snap != null) {
         _redoSnapshots.add(_currentSnapshot());
@@ -1630,6 +1648,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final snap = _redoSnapshots.removeLast();
         _undoSnapshots.add(_currentSnapshot());
         _applySnapshot(snap);
+        _autoCollapseStreets();
       });
       _debugPanelSetState?.call(() {});
       return;
@@ -1652,6 +1671,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       currentStreet = op.newStreet;
       _updateRevealedBoardCards();
       _playbackManager.updatePlaybackState();
+      _autoCollapseStreets();
       _undoStack.add(op);
       if (snap != null) {
         _undoSnapshots.add(_currentSnapshot());
@@ -2679,6 +2699,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 !hand.collapsedHistoryStreets!.contains(i))
               i
         ]);
+      _autoCollapseStreets();
       boardStreet = hand.boardStreet;
       currentStreet = hand.boardStreet;
       _ensureBoardStreetConsistent();
