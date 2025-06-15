@@ -45,6 +45,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final int currentBet;
   /// Remaining stack after subtracting investments.
   final int? remainingStack;
+  /// Disables the active timer when true.
+  final bool timersDisabled;
 
   const PlayerInfoWidget({
     super.key,
@@ -73,6 +75,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.currentBet = 0,
     this.showLastIndicator = false,
     this.remainingStack,
+    this.timersDisabled = false,
   });
 
   String _format(int value) => NumberFormat.decimalPattern().format(value);
@@ -427,8 +430,8 @@ class PlayerInfoWidget extends StatelessWidget {
       clickable = _ActivePlayerGlow(child: clickable);
       clickable = ActionTimerRing(
         child: clickable,
-        isActive: true,
-        onTimeExpired: onTimeExpired,
+        isActive: !timersDisabled,
+        onTimeExpired: timersDisabled ? null : onTimeExpired,
       );
     }
 
