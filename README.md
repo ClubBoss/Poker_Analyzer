@@ -13,7 +13,7 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
 - `lib/` – application source code
   - `screens/` – UI screens
   - `models/` – plain models
-  - `services/` – business logic and persistence
+  - `services/` – business logic and persistence (includes `HandRestoreService` to rebuild runtime state)
   - `helpers/` – reusable helper functions
 - `assets/` – images and other assets
 - `test/` – unit tests
