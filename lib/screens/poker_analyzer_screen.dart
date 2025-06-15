@@ -794,6 +794,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       backupManager: _backupManager,
       debugPrefs: _debugPrefs,
       lockService: lockService,
+      commentController: _commentController,
+      tagsController: _tagsController,
+      actionTags: _actionTags,
+      pendingEvaluations: _pendingEvaluations,
+      foldedPlayers: _foldedPlayers,
+      revealedBoardCards: revealedBoardCards,
+      setCurrentHandName: (name) => _currentHandName = name,
+      setActivePlayerIndex: (i) => activePlayerIndex = i,
     );
     _playerManager.updatePositions();
     _actionSync.setBoardStreet(_inferBoardStreet());
@@ -802,17 +810,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.updatePlaybackState();
     _updateRevealedBoardCards();
     if (widget.initialHand != null) {
-      _stackService = _handRestore.restoreHand(
-        widget.initialHand!,
-        commentController: _commentController,
-        tagsController: _tagsController,
-        actionTags: _actionTags,
-        pendingEvaluations: _pendingEvaluations,
-        foldedPlayers: _foldedPlayers,
-        revealedBoardCards: revealedBoardCards,
-        setCurrentHandName: (name) => _currentHandName = name,
-        setActivePlayerIndex: (i) => activePlayerIndex = i,
-      );
+      _stackService = _handRestore.restoreHand(widget.initialHand!);
       _startBoardTransition();
     }
     Future(() => _cleanupOldEvaluationBackups());
@@ -2132,17 +2130,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void loadHand(String jsonStr) {
     final hand = SavedHand.fromJson(jsonDecode(jsonStr));
-    _stackService = _handRestore.restoreHand(
-      hand,
-      commentController: _commentController,
-      tagsController: _tagsController,
-      actionTags: _actionTags,
-      pendingEvaluations: _pendingEvaluations,
-      foldedPlayers: _foldedPlayers,
-      revealedBoardCards: revealedBoardCards,
-      setCurrentHandName: (name) => _currentHandName = name,
-      setActivePlayerIndex: (i) => activePlayerIndex = i,
-    );
+    _stackService = _handRestore.restoreHand(hand);
     _startBoardTransition();
   }
 
@@ -2286,17 +2274,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
     if (savedHands.isEmpty) return;
     final hand = savedHands.last;
-    _stackService = _handRestore.restoreHand(
-      hand,
-      commentController: _commentController,
-      tagsController: _tagsController,
-      actionTags: _actionTags,
-      pendingEvaluations: _pendingEvaluations,
-      foldedPlayers: _foldedPlayers,
-      revealedBoardCards: revealedBoardCards,
-      setCurrentHandName: (name) => _currentHandName = name,
-      setActivePlayerIndex: (i) => activePlayerIndex = i,
-    );
+    _stackService = _handRestore.restoreHand(hand);
     _startBoardTransition();
   }
 
@@ -2304,17 +2282,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
     final selected = await _handManager.selectHand(context);
     if (selected != null) {
-      _stackService = _handRestore.restoreHand(
-        selected,
-        commentController: _commentController,
-        tagsController: _tagsController,
-        actionTags: _actionTags,
-        pendingEvaluations: _pendingEvaluations,
-        foldedPlayers: _foldedPlayers,
-        revealedBoardCards: revealedBoardCards,
-        setCurrentHandName: (name) => _currentHandName = name,
-        setActivePlayerIndex: (i) => activePlayerIndex = i,
-      );
+      _stackService = _handRestore.restoreHand(selected);
       _startBoardTransition();
     }
   }
@@ -2334,17 +2302,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
     final hand = await _handManager.importHandFromClipboard(context);
     if (hand != null) {
-      _stackService = _handRestore.restoreHand(
-        hand,
-        commentController: _commentController,
-        tagsController: _tagsController,
-        actionTags: _actionTags,
-        pendingEvaluations: _pendingEvaluations,
-        foldedPlayers: _foldedPlayers,
-        revealedBoardCards: revealedBoardCards,
-        setCurrentHandName: (name) => _currentHandName = name,
-        setActivePlayerIndex: (i) => activePlayerIndex = i,
-      );
+      _stackService = _handRestore.restoreHand(hand);
       _startBoardTransition();
     }
   }
