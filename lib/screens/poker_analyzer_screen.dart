@@ -883,6 +883,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             : null,
         disableCards: disableCards,
         onSave: (stack, type, isHero, c1, c2) {
+          if (_boardTransitioning) return;
           setState(() {
             final cards = <CardModel>[];
             if (c1 != null) cards.add(c1);
@@ -895,8 +896,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               cards: cards,
               disableCards: disableCards,
             );
-            _stackService =
-                StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
+            _stackService = StackManagerService(
+                Map<int, int>.from(_playerManager.initialStacks));
             _playbackManager.stackService = _stackService;
             _playbackManager.updatePlaybackState();
           });
@@ -3635,13 +3636,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   }),
             onLongPress: _boardTransitioning ? null : () => _editPlayerInfo(index),
             onEdit: _boardTransitioning ? null : () => _editPlayerInfo(index),
-            onStackTap: (value) => setState(() {
-              _playerManager.setInitialStack(index, value);
-              _stackService =
-                  StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
-              _playbackManager.stackService = _stackService;
-              _playbackManager.updatePlaybackState();
-            }),
+            onStackTap: _boardTransitioning
+                ? null
+                : (value) => setState(() {
+                      _playerManager.setInitialStack(index, value);
+                      _stackService = StackManagerService(
+                          Map<int, int>.from(_playerManager.initialStacks));
+                      _playbackManager.stackService = _stackService;
+                      _playbackManager.updatePlaybackState();
+                    }),
             onRemove: _playerManager.numberOfPlayers > 2 && !_boardTransitioning
                 ? () {
                     _removePlayer(index);
