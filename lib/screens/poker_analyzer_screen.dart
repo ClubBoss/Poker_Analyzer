@@ -573,6 +573,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
   }
 
+  int _activePlayerCount() => numberOfPlayers - _foldedPlayers.length;
+
+  void _maybeAdvanceStreet() {
+    if (_activePlayerCount() <= 1 && currentStreet < 3) {
+      _recordSnapshot();
+      currentStreet++;
+      _updateRevealedBoardCards();
+      _playbackManager.updatePlaybackState();
+      _autoCollapseStreets();
+    }
+  }
+
   void _autoCollapseStreets() {
     for (int i = 0; i < 4; i++) {
       if (!actions.any((a) => a.street == i)) {
@@ -1485,6 +1497,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
+    _maybeAdvanceStreet();
   }
 
   void onActionSelected(ActionEntry entry) {
@@ -1525,6 +1538,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playUnifiedChipAnimation(entry);
     }
     _playbackManager.updatePlaybackState();
+    _maybeAdvanceStreet();
   }
 
   void _editAction(int index, ActionEntry entry) {
@@ -1565,6 +1579,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _recomputeFoldedPlayers();
       _autoCollapseStreets();
       _playbackManager.updatePlaybackState();
+      _maybeAdvanceStreet();
     }
 
     if (withSetState) {
