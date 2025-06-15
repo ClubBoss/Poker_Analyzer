@@ -104,8 +104,14 @@ class _StateSnapshot {
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
   final EvaluationQueueService? queueService;
+  final DebugPreferencesService? debugPrefsService;
 
-  const PokerAnalyzerScreen({super.key, this.initialHand, this.queueService});
+  const PokerAnalyzerScreen({
+    super.key,
+    this.initialHand,
+    this.queueService,
+    this.debugPrefsService,
+  });
 
   @override
   State<PokerAnalyzerScreen> createState() => _PokerAnalyzerScreenState();
@@ -261,7 +267,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const int _backupRetentionLimit = 30;
   /// Number of automatic queue backups to retain.
   static const int _autoBackupRetentionLimit = 50;
-  final DebugPreferencesService _debugPrefs = DebugPreferencesService();
+  late final DebugPreferencesService _debugPrefs;
 
   /// Evaluation processing delay, snapshot retention and other debug
   /// preferences are managed by [_debugPrefs].
@@ -897,6 +903,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void initState() {
     super.initState();
     _queueService = widget.queueService ?? EvaluationQueueService();
+    _debugPrefs = widget.debugPrefsService ?? DebugPreferencesService();
     _backupManager = BackupManagerService(
       queueService: _queueService,
       debugPrefs: _debugPrefs,
