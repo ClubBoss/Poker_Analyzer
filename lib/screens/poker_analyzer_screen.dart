@@ -3297,18 +3297,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onDelete: _deleteAction,
               ),
             ),
-            ActionTimelineWidget(
-              actions: visibleActions,
-              playbackIndex: _playbackManager.playbackIndex,
-              onTap: (index) {
-                setState(() {
-                  _playbackManager.seek(index);
-                  _playbackManager.updatePlaybackState(); // Перестраиваем экран
-                });
-              },
-              playerPositions: playerPositions,
-              controller: _timelineController,
-              scale: scale,
+            AbsorbPointer(
+              absorbing: _boardTransitioning,
+              child: ActionTimelineWidget(
+                actions: visibleActions,
+                playbackIndex: _playbackManager.playbackIndex,
+                onTap: (index) {
+                  setState(() {
+                    _playbackManager.seek(index);
+                    _playbackManager.updatePlaybackState(); // Перестраиваем экран
+                  });
+                },
+                playerPositions: playerPositions,
+                controller: _timelineController,
+                scale: scale,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -3331,6 +3334,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onImport: importHandFromClipboard,
                 onImportAll: importAllHandsFromClipboard,
                 onReset: _resetHand,
+                disabled: _boardTransitioning,
               ),
             ),
             Expanded(
@@ -4519,6 +4523,7 @@ class _PlaybackControlsSection extends StatelessWidget {
   final VoidCallback onStepForward;
   final ValueChanged<double> onSeek;
   final VoidCallback onReset;
+  final bool disabled;
 
   const _PlaybackControlsSection({
     required this.isPlaying,
@@ -4530,6 +4535,7 @@ class _PlaybackControlsSection extends StatelessWidget {
     required this.onStepForward,
     required this.onSeek,
     required this.onReset,
+    this.disabled = false,
   });
 
   @override
@@ -4540,25 +4546,26 @@ class _PlaybackControlsSection extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.skip_previous, color: Colors.white),
-              onPressed: onStepBackward,
+              onPressed: disabled ? null : onStepBackward,
             ),
             IconButton(
               icon: Icon(
                 isPlaying ? Icons.pause : Icons.play_arrow,
                 color: Colors.white,
               ),
-              onPressed: isPlaying ? onPause : onPlay,
+              onPressed:
+                  disabled ? null : (isPlaying ? onPause : onPlay),
             ),
             IconButton(
               icon: const Icon(Icons.skip_next, color: Colors.white),
-              onPressed: onStepForward,
+              onPressed: disabled ? null : onStepForward,
             ),
             Expanded(
               child: Slider(
                 value: playbackIndex.toDouble(),
                 min: 0,
                 max: actionCount > 0 ? actionCount.toDouble() : 1,
-                onChanged: onSeek,
+                onChanged: disabled ? null : onSeek,
               ),
             ),
           ],
@@ -4646,6 +4653,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
   final VoidCallback onImport;
   final VoidCallback onImportAll;
   final VoidCallback onReset;
+  final bool disabled;
 
   const _PlaybackAndHandControls({
     required this.isPlaying,
@@ -4664,6 +4672,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
     required this.onImport,
     required this.onImportAll,
     required this.onReset,
+    this.disabled = false,
   });
 
   @override
@@ -4690,6 +4699,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
           onStepForward: onStepForward,
           onSeek: onSeek,
           onReset: onReset,
+          disabled: disabled,
         ),
       ],
     );
