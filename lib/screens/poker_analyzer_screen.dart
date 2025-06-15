@@ -169,8 +169,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool isPerspectiveSwitched = false;
   String? _currentHandName;
 
-  void _safeSetState(VoidCallback fn) {
-    if (!mounted || _boardTransitioning) return;
+  void _safeSetState(VoidCallback fn, {bool ignoreTransitionLock = false}) {
+    if (!mounted) return;
+    if (_boardTransitioning && !ignoreTransitionLock) return;
     setState(fn);
   }
 
@@ -682,14 +683,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _boardTransitioning = true;
     _undoRedoTransitionLock = true;
     _boardTransitionTimer = Timer(duration, () {
+      _boardTransitioning = false;
+      _undoRedoTransitionLock = false;
       if (mounted) {
-        setState(() {
-          _boardTransitioning = false;
-          _undoRedoTransitionLock = false;
-        });
-      } else {
-        _boardTransitioning = false;
-        _undoRedoTransitionLock = false;
+        _safeSetState(() {}, ignoreTransitionLock: true);
       }
     });
   }
