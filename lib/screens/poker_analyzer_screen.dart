@@ -1903,11 +1903,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
-  Future<void> _importQuickBackups() async {
-    await _backupManager.importQuickBackups(context);
-    _debugPanelSetState?.call(() {});
-  }
-
   Future<void> _exportEvaluationQueueSnapshot({bool showNotification = true}) async {
     await _backupManager.exportEvaluationQueueSnapshot(
       context,
@@ -2077,17 +2072,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
-  Future<void> _bulkImportEvaluationBackups() async {
-    await _backupManager.bulkImportEvaluationBackups(context);
-    if (mounted) setState(() {});
-    _debugPanelSetState?.call(() {});
-  }
-
-  Future<void> _bulkImportAutoBackups() async {
-    await _backupManager.bulkImportAutoBackups(context);
-    if (mounted) setState(() {});
-    _debugPanelSetState?.call(() {});
-  }
 
   Future<void> _importEvaluationQueueSnapshot() async {
     await _backupManager.importEvaluationQueueSnapshot(context);
@@ -4923,8 +4907,16 @@ class _QueueTools extends StatelessWidget {
       'Restore Evaluation Queue': s._restoreEvaluationQueue,
       'Restore From Auto-Backup': s._restoreFromAutoBackup,
       'Bulk Import Evaluation Queue': s._bulkImportEvaluationQueue,
-      'Bulk Import Backups': s._bulkImportEvaluationBackups,
-      'Bulk Import Auto-Backups': s._bulkImportAutoBackups,
+      'Bulk Import Backups': () async {
+        await s._backupManager.bulkImportEvaluationBackups(s.context);
+        if (s.mounted) s.setState(() {});
+        s._debugPanelSetState?.call(() {});
+      },
+      'Bulk Import Auto-Backups': () async {
+        await s._backupManager.bulkImportAutoBackups(s.context);
+        if (s.mounted) s.setState(() {});
+        s._debugPanelSetState?.call(() {});
+      },
       'Import Queue Snapshot': s._importEvaluationQueueSnapshot,
       'Bulk Import Snapshots': s._bulkImportEvaluationSnapshots,
       'Export All Snapshots': s._exportAllEvaluationSnapshots,
@@ -4935,7 +4927,10 @@ class _QueueTools extends StatelessWidget {
       'Import Queue From Clipboard': s._importQueueFromClipboard,
       'Export Current Queue Snapshot': s._exportEvaluationQueueSnapshot,
       'Quick Backup': s._quickBackupEvaluationQueue,
-      'Import Quick Backups': s._importQuickBackups,
+      'Import Quick Backups': () async {
+        await s._backupManager.importQuickBackups(s.context);
+        s._debugPanelSetState?.call(() {});
+      },
       'Export All Backups': s._exportAllEvaluationBackups,
       'Clear Pending':
           s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
