@@ -268,7 +268,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const List<int> _stageCardCounts = [0, 3, 4, 5];
   static const double _timelineExtent = 80.0;
   static const List<String> _stageNames = ['Preflop', 'Flop', 'Turn', 'River'];
-  static const Duration _boardRevealDuration = Duration(milliseconds: 250);
+  /// Duration for individual board card animations.
+  static const Duration _boardRevealDuration = Duration(milliseconds: 200);
+  /// Delay between sequential board reveals.
   static const Duration _boardRevealStagger = Duration(milliseconds: 50);
 
   /// Determine which board stage a particular card index belongs to.
