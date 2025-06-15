@@ -581,6 +581,29 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  bool _isStreetComplete(int street) {
+    final acted = actions
+        .where((a) => a.street == street)
+        .map((a) => a.playerIndex)
+        .toSet();
+    final active = <int>{};
+    for (int i = 0; i < _playerManager.numberOfPlayers; i++) {
+      if (!_foldedPlayers.contains(i)) active.add(i);
+    }
+    return active.difference(acted).isEmpty;
+  }
+
+  void _autoAdvanceStreetIfComplete(int street) {
+    if (street != currentStreet || street >= 3) return;
+    if (!_isStreetComplete(street)) return;
+    currentStreet = street + 1;
+    _actionTags.clear();
+    _playbackManager.animatedPlayersPerStreet
+        .putIfAbsent(currentStreet, () => <int>{});
+    _updateRevealedBoardCards();
+    _playbackManager.updatePlaybackState();
+  }
+
   _StateSnapshot _currentSnapshot() => _StateSnapshot(
         street: currentStreet,
         boardStreet: boardStreet,
@@ -1459,11 +1482,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actions.add(entry);
     }
     _expandedHistoryStreets.add(entry.street);
-    if (recordHistory) {
-      _undoStack.add(_ActionHistoryEntry(_ActionChangeType.add, insertIndex,
-          newEntry: entry, prevStreet: prevStreet, newStreet: currentStreet));
-      _redoStack.clear();
-    }
     if (entry.action == 'fold') {
       _foldedPlayers.add(entry.playerIndex);
     }
@@ -1485,6 +1503,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
+    _autoAdvanceStreetIfComplete(entry.street);
+    if (recordHistory) {
+      _undoStack.add(_ActionHistoryEntry(_ActionChangeType.add, insertIndex,
+          newEntry: entry, prevStreet: prevStreet, newStreet: currentStreet));
+      _redoStack.clear();
+    }
   }
 
   void onActionSelected(ActionEntry entry) {
