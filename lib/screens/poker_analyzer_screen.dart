@@ -73,6 +73,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final HandRestoreService? handRestoreService;
   final CurrentHandContextService? handContext;
   final FoldedPlayersService? foldedPlayersService;
+  final BackupManagerService? backupManagerService;
   final PlaybackManagerService playbackManager;
   final StackManagerService stackService;
   final BoardManagerService boardManager;
@@ -86,6 +87,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     this.handRestoreService,
     this.handContext,
     this.foldedPlayersService,
+    this.backupManagerService,
     required this.playbackManager,
     required this.stackService,
     required this.boardManager,
@@ -166,12 +168,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   StateSetter? _debugPanelSetState;
   late BackupManagerService _backupManager;
 
-  // Backup directories
-  static const String _backupsFolder = BackupManagerService.backupsFolder;
-  static const String _autoBackupsFolder = BackupManagerService.autoBackupsFolder;
-  static const String _snapshotsFolder = BackupManagerService.snapshotsFolder;
-  static const String _exportsFolder = BackupManagerService.exportsFolder;
-
   late final DebugPreferencesService _debugPrefs;
 
   /// Evaluation processing delay, snapshot retention and other debug
@@ -243,15 +239,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     throw const FormatException();
   }
 
-  Map<String, dynamic> _currentQueueState() => {
-        'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
-        'completed': [for (final e in _completedEvaluations) e.toJson()],
-      };
-
-  void _startAutoBackupTimer() {
-    _backupManager.startAutoBackupTimer();
-  }
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
     final filtered = _debugPrefs.applyAdvancedFilters(queue);
@@ -701,7 +688,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
     _queueService = widget.queueService ?? EvaluationQueueService();
     _debugPrefs = widget.debugPrefsService ?? DebugPreferencesService();
-    _backupManager = BackupManagerService(
+    _backupManager = widget.backupManagerService ?? BackupManagerService(
       queueService: _queueService,
       debugPrefs: _debugPrefs,
     );
@@ -2072,6 +2059,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _queueService.cleanup();
     _centerChipController.dispose();
     _timelineController.dispose();
+    _backupManager.dispose();
     _handContext.dispose();
     super.dispose();
   }
