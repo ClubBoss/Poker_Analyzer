@@ -103,8 +103,9 @@ class _StateSnapshot {
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
+  final EvaluationQueueService? queueService;
 
-  const PokerAnalyzerScreen({super.key, this.initialHand});
+  const PokerAnalyzerScreen({super.key, this.initialHand, this.queueService});
 
   @override
   State<PokerAnalyzerScreen> createState() => _PokerAnalyzerScreenState();
@@ -336,23 +337,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         'failed': [for (final e in _failedEvaluations) e.toJson()],
         'completed': [for (final e in _completedEvaluations) e.toJson()],
       };
-
-  void _applySavedOrder(
-      List<ActionEvaluationRequest> list, List<String>? order) {
-    if (order == null || order.isEmpty) return;
-    final remaining = List<ActionEvaluationRequest>.from(list);
-    final reordered = <ActionEvaluationRequest>[];
-    for (final key in order) {
-      final idx = remaining.indexWhere((e) => e.id == key);
-      if (idx != -1) {
-        reordered.add(remaining.removeAt(idx));
-      }
-    }
-    reordered.addAll(remaining);
-    list
-      ..clear()
-      ..addAll(reordered);
-  }
 
   void _startAutoBackupTimer() {
     _autoBackupTimer?.cancel();
@@ -912,7 +896,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
-    _queueService = EvaluationQueueService();
+    _queueService = widget.queueService ?? EvaluationQueueService();
     _backupManager = BackupManagerService(
       queueService: _queueService,
       debugPrefs: _debugPrefs,
@@ -2171,9 +2155,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
 
         final prefs = await SharedPreferences.getInstance();
-        _applySavedOrder(pending, prefs.getStringList(_pendingOrderKey));
-        _applySavedOrder(failed, prefs.getStringList(_failedOrderKey));
-        _applySavedOrder(completed, prefs.getStringList(_completedOrderKey));
+        _queueService.applySavedOrder(
+            pending, prefs.getStringList(_pendingOrderKey));
+        _queueService.applySavedOrder(
+            failed, prefs.getStringList(_failedOrderKey));
+        _queueService.applySavedOrder(
+            completed, prefs.getStringList(_completedOrderKey));
 
         if (mounted) {
           lockService.safeSetState(this, () {
