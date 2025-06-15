@@ -795,13 +795,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   bool _isBoardEditAllowed(int index) {
-    if (index == 3 && !_isBoardStageComplete(1)) {
-      _showBoardSkipWarning(_stageNames[1], _stageNames[2]);
-      return false;
-    }
-    if (index == 4 && !_isBoardStageComplete(2)) {
-      _showBoardSkipWarning(_stageNames[2], _stageNames[3]);
-      return false;
+    if (index >= 3) {
+      final prevStage = index == 3 ? 1 : 2;
+      if (!_isBoardStageComplete(prevStage)) {
+        _showBoardSkipWarning(
+          _stageNames[prevStage],
+          _stageNames[prevStage + 1],
+        );
+        return false;
+      }
     }
     return true;
   }
