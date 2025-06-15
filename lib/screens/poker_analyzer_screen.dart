@@ -794,7 +794,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
   }
 
-  bool _validateBoardStage(int index) {
+  bool _isBoardEditAllowed(int index) {
     if (index == 3 && !_isBoardStageComplete(1)) {
       _showBoardSkipWarning(_stageNames[1], _stageNames[2]);
       return false;
@@ -806,7 +806,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return true;
   }
 
-  bool _canEditBoard(int index) => _validateBoardStage(index);
+  bool _canEditBoard(int index) => _isBoardEditAllowed(index);
 
   void selectBoardCard(int index, CardModel card) {
     if (!_canEditBoard(index)) return;
