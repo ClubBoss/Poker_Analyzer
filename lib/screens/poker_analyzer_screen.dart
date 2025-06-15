@@ -269,6 +269,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const double _timelineExtent = 80.0;
   static const List<String> _stageNames = ['Preflop', 'Flop', 'Turn', 'River'];
   static const Duration _boardRevealDuration = Duration(milliseconds: 300);
+  static const Duration _boardRevealStagger = Duration(milliseconds: 100);
 
   /// Determine which board stage a particular card index belongs to.
   int _stageForBoardIndex(int index) {
@@ -4277,6 +4278,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
   late final List<AnimationController> _controllers;
   late final List<Animation<double>> _animations;
   List<CardModel> _prevCards = [];
+  int _sequenceId = 0;
 
   @override
   void initState() {
@@ -4303,20 +4305,33 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
 
   void _updateAnimations(List<CardModel> oldCards) {
     final visible = _stageCardCounts[widget.currentStreet];
+    final List<int> toAnimate = [];
+    _sequenceId++;
+    final currentSeq = _sequenceId;
     for (int i = 0; i < 5; i++) {
       final oldCard = i < oldCards.length ? oldCards[i] : null;
-      final newCard = i < widget.revealedBoardCards.length ? widget.revealedBoardCards[i] : null;
+      final newCard =
+          i < widget.revealedBoardCards.length ? widget.revealedBoardCards[i] : null;
       final shouldShow = i < visible && newCard != null;
       if (shouldShow && oldCard == null) {
-        _controllers[i].forward(from: 0);
+        _controllers[i].value = 0;
+        toAnimate.add(i);
       } else if (!shouldShow) {
         _controllers[i].value = 0;
       } else if (oldCard != null && newCard != null &&
           (oldCard.rank != newCard.rank || oldCard.suit != newCard.suit)) {
-        _controllers[i].forward(from: 0);
+        _controllers[i].value = 0;
+        toAnimate.add(i);
       } else if (shouldShow) {
         _controllers[i].value = 1;
       }
+    }
+    for (int j = 0; j < toAnimate.length; j++) {
+      final index = toAnimate[j];
+      Future.delayed(_boardRevealStagger * j, () {
+        if (!mounted || currentSeq != _sequenceId) return;
+        _controllers[index].forward(from: 0);
+      });
     }
     _prevCards = List<CardModel>.from(widget.revealedBoardCards);
   }
