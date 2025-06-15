@@ -809,7 +809,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..showSnackBar(
         SnackBar(
           content: Text(
-            'Add $count cards on the $prevName before editing the $nextName.',
+            'Please complete the $prevName by adding $count cards before editing the $nextName.',
           ),
         ),
       );
