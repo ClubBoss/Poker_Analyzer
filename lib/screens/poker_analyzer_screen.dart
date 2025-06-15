@@ -931,37 +931,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _applySavedHand(widget.initialHand!);
     }
     Future(() => _cleanupOldEvaluationBackups());
-    Future(() async {
-      await _debugPrefs.loadSnapshotRetentionPreference();
-      if (_debugPrefs.snapshotRetentionEnabled) {
-        await _cleanupOldEvaluationSnapshots();
-      }
-      lockService.safeSetState(this, () {});
-    });
-    Future(() async {
-      await _debugPrefs.loadProcessingDelayPreference();
-      lockService.safeSetState(this, () {});
-    });
-    Future(() async {
-      await _debugPrefs.loadQueueFilterPreference();
-      lockService.safeSetState(this, () {});
-    });
-    Future(() async {
-      await _debugPrefs.loadAdvancedFilterPreference();
-      lockService.safeSetState(this, () {});
-    });
-    Future(() async {
-      await _debugPrefs.loadSearchQueryPreference();
-      lockService.safeSetState(this, () {});
-    });
-    Future(() async {
-      await _debugPrefs.loadSortBySprPreference();
-      lockService.safeSetState(this, () {});
-    });
-    Future(() async {
-      await _debugPrefs.loadQueueResumedPreference();
-      lockService.safeSetState(this, () {});
-    });
+    Future(() => _initializeDebugPreferences());
     Future.microtask(_queueService.loadQueueSnapshot);
     Future(() => _backupManager.cleanupOldAutoBackups());
     _backupManager.startAutoBackupTimer();
@@ -2241,6 +2211,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _cleanupOldEvaluationSnapshots() async {
     await _backupManager.cleanupOldEvaluationSnapshots();
+  }
+
+  Future<void> _initializeDebugPreferences() async {
+    await _debugPrefs.loadAllPreferences();
+    if (_debugPrefs.snapshotRetentionEnabled) {
+      await _cleanupOldEvaluationSnapshots();
+    }
+    if (mounted) lockService.safeSetState(this, () {});
   }
 
   Future<void> _exportArchive(String subfolder, String archivePrefix) async {

@@ -199,6 +199,17 @@ class DebugPreferencesService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Loads all stored debug preferences.
+  Future<void> loadAllPreferences() async {
+    await loadSnapshotRetentionPreference();
+    await loadProcessingDelayPreference();
+    await loadQueueFilterPreference();
+    await loadAdvancedFilterPreference();
+    await loadSearchQueryPreference();
+    await loadSortBySprPreference();
+    await loadQueueResumedPreference();
+  }
+
   Future<void> setEvaluationQueueResumed(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_queueResumedKey, value);
