@@ -403,12 +403,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   void setPosition(int playerIndex, String position) {
+    if (_boardTransitioning) return;
     setState(() {
       _playerManager.setPosition(playerIndex, position);
     });
   }
 
   void _onPlayerCountChanged(int value) {
+    if (_boardTransitioning) return;
     setState(() {
       _playerManager.onPlayerCountChanged(value);
     });
@@ -864,6 +866,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> _editPlayerInfo(int index) async {
+    if (_boardTransitioning) return;
     final disableCards = index != _playerManager.heroIndex;
 
     await showDialog(
@@ -1876,6 +1879,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _removePlayer(int index) async {
+    if (_boardTransitioning) return;
     if (_playerManager.numberOfPlayers <= 2) return;
 
     int updatedHeroIndex = _playerManager.heroIndex;
@@ -3166,7 +3170,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               numberOfPlayers: numberOfPlayers,
               playerPositions: playerPositions,
               playerTypes: playerTypes,
-              onChanged: _onPlayerCountChanged,
+              onChanged:
+                  _boardTransitioning ? null : _onPlayerCountChanged,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -3622,11 +3627,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ? null
                 : (cardIndex) => _onPlayerCardTap(index, cardIndex),
             onTap: () => _onPlayerTap(index),
-            onDoubleTap: () => setState(() {
-              _playerManager.setHeroIndex(index);
-            }),
-            onLongPress: () => _editPlayerInfo(index),
-            onEdit: () => _editPlayerInfo(index),
+            onDoubleTap: _boardTransitioning
+                ? null
+                : () => setState(() {
+                    _playerManager.setHeroIndex(index);
+                  }),
+            onLongPress: _boardTransitioning ? null : () => _editPlayerInfo(index),
+            onEdit: _boardTransitioning ? null : () => _editPlayerInfo(index),
             onStackTap: (value) => setState(() {
               _playerManager.setInitialStack(index, value);
               _stackService =
@@ -3634,9 +3641,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               _playbackManager.stackService = _stackService;
               _playbackManager.updatePlaybackState();
             }),
-            onRemove: _playerManager.numberOfPlayers > 2 ? () {
-              _removePlayer(index);
-            } : null,
+            onRemove: _playerManager.numberOfPlayers > 2 && !_boardTransitioning
+                ? () {
+                    _removePlayer(index);
+                  }
+                : null,
             onTimeExpired: () => _onPlayerTimeExpired(index),
           ),
         ),
@@ -4925,13 +4934,13 @@ class _PlayerCountSelector extends StatelessWidget {
   final int numberOfPlayers;
   final Map<int, String> playerPositions;
   final Map<int, PlayerType> playerTypes;
-  final ValueChanged<int> onChanged;
+  final ValueChanged<int>? onChanged;
 
   const _PlayerCountSelector({
     required this.numberOfPlayers,
     required this.playerPositions,
     required this.playerTypes,
-    required this.onChanged,
+    this.onChanged,
   });
 
   @override
@@ -4946,8 +4955,8 @@ class _PlayerCountSelector extends StatelessWidget {
           DropdownMenuItem(value: i, child: Text('Игроков: $i')),
       ],
       onChanged: (value) {
-        if (value != null) {
-          onChanged(value);
+        if (value != null && onChanged != null) {
+          onChanged!(value);
         }
       },
     );
