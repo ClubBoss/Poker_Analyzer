@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../models/saved_hand.dart';
@@ -128,6 +129,8 @@ class HandRestoreService {
       _recomputeFoldedPlayers(foldedPlayers);
     }
     queueService.persist();
+    backupManager.startAutoBackupTimer();
+    unawaited(debugPrefs.setEvaluationQueueResumed(false));
     return stackService;
   }
 
