@@ -96,7 +96,6 @@ class PokerAnalyzerScreen extends StatefulWidget {
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
   late SavedHandManagerService _handManager;
-  List<SavedHand> get savedHands => _handManager.hands;
   late PlayerManagerService _playerManager;
   int get heroIndex => _playerManager.heroIndex;
   set heroIndex(int v) => _playerManager.heroIndex = v;
@@ -2254,8 +2253,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void loadLastSavedHand() {
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
-    if (savedHands.isEmpty) return;
-    final hand = savedHands.last;
+    final hand = _handManager.lastHand;
+    if (hand == null) return;
     _stackService = _handRestore.restoreHand(hand);
     _startBoardTransition();
   }
