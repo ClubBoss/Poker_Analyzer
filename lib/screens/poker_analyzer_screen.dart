@@ -74,6 +74,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final ActionSyncService actionSync;
   final CurrentHandContextService? handContext;
   final FoldedPlayersService? foldedPlayersService;
+  final PlaybackManagerService? playbackManager;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -83,6 +84,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.actionSync,
     this.handContext,
     this.foldedPlayersService,
+    this.playbackManager,
   });
 
   @override
@@ -520,7 +522,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final index =
         actions.lastIndexWhere((a) => a.street <= street) + 1;
     _playbackManager.seek(index);
-    _actionSync.updatePlaybackIndex(index);
     _animateTimeline = true;
     _playbackManager.updatePlaybackState();
   }
@@ -576,7 +577,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _seekPlayback(double value) {
     if (lockService.boardTransitioning) return;
     _playbackManager.seek(value.round());
-    _actionSync.updatePlaybackIndex(value.round());
     _playbackManager.updatePlaybackState();
   }
 
@@ -595,7 +595,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..clear()
       ..addAll(snap.board);
     _playbackManager.seek(snap.playbackIndex);
-    _actionSync.updatePlaybackIndex(snap.playbackIndex);
     _animateTimeline = true;
     _updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
@@ -778,11 +777,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addListener(_onPlayerManagerChanged);
     _stackService =
         StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
-    _playbackManager = PlaybackManagerService(
-      actions: actions,
-      stackService: _stackService,
-      potCalculator: _potCalculator,
-    )..addListener(_onPlaybackManagerChanged);
+    _playbackManager = widget.playbackManager ??
+        PlaybackManagerService(
+          actions: actions,
+          stackService: _stackService,
+          actionSync: _actionSync,
+          potCalculator: _potCalculator,
+        );
+    _playbackManager.addListener(_onPlaybackManagerChanged);
     _handRestore = HandRestoreService(
       playerManager: _playerManager,
       actionSync: _actionSync,
@@ -1089,7 +1091,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onPlaybackManagerChanged() {
-    _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     if (mounted) {
       lockService.safeSetState(this, () {});
       if (_animateTimeline && _timelineController.hasClients) {

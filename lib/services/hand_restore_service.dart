@@ -131,7 +131,6 @@ class HandRestoreService {
     final seekIndex =
         hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
     playbackManager.seek(seekIndex);
-    actionSync.updatePlaybackIndex(seekIndex);
     playbackManager.animatedPlayersPerStreet.clear();
     playbackManager.updatePlaybackState();
     playerManager.updatePositions();

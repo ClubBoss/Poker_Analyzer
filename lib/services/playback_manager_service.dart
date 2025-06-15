@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../helpers/pot_calculator.dart';
 import '../models/action_entry.dart';
 import '../models/street_investments.dart';
+import 'action_sync_service.dart';
 import 'playback_service.dart';
 import 'stack_manager_service.dart';
 
@@ -12,6 +13,7 @@ class PlaybackManagerService extends ChangeNotifier {
   final List<ActionEntry> actions;
   StackManagerService stackService;
   final PotCalculator _potCalculator;
+  final ActionSyncService actionSync;
 
   /// Current pot size for each street.
   final List<int> pots = List.filled(4, 0);
@@ -25,6 +27,7 @@ class PlaybackManagerService extends ChangeNotifier {
     PlaybackService? playbackService,
     required this.actions,
     required this.stackService,
+    required this.actionSync,
     PotCalculator? potCalculator,
   })  : _playbackService = playbackService ?? PlaybackService(),
         _potCalculator = potCalculator ?? PotCalculator() {
@@ -46,6 +49,7 @@ class PlaybackManagerService extends ChangeNotifier {
 
   void resetHand() {
     _playbackService.resetHand();
+    actionSync.updatePlaybackIndex(_playbackService.playbackIndex);
     updatePlaybackState();
   }
 
@@ -74,6 +78,7 @@ class PlaybackManagerService extends ChangeNotifier {
   }
 
   void _onPlaybackChanged() {
+    actionSync.updatePlaybackIndex(_playbackService.playbackIndex);
     updatePlaybackState();
   }
 
