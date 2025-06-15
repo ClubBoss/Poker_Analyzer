@@ -3416,13 +3416,8 @@ class _BetStacksOverlaySection extends StatelessWidget {
     final List<Widget> chips = [];
     for (int i = 0; i < state.numberOfPlayers; i++) {
       final index = (i + state._viewIndex()) % state.numberOfPlayers;
-      final invested = state.actions
-          .where((a) =>
-              a.playerIndex == index &&
-              a.street == state.currentStreet &&
-              (a.action == 'call' || a.action == 'bet' || a.action == 'raise') &&
-              a.amount != null)
-          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
+      final invested =
+          state._stackService.getInvestmentForStreet(index, state.currentStreet);
       if (invested > 0) {
         final angle = 2 * pi * i / state.numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
@@ -3468,13 +3463,8 @@ class _InvestedChipsOverlaySection extends StatelessWidget {
     final List<Widget> chips = [];
     for (int i = 0; i < state.numberOfPlayers; i++) {
       final index = (i + state._viewIndex()) % state.numberOfPlayers;
-      final invested = state.actions
-          .where((a) =>
-              a.playerIndex == index &&
-              a.street == state.currentStreet &&
-              (a.action == 'call' || a.action == 'bet' || a.action == 'raise') &&
-              a.amount != null)
-          .fold<int>(0, (sum, a) => sum + (a.amount ?? 0));
+      final invested =
+          state._stackService.getInvestmentForStreet(index, state.currentStreet);
       if (invested > 0) {
         final angle = 2 * pi * i / state.numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
