@@ -131,14 +131,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late FoldedPlayersService _foldedPlayers;
   late ActionSyncService _actionSync;
 
-  bool debugLayout = false;
   Set<int> get _expandedHistoryStreets => _actionSync.expandedHistoryStreets;
 
   ActionEntry? _centerChipAction;
   bool _showCenterChip = false;
   Timer? _centerChipTimer;
   late AnimationController _centerChipController;
-  bool _showAllRevealedCards = false;
   final TransitionLockService lockService = TransitionLockService();
   final GlobalKey<_BoardCardsSectionState> _boardKey =
       GlobalKey<_BoardCardsSectionState>();
@@ -1783,12 +1781,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> _showDebugPanel() async {
-    lockService.safeSetState(this, () => _debugPrefs.isDebugPanelOpen = true);
+    await _debugPrefs.setIsDebugPanelOpen(true);
     await showDialog<void>(
       context: context,
       builder: (context) => _DebugPanelDialog(parent: this),
     );
-    lockService.safeSetState(this, () => _debugPrefs.isDebugPanelOpen = false);
+    await _debugPrefs.setIsDebugPanelOpen(false);
     _debugPanelSetState = null;
   }
 
@@ -2235,9 +2233,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   if (lockService.boardTransitioning)
                     const _BoardTransitionBusyIndicator(),
                 _RevealAllCardsButton(
-                  showAllRevealedCards: _showAllRevealedCards,
-                  onToggle: () => lockService.safeSetState(this, 
-                      () => _showAllRevealedCards = !_showAllRevealedCards),
+                  showAllRevealedCards: _debugPrefs.showAllRevealedCards,
+                  onToggle: () async {
+                    await _debugPrefs.setShowAllRevealedCards(
+                        !_debugPrefs.showAllRevealedCards);
+                    lockService.safeSetState(this, () {});
+                  },
                 )
               ],
         ),
@@ -2551,7 +2552,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             position: position,
             stack: stack,
             tag: tag,
-            cards: _showAllRevealedCards &&
+            cards: _debugPrefs.showAllRevealedCards &&
                     players[index]
                         .revealedCards
                         .whereType<CardModel>()
@@ -2749,7 +2750,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ));
     }
 
-    if (debugLayout) {
+    if (_debugPrefs.debugLayout) {
       widgets.add(Positioned(
         left: centerX + dx - 40 * scale,
         top: centerY + dy + bias - 70 * scale,
@@ -5023,11 +5024,11 @@ class _InternalStateFlagsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Internal State Flags:'),
-        debugDiag('Debug Layout', s.debugLayout),
+        debugDiag('Debug Layout', s._debugPrefs.debugLayout),
         _DebugPanelDialogState._vGap,
         debugDiag('Perspective Switched', s.isPerspectiveSwitched),
         _DebugPanelDialogState._vGap,
-        debugDiag('Show All Revealed Cards', s._showAllRevealedCards),
+        debugDiag('Show All Revealed Cards', s._debugPrefs.showAllRevealedCards),
       ],
     );
   }

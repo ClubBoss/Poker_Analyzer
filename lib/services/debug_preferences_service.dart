@@ -5,6 +5,9 @@ import '../models/action_evaluation_request.dart';
 
 class DebugPreferencesService extends ChangeNotifier {
   static const _queueResumedKey = 'evaluation_queue_resumed';
+  static const _debugPanelOpenKey = 'debug_panel_open';
+  static const _debugLayoutKey = 'debug_layout_enabled';
+  static const _showAllCardsKey = 'show_all_revealed_cards';
 
   final DebugPanelPreferences _prefs = DebugPanelPreferences();
 
@@ -14,6 +17,8 @@ class DebugPreferencesService extends ChangeNotifier {
   String _searchQuery = '';
   bool _queueResumed = false;
   bool _isDebugPanelOpen = false;
+  bool _debugLayout = false;
+  bool _showAllRevealedCards = false;
   Set<String> _queueFilters = {'pending'};
   Set<String> _advancedFilters = {};
 
@@ -23,12 +28,44 @@ class DebugPreferencesService extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   bool get queueResumed => _queueResumed;
   bool get isDebugPanelOpen => _isDebugPanelOpen;
+  bool get debugLayout => _debugLayout;
+  bool get showAllRevealedCards => _showAllRevealedCards;
   Set<String> get queueFilters => _queueFilters;
   Set<String> get advancedFilters => _advancedFilters;
 
-  set isDebugPanelOpen(bool value) {
+  Future<void> setIsDebugPanelOpen(bool value) async {
     if (_isDebugPanelOpen == value) return;
     _isDebugPanelOpen = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_debugPanelOpenKey, value);
+    notifyListeners();
+  }
+
+  Future<void> loadDebugLayoutPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    _debugLayout = prefs.getBool(_debugLayoutKey) ?? false;
+    notifyListeners();
+  }
+
+  Future<void> setDebugLayout(bool value) async {
+    if (_debugLayout == value) return;
+    _debugLayout = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_debugLayoutKey, value);
+    notifyListeners();
+  }
+
+  Future<void> loadShowAllRevealedCardsPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    _showAllRevealedCards = prefs.getBool(_showAllCardsKey) ?? false;
+    notifyListeners();
+  }
+
+  Future<void> setShowAllRevealedCards(bool value) async {
+    if (_showAllRevealedCards == value) return;
+    _showAllRevealedCards = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showAllCardsKey, value);
     notifyListeners();
   }
 
@@ -199,6 +236,12 @@ class DebugPreferencesService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadDebugPanelOpenPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    _isDebugPanelOpen = prefs.getBool(_debugPanelOpenKey) ?? false;
+    notifyListeners();
+  }
+
   /// Loads all stored debug preferences.
   Future<void> loadAllPreferences() async {
     await loadSnapshotRetentionPreference();
@@ -208,6 +251,9 @@ class DebugPreferencesService extends ChangeNotifier {
     await loadSearchQueryPreference();
     await loadSortBySprPreference();
     await loadQueueResumedPreference();
+    await loadDebugPanelOpenPreference();
+    await loadDebugLayoutPreference();
+    await loadShowAllRevealedCardsPreference();
   }
 
   Future<void> setEvaluationQueueResumed(bool value) async {
@@ -226,7 +272,13 @@ class DebugPreferencesService extends ChangeNotifier {
     _queueFilters = await _prefs.getQueueFilters();
     _advancedFilters = await _prefs.getAdvancedFilters();
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_debugPanelOpenKey);
+    await prefs.remove(_debugLayoutKey);
+    await prefs.remove(_showAllCardsKey);
     _queueResumed = prefs.getBool(_queueResumedKey) ?? false;
+    _isDebugPanelOpen = prefs.getBool(_debugPanelOpenKey) ?? false;
+    _debugLayout = prefs.getBool(_debugLayoutKey) ?? false;
+    _showAllRevealedCards = prefs.getBool(_showAllCardsKey) ?? false;
     notifyListeners();
   }
 }
