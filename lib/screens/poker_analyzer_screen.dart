@@ -950,6 +950,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onPlayerCardTap(int index, int cardIndex) async {
+    if (_boardTransitioning) return;
     final current =
         cardIndex < playerCards[index].length ? playerCards[index][cardIndex] : null;
     final selectedCard = await showCardSelector(
@@ -972,12 +973,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onOpponentCardTap(int cardIndex) async {
+    if (_boardTransitioning) return;
     if (opponentIndex == null) opponentIndex = activePlayerIndex;
     final idx = opponentIndex ?? 0;
     await _onRevealedCardTap(idx, cardIndex);
   }
 
   Future<void> _onRevealedCardTap(int playerIndex, int cardIndex) async {
+    if (_boardTransitioning) return;
     final current = players[playerIndex].revealedCards[cardIndex];
     final selected = await showCardSelector(
       context,
@@ -3522,7 +3525,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         top: centerY + dy + bias - 55 * scale * infoScale,
         child: Transform.scale(
           scale: infoScale,
-          child: PlayerInfoWidget(
+          child: AbsorbPointer(
+            absorbing: _boardTransitioning,
+            child: PlayerInfoWidget(
             position: position,
             stack: stack,
             tag: tag,
@@ -3578,6 +3583,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             } : null,
             onTimeExpired: () => _onPlayerTimeExpired(index),
           ),
+        ),
         ),
       ),
       Positioned(
