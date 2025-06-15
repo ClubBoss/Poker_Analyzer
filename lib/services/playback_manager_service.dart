@@ -59,7 +59,7 @@ class PlaybackManagerService extends ChangeNotifier {
     if (_playbackService.playbackIndex == 0) {
       animatedPlayersPerStreet.clear();
     }
-    stackService.applyActions(subset);
+    // Stack sizes are synchronized via [ActionSyncService].
     _updatePots(fromActions: subset);
     lastActionPlayerIndex =
         subset.isNotEmpty ? subset.last.playerIndex : null;

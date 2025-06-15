@@ -5,15 +5,28 @@ import '../models/player_zone_action_entry.dart' as pz;
 import '../models/card_model.dart';
 import 'folded_players_service.dart';
 import 'playback_manager_service.dart';
+import 'stack_manager_service.dart';
 
 class ActionSyncService extends ChangeNotifier {
   ActionSyncService({this.foldedPlayers});
 
   final FoldedPlayersService? foldedPlayers;
   PlaybackManagerService? playbackManager;
+  StackManagerService? stackManager;
 
   void attachPlaybackManager(PlaybackManagerService manager) {
     playbackManager = manager;
+  }
+
+  void attachStackManager(StackManagerService manager) {
+    stackManager = manager;
+  }
+
+  void _syncStacks() {
+    final visible = analyzerActions
+        .take(playbackManager?.playbackIndex ?? analyzerActions.length)
+        .toList();
+    stackManager?.applyActions(visible);
   }
 
   int currentStreet = 0;
@@ -96,6 +109,7 @@ class ActionSyncService extends ChangeNotifier {
 
   void updatePlaybackIndex(int index) {
     playbackIndex = index;
+    _syncStacks();
     notifyListeners();
   }
 
@@ -116,6 +130,7 @@ class ActionSyncService extends ChangeNotifier {
     expandedHistoryStreets
       ..clear()
       ..addAll(snap.expandedStreets);
+    _syncStacks();
     notifyListeners();
   }
 
@@ -153,6 +168,7 @@ class ActionSyncService extends ChangeNotifier {
     _undoSnapshots.clear();
     _redoSnapshots.clear();
     foldedPlayers?.recompute(entries);
+    _syncStacks();
     notifyListeners();
   }
 
@@ -163,6 +179,7 @@ class ActionSyncService extends ChangeNotifier {
     _undoSnapshots.clear();
     _redoSnapshots.clear();
     foldedPlayers?.reset();
+    _syncStacks();
     notifyListeners();
   }
 
@@ -185,6 +202,7 @@ class ActionSyncService extends ChangeNotifier {
       _redoStack.clear();
     }
     foldedPlayers?.addFromAction(entry);
+    _syncStacks();
     notifyListeners();
   }
 
@@ -201,6 +219,7 @@ class ActionSyncService extends ChangeNotifier {
       _redoStack.clear();
     }
     foldedPlayers?.editAction(previous, entry, analyzerActions);
+    _syncStacks();
     notifyListeners();
   }
 
@@ -215,6 +234,7 @@ class ActionSyncService extends ChangeNotifier {
       _redoStack.clear();
     }
     foldedPlayers?.removeFromAction(removed, analyzerActions);
+    _syncStacks();
     notifyListeners();
   }
 
@@ -248,6 +268,7 @@ class ActionSyncService extends ChangeNotifier {
         break;
     }
     _redoStack.add(op);
+    _syncStacks();
     notifyListeners();
     return UndoRedoResult(op, snap);
   }
@@ -282,6 +303,7 @@ class ActionSyncService extends ChangeNotifier {
         break;
     }
     _undoStack.add(op);
+    _syncStacks();
     notifyListeners();
     return UndoRedoResult(op, snap);
   }
