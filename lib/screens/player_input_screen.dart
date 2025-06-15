@@ -8,6 +8,8 @@ import '../services/current_hand_context_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
+import '../services/board_manager_service.dart';
+import '../services/transition_lock_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -113,6 +115,16 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                               actionSync: context.read<ActionSyncService>(),
                             ),
                             child: Builder(
+                          builder: (context) => ChangeNotifierProvider(
+                            create: (_) => BoardManagerService(
+                              playerManager:
+                                  context.read<PlayerManagerService>(),
+                              actionSync: context.read<ActionSyncService>(),
+                              playbackManager:
+                                  context.read<PlaybackManagerService>(),
+                              lockService: TransitionLockService(),
+                            ),
+                            child: Builder(
                               builder: (context) => PokerAnalyzerScreen(
                                 key: key,
                                 actionSync: context.read<ActionSyncService>(),
@@ -122,7 +134,11 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                 stackService: context
                                     .read<PlaybackManagerService>()
                                     .stackService,
+                                boardManager:
+                                    context.read<BoardManagerService>(),
                               ),
+                            ),
+                          ),
                             ),
                           ),
                         ),
@@ -159,6 +175,16 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                               actionSync: context.read<ActionSyncService>(),
                             ),
                             child: Builder(
+                          builder: (context) => ChangeNotifierProvider(
+                            create: (_) => BoardManagerService(
+                              playerManager:
+                                  context.read<PlayerManagerService>(),
+                              actionSync: context.read<ActionSyncService>(),
+                              playbackManager:
+                                  context.read<PlaybackManagerService>(),
+                              lockService: TransitionLockService(),
+                            ),
+                            child: Builder(
                               builder: (context) => PokerAnalyzerScreen(
                                 actionSync: context.read<ActionSyncService>(),
                                 handContext: CurrentHandContextService(),
@@ -167,7 +193,11 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                 stackService: context
                                     .read<PlaybackManagerService>()
                                     .stackService,
+                                boardManager:
+                                    context.read<BoardManagerService>(),
                               ),
+                            ),
+                          ),
                             ),
                           ),
                         ),
