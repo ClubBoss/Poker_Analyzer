@@ -4564,24 +4564,26 @@ class _PlaybackControlsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color iconColor = disabled ? Colors.grey : Colors.white;
+
     return Column(
       children: [
         Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.skip_previous, color: Colors.white),
+              icon: Icon(Icons.skip_previous, color: iconColor),
               onPressed: disabled ? null : onStepBackward,
             ),
             IconButton(
               icon: Icon(
                 isPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.white,
+                color: iconColor,
               ),
               onPressed:
                   disabled ? null : (isPlaying ? onPause : onPlay),
             ),
             IconButton(
-              icon: const Icon(Icons.skip_next, color: Colors.white),
+              icon: Icon(Icons.skip_next, color: iconColor),
               onPressed: disabled ? null : onStepForward,
             ),
             Expanded(
@@ -4590,6 +4592,7 @@ class _PlaybackControlsSection extends StatelessWidget {
                 min: 0,
                 max: actionCount > 0 ? actionCount.toDouble() : 1,
                 onChanged: disabled ? null : onSeek,
+                inactiveColor: Colors.grey,
               ),
             ),
           ],
