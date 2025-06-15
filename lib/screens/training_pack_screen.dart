@@ -22,6 +22,7 @@ import '../services/board_manager_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/player_manager_service.dart';
+import '../services/player_profile_service.dart';
 import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
 
@@ -599,8 +600,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ),
               child: KeyedSubtree(
                 key: ValueKey(_currentIndex),
-                child: ChangeNotifierProvider(
-                  create: (_) => PlayerManagerService(),
+                child: MultiProvider(
+                  providers: [
+                    ChangeNotifierProvider(create: (_) => PlayerProfileService()),
+                    ChangeNotifierProvider(create: (_) => PlayerManagerService(context.read<PlayerProfileService>())),
+                  ],
                   child: Builder(
                     builder: (context) => ChangeNotifierProvider(
                       create: (_) => PlaybackManagerService(
@@ -631,6 +635,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                                   .read<PlaybackManagerService>()
                                   .stackService,
                               boardManager: context.read<BoardManagerService>(),
+                              playerProfile:
+                                  context.read<PlayerProfileService>(),
                             ),
                           ),
                         ),

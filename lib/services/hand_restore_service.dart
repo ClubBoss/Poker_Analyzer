@@ -27,6 +27,7 @@ import 'board_manager_service.dart';
 class HandRestoreService {
   HandRestoreService({
     required this.playerManager,
+    required this.profile,
     required this.actionSync,
     required this.playbackManager,
     required this.boardManager,
@@ -44,6 +45,7 @@ class HandRestoreService {
   }
 
   final PlayerManagerService playerManager;
+  final PlayerProfileService profile;
   final ActionSyncService actionSync;
   final PlaybackManagerService playbackManager;
   final BoardManagerService boardManager;
@@ -60,8 +62,9 @@ class HandRestoreService {
 
   StackManagerService restoreHand(SavedHand hand) {
     setCurrentHandName(hand.name);
-    playerManager.heroIndex = hand.heroIndex;
-    playerManager.heroPosition = hand.heroPosition;
+    profile.heroIndex = hand.heroIndex;
+    profile.heroPosition = hand.heroPosition;
+    profile.numberOfPlayers = hand.numberOfPlayers;
     playerManager.numberOfPlayers = hand.numberOfPlayers;
     for (int i = 0; i < playerManager.playerCards.length; i++) {
       playerManager.playerCards[i]
@@ -71,8 +74,8 @@ class HandRestoreService {
     playerManager.boardCards
       ..clear()
       ..addAll(hand.boardCards);
-    for (int i = 0; i < playerManager.players.length; i++) {
-      final list = playerManager.players[i].revealedCards;
+    for (int i = 0; i < profile.players.length; i++) {
+      final list = profile.players[i].revealedCards;
       list.fillRange(0, list.length, null);
       if (i < hand.revealedCards.length) {
         final from = hand.revealedCards[i];
@@ -81,7 +84,7 @@ class HandRestoreService {
         }
       }
     }
-    playerManager.opponentIndex = hand.opponentIndex;
+    profile.opponentIndex = hand.opponentIndex;
     setActivePlayerIndex(hand.activePlayerIndex);
     actionSync.setAnalyzerActions(hand.actions);
     playerManager.initialStacks
@@ -92,10 +95,10 @@ class HandRestoreService {
       remainingStacks: hand.remainingStacks,
     );
     playbackManager.stackService = stackService;
-    playerManager.playerPositions
+    profile.playerPositions
       ..clear()
       ..addAll(hand.playerPositions);
-    playerManager.playerTypes
+    profile.playerTypes
       ..clear()
       ..addAll(hand.playerTypes ??
           {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
@@ -110,7 +113,7 @@ class HandRestoreService {
         offset: hand.tagsCursor != null && hand.tagsCursor! <= handContext.tagsController.text.length
             ? hand.tagsCursor!
             : handContext.tagsController.text.length);
-    handContext.actionTags
+    profile.actionTags
       ..clear()
       ..addAll(hand.actionTags ?? {});
     pendingEvaluations
@@ -140,7 +143,7 @@ class HandRestoreService {
     playbackManager.seek(seekIndex);
     playbackManager.animatedPlayersPerStreet.clear();
     playbackManager.updatePlaybackState();
-    playerManager.updatePositions();
+    profile.updatePositions();
     // foldedPlayers recomputes automatically when actions change
     queueService.persist();
     backupManager.startAutoBackupTimer();
