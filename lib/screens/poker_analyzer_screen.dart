@@ -805,7 +805,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..showSnackBar(
         SnackBar(
           content: Text(
-            'Please complete the $prevStage before adding the $nextStage.',
+            'Complete the $prevStage first before adding cards on the $nextStage.',
           ),
         ),
       );
