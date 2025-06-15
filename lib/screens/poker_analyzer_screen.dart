@@ -259,6 +259,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
 
+  static const List<int> _stageCardCounts = [0, 3, 4, 5];
+  static const List<String> _stageNames = ['Preflop', 'Flop', 'Turn', 'River'];
+
 
 
   String _queueEntryId(ActionEvaluationRequest r) => r.id;
@@ -407,19 +410,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   int _inferBoardStreet() {
     final count = boardCards.length;
-    if (count >= 5) return 3;
-    if (count == 4) return 2;
-    if (count == 3) return 1;
+    if (count >= _stageCardCounts[3]) return 3;
+    if (count >= _stageCardCounts[2]) return 2;
+    if (count >= _stageCardCounts[1]) return 1;
     return 0;
   }
 
   bool _isBoardStageComplete(int stage) {
-    final required = [0, 3, 4, 5][stage];
-    return boardCards.length >= required;
+    return boardCards.length >= _stageCardCounts[stage];
   }
 
   void _updateRevealedBoardCards() {
-    final visible = [0, 3, 4, 5][currentStreet];
+    final visible = _stageCardCounts[currentStreet];
     revealedBoardCards
       ..clear()
       ..addAll(boardCards.take(visible));
@@ -527,7 +529,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _updateRevealedBoardCards() {
-    final visibleCount = [0, 3, 4, 5][currentStreet];
+    final visibleCount = _stageCardCounts[currentStreet];
     revealedBoardCards
       ..clear()
       ..addAll(boardCards.take(visibleCount));
@@ -785,18 +787,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..clearSnackBars()
       ..showSnackBar(
         SnackBar(
-          content: Text('Add $prevStage cards before adding the $nextStage'),
+          content: Text('Complete the $prevStage before adding the $nextStage.'),
         ),
       );
   }
 
   bool _canAddBoardCard(int index) {
     if (index == 3 && !_isBoardStageComplete(1)) {
-      _showBoardSkipWarning('Flop', 'Turn');
+      _showBoardSkipWarning(_stageNames[1], _stageNames[2]);
       return false;
     }
     if (index == 4 && !_isBoardStageComplete(2)) {
-      _showBoardSkipWarning('Turn', 'River');
+      _showBoardSkipWarning(_stageNames[2], _stageNames[3]);
       return false;
     }
     return true;
