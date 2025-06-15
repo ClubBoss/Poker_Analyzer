@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'poker_analyzer_screen.dart';
 import 'settings_screen.dart';
 import 'training_packs_screen.dart';
+import 'package:provider/provider.dart';
+import '../services/action_sync_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -92,7 +94,10 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => PokerAnalyzerScreen(key: key),
+                      builder: (_) => PokerAnalyzerScreen(
+                        key: key,
+                        actionSync: context.read<ActionSyncService>(),
+                      ),
                     ),
                   );
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -110,7 +115,9 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                 if (text.isNotEmpty) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const PokerAnalyzerScreen(),
+                      builder: (context) => PokerAnalyzerScreen(
+                        actionSync: context.read<ActionSyncService>(),
+                      ),
                     ),
                   );
                 }

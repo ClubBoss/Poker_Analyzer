@@ -74,6 +74,26 @@ class ActionSyncService extends ChangeNotifier {
   final List<ActionSnapshot> _undoSnapshots = [];
   final List<ActionSnapshot> _redoSnapshots = [];
 
+  void setAnalyzerActions(List<ActionEntry> entries) {
+    analyzerActions
+      ..clear()
+      ..addAll(entries);
+    _undoStack.clear();
+    _redoStack.clear();
+    _undoSnapshots.clear();
+    _redoSnapshots.clear();
+    notifyListeners();
+  }
+
+  void clearAnalyzerActions() {
+    analyzerActions.clear();
+    _undoStack.clear();
+    _redoStack.clear();
+    _undoSnapshots.clear();
+    _redoSnapshots.clear();
+    notifyListeners();
+  }
+
   void recordSnapshot(ActionSnapshot snap) {
     _undoSnapshots.add(snap);
     _redoSnapshots.clear();
