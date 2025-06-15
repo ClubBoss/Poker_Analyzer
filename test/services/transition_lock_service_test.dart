@@ -29,37 +29,41 @@ class _MockState extends State<_MockWidget> {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  late TransitionLockService service;
+  late _MockState state;
+
+  setUp(() {
+    service = TransitionLockService();
+    state = _MockState();
+  });
+
   group('TransitionLockService.safeSetState', () {
     test('executes callback when mounted and not transitioning', () {
-      final state = _MockState()..mountedFlag = true;
-      final service = TransitionLockService();
+      state.mountedFlag = true;
       var counter = 0;
       service.safeSetState(state, () => counter++);
       expect(counter, 1);
-      expect(state.setStateCalled, true);
+      expect(state.setStateCalled, isTrue);
     });
 
     test('skips callback when unmounted', () {
-      final state = _MockState()..mountedFlag = false;
-      final service = TransitionLockService();
+      state.mountedFlag = false;
       var counter = 0;
       service.safeSetState(state, () => counter++);
       expect(counter, 0);
-      expect(state.setStateCalled, false);
+      expect(state.setStateCalled, isFalse);
     });
 
     test('skips callback when transitioning unless ignored', () {
-      final state = _MockState();
-      final service = TransitionLockService();
       service.boardTransitioning = true;
       var counter = 0;
       service.safeSetState(state, () => counter++);
       expect(counter, 0);
-      expect(state.setStateCalled, false);
+      expect(state.setStateCalled, isFalse);
 
       service.safeSetState(state, () => counter++, ignoreTransitionLock: true);
       expect(counter, 1);
-      expect(state.setStateCalled, true);
+      expect(state.setStateCalled, isTrue);
     });
   });
 }
