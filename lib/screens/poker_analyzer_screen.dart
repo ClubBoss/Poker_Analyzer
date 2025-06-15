@@ -657,8 +657,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _startBoardTransition() {
     _boardTransitionTimer?.cancel();
+    final targetVisible = _stageCardCounts[currentStreet];
+    final revealCount = max(0, targetVisible - revealedBoardCards.length);
+    final duration = Duration(
+      milliseconds: _boardRevealDuration.inMilliseconds +
+          _boardRevealStagger.inMilliseconds * (revealCount > 1 ? revealCount - 1 : 0),
+    );
     _boardTransitioning = true;
-    _boardTransitionTimer = Timer(_boardRevealDuration, () {
+    _boardTransitionTimer = Timer(duration, () {
       if (mounted) {
         setState(() => _boardTransitioning = false);
       } else {
@@ -669,6 +675,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _cancelBoardReveal() {
     _boardKey.currentState?.cancelPendingReveals();
+    if (_boardTransitioning) {
+      _boardTransitionTimer?.cancel();
+      _boardTransitioning = false;
+    }
   }
 
   _StateSnapshot _currentSnapshot() => _StateSnapshot(
