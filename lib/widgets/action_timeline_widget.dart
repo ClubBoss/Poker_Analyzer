@@ -8,6 +8,7 @@ class ActionTimelineWidget extends StatelessWidget {
   final Function(int index) onTap;
   final Map<int, String>? playerPositions;
   final double scale;
+  final ScrollController? controller;
 
   const ActionTimelineWidget({
     Key? key,
@@ -16,6 +17,7 @@ class ActionTimelineWidget extends StatelessWidget {
     required this.onTap,
     this.playerPositions,
     this.scale = 1.0,
+    this.controller,
   }) : super(key: key);
 
   @override
@@ -24,6 +26,7 @@ class ActionTimelineWidget extends StatelessWidget {
       height: 48 * scale,
       padding: EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
       child: ListView.builder(
+        controller: controller,
         scrollDirection: Axis.horizontal,
         itemCount: actions.length,
         itemBuilder: (context, index) {
