@@ -23,6 +23,14 @@ class HandRestoreService {
     required this.backupManager,
     required this.debugPrefs,
     required this.lockService,
+    required this.commentController,
+    required this.tagsController,
+    required this.actionTags,
+    required this.pendingEvaluations,
+    required this.foldedPlayers,
+    required this.revealedBoardCards,
+    required this.setCurrentHandName,
+    required this.setActivePlayerIndex,
   });
 
   final PlayerManagerService playerManager;
@@ -32,20 +40,18 @@ class HandRestoreService {
   final BackupManagerService backupManager;
   final DebugPreferencesService debugPrefs;
   final TransitionLockService lockService;
+  final TextEditingController commentController;
+  final TextEditingController tagsController;
+  final Map<int, String?> actionTags;
+  final List<ActionEvaluationRequest> pendingEvaluations;
+  final Set<int> foldedPlayers;
+  final List<CardModel> revealedBoardCards;
+  final void Function(String) setCurrentHandName;
+  final void Function(int?) setActivePlayerIndex;
 
   static const List<int> _stageCardCounts = [0, 3, 4, 5];
 
-  StackManagerService restoreHand(
-    SavedHand hand, {
-    required TextEditingController commentController,
-    required TextEditingController tagsController,
-    required Map<int, String?> actionTags,
-    required List<ActionEvaluationRequest> pendingEvaluations,
-    required Set<int> foldedPlayers,
-    required List<CardModel> revealedBoardCards,
-    required void Function(String) setCurrentHandName,
-    required void Function(int?) setActivePlayerIndex,
-  }) {
+  StackManagerService restoreHand(SavedHand hand) {
     setCurrentHandName(hand.name);
     playerManager.heroIndex = hand.heroIndex;
     playerManager.heroPosition = hand.heroPosition;
@@ -117,7 +123,7 @@ class HandRestoreService {
     actionSync.setBoardStreet(hand.boardStreet);
     actionSync.changeStreet(hand.boardStreet);
     _ensureBoardStreetConsistent();
-    _updateRevealedBoardCards(revealedBoardCards);
+    _updateRevealedBoardCards();
     final seekIndex =
         hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
     playbackManager.seek(seekIndex);
@@ -126,7 +132,7 @@ class HandRestoreService {
     playbackManager.updatePlaybackState();
     playerManager.updatePositions();
     if (hand.foldedPlayers == null) {
-      _recomputeFoldedPlayers(foldedPlayers);
+      _recomputeFoldedPlayers();
     }
     queueService.persist();
     backupManager.startAutoBackupTimer();
@@ -158,14 +164,14 @@ class HandRestoreService {
     }
   }
 
-  void _updateRevealedBoardCards(List<CardModel> revealedBoardCards) {
+  void _updateRevealedBoardCards() {
     final visible = _stageCardCounts[actionSync.currentStreet];
     revealedBoardCards
       ..clear()
       ..addAll(playerManager.boardCards.take(visible));
   }
 
-  void _recomputeFoldedPlayers(Set<int> foldedPlayers) {
+  void _recomputeFoldedPlayers() {
     foldedPlayers
       ..clear()
       ..addAll({
