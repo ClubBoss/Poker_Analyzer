@@ -5357,7 +5357,9 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                             'Player ${i + 1}'),
                       )
                   ],
-                  onChanged: (v) => setState(() => p = v ?? p),
+                  onChanged: (v) =>
+                      ctx.findAncestorStateOfType<_PokerAnalyzerScreenState>()?
+                          ._safeSetState(() => setState(() => p = v ?? p)),
                 ),
                 const SizedBox(height: 8),
                 DropdownButton<String>(
@@ -5369,7 +5371,9 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                     DropdownMenuItem(value: 'bet', child: Text('bet')),
                     DropdownMenuItem(value: 'raise', child: Text('raise')),
                   ],
-                  onChanged: (v) => setState(() => act = v ?? act),
+                  onChanged: (v) =>
+                      ctx.findAncestorStateOfType<_PokerAnalyzerScreenState>()?
+                          ._safeSetState(() => setState(() => act = v ?? act)),
                 ),
                 if (need)
                   TextField(
