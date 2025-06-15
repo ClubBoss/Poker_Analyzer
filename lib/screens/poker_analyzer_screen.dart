@@ -787,12 +787,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..clearSnackBars()
       ..showSnackBar(
         SnackBar(
-          content: Text('Complete the $prevStage before adding the $nextStage.'),
+          content: Text(
+            'Complete the $prevStage before adding the $nextStage.',
+          ),
         ),
       );
   }
 
-  bool _canAddBoardCard(int index) {
+  bool _previousStagesComplete(int index) {
     if (index == 3 && !_isBoardStageComplete(1)) {
       _showBoardSkipWarning(_stageNames[1], _stageNames[2]);
       return false;
@@ -803,6 +805,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     return true;
   }
+
+  bool _canAddBoardCard(int index) => _previousStagesComplete(index);
 
   void selectBoardCard(int index, CardModel card) {
     if (!_canAddBoardCard(index)) return;
