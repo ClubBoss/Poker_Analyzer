@@ -3028,6 +3028,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> saveCurrentHand() async {
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
@@ -3058,12 +3059,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void loadLastSavedHand() {
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     if (savedHands.isEmpty) return;
     final hand = savedHands.last;
     _applySavedHand(hand);
   }
 
   Future<void> loadHandByName() async {
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     final selected = await _handManager.selectHand(context);
     if (selected != null) {
       _applySavedHand(selected);
@@ -3072,14 +3075,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> exportLastSavedHand() async {
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     await _handManager.exportLastHand(context);
   }
 
   Future<void> exportAllHands() async {
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     await _handManager.exportAllHands(context);
   }
 
   Future<void> importHandFromClipboard() async {
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     final hand = await _handManager.importHandFromClipboard(context);
     if (hand != null) {
       _applySavedHand(hand);
@@ -3087,6 +3093,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> importAllHandsFromClipboard() async {
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     await _handManager.importAllHandsFromClipboard(context);
   }
 
@@ -3366,7 +3373,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onImport: importHandFromClipboard,
                 onImportAll: importAllHandsFromClipboard,
                 onReset: _resetHand,
-                disabled: _boardTransitioning,
+                disabled: _boardTransitioning || _undoRedoTransitionLock,
               ),
             ),
             Expanded(
@@ -4623,6 +4630,7 @@ class _SaveLoadControlsSection extends StatelessWidget {
   final VoidCallback onExportAll;
   final VoidCallback onImport;
   final VoidCallback onImportAll;
+  final bool disabled;
 
   const _SaveLoadControlsSection({
     required this.onSave,
@@ -4632,39 +4640,41 @@ class _SaveLoadControlsSection extends StatelessWidget {
     required this.onExportAll,
     required this.onImport,
     required this.onImportAll,
+    this.disabled = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final Color iconColor = disabled ? Colors.grey : Colors.white;
     return Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.save, color: Colors.white),
-          onPressed: onSave,
+          icon: Icon(Icons.save, color: iconColor),
+          onPressed: disabled ? null : onSave,
         ),
         IconButton(
-          icon: const Icon(Icons.folder_open, color: Colors.white),
-          onPressed: onLoadLast,
+          icon: Icon(Icons.folder_open, color: iconColor),
+          onPressed: disabled ? null : onLoadLast,
         ),
         IconButton(
-          icon: const Icon(Icons.list, color: Colors.white),
-          onPressed: onLoadByName,
+          icon: Icon(Icons.list, color: iconColor),
+          onPressed: disabled ? null : onLoadByName,
         ),
         IconButton(
-          icon: const Icon(Icons.upload, color: Colors.white),
-          onPressed: onExportLast,
+          icon: Icon(Icons.upload, color: iconColor),
+          onPressed: disabled ? null : onExportLast,
         ),
         IconButton(
-          icon: const Icon(Icons.file_upload, color: Colors.white),
-          onPressed: onExportAll,
+          icon: Icon(Icons.file_upload, color: iconColor),
+          onPressed: disabled ? null : onExportAll,
         ),
         IconButton(
-          icon: const Icon(Icons.download, color: Colors.white),
-          onPressed: onImport,
+          icon: Icon(Icons.download, color: iconColor),
+          onPressed: disabled ? null : onImport,
         ),
         IconButton(
-          icon: const Icon(Icons.file_download, color: Colors.white),
-          onPressed: onImportAll,
+          icon: Icon(Icons.file_download, color: iconColor),
+          onPressed: disabled ? null : onImportAll,
         ),
       ],
     );
@@ -4722,6 +4732,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
           onExportAll: onExportAll,
           onImport: onImport,
           onImportAll: onImportAll,
+          disabled: disabled,
         ),
         const SizedBox(height: 10),
         _PlaybackControlsSection(
