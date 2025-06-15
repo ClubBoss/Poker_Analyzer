@@ -5514,16 +5514,31 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
     super.dispose();
   }
 
-  Widget _btn(String label, VoidCallback? onPressed) {
-    return ElevatedButton(onPressed: onPressed, child: Text(label));
+  VoidCallback? _transitionSafe(VoidCallback? cb) {
+    if (cb == null) return null;
+    return () {
+      if (s._boardTransitioning) return;
+      cb();
+    };
   }
 
-  Widget _buttonsWrap(Map<String, VoidCallback?> actions) {
+  Widget _btn(String label, VoidCallback? onPressed,
+      {bool disableDuringTransition = false}) {
+    final cb =
+        disableDuringTransition ? _transitionSafe(onPressed) : onPressed;
+    final disabled = disableDuringTransition && s._boardTransitioning;
+    return ElevatedButton(onPressed: disabled ? null : cb, child: Text(label));
+  }
+
+  Widget _buttonsWrap(Map<String, VoidCallback?> actions,
+      {bool transitionSafe = false}) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-        for (final entry in actions.entries) _btn(entry.key, entry.value),
+        for (final entry in actions.entries)
+          _btn(entry.key, entry.value,
+              disableDuringTransition: transitionSafe),
       ],
     );
   }
@@ -5574,7 +5589,7 @@ class _QueueTools extends StatelessWidget {
       'Sort Queues': noQueues ? null : s._sortEvaluationQueues,
       'Clear Completed Evaluations':
           s._completedEvaluations.isEmpty ? null : s._clearCompletedEvaluations,
-    });
+    }, transitionSafe: true);
   }
 }
 
@@ -5598,16 +5613,20 @@ class _SnapshotControls extends StatelessWidget {
               await s._backupEvaluationQueue();
               s._debugPanelSetState?.call(() {});
             },
-    });
+    }, transitionSafe: true);
   }
 }
 
-  Widget _buttonsColumn(Map<String, VoidCallback?> actions) {
+  Widget _buttonsColumn(Map<String, VoidCallback?> actions,
+      {bool transitionSafe = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (final entry in actions.entries) ...[
-          Align(alignment: Alignment.centerLeft, child: _btn(entry.key, entry.value)),
+          Align(
+              alignment: Alignment.centerLeft,
+              child: _btn(entry.key, entry.value,
+                  disableDuringTransition: transitionSafe)),
           if (entry.key != actions.keys.last) _vGap,
         ],
       ],
@@ -6140,8 +6159,12 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
 
 
 
-  TextButton _dialogBtn(String label, VoidCallback? onPressed) {
-    return TextButton(onPressed: onPressed, child: Text(label));
+  TextButton _dialogBtn(String label, VoidCallback? onPressed,
+      {bool disableDuringTransition = false}) {
+    final cb =
+        disableDuringTransition ? _transitionSafe(onPressed) : onPressed;
+    final disabled = disableDuringTransition && s._boardTransitioning;
+    return TextButton(onPressed: disabled ? null : cb, child: Text(label));
   }
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) =>
@@ -6334,22 +6357,33 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
         ),
       ),
       actions: [
-        _dialogBtn('Export Evaluation Queue', s._exportEvaluationQueue),
-        _dialogBtn('Export Full Queue State', s._exportFullEvaluationQueueState),
-        _dialogBtn('Export Queue To Clipboard', s._exportQueueToClipboard),
-        _dialogBtn('Import Queue From Clipboard', s._importQueueFromClipboard),
-        _dialogBtn('Backup Evaluation Queue', s._backupEvaluationQueue),
-        _dialogBtn('Export All Backups', s._exportAllEvaluationBackups),
-        _dialogBtn('Export Auto-Backups', s._exportAutoBackups),
-        _dialogBtn('Export Snapshots', s._exportSnapshots),
-        _dialogBtn('Export All Snapshots', s._exportAllEvaluationSnapshots),
+        _dialogBtn('Export Evaluation Queue', s._exportEvaluationQueue,
+            disableDuringTransition: true),
+        _dialogBtn('Export Full Queue State', s._exportFullEvaluationQueueState,
+            disableDuringTransition: true),
+        _dialogBtn('Export Queue To Clipboard', s._exportQueueToClipboard,
+            disableDuringTransition: true),
+        _dialogBtn('Import Queue From Clipboard', s._importQueueFromClipboard,
+            disableDuringTransition: true),
+        _dialogBtn('Backup Evaluation Queue', s._backupEvaluationQueue,
+            disableDuringTransition: true),
+        _dialogBtn('Export All Backups', s._exportAllEvaluationBackups,
+            disableDuringTransition: true),
+        _dialogBtn('Export Auto-Backups', s._exportAutoBackups,
+            disableDuringTransition: true),
+        _dialogBtn('Export Snapshots', s._exportSnapshots,
+            disableDuringTransition: true),
+        _dialogBtn('Export All Snapshots', s._exportAllEvaluationSnapshots,
+            disableDuringTransition: true),
         _dialogBtn('Previous Street',
-            s.currentStreet <= 0 ? null : s._previousStreet),
+            s.currentStreet <= 0 ? null : s._previousStreet,
+            disableDuringTransition: true),
         _dialogBtn(
             'Next Street',
             s.currentStreet >= s.boardStreet
                 ? null
-                : s._nextStreet),
+                : s._nextStreet,
+            disableDuringTransition: true),
         _dialogBtn(
           'Undo',
           s._boardTransitioning || s._undoRedoTransitionLock
@@ -6362,8 +6396,10 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
               ? null
               : s._redoAction,
         ),
-        _dialogBtn('Previous Street', s._prevStreetDebug),
-        _dialogBtn('Next Street', s._nextStreetDebug),
+        _dialogBtn('Previous Street', s._prevStreetDebug,
+            disableDuringTransition: true),
+        _dialogBtn('Next Street', s._nextStreetDebug,
+            disableDuringTransition: true),
         _dialogBtn('Close', () => Navigator.pop(context)),
         _dialogBtn('Clear Evaluation Queue', s._clearEvaluationQueue),
         _dialogBtn('Reset Debug Panel Settings', s._resetDebugPanelPreferences),
