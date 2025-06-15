@@ -75,6 +75,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final CurrentHandContextService? handContext;
   final FoldedPlayersService? foldedPlayersService;
   final PlaybackManagerService playbackManager;
+  final StackManagerService stackService;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -85,6 +86,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     this.handContext,
     this.foldedPlayersService,
     required this.playbackManager,
+    required this.stackService,
   });
 
   @override
@@ -107,7 +109,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   List<PlayerModel> get players => _playerManager.players;
   Map<int, String> get playerPositions => _playerManager.playerPositions;
   Map<int, PlayerType> get playerTypes => _playerManager.playerTypes;
-  Map<int, int> get _initialStacks => _playerManager.initialStacks;
   List<bool> get _showActionHints => _playerManager.showActionHints;
   final List<CardModel> revealedBoardCards = [];
   int? get opponentIndex => _playerManager.opponentIndex;
@@ -722,7 +723,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     await showDialog(
       context: context,
       builder: (context) => _PlayerEditorSection(
-        initialStack: _playerManager.initialStacks[index] ?? 0,
+        initialStack: _stackService.initialStacks[index] ?? 0,
         initialType: _playerManager.playerTypes[index] ?? PlayerType.unknown,
         isHeroSelected: index == _playerManager.heroIndex,
         card1: _playerManager.playerCards[index].isNotEmpty
@@ -746,9 +747,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               cards: cards,
               disableCards: disableCards,
             );
-            _stackService = StackManagerService(
-                Map<int, int>.from(_playerManager.initialStacks));
-            _playbackManager.stackService = _stackService;
+            _stackService
+                .reset(Map<int, int>.from(_playerManager.initialStacks));
             _playbackManager.updatePlaybackState();
           });
         },
@@ -775,8 +775,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _timelineController = ScrollController();
     _playerManager = context.read<PlayerManagerService>()
       ..addListener(_onPlayerManagerChanged);
-    _stackService =
-        StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
+    _stackService = widget.stackService;
     _playbackManager = widget.playbackManager;
     _playbackManager
       ..stackService = _stackService
@@ -1742,9 +1741,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (_playbackManager.playbackIndex > actions.length) {
         _playbackManager.seek(actions.length);
       }
-      _stackService =
-          StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
-      _playbackManager.stackService = _stackService;
+      _stackService.reset(
+          Map<int, int>.from(_playerManager.initialStacks));
       _playbackManager.updatePlaybackState();
     });
   }
@@ -1777,9 +1775,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _startBoardTransition();
         _handContext.actionTags.clear();
         _playbackManager.animatedPlayersPerStreet.clear();
-        _stackService =
-            StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
-        _playbackManager.stackService = _stackService;
+        _stackService.reset(
+            Map<int, int>.from(_playerManager.initialStacks));
         _playbackManager.resetHand();
         _handContext.commentController.clear();
         _handContext.tagsController.clear();
@@ -2074,7 +2071,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       opponentIndex: opponentIndex,
       activePlayerIndex: activePlayerIndex,
       actions: List<ActionEntry>.from(actions),
-      stackSizes: Map<int, int>.from(_playerManager.initialStacks),
+      stackSizes: Map<int, int>.from(_stackService.initialStacks),
       remainingStacks: {
         for (int i = 0; i < _playerManager.numberOfPlayers; i++)
           i: _stackService.getStackForPlayer(i)
@@ -2833,9 +2830,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ? null
                 : (value) => lockService.safeSetState(this, () {
                       _playerManager.setInitialStack(index, value);
-                      _stackService = StackManagerService(
-                          Map<int, int>.from(_playerManager.initialStacks));
-                      _playbackManager.stackService = _stackService;
+                      _stackService
+                          .reset(Map<int, int>.from(_playerManager.initialStacks));
                       _playbackManager.updatePlaybackState();
                     }),
             onRemove: _playerManager.numberOfPlayers > 2 && !lockService.boardTransitioning
@@ -5216,8 +5212,10 @@ class _ExportConsistencySection extends StatelessWidget {
             mapEquals(hand.playerPositions, s.playerPositions),
             hand.playerPositions.toString(),
             s.playerPositions.toString()),
-        debugCheck('stackSizes', mapEquals(hand.stackSizes, s._initialStacks),
-            hand.stackSizes.toString(), s._initialStacks.toString()),
+        debugCheck('stackSizes',
+            mapEquals(hand.stackSizes, s._stackService.initialStacks),
+            hand.stackSizes.toString(),
+            s._stackService.initialStacks.toString()),
         debugCheck('actions.length', hand.actions.length == s.actions.length,
             '${hand.actions.length}', '${s.actions.length}'),
         debugCheck(
@@ -5385,7 +5383,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             for (int i = 0; i < s.numberOfPlayers; i++)
               debugDiag(
                 'Player ${i + 1}',
-                'Initial ${s._initialStacks[i] ?? 0}, '
+                'Initial ${s._stackService.initialStacks[i] ?? 0}, '
                 'Invested ${s._stackService.getTotalInvested(i)}, '
                 'Remaining ${s._stackService.getStackForPlayer(i)}',
               ),
