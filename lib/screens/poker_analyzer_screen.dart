@@ -605,6 +605,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.updatePlaybackState();
   }
 
+  bool _canReverseStreet() {
+    if (currentStreet == 0) return false;
+    final prev = currentStreet - 1;
+    return !actions.any((a) => a.street > prev);
+  }
+
+  void _reverseStreet() {
+    if (!_canReverseStreet()) return;
+    _recordSnapshot();
+    currentStreet -= 1;
+    _actionTags.clear();
+    _playbackManager.animatedPlayersPerStreet
+        .putIfAbsent(currentStreet, () => <int>{});
+    _updateRevealedBoardCards();
+    _playbackManager.updatePlaybackState();
+  }
+
   _StateSnapshot _currentSnapshot() => _StateSnapshot(
         street: currentStreet,
         boardStreet: boardStreet,
@@ -3109,6 +3126,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     ),
     StreetActionsWidget(
       currentStreet: currentStreet,
+      canGoPrev: _canReverseStreet(),
+      onPrevStreet: () => setState(_reverseStreet),
       onStreetChanged: (index) {
         setState(() {
           _recordSnapshot();
@@ -4121,7 +4140,8 @@ class _ActionHistorySection extends StatelessWidget {
   }
 }
 
-class _BoardCardsSection extends StatelessWidget {
+
+class _BoardCardsSection extends StatefulWidget {
   final double scale;
   final int currentStreet;
   final List<CardModel> boardCards;
@@ -4145,29 +4165,56 @@ class _BoardCardsSection extends StatelessWidget {
   });
 
   @override
+  State<_BoardCardsSection> createState() => _BoardCardsSectionState();
+}
+
+class _BoardCardsSectionState extends State<_BoardCardsSection> {
+  late int _prevStreet;
+
+  @override
+  void initState() {
+    super.initState();
+    _prevStreet = widget.currentStreet;
+  }
+
+  @override
+  void didUpdateWidget(covariant _BoardCardsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentStreet != widget.currentStreet) {
+      _prevStreet = oldWidget.currentStreet;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final reversing = widget.currentStreet < _prevStreet;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: child,
-      ),
+      transitionBuilder: (child, animation) {
+        final slide = Tween<Offset>(
+          begin: reversing ? const Offset(0, -0.1) : const Offset(0, 0.1),
+          end: Offset.zero,
+        ).animate(animation);
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(position: slide, child: child),
+        );
+      },
       child: BoardDisplay(
-        key: ValueKey(currentStreet),
-        scale: scale,
-        currentStreet: currentStreet,
-        boardCards: boardCards,
-        revealedBoardCards: revealedBoardCards,
-        onCardSelected: onCardSelected,
-        onCardLongPress: onCardLongPress,
-        canEditBoard: canEditBoard,
-        usedCards: usedCards,
-        visibleActions: visibleActions,
+        key: ValueKey(widget.currentStreet),
+        scale: widget.scale,
+        currentStreet: widget.currentStreet,
+        boardCards: widget.boardCards,
+        revealedBoardCards: widget.revealedBoardCards,
+        onCardSelected: widget.onCardSelected,
+        onCardLongPress: widget.onCardLongPress,
+        canEditBoard: widget.canEditBoard,
+        usedCards: widget.usedCards,
+        visibleActions: widget.visibleActions,
       ),
     );
   }
 }
-
 class _HudOverlaySection extends StatelessWidget {
   final String streetName;
   final String potText;
