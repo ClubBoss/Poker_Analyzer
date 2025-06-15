@@ -124,12 +124,9 @@ class HandRestoreService {
       ..clear()
       ..addAll(hand.pendingEvaluations ?? []);
     if (hand.foldedPlayers != null) {
-      foldedPlayers.setFrom(hand.foldedPlayers!);
+      foldedPlayers.restore(hand.foldedPlayers!);
     } else {
-      foldedPlayers.setFrom({
-        for (final a in hand.actions)
-          if (a.action == 'fold') a.playerIndex
-      });
+      foldedPlayers.recompute(hand.actions);
     }
     actionSync.setExpandedStreets([
       for (int i = 0; i < 4; i++)

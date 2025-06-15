@@ -3,8 +3,13 @@ import 'package:flutter/foundation.dart';
 import '../models/action_entry.dart';
 import '../models/player_zone_action_entry.dart' as pz;
 import '../models/card_model.dart';
+import 'folded_players_service.dart';
 
 class ActionSyncService extends ChangeNotifier {
+  ActionSyncService({this.foldedPlayers});
+
+  final FoldedPlayersService? foldedPlayers;
+
   int currentStreet = 0;
   int boardStreet = 0;
   int playbackIndex = 0;
@@ -141,6 +146,7 @@ class ActionSyncService extends ChangeNotifier {
     _redoStack.clear();
     _undoSnapshots.clear();
     _redoSnapshots.clear();
+    foldedPlayers?.recompute(entries);
     notifyListeners();
   }
 
@@ -150,6 +156,7 @@ class ActionSyncService extends ChangeNotifier {
     _redoStack.clear();
     _undoSnapshots.clear();
     _redoSnapshots.clear();
+    foldedPlayers?.reset();
     notifyListeners();
   }
 
@@ -171,6 +178,7 @@ class ActionSyncService extends ChangeNotifier {
           newEntry: entry, prevStreet: prevStreet, newStreet: newStreet));
       _redoStack.clear();
     }
+    foldedPlayers?.addFromAction(entry);
     notifyListeners();
   }
 
@@ -186,6 +194,7 @@ class ActionSyncService extends ChangeNotifier {
           newStreet: street));
       _redoStack.clear();
     }
+    foldedPlayers?.editAction(previous, entry, analyzerActions);
     notifyListeners();
   }
 
@@ -199,6 +208,7 @@ class ActionSyncService extends ChangeNotifier {
           newStreet: street));
       _redoStack.clear();
     }
+    foldedPlayers?.removeFromAction(removed, analyzerActions);
     notifyListeners();
   }
 
@@ -220,12 +230,15 @@ class ActionSyncService extends ChangeNotifier {
     switch (op.type) {
       case ActionChangeType.add:
         analyzerActions.removeAt(op.index);
+        foldedPlayers?.removeFromAction(op.newEntry!, analyzerActions);
         break;
       case ActionChangeType.edit:
         analyzerActions[op.index] = op.oldEntry!;
+        foldedPlayers?.editAction(op.newEntry!, op.oldEntry!, analyzerActions);
         break;
       case ActionChangeType.delete:
         analyzerActions.insert(op.index, op.oldEntry!);
+        foldedPlayers?.addFromAction(op.oldEntry!);
         break;
     }
     _redoStack.add(op);
@@ -251,12 +264,15 @@ class ActionSyncService extends ChangeNotifier {
     switch (op.type) {
       case ActionChangeType.add:
         analyzerActions.insert(op.index, op.newEntry!);
+        foldedPlayers?.addFromAction(op.newEntry!);
         break;
       case ActionChangeType.edit:
         analyzerActions[op.index] = op.newEntry!;
+        foldedPlayers?.editAction(op.oldEntry!, op.newEntry!, analyzerActions);
         break;
       case ActionChangeType.delete:
         analyzerActions.removeAt(op.index);
+        foldedPlayers?.removeFromAction(op.oldEntry!, analyzerActions);
         break;
     }
     _undoStack.add(op);

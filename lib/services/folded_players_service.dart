@@ -4,7 +4,7 @@ import '../models/action_entry.dart';
 import 'action_sync_service.dart';
 
 /// Manages the set of folded players and provides helpers to update it.
-class FoldedPlayersService {
+class FoldedPlayersService extends ChangeNotifier {
   final Set<int> _foldedPlayers = {};
 
   ActionSyncService? _actionSync;
@@ -21,32 +21,62 @@ class FoldedPlayersService {
 
   bool contains(int index) => _foldedPlayers.contains(index);
 
-  void clear() {
+  /// Reset all folded players.
+  void reset() {
+    if (_foldedPlayers.isEmpty) return;
     _foldedPlayers.clear();
+    notifyListeners();
   }
 
+  /// Mark [index] as folded.
   void add(int index) {
-    _foldedPlayers.add(index);
+    if (_foldedPlayers.add(index)) notifyListeners();
   }
 
-  void setFrom(Iterable<int> indexes) {
+  /// Unmark [index] as folded.
+  void remove(int index) {
+    if (_foldedPlayers.remove(index)) notifyListeners();
+  }
+
+  /// Restore from a list of folded player indexes.
+  void restore(Iterable<int> indexes) {
     _foldedPlayers
       ..clear()
       ..addAll(indexes);
+    notifyListeners();
   }
 
   /// Recompute folded players from the list of [actions].
   void recompute(List<ActionEntry> actions) {
-    _foldedPlayers
-      ..clear()
-      ..addAll({
-        for (final a in actions)
-          if (a.action == 'fold') a.playerIndex
-      });
+    restore({
+      for (final a in actions)
+        if (a.action == 'fold') a.playerIndex
+    });
+  }
+
+  /// Update folded state after adding [entry].
+  void addFromAction(ActionEntry entry) {
+    if (entry.action == 'fold') {
+      add(entry.playerIndex);
+    }
+  }
+
+  /// Update folded state after removing [entry].
+  void removeFromAction(ActionEntry entry, List<ActionEntry> remaining) {
+    if (entry.action != 'fold') return;
+    final stillFolded = remaining.any((a) =>
+        a.playerIndex == entry.playerIndex && a.action == 'fold');
+    if (!stillFolded) remove(entry.playerIndex);
+  }
+
+  /// Update folded state after editing an action.
+  void editAction(ActionEntry oldEntry, ActionEntry newEntry, List<ActionEntry> actions) {
+    removeFromAction(oldEntry, actions);
+    addFromAction(newEntry);
   }
 
   void attach(ActionSyncService actionSync) {
-    _actionSync?.removeListener(_listener!);
+    _actionSync?.removeListener(_listener ?? () {});
     _actionSync = actionSync;
     _listener = () => recompute(_actionSync!.analyzerActions);
     _actionSync!.addListener(_listener!);

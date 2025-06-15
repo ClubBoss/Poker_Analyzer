@@ -8,6 +8,7 @@ import 'services/saved_hand_manager_service.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/daily_hand_service.dart';
 import 'services/action_sync_service.dart';
+import 'services/folded_players_service.dart';
 import 'services/user_preferences_service.dart';
 import 'user_preferences.dart';
 
@@ -22,7 +23,11 @@ void main() {
         ),
         ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
         ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
-        ChangeNotifierProvider(create: (_) => ActionSyncService()),
+        ChangeNotifierProvider(create: (_) => FoldedPlayersService()),
+        ChangeNotifierProvider(
+          create: (context) => ActionSyncService(
+              foldedPlayers: context.read<FoldedPlayersService>()),
+        ),
         ChangeNotifierProvider(
           create: (_) {
             final service = UserPreferencesService();
