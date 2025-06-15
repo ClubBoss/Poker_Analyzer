@@ -518,6 +518,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
 
   void _recordSnapshot() {
+    _ensureBoardStreetConsistent();
     _undoSnapshots.add(_currentSnapshot());
     _redoSnapshots.clear();
   }
@@ -796,7 +797,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..showSnackBar(
         SnackBar(
           content: Text(
-            'Complete the $prevStage before adding the $nextStage.',
+            'Please complete the $prevStage before adding the $nextStage.',
           ),
         ),
       );
@@ -826,8 +827,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     setState(() {
       _recordSnapshot();
       _playerManager.selectBoardCard(index, card);
-      boardStreet = _inferBoardStreet();
-      currentStreet = boardStreet;
+      _ensureBoardStreetConsistent();
       _updateRevealedBoardCards();
     });
   }
@@ -981,10 +981,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onPlayerManagerChanged() {
-    final newBoardStreet = _inferBoardStreet();
-    if (newBoardStreet != boardStreet) {
-      boardStreet = newBoardStreet;
-      currentStreet = boardStreet;
+    final prevStreet = boardStreet;
+    _ensureBoardStreetConsistent();
+    if (boardStreet != prevStreet) {
       _playbackManager.updatePlaybackState();
     }
     _updateRevealedBoardCards();
