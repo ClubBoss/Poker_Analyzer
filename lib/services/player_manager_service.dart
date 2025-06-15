@@ -177,7 +177,6 @@ class PlayerManagerService extends ChangeNotifier {
       playerCards[i] = playerCards[i + 1];
       players[i] = players[i + 1];
       initialStacks[i] = initialStacks[i + 1] ?? 0;
-      profileService.actionTags[i] = profileService.actionTags[i + 1];
       profileService.playerPositions[i] = profileService.playerPositions[i + 1] ?? '';
       profileService.playerTypes[i] = profileService.playerTypes[i + 1] ?? PlayerType.unknown;
       hintFlags[i] = hintFlags[i + 1];
@@ -186,7 +185,7 @@ class PlayerManagerService extends ChangeNotifier {
     players[numberOfPlayers - 1] =
         PlayerModel(name: 'Player $numberOfPlayers');
     initialStacks.remove(numberOfPlayers - 1);
-    profileService.actionTags.remove(numberOfPlayers - 1);
+    profileService.actionTagService.shiftAfterPlayerRemoval(index, numberOfPlayers);
     profileService.playerPositions.remove(numberOfPlayers - 1);
     profileService.playerTypes.remove(numberOfPlayers - 1);
     hintFlags[numberOfPlayers - 1] = true;
