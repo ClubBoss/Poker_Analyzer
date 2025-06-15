@@ -3199,6 +3199,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       onCardLongPress: _removeBoardCard,
                       canEditBoard: _canEditBoard,
                       usedCards: _usedCardKeys(),
+                      editingDisabled: _boardTransitioning,
                       visibleActions: visibleActions,
                     ),
                   ),
@@ -4359,6 +4360,7 @@ class _BoardCardsSection extends StatefulWidget {
   final void Function(int) onCardLongPress;
   final bool Function(int index)? canEditBoard;
   final Set<String> usedCards;
+  final bool editingDisabled;
 
   const _BoardCardsSection({
     Key? key,
@@ -4371,6 +4373,7 @@ class _BoardCardsSection extends StatefulWidget {
     required this.visibleActions,
     this.canEditBoard,
     this.usedCards = const {},
+    this.editingDisabled = false,
   }) : super(key: key);
 
   @override
@@ -4484,6 +4487,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
         onCardLongPress: widget.onCardLongPress,
         canEditBoard: widget.canEditBoard,
         usedCards: widget.usedCards,
+        editingDisabled: widget.editingDisabled,
         visibleActions: widget.visibleActions,
       ),
     );

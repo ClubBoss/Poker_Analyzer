@@ -11,6 +11,7 @@ class BoardCardsWidget extends StatelessWidget {
   final Set<String> usedCards;
   final double scale;
   final List<Animation<double>>? revealAnimations;
+  final bool editingDisabled;
 
   const BoardCardsWidget({
     Key? key,
@@ -22,6 +23,7 @@ class BoardCardsWidget extends StatelessWidget {
     this.usedCards = const {},
     this.scale = 1.0,
     this.revealAnimations,
+    this.editingDisabled = false,
   }) : super(key: key);
 
   @override
@@ -63,21 +65,25 @@ class BoardCardsWidget extends StatelessWidget {
                 opacity: animation,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () async {
-                    if (canEditBoard != null && !canEditBoard!(index)) return;
-                    final disabled = Set<String>.from(usedCards);
-                    if (card != null) disabled.remove('${card.rank}${card.suit}');
-                    final selected =
-                        await showCardSelector(context, disabledCards: disabled);
-                    if (selected != null) {
-                      onCardSelected(index, selected);
-                    }
-                  },
-                  onLongPress: () {
-                    if (onCardLongPress != null && index < boardCards.length) {
-                      onCardLongPress!(index);
-                    }
-                  },
+                  onTap: editingDisabled
+                      ? null
+                      : () async {
+                          if (canEditBoard != null && !canEditBoard!(index)) return;
+                          final disabled = Set<String>.from(usedCards);
+                          if (card != null) disabled.remove('${card.rank}${card.suit}');
+                          final selected =
+                              await showCardSelector(context, disabledCards: disabled);
+                          if (selected != null) {
+                            onCardSelected(index, selected);
+                          }
+                        },
+                  onLongPress: editingDisabled
+                      ? null
+                      : () {
+                          if (onCardLongPress != null && index < boardCards.length) {
+                            onCardLongPress!(index);
+                          }
+                        },
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     width: 36 * scale,

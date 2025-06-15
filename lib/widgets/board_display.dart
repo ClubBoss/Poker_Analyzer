@@ -16,6 +16,7 @@ class BoardDisplay extends StatelessWidget {
   final Set<String> usedCards;
   final double scale;
   final List<Animation<double>>? revealAnimations;
+  final bool editingDisabled;
 
   const BoardDisplay({
     Key? key,
@@ -29,6 +30,7 @@ class BoardDisplay extends StatelessWidget {
     this.usedCards = const {},
     this.scale = 1.0,
     this.revealAnimations,
+    this.editingDisabled = false,
   }) : super(key: key);
 
   @override
@@ -44,6 +46,7 @@ class BoardDisplay extends StatelessWidget {
           onCardLongPress: onCardLongPress,
           canEditBoard: canEditBoard,
           usedCards: usedCards,
+          editingDisabled: editingDisabled,
         ),
         PotOverBoardWidget(
           visibleActions: visibleActions,
