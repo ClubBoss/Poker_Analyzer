@@ -268,6 +268,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const List<int> _stageCardCounts = [0, 3, 4, 5];
   static const double _timelineExtent = 80.0;
   static const List<String> _stageNames = ['Preflop', 'Flop', 'Turn', 'River'];
+  static const Duration _boardRevealDuration = Duration(milliseconds: 300);
 
   /// Determine which board stage a particular card index belongs to.
   int _stageForBoardIndex(int index) {
@@ -857,7 +858,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     _centerChipController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: _boardRevealDuration,
     );
     _timelineController = ScrollController();
     _playerManager = PlayerManagerService()..addListener(_onPlayerManagerChanged);
@@ -3655,7 +3656,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           left: centerX + dx - radius,
           top: centerY + dy + bias + 112 * scale - radius,
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
+            duration: _boardRevealDuration,
             transitionBuilder: (child, animation) => FadeTransition(
               opacity: animation,
               child: ScaleTransition(scale: animation, child: child),
@@ -4282,7 +4283,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
     super.initState();
     _prevStreet = widget.currentStreet;
     _controllers =
-        List.generate(5, (_) => AnimationController(vsync: this, duration: const Duration(milliseconds: 300)));
+        List.generate(5, (_) => AnimationController(vsync: this, duration: _boardRevealDuration));
     _animations =
         _controllers.map((c) => CurvedAnimation(parent: c, curve: Curves.easeIn)).toList();
     _prevCards = List<CardModel>.from(widget.revealedBoardCards);
@@ -4332,7 +4333,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
   Widget build(BuildContext context) {
     final reversing = widget.currentStreet < _prevStreet;
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+      duration: _boardRevealDuration,
       transitionBuilder: (child, animation) {
         final slide = Tween<Offset>(
           begin: reversing ? const Offset(0, -0.1) : const Offset(0, 0.1),
