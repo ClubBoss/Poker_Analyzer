@@ -3240,29 +3240,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     ),
     Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Column(
-        children: List.generate(
-          4,
-          (i) => CollapsibleStreetSection(
-            street: i,
-            actions: savedActions,
-            pots: _playbackManager.pots,
-            stackSizes: _stackService.stackSizes,
-            playerPositions: playerPositions,
-            onEdit: _editAction,
-            onDelete: _deleteAction,
-            visibleCount: _playbackManager.playbackIndex,
-            evaluateActionQuality: _evaluateActionQuality,
+      child: AbsorbPointer(
+        absorbing: _boardTransitioning,
+        child: Column(
+          children: List.generate(
+            4,
+            (i) => CollapsibleStreetSection(
+              street: i,
+              actions: savedActions,
+              pots: _playbackManager.pots,
+              stackSizes: _stackService.stackSizes,
+              playerPositions: playerPositions,
+              onEdit: _editAction,
+              onDelete: _deleteAction,
+              visibleCount: _playbackManager.playbackIndex,
+              evaluateActionQuality: _evaluateActionQuality,
+            ),
           ),
         ),
       ),
     ),
-    ActionHistoryExpansionTile(
-      actions: visibleActions,
-      playerPositions: playerPositions,
-      pots: _playbackManager.pots,
-      stackSizes: _stackService.stackSizes,
-      onEdit: _editAction,
+    AbsorbPointer(
+      absorbing: _boardTransitioning,
+      child: ActionHistoryExpansionTile(
+        actions: visibleActions,
+        playerPositions: playerPositions,
+        pots: _playbackManager.pots,
+        stackSizes: _stackService.stackSizes,
+        onEdit: _editAction,
       onDelete: _deleteAction,
       visibleCount: _playbackManager.playbackIndex,
       evaluateActionQuality: _evaluateActionQuality,
@@ -3270,22 +3275,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     StreetActionsWidget(
       currentStreet: currentStreet,
       canGoPrev: _canReverseStreet(),
-      onPrevStreet: () => setState(_reverseStreet),
+      onPrevStreet:
+          _boardTransitioning ? null : () => setState(_reverseStreet),
       onStreetChanged: (index) {
+        if (_boardTransitioning) return;
         setState(() {
           _recordSnapshot();
           _changeStreet(index);
         });
       },
             ),
-            StreetActionInputWidget(
-              currentStreet: currentStreet,
-              numberOfPlayers: numberOfPlayers,
-              actions: actions,
-              playerPositions: playerPositions,
-              onAdd: onActionSelected,
-              onEdit: _editAction,
-              onDelete: _deleteAction,
+            AbsorbPointer(
+              absorbing: _boardTransitioning,
+              child: StreetActionInputWidget(
+                currentStreet: currentStreet,
+                numberOfPlayers: numberOfPlayers,
+                actions: actions,
+                playerPositions: playerPositions,
+                onAdd: onActionSelected,
+                onEdit: _editAction,
+                onDelete: _deleteAction,
+              ),
             ),
             ActionTimelineWidget(
               actions: visibleActions,
@@ -3324,21 +3334,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               ),
             ),
             Expanded(
-              child: _HandEditorSection(
-                historyActions: visibleActions,
-                playerPositions: playerPositions,
-                heroIndex: heroIndex,
-                commentController: _commentController,
-                tagsController: _tagsController,
-                currentStreet: currentStreet,
-                actions: actions,
-                pots: _playbackManager.pots,
-                stackSizes: _stackService.stackSizes,
-                onEdit: _editAction,
-                onDelete: _deleteAction,
-                visibleCount: _playbackManager.playbackIndex,
-                evaluateActionQuality: _evaluateActionQuality,
-                onAnalyze: () {},
+              child: AbsorbPointer(
+                absorbing: _boardTransitioning,
+                child: _HandEditorSection(
+                  historyActions: visibleActions,
+                  playerPositions: playerPositions,
+                  heroIndex: heroIndex,
+                  commentController: _commentController,
+                  tagsController: _tagsController,
+                  currentStreet: currentStreet,
+                  actions: actions,
+                  pots: _playbackManager.pots,
+                  stackSizes: _stackService.stackSizes,
+                  onEdit: _editAction,
+                  onDelete: _deleteAction,
+                  visibleCount: _playbackManager.playbackIndex,
+                  evaluateActionQuality: _evaluateActionQuality,
+                  onAnalyze: () {},
+                ),
               ),
             ),
           ],
