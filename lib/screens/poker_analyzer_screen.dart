@@ -1723,6 +1723,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
+  void _previousStreet() {
+    if (currentStreet <= 0) return;
+    setState(() {
+      _recordSnapshot();
+      currentStreet--;
+      _actionTags.clear();
+      _playbackManager.animatedPlayersPerStreet
+          .putIfAbsent(currentStreet, () => <int>{});
+      _updateRevealedBoardCards();
+      _playbackManager.updatePlaybackState();
+    });
+    _debugPanelSetState?.call(() {});
+  }
+
+  void _nextStreet() {
+    if (currentStreet >= boardStreet) return;
+    setState(() {
+      _recordSnapshot();
+      currentStreet++;
+      _actionTags.clear();
+      _playbackManager.animatedPlayersPerStreet
+          .putIfAbsent(currentStreet, () => <int>{});
+      _updateRevealedBoardCards();
+      _playbackManager.updatePlaybackState();
+    });
+    _debugPanelSetState?.call(() {});
+  }
+
   Future<void> _removePlayer(int index) async {
     if (_playerManager.numberOfPlayers <= 2) return;
 
@@ -5815,7 +5843,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
 
 
 
-  TextButton _dialogBtn(String label, VoidCallback onPressed) {
+  TextButton _dialogBtn(String label, VoidCallback? onPressed) {
     return TextButton(onPressed: onPressed, child: Text(label));
   }
 
@@ -6018,6 +6046,13 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
         _dialogBtn('Export Auto-Backups', s._exportAutoBackups),
         _dialogBtn('Export Snapshots', s._exportSnapshots),
         _dialogBtn('Export All Snapshots', s._exportAllEvaluationSnapshots),
+        _dialogBtn('Previous Street',
+            s.currentStreet <= 0 ? null : s._previousStreet),
+        _dialogBtn(
+            'Next Street',
+            s.currentStreet >= s.boardStreet
+                ? null
+                : s._nextStreet),
         _dialogBtn('Undo', s._undoAction),
         _dialogBtn('Redo', s._redoAction),
         _dialogBtn('Close', () => Navigator.pop(context)),
