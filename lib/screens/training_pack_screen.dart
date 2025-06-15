@@ -617,6 +617,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                           handContext: CurrentHandContextService(),
                           playbackManager:
                               context.read<PlaybackManagerService>(),
+                          stackService: context
+                              .read<PlaybackManagerService>()
+                              .stackService,
                         ),
                       ),
                     ),

@@ -13,6 +13,9 @@ class StackManagerService {
     stackSizes.addAll(_manager.currentStacks);
   }
 
+  /// Current initial stack sizes.
+  Map<int, int> get initialStacks => Map<int, int>.from(_initialStacks);
+
   /// Re-initialize with a new set of initial stacks.
   void reset(Map<int, int> stacks, {Map<int, int>? remainingStacks}) {
     _initialStacks

@@ -119,6 +119,9 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                 handContext: CurrentHandContextService(),
                                 playbackManager:
                                     context.read<PlaybackManagerService>(),
+                                stackService: context
+                                    .read<PlaybackManagerService>()
+                                    .stackService,
                               ),
                             ),
                           ),
@@ -161,6 +164,9 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                 handContext: CurrentHandContextService(),
                                 playbackManager:
                                     context.read<PlaybackManagerService>(),
+                                stackService: context
+                                    .read<PlaybackManagerService>()
+                                    .stackService,
                               ),
                             ),
                           ),
