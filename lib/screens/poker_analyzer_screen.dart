@@ -478,10 +478,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     boardCards
       ..clear()
       ..addAll(snap.board);
-    _playbackManager.seek(snap.playbackIndex);
     _animateTimeline = true;
     _boardSync.updateRevealedBoardCards();
-    _playbackManager.updatePlaybackState();
     if (currentStreet != prevStreet) {
       _boardManager.startBoardTransition();
     }

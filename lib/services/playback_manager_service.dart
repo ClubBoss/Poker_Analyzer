@@ -32,6 +32,7 @@ class PlaybackManagerService extends ChangeNotifier {
   })  : _playbackService = playbackService ?? PlaybackService(),
         _potCalculator = potCalculator ?? PotCalculator() {
     _playbackService.addListener(_onPlaybackChanged);
+    actionSync.attachPlaybackManager(this);
   }
 
   int get playbackIndex => _playbackService.playbackIndex;
