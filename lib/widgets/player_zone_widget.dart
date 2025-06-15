@@ -47,6 +47,7 @@ class PlayerZoneWidget extends StatefulWidget {
   /// Starting stack value representing 100% for the stack bar.
   final int maxStackSize;
   final double scale;
+  final Set<String> usedCards;
   // Stack editing is handled by PlayerInfoWidget
 
   const PlayerZoneWidget({
@@ -72,6 +73,7 @@ class PlayerZoneWidget extends StatefulWidget {
     this.actionTagText,
     this.maxStackSize = 100,
     this.scale = 1.0,
+    this.usedCards = const {},
   }) : super(key: key);
 
   @override
@@ -541,7 +543,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   behavior: HitTestBehavior.opaque,
                   onTap: widget.isHero
                       ? () async {
-                          final selected = await showCardSelector(context);
+                          final disabled = Set<String>.from(widget.usedCards);
+                          if (card != null) disabled.remove('${card.rank}${card.suit}');
+                          final selected = await showCardSelector(
+                            context,
+                            disabledCards: disabled,
+                          );
                           if (selected != null) {
                             widget.onCardsSelected(index, selected);
                           }
