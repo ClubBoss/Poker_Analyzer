@@ -26,12 +26,30 @@ class BoardCardsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final visibleCount = [0, 3, 4, 5][currentStreet];
 
+    final keyString = boardCards
+        .take(visibleCount)
+        .map((c) => '${c.rank}${c.suit}')
+        .join('-');
+
     return Positioned.fill(
       child: Align(
         alignment: const Alignment(0, -0.05),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(visibleCount, (index) {
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            final slide = Tween<Offset>(
+              begin: const Offset(0, 0.1),
+              end: Offset.zero,
+            ).animate(animation);
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(position: slide, child: child),
+            );
+          },
+          child: Row(
+            key: ValueKey('$keyString-$visibleCount'),
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(visibleCount, (index) {
             final card = index < boardCards.length ? boardCards[index] : null;
             final isRed = card?.suit == '♥' || card?.suit == '♦';
 
@@ -80,7 +98,8 @@ class BoardCardsWidget extends StatelessWidget {
                     : const Icon(Icons.add, color: Colors.grey),
               ),
             );
-          }),
+            }),
+          ),
         ),
       ),
     );

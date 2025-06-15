@@ -3072,6 +3072,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           _playbackManager.animatedPlayersPerStreet
               .putIfAbsent(index, () => <int>{});
           _updateRevealedBoardCards();
+          _playbackManager.updatePlaybackState();
         });
               },
             ),
