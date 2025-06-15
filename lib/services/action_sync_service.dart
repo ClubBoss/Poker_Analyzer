@@ -4,11 +4,17 @@ import '../models/action_entry.dart';
 import '../models/player_zone_action_entry.dart' as pz;
 import '../models/card_model.dart';
 import 'folded_players_service.dart';
+import 'playback_manager_service.dart';
 
 class ActionSyncService extends ChangeNotifier {
   ActionSyncService({this.foldedPlayers});
 
   final FoldedPlayersService? foldedPlayers;
+  PlaybackManagerService? playbackManager;
+
+  void attachPlaybackManager(PlaybackManagerService manager) {
+    playbackManager = manager;
+  }
 
   int currentStreet = 0;
   int boardStreet = 0;
@@ -106,7 +112,7 @@ class ActionSyncService extends ChangeNotifier {
   void restoreSnapshot(ActionSnapshot snap) {
     currentStreet = snap.street;
     boardStreet = snap.boardStreet;
-    playbackIndex = snap.playbackIndex;
+    playbackManager?.seek(snap.playbackIndex);
     expandedHistoryStreets
       ..clear()
       ..addAll(snap.expandedStreets);
