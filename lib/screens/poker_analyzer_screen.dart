@@ -153,15 +153,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Handles evaluation queue state and processing.
   late final EvaluationQueueService _queueService;
 
-  List<ActionEvaluationRequest> get _pendingEvaluations => _queueService.pending;
-  List<ActionEvaluationRequest> get _completedEvaluations => _queueService.completed;
-  List<ActionEvaluationRequest> get _failedEvaluations => _queueService.failed;
-  bool get _processingEvaluations => _queueService.processing;
-  set _processingEvaluations(bool v) => _queueService.processing = v;
-  bool get _pauseProcessingRequested => _queueService.pauseRequested;
-  set _pauseProcessingRequested(bool v) => _queueService.pauseRequested = v;
-  bool get _cancelProcessingRequested => _queueService.cancelRequested;
-  set _cancelProcessingRequested(bool v) => _queueService.cancelRequested = v;
+
 
 
   /// Allows updating the debug panel while it's open.
@@ -173,9 +165,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Evaluation processing delay, snapshot retention and other debug
   /// preferences are managed by [_debugPrefs].
 
-  static const _pendingOrderKey = 'pending_queue_order';
-  static const _failedOrderKey = 'failed_queue_order';
-  static const _completedOrderKey = 'completed_queue_order';
 
   static const List<int> _stageCardCounts = [0, 3, 4, 5];
   static const double _timelineExtent = 80.0;
@@ -191,54 +180,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (index == 3) return 2; // Turn
     return 3; // River
   }
-
-
-
-  String _queueEntryId(ActionEvaluationRequest r) => r.id;
-
-
-  ActionEvaluationRequest _decodeEvaluationRequest(Map<String, dynamic> json) {
-    final map = Map<String, dynamic>.from(json);
-    if (map['id'] == null || map['id'] is! String || (map['id'] as String).isEmpty) {
-      map['id'] = const Uuid().v4();
-    }
-    return ActionEvaluationRequest.fromJson(map);
-  }
-
-  List<ActionEvaluationRequest> _decodeEvaluationList(dynamic list) {
-    final items = <ActionEvaluationRequest>[];
-    if (list is List) {
-      for (final item in list) {
-        if (item is Map) {
-          try {
-            items.add(_decodeEvaluationRequest(Map<String, dynamic>.from(item)));
-          } catch (_) {}
-        }
-      }
-    }
-    return items;
-  }
-
-  /// Decode a backup JSON object into separate pending, failed and completed
-  /// evaluation lists. Supports both the legacy list-only format containing
-  /// only pending requests and the newer map format with all three queues.
-  Map<String, List<ActionEvaluationRequest>> _decodeBackupQueues(dynamic json) {
-    if (json is List) {
-      return {
-        'pending': _decodeEvaluationList(json),
-        'failed': <ActionEvaluationRequest>[],
-        'completed': <ActionEvaluationRequest>[],
-      };
-    } else if (json is Map) {
-      return {
-        'pending': _decodeEvaluationList(json['pending']),
-        'failed': _decodeEvaluationList(json['failed']),
-        'completed': _decodeEvaluationList(json['completed']),
-      };
-    }
-    throw const FormatException();
-  }
-
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
     final filtered = _debugPrefs.applyAdvancedFilters(queue);
@@ -718,7 +659,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       debugPrefs: _debugPrefs,
       lockService: lockService,
       handContext: _handContext,
-      pendingEvaluations: _pendingEvaluations,
+      pendingEvaluations: _queueService.pending,
       foldedPlayers: _foldedPlayers,
       setCurrentHandName: (name) => _handContext.currentHandName = name,
       setActivePlayerIndex: (i) => activePlayerIndex = i,
@@ -1048,7 +989,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _clearPendingQueue() async {
-    if (_pendingEvaluations.isEmpty) return;
+    if (_queueService.pending.isEmpty) return;
     await _queueService.clearPending();
     if (mounted) {
       lockService.safeSetState(this, () {});
@@ -1060,7 +1001,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _clearFailedQueue() async {
-    if (_failedEvaluations.isEmpty) return;
+    if (_queueService.failed.isEmpty) return;
     await _queueService.clearFailed();
     if (mounted) {
       lockService.safeSetState(this, () {});
@@ -1072,7 +1013,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _clearCompletedQueue() async {
-    if (_completedEvaluations.isEmpty) return;
+    if (_queueService.completed.isEmpty) return;
     await _queueService.clearCompleted();
     if (mounted) {
       lockService.safeSetState(this, () {});
@@ -1084,7 +1025,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _clearCompletedEvaluations() async {
-    final count = _completedEvaluations.length;
+    final count = _queueService.completed.length;
     if (count == 0) return;
     await _queueService.clearCompleted();
     _debugPanelSetState?.call(() {});
@@ -1855,7 +1796,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionTags:
           _handContext.actionTags.isEmpty ? null : Map<int, String?>.from(_handContext.actionTags),
       pendingEvaluations:
-          _pendingEvaluations.isEmpty ? null : List<ActionEvaluationRequest>.from(_pendingEvaluations),
+          _queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(_queueService.pending),
       playbackIndex: _playbackManager.playbackIndex,
     );
   }
@@ -4484,9 +4425,9 @@ class _QueueTools extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _PokerAnalyzerScreenState s = state.s;
-    final bool noQueues = s._pendingEvaluations.isEmpty &&
-        s._failedEvaluations.isEmpty &&
-        s._completedEvaluations.isEmpty;
+    final bool noQueues = s._queueService.pending.isEmpty &&
+        s._queueService.failed.isEmpty &&
+        s._queueService.completed.isEmpty;
 
     return state._buttonsWrap(<String, VoidCallback?>{
       'Import Evaluation Queue': s._importEvaluationQueue,
@@ -4519,20 +4460,20 @@ class _QueueTools extends StatelessWidget {
       },
       'Export All Backups': s._exportAllEvaluationBackups,
       'Clear Pending':
-          s._pendingEvaluations.isEmpty ? null : s._clearPendingQueue,
+          s._queueService.pending.isEmpty ? null : s._clearPendingQueue,
       'Clear Failed':
-          s._failedEvaluations.isEmpty ? null : s._clearFailedQueue,
+          s._queueService.failed.isEmpty ? null : s._clearFailedQueue,
       'Clear Completed':
-          s._completedEvaluations.isEmpty ? null : s._clearCompletedQueue,
-      'Clear Evaluation Queue': s._pendingEvaluations.isEmpty &&
-              s._completedEvaluations.isEmpty
+          s._queueService.completed.isEmpty ? null : s._clearCompletedQueue,
+      'Clear Evaluation Queue': s._queueService.pending.isEmpty &&
+              s._queueService.completed.isEmpty
           ? null
           : s._clearEvaluationQueue,
       'Remove Duplicates': noQueues ? null : s._removeDuplicateEvaluations,
       'Resolve Conflicts': noQueues ? null : s._resolveQueueConflicts,
       'Sort Queues': noQueues ? null : s._sortEvaluationQueues,
       'Clear Completed Evaluations':
-          s._completedEvaluations.isEmpty ? null : s._clearCompletedEvaluations,
+          s._queueService.completed.isEmpty ? null : s._clearCompletedEvaluations,
     }, transitionSafe: true);
   }
 }
@@ -4547,11 +4488,11 @@ class _SnapshotControls extends StatelessWidget {
     final _PokerAnalyzerScreenState s = state.s;
     return state._buttonsColumn({
       'Retry Failed Evaluations':
-          s._failedEvaluations.isEmpty ? null : s._retryFailedEvaluations,
-      'Export Snapshot Now': s._processingEvaluations
+          s._queueService.failed.isEmpty ? null : s._retryFailedEvaluations,
+      'Export Snapshot Now': s._queueService.processing
           ? null
           : () => s._exportEvaluationQueueSnapshot(showNotification: true),
-      'Backup Queue Now': s._processingEvaluations
+      'Backup Queue Now': s._queueService.processing
           ? null
           : () async {
               await s._backupEvaluationQueue();
@@ -4621,16 +4562,16 @@ class _ProcessingControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _PokerAnalyzerScreenState s = state.s;
-    final disabled = s._pendingEvaluations.isEmpty;
+    final disabled = s._queueService.pending.isEmpty;
     return state._buttonsWrap({
       'Process Next':
-          disabled || s._processingEvaluations ? null : s._processNextEvaluation,
+          disabled || s._queueService.processing ? null : s._processNextEvaluation,
       'Start Evaluation Processing':
-          disabled || s._processingEvaluations ? null : s._processEvaluationQueue,
-      s._pauseProcessingRequested ? 'Resume' : 'Pause':
-          disabled || !s._processingEvaluations ? null : s._toggleEvaluationProcessingPause,
+          disabled || s._queueService.processing ? null : s._processEvaluationQueue,
+      s._queueService.pauseRequested ? 'Resume' : 'Pause':
+          disabled || !s._queueService.processing ? null : s._toggleEvaluationProcessingPause,
       'Cancel Evaluation Processing':
-          !s._processingEvaluations && disabled ? null : s._cancelEvaluationProcessing,
+          !s._queueService.processing && disabled ? null : s._cancelEvaluationProcessing,
       'Force Evaluation Restart': disabled ? null : s._forceRestartEvaluationProcessing,
     });
   }
@@ -4734,14 +4675,14 @@ class _QueueDisplaySection extends StatelessWidget {
           builder: (context) {
             final sections = <Widget>[];
             if (s._debugPrefs.queueFilters.contains('pending')) {
-              sections.add(state._queueSection('Pending', s._pendingEvaluations));
+              sections.add(state._queueSection('Pending', s._queueService.pending));
             }
             if (s._debugPrefs.queueFilters.contains('failed')) {
-              sections.add(state._queueSection('Failed', s._failedEvaluations));
+              sections.add(state._queueSection('Failed', s._queueService.failed));
             }
             if (s._debugPrefs.queueFilters.contains('completed')) {
               sections.add(
-                  state._queueSection('Completed', s._completedEvaluations));
+                  state._queueSection('Completed', s._queueService.completed));
             }
             if (sections.isEmpty) {
               return debugDiag('Queue Items', '(none)');
@@ -4770,10 +4711,10 @@ class _EvaluationResultsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _PokerAnalyzerScreenState s = state.s;
-    final results = s._completedEvaluations.length > 50
-        ? s._completedEvaluations
-            .sublist(s._completedEvaluations.length - 50)
-        : s._completedEvaluations;
+    final results = s._queueService.completed.length > 50
+        ? s._queueService.completed
+            .sublist(s._queueService.completed.length - 50)
+        : s._queueService.completed;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -4791,11 +4732,11 @@ class _EvaluationResultsSection extends StatelessWidget {
           ),
         _DebugPanelDialogState._vGap,
         const Text('Evaluation Queue Statistics:'),
-        debugDiag('Pending', s._pendingEvaluations.length),
-        debugDiag('Failed', s._failedEvaluations.length),
-        debugDiag('Completed', s._completedEvaluations.length),
+        debugDiag('Pending', s._queueService.pending.length),
+        debugDiag('Failed', s._queueService.failed.length),
+        debugDiag('Completed', s._queueService.completed.length),
         debugDiag('Total Processed',
-            s._completedEvaluations.length + s._failedEvaluations.length),
+            s._queueService.completed.length + s._queueService.failed.length),
       ],
     );
   }
@@ -4921,12 +4862,12 @@ class _EvaluationQueueDiagnosticsSection extends StatelessWidget {
           'Action Evaluation Queue',
           s._debugPrefs.queueResumed ? '(Resumed from saved state)' : '(New)',
         ),
-        debugDiag('Pending Action Evaluations', s._pendingEvaluations.length),
+        debugDiag('Pending Action Evaluations', s._queueService.pending.length),
         debugDiag(
           'Processed',
-          '${s._completedEvaluations.length} / ${s._pendingEvaluations.length + s._completedEvaluations.length}',
+          '${s._queueService.completed.length} / ${s._queueService.pending.length + s._queueService.completed.length}',
         ),
-        debugDiag('Failed', s._failedEvaluations.length),
+        debugDiag('Failed', s._queueService.failed.length),
       ],
     );
   }
