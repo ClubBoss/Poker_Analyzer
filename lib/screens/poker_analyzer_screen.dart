@@ -158,6 +158,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _centerChipTimer;
   late AnimationController _centerChipController;
   bool _showAllRevealedCards = false;
+  bool _boardTransitioning = false;
+  Timer? _boardTransitionTimer;
   late final ScrollController _timelineController;
   bool _animateTimeline = false;
   bool isPerspectiveSwitched = false;
@@ -437,6 +439,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (inferred != boardStreet) {
       boardStreet = inferred;
       currentStreet = inferred;
+      _startBoardTransition();
     }
   }
 
@@ -611,7 +614,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _reverseStreet() {
-    if (!_canReverseStreet()) return;
+    if (_boardTransitioning || !_canReverseStreet()) return;
     _recordSnapshot();
     _changeStreet(currentStreet - 1);
   }
@@ -619,14 +622,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _canAdvanceStreet() => currentStreet < boardStreet;
 
   void _advanceStreet() {
-    if (!_canAdvanceStreet()) return;
+    if (_boardTransitioning || !_canAdvanceStreet()) return;
     _recordSnapshot();
     _changeStreet(currentStreet + 1);
   }
 
   void _changeStreet(int street) {
+    if (_boardTransitioning) return;
     street = street.clamp(0, boardStreet);
+    if (street == currentStreet) return;
     currentStreet = street;
+    _startBoardTransition();
     _actionTags.clear();
     _playbackManager.animatedPlayersPerStreet
         .putIfAbsent(street, () => <int>{});
@@ -640,6 +646,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.seek(index);
     _animateTimeline = true;
     _playbackManager.updatePlaybackState();
+  }
+
+  void _startBoardTransition() {
+    _boardTransitionTimer?.cancel();
+    _boardTransitioning = true;
+    _boardTransitionTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() => _boardTransitioning = false);
+      } else {
+        _boardTransitioning = false;
+      }
+    });
   }
 
   _StateSnapshot _currentSnapshot() => _StateSnapshot(
@@ -657,6 +675,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _applySnapshot(_StateSnapshot snap) {
+    final prevStreet = currentStreet;
     currentStreet = snap.street;
     boardCards
       ..clear()
@@ -672,6 +691,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _animateTimeline = true;
     _updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
+    if (currentStreet != prevStreet) {
+      _startBoardTransition();
+    }
   }
 
   void _updateRevealedBoardCards() {
@@ -992,6 +1014,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void selectBoardCard(int index, CardModel card) {
+    if (_boardTransitioning) return;
     if (!_canEditBoard(index)) return;
     final current = index < boardCards.length ? boardCards[index] : null;
     if (_isDuplicateSelection(card, current)) {
@@ -1007,6 +1030,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _removeBoardCard(int index) {
+    if (_boardTransitioning) return;
     if (index >= boardCards.length) return;
     setState(() {
       _recordSnapshot();
@@ -1138,6 +1162,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onPlayerTap(int index) async {
+    if (_boardTransitioning) return;
     setState(() => activePlayerIndex = index);
     final result = await _showActionPicker();
     if (result == null) return;
@@ -1509,11 +1534,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _addAction(ActionEntry entry,
       {int? index, bool recordHistory = true}) {
+    if (_boardTransitioning) return;
     final prevStreet = currentStreet;
     final inferred = _inferBoardStreet();
     if (inferred > currentStreet) {
       currentStreet = inferred;
       boardStreet = inferred;
+      _startBoardTransition();
       _updateRevealedBoardCards();
     }
     if (entry.street != currentStreet) {
@@ -1600,6 +1627,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _editAction(int index, ActionEntry entry) {
+    if (_boardTransitioning) return;
     setState(() {
       _updateAction(index, entry);
       if (entry.action == 'fold') {
@@ -1674,6 +1702,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _undoAction() {
+    if (_boardTransitioning) return;
     if (_undoStack.isEmpty) {
       if (_undoSnapshots.isEmpty) return;
       setState(() {
@@ -1709,11 +1738,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _redoSnapshots.add(_currentSnapshot());
         _applySnapshot(snap);
       }
+      _startBoardTransition();
     });
     _debugPanelSetState?.call(() {});
   }
 
   void _redoAction() {
+    if (_boardTransitioning) return;
     if (_redoStack.isEmpty) {
       if (_redoSnapshots.isEmpty) return;
       setState(() {
@@ -1749,12 +1780,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _undoSnapshots.add(_currentSnapshot());
         _applySnapshot(snap);
       }
+      _startBoardTransition();
     });
     _debugPanelSetState?.call(() {});
   }
 
   void _previousStreet() {
-    if (currentStreet <= 0) return;
+    if (_boardTransitioning || currentStreet <= 0) return;
     setState(() {
       _recordSnapshot();
       currentStreet--;
@@ -1763,12 +1795,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .putIfAbsent(currentStreet, () => <int>{});
       _updateRevealedBoardCards();
       _playbackManager.updatePlaybackState();
+      _startBoardTransition();
     });
     _debugPanelSetState?.call(() {});
   }
 
   void _nextStreet() {
-    if (currentStreet >= boardStreet) return;
+    if (_boardTransitioning || currentStreet >= boardStreet) return;
     setState(() {
       _recordSnapshot();
       currentStreet++;
@@ -1777,6 +1810,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .putIfAbsent(currentStreet, () => <int>{});
       _updateRevealedBoardCards();
       _playbackManager.updatePlaybackState();
+      _startBoardTransition();
     });
     _debugPanelSetState?.call(() {});
   }
@@ -1874,6 +1908,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _foldedPlayers.clear();
         currentStreet = 0;
         _updateRevealedBoardCards();
+        _startBoardTransition();
         _actionTags.clear();
         _playbackManager.animatedPlayersPerStreet.clear();
         _stackService =
@@ -2824,6 +2859,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _recomputeFoldedPlayers();
       }
     });
+    _startBoardTransition();
     _queueService.persist();
   }
 
@@ -2928,6 +2964,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playerManager.updatePositions();
       _currentHandName = null;
     });
+    _startBoardTransition();
   }
 
   Future<void> saveCurrentHand() async {
@@ -3001,6 +3038,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playerManager.removeListener(_onPlayerManagerChanged);
     _playbackManager.dispose();
     _centerChipTimer?.cancel();
+    _boardTransitionTimer?.cancel();
     _queueService.cleanup();
     _centerChipController.dispose();
     _timelineController.dispose();
