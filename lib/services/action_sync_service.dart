@@ -123,6 +123,28 @@ class ActionSyncService extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Public API used by PokerAnalyzerScreen
+  List<ActionEntry> get actions => analyzerActions;
+
+  void addAction(ActionEntry entry,
+      {int? index, bool recordHistory = true, required int prevStreet, required int newStreet}) {
+    addAnalyzerAction(entry,
+        index: index,
+        recordHistory: recordHistory,
+        prevStreet: prevStreet,
+        newStreet: newStreet);
+  }
+
+  void updateAction(int index, ActionEntry entry,
+      {bool recordHistory = true, required int street}) {
+    updateAnalyzerAction(index, entry, recordHistory: recordHistory, street: street);
+  }
+
+  void deleteAction(int index,
+      {bool recordHistory = true, required int street}) {
+    deleteAnalyzerAction(index, recordHistory: recordHistory, street: street);
+  }
+
   UndoRedoResult undo(ActionSnapshot currentSnapshot) {
     if (_undoStack.isEmpty) {
       if (_undoSnapshots.isEmpty) {

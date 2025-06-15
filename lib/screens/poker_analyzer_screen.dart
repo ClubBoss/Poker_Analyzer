@@ -68,12 +68,14 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
   final EvaluationQueueService? queueService;
   final DebugPreferencesService? debugPrefsService;
+  final ActionSyncService? actionSyncService;
 
   const PokerAnalyzerScreen({
     super.key,
     this.initialHand,
     this.queueService,
     this.debugPrefsService,
+    this.actionSyncService,
   });
 
   @override
@@ -103,7 +105,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   set opponentIndex(int? v) => _playerManager.opponentIndex = v;
   int currentStreet = 0;
   int boardStreet = 0;
-  List<ActionEntry> get actions => _actionSync.analyzerActions;
+  List<ActionEntry> get actions => _actionSync.actions;
   late PlaybackManagerService _playbackManager;
   final PotCalculator _potCalculator = PotCalculator();
   late StackManagerService _stackService;
@@ -769,7 +771,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
-    _actionSync = context.read<ActionSyncService>();
+    _actionSync = widget.actionSyncService ?? context.read<ActionSyncService>();
     _queueService = widget.queueService ?? EvaluationQueueService();
     _debugPrefs = widget.debugPrefsService ?? DebugPreferencesService();
     _backupManager = BackupManagerService(
@@ -809,7 +811,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _handManager = context.read<SavedHandManagerService>();
-    _actionSync = context.read<ActionSyncService>();
+    if (widget.actionSyncService == null) {
+      _actionSync = context.read<ActionSyncService>();
+    }
   }
 
   void selectCard(int index, CardModel card) {
@@ -1447,7 +1451,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (recordHistory) {
       _recordSnapshot();
     }
-    _actionSync.addAnalyzerAction(entry,
+    _actionSync.addAction(entry,
         index: index,
         recordHistory: recordHistory,
         prevStreet: prevStreet,
@@ -1494,7 +1498,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (recordHistory) {
       _recordSnapshot();
     }
-    _actionSync.updateAnalyzerAction(index, entry,
+    _actionSync.updateAction(index, entry,
         recordHistory: recordHistory, street: currentStreet);
     _recomputeFoldedPlayers();
     _actionTags[entry.playerIndex] =
@@ -1530,7 +1534,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _recordSnapshot();
       }
       final removed = actions[index];
-      _actionSync.deleteAnalyzerAction(index,
+      _actionSync.deleteAction(index,
           recordHistory: recordHistory, street: currentStreet);
       if (_playbackManager.playbackIndex > actions.length) {
         _playbackManager.seek(actions.length);
