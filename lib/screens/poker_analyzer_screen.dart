@@ -849,6 +849,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _removeBoardCard(int index) {
+    if (index >= boardCards.length) return;
+    setState(() {
+      _recordSnapshot();
+      _playerManager.removeBoardCard(index);
+      _ensureBoardStreetConsistent();
+      _updateRevealedBoardCards();
+    });
+  }
+
   Future<Map<String, dynamic>?> _showActionPicker() {
     final bool hasBet = _streetHasBet();
     final bool betEnabled = !hasBet;
@@ -2861,6 +2871,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     boardCards: boardCards,
                     revealedBoardCards: revealedBoardCards,
                     onCardSelected: selectBoardCard,
+                    onCardLongPress: _removeBoardCard,
                     canEditBoard: _canEditBoard,
                     visibleActions: visibleActions,
                   ),
@@ -3989,6 +4000,7 @@ class _BoardCardsSection extends StatelessWidget {
   final List<CardModel> revealedBoardCards;
   final List<ActionEntry> visibleActions;
   final void Function(int, CardModel) onCardSelected;
+  final void Function(int) onCardLongPress;
   final bool Function(int index)? canEditBoard;
 
   const _BoardCardsSection({
@@ -3997,6 +4009,7 @@ class _BoardCardsSection extends StatelessWidget {
     required this.boardCards,
     required this.revealedBoardCards,
     required this.onCardSelected,
+    required this.onCardLongPress,
     required this.visibleActions,
     this.canEditBoard,
   });
@@ -4016,6 +4029,7 @@ class _BoardCardsSection extends StatelessWidget {
         boardCards: boardCards,
         revealedBoardCards: revealedBoardCards,
         onCardSelected: onCardSelected,
+        onCardLongPress: onCardLongPress,
         canEditBoard: canEditBoard,
         visibleActions: visibleActions,
       ),

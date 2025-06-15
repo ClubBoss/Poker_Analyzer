@@ -161,6 +161,12 @@ class PlayerManagerService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeBoardCard(int index) {
+    if (index < 0 || index >= boardCards.length) return;
+    boardCards.removeAt(index);
+    notifyListeners();
+  }
+
   void _removeFromRevealedCards(CardModel card) {
     for (final player in players) {
       for (int i = 0; i < player.revealedCards.length; i++) {
