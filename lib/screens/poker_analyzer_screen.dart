@@ -3138,17 +3138,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 child: Stack(
                   children: [
                   _TableBackgroundSection(scale: scale),
-                  _BoardCardsSection(
-                    key: _boardKey,
-                    scale: scale,
-                    currentStreet: currentStreet,
-                    boardCards: boardCards,
-                    revealedBoardCards: revealedBoardCards,
-                    onCardSelected: selectBoardCard,
-                    onCardLongPress: _removeBoardCard,
-                    canEditBoard: _canEditBoard,
-                    usedCards: _usedCardKeys(),
-                    visibleActions: visibleActions,
+                  AbsorbPointer(
+                    absorbing: _boardTransitioning,
+                    child: _BoardCardsSection(
+                      key: _boardKey,
+                      scale: scale,
+                      currentStreet: currentStreet,
+                      boardCards: boardCards,
+                      revealedBoardCards: revealedBoardCards,
+                      onCardSelected: selectBoardCard,
+                      onCardLongPress: _removeBoardCard,
+                      canEditBoard: _canEditBoard,
+                      usedCards: _usedCardKeys(),
+                      visibleActions: visibleActions,
+                    ),
                   ),
                   _PlayerZonesSection(
                     numberOfPlayers: numberOfPlayers,
