@@ -63,6 +63,7 @@ import '../services/backup_manager_service.dart';
 import '../services/action_sync_service.dart';
 import "../services/transition_lock_service.dart";
 import '../services/current_hand_context_service.dart';
+import '../services/folded_players_service.dart';
 
 
 
@@ -72,6 +73,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final DebugPreferencesService? debugPrefsService;
   final ActionSyncService actionSync;
   final CurrentHandContextService? handContext;
+  final FoldedPlayersService? foldedPlayersService;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -80,6 +82,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     this.debugPrefsService,
     required this.actionSync,
     this.handContext,
+    this.foldedPlayersService,
   });
 
   @override
@@ -122,7 +125,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   set tagFilters(Set<String> v) => _handManager.tagFilters = v;
   int? activePlayerIndex;
   Timer? _activeTimer;
-  final Set<int> _foldedPlayers = {};
+  late FoldedPlayersService _foldedPlayers;
   late ActionSyncService _actionSync;
 
   bool debugLayout = false;
@@ -452,12 +455,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _recomputeFoldedPlayers() {
-    _foldedPlayers
-      ..clear()
-      ..addAll({
-        for (final a in actions)
-          if (a.action == 'fold') a.playerIndex
-      });
+    _foldedPlayers.recompute(actions);
   }
 
   void _autoCollapseStreets() {
@@ -768,6 +766,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     super.initState();
     _handContext = widget.handContext ?? CurrentHandContextService();
     _actionSync = widget.actionSync;
+    _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
     _queueService = widget.queueService ?? EvaluationQueueService();
     _debugPrefs = widget.debugPrefsService ?? DebugPreferencesService();
     _backupManager = BackupManagerService(
@@ -2115,7 +2114,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       effectiveStacksPerStreet: stacks,
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
       foldedPlayers:
-          _foldedPlayers.isEmpty ? null : List<int>.from(_foldedPlayers),
+          _foldedPlayers.isEmpty ? null : List<int>.from(_foldedPlayers.players),
       actionTags:
           _handContext.actionTags.isEmpty ? null : Map<int, String?>.from(_handContext.actionTags),
       pendingEvaluations:
