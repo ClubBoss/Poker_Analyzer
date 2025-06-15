@@ -100,6 +100,7 @@ class HandRestoreService {
       Map<int, int>.from(playerManager.initialStacks),
       remainingStacks: hand.remainingStacks,
     );
+    actionSync.attachStackManager(stackService);
     playbackManager.stackService = stackService;
     profile.playerPositions
       ..clear()

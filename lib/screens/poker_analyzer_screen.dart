@@ -658,6 +658,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
     _boardSync = widget.boardSync;
     _stackService = widget.stackService;
+    _actionSync.attachStackManager(_stackService);
     _playbackManager = widget.playbackManager;
     _playbackManager
       ..stackService = _stackService
@@ -687,6 +688,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _boardSync.updateRevealedBoardCards();
     if (widget.initialHand != null) {
       _stackService = _handRestore.restoreHand(widget.initialHand!);
+      _actionSync.attachStackManager(_stackService);
+      _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
     Future(() => _cleanupOldEvaluationBackups());
@@ -1811,6 +1814,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void loadHand(String jsonStr) {
     final hand = SavedHand.fromJson(jsonDecode(jsonStr));
     _stackService = _handRestore.restoreHand(hand);
+    _actionSync.attachStackManager(_stackService);
+    _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     _boardManager.startBoardTransition();
   }
 
@@ -1953,6 +1958,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final hand = _handManager.lastHand;
     if (hand == null) return;
     _stackService = _handRestore.restoreHand(hand);
+    _actionSync.attachStackManager(_stackService);
+    _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     _boardManager.startBoardTransition();
   }
 
@@ -1961,6 +1968,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final selected = await _handManager.selectHand(context);
     if (selected != null) {
       _stackService = _handRestore.restoreHand(selected);
+      _actionSync.attachStackManager(_stackService);
+      _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
   }
@@ -1981,6 +1990,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final hand = await _handManager.importHandFromClipboard(context);
     if (hand != null) {
       _stackService = _handRestore.restoreHand(hand);
+      _actionSync.attachStackManager(_stackService);
+      _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
   }
