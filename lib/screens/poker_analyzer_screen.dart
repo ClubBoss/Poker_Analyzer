@@ -420,6 +420,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return boardCards.length >= _stageCardCounts[stage];
   }
 
+  void _ensureBoardStreetConsistent() {
+    final inferred = _inferBoardStreet();
+    if (inferred != boardStreet) {
+      boardStreet = inferred;
+      currentStreet = inferred;
+    }
+  }
+
   void _updateRevealedBoardCards() {
     final visible = _stageCardCounts[currentStreet];
     revealedBoardCards
@@ -2422,6 +2430,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   SavedHand _currentSavedHand({String? name}) {
+    _ensureBoardStreetConsistent();
     final stacks =
         _stackService.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
     final collapsed = [
@@ -2566,6 +2575,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ]);
       boardStreet = hand.boardStreet;
       currentStreet = hand.boardStreet;
+      _ensureBoardStreetConsistent();
       _updateRevealedBoardCards();
       final seekIndex =
           hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
