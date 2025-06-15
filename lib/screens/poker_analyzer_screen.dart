@@ -791,6 +791,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionSync: _actionSync,
       playbackManager: _playbackManager,
       queueService: _queueService,
+      backupManager: _backupManager,
+      debugPrefs: _debugPrefs,
+      lockService: lockService,
     );
     _playerManager.updatePositions();
     _actionSync.setBoardStreet(_inferBoardStreet());

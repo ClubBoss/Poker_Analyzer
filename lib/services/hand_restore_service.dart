@@ -9,6 +9,9 @@ import 'evaluation_queue_service.dart';
 import 'player_manager_service.dart';
 import 'playback_manager_service.dart';
 import 'stack_manager_service.dart';
+import 'backup_manager_service.dart';
+import 'debug_preferences_service.dart';
+import 'transition_lock_service.dart';
 
 class HandRestoreService {
   HandRestoreService({
@@ -16,12 +19,18 @@ class HandRestoreService {
     required this.actionSync,
     required this.playbackManager,
     required this.queueService,
+    required this.backupManager,
+    required this.debugPrefs,
+    required this.lockService,
   });
 
   final PlayerManagerService playerManager;
   final ActionSyncService actionSync;
   final PlaybackManagerService playbackManager;
   final EvaluationQueueService queueService;
+  final BackupManagerService backupManager;
+  final DebugPreferencesService debugPrefs;
+  final TransitionLockService lockService;
 
   static const List<int> _stageCardCounts = [0, 3, 4, 5];
 
