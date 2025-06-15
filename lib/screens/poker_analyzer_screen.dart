@@ -1524,7 +1524,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       lockService.safeSetState(this, () {
         _playerManager.reset();
         _actionSync.clearAnalyzerActions();
-        _foldedPlayers.clear();
+        _foldedPlayers.reset();
         _actionSync.changeStreet(0);
         _boardSync.updateRevealedBoardCards();
         _boardManager.startBoardTransition();
