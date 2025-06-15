@@ -103,8 +103,13 @@ class _StateSnapshot {
 
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
+  final EvaluationQueueService? queueService;
 
-  const PokerAnalyzerScreen({super.key, this.initialHand});
+  const PokerAnalyzerScreen({
+    super.key,
+    this.initialHand,
+    this.queueService,
+  });
 
   @override
   State<PokerAnalyzerScreen> createState() => _PokerAnalyzerScreenState();
@@ -912,7 +917,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
-    _queueService = EvaluationQueueService();
+    _queueService = widget.queueService ?? EvaluationQueueService();
     _backupManager = BackupManagerService(
       queueService: _queueService,
       debugPrefs: _debugPrefs,
