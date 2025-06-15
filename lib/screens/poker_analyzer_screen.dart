@@ -545,7 +545,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _safeSetState(() {
         _showCenterChip = false;
         _centerChipAction = null;
-      });
+      }, ignoreTransitionLock: true);
     });
   }
 
@@ -3353,6 +3353,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onAdd: onActionSelected,
                 onEdit: _editAction,
                 onDelete: _deleteAction,
+                safeSetState: _safeSetState,
               ),
             ),
             AbsorbPointer(
@@ -5295,6 +5296,7 @@ class StreetActionInputWidget extends StatefulWidget {
   final void Function(ActionEntry) onAdd;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
+  final void Function(VoidCallback fn, {bool ignoreTransitionLock}) safeSetState;
 
   const StreetActionInputWidget({
     super.key,
@@ -5305,6 +5307,7 @@ class StreetActionInputWidget extends StatefulWidget {
     required this.onAdd,
     required this.onEdit,
     required this.onDelete,
+    required this.safeSetState,
   });
 
   @override
@@ -5315,6 +5318,9 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
   int _player = 0;
   String _action = 'fold';
   final TextEditingController _controller = TextEditingController();
+
+  void _safeSetState(VoidCallback fn, {bool ignoreTransitionLock = false}) =>
+      widget.safeSetState(fn, ignoreTransitionLock: ignoreTransitionLock);
 
   bool get _needAmount =>
       _action == 'bet' || _action == 'raise' || _action == 'call';
@@ -5358,8 +5364,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                       )
                   ],
                   onChanged: (v) =>
-                      ctx.findAncestorStateOfType<_PokerAnalyzerScreenState>()?
-                          ._safeSetState(() => setState(() => p = v ?? p)),
+                      widget.safeSetState(() => setState(() => p = v ?? p)),
                 ),
                 const SizedBox(height: 8),
                 DropdownButton<String>(
@@ -5372,8 +5377,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                     DropdownMenuItem(value: 'raise', child: Text('raise')),
                   ],
                   onChanged: (v) =>
-                      ctx.findAncestorStateOfType<_PokerAnalyzerScreenState>()?
-                          ._safeSetState(() => setState(() => act = v ?? act)),
+                      widget.safeSetState(() => setState(() => act = v ?? act)),
                 ),
                 if (need)
                   TextField(
