@@ -3207,6 +3207,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? 'SPR: ${sprValue.toStringAsFixed(1)}'
                         : null,
                   ),
+                  if (_boardTransitioning)
+                    const _BoardTransitionBusyIndicator(),
                 _RevealAllCardsButton(
                   showAllRevealedCards: _showAllRevealedCards,
                   onToggle: () => setState(
@@ -4419,6 +4421,26 @@ class _HudOverlaySection extends StatelessWidget {
         potText: potText,
         stackText: stackText,
         sprText: sprText,
+      ),
+    );
+  }
+}
+
+class _BoardTransitionBusyIndicator extends StatelessWidget {
+  const _BoardTransitionBusyIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: ColoredBox(
+        color: Colors.black38,
+        child: const Center(
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: CircularProgressIndicator(),
+          ),
+        ),
       ),
     );
   }
