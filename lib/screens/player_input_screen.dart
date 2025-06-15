@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../services/action_sync_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/player_manager_service.dart';
+import '../services/playback_manager_service.dart';
+import '../services/stack_manager_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -98,10 +100,28 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                     MaterialPageRoute(
                       builder: (_) => ChangeNotifierProvider(
                         create: (_) => PlayerManagerService(),
-                        child: PokerAnalyzerScreen(
-                          key: key,
-                          actionSync: context.read<ActionSyncService>(),
-                          handContext: CurrentHandContextService(),
+                        child: Builder(
+                          builder: (context) => ChangeNotifierProvider(
+                            create: (_) => PlaybackManagerService(
+                              actions: context
+                                  .read<ActionSyncService>()
+                                  .analyzerActions,
+                              stackService: StackManagerService(
+                                Map<int, int>.from(
+                                    context.read<PlayerManagerService>().initialStacks),
+                              ),
+                              actionSync: context.read<ActionSyncService>(),
+                            ),
+                            child: Builder(
+                              builder: (context) => PokerAnalyzerScreen(
+                                key: key,
+                                actionSync: context.read<ActionSyncService>(),
+                                handContext: CurrentHandContextService(),
+                                playbackManager:
+                                    context.read<PlaybackManagerService>(),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -123,9 +143,27 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                     MaterialPageRoute(
                       builder: (context) => ChangeNotifierProvider(
                         create: (_) => PlayerManagerService(),
-                        child: PokerAnalyzerScreen(
-                          actionSync: context.read<ActionSyncService>(),
-                          handContext: CurrentHandContextService(),
+                        child: Builder(
+                          builder: (context) => ChangeNotifierProvider(
+                            create: (_) => PlaybackManagerService(
+                              actions: context
+                                  .read<ActionSyncService>()
+                                  .analyzerActions,
+                              stackService: StackManagerService(
+                                Map<int, int>.from(
+                                    context.read<PlayerManagerService>().initialStacks),
+                              ),
+                              actionSync: context.read<ActionSyncService>(),
+                            ),
+                            child: Builder(
+                              builder: (context) => PokerAnalyzerScreen(
+                                actionSync: context.read<ActionSyncService>(),
+                                handContext: CurrentHandContextService(),
+                                playbackManager:
+                                    context.read<PlaybackManagerService>(),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
