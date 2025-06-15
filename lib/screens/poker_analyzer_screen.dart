@@ -2083,11 +2083,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
-  Future<void> _importQuickBackups() async {
-    await _backupManager.importQuickBackups(context);
-    _debugPanelSetState?.call(() {});
-  }
-
   Future<void> _bulkImportAutoBackups() async {
     await _backupManager.bulkImportAutoBackups(context);
     if (mounted) setState(() {});
