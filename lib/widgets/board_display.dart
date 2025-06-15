@@ -11,6 +11,7 @@ class BoardDisplay extends StatelessWidget {
   final List<CardModel> revealedBoardCards;
   final List<ActionEntry> visibleActions;
   final void Function(int, CardModel) onCardSelected;
+  final void Function(int index)? onCardLongPress;
   final bool Function(int index)? canEditBoard;
   final double scale;
 
@@ -21,6 +22,7 @@ class BoardDisplay extends StatelessWidget {
     required this.revealedBoardCards,
     required this.visibleActions,
     required this.onCardSelected,
+    this.onCardLongPress,
     this.canEditBoard,
     this.scale = 1.0,
   }) : super(key: key);
@@ -34,6 +36,7 @@ class BoardDisplay extends StatelessWidget {
           currentStreet: currentStreet,
           boardCards: revealedBoardCards,
           onCardSelected: onCardSelected,
+          onCardLongPress: onCardLongPress,
           canEditBoard: canEditBoard,
         ),
         PotOverBoardWidget(

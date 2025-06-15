@@ -6,6 +6,7 @@ class BoardCardsWidget extends StatelessWidget {
   final int currentStreet;
   final List<CardModel> boardCards;
   final void Function(int, CardModel) onCardSelected;
+  final void Function(int index)? onCardLongPress;
   final bool Function(int index)? canEditBoard;
   final double scale;
 
@@ -14,6 +15,7 @@ class BoardCardsWidget extends StatelessWidget {
     required this.currentStreet,
     required this.boardCards,
     required this.onCardSelected,
+    this.onCardLongPress,
     this.canEditBoard,
     this.scale = 1.0,
   }) : super(key: key);
@@ -38,6 +40,11 @@ class BoardCardsWidget extends StatelessWidget {
                 final selected = await showCardSelector(context);
                 if (selected != null) {
                   onCardSelected(index, selected);
+                }
+              },
+              onLongPress: () {
+                if (onCardLongPress != null && index < boardCards.length) {
+                  onCardLongPress!(index);
                 }
               },
               child: Container(
