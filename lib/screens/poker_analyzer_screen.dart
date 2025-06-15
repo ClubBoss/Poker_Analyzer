@@ -73,6 +73,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final EvaluationQueueService? queueService;
   final DebugPreferencesService? debugPrefsService;
   final ActionSyncService actionSync;
+  final HandRestoreService? handRestoreService;
   final CurrentHandContextService? handContext;
   final FoldedPlayersService? foldedPlayersService;
   final PlaybackManagerService playbackManager;
@@ -85,6 +86,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     this.queueService,
     this.debugPrefsService,
     required this.actionSync,
+    this.handRestoreService,
     this.handContext,
     this.foldedPlayersService,
     required this.playbackManager,
@@ -724,7 +726,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager
       ..stackService = _stackService
       ..addListener(_onPlaybackManagerChanged);
-    _handRestore = HandRestoreService(
+    _handRestore = widget.handRestoreService ?? HandRestoreService(
       playerManager: _playerManager,
       actionSync: _actionSync,
       playbackManager: _playbackManager,
