@@ -811,7 +811,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
   }
 
-  bool _validateBoardAddition(int index) {
+  /// Check if a board card can be added at [index] without skipping streets.
+  /// Returns `true` if the preceding stage is complete. Otherwise shows a
+  /// warning and returns `false`.
+  bool _canAddBoardCard(int index) {
     final stage = _stageForBoardIndex(index);
     if (stage > 1 && !_isBoardStageComplete(stage - 1)) {
       _showBoardSkipWarning(_stageNames[stage - 1], _stageNames[stage]);
@@ -820,7 +823,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return true;
   }
 
-  bool _canEditBoard(int index) => _validateBoardAddition(index);
+  bool _canEditBoard(int index) => _canAddBoardCard(index);
 
   void selectBoardCard(int index, CardModel card) {
     if (!_canEditBoard(index)) return;
