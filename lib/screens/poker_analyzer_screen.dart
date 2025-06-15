@@ -53,6 +53,7 @@ import '../helpers/pot_calculator.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
+import '../services/hand_restore_service.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
@@ -111,6 +112,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late PlaybackManagerService _playbackManager;
   final PotCalculator _potCalculator = PotCalculator();
   late StackManagerService _stackService;
+  late HandRestoreService _handRestore;
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
   Set<String> get allTags => _handManager.allTags;
@@ -784,6 +786,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       stackService: _stackService,
       potCalculator: _potCalculator,
     )..addListener(_onPlaybackManagerChanged);
+    _handRestore = HandRestoreService(
+      playerManager: _playerManager,
+      actionSync: _actionSync,
+      playbackManager: _playbackManager,
+      queueService: _queueService,
+    );
     _playerManager.updatePositions();
     _actionSync.setBoardStreet(_inferBoardStreet());
     _actionSync.changeStreet(boardStreet);
@@ -791,7 +799,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.updatePlaybackState();
     _updateRevealedBoardCards();
     if (widget.initialHand != null) {
-      _applySavedHand(widget.initialHand!);
+      _stackService = _handRestore.restoreHand(
+        widget.initialHand!,
+        commentController: _commentController,
+        tagsController: _tagsController,
+        actionTags: _actionTags,
+        pendingEvaluations: _pendingEvaluations,
+        foldedPlayers: _foldedPlayers,
+        revealedBoardCards: revealedBoardCards,
+        setCurrentHandName: (name) => _currentHandName = name,
+        setActivePlayerIndex: (i) => activePlayerIndex = i,
+      );
+      _startBoardTransition();
     }
     Future(() => _cleanupOldEvaluationBackups());
     Future(() => _initializeDebugPreferences());
@@ -2110,98 +2129,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void loadHand(String jsonStr) {
     final hand = SavedHand.fromJson(jsonDecode(jsonStr));
-    _applySavedHand(hand);
+    _stackService = _handRestore.restoreHand(
+      hand,
+      commentController: _commentController,
+      tagsController: _tagsController,
+      actionTags: _actionTags,
+      pendingEvaluations: _pendingEvaluations,
+      foldedPlayers: _foldedPlayers,
+      revealedBoardCards: revealedBoardCards,
+      setCurrentHandName: (name) => _currentHandName = name,
+      setActivePlayerIndex: (i) => activePlayerIndex = i,
+    );
+    _startBoardTransition();
   }
 
-  void _applySavedHand(SavedHand hand) {
-    lockService.safeSetState(this, () {
-      _currentHandName = hand.name;
-      _playerManager.heroIndex = hand.heroIndex;
-      _playerManager.heroPosition = hand.heroPosition;
-      _playerManager.numberOfPlayers = hand.numberOfPlayers;
-      for (int i = 0; i < _playerManager.playerCards.length; i++) {
-        _playerManager.playerCards[i]
-          ..clear()
-          ..addAll(i < hand.playerCards.length ? hand.playerCards[i] : []);
-      }
-      _playerManager.boardCards
-        ..clear()
-        ..addAll(hand.boardCards);
-      for (int i = 0; i < _playerManager.players.length; i++) {
-        final list = _playerManager.players[i].revealedCards;
-        list.fillRange(0, list.length, null);
-        if (i < hand.revealedCards.length) {
-          final from = hand.revealedCards[i];
-          for (int j = 0; j < list.length && j < from.length; j++) {
-            list[j] = from[j];
-          }
-        }
-      }
-      opponentIndex = hand.opponentIndex;
-      activePlayerIndex = hand.activePlayerIndex;
-      _actionSync.setAnalyzerActions(hand.actions);
-      _playerManager.initialStacks
-        ..clear()
-        ..addAll(hand.stackSizes);
-      _stackService = StackManagerService(
-        Map<int, int>.from(_playerManager.initialStacks),
-        remainingStacks: hand.remainingStacks,
-      );
-      _playbackManager.stackService = _stackService;
-      _playerManager.playerPositions
-        ..clear()
-        ..addAll(hand.playerPositions);
-      _playerManager.playerTypes
-        ..clear()
-        ..addAll(hand.playerTypes ??
-            {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
-      _commentController.text = hand.comment ?? '';
-      _tagsController.text = hand.tags.join(', ');
-      _commentController.selection = TextSelection.collapsed(
-          offset: hand.commentCursor != null &&
-                  hand.commentCursor! <= _commentController.text.length
-              ? hand.commentCursor!
-              : _commentController.text.length);
-      _tagsController.selection = TextSelection.collapsed(
-          offset:
-              hand.tagsCursor != null && hand.tagsCursor! <= _tagsController.text.length
-                  ? hand.tagsCursor!
-                  : _tagsController.text.length);
-      _actionTags
-        ..clear()
-        ..addAll(hand.actionTags ?? {});
-      _pendingEvaluations
-        ..clear()
-        ..addAll(hand.pendingEvaluations ?? []);
-      _foldedPlayers
-        ..clear()
-        ..addAll(hand.foldedPlayers ??
-            [for (final a in hand.actions) if (a.action == 'fold') a.playerIndex]);
-      _actionSync.setExpandedStreets([
-        for (int i = 0; i < 4; i++)
-          if (hand.collapsedHistoryStreets == null ||
-              !hand.collapsedHistoryStreets!.contains(i))
-            i
-      ]);
-      _autoCollapseStreets();
-      _actionSync.setBoardStreet(hand.boardStreet);
-      _actionSync.changeStreet(hand.boardStreet);
-      _ensureBoardStreetConsistent();
-      _updateRevealedBoardCards();
-      final seekIndex =
-          hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
-      _playbackManager.seek(seekIndex);
-      _actionSync.updatePlaybackIndex(seekIndex);
-      _playbackManager.animatedPlayersPerStreet.clear();
-      _playbackManager.updatePlaybackState();
-      _playerManager.updatePositions();
-      if (hand.foldedPlayers == null) {
-        _recomputeFoldedPlayers();
-      }
-    });
-    _startBoardTransition();
-    _queueService.persist();
-  }
 
   /// Load a training spot represented as a JSON-like map.
   ///
@@ -2342,14 +2283,36 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
     if (savedHands.isEmpty) return;
     final hand = savedHands.last;
-    _applySavedHand(hand);
+    _stackService = _handRestore.restoreHand(
+      hand,
+      commentController: _commentController,
+      tagsController: _tagsController,
+      actionTags: _actionTags,
+      pendingEvaluations: _pendingEvaluations,
+      foldedPlayers: _foldedPlayers,
+      revealedBoardCards: revealedBoardCards,
+      setCurrentHandName: (name) => _currentHandName = name,
+      setActivePlayerIndex: (i) => activePlayerIndex = i,
+    );
+    _startBoardTransition();
   }
 
   Future<void> loadHandByName() async {
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
     final selected = await _handManager.selectHand(context);
     if (selected != null) {
-      _applySavedHand(selected);
+      _stackService = _handRestore.restoreHand(
+        selected,
+        commentController: _commentController,
+        tagsController: _tagsController,
+        actionTags: _actionTags,
+        pendingEvaluations: _pendingEvaluations,
+        foldedPlayers: _foldedPlayers,
+        revealedBoardCards: revealedBoardCards,
+        setCurrentHandName: (name) => _currentHandName = name,
+        setActivePlayerIndex: (i) => activePlayerIndex = i,
+      );
+      _startBoardTransition();
     }
   }
 
@@ -2368,7 +2331,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
     final hand = await _handManager.importHandFromClipboard(context);
     if (hand != null) {
-      _applySavedHand(hand);
+      _stackService = _handRestore.restoreHand(
+        hand,
+        commentController: _commentController,
+        tagsController: _tagsController,
+        actionTags: _actionTags,
+        pendingEvaluations: _pendingEvaluations,
+        foldedPlayers: _foldedPlayers,
+        revealedBoardCards: revealedBoardCards,
+        setCurrentHandName: (name) => _currentHandName = name,
+        setActivePlayerIndex: (i) => activePlayerIndex = i,
+      );
+      _startBoardTransition();
     }
   }
 
