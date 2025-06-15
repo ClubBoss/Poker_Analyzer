@@ -101,27 +101,30 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                       builder: (_) => ChangeNotifierProvider(
                         create: (_) => PlayerManagerService(),
                         child: Builder(
-                          builder: (context) => ChangeNotifierProvider(
-                            create: (_) => PlaybackManagerService(
-                              actions: context
-                                  .read<ActionSyncService>()
-                                  .analyzerActions,
-                              stackService: StackManagerService(
-                                Map<int, int>.from(
-                                    context.read<PlayerManagerService>().initialStacks),
-                              ),
-                              actionSync: context.read<ActionSyncService>(),
-                            ),
-                            child: Builder(
-                              builder: (context) => PokerAnalyzerScreen(
-                                key: key,
+                          builder: (context) {
+                            final stackService = StackManagerService(
+                              Map<int, int>.from(
+                                  context.read<PlayerManagerService>().initialStacks),
+                            );
+                            return ChangeNotifierProvider(
+                              create: (_) => PlaybackManagerService(
+                                actions:
+                                    context.read<ActionSyncService>().analyzerActions,
+                                stackService: stackService,
                                 actionSync: context.read<ActionSyncService>(),
-                                handContext: CurrentHandContextService(),
-                                playbackManager:
-                                    context.read<PlaybackManagerService>(),
                               ),
-                            ),
-                          ),
+                              child: Builder(
+                                builder: (context) => PokerAnalyzerScreen(
+                                  key: key,
+                                  actionSync: context.read<ActionSyncService>(),
+                                  handContext: CurrentHandContextService(),
+                                  playbackManager:
+                                      context.read<PlaybackManagerService>(),
+                                  stackService: stackService,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -144,26 +147,29 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                       builder: (context) => ChangeNotifierProvider(
                         create: (_) => PlayerManagerService(),
                         child: Builder(
-                          builder: (context) => ChangeNotifierProvider(
-                            create: (_) => PlaybackManagerService(
-                              actions: context
-                                  .read<ActionSyncService>()
-                                  .analyzerActions,
-                              stackService: StackManagerService(
-                                Map<int, int>.from(
-                                    context.read<PlayerManagerService>().initialStacks),
-                              ),
-                              actionSync: context.read<ActionSyncService>(),
-                            ),
-                            child: Builder(
-                              builder: (context) => PokerAnalyzerScreen(
+                          builder: (context) {
+                            final stackService = StackManagerService(
+                              Map<int, int>.from(
+                                  context.read<PlayerManagerService>().initialStacks),
+                            );
+                            return ChangeNotifierProvider(
+                              create: (_) => PlaybackManagerService(
+                                actions:
+                                    context.read<ActionSyncService>().analyzerActions,
+                                stackService: stackService,
                                 actionSync: context.read<ActionSyncService>(),
-                                handContext: CurrentHandContextService(),
-                                playbackManager:
-                                    context.read<PlaybackManagerService>(),
                               ),
-                            ),
-                          ),
+                              child: Builder(
+                                builder: (context) => PokerAnalyzerScreen(
+                                  actionSync: context.read<ActionSyncService>(),
+                                  handContext: CurrentHandContextService(),
+                                  playbackManager:
+                                      context.read<PlaybackManagerService>(),
+                                  stackService: stackService,
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),

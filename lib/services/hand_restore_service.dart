@@ -80,11 +80,11 @@ class HandRestoreService {
     playerManager.initialStacks
       ..clear()
       ..addAll(hand.stackSizes);
-    final stackService = StackManagerService(
+    final stackService = playbackManager.stackService;
+    stackService.reset(
       Map<int, int>.from(playerManager.initialStacks),
       remainingStacks: hand.remainingStacks,
     );
-    playbackManager.stackService = stackService;
     playerManager.playerPositions
       ..clear()
       ..addAll(hand.playerPositions);

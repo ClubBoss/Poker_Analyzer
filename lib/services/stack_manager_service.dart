@@ -7,6 +7,8 @@ class StackManagerService {
   late StackManager _manager;
   final Map<int, int> stackSizes = {};
 
+  Map<int, int> get initialStacks => Map<int, int>.from(_initialStacks);
+
   StackManagerService(Map<int, int> initialStacks, {Map<int, int>? remainingStacks})
       : _initialStacks = Map<int, int>.from(initialStacks) {
     _manager = StackManager(_initialStacks, remainingStacks: remainingStacks);
@@ -23,6 +25,29 @@ class StackManagerService {
     stackSizes
       ..clear()
       ..addAll(_manager.currentStacks);
+  }
+
+  /// Update a single player's starting stack and reinitialize manager.
+  void setInitialStack(int index, int stack, {Map<int, int>? remainingStacks}) {
+    _initialStacks[index] = stack;
+    _manager = StackManager(Map<int, int>.from(_initialStacks),
+        remainingStacks: remainingStacks);
+    stackSizes
+      ..clear()
+      ..addAll(_manager.currentStacks);
+  }
+
+  /// Remove a player from [_initialStacks] and reindex subsequent players.
+  void removePlayer(int index) {
+    final newStacks = <int, int>{};
+    for (final entry in _initialStacks.entries) {
+      if (entry.key < index) {
+        newStacks[entry.key] = entry.value;
+      } else if (entry.key > index) {
+        newStacks[entry.key - 1] = entry.value;
+      }
+    }
+    reset(newStacks);
   }
 
   /// Apply [actions] and update current stack sizes.
