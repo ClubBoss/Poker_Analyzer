@@ -78,6 +78,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final PlaybackManagerService playbackManager;
   final StackManagerService stackService;
   final BoardManagerService boardManager;
+  final HandRestoreService? handRestoreService;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -90,6 +91,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.playbackManager,
     required this.stackService,
     required this.boardManager,
+    this.handRestoreService,
   });
 
   @override
@@ -724,21 +726,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager
       ..stackService = _stackService
       ..addListener(_onPlaybackManagerChanged);
-    _handRestore = HandRestoreService(
-      playerManager: _playerManager,
-      actionSync: _actionSync,
-      playbackManager: _playbackManager,
-      queueService: _queueService,
-      backupManager: _backupManager,
-      debugPrefs: _debugPrefs,
-      lockService: lockService,
-      handContext: _handContext,
-      pendingEvaluations: _pendingEvaluations,
-      foldedPlayers: _foldedPlayers,
-      revealedBoardCards: _boardManager.revealedBoardCards,
-      setCurrentHandName: (name) => _handContext.currentHandName = name,
-      setActivePlayerIndex: (i) => activePlayerIndex = i,
-    );
+    _handRestore = widget.handRestoreService ??
+        HandRestoreService(
+          playerManager: _playerManager,
+          actionSync: _actionSync,
+          playbackManager: _playbackManager,
+          queueService: _queueService,
+          backupManager: _backupManager,
+          debugPrefs: _debugPrefs,
+          lockService: lockService,
+          handContext: _handContext,
+          pendingEvaluations: _pendingEvaluations,
+          foldedPlayers: _foldedPlayers,
+          revealedBoardCards: _boardManager.revealedBoardCards,
+          setCurrentHandName: (name) => _handContext.currentHandName = name,
+          setActivePlayerIndex: (i) => activePlayerIndex = i,
+        );
     _playerManager.updatePositions();
     _boardManager.ensureBoardStreetConsistent();
     _boardManager.updateRevealedBoardCards();
