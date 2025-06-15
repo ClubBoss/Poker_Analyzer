@@ -728,6 +728,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       playerManager: _playerManager,
       actionSync: _actionSync,
       playbackManager: _playbackManager,
+      boardManager: _boardManager,
       queueService: _queueService,
       backupManager: _backupManager,
       debugPrefs: _debugPrefs,
@@ -735,7 +736,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       handContext: _handContext,
       pendingEvaluations: _pendingEvaluations,
       foldedPlayers: _foldedPlayers,
-      revealedBoardCards: _boardManager.revealedBoardCards,
       setCurrentHandName: (name) => _handContext.currentHandName = name,
       setActivePlayerIndex: (i) => activePlayerIndex = i,
     );
