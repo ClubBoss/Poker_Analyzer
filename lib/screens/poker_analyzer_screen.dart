@@ -442,6 +442,40 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addAll(boardCards.take(visible));
   }
 
+  bool _cardsEqual(CardModel? a, CardModel b) =>
+      a != null && a.rank == b.rank && a.suit == b.suit;
+
+  bool _isCardInUse(CardModel card) {
+    for (final c in boardCards) {
+      if (_cardsEqual(c, card)) return true;
+    }
+    for (final list in playerCards) {
+      for (final c in list) {
+        if (_cardsEqual(c, card)) return true;
+      }
+    }
+    for (final p in players) {
+      for (final c in p.revealedCards) {
+        if (_cardsEqual(c, card)) return true;
+      }
+    }
+    return false;
+  }
+
+  bool _isDuplicateSelection(CardModel card, CardModel? current) {
+    if (_cardsEqual(current, card)) return false;
+    return _isCardInUse(card);
+  }
+
+  void _showDuplicateCardMessage() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        const SnackBar(content: Text('This card is already in use')),
+      );
+  }
+
   void _triggerCenterChip(ActionEntry entry) {
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
@@ -768,12 +802,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void selectCard(int index, CardModel card) {
+    if (_isCardInUse(card)) {
+      _showDuplicateCardMessage();
+      return;
+    }
     setState(() => _playerManager.selectCard(index, card));
   }
 
   Future<void> _onPlayerCardTap(int index, int cardIndex) async {
     final selectedCard = await showCardSelector(context);
     if (selectedCard == null) return;
+    final current =
+        cardIndex < playerCards[index].length ? playerCards[index][cardIndex] : null;
+    if (_isDuplicateSelection(selectedCard, current)) {
+      _showDuplicateCardMessage();
+      return;
+    }
     setState(() =>
         _playerManager.setPlayerCard(index, cardIndex, selectedCard));
   }
@@ -793,6 +837,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _onRevealedCardTap(int playerIndex, int cardIndex) async {
     final selected = await showCardSelector(context);
     if (selected == null) return;
+    final current = players[playerIndex].revealedCards[cardIndex];
+    if (_isDuplicateSelection(selected, current)) {
+      _showDuplicateCardMessage();
+      return;
+    }
     setState(() =>
         _playerManager.setRevealedCard(playerIndex, cardIndex, selected));
   }
@@ -841,6 +890,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void selectBoardCard(int index, CardModel card) {
     if (!_canEditBoard(index)) return;
+    final current = index < boardCards.length ? boardCards[index] : null;
+    if (_isDuplicateSelection(card, current)) {
+      _showDuplicateCardMessage();
+      return;
+    }
     setState(() {
       _recordSnapshot();
       _playerManager.selectBoardCard(index, card);
