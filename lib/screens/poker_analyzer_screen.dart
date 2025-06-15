@@ -454,10 +454,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
-  void _recomputeFoldedPlayers() {
-    _foldedPlayers.recompute(actions);
-  }
-
   void _autoCollapseStreets() {
     for (int i = 0; i < 4; i++) {
       if (!actions.any((a) => a.street == i)) {
@@ -1413,7 +1409,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } catch (_) {
       _handContext.actionTags.remove(playerIndex);
     }
-    _recomputeFoldedPlayers();
     _playbackManager.updatePlaybackState();
   }
 
@@ -1469,9 +1464,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         prevStreet: prevStreet,
         newStreet: currentStreet);
     _actionSync.addExpandedStreet(entry.street);
-    if (entry.action == 'fold') {
-      _foldedPlayers.add(entry.playerIndex);
-    }
     _handContext.actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     setPlayerLastAction(
@@ -1484,7 +1476,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _triggerCenterChip(entry);
       _playUnifiedChipAnimation(entry);
     }
-    _recomputeFoldedPlayers();
     if (_playbackManager.playbackIndex > actions.length) {
       _playbackManager.seek(actions.length);
     }
@@ -1512,7 +1503,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _actionSync.updateAnalyzerAction(index, entry,
         recordHistory: recordHistory, street: currentStreet);
-    _recomputeFoldedPlayers();
     _handContext.actionTags[entry.playerIndex] =
         '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
     setPlayerLastAction(
@@ -1559,7 +1549,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       } catch (_) {
         _handContext.actionTags.remove(removed.playerIndex);
       }
-      _recomputeFoldedPlayers();
       _autoCollapseStreets();
       _playbackManager.updatePlaybackState();
     }
@@ -2223,8 +2212,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actions
         ..clear()
         ..addAll(newActions);
-
-      _recomputeFoldedPlayers();
 
       playerPositions
         ..clear()

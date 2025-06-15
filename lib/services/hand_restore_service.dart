@@ -31,7 +31,9 @@ class HandRestoreService {
     required this.revealedBoardCards,
     required this.setCurrentHandName,
     required this.setActivePlayerIndex,
-  });
+  }) {
+    foldedPlayers.attach(actionSync);
+  }
 
   final PlayerManagerService playerManager;
   final ActionSyncService actionSync;
@@ -133,9 +135,7 @@ class HandRestoreService {
     playbackManager.animatedPlayersPerStreet.clear();
     playbackManager.updatePlaybackState();
     playerManager.updatePositions();
-    if (hand.foldedPlayers == null) {
-      _recomputeFoldedPlayers();
-    }
+    // foldedPlayers recomputes automatically when actions change
     queueService.persist();
     backupManager.startAutoBackupTimer();
     unawaited(debugPrefs.setEvaluationQueueResumed(false));
@@ -171,10 +171,6 @@ class HandRestoreService {
     revealedBoardCards
       ..clear()
       ..addAll(playerManager.boardCards.take(visible));
-  }
-
-  void _recomputeFoldedPlayers() {
-    foldedPlayers.recompute(actionSync.analyzerActions);
   }
 }
 
