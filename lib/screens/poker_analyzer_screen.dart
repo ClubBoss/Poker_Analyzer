@@ -54,6 +54,7 @@ import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
 import '../services/hand_restore_service.dart';
+import '../services/action_tag_service.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
@@ -81,6 +82,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final BoardManagerService boardManager;
   final BoardSyncService boardSync;
   final PlayerProfileService playerProfile;
+  final ActionTagService actionTagService;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -97,6 +99,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.boardManager,
     required this.boardSync,
     required this.playerProfile,
+    required this.actionTagService,
   });
 
   @override
@@ -110,6 +113,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late PlayerProfileService _profile;
   late BoardManagerService _boardManager;
   late BoardSyncService _boardSync;
+  late ActionTagService _actionTagService;
   int get heroIndex => _profile.heroIndex;
   set heroIndex(int v) => _profile.heroIndex = v;
   String get _heroPosition => _profile.heroPosition;
@@ -428,7 +432,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _changeStreet(int street) {
     if (lockService.boardTransitioning) return;
-    _profile.actionTags.clear();
+    _actionTagService.clear();
     _boardManager.changeStreet(street);
   }
 
@@ -649,6 +653,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playerManager = context.read<PlayerManagerService>()
       ..addListener(_onPlayerManagerChanged);
     _profile = widget.playerProfile;
+    _actionTagService = widget.actionTagService;
     _boardManager = widget.boardManager
       ..addListener(() {
         if (mounted) lockService.safeSetState(this, () {});
@@ -673,6 +678,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       handContext: _handContext,
       pendingEvaluations: _queueService.pending,
       foldedPlayers: _foldedPlayers,
+      actionTags: _actionTagService,
       setCurrentHandName: (name) => _handContext.currentHandName = name,
       setActivePlayerIndex: (i) => activePlayerIndex = i,
     );
@@ -1161,14 +1167,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_playbackManager.playbackIndex > actions.length) {
       _playbackManager.seek(actions.length);
     }
-    try {
-      final last =
-          actions.lastWhere((a) => a.playerIndex == playerIndex);
-      _profile.actionTags[playerIndex] =
-          '${last.action}${last.amount != null ? ' ${last.amount}' : ''}';
-    } catch (_) {
-      _profile.actionTags.remove(playerIndex);
-    }
+    _actionTagService.updateAfterActionRemoval(playerIndex, actions);
     _playbackManager.updatePlaybackState();
   }
 
@@ -1224,8 +1223,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         prevStreet: prevStreet,
         newStreet: currentStreet);
     _actionSync.addExpandedStreet(entry.street);
-    _profile.actionTags[entry.playerIndex] =
-        '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
+    _actionTagService.updateForAction(entry);
     setPlayerLastAction(
       players[entry.playerIndex].name,
       ActionFormattingHelper.formatLastAction(entry),
@@ -1263,8 +1261,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _actionSync.updateAnalyzerAction(index, entry,
         recordHistory: recordHistory, street: currentStreet);
-    _profile.actionTags[entry.playerIndex] =
-        '${entry.action}${entry.amount != null ? ' ${entry.amount}' : ''}';
+    _actionTagService.updateForAction(entry);
     setPlayerLastAction(
       players[entry.playerIndex].name,
       ActionFormattingHelper.formatLastAction(entry),
@@ -1302,13 +1299,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playbackManager.seek(actions.length);
       }
       // Update action tag for player whose action was removed
-      try {
-        final last = actions.lastWhere((a) => a.playerIndex == removed.playerIndex);
-        _profile.actionTags[removed.playerIndex] =
-            '${last.action}${last.amount != null ? ' ${last.amount}' : ''}';
-      } catch (_) {
-        _profile.actionTags.remove(removed.playerIndex);
-      }
+      _actionTagService.updateAfterActionRemoval(
+          removed.playerIndex, actions);
       _autoCollapseStreets();
       _playbackManager.updatePlaybackState();
     }
@@ -1418,7 +1410,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lockService.safeSetState(this, () {
       _recordSnapshot();
       _actionSync.changeStreet(currentStreet - 1);
-      _profile.actionTags.clear();
+      _actionTagService.clear();
       _playbackManager.animatedPlayersPerStreet
           .putIfAbsent(currentStreet, () => <int>{});
       _boardSync.updateRevealedBoardCards();
@@ -1433,7 +1425,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lockService.safeSetState(this, () {
       _recordSnapshot();
       _actionSync.changeStreet(currentStreet + 1);
-      _profile.actionTags.clear();
+      _actionTagService.clear();
       _playbackManager.animatedPlayersPerStreet
           .putIfAbsent(currentStreet, () => <int>{});
       _boardSync.updateRevealedBoardCards();
@@ -1536,7 +1528,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _actionSync.changeStreet(0);
         _boardSync.updateRevealedBoardCards();
         _boardManager.startBoardTransition();
-        _profile.actionTags.clear();
+        _actionTagService.clear();
         _playbackManager.animatedPlayersPerStreet.clear();
         _stackService.reset(
             Map<int, int>.from(_playerManager.initialStacks));
@@ -1805,7 +1797,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       foldedPlayers:
           _foldedPlayers.isEmpty ? null : List<int>.from(_foldedPlayers.players),
       actionTags:
-          _profile.actionTags.isEmpty ? null : Map<int, String?>.from(_profile.actionTags),
+          _actionTagService.tags.isEmpty ? null : Map<int, String?>.from(_actionTagService.tags),
       pendingEvaluations:
           _queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(_queueService.pending),
       playbackIndex: _playbackManager.playbackIndex,
@@ -2395,7 +2387,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final String position = playerPositions[index] ?? '';
     final int stack = _stackService.stackSizes[index] ?? 0;
-    final String tag = _profile.actionTags[index] ?? '';
+    final String tag = _actionTagService.getTag(index) ?? '';
     final bool isActive = activePlayerIndex == index;
     final bool isFolded = _foldedPlayers.contains(index);
 
@@ -5181,8 +5173,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             debugDiag('Total Actions', s.actions.length),
             _vGap,
             const Text('Action Tags Diagnostics:'),
-            if (s._profile.actionTags.isNotEmpty)
-              for (final entry in s._profile.actionTags.entries) ...[
+            if (s._actionTagService.tags.isNotEmpty)
+              for (final entry in s._actionTagService.tags.entries) ...[
                 debugDiag('Player ${entry.key + 1} Action Tag', entry.value),
                 _vGap,
               ]

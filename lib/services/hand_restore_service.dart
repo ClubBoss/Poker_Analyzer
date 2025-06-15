@@ -18,6 +18,7 @@ import 'current_hand_context_service.dart';
 import 'folded_players_service.dart';
 import 'board_manager_service.dart';
 import 'board_sync_service.dart';
+import 'action_tag_service.dart';
 
 /// Restores a [SavedHand] object by updating all runtime services.
 ///
@@ -40,6 +41,7 @@ class HandRestoreService {
     required this.handContext,
     required this.pendingEvaluations,
     required this.foldedPlayers,
+    required this.actionTags,
     required this.setCurrentHandName,
     required this.setActivePlayerIndex,
   }) {
@@ -59,6 +61,7 @@ class HandRestoreService {
   final CurrentHandContextService handContext;
   final List<ActionEvaluationRequest> pendingEvaluations;
   final FoldedPlayersService foldedPlayers;
+  final ActionTagService actionTags;
   final void Function(String) setCurrentHandName;
   final void Function(int?) setActivePlayerIndex;
 
@@ -116,9 +119,7 @@ class HandRestoreService {
         offset: hand.tagsCursor != null && hand.tagsCursor! <= handContext.tagsController.text.length
             ? hand.tagsCursor!
             : handContext.tagsController.text.length);
-    profile.actionTags
-      ..clear()
-      ..addAll(hand.actionTags ?? {});
+    actionTags.restore(hand.actionTags);
     pendingEvaluations
       ..clear()
       ..addAll(hand.pendingEvaluations ?? []);

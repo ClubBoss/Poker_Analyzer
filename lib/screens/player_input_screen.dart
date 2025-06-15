@@ -151,6 +151,9 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                     context.read<BoardSyncService>(),
                                 playerProfile:
                                     context.read<PlayerProfileService>(),
+                                actionTagService: context
+                                    .read<PlayerProfileService>()
+                                    .actionTagService,
                               ),
                             ),
                           ),
@@ -223,6 +226,9 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                     context.read<BoardSyncService>(),
                                 playerProfile:
                                     context.read<PlayerProfileService>(),
+                                actionTagService: context
+                                    .read<PlayerProfileService>()
+                                    .actionTagService,
                               ),
                             ),
                           ),

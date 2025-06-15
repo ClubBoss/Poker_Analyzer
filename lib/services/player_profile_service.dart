@@ -4,6 +4,7 @@ import '../helpers/poker_position_helper.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/action_entry.dart';
+import 'action_tag_service.dart';
 
 /// Manages player-specific profiles such as positions, types and revealed cards.
 class PlayerProfileService extends ChangeNotifier {
@@ -16,9 +17,10 @@ class PlayerProfileService extends ChangeNotifier {
   Map<int, PlayerType> playerTypes = {};
   final List<PlayerModel> players =
       List.generate(10, (i) => PlayerModel(name: 'Player ${i + 1}'));
-  final Map<int, String?> actionTags = {};
+  final ActionTagService actionTagService;
 
-  PlayerProfileService() {
+  PlayerProfileService({ActionTagService? actionTagService})
+      : actionTagService = actionTagService ?? ActionTagService() {
     playerPositions = Map.fromIterables(
       List.generate(numberOfPlayers, (i) => i),
       getPositionList(numberOfPlayers),
@@ -100,13 +102,12 @@ class PlayerProfileService extends ChangeNotifier {
 
     for (int i = index; i < numberOfPlayers - 1; i++) {
       players[i] = players[i + 1];
-      actionTags[i] = actionTags[i + 1];
       playerPositions[i] = playerPositions[i + 1] ?? '';
       playerTypes[i] = playerTypes[i + 1] ?? PlayerType.unknown;
       hintFlags[i] = hintFlags[i + 1];
     }
     players[numberOfPlayers - 1] = PlayerModel(name: 'Player $numberOfPlayers');
-    actionTags.remove(numberOfPlayers - 1);
+    actionTagService.shiftAfterPlayerRemoval(index, numberOfPlayers);
     playerPositions.remove(numberOfPlayers - 1);
     playerTypes.remove(numberOfPlayers - 1);
     hintFlags[numberOfPlayers - 1] = true;
@@ -135,9 +136,7 @@ class PlayerProfileService extends ChangeNotifier {
     }
     opponentIndex = null;
     playerTypes.clear();
-    for (int i = 0; i < playerPositions.length; i++) {
-      actionTags.remove(i);
-    }
+    actionTagService.clear();
     notifyListeners();
   }
 }
