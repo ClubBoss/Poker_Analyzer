@@ -1,12 +1,9 @@
 import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/evaluation_queue_service.dart';
 import '../services/debug_preferences_service.dart';
 import 'package:uuid/uuid.dart';
@@ -1051,15 +1048,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
 
-  void _clearEvaluationQueue() {
-    lockService.safeSetState(this, () {
-      _pendingEvaluations.clear();
-      _completedEvaluations.clear();
-      _failedEvaluations.clear();
-    });
-    _queueService.persist();
+  Future<void> _clearEvaluationQueue() async {
+    await _queueService.clearQueue();
     unawaited(_debugPrefs.setEvaluationQueueResumed(false));
     if (mounted) {
+      lockService.safeSetState(this, () {});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Evaluation queue cleared')),
       );
@@ -1067,13 +1060,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
-  void _clearPendingQueue() {
+  Future<void> _clearPendingQueue() async {
     if (_pendingEvaluations.isEmpty) return;
-    lockService.safeSetState(this, () {
-      _pendingEvaluations.clear();
-    });
-    _queueService.persist();
+    await _queueService.clearPending();
     if (mounted) {
+      lockService.safeSetState(this, () {});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pending queue cleared')),
       );
@@ -1081,13 +1072,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
-  void _clearFailedQueue() {
+  Future<void> _clearFailedQueue() async {
     if (_failedEvaluations.isEmpty) return;
-    lockService.safeSetState(this, () {
-      _failedEvaluations.clear();
-    });
-    _queueService.persist();
+    await _queueService.clearFailed();
     if (mounted) {
+      lockService.safeSetState(this, () {});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed queue cleared')),
       );
@@ -1095,13 +1084,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
-  void _clearCompletedQueue() {
+  Future<void> _clearCompletedQueue() async {
     if (_completedEvaluations.isEmpty) return;
-    lockService.safeSetState(this, () {
-      _completedEvaluations.clear();
-    });
-    _queueService.persist();
+    await _queueService.clearCompleted();
     if (mounted) {
+      lockService.safeSetState(this, () {});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Completed queue cleared')),
       );
@@ -1109,47 +1096,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
-  void _clearCompletedEvaluations() {
+  Future<void> _clearCompletedEvaluations() async {
     final count = _completedEvaluations.length;
     if (count == 0) return;
-    lockService.safeSetState(this, () {
-      _completedEvaluations.clear();
-    });
-    _queueService.persist();
+    await _queueService.clearCompleted();
     _debugPanelSetState?.call(() {});
     if (mounted) {
+      lockService.safeSetState(this, () {});
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cleared $count completed evaluations')),
       );
     }
   }
 
-  int _deduplicateList(
-      List<ActionEvaluationRequest> list, Set<String> seenIds) {
-    final originalLength = list.length;
-    final unique = <ActionEvaluationRequest>[];
-    for (final entry in list) {
-      if (seenIds.add(entry.id)) unique.add(entry);
-    }
-    list
-      ..clear()
-      ..addAll(unique);
-    return originalLength - unique.length;
-  }
-
-  void _removeDuplicateEvaluations() {
+  Future<void> _removeDuplicateEvaluations() async {
     try {
-      var removed = 0;
-      lockService.safeSetState(this, () {
-        final seen = <String>{};
-        removed += _deduplicateList(_pendingEvaluations, seen);
-        removed += _deduplicateList(_failedEvaluations, seen);
-        removed += _deduplicateList(_completedEvaluations, seen);
-      });
-      if (removed > 0) {
-        _queueService.persist();
-      }
+      final removed = await _queueService.removeDuplicateEvaluations();
       if (mounted) {
+        lockService.safeSetState(this, () {});
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Removed $removed duplicate entries')),
         );
@@ -1164,54 +1128,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  void _resolveQueueConflicts() {
+  Future<void> _resolveQueueConflicts() async {
     try {
-      var removed = 0;
-      lockService.safeSetState(this, () {
-        final seen = <String>{};
-
-        final newCompleted = <ActionEvaluationRequest>[];
-        for (final e in _completedEvaluations) {
-          if (seen.add(e.id)) {
-            newCompleted.add(e);
-          } else {
-            removed++;
-          }
-        }
-
-        final newFailed = <ActionEvaluationRequest>[];
-        for (final e in _failedEvaluations) {
-          if (seen.add(e.id)) {
-            newFailed.add(e);
-          } else {
-            removed++;
-          }
-        }
-
-        final newPending = <ActionEvaluationRequest>[];
-        for (final e in _pendingEvaluations) {
-          if (seen.add(e.id)) {
-            newPending.add(e);
-          } else {
-            removed++;
-          }
-        }
-
-        _completedEvaluations
-          ..clear()
-          ..addAll(newCompleted);
-        _failedEvaluations
-          ..clear()
-          ..addAll(newFailed);
-        _pendingEvaluations
-          ..clear()
-          ..addAll(newPending);
-      });
-
-      if (removed > 0) {
-        _queueService.persist();
-      }
+      final removed = await _queueService.resolveQueueConflicts();
       if (mounted) {
+        lockService.safeSetState(this, () {});
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Resolved $removed conflicts')),
         );
@@ -1235,15 +1156,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return a.action.compareTo(b.action);
   }
 
-  void _sortEvaluationQueues() {
+  Future<void> _sortEvaluationQueues() async {
     try {
-      lockService.safeSetState(this, () {
-        _pendingEvaluations.sort(_compareEvaluationRequests);
-        _failedEvaluations.sort(_compareEvaluationRequests);
-        _completedEvaluations.sort(_compareEvaluationRequests);
-      });
-      _queueService.persist();
+      await _queueService.sortQueues();
       if (mounted) {
+        lockService.safeSetState(this, () {});
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Queues sorted')),
         );
@@ -1258,52 +1175,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  void _toggleEvaluationProcessingPause() {
-    lockService.safeSetState(this, () {
-      _pauseProcessingRequested = !_pauseProcessingRequested;
-    });
+  Future<void> _toggleEvaluationProcessingPause() async {
+    await _queueService.togglePauseProcessing();
+    if (mounted) lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
-    if (!_pauseProcessingRequested && !_processingEvaluations &&
-        _pendingEvaluations.isNotEmpty) {
-      _queueService.processQueue();
-    }
   }
 
-  void _cancelEvaluationProcessing() {
-    lockService.safeSetState(this, () {
-      _cancelProcessingRequested = true;
-      _pauseProcessingRequested = false;
-      _pendingEvaluations.clear();
-      _processingEvaluations = false;
-    });
-    _queueService.persist();
+  Future<void> _cancelEvaluationProcessing() async {
+    await _queueService.cancelProcessing();
+    if (mounted) lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _forceRestartEvaluationProcessing() async {
-    if (_processingEvaluations) {
-      lockService.safeSetState(this, () {
-        _cancelProcessingRequested = true;
-        _pauseProcessingRequested = false;
-      });
-      _debugPanelSetState?.call(() {});
-      while (_processingEvaluations) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
-    }
-    if (mounted) {
-      lockService.safeSetState(this, () {
-        _processingEvaluations = false;
-        _cancelProcessingRequested = false;
-      });
-    } else {
-      _processingEvaluations = false;
-      _cancelProcessingRequested = false;
-    }
+    await _queueService.forceRestartProcessing();
+    if (mounted) lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
-    if (_pendingEvaluations.isNotEmpty) {
-      _queueService.processQueue();
-    }
   }
 
   void _retryFailedEvaluations() {
@@ -1789,67 +1676,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Load persisted evaluation queue if available.
   Future<void> _loadSavedEvaluationQueue() async {
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/evaluation_current_queue.json');
-      bool resumed = false;
-      if (await file.exists()) {
-        final decoded = jsonDecode(await file.readAsString());
-        final pending = <ActionEvaluationRequest>[];
-        final failed = <ActionEvaluationRequest>[];
-        final completed = <ActionEvaluationRequest>[];
-        if (decoded is List) {
-          pending.addAll(_decodeEvaluationList(decoded));
-        } else if (decoded is Map) {
-          pending.addAll(_decodeEvaluationList(decoded['pending']));
-          failed.addAll(_decodeEvaluationList(decoded['failed']));
-          completed.addAll(_decodeEvaluationList(decoded['completed']));
-        }
-
-        final prefs = await SharedPreferences.getInstance();
-        _queueService.applySavedOrder(
-            pending, prefs.getStringList(_pendingOrderKey));
-        _queueService.applySavedOrder(
-            failed, prefs.getStringList(_failedOrderKey));
-        _queueService.applySavedOrder(
-            completed, prefs.getStringList(_completedOrderKey));
-
-        if (mounted) {
-          lockService.safeSetState(this, () {
-            _pendingEvaluations
-              ..clear()
-              ..addAll(pending);
-            _failedEvaluations
-              ..clear()
-              ..addAll(failed);
-            _completedEvaluations
-              ..clear()
-              ..addAll(completed);
-            resumed =
-                pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
-            s._debugPrefs.setEvaluationQueueResumed(resumed);
-          });
-          _debugPanelSetState?.call(() {});
-        } else {
-          resumed =
-              pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
-          s._debugPrefs.setEvaluationQueueResumed(resumed);
-          _pendingEvaluations
-            ..clear()
-            ..addAll(pending);
-          _failedEvaluations
-            ..clear()
-            ..addAll(failed);
-          _completedEvaluations
-            ..clear()
-            ..addAll(completed);
-        }
-        try {
-          await file.delete();
-        } catch (_) {}
-        _queueService.persist();
-        _debugPanelSetState?.call(() {});
-      }
+      final resumed = await _queueService.loadSavedQueue();
       await s._debugPrefs.setEvaluationQueueResumed(resumed);
+      if (mounted) lockService.safeSetState(this, () {});
+      _debugPanelSetState?.call(() {});
     } catch (_) {
       await s._debugPrefs.setEvaluationQueueResumed(false);
     }
