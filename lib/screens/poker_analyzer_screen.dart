@@ -413,6 +413,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return 0;
   }
 
+  bool _isBoardStageComplete(int stage) {
+    final required = [0, 3, 4, 5][stage];
+    return boardCards.length >= required;
+  }
+
   void _updateRevealedBoardCards() {
     final visible = [0, 3, 4, 5][currentStreet];
     revealedBoardCards
@@ -786,12 +791,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   bool _canAddBoardCard(int index) {
-    final count = boardCards.length;
-    if (index == 3 && count < 3) {
+    if (index == 3 && !_isBoardStageComplete(1)) {
       _showBoardSkipWarning('Flop', 'Turn');
       return false;
     }
-    if (index == 4 && count < 4) {
+    if (index == 4 && !_isBoardStageComplete(2)) {
       _showBoardSkipWarning('Turn', 'River');
       return false;
     }
