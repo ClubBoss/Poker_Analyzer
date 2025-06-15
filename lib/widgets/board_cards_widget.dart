@@ -8,6 +8,7 @@ class BoardCardsWidget extends StatelessWidget {
   final void Function(int, CardModel) onCardSelected;
   final void Function(int index)? onCardLongPress;
   final bool Function(int index)? canEditBoard;
+  final Set<String> usedCards;
   final double scale;
 
   const BoardCardsWidget({
@@ -17,6 +18,7 @@ class BoardCardsWidget extends StatelessWidget {
     required this.onCardSelected,
     this.onCardLongPress,
     this.canEditBoard,
+    this.usedCards = const {},
     this.scale = 1.0,
   }) : super(key: key);
 
@@ -37,7 +39,10 @@ class BoardCardsWidget extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: () async {
                 if (canEditBoard != null && !canEditBoard!(index)) return;
-                final selected = await showCardSelector(context);
+                final disabled = Set<String>.from(usedCards);
+                if (card != null) disabled.remove('${card.rank}${card.suit}');
+                final selected =
+                    await showCardSelector(context, disabledCards: disabled);
                 if (selected != null) {
                   onCardSelected(index, selected);
                 }

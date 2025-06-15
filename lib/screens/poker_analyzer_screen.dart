@@ -467,6 +467,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return _isCardInUse(card);
   }
 
+  Set<String> _usedCardKeys({CardModel? except}) {
+    String key(CardModel c) => '${c.rank}${c.suit}';
+    final keys = <String>{};
+    for (final c in boardCards) {
+      keys.add(key(c));
+    }
+    for (final list in playerCards) {
+      for (final c in list) {
+        keys.add(key(c));
+      }
+    }
+    for (final p in players) {
+      for (final c in p.revealedCards) {
+        keys.add(key(c));
+      }
+    }
+    if (except != null) keys.remove(key(except));
+    return keys;
+  }
+
   void _showDuplicateCardMessage() {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -810,10 +830,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onPlayerCardTap(int index, int cardIndex) async {
-    final selectedCard = await showCardSelector(context);
-    if (selectedCard == null) return;
     final current =
         cardIndex < playerCards[index].length ? playerCards[index][cardIndex] : null;
+    final selectedCard = await showCardSelector(
+      context,
+      disabledCards: _usedCardKeys(except: current),
+    );
+    if (selectedCard == null) return;
     if (_isDuplicateSelection(selectedCard, current)) {
       _showDuplicateCardMessage();
       return;
@@ -835,9 +858,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onRevealedCardTap(int playerIndex, int cardIndex) async {
-    final selected = await showCardSelector(context);
-    if (selected == null) return;
     final current = players[playerIndex].revealedCards[cardIndex];
+    final selected = await showCardSelector(
+      context,
+      disabledCards: _usedCardKeys(except: current),
+    );
+    if (selected == null) return;
     if (_isDuplicateSelection(selected, current)) {
       _showDuplicateCardMessage();
       return;
@@ -2927,6 +2953,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     onCardSelected: selectBoardCard,
                     onCardLongPress: _removeBoardCard,
                     canEditBoard: _canEditBoard,
+                    usedCards: _usedCardKeys(),
                     visibleActions: visibleActions,
                   ),
                   _PlayerZonesSection(
@@ -4056,6 +4083,7 @@ class _BoardCardsSection extends StatelessWidget {
   final void Function(int, CardModel) onCardSelected;
   final void Function(int) onCardLongPress;
   final bool Function(int index)? canEditBoard;
+  final Set<String> usedCards;
 
   const _BoardCardsSection({
     required this.scale,
@@ -4066,6 +4094,7 @@ class _BoardCardsSection extends StatelessWidget {
     required this.onCardLongPress,
     required this.visibleActions,
     this.canEditBoard,
+    this.usedCards = const {},
   });
 
   @override
@@ -4085,6 +4114,7 @@ class _BoardCardsSection extends StatelessWidget {
         onCardSelected: onCardSelected,
         onCardLongPress: onCardLongPress,
         canEditBoard: canEditBoard,
+        usedCards: usedCards,
         visibleActions: visibleActions,
       ),
     );
