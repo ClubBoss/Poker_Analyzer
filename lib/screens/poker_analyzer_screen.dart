@@ -1005,6 +1005,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onPlayerTimeExpired(int index) {
+    if (_boardTransitioning) return;
     if (activePlayerIndex == index) {
       setState(() => activePlayerIndex = null);
     }
@@ -3625,6 +3626,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     _playerManager.playerPositions[index] == 'BB')
                 ? _playerManager.playerPositions[index]
                 : null,
+            timersDisabled: _boardTransitioning,
             onCardTap: _boardTransitioning
                 ? null
                 : (cardIndex) => _onPlayerCardTap(index, cardIndex),
