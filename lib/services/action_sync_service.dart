@@ -85,6 +85,7 @@ class ActionSyncService extends ChangeNotifier {
 
   void updatePlaybackIndex(int index) {
     playbackIndex = index;
+    notifyListeners();
   }
 
   ActionSnapshot buildSnapshot(List<CardModel> board) {
@@ -114,6 +115,13 @@ class ActionSyncService extends ChangeNotifier {
 
   void removeExpandedStreet(int street) {
     expandedHistoryStreets.remove(street);
+    notifyListeners();
+  }
+
+  void setExpandedStreets(Iterable<int> streets) {
+    expandedHistoryStreets
+      ..clear()
+      ..addAll(streets);
     notifyListeners();
   }
 
