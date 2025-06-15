@@ -524,6 +524,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final index =
         actions.lastIndexWhere((a) => a.street <= street) + 1;
     _playbackManager.seek(index);
+    _actionSync.updatePlaybackIndex(index);
     _animateTimeline = true;
     _playbackManager.updatePlaybackState();
   }
@@ -579,6 +580,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _seekPlayback(double value) {
     if (lockService.boardTransitioning) return;
     _playbackManager.seek(value.round());
+    _actionSync.updatePlaybackIndex(value.round());
     _playbackManager.updatePlaybackState();
   }
 
@@ -597,6 +599,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..clear()
       ..addAll(snap.board);
     _playbackManager.seek(snap.playbackIndex);
+    _actionSync.updatePlaybackIndex(snap.playbackIndex);
     _animateTimeline = true;
     _updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
@@ -2174,14 +2177,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..clear()
         ..addAll(hand.foldedPlayers ??
             [for (final a in hand.actions) if (a.action == 'fold') a.playerIndex]);
-      _actionSync.expandedHistoryStreets
-        ..clear()
-        ..addAll([
-          for (int i = 0; i < 4; i++)
-            if (hand.collapsedHistoryStreets == null ||
-                !hand.collapsedHistoryStreets!.contains(i))
-              i
-        ]);
+      _actionSync.setExpandedStreets([
+        for (int i = 0; i < 4; i++)
+          if (hand.collapsedHistoryStreets == null ||
+              !hand.collapsedHistoryStreets!.contains(i))
+            i
+      ]);
       _autoCollapseStreets();
       _actionSync.setBoardStreet(hand.boardStreet);
       _actionSync.changeStreet(hand.boardStreet);
@@ -2190,6 +2191,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final seekIndex =
           hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
       _playbackManager.seek(seekIndex);
+      _actionSync.updatePlaybackIndex(seekIndex);
       _playbackManager.animatedPlayersPerStreet.clear();
       _playbackManager.updatePlaybackState();
       _playerManager.updatePositions();
