@@ -409,6 +409,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _setHeroIndex(int index) {
+    if (_boardTransitioning) return;
+    setState(() {
+      _playerManager.setHeroIndex(index);
+    });
+  }
+
   void _onPlayerCountChanged(int value) {
     if (_boardTransitioning) return;
     setState(() {
@@ -3170,8 +3177,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               numberOfPlayers: numberOfPlayers,
               playerPositions: playerPositions,
               playerTypes: playerTypes,
-              onChanged:
-                  _boardTransitioning ? null : _onPlayerCountChanged,
+              onChanged: _boardTransitioning ? null : _onPlayerCountChanged,
+              disabled: _boardTransitioning,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -3629,9 +3636,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             onTap: () => _onPlayerTap(index),
             onDoubleTap: _boardTransitioning
                 ? null
-                : () => setState(() {
-                    _playerManager.setHeroIndex(index);
-                  }),
+                : () => _setHeroIndex(index),
             onLongPress: _boardTransitioning ? null : () => _editPlayerInfo(index),
             onEdit: _boardTransitioning ? null : () => _editPlayerInfo(index),
             onStackTap: (value) => setState(() {
@@ -4935,12 +4940,14 @@ class _PlayerCountSelector extends StatelessWidget {
   final Map<int, String> playerPositions;
   final Map<int, PlayerType> playerTypes;
   final ValueChanged<int>? onChanged;
+  final bool disabled;
 
   const _PlayerCountSelector({
     required this.numberOfPlayers,
     required this.playerPositions,
     required this.playerTypes,
     this.onChanged,
+    this.disabled = false,
   });
 
   @override
@@ -4954,11 +4961,13 @@ class _PlayerCountSelector extends StatelessWidget {
         for (int i = 2; i <= 10; i++)
           DropdownMenuItem(value: i, child: Text('Игроков: $i')),
       ],
-      onChanged: (value) {
-        if (value != null && onChanged != null) {
-          onChanged!(value);
-        }
-      },
+      onChanged: disabled
+          ? null
+          : (value) {
+              if (value != null && onChanged != null) {
+                onChanged!(value);
+              }
+            },
     );
   }
 }
