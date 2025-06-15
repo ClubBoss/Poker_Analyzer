@@ -4270,13 +4270,25 @@ class _BoardCardsSection extends StatefulWidget {
   State<_BoardCardsSection> createState() => _BoardCardsSectionState();
 }
 
-class _BoardCardsSectionState extends State<_BoardCardsSection> {
+class _BoardCardsSectionState extends State<_BoardCardsSection>
+    with TickerProviderStateMixin {
   late int _prevStreet;
+  late final List<AnimationController> _controllers;
+  late final List<Animation<double>> _animations;
+  List<CardModel> _prevCards = [];
 
   @override
   void initState() {
     super.initState();
     _prevStreet = widget.currentStreet;
+    _controllers =
+        List.generate(5, (_) => AnimationController(vsync: this, duration: const Duration(milliseconds: 300)));
+    _animations =
+        _controllers.map((c) => CurvedAnimation(parent: c, curve: Curves.easeIn)).toList();
+    _prevCards = List<CardModel>.from(widget.revealedBoardCards);
+    for (int i = 0; i < _prevCards.length; i++) {
+      _controllers[i].value = 1;
+    }
   }
 
   @override
@@ -4285,6 +4297,35 @@ class _BoardCardsSectionState extends State<_BoardCardsSection> {
     if (oldWidget.currentStreet != widget.currentStreet) {
       _prevStreet = oldWidget.currentStreet;
     }
+    _updateAnimations(oldWidget.revealedBoardCards);
+  }
+
+  void _updateAnimations(List<CardModel> oldCards) {
+    final visible = _stageCardCounts[widget.currentStreet];
+    for (int i = 0; i < 5; i++) {
+      final oldCard = i < oldCards.length ? oldCards[i] : null;
+      final newCard = i < widget.revealedBoardCards.length ? widget.revealedBoardCards[i] : null;
+      final shouldShow = i < visible && newCard != null;
+      if (shouldShow && oldCard == null) {
+        _controllers[i].forward(from: 0);
+      } else if (!shouldShow) {
+        _controllers[i].value = 0;
+      } else if (oldCard != null && newCard != null &&
+          (oldCard.rank != newCard.rank || oldCard.suit != newCard.suit)) {
+        _controllers[i].forward(from: 0);
+      } else if (shouldShow) {
+        _controllers[i].value = 1;
+      }
+    }
+    _prevCards = List<CardModel>.from(widget.revealedBoardCards);
+  }
+
+  @override
+  void dispose() {
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -4308,6 +4349,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection> {
         currentStreet: widget.currentStreet,
         boardCards: widget.boardCards,
         revealedBoardCards: widget.revealedBoardCards,
+        revealAnimations: _animations,
         onCardSelected: widget.onCardSelected,
         onCardLongPress: widget.onCardLongPress,
         canEditBoard: widget.canEditBoard,

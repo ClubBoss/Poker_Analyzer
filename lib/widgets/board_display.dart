@@ -15,6 +15,7 @@ class BoardDisplay extends StatelessWidget {
   final bool Function(int index)? canEditBoard;
   final Set<String> usedCards;
   final double scale;
+  final List<Animation<double>>? revealAnimations;
 
   const BoardDisplay({
     Key? key,
@@ -27,6 +28,7 @@ class BoardDisplay extends StatelessWidget {
     this.canEditBoard,
     this.usedCards = const {},
     this.scale = 1.0,
+    this.revealAnimations,
   }) : super(key: key);
 
   @override
@@ -37,6 +39,7 @@ class BoardDisplay extends StatelessWidget {
           scale: scale,
           currentStreet: currentStreet,
           boardCards: revealedBoardCards,
+          revealAnimations: revealAnimations,
           onCardSelected: onCardSelected,
           onCardLongPress: onCardLongPress,
           canEditBoard: canEditBoard,

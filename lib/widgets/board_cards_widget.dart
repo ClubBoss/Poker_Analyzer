@@ -10,6 +10,7 @@ class BoardCardsWidget extends StatelessWidget {
   final bool Function(int index)? canEditBoard;
   final Set<String> usedCards;
   final double scale;
+  final List<Animation<double>>? revealAnimations;
 
   const BoardCardsWidget({
     Key? key,
@@ -20,6 +21,7 @@ class BoardCardsWidget extends StatelessWidget {
     this.canEditBoard,
     this.usedCards = const {},
     this.scale = 1.0,
+    this.revealAnimations,
   }) : super(key: key);
 
   @override
@@ -50,54 +52,61 @@ class BoardCardsWidget extends StatelessWidget {
             key: ValueKey('$keyString-$visibleCount'),
             mainAxisSize: MainAxisSize.min,
             children: List.generate(visibleCount, (index) {
-            final card = index < boardCards.length ? boardCards[index] : null;
-            final isRed = card?.suit == '♥' || card?.suit == '♦';
+              final card = index < boardCards.length ? boardCards[index] : null;
+              final isRed = card?.suit == '♥' || card?.suit == '♦';
 
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () async {
-                if (canEditBoard != null && !canEditBoard!(index)) return;
-                final disabled = Set<String>.from(usedCards);
-                if (card != null) disabled.remove('${card.rank}${card.suit}');
-                final selected =
-                    await showCardSelector(context, disabledCards: disabled);
-                if (selected != null) {
-                  onCardSelected(index, selected);
-                }
-              },
-              onLongPress: () {
-                if (onCardLongPress != null && index < boardCards.length) {
-                  onCardLongPress!(index);
-                }
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 36 * scale,
-                height: 52 * scale,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(card == null ? 0.3 : 1),
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
-                      blurRadius: 3,
-                      offset: const Offset(1, 2),
-                    )
-                  ],
+              final animation = revealAnimations != null &&
+                      index < revealAnimations!.length
+                  ? revealAnimations![index]
+                  : const AlwaysStoppedAnimation(1.0);
+              return FadeTransition(
+                opacity: animation,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () async {
+                    if (canEditBoard != null && !canEditBoard!(index)) return;
+                    final disabled = Set<String>.from(usedCards);
+                    if (card != null) disabled.remove('${card.rank}${card.suit}');
+                    final selected =
+                        await showCardSelector(context, disabledCards: disabled);
+                    if (selected != null) {
+                      onCardSelected(index, selected);
+                    }
+                  },
+                  onLongPress: () {
+                    if (onCardLongPress != null && index < boardCards.length) {
+                      onCardLongPress!(index);
+                    }
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 36 * scale,
+                    height: 52 * scale,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(card == null ? 0.3 : 1),
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          blurRadius: 3,
+                          offset: const Offset(1, 2),
+                        )
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: card != null
+                        ? Text(
+                            '${card.rank}${card.suit}',
+                            style: TextStyle(
+                              color: isRed ? Colors.red : Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18 * scale,
+                            ),
+                          )
+                        : const Icon(Icons.add, color: Colors.grey),
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: card != null
-                    ? Text(
-                        '${card.rank}${card.suit}',
-                        style: TextStyle(
-                          color: isRed ? Colors.red : Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18 * scale,
-                        ),
-                      )
-                    : const Icon(Icons.add, color: Colors.grey),
-              ),
-            );
+              );
             }),
           ),
         ),
