@@ -17,6 +17,7 @@ import 'current_hand_context_service.dart';
 
 import 'folded_players_service.dart';
 import 'board_manager_service.dart';
+import 'board_sync_service.dart';
 
 /// Restores a [SavedHand] object by updating all runtime services.
 ///
@@ -31,6 +32,7 @@ class HandRestoreService {
     required this.actionSync,
     required this.playbackManager,
     required this.boardManager,
+    required this.boardSync,
     required this.queueService,
     required this.backupManager,
     required this.debugPrefs,
@@ -49,6 +51,7 @@ class HandRestoreService {
   final ActionSyncService actionSync;
   final PlaybackManagerService playbackManager;
   final BoardManagerService boardManager;
+  final BoardSyncService boardSync;
   final EvaluationQueueService queueService;
   final BackupManagerService backupManager;
   final DebugPreferencesService debugPrefs;
@@ -136,8 +139,8 @@ class HandRestoreService {
     _autoCollapseStreets();
     actionSync.setBoardStreet(hand.boardStreet);
     actionSync.changeStreet(hand.boardStreet);
-    boardManager.ensureBoardStreetConsistent();
-    boardManager.updateRevealedBoardCards();
+    boardSync.ensureBoardStreetConsistent();
+    boardSync.updateRevealedBoardCards();
     final seekIndex =
         hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
     playbackManager.seek(seekIndex);

@@ -19,6 +19,7 @@ import 'create_pack_screen.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/action_sync_service.dart';
 import '../services/board_manager_service.dart';
+import '../services/board_sync_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/player_manager_service.dart';
@@ -616,14 +617,20 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                         actionSync: context.read<ActionSyncService>(),
                       ),
                       child: Builder(
-                        builder: (context) => ChangeNotifierProvider(
-                          create: (_) => BoardManagerService(
+                        builder: (context) => Provider(
+                          create: (_) => BoardSyncService(
                             playerManager: context.read<PlayerManagerService>(),
                             actionSync: context.read<ActionSyncService>(),
-                            playbackManager: context.read<PlaybackManagerService>(),
-                            lockService: TransitionLockService(),
                           ),
-                          child: Builder(
+                          child: ChangeNotifierProvider(
+                            create: (_) => BoardManagerService(
+                              playerManager: context.read<PlayerManagerService>(),
+                              actionSync: context.read<ActionSyncService>(),
+                              playbackManager: context.read<PlaybackManagerService>(),
+                              lockService: TransitionLockService(),
+                              boardSync: context.read<BoardSyncService>(),
+                            ),
+                            child: Builder(
                             builder: (context) => PokerAnalyzerScreen(
                               key: _analyzerKey,
                               initialHand: hands[_currentIndex],
@@ -635,6 +642,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                                   .read<PlaybackManagerService>()
                                   .stackService,
                               boardManager: context.read<BoardManagerService>(),
+                              boardSync: context.read<BoardSyncService>(),
                               playerProfile:
                                   context.read<PlayerProfileService>(),
                             ),

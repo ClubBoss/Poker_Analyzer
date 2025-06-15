@@ -9,6 +9,7 @@ import 'action_sync_service.dart';
 import 'playback_manager_service.dart';
 import 'player_manager_service.dart';
 import 'transition_lock_service.dart';
+import 'board_sync_service.dart';
 
 /// Manages board state transitions and reveal timing.
 ///
@@ -23,23 +24,24 @@ class BoardManagerService extends ChangeNotifier {
     required ActionSyncService actionSync,
     required PlaybackManagerService playbackManager,
     required this.lockService,
+    required BoardSyncService boardSync,
   })  : _playerManager = playerManager,
         _actionSync = actionSync,
-        _playbackManager = playbackManager {
+        _playbackManager = playbackManager,
+        _boardSync = boardSync {
     _playerManager.addListener(_onPlayerManagerChanged);
-    updateRevealedBoardCards();
+    _boardSync.updateRevealedBoardCards();
   }
 
   final PlayerManagerService _playerManager;
   final ActionSyncService _actionSync;
   final PlaybackManagerService _playbackManager;
   final TransitionLockService lockService;
+  final BoardSyncService _boardSync;
 
-  static const List<int> _stageCardCounts = [0, 3, 4, 5];
   static const Duration _boardRevealDuration = Duration(milliseconds: 200);
   static const Duration _boardRevealStagger = Duration(milliseconds: 50);
 
-  final List<CardModel> revealedBoardCards = [];
   Timer? _boardTransitionTimer;
 
   List<CardModel> get boardCards => _playerManager.boardCards;
@@ -50,6 +52,8 @@ class BoardManagerService extends ChangeNotifier {
   int get boardStreet => _actionSync.boardStreet;
   set boardStreet(int v) => _actionSync.setBoardStreet(v);
 
+  List<CardModel> get revealedBoardCards => _boardSync.revealedBoardCards;
+
   List<ActionEntry> get actions => _actionSync.analyzerActions;
 
   @override
@@ -59,41 +63,17 @@ class BoardManagerService extends ChangeNotifier {
     super.dispose();
   }
 
-  int _inferBoardStreet() {
-    final count = boardCards.length;
-    if (count >= _stageCardCounts[3]) return 3;
-    if (count >= _stageCardCounts[2]) return 2;
-    if (count >= _stageCardCounts[1]) return 1;
-    return 0;
-  }
-
-  bool _isBoardStageComplete(int stage) {
-    return boardCards.length >= _stageCardCounts[stage];
-  }
-
-  void ensureBoardStreetConsistent() {
-    final inferred = _inferBoardStreet();
-    if (inferred != boardStreet) {
-      _actionSync.setBoardStreet(inferred);
-      _actionSync.changeStreet(inferred);
-      startBoardTransition();
-    }
-  }
-
-  void updateRevealedBoardCards() {
-    final visibleCount = _stageCardCounts[currentStreet];
-    revealedBoardCards
-      ..clear()
-      ..addAll(boardCards.take(visibleCount));
-  }
 
   void _onPlayerManagerChanged() {
     final prevStreet = boardStreet;
-    ensureBoardStreetConsistent();
+    final changed = _boardSync.ensureBoardStreetConsistent();
+    if (changed) {
+      startBoardTransition();
+    }
     if (boardStreet != prevStreet) {
       _playbackManager.updatePlaybackState();
     }
-    updateRevealedBoardCards();
+    _boardSync.updateRevealedBoardCards();
     notifyListeners();
   }
 
@@ -113,7 +93,7 @@ class BoardManagerService extends ChangeNotifier {
     startBoardTransition();
     _playbackManager.animatedPlayersPerStreet
         .putIfAbsent(street, () => <int>{});
-    updateRevealedBoardCards();
+    _boardSync.updateRevealedBoardCards();
     _jumpPlaybackToStreet(street);
     notifyListeners();
   }
@@ -138,7 +118,7 @@ class BoardManagerService extends ChangeNotifier {
 
   void startBoardTransition() {
     _boardTransitionTimer?.cancel();
-    final targetVisible = _stageCardCounts[currentStreet];
+    final targetVisible = BoardSyncService.stageCardCounts[currentStreet];
     final revealCount = max(0, targetVisible - revealedBoardCards.length);
     final duration = Duration(
       milliseconds: _boardRevealDuration.inMilliseconds +

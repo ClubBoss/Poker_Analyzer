@@ -10,6 +10,7 @@ import '../services/player_profile_service.dart';
 import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
 import '../services/board_manager_service.dart';
+import '../services/board_sync_service.dart';
 import '../services/transition_lock_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
@@ -119,17 +120,23 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                               actionSync: context.read<ActionSyncService>(),
                             ),
                             child: Builder(
-                          builder: (context) => ChangeNotifierProvider(
-                            create: (_) => BoardManagerService(
-                              playerManager:
-                                  context.read<PlayerManagerService>(),
+                          builder: (context) => Provider(
+                            create: (_) => BoardSyncService(
+                              playerManager: context.read<PlayerManagerService>(),
                               actionSync: context.read<ActionSyncService>(),
-                              playbackManager:
-                                  context.read<PlaybackManagerService>(),
-                              lockService: TransitionLockService(),
                             ),
-                            child: Builder(
-                              builder: (context) => PokerAnalyzerScreen(
+                            child: ChangeNotifierProvider(
+                              create: (_) => BoardManagerService(
+                                playerManager:
+                                    context.read<PlayerManagerService>(),
+                                actionSync: context.read<ActionSyncService>(),
+                                playbackManager:
+                                    context.read<PlaybackManagerService>(),
+                                lockService: TransitionLockService(),
+                                boardSync: context.read<BoardSyncService>(),
+                              ),
+                              child: Builder(
+                                builder: (context) => PokerAnalyzerScreen(
                                 key: key,
                                 actionSync: context.read<ActionSyncService>(),
                                 handContext: CurrentHandContextService(),
@@ -140,6 +147,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                     .stackService,
                                 boardManager:
                                     context.read<BoardManagerService>(),
+                                boardSync:
+                                    context.read<BoardSyncService>(),
                                 playerProfile:
                                     context.read<PlayerProfileService>(),
                               ),
@@ -184,17 +193,23 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                               actionSync: context.read<ActionSyncService>(),
                             ),
                             child: Builder(
-                          builder: (context) => ChangeNotifierProvider(
-                            create: (_) => BoardManagerService(
-                              playerManager:
-                                  context.read<PlayerManagerService>(),
+                          builder: (context) => Provider(
+                            create: (_) => BoardSyncService(
+                              playerManager: context.read<PlayerManagerService>(),
                               actionSync: context.read<ActionSyncService>(),
-                              playbackManager:
-                                  context.read<PlaybackManagerService>(),
-                              lockService: TransitionLockService(),
                             ),
-                            child: Builder(
-                              builder: (context) => PokerAnalyzerScreen(
+                            child: ChangeNotifierProvider(
+                              create: (_) => BoardManagerService(
+                                playerManager:
+                                    context.read<PlayerManagerService>(),
+                                actionSync: context.read<ActionSyncService>(),
+                                playbackManager:
+                                    context.read<PlaybackManagerService>(),
+                                lockService: TransitionLockService(),
+                                boardSync: context.read<BoardSyncService>(),
+                              ),
+                              child: Builder(
+                                builder: (context) => PokerAnalyzerScreen(
                                 actionSync: context.read<ActionSyncService>(),
                                 handContext: CurrentHandContextService(),
                                 playbackManager:
@@ -204,6 +219,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                     .stackService,
                                 boardManager:
                                     context.read<BoardManagerService>(),
+                                boardSync:
+                                    context.read<BoardSyncService>(),
                                 playerProfile:
                                     context.read<PlayerProfileService>(),
                               ),
