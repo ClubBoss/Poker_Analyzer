@@ -5,6 +5,10 @@ import '../models/player_zone_action_entry.dart' as pz;
 import '../models/card_model.dart';
 
 class ActionSyncService extends ChangeNotifier {
+  int currentStreet = 0;
+  int boardStreet = 0;
+  int playbackIndex = 0;
+  final Set<int> expandedHistoryStreets = {};
   final Map<String, List<pz.ActionEntry>> actions = {
     'Preflop': [],
     'Flop': [],
@@ -64,6 +68,53 @@ class ActionSyncService extends ChangeNotifier {
       list.clear();
       notifyListeners();
     }
+  }
+
+  void changeStreet(int street) {
+    currentStreet = street;
+    notifyListeners();
+  }
+
+  void setBoardStreet(int street) {
+    boardStreet = street;
+    if (currentStreet > boardStreet) {
+      currentStreet = boardStreet;
+    }
+    notifyListeners();
+  }
+
+  void updatePlaybackIndex(int index) {
+    playbackIndex = index;
+  }
+
+  ActionSnapshot buildSnapshot(List<CardModel> board) {
+    return ActionSnapshot(
+      street: currentStreet,
+      boardStreet: boardStreet,
+      board: List<CardModel>.from(board),
+      playbackIndex: playbackIndex,
+      expandedStreets: Set<int>.from(expandedHistoryStreets),
+    );
+  }
+
+  void restoreSnapshot(ActionSnapshot snap) {
+    currentStreet = snap.street;
+    boardStreet = snap.boardStreet;
+    playbackIndex = snap.playbackIndex;
+    expandedHistoryStreets
+      ..clear()
+      ..addAll(snap.expandedStreets);
+    notifyListeners();
+  }
+
+  void addExpandedStreet(int street) {
+    expandedHistoryStreets.add(street);
+    notifyListeners();
+  }
+
+  void removeExpandedStreet(int street) {
+    expandedHistoryStreets.remove(street);
+    notifyListeners();
   }
 
   // ----- PokerAnalyzer synchronization -----
