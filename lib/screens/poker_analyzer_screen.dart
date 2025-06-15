@@ -268,8 +268,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const List<int> _stageCardCounts = [0, 3, 4, 5];
   static const double _timelineExtent = 80.0;
   static const List<String> _stageNames = ['Preflop', 'Flop', 'Turn', 'River'];
-  static const Duration _boardRevealDuration = Duration(milliseconds: 300);
-  static const Duration _boardRevealStagger = Duration(milliseconds: 100);
+  static const Duration _boardRevealDuration = Duration(milliseconds: 250);
+  static const Duration _boardRevealStagger = Duration(milliseconds: 50);
 
   /// Determine which board stage a particular card index belongs to.
   int _stageForBoardIndex(int index) {
@@ -653,7 +653,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _startBoardTransition() {
     _boardTransitionTimer?.cancel();
     _boardTransitioning = true;
-    _boardTransitionTimer = Timer(const Duration(milliseconds: 300), () {
+    _boardTransitionTimer = Timer(_boardRevealDuration, () {
       if (mounted) {
         setState(() => _boardTransitioning = false);
       } else {
