@@ -794,7 +794,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
   }
 
-  bool _previousStagesComplete(int index) {
+  bool _validateBoardStage(int index) {
     if (index == 3 && !_isBoardStageComplete(1)) {
       _showBoardSkipWarning(_stageNames[1], _stageNames[2]);
       return false;
@@ -806,10 +806,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return true;
   }
 
-  bool _canAddBoardCard(int index) => _previousStagesComplete(index);
+  bool _canEditBoard(int index) => _validateBoardStage(index);
 
   void selectBoardCard(int index, CardModel card) {
-    if (!_canAddBoardCard(index)) return;
+    if (!_canEditBoard(index)) return;
     setState(() {
       _recordSnapshot();
       _playerManager.selectBoardCard(index, card);
