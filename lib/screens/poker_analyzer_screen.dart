@@ -774,24 +774,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playerManager.setRevealedCard(playerIndex, cardIndex, selected));
   }
 
+  void _showBoardSkipWarning(String prevStage, String nextStage) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Add $prevStage cards before adding the $nextStage'),
+        ),
+      );
+  }
+
   bool _canAddBoardCard(int index) {
     final count = boardCards.length;
     if (index == 3 && count < 3) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-          ..clearSnackBars()
-          ..showSnackBar(const SnackBar(
-              content: Text('Add Flop cards before adding the Turn')));
-      }
+      _showBoardSkipWarning('Flop', 'Turn');
       return false;
     }
     if (index == 4 && count < 4) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-          ..clearSnackBars()
-          ..showSnackBar(const SnackBar(
-              content: Text('Add the Turn before adding the River')));
-      }
+      _showBoardSkipWarning('Turn', 'River');
       return false;
     }
     return true;
