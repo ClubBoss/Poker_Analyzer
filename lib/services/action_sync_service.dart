@@ -1,5 +1,9 @@
 import 'package:flutter/foundation.dart';
 
+import '../helpers/pot_calculator.dart';
+import 'playback_manager_service.dart';
+import 'stack_manager_service.dart';
+
 import '../models/action_entry.dart';
 import '../models/player_zone_action_entry.dart' as pz;
 import '../models/card_model.dart';
@@ -13,6 +17,16 @@ class ActionSyncService extends ChangeNotifier {
   };
 
   final List<pz.ActionEntry> _history = [];
+
+  late final PlaybackManagerService playbackManager;
+
+  ActionSyncService({StackManagerService? stackService, PotCalculator? potCalculator}) {
+    playbackManager = PlaybackManagerService(
+      actions: analyzerActions,
+      stackService: stackService ?? StackManagerService({}),
+      potCalculator: potCalculator,
+    );
+  }
 
   void addOrUpdate(pz.ActionEntry entry) {
     final list = actions[entry.street]!;
@@ -82,6 +96,7 @@ class ActionSyncService extends ChangeNotifier {
     _redoStack.clear();
     _undoSnapshots.clear();
     _redoSnapshots.clear();
+    playbackManager.updatePlaybackState();
     notifyListeners();
   }
 
@@ -91,6 +106,7 @@ class ActionSyncService extends ChangeNotifier {
     _redoStack.clear();
     _undoSnapshots.clear();
     _redoSnapshots.clear();
+    playbackManager.resetHand();
     notifyListeners();
   }
 
@@ -112,6 +128,10 @@ class ActionSyncService extends ChangeNotifier {
           newEntry: entry, prevStreet: prevStreet, newStreet: newStreet));
       _redoStack.clear();
     }
+    if (playbackManager.playbackIndex > analyzerActions.length) {
+      playbackManager.seek(analyzerActions.length);
+    }
+    playbackManager.updatePlaybackState();
     notifyListeners();
   }
 
@@ -127,6 +147,7 @@ class ActionSyncService extends ChangeNotifier {
           newStreet: street));
       _redoStack.clear();
     }
+    playbackManager.updatePlaybackState();
     notifyListeners();
   }
 
@@ -140,6 +161,10 @@ class ActionSyncService extends ChangeNotifier {
           newStreet: street));
       _redoStack.clear();
     }
+    if (playbackManager.playbackIndex > analyzerActions.length) {
+      playbackManager.seek(analyzerActions.length);
+    }
+    playbackManager.updatePlaybackState();
     notifyListeners();
   }
 
@@ -170,6 +195,10 @@ class ActionSyncService extends ChangeNotifier {
         break;
     }
     _redoStack.add(op);
+    if (playbackManager.playbackIndex > analyzerActions.length) {
+      playbackManager.seek(analyzerActions.length);
+    }
+    playbackManager.updatePlaybackState();
     notifyListeners();
     return UndoRedoResult(op, snap);
   }
@@ -201,8 +230,18 @@ class ActionSyncService extends ChangeNotifier {
         break;
     }
     _undoStack.add(op);
+    if (playbackManager.playbackIndex > analyzerActions.length) {
+      playbackManager.seek(analyzerActions.length);
+    }
+    playbackManager.updatePlaybackState();
     notifyListeners();
     return UndoRedoResult(op, snap);
+  }
+
+  @override
+  void dispose() {
+    playbackManager.dispose();
+    super.dispose();
   }
 }
 

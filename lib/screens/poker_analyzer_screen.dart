@@ -49,7 +49,6 @@ import '../models/player_model.dart';
 import '../models/action_evaluation_request.dart';
 import '../widgets/action_timeline_widget.dart';
 import '../models/street_investments.dart';
-import '../helpers/pot_calculator.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
@@ -106,8 +105,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int currentStreet = 0;
   int boardStreet = 0;
   List<ActionEntry> get actions => _actionSync.analyzerActions;
-  late PlaybackManagerService _playbackManager;
-  final PotCalculator _potCalculator = PotCalculator();
+  PlaybackManagerService get _playbackManager => _actionSync.playbackManager;
   late StackManagerService _stackService;
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
@@ -786,11 +784,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playerManager = PlayerManagerService()..addListener(_onPlayerManagerChanged);
     _stackService =
         StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
-    _playbackManager = PlaybackManagerService(
-      actions: actions,
-      stackService: _stackService,
-      potCalculator: _potCalculator,
-    )..addListener(_onPlaybackManagerChanged);
+    _playbackManager.stackService = _stackService;
+    _playbackManager.addListener(_onPlaybackManagerChanged);
     _playerManager.updatePositions();
     boardStreet = _inferBoardStreet();
     currentStreet = boardStreet;
@@ -1389,9 +1384,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionSync.deleteAnalyzerAction(idx,
           recordHistory: false, street: s);
     }
-    if (_playbackManager.playbackIndex > actions.length) {
-      _playbackManager.seek(actions.length);
-    }
     try {
       final last =
           actions.lastWhere((a) => a.playerIndex == playerIndex);
@@ -1401,7 +1393,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionTags.remove(playerIndex);
     }
     _recomputeFoldedPlayers();
-    _playbackManager.updatePlaybackState();
   }
 
 
@@ -1476,7 +1467,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackManager.seek(actions.length);
     }
     _updateRevealedBoardCards();
-    _playbackManager.updatePlaybackState();
     _autoAdvanceStreetIfComplete(entry.street);
   }
 
@@ -1512,7 +1502,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _triggerCenterChip(entry);
       _playUnifiedChipAnimation(entry);
     }
-    _playbackManager.updatePlaybackState();
   }
 
   void _editAction(int index, ActionEntry entry) {
@@ -1548,7 +1537,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       _recomputeFoldedPlayers();
       _autoCollapseStreets();
-      _playbackManager.updatePlaybackState();
     }
 
     if (withSetState) {
@@ -1611,7 +1599,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _applySnapshot(snap);
       }
       _updateRevealedBoardCards();
-      _playbackManager.updatePlaybackState();
       _autoCollapseStreets();
       _startBoardTransition();
     });
@@ -1644,7 +1631,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _applySnapshot(snap);
       }
       _updateRevealedBoardCards();
-      _playbackManager.updatePlaybackState();
       _autoCollapseStreets();
       _startBoardTransition();
     });
@@ -2294,9 +2280,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
       _updateRevealedBoardCards();
 
-      actions
-        ..clear()
-        ..addAll(newActions);
+      _actionSync.setAnalyzerActions(newActions);
 
       _recomputeFoldedPlayers();
 
@@ -2390,10 +2374,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void dispose() {
     _activeTimer?.cancel();
     _playerManager.removeListener(_onPlayerManagerChanged);
-    _playbackManager.dispose();
     _centerChipTimer?.cancel();
     _boardTransitionTimer?.cancel();
     _queueService.cleanup();
+    _playbackManager.removeListener(_onPlaybackManagerChanged);
     _centerChipController.dispose();
     _timelineController.dispose();
     _commentController.dispose();
