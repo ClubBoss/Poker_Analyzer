@@ -262,6 +262,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const List<int> _stageCardCounts = [0, 3, 4, 5];
   static const List<String> _stageNames = ['Preflop', 'Flop', 'Turn', 'River'];
 
+  /// Determine which board stage a particular card index belongs to.
+  int _stageForBoardIndex(int index) {
+    if (index <= 2) return 1; // Flop
+    if (index == 3) return 2; // Turn
+    return 3; // River
+  }
+
 
 
   String _queueEntryId(ActionEvaluationRequest r) => r.id;
@@ -790,6 +797,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playerManager.setRevealedCard(playerIndex, cardIndex, selected));
   }
 
+  /// Inform the user when they attempt to skip a board stage while editing.
   void _showBoardSkipWarning(String prevStage, String nextStage) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -804,18 +812,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   bool _validateBoardAddition(int index) {
-    // Determine which stage the index represents: 1 = Flop, 2 = Turn, 3 = River
-    final stage =
-        index <= 2 ? 1 : index == 3 ? 2 : 3;
-    if (stage > 1) {
-      final prevStage = stage - 1;
-      if (!_isBoardStageComplete(prevStage)) {
-        _showBoardSkipWarning(
-          _stageNames[prevStage],
-          _stageNames[stage],
-        );
-        return false;
-      }
+    final stage = _stageForBoardIndex(index);
+    if (stage > 1 && !_isBoardStageComplete(stage - 1)) {
+      _showBoardSkipWarning(_stageNames[stage - 1], _stageNames[stage]);
+      return false;
     }
     return true;
   }
