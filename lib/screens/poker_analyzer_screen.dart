@@ -1,16 +1,11 @@
 import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/evaluation_queue_service.dart';
 import '../services/debug_preferences_service.dart';
-import 'package:uuid/uuid.dart';
-import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../services/playback_manager_service.dart';
@@ -78,6 +73,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final PlaybackManagerService playbackManager;
   final StackManagerService stackService;
   final BoardManagerService boardManager;
+  final BackupManagerService? backupManager;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -90,6 +86,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.playbackManager,
     required this.stackService,
     required this.boardManager,
+    this.backupManager,
   });
 
   @override
@@ -170,19 +167,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late BackupManagerService _backupManager;
 
   // Backup directories
-  static const String _backupsFolder = BackupManagerService.backupsFolder;
-  static const String _autoBackupsFolder = BackupManagerService.autoBackupsFolder;
-  static const String _snapshotsFolder = BackupManagerService.snapshotsFolder;
-  static const String _exportsFolder = BackupManagerService.exportsFolder;
 
   late final DebugPreferencesService _debugPrefs;
 
   /// Evaluation processing delay, snapshot retention and other debug
   /// preferences are managed by [_debugPrefs].
 
-  static const _pendingOrderKey = 'pending_queue_order';
-  static const _failedOrderKey = 'failed_queue_order';
-  static const _completedOrderKey = 'completed_queue_order';
 
   static const List<int> _stageCardCounts = [0, 3, 4, 5];
   static const double _timelineExtent = 80.0;
@@ -201,60 +191,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
 
-  String _queueEntryId(ActionEvaluationRequest r) => r.id;
 
-
-  ActionEvaluationRequest _decodeEvaluationRequest(Map<String, dynamic> json) {
-    final map = Map<String, dynamic>.from(json);
-    if (map['id'] == null || map['id'] is! String || (map['id'] as String).isEmpty) {
-      map['id'] = const Uuid().v4();
-    }
-    return ActionEvaluationRequest.fromJson(map);
-  }
-
-  List<ActionEvaluationRequest> _decodeEvaluationList(dynamic list) {
-    final items = <ActionEvaluationRequest>[];
-    if (list is List) {
-      for (final item in list) {
-        if (item is Map) {
-          try {
-            items.add(_decodeEvaluationRequest(Map<String, dynamic>.from(item)));
-          } catch (_) {}
-        }
-      }
-    }
-    return items;
-  }
-
-  /// Decode a backup JSON object into separate pending, failed and completed
-  /// evaluation lists. Supports both the legacy list-only format containing
-  /// only pending requests and the newer map format with all three queues.
-  Map<String, List<ActionEvaluationRequest>> _decodeBackupQueues(dynamic json) {
-    if (json is List) {
-      return {
-        'pending': _decodeEvaluationList(json),
-        'failed': <ActionEvaluationRequest>[],
-        'completed': <ActionEvaluationRequest>[],
-      };
-    } else if (json is Map) {
-      return {
-        'pending': _decodeEvaluationList(json['pending']),
-        'failed': _decodeEvaluationList(json['failed']),
-        'completed': _decodeEvaluationList(json['completed']),
-      };
-    }
-    throw const FormatException();
-  }
-
-  Map<String, dynamic> _currentQueueState() => {
-        'pending': [for (final e in _pendingEvaluations) e.toJson()],
-        'failed': [for (final e in _failedEvaluations) e.toJson()],
-        'completed': [for (final e in _completedEvaluations) e.toJson()],
-      };
-
-  void _startAutoBackupTimer() {
-    _backupManager.startAutoBackupTimer();
-  }
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
     final filtered = _debugPrefs.applyAdvancedFilters(queue);
@@ -704,10 +641,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
     _queueService = widget.queueService ?? EvaluationQueueService();
     _debugPrefs = widget.debugPrefsService ?? DebugPreferencesService();
-    _backupManager = BackupManagerService(
-      queueService: _queueService,
-      debugPrefs: _debugPrefs,
-    );
+    _backupManager = widget.backupManager ??
+        BackupManagerService(
+          queueService: _queueService,
+          handManager: context.read<SavedHandManagerService>(),
+          debugPrefs: _debugPrefs,
+        );
     _centerChipController = AnimationController(
       vsync: this,
       duration: _boardRevealDuration,
@@ -1786,74 +1725,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
-  /// Load persisted evaluation queue if available.
-  Future<void> _loadSavedEvaluationQueue() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/evaluation_current_queue.json');
-      bool resumed = false;
-      if (await file.exists()) {
-        final decoded = jsonDecode(await file.readAsString());
-        final pending = <ActionEvaluationRequest>[];
-        final failed = <ActionEvaluationRequest>[];
-        final completed = <ActionEvaluationRequest>[];
-        if (decoded is List) {
-          pending.addAll(_decodeEvaluationList(decoded));
-        } else if (decoded is Map) {
-          pending.addAll(_decodeEvaluationList(decoded['pending']));
-          failed.addAll(_decodeEvaluationList(decoded['failed']));
-          completed.addAll(_decodeEvaluationList(decoded['completed']));
-        }
-
-        final prefs = await SharedPreferences.getInstance();
-        _queueService.applySavedOrder(
-            pending, prefs.getStringList(_pendingOrderKey));
-        _queueService.applySavedOrder(
-            failed, prefs.getStringList(_failedOrderKey));
-        _queueService.applySavedOrder(
-            completed, prefs.getStringList(_completedOrderKey));
-
-        if (mounted) {
-          lockService.safeSetState(this, () {
-            _pendingEvaluations
-              ..clear()
-              ..addAll(pending);
-            _failedEvaluations
-              ..clear()
-              ..addAll(failed);
-            _completedEvaluations
-              ..clear()
-              ..addAll(completed);
-            resumed =
-                pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
-            s._debugPrefs.setEvaluationQueueResumed(resumed);
-          });
-          _debugPanelSetState?.call(() {});
-        } else {
-          resumed =
-              pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
-          s._debugPrefs.setEvaluationQueueResumed(resumed);
-          _pendingEvaluations
-            ..clear()
-            ..addAll(pending);
-          _failedEvaluations
-            ..clear()
-            ..addAll(failed);
-          _completedEvaluations
-            ..clear()
-            ..addAll(completed);
-        }
-        try {
-          await file.delete();
-        } catch (_) {}
-        _queueService.persist();
-        _debugPanelSetState?.call(() {});
-      }
-      await s._debugPrefs.setEvaluationQueueResumed(resumed);
-    } catch (_) {
-      await s._debugPrefs.setEvaluationQueueResumed(false);
-    }
-  }
 
   /// Executes a single evaluation request.
   ///
@@ -2209,12 +2080,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> exportLastSavedHand() async {
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
-    await _handManager.exportLastHand(context);
+    await _backupManager.exportLastHand(context);
   }
 
   Future<void> exportAllHands() async {
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
-    await _handManager.exportAllHands(context);
+    await _backupManager.exportAllHands(context);
   }
 
   Future<void> importHandFromClipboard() async {
@@ -2243,6 +2114,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _centerChipController.dispose();
     _timelineController.dispose();
     _handContext.dispose();
+    _backupManager.dispose();
     super.dispose();
   }
 

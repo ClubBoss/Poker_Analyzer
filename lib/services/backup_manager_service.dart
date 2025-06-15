@@ -15,17 +15,20 @@ import '../models/action_evaluation_request.dart';
 import 'backup_service.dart';
 import 'debug_preferences_service.dart';
 import 'evaluation_queue_service.dart';
+import 'saved_hand_manager_service.dart';
 
 /// Manages creation, loading and cleanup of evaluation queue backups
 /// and related import/export utilities.
 class BackupManagerService {
   BackupManagerService({
     required this.queueService,
+    required this.handManager,
     required this.debugPrefs,
     BackupService? backupService,
   }) : backupService = backupService ?? BackupService();
 
   final EvaluationQueueService queueService;
+  final SavedHandManagerService handManager;
   final DebugPreferencesService debugPrefs;
   final BackupService backupService;
 
@@ -105,6 +108,14 @@ class BackupManagerService {
 
   void dispose() {
     backupService.dispose();
+  }
+
+  Future<void> exportLastHand(BuildContext context) async {
+    await handManager.exportLastHand(context);
+  }
+
+  Future<void> exportAllHands(BuildContext context) async {
+    await handManager.exportAllHands(context);
   }
 
   Future<void> exportEvaluationQueue(BuildContext context) async {
