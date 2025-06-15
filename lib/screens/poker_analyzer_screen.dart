@@ -2830,6 +2830,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     boardCards: boardCards,
                     revealedBoardCards: revealedBoardCards,
                     onCardSelected: selectBoardCard,
+                    canEditBoard: _canEditBoard,
                     visibleActions: visibleActions,
                   ),
                   _PlayerZonesSection(
@@ -3957,6 +3958,7 @@ class _BoardCardsSection extends StatelessWidget {
   final List<CardModel> revealedBoardCards;
   final List<ActionEntry> visibleActions;
   final void Function(int, CardModel) onCardSelected;
+  final bool Function(int index)? canEditBoard;
 
   const _BoardCardsSection({
     required this.scale,
@@ -3965,6 +3967,7 @@ class _BoardCardsSection extends StatelessWidget {
     required this.revealedBoardCards,
     required this.onCardSelected,
     required this.visibleActions,
+    this.canEditBoard,
   });
 
   @override
@@ -3982,6 +3985,7 @@ class _BoardCardsSection extends StatelessWidget {
         boardCards: boardCards,
         revealedBoardCards: revealedBoardCards,
         onCardSelected: onCardSelected,
+        canEditBoard: canEditBoard,
         visibleActions: visibleActions,
       ),
     );

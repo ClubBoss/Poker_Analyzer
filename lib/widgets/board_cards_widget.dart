@@ -6,6 +6,7 @@ class BoardCardsWidget extends StatelessWidget {
   final int currentStreet;
   final List<CardModel> boardCards;
   final void Function(int, CardModel) onCardSelected;
+  final bool Function(int index)? canEditBoard;
   final double scale;
 
   const BoardCardsWidget({
@@ -13,6 +14,7 @@ class BoardCardsWidget extends StatelessWidget {
     required this.currentStreet,
     required this.boardCards,
     required this.onCardSelected,
+    this.canEditBoard,
     this.scale = 1.0,
   }) : super(key: key);
 
@@ -32,6 +34,7 @@ class BoardCardsWidget extends StatelessWidget {
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () async {
+                if (canEditBoard != null && !canEditBoard!(index)) return;
                 final selected = await showCardSelector(context);
                 if (selected != null) {
                   onCardSelected(index, selected);
