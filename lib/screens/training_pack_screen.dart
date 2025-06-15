@@ -20,6 +20,8 @@ import '../services/training_pack_storage_service.dart';
 import '../services/action_sync_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/player_manager_service.dart';
+import '../services/playback_manager_service.dart';
+import '../services/stack_manager_service.dart';
 
 class _ResultEntry {
   final String name;
@@ -597,11 +599,27 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                 key: ValueKey(_currentIndex),
                 child: ChangeNotifierProvider(
                   create: (_) => PlayerManagerService(),
-                  child: PokerAnalyzerScreen(
-                    key: _analyzerKey,
-                    initialHand: hands[_currentIndex],
-                    actionSync: context.read<ActionSyncService>(),
-                    handContext: CurrentHandContextService(),
+                  child: Builder(
+                    builder: (context) => ChangeNotifierProvider(
+                      create: (_) => PlaybackManagerService(
+                        actions: context.read<ActionSyncService>().analyzerActions,
+                        stackService: StackManagerService(
+                          Map<int, int>.from(
+                              context.read<PlayerManagerService>().initialStacks),
+                        ),
+                        actionSync: context.read<ActionSyncService>(),
+                      ),
+                      child: Builder(
+                        builder: (context) => PokerAnalyzerScreen(
+                          key: _analyzerKey,
+                          initialHand: hands[_currentIndex],
+                          actionSync: context.read<ActionSyncService>(),
+                          handContext: CurrentHandContextService(),
+                          playbackManager:
+                              context.read<PlaybackManagerService>(),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

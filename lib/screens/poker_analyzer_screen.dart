@@ -74,7 +74,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final ActionSyncService actionSync;
   final CurrentHandContextService? handContext;
   final FoldedPlayersService? foldedPlayersService;
-  final PlaybackManagerService? playbackManager;
+  final PlaybackManagerService playbackManager;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -84,7 +84,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.actionSync,
     this.handContext,
     this.foldedPlayersService,
-    this.playbackManager,
+    required this.playbackManager,
   });
 
   @override
@@ -777,14 +777,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addListener(_onPlayerManagerChanged);
     _stackService =
         StackManagerService(Map<int, int>.from(_playerManager.initialStacks));
-    _playbackManager = widget.playbackManager ??
-        PlaybackManagerService(
-          actions: actions,
-          stackService: _stackService,
-          actionSync: _actionSync,
-          potCalculator: _potCalculator,
-        );
-    _playbackManager.addListener(_onPlaybackManagerChanged);
+    _playbackManager = widget.playbackManager;
+    _playbackManager
+      ..stackService = _stackService
+      ..addListener(_onPlaybackManagerChanged);
     _handRestore = HandRestoreService(
       playerManager: _playerManager,
       actionSync: _actionSync,
@@ -2307,7 +2303,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void dispose() {
     _activeTimer?.cancel();
     _playerManager.removeListener(_onPlayerManagerChanged);
-    _playbackManager.dispose();
+    _playbackManager.removeListener(_onPlaybackManagerChanged);
     _centerChipTimer?.cancel();
     _boardTransitionTimer?.cancel();
     _queueService.cleanup();
