@@ -1,24 +1,26 @@
 import 'package:flutter/foundation.dart';
 
-import '../helpers/poker_position_helper.dart';
 import '../models/action_entry.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
+import 'player_profile_service.dart';
 
 class PlayerManagerService extends ChangeNotifier {
-  int heroIndex = 0;
-  String heroPosition = 'BTN';
+  PlayerManagerService(this.profileService);
+
+  final PlayerProfileService profileService;
+
   int numberOfPlayers = 6;
 
   final List<List<CardModel>> playerCards = List.generate(10, (_) => []);
   final List<CardModel> boardCards = [];
-  final List<PlayerModel> players =
-      List.generate(10, (i) => PlayerModel(name: 'Player ${i + 1}'));
+  List<PlayerModel> get players => profileService.players;
 
-  int? opponentIndex;
+  int? get opponentIndex => profileService.opponentIndex;
+  set opponentIndex(int? v) => profileService.opponentIndex = v;
 
-  Map<int, String> playerPositions = {};
-  Map<int, PlayerType> playerTypes = {};
+  Map<int, String> get playerPositions => profileService.playerPositions;
+  Map<int, PlayerType> get playerTypes => profileService.playerTypes;
   final Map<int, int> initialStacks = {
     0: 120,
     1: 80,
@@ -34,54 +36,24 @@ class PlayerManagerService extends ChangeNotifier {
 
   final List<bool> showActionHints = List.filled(10, true);
 
-  PlayerManagerService() {
-    playerPositions = Map.fromIterables(
-      List.generate(numberOfPlayers, (i) => i),
-      getPositionList(numberOfPlayers),
-    );
-    playerTypes = Map.fromIterables(
-      List.generate(numberOfPlayers, (i) => i),
-      List.filled(numberOfPlayers, PlayerType.unknown),
-    );
-  }
-
-  List<String> positionsForPlayers(int count) => getPositionList(count);
+  List<String> positionsForPlayers(int count) =>
+      profileService.positionsForPlayers(count);
 
   void setPosition(int playerIndex, String position) {
-    playerPositions[playerIndex] = position;
-    notifyListeners();
+    profileService.setPosition(playerIndex, position);
   }
 
   void updatePositions() {
-    final order = positionsForPlayers(numberOfPlayers);
-    final heroPosIndex = order.indexOf(heroPosition);
-    final buttonIndex = (heroIndex - heroPosIndex + numberOfPlayers) % numberOfPlayers;
-    playerPositions = {};
-    for (int i = 0; i < numberOfPlayers; i++) {
-      final posIndex = (i - buttonIndex + numberOfPlayers) % numberOfPlayers;
-      if (posIndex < order.length) {
-        playerPositions[i] = order[posIndex];
-      }
-    }
-    notifyListeners();
+    profileService.updatePositions();
   }
 
   void onPlayerCountChanged(int value) {
     numberOfPlayers = value;
-    playerPositions = Map.fromIterables(
-      List.generate(numberOfPlayers, (i) => i),
-      getPositionList(numberOfPlayers),
-    );
-    for (int i = 0; i < numberOfPlayers; i++) {
-      playerTypes.putIfAbsent(i, () => PlayerType.unknown);
-    }
-    playerTypes.removeWhere((key, _) => key >= numberOfPlayers);
-    updatePositions();
+    profileService.onPlayerCountChanged(value);
   }
 
   void setHeroIndex(int index) {
-    heroIndex = index;
-    updatePositions();
+    profileService.setHeroIndex(index);
   }
 
   void setInitialStack(int index, int stack) {
@@ -98,16 +70,16 @@ class PlayerManagerService extends ChangeNotifier {
     bool disableCards = false,
   }) {
     initialStacks[index] = stack;
-    playerTypes[index] = type;
+    profileService.playerTypes[index] = type;
     if (isHero) {
-      heroIndex = index;
-    } else if (heroIndex == index) {
-      heroIndex = 0;
+      profileService.heroIndex = index;
+    } else if (profileService.heroIndex == index) {
+      profileService.heroIndex = 0;
     }
     if (!disableCards) {
       playerCards[index] = List<CardModel>.from(cards);
     }
-    updatePositions();
+    profileService.updatePositions();
   }
 
   void selectCard(int index, CardModel card) {
@@ -181,12 +153,11 @@ class PlayerManagerService extends ChangeNotifier {
     int index, {
       required int heroIndexOverride,
       required List<ActionEntry> actions,
-      required Map<int, String?> actionTags,
       required List<bool> hintFlags,
   }) {
     if (numberOfPlayers <= 2) return;
 
-    heroIndex = heroIndexOverride;
+    profileService.heroIndex = heroIndexOverride;
 
     actions.removeWhere((a) => a.playerIndex == index);
     for (int i = 0; i < actions.length; i++) {
@@ -206,35 +177,35 @@ class PlayerManagerService extends ChangeNotifier {
       playerCards[i] = playerCards[i + 1];
       players[i] = players[i + 1];
       initialStacks[i] = initialStacks[i + 1] ?? 0;
-      actionTags[i] = actionTags[i + 1];
-      playerPositions[i] = playerPositions[i + 1] ?? '';
-      playerTypes[i] = playerTypes[i + 1] ?? PlayerType.unknown;
+      profileService.actionTags[i] = profileService.actionTags[i + 1];
+      profileService.playerPositions[i] = profileService.playerPositions[i + 1] ?? '';
+      profileService.playerTypes[i] = profileService.playerTypes[i + 1] ?? PlayerType.unknown;
       hintFlags[i] = hintFlags[i + 1];
     }
     playerCards[numberOfPlayers - 1] = [];
     players[numberOfPlayers - 1] =
         PlayerModel(name: 'Player $numberOfPlayers');
     initialStacks.remove(numberOfPlayers - 1);
-    actionTags.remove(numberOfPlayers - 1);
-    playerPositions.remove(numberOfPlayers - 1);
-    playerTypes.remove(numberOfPlayers - 1);
+    profileService.actionTags.remove(numberOfPlayers - 1);
+    profileService.playerPositions.remove(numberOfPlayers - 1);
+    profileService.playerTypes.remove(numberOfPlayers - 1);
     hintFlags[numberOfPlayers - 1] = true;
 
-    if (heroIndex == index) {
-      heroIndex = 0;
-    } else if (heroIndex > index) {
-      heroIndex--;
+    if (profileService.heroIndex == index) {
+      profileService.heroIndex = 0;
+    } else if (profileService.heroIndex > index) {
+      profileService.heroIndex--;
     }
-    if (opponentIndex != null) {
-      if (opponentIndex == index) {
-        opponentIndex = null;
-      } else if (opponentIndex! > index) {
-        opponentIndex = opponentIndex! - 1;
+    if (profileService.opponentIndex != null) {
+      if (profileService.opponentIndex == index) {
+        profileService.opponentIndex = null;
+      } else if (profileService.opponentIndex! > index) {
+        profileService.opponentIndex = profileService.opponentIndex! - 1;
       }
     }
 
     numberOfPlayers--;
-    updatePositions();
+    profileService.updatePositions();
   }
 
   /// Reset all player-related state to defaults while preserving stack sizes.
@@ -246,8 +217,8 @@ class PlayerManagerService extends ChangeNotifier {
     for (final p in players) {
       p.revealedCards.fillRange(0, p.revealedCards.length, null);
     }
-    opponentIndex = null;
-    playerTypes.clear();
+    profileService.opponentIndex = null;
+    profileService.playerTypes.clear();
     for (int i = 0; i < showActionHints.length; i++) {
       showActionHints[i] = true;
     }

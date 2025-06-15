@@ -7,13 +7,11 @@ class CurrentHandContextService {
 
   final TextEditingController commentController = TextEditingController();
   final TextEditingController tagsController = TextEditingController();
-  final Map<int, String?> actionTags = {};
 
   void clear() {
     _currentHandName = null;
     commentController.clear();
     tagsController.clear();
-    actionTags.clear();
   }
 
   void dispose() {

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../services/action_sync_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/player_manager_service.dart';
+import '../services/player_profile_service.dart';
 import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
 import '../services/board_manager_service.dart';
@@ -100,8 +101,11 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ChangeNotifierProvider(
-                        create: (_) => PlayerManagerService(),
+                      builder: (_) => MultiProvider(
+                        providers: [
+                          ChangeNotifierProvider(create: (_) => PlayerProfileService()),
+                          ChangeNotifierProvider(create: (_) => PlayerManagerService(context.read<PlayerProfileService>())),
+                        ],
                         child: Builder(
                           builder: (context) => ChangeNotifierProvider(
                             create: (_) => PlaybackManagerService(
@@ -136,6 +140,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                     .stackService,
                                 boardManager:
                                     context.read<BoardManagerService>(),
+                                playerProfile:
+                                    context.read<PlayerProfileService>(),
                               ),
                             ),
                           ),
@@ -160,8 +166,11 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                 if (text.isNotEmpty) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => ChangeNotifierProvider(
-                        create: (_) => PlayerManagerService(),
+                      builder: (context) => MultiProvider(
+                        providers: [
+                          ChangeNotifierProvider(create: (_) => PlayerProfileService()),
+                          ChangeNotifierProvider(create: (_) => PlayerManagerService(context.read<PlayerProfileService>())),
+                        ],
                         child: Builder(
                           builder: (context) => ChangeNotifierProvider(
                             create: (_) => PlaybackManagerService(
@@ -195,6 +204,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                     .stackService,
                                 boardManager:
                                     context.read<BoardManagerService>(),
+                                playerProfile:
+                                    context.read<PlayerProfileService>(),
                               ),
                             ),
                           ),
