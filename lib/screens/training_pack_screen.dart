@@ -17,6 +17,7 @@ import '../models/session_task_result.dart';
 import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
 import '../services/training_pack_storage_service.dart';
+import '../services/action_sync_service.dart';
 
 class _ResultEntry {
   final String name;
@@ -595,6 +596,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                 child: PokerAnalyzerScreen(
                   key: _analyzerKey,
                   initialHand: hands[_currentIndex],
+                  actionSync: context.read<ActionSyncService>(),
                 ),
               ),
             ),

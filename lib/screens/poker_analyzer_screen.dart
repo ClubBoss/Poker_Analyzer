@@ -68,12 +68,14 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
   final EvaluationQueueService? queueService;
   final DebugPreferencesService? debugPrefsService;
+  final ActionSyncService actionSync;
 
   const PokerAnalyzerScreen({
     super.key,
     this.initialHand,
     this.queueService,
     this.debugPrefsService,
+    required this.actionSync,
   });
 
   @override
@@ -769,7 +771,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
-    _actionSync = context.read<ActionSyncService>();
+    _actionSync = widget.actionSync;
     _queueService = widget.queueService ?? EvaluationQueueService();
     _debugPrefs = widget.debugPrefsService ?? DebugPreferencesService();
     _backupManager = BackupManagerService(
@@ -809,7 +811,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _handManager = context.read<SavedHandManagerService>();
-    _actionSync = context.read<ActionSyncService>();
   }
 
   void selectCard(int index, CardModel card) {
@@ -1384,7 +1385,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     if (toRemove.isEmpty) return;
     for (final idx in toRemove) {
-      actions.removeAt(idx);
+      final s = actions[idx].street;
+      _actionSync.deleteAnalyzerAction(idx,
+          recordHistory: false, street: s);
     }
     if (_playbackManager.playbackIndex > actions.length) {
       _playbackManager.seek(actions.length);
@@ -1768,7 +1771,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (confirm == true) {
       lockService.safeSetState(this, () {
         _playerManager.reset();
-        actions.clear();
+        _actionSync.clearAnalyzerActions();
         _foldedPlayers.clear();
         currentStreet = 0;
         _updateRevealedBoardCards();
@@ -2142,9 +2145,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       opponentIndex = hand.opponentIndex;
       activePlayerIndex = hand.activePlayerIndex;
-      actions
-        ..clear()
-        ..addAll(hand.actions);
+      _actionSync.setAnalyzerActions(hand.actions);
       _playerManager.initialStacks
         ..clear()
         ..addAll(hand.stackSizes);
