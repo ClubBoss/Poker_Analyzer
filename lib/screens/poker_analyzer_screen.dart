@@ -159,7 +159,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late AnimationController _centerChipController;
   bool _showAllRevealedCards = false;
   bool _boardTransitioning = false;
-  bool _undoRedoLocked = false;
+  // Prevents undo/redo operations while the board transition animation runs.
+  bool _undoRedoTransitionLock = false;
   Timer? _boardTransitionTimer;
   final GlobalKey<_BoardCardsSectionState> _boardKey =
       GlobalKey<_BoardCardsSectionState>();
@@ -665,16 +666,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           _boardRevealStagger.inMilliseconds * (revealCount > 1 ? revealCount - 1 : 0),
     );
     _boardTransitioning = true;
-    _undoRedoLocked = true;
+    _undoRedoTransitionLock = true;
     _boardTransitionTimer = Timer(duration, () {
       if (mounted) {
         setState(() {
           _boardTransitioning = false;
-          _undoRedoLocked = false;
+          _undoRedoTransitionLock = false;
         });
       } else {
         _boardTransitioning = false;
-        _undoRedoLocked = false;
+        _undoRedoTransitionLock = false;
       }
     });
   }
@@ -684,7 +685,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_boardTransitioning) {
       _boardTransitionTimer?.cancel();
       _boardTransitioning = false;
-      _undoRedoLocked = false;
+      _undoRedoTransitionLock = false;
     }
   }
 
@@ -1759,7 +1760,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _undoAction() {
-    if (_undoRedoLocked || _boardTransitioning) return;
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     _cancelBoardReveal();
     if (_undoStack.isEmpty) {
       if (_undoSnapshots.isEmpty) return;
@@ -1802,7 +1803,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _redoAction() {
-    if (_undoRedoLocked || _boardTransitioning) return;
+    if (_undoRedoTransitionLock || _boardTransitioning) return;
     _cancelBoardReveal();
     if (_redoStack.isEmpty) {
       if (_redoSnapshots.isEmpty) return;
@@ -6313,11 +6314,15 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
                 : s._nextStreet),
         _dialogBtn(
           'Undo',
-          s._boardTransitioning || s._undoRedoLocked ? null : s._undoAction,
+          s._boardTransitioning || s._undoRedoTransitionLock
+              ? null
+              : s._undoAction,
         ),
         _dialogBtn(
           'Redo',
-          s._boardTransitioning || s._undoRedoLocked ? null : s._redoAction,
+          s._boardTransitioning || s._undoRedoTransitionLock
+              ? null
+              : s._redoAction,
         ),
         _dialogBtn('Previous Street', s._prevStreetDebug),
         _dialogBtn('Next Street', s._nextStreetDebug),
