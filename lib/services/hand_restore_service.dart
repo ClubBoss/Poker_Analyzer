@@ -13,6 +13,7 @@ import 'stack_manager_service.dart';
 import 'backup_manager_service.dart';
 import 'debug_preferences_service.dart';
 import 'transition_lock_service.dart';
+import 'current_hand_context_service.dart';
 
 class HandRestoreService {
   HandRestoreService({
@@ -23,9 +24,7 @@ class HandRestoreService {
     required this.backupManager,
     required this.debugPrefs,
     required this.lockService,
-    required this.commentController,
-    required this.tagsController,
-    required this.actionTags,
+    required this.handContext,
     required this.pendingEvaluations,
     required this.foldedPlayers,
     required this.revealedBoardCards,
@@ -40,9 +39,7 @@ class HandRestoreService {
   final BackupManagerService backupManager;
   final DebugPreferencesService debugPrefs;
   final TransitionLockService lockService;
-  final TextEditingController commentController;
-  final TextEditingController tagsController;
-  final Map<int, String?> actionTags;
+  final CurrentHandContextService handContext;
   final List<ActionEvaluationRequest> pendingEvaluations;
   final Set<int> foldedPlayers;
   final List<CardModel> revealedBoardCards;
@@ -92,18 +89,18 @@ class HandRestoreService {
       ..clear()
       ..addAll(hand.playerTypes ??
           {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
-    commentController.text = hand.comment ?? '';
-    tagsController.text = hand.tags.join(', ');
-    commentController.selection = TextSelection.collapsed(
+    handContext.commentController.text = hand.comment ?? '';
+    handContext.tagsController.text = hand.tags.join(', ');
+    handContext.commentController.selection = TextSelection.collapsed(
         offset: hand.commentCursor != null &&
-                hand.commentCursor! <= commentController.text.length
+                hand.commentCursor! <= handContext.commentController.text.length
             ? hand.commentCursor!
-            : commentController.text.length);
-    tagsController.selection = TextSelection.collapsed(
-        offset: hand.tagsCursor != null && hand.tagsCursor! <= tagsController.text.length
+            : handContext.commentController.text.length);
+    handContext.tagsController.selection = TextSelection.collapsed(
+        offset: hand.tagsCursor != null && hand.tagsCursor! <= handContext.tagsController.text.length
             ? hand.tagsCursor!
-            : tagsController.text.length);
-    actionTags
+            : handContext.tagsController.text.length);
+    handContext.actionTags
       ..clear()
       ..addAll(hand.actionTags ?? {});
     pendingEvaluations
