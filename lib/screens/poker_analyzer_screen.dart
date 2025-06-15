@@ -3588,12 +3588,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         top: centerY + dy + bias - 55 * scale * infoScale,
         child: Transform.scale(
           scale: infoScale,
-          child: AbsorbPointer(
-            absorbing: _boardTransitioning,
-            child: PlayerInfoWidget(
-            position: position,
-            stack: stack,
-            tag: tag,
+          child: PlayerInfoWidget(
+              editingDisabled: _boardTransitioning,
+              position: position,
+              stack: stack,
+              tag: tag,
             cards: _showAllRevealedCards &&
                     players[index]
                         .revealedCards
@@ -3634,11 +3633,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 : () => setState(() {
                     _playerManager.setHeroIndex(index);
                   }),
-            onLongPress: _boardTransitioning ? null : () => _editPlayerInfo(index),
-            onEdit: _boardTransitioning ? null : () => _editPlayerInfo(index),
-            onStackTap: _boardTransitioning
-                ? null
-                : (value) => setState(() {
+            onLongPress: () => _editPlayerInfo(index),
+            onEdit: () => _editPlayerInfo(index),
+            onStackTap: (value) => setState(() {
                       _playerManager.setInitialStack(index, value);
                       _stackService = StackManagerService(
                           Map<int, int>.from(_playerManager.initialStacks));

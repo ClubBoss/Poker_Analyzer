@@ -45,6 +45,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final int currentBet;
   /// Remaining stack after subtracting investments.
   final int? remainingStack;
+  /// Disable stack and type edits when true.
+  final bool editingDisabled;
 
   const PlayerInfoWidget({
     super.key,
@@ -73,6 +75,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.currentBet = 0,
     this.showLastIndicator = false,
     this.remainingStack,
+    this.editingDisabled = false,
   });
 
   String _format(int value) => NumberFormat.decimalPattern().format(value);
@@ -288,7 +291,7 @@ class PlayerInfoWidget extends StatelessWidget {
           const SizedBox(height: 4),
           GestureDetector(
             onTap: () async {
-              if (onStackTap == null) return;
+              if (onStackTap == null || editingDisabled) return;
               final controller = TextEditingController(text: stack.toString());
               int? value = stack;
               final result = await showDialog<int>(
@@ -417,7 +420,7 @@ class PlayerInfoWidget extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         onDoubleTap: onDoubleTap,
-        onLongPress: onLongPress ?? onEdit,
+        onLongPress: editingDisabled ? null : (onLongPress ?? onEdit),
         borderRadius: BorderRadius.circular(8),
         child: result,
       ),
@@ -452,7 +455,7 @@ class PlayerInfoWidget extends StatelessWidget {
           top: 0,
           left: 0,
           child: GestureDetector(
-            onTap: onEdit,
+            onTap: editingDisabled ? null : onEdit,
             child: const Text('✏️', style: TextStyle(fontSize: 12)),
           ),
         ));
@@ -462,7 +465,7 @@ class PlayerInfoWidget extends StatelessWidget {
           top: 0,
           right: 0,
           child: GestureDetector(
-            onTap: onRemove,
+            onTap: editingDisabled ? null : onRemove,
             child: const Text('❌', style: TextStyle(fontSize: 12)),
           ),
         ));
