@@ -9,6 +9,7 @@ import 'action_sync_service.dart';
 import 'evaluation_queue_service.dart';
 import 'player_manager_service.dart';
 import 'playback_manager_service.dart';
+import 'board_manager_service.dart';
 import 'stack_manager_service.dart';
 import 'backup_manager_service.dart';
 import 'debug_preferences_service.dart';
@@ -25,6 +26,7 @@ class HandRestoreService {
     required this.backupManager,
     required this.debugPrefs,
     required this.lockService,
+    required this.boardManager,
     required this.handContext,
     required this.pendingEvaluations,
     required this.foldedPlayers,
@@ -42,14 +44,13 @@ class HandRestoreService {
   final BackupManagerService backupManager;
   final DebugPreferencesService debugPrefs;
   final TransitionLockService lockService;
+  final BoardManagerService boardManager;
   final CurrentHandContextService handContext;
   final List<ActionEvaluationRequest> pendingEvaluations;
   final FoldedPlayersService foldedPlayers;
   final List<CardModel> revealedBoardCards;
   final void Function(String) setCurrentHandName;
   final void Function(int?) setActivePlayerIndex;
-
-  static const List<int> _stageCardCounts = [0, 3, 4, 5];
 
   StackManagerService restoreHand(SavedHand hand) {
     setCurrentHandName(hand.name);
@@ -126,8 +127,9 @@ class HandRestoreService {
     _autoCollapseStreets();
     actionSync.setBoardStreet(hand.boardStreet);
     actionSync.changeStreet(hand.boardStreet);
-    _ensureBoardStreetConsistent();
-    _updateRevealedBoardCards();
+    boardManager.ensureBoardStreetConsistent();
+    boardManager.updateRevealedBoardCards();
+    boardManager.startBoardTransition();
     final seekIndex =
         hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
     playbackManager.seek(seekIndex);
@@ -147,29 +149,6 @@ class HandRestoreService {
         actionSync.removeExpandedStreet(i);
       }
     }
-  }
-
-  int _inferBoardStreet() {
-    final count = playerManager.boardCards.length;
-    if (count >= _stageCardCounts[3]) return 3;
-    if (count >= _stageCardCounts[2]) return 2;
-    if (count >= _stageCardCounts[1]) return 1;
-    return 0;
-  }
-
-  void _ensureBoardStreetConsistent() {
-    final inferred = _inferBoardStreet();
-    if (inferred != actionSync.boardStreet) {
-      actionSync.setBoardStreet(inferred);
-      actionSync.changeStreet(inferred);
-    }
-  }
-
-  void _updateRevealedBoardCards() {
-    final visible = _stageCardCounts[actionSync.currentStreet];
-    revealedBoardCards
-      ..clear()
-      ..addAll(playerManager.boardCards.take(visible));
   }
 }
 

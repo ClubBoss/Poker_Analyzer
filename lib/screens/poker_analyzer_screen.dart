@@ -729,6 +729,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       backupManager: _backupManager,
       debugPrefs: _debugPrefs,
       lockService: lockService,
+      boardManager: _boardManager,
       handContext: _handContext,
       pendingEvaluations: _pendingEvaluations,
       foldedPlayers: _foldedPlayers,
@@ -743,7 +744,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _boardManager.updateRevealedBoardCards();
     if (widget.initialHand != null) {
       _stackService = _handRestore.restoreHand(widget.initialHand!);
-      _boardManager.startBoardTransition();
     }
     Future(() => _cleanupOldEvaluationBackups());
     Future(() => _initializeDebugPreferences());
@@ -1882,7 +1882,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void loadHand(String jsonStr) {
     final hand = SavedHand.fromJson(jsonDecode(jsonStr));
     _stackService = _handRestore.restoreHand(hand);
-    _boardManager.startBoardTransition();
   }
 
 
@@ -2024,7 +2023,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final hand = _handManager.lastHand;
     if (hand == null) return;
     _stackService = _handRestore.restoreHand(hand);
-    _boardManager.startBoardTransition();
   }
 
   Future<void> loadHandByName() async {
@@ -2032,7 +2030,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final selected = await _handManager.selectHand(context);
     if (selected != null) {
       _stackService = _handRestore.restoreHand(selected);
-      _boardManager.startBoardTransition();
     }
   }
 
@@ -2052,7 +2049,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final hand = await _handManager.importHandFromClipboard(context);
     if (hand != null) {
       _stackService = _handRestore.restoreHand(hand);
-      _boardManager.startBoardTransition();
     }
   }
 
