@@ -10,6 +10,13 @@ import 'playback_manager_service.dart';
 import 'player_manager_service.dart';
 import 'transition_lock_service.dart';
 
+/// Manages board state transitions and reveal timing.
+///
+/// This service centralizes all board-related logic such as the current
+/// street, visible board cards and transition locking. It synchronizes board
+/// updates with the playback manager and action history to keep the analyzer
+/// UI in sync with user edits and playback controls.
+
 class BoardManagerService extends ChangeNotifier {
   BoardManagerService({
     required PlayerManagerService playerManager,
