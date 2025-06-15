@@ -582,14 +582,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   bool _isStreetComplete(int street) {
-    final acted = actions
-        .where((a) => a.street == street)
-        .map((a) => a.playerIndex)
-        .toSet();
     final active = <int>{};
     for (int i = 0; i < _playerManager.numberOfPlayers; i++) {
       if (!_foldedPlayers.contains(i)) active.add(i);
     }
+    if (active.length <= 1) return true;
+    final acted = actions
+        .where((a) => a.street == street)
+        .map((a) => a.playerIndex)
+        .toSet();
     return active.difference(acted).isEmpty;
   }
 
