@@ -798,14 +798,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   /// Inform the user when they attempt to skip a board stage while editing.
-  void _showBoardSkipWarning(String prevStage, String nextStage) {
+  /// [prevStage] and [nextStage] are indices into [_stageNames].
+  void _showBoardSkipWarning(int prevStage, int nextStage) {
     if (!mounted) return;
+    final prevName = _stageNames[prevStage];
+    final nextName = _stageNames[nextStage];
+    final count = _stageCardCounts[prevStage];
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
         SnackBar(
           content: Text(
-            'Complete the $prevStage first before adding cards on the $nextStage.',
+            'Add $count cards on the $prevName before editing the $nextName.',
           ),
         ),
       );
@@ -818,14 +822,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final stage = _stageForBoardIndex(index);
     if (index > boardCards.length) {
       final expectedStage = _stageForBoardIndex(boardCards.length);
-      _showBoardSkipWarning(
-        _stageNames[expectedStage],
-        _stageNames[stage],
-      );
+      _showBoardSkipWarning(expectedStage, stage);
       return false;
     }
     if (!_isBoardStageComplete(stage - 1)) {
-      _showBoardSkipWarning(_stageNames[stage - 1], _stageNames[stage]);
+      _showBoardSkipWarning(stage - 1, stage);
       return false;
     }
     return true;
