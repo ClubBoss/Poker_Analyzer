@@ -160,6 +160,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showAllRevealedCards = false;
   bool _boardTransitioning = false;
   Timer? _boardTransitionTimer;
+  final GlobalKey<_BoardCardsSectionState> _boardKey =
+      GlobalKey<_BoardCardsSectionState>();
   late final ScrollController _timelineController;
   bool _animateTimeline = false;
   bool isPerspectiveSwitched = false;
@@ -633,6 +635,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _changeStreet(int street) {
     if (_boardTransitioning) return;
+    _cancelBoardReveal();
     street = street.clamp(0, boardStreet);
     if (street == currentStreet) return;
     currentStreet = street;
@@ -662,6 +665,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _boardTransitioning = false;
       }
     });
+  }
+
+  void _cancelBoardReveal() {
+    _boardKey.currentState?.cancelPendingReveals();
   }
 
   _StateSnapshot _currentSnapshot() => _StateSnapshot(
@@ -1707,6 +1714,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _undoAction() {
     if (_boardTransitioning) return;
+    _cancelBoardReveal();
     if (_undoStack.isEmpty) {
       if (_undoSnapshots.isEmpty) return;
       setState(() {
@@ -1749,6 +1757,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _redoAction() {
     if (_boardTransitioning) return;
+    _cancelBoardReveal();
     if (_redoStack.isEmpty) {
       if (_redoSnapshots.isEmpty) return;
       setState(() {
@@ -3120,6 +3129,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   children: [
                   _TableBackgroundSection(scale: scale),
                   _BoardCardsSection(
+                    key: _boardKey,
                     scale: scale,
                     currentStreet: currentStreet,
                     boardCards: boardCards,
@@ -4259,6 +4269,7 @@ class _BoardCardsSection extends StatefulWidget {
   final Set<String> usedCards;
 
   const _BoardCardsSection({
+    Key? key,
     required this.scale,
     required this.currentStreet,
     required this.boardCards,
@@ -4268,7 +4279,7 @@ class _BoardCardsSection extends StatefulWidget {
     required this.visibleActions,
     this.canEditBoard,
     this.usedCards = const {},
-  });
+  }) : super(key: key);
 
   @override
   State<_BoardCardsSection> createState() => _BoardCardsSectionState();
@@ -4334,6 +4345,15 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
         if (!mounted || currentSeq != _sequenceId) return;
         _controllers[index].forward(from: 0);
       });
+    }
+    _prevCards = List<CardModel>.from(widget.revealedBoardCards);
+  }
+
+  void cancelPendingReveals() {
+    _sequenceId++;
+    for (final c in _controllers) {
+      c.stop();
+      c.value = 1;
     }
     _prevCards = List<CardModel>.from(widget.revealedBoardCards);
   }
