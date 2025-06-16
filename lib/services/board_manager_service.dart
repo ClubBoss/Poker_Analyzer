@@ -79,7 +79,7 @@ class BoardManagerService extends ChangeNotifier {
   }
 
   void changeStreet(int street) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     cancelBoardReveal();
     street = street.clamp(0, boardStreet);
     if (street == currentStreet) return;
@@ -101,12 +101,12 @@ class BoardManagerService extends ChangeNotifier {
   bool canAdvanceStreet() => currentStreet < boardStreet;
 
   void advanceStreet() {
-    if (lockService.boardTransitioning || !canAdvanceStreet()) return;
+    if (lockService.isLocked || !canAdvanceStreet()) return;
     changeStreet(currentStreet + 1);
   }
 
   void reverseStreet() {
-    if (lockService.boardTransitioning || !canReverseStreet()) return;
+    if (lockService.isLocked || !canReverseStreet()) return;
     changeStreet(currentStreet - 1);
   }
 

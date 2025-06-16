@@ -66,11 +66,13 @@ class HandRestoreService {
 
 
   StackManagerService restoreHand(SavedHand hand) {
-    handContext.currentHandName = hand.name;
-    profile.heroIndex = hand.heroIndex;
-    profile.heroPosition = hand.heroPosition;
-    profile.numberOfPlayers = hand.numberOfPlayers;
-    playerManager.numberOfPlayers = hand.numberOfPlayers;
+    lockService.lock();
+    try {
+      handContext.currentHandName = hand.name;
+      profile.heroIndex = hand.heroIndex;
+      profile.heroPosition = hand.heroPosition;
+      profile.numberOfPlayers = hand.numberOfPlayers;
+      playerManager.numberOfPlayers = hand.numberOfPlayers;
     for (int i = 0; i < playerManager.playerCards.length; i++) {
       playerManager.playerCards[i]
         ..clear()
@@ -138,6 +140,9 @@ class HandRestoreService {
     queueService.startAutoBackupTimer();
     unawaited(debugPrefs.setEvaluationQueueResumed(false));
     return stackService;
+    } finally {
+      lockService.unlock();
+    }
   }
 
   void _autoCollapseStreets() {
