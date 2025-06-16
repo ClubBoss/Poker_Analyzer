@@ -13,6 +13,7 @@ import '../services/pot_sync_service.dart';
 import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
+import '../services/player_editing_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/board_reveal_service.dart';
 import '../services/folded_players_service.dart';
@@ -167,6 +168,13 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                         profile: context.read<PlayerProfileService>(),
                                       ),
                                     ),
+                                    Provider(
+                                      create: (_) => PlayerEditingService(
+                                        playerManager: context.read<PlayerManagerService>(),
+                                        stackService: context.read<PlaybackManagerService>().stackService,
+                                        playbackManager: context.read<PlaybackManagerService>(),
+                                      ),
+                                    ),
                                   ],
                                   child: Builder(
                                     builder: (context) => PokerAnalyzerScreen(
@@ -190,6 +198,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                           context.read<BoardSyncService>(),
                                       boardEditing:
                                           context.read<BoardEditingService>(),
+                                      playerEditing:
+                                          context.read<PlayerEditingService>(),
                                       playerManager:
                                           context.read<PlayerManagerService>(),
                                       playerProfile:
@@ -287,6 +297,13 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                         profile: context.read<PlayerProfileService>(),
                                       ),
                                     ),
+                                    Provider(
+                                      create: (_) => PlayerEditingService(
+                                        playerManager: context.read<PlayerManagerService>(),
+                                        stackService: context.read<PlaybackManagerService>().stackService,
+                                        playbackManager: context.read<PlaybackManagerService>(),
+                                      ),
+                                    ),
                                   ],
                                   child: Builder(
                                     builder: (context) => PokerAnalyzerScreen(
@@ -307,6 +324,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                           context.read<BoardSyncService>(),
                                       boardEditing:
                                           context.read<BoardEditingService>(),
+                                      playerEditing:
+                                          context.read<PlayerEditingService>(),
                                       playerManager:
                                           context.read<PlayerManagerService>(),
                                       playerProfile:
