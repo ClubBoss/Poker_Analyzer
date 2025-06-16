@@ -76,4 +76,26 @@ void main() {
       expect(service.isLocked, isFalse);
     });
   });
+
+  group('transitionSafe', () {
+    test('returns null when callback is null', () {
+      expect(service.transitionSafe(null), isNull);
+    });
+
+    test('executes callback when not locked', () {
+      var counter = 0;
+      final cb = service.transitionSafe(() => counter++);
+      cb!();
+      expect(counter, 1);
+    });
+
+    test('skips callback when locked', () {
+      var counter = 0;
+      final cb = service.transitionSafe(() => counter++);
+      service.lock();
+      cb!();
+      expect(counter, 0);
+      service.unlock();
+    });
+  });
 }
