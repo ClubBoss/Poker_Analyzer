@@ -19,10 +19,7 @@ class FoldedPlayersService extends ChangeNotifier {
   Set<int> get players => _foldedPlayers;
   bool get isEmpty => _foldedPlayers.isEmpty;
 
-  /// Returns `true` if [index] is currently marked as folded.
-  bool isPlayerFolded(int index) => _foldedPlayers.contains(index);
-
-  /// Returns true if the player at [index] has folded.
+  /// Returns `true` if the player at [index] has folded.
   bool isPlayerFolded(int index) => _foldedPlayers.contains(index);
 
   /// Reset all folded players.
