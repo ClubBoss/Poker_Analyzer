@@ -5,10 +5,12 @@ import "package:flutter/widgets.dart";
 class TransitionLockService {
   bool boardTransitioning = false;
   bool undoRedoTransitionLock = false;
+  bool _genericLock = false;
 
   Timer? _transitionTimer;
+  Timer? _genericTimer;
 
-  bool get isLocked => boardTransitioning;
+  bool get isLocked => boardTransitioning || _genericLock;
 
   /// Execute [fn] inside `setState` if the transition lock allows it.
   void safeSetState(
@@ -17,7 +19,7 @@ class TransitionLockService {
     bool ignoreTransitionLock = false,
   }) {
     if (!state.mounted) return;
-    if (boardTransitioning && !ignoreTransitionLock) return;
+    if (isLocked && !ignoreTransitionLock) return;
     state.setState(fn);
   }
 
@@ -31,6 +33,22 @@ class TransitionLockService {
       undoRedoTransitionLock = false;
       onComplete?.call();
     });
+  }
+
+  /// Manually lock all transitions for [duration].
+  void lock([Duration? duration]) {
+    _genericTimer?.cancel();
+    _genericLock = true;
+    if (duration != null) {
+      _genericTimer = Timer(duration, unlock);
+    }
+  }
+
+  /// Unlock any manual transition locks.
+  void unlock() {
+    _genericTimer?.cancel();
+    _genericTimer = null;
+    _genericLock = false;
   }
 
   /// Cancel any active board transition timers and unlock.

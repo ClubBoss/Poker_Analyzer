@@ -66,4 +66,14 @@ void main() {
       expect(state.setStateCalled, isTrue);
     });
   });
+
+  group('manual locking', () {
+    test('lock and unlock toggle isLocked', () {
+      expect(service.isLocked, isFalse);
+      service.lock();
+      expect(service.isLocked, isTrue);
+      service.unlock();
+      expect(service.isLocked, isFalse);
+    });
+  });
 }
