@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
@@ -14,6 +15,7 @@ import '../models/action_evaluation_request.dart';
 import 'snapshot_service.dart';
 import 'retry_evaluation_service.dart';
 import 'evaluation_executor_service.dart';
+import 'backup_manager_service.dart';
 
 class EvaluationQueueService {
   final List<ActionEvaluationRequest> pending = [];
@@ -45,6 +47,7 @@ class EvaluationQueueService {
   late final SnapshotService _snapshotService;
   late final EvaluationExecutorService _executorService;
   late final RetryEvaluationService _retryService;
+  BackupManagerService? _backupManager;
   late final Future<void> _initFuture;
 
   EvaluationQueueService({
@@ -55,6 +58,11 @@ class EvaluationQueueService {
     _retryService =
         retryService ?? RetryEvaluationService(executorService: _executorService);
     _initFuture = _initialize();
+  }
+
+  /// Attach an external [BackupManagerService] for import/export operations.
+  void attachBackupManager(BackupManagerService manager) {
+    _backupManager = manager;
   }
 
   Future<void> _initialize() async {
@@ -300,7 +308,7 @@ class EvaluationQueueService {
   }
 
   Future<void> cleanup() async {
-    // Placeholder for any cleanup logic when disposing the manager.
+    _backupManager?.dispose();
   }
 
   /// Load queue state persisted to disk on a previous run.
@@ -515,5 +523,124 @@ class EvaluationQueueService {
     if (pending.isNotEmpty) {
       await processQueue();
     }
+  }
+
+  // ----- Import/Export helpers delegated to [_backupManager] -----
+
+  Future<void> startAutoBackupTimer() async {
+    await _backupManager?.startAutoBackupTimer();
+  }
+
+  Future<void> exportEvaluationQueue(BuildContext context) async {
+    await _backupManager?.exportEvaluationQueue(context);
+  }
+
+  Future<void> exportQueueToClipboard(BuildContext context) async {
+    if (_backupManager != null) {
+      await _backupManager!.exportQueueToClipboard(context);
+    } else {
+      await exportToClipboard();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Queue copied to clipboard')));
+      }
+    }
+  }
+
+  Future<void> importQueueFromClipboard(BuildContext context) async {
+    if (_backupManager != null) {
+      await _backupManager!.importQueueFromClipboard(context);
+    } else {
+      await importFromClipboard();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Queue imported from clipboard')));
+      }
+    }
+  }
+
+  Future<void> exportFullQueueState(BuildContext context) async {
+    await _backupManager?.exportFullQueueState(context);
+  }
+
+  Future<void> importFullQueueState(BuildContext context) async {
+    await _backupManager?.importFullQueueState(context);
+  }
+
+  Future<void> restoreFullQueueState(BuildContext context) async {
+    await _backupManager?.restoreFullQueueState(context);
+  }
+
+  Future<void> backupEvaluationQueue(BuildContext context) async {
+    await _backupManager?.backupEvaluationQueue(context);
+  }
+
+  Future<void> quickBackupEvaluationQueue(BuildContext context) async {
+    await _backupManager?.quickBackupEvaluationQueue(context);
+  }
+
+  Future<void> importQuickBackups(BuildContext context) async {
+    await _backupManager?.importQuickBackups(context);
+  }
+
+  Future<void> cleanupOldEvaluationSnapshots() async {
+    await _backupManager?.cleanupOldEvaluationSnapshots();
+  }
+
+  Future<void> exportArchive(
+      BuildContext context, String subfolder, String archivePrefix) async {
+    await _backupManager?.exportArchive(context, subfolder, archivePrefix);
+  }
+
+  Future<void> exportAllEvaluationBackups(BuildContext context) async {
+    await _backupManager?.exportAllEvaluationBackups(context);
+  }
+
+  Future<void> exportAutoBackups(BuildContext context) async {
+    await _backupManager?.exportAutoBackups(context);
+  }
+
+  Future<void> exportSnapshots(BuildContext context) async {
+    await _backupManager?.exportSnapshots(context);
+  }
+
+  Future<void> restoreFromAutoBackup(BuildContext context) async {
+    await _backupManager?.restoreFromAutoBackup(context);
+  }
+
+  Future<void> exportAllEvaluationSnapshots(BuildContext context) async {
+    await _backupManager?.exportAllEvaluationSnapshots(context);
+  }
+
+  Future<void> importEvaluationQueue(BuildContext context) async {
+    await _backupManager?.importEvaluationQueue(context);
+  }
+
+  Future<void> restoreEvaluationQueue(BuildContext context) async {
+    await _backupManager?.restoreEvaluationQueue(context);
+  }
+
+  Future<void> bulkImportEvaluationQueue(BuildContext context) async {
+    await _backupManager?.bulkImportEvaluationQueue(context);
+  }
+
+  Future<void> bulkImportEvaluationBackups(BuildContext context) async {
+    await _backupManager?.bulkImportEvaluationBackups(context);
+  }
+
+  Future<void> bulkImportAutoBackups(BuildContext context) async {
+    await _backupManager?.bulkImportAutoBackups(context);
+  }
+
+  Future<void> importEvaluationQueueSnapshot(BuildContext context) async {
+    await _backupManager?.importEvaluationQueueSnapshot(context);
+  }
+
+  Future<void> bulkImportEvaluationSnapshots(BuildContext context) async {
+    await _backupManager?.bulkImportEvaluationSnapshots(context);
+  }
+
+  void disposeBackupManager() {
+    _backupManager?.dispose();
   }
 }
