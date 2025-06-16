@@ -34,6 +34,12 @@ class BoardSyncService {
     return false;
   }
 
+  /// Determine the board street based solely on the number of [boardCards].
+  ///
+  /// Exposed for components that need to infer the board stage without
+  /// mutating analyzer state.
+  int inferBoardStreet() => _inferBoardStreet();
+
   void updateRevealedBoardCards() {
     final visibleCount = stageCardCounts[currentStreet];
     revealedBoardCards
