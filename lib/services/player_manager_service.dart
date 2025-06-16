@@ -268,7 +268,6 @@ class PlayerManagerService extends ChangeNotifier {
     for (final list in playerCards) {
       list.clear();
     }
-    boardCards.clear();
     for (final p in players) {
       p.revealedCards.fillRange(0, p.revealedCards.length, null);
     }

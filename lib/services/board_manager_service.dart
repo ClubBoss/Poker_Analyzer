@@ -138,6 +138,21 @@ class BoardManagerService extends ChangeNotifier {
     _playerManager.removeBoardCard(index);
   }
 
+  /// Clear all community cards and reset board streets.
+  void clearBoard() {
+    final prevStreet = boardStreet;
+    _playerManager.boardCards.clear();
+    _playerManager.notifyListeners();
+    boardStreet = 0;
+    currentStreet = 0;
+    boardReveal.setRevealStreet(0);
+    startBoardTransition();
+    if (prevStreet != 0) {
+      _playbackManager.updatePlaybackState();
+    }
+    notifyListeners();
+  }
+
   /// Load board information from a training spot map and reset to preflop.
   void loadFromMap(Map<String, dynamic> data) {
     final boardData = data['boardCards'] as List? ?? [];
