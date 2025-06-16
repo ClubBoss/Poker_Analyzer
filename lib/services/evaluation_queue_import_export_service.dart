@@ -7,16 +7,19 @@ import 'package:uuid/uuid.dart';
 import '../models/action_evaluation_request.dart';
 import 'evaluation_queue_service.dart';
 import 'backup_manager_service.dart';
+import 'debug_snapshot_service.dart';
 
 class EvaluationQueueImportExportService {
   EvaluationQueueImportExportService({
     required this.queueService,
     this.backupManager,
     this.debugPanelCallback,
-  });
+    DebugSnapshotService? debugSnapshotService,
+  }) : _snapshotService = debugSnapshotService ?? DebugSnapshotService();
 
   final EvaluationQueueService queueService;
   BackupManagerService? backupManager;
+  final DebugSnapshotService _snapshotService;
   VoidCallback? debugPanelCallback;
 
   void attachBackupManager(BackupManagerService manager) {
@@ -168,13 +171,16 @@ class EvaluationQueueImportExportService {
   }
 
   Future<void> cleanupOldEvaluationSnapshots() async {
-    await backupManager?.cleanupOldEvaluationSnapshots();
+    await _snapshotService.cleanupOldSnapshots();
   }
 
   Future<void> exportEvaluationQueueSnapshot(BuildContext context,
       {bool showNotification = true}) async {
-    await backupManager?.exportEvaluationQueueSnapshot(context,
-        showNotification: showNotification);
+    await _snapshotService.saveQueueSnapshot(
+      await queueService.state(),
+      showNotification: showNotification,
+      snapshotRetentionEnabled: queueService.snapshotRetentionEnabled,
+    );
   }
 
   Future<void> exportArchive(

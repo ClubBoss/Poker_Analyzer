@@ -7,6 +7,7 @@ import 'retry_evaluation_service.dart';
 import 'evaluation_executor_service.dart';
 import 'backup_manager_service.dart';
 import 'debug_panel_preferences.dart';
+import 'debug_snapshot_service.dart';
 
 /// Manages processing of the evaluation queue.
 class EvaluationProcessingService {
@@ -15,6 +16,7 @@ class EvaluationProcessingService {
     required this.debugPrefs,
     this.backupManager,
     this.debugPanelCallback,
+    DebugSnapshotService? debugSnapshotService,
     EvaluationExecutorService? executorService,
     RetryEvaluationService? retryService,
   }) {
@@ -24,6 +26,7 @@ class EvaluationProcessingService {
     debugPrefs.addListener(_onPrefsChanged);
     _initFuture = _initialize();
     queueService.debugPanelCallback = debugPanelCallback;
+    _snapshotService = debugSnapshotService ?? DebugSnapshotService();
   }
 
   final EvaluationQueueService queueService;
@@ -32,6 +35,7 @@ class EvaluationProcessingService {
 
   late final EvaluationExecutorService _executorService;
   late final RetryEvaluationService _retryService;
+  late final DebugSnapshotService _snapshotService;
 
   late final Future<void> _initFuture;
 
@@ -79,7 +83,11 @@ class EvaluationProcessingService {
       });
       (success ? queueService.completed : queueService.failed).add(req);
       if (success) {
-        await queueService.saveQueueSnapshot(showNotification: false);
+        await _snapshotService.saveQueueSnapshot(
+          await queueService.state(),
+          showNotification: false,
+          snapshotRetentionEnabled: snapshotRetentionEnabled,
+        );
         backupManager?.scheduleSnapshotExport();
       }
       await queueService.persist();
