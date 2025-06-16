@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/card_model.dart';
 import '../models/player_model.dart';
+import '../widgets/card_selector.dart';
 import 'board_manager_service.dart';
 import 'board_sync_service.dart';
 import 'player_manager_service.dart';
@@ -128,4 +129,68 @@ class BoardEditingService {
 
   bool canEditBoard(BuildContext context, int index) =>
       isBoardEditAllowed(context, index);
+
+  /// Present the card selector and return the chosen card if not cancelled.
+  Future<CardModel?> pickCard(BuildContext context, {CardModel? current}) {
+    return showCardSelector(
+      context,
+      disabledCards: usedCardKeys(except: current),
+    );
+  }
+
+  /// Apply [card] to the player's hand at [playerIndex]/[cardIndex] if valid.
+  /// Returns true when the card was placed successfully.
+  bool setPlayerCard(
+      BuildContext context, int playerIndex, int cardIndex, CardModel card) {
+    final current = cardIndex < _playerCards[playerIndex].length
+        ? _playerCards[playerIndex][cardIndex]
+        : null;
+    if (isDuplicateSelection(card, current)) {
+      showDuplicateCardMessage(context);
+      return false;
+    }
+    _playerManager.setPlayerCard(playerIndex, cardIndex, card);
+    return true;
+  }
+
+  /// Update a revealed card for [playerIndex] if the selection is valid.
+  bool setRevealedCard(
+      BuildContext context, int playerIndex, int cardIndex, CardModel card) {
+    final current = _players[playerIndex].revealedCards[cardIndex];
+    if (isDuplicateSelection(card, current)) {
+      showDuplicateCardMessage(context);
+      return false;
+    }
+    _playerManager.setRevealedCard(playerIndex, cardIndex, card);
+    return true;
+  }
+
+  /// Replace a board card at [index] when permitted and valid.
+  bool selectBoardCard(BuildContext context, int index, CardModel card) {
+    if (!canEditBoard(context, index)) return false;
+    final current = index < _boardCards.length ? _boardCards[index] : null;
+    if (isDuplicateSelection(card, current)) {
+      showDuplicateCardMessage(context);
+      return false;
+    }
+    _boardManager.selectBoardCard(index, card);
+    return true;
+  }
+
+  /// Remove the board card at [index] if it exists.
+  bool removeBoardCard(int index) {
+    if (index < 0 || index >= _boardCards.length) return false;
+    _boardManager.removeBoardCard(index);
+    return true;
+  }
+
+  /// Add [card] to the player's hand at [playerIndex] respecting duplicates.
+  bool addPlayerCard(BuildContext context, int playerIndex, CardModel card) {
+    if (isDuplicateSelection(card, null)) {
+      showDuplicateCardMessage(context);
+      return false;
+    }
+    _playerManager.selectCard(playerIndex, card);
+    return true;
+  }
 }

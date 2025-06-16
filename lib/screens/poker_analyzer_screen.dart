@@ -642,28 +642,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void selectCard(int index, CardModel card) {
-    if (_boardEditing.isDuplicateSelection(card, null)) {
-      _boardEditing.showDuplicateCardMessage(context);
-      return;
-    }
-    lockService.safeSetState(this, () => _playerManager.selectCard(index, card));
+    lockService.safeSetState(this, () {
+      _boardEditing.addPlayerCard(context, index, card);
+    });
   }
 
   Future<void> _onPlayerCardTap(int index, int cardIndex) async {
     if (lockService.boardTransitioning) return;
-    final current =
-        cardIndex < playerCards[index].length ? playerCards[index][cardIndex] : null;
-    final selectedCard = await showCardSelector(
-      context,
-      disabledCards: _boardEditing.usedCardKeys(except: current),
-    );
+    final current = cardIndex < playerCards[index].length
+        ? playerCards[index][cardIndex]
+        : null;
+    final selectedCard =
+        await _boardEditing.pickCard(context, current: current);
     if (selectedCard == null) return;
-    if (_boardEditing.isDuplicateSelection(selectedCard, current)) {
-      _boardEditing.showDuplicateCardMessage(context);
-      return;
-    }
-    lockService.safeSetState(this, () =>
-        _playerManager.setPlayerCard(index, cardIndex, selectedCard));
+    lockService.safeSetState(this, () {
+      _boardEditing.setPlayerCard(context, index, cardIndex, selectedCard);
+    });
   }
 
   void _onPlayerTimeExpired(int index) {
@@ -683,32 +677,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _onRevealedCardTap(int playerIndex, int cardIndex) async {
     if (lockService.boardTransitioning) return;
     final current = players[playerIndex].revealedCards[cardIndex];
-    final selected = await showCardSelector(
-      context,
-      disabledCards: _boardEditing.usedCardKeys(except: current),
-    );
+    final selected = await _boardEditing.pickCard(context, current: current);
     if (selected == null) return;
-    if (_boardEditing.isDuplicateSelection(selected, current)) {
-      _boardEditing.showDuplicateCardMessage(context);
-      return;
-    }
-    lockService.safeSetState(this, () =>
-        _playerManager.setRevealedCard(playerIndex, cardIndex, selected));
+    lockService.safeSetState(this, () {
+      _boardEditing.setRevealedCard(context, playerIndex, cardIndex, selected);
+    });
   }
 
 
 
   void selectBoardCard(int index, CardModel card) {
     if (lockService.boardTransitioning) return;
-    if (!_boardEditing.canEditBoard(context, index)) return;
-    final current = index < boardCards.length ? boardCards[index] : null;
-    if (_boardEditing.isDuplicateSelection(card, current)) {
-      _boardEditing.showDuplicateCardMessage(context);
-      return;
-    }
     lockService.safeSetState(this, () {
       _recordSnapshot();
-      _boardManager.selectBoardCard(index, card);
+      _boardEditing.selectBoardCard(context, index, card);
     });
   }
 
@@ -717,7 +699,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (index >= boardCards.length) return;
     lockService.safeSetState(this, () {
       _recordSnapshot();
-      _boardManager.removeBoardCard(index);
+      _boardEditing.removeBoardCard(index);
     });
   }
 
