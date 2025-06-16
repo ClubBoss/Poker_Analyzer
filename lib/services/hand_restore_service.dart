@@ -15,6 +15,7 @@ import 'debug_preferences_service.dart';
 import 'transition_lock_service.dart';
 import 'current_hand_context_service.dart';
 import 'pot_sync_service.dart';
+import 'action_history_service.dart';
 
 import 'folded_players_service.dart';
 import 'board_manager_service.dart';
@@ -44,6 +45,7 @@ class HandRestoreService {
     required this.actionTags,
     required this.setActivePlayerIndex,
     required this.potSync,
+    required this.actionHistory,
   }) {
     foldedPlayers.attach(actionSync);
   }
@@ -63,6 +65,7 @@ class HandRestoreService {
   final ActionTagService actionTags;
   final void Function(int?) setActivePlayerIndex;
   final PotSyncService potSync;
+  final ActionHistoryService actionHistory;
 
 
   StackManagerService restoreHand(SavedHand hand) {
@@ -122,12 +125,7 @@ class HandRestoreService {
     } else {
       foldedPlayers.recompute(hand.actions);
     }
-    actionSync.setExpandedStreets([
-      for (int i = 0; i < 4; i++)
-        if (hand.collapsedHistoryStreets == null ||
-            !hand.collapsedHistoryStreets!.contains(i))
-          i
-    ]);
+    actionHistory.restoreFromCollapsed(hand.collapsedHistoryStreets);
     _autoCollapseStreets();
     boardManager.boardStreet = hand.boardStreet;
     boardManager.currentStreet = hand.boardStreet;
@@ -148,7 +146,7 @@ class HandRestoreService {
   void _autoCollapseStreets() {
     for (int i = 0; i < 4; i++) {
       if (!actionSync.analyzerActions.any((a) => a.street == i)) {
-        actionSync.removeExpandedStreet(i);
+        actionHistory.removeStreet(i);
       }
     }
   }

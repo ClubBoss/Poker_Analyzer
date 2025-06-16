@@ -32,7 +32,6 @@ class ActionSyncService extends ChangeNotifier {
   int currentStreet = 0;
   int boardStreet = 0;
   int playbackIndex = 0;
-  final Set<int> expandedHistoryStreets = {};
   final Map<String, List<pz.ActionEntry>> actions = {
     'Preflop': [],
     'Flop': [],
@@ -113,13 +112,13 @@ class ActionSyncService extends ChangeNotifier {
     notifyListeners();
   }
 
-  ActionSnapshot buildSnapshot(List<CardModel> board) {
+  ActionSnapshot buildSnapshot(List<CardModel> board, Set<int> expandedStreets) {
     return ActionSnapshot(
       street: currentStreet,
       boardStreet: boardStreet,
       board: List<CardModel>.from(board),
       playbackIndex: playbackIndex,
-      expandedStreets: Set<int>.from(expandedHistoryStreets),
+      expandedStreets: Set<int>.from(expandedStreets),
     );
   }
 
@@ -127,27 +126,7 @@ class ActionSyncService extends ChangeNotifier {
     currentStreet = snap.street;
     boardStreet = snap.boardStreet;
     playbackManager?.seek(snap.playbackIndex);
-    expandedHistoryStreets
-      ..clear()
-      ..addAll(snap.expandedStreets);
     _syncStacks();
-    notifyListeners();
-  }
-
-  void addExpandedStreet(int street) {
-    expandedHistoryStreets.add(street);
-    notifyListeners();
-  }
-
-  void removeExpandedStreet(int street) {
-    expandedHistoryStreets.remove(street);
-    notifyListeners();
-  }
-
-  void setExpandedStreets(Iterable<int> streets) {
-    expandedHistoryStreets
-      ..clear()
-      ..addAll(streets);
     notifyListeners();
   }
 
