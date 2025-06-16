@@ -614,6 +614,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       setActivePlayerIndex: (i) => activePlayerIndex = i,
       potSync: _potSync,
       actionHistory: _actionHistory,
+      boardReveal: _boardReveal,
     );
     _playerManager.updatePositions();
     _playbackManager.updatePlaybackState();
@@ -1506,6 +1507,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       pendingEvaluations:
           _queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(_queueService.pending),
       playbackIndex: _playbackManager.playbackIndex,
+      showFullBoard: _boardReveal.showFullBoard,
+      revealStreet: _boardReveal.revealStreet,
     );
   }
 

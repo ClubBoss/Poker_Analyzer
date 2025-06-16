@@ -41,6 +41,10 @@ class SavedHand {
   final List<ActionEvaluationRequest>? pendingEvaluations;
   /// Index in the action list used when the hand was last viewed.
   final int playbackIndex;
+  /// Whether all board cards were revealed when the hand was saved.
+  final bool showFullBoard;
+  /// Street that was visible when the hand was saved.
+  final int revealStreet;
 
   SavedHand({
     required this.name,
@@ -74,10 +78,13 @@ class SavedHand {
     this.actionTags,
     this.pendingEvaluations,
     this.playbackIndex = 0,
+    this.showFullBoard = false,
+    int? revealStreet,
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
-        date = date ?? DateTime.now();
+        date = date ?? DateTime.now(),
+        revealStreet = revealStreet ?? boardStreet;
 
   SavedHand copyWith({
     String? name,
@@ -111,6 +118,8 @@ class SavedHand {
     Map<int, String?>? actionTags,
     List<ActionEvaluationRequest>? pendingEvaluations,
     int? playbackIndex,
+    bool? showFullBoard,
+    int? revealStreet,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -174,6 +183,8 @@ class SavedHand {
                         )
                     ]),
       playbackIndex: playbackIndex ?? this.playbackIndex,
+      showFullBoard: showFullBoard ?? this.showFullBoard,
+      revealStreet: revealStreet ?? this.revealStreet,
     );
   }
 
@@ -235,6 +246,8 @@ class SavedHand {
         if (pendingEvaluations != null)
           'pendingEvaluations': [for (final e in pendingEvaluations!) e.toJson()],
         'playbackIndex': playbackIndex,
+        'showFullBoard': showFullBoard,
+        'revealStreet': revealStreet,
       };
 
   factory SavedHand.fromJson(Map<String, dynamic> json) {
@@ -331,6 +344,8 @@ class SavedHand {
       ];
     }
     final playbackIndex = json['playbackIndex'] as int? ?? 0;
+    final showFullBoard = json['showFullBoard'] as bool? ?? false;
+    final revealStreet = json['revealStreet'] as int? ?? boardStreet;
     final commentCursor = json['commentCursor'] as int?;
     final tagsCursor = json['tagsCursor'] as int?;
     Map<int, PlayerType> types = {};
@@ -379,6 +394,8 @@ class SavedHand {
       actionTags: aTags,
       pendingEvaluations: pending,
       playbackIndex: playbackIndex,
+      showFullBoard: showFullBoard,
+      revealStreet: revealStreet,
     );
   }
 }
