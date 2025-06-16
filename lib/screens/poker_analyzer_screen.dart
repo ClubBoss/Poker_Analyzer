@@ -638,6 +638,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionHistory: _actionHistory,
       foldedPlayers: _foldedPlayers,
       boardReveal: _boardReveal,
+      potSync: _potSync,
       lockService: lockService,
     );
     _actionEditing = ActionEditingService(

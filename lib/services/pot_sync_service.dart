@@ -1,6 +1,7 @@
 import '../helpers/pot_calculator.dart';
 import '../models/action_entry.dart';
 import '../models/street_investments.dart';
+import '../models/saved_hand.dart';
 import 'stack_manager_service.dart';
 import 'pot_history_service.dart';
 
@@ -24,8 +25,15 @@ class PotSyncService {
   /// Current pot size for each street.
   final List<int> pots = List.filled(4, 0);
 
+  /// Effective stack sizes recorded per street.
+  Map<String, int> _effectiveStacks = {};
+
   set stackService(StackManagerService v) => _stackService = v;
   StackManagerService get stackService => _stackService!;
+
+  /// Current effective stack sizes map.
+  Map<String, int> get effectiveStacks =>
+      Map<String, int>.from(_effectiveStacks);
 
   /// Computes pot sizes for [actions] without mutating [pots].
   List<int> computePots(List<ActionEntry> actions) {
@@ -115,5 +123,40 @@ class PotSyncService {
           calculateEffectiveStackForStreet(street, actions, numberOfPlayers);
     }
     return stacks;
+  }
+
+  /// Recompute and store effective stacks for [actions].
+  Map<String, int> updateEffectiveStacks(
+      List<ActionEntry> actions, int numberOfPlayers) {
+    _effectiveStacks =
+        calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
+    return effectiveStacks;
+  }
+
+  /// Serializes the effective stacks map.
+  Map<String, int> toJson() => Map<String, int>.from(_effectiveStacks);
+
+  /// Returns `null` if [_effectiveStacks] is empty, otherwise [toJson()].
+  Map<String, int>? toNullableJson() =>
+      _effectiveStacks.isEmpty ? null : toJson();
+
+  /// Restores effective stacks from [json].
+  void restoreFromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      _effectiveStacks.clear();
+      return;
+    }
+    _effectiveStacks = {
+      for (final entry in json.entries) entry.key: entry.value as int
+    };
+  }
+
+  /// Restores effective stacks from [hand], computing them when missing.
+  void restoreFromHand(SavedHand hand) {
+    if (hand.effectiveStacksPerStreet != null) {
+      restoreFromJson(hand.effectiveStacksPerStreet);
+    } else {
+      updateEffectiveStacks(hand.actions, hand.numberOfPlayers);
+    }
   }
 }

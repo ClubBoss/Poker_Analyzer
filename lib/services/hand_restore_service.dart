@@ -85,6 +85,7 @@ class HandRestoreService {
     potSync.stackService = stackService;
     setActivePlayerIndex(hand.activePlayerIndex);
     actionSync.setAnalyzerActions(hand.actions);
+    potSync.restoreFromHand(hand);
     actionHistory.updateHistory(actionSync.analyzerActions,
         visibleCount: playbackManager.playbackIndex);
     actionTags.restoreFromHand(hand);
