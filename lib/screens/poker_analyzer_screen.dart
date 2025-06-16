@@ -1468,7 +1468,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final stacks =
         _potSync.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
     final collapsed = _actionHistory.collapsedStreets();
-    return SavedHand(
+    final hand = SavedHand(
       name: name ?? _defaultHandName(),
       heroIndex: _playerManager.heroIndex,
       heroPosition: _profile.heroPosition,
@@ -1493,10 +1493,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       },
       playerPositions: Map<int, String>.from(_playerManager.playerPositions),
       playerTypes: Map<int, PlayerType>.from(_playerManager.playerTypes),
-      comment: _handContext.comment,
-      tags: _handContext.tags,
-      commentCursor: _handContext.commentCursor,
-      tagsCursor: _handContext.tagsCursor,
       isFavorite: false,
       date: DateTime.now(),
       effectiveStacksPerStreet: stacks,
@@ -1510,6 +1506,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       showFullBoard: _boardReveal.showFullBoard,
       revealStreet: _boardReveal.revealStreet,
     );
+    return _handContext.applyTo(hand);
   }
 
   String saveHand() {
@@ -1597,7 +1594,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionSync.setAnalyzerActions(newActions);
 
       _playbackManager.resetHand();
-      _handContext.currentHandName = null;
+      _handContext.clearName();
     });
     _boardManager.startBoardTransition();
   }
