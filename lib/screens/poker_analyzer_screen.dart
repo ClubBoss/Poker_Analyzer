@@ -1648,8 +1648,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       date: DateTime.now(),
       effectiveStacksPerStreet: stacks,
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
-      foldedPlayers:
-          _foldedPlayers.isEmpty ? null : List<int>.from(_foldedPlayers.players),
+      foldedPlayers: _foldedPlayers.toJson(),
       actionTags:
           _actionTagService.toMap().isEmpty ? null : _actionTagService.toMap(),
       pendingEvaluations:

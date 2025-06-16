@@ -124,7 +124,7 @@ class HandRestoreService {
     actionTags.restore(hand.actionTags);
     unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
     if (hand.foldedPlayers != null) {
-      foldedPlayers.restore(hand.foldedPlayers!);
+      foldedPlayers.restoreFromJson(hand.foldedPlayers);
     } else {
       foldedPlayers.recompute(hand.actions);
     }
