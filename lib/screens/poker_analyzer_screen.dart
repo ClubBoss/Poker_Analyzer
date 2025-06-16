@@ -69,7 +69,7 @@ import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
 import '../services/action_sync_service.dart';
-import '../services/action_undo_redo_service.dart';
+import '../services/undo_redo_service.dart';
 import '../services/action_editing_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/current_hand_context_service.dart';
@@ -187,7 +187,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _activeTimer;
   late FoldedPlayersService _foldedPlayers;
   late ActionSyncService _actionSync;
-  late ActionUndoRedoService _undoRedoService;
+  late UndoRedoService _undoRedoService;
   late ActionEditingService _actionEditing;
 
   Set<int> get _expandedHistoryStreets => _actionHistory.expandedStreets;
@@ -626,12 +626,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
-    _undoRedoService = ActionUndoRedoService(
+    _undoRedoService = UndoRedoService(
       actionSync: _actionSync,
       boardManager: _boardManager,
       playbackManager: _playbackManager,
+      playerManager: _playerManager,
+      handContext: _handContext,
       actionTagService: _actionTagService,
       actionHistory: _actionHistory,
+      foldedPlayers: _foldedPlayers,
+      boardReveal: _boardReveal,
       lockService: lockService,
     );
     _actionEditing = ActionEditingService(
