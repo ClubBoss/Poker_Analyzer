@@ -136,6 +136,7 @@ class HandRestoreService {
     _autoCollapseStreets();
     boardManager.boardStreet = hand.boardStreet;
     boardManager.currentStreet = hand.boardStreet;
+    boardSync.updateRevealedBoardCards();
     final seekIndex =
         hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
     playbackManager.seek(seekIndex);

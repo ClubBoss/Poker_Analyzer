@@ -178,7 +178,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// preferences are managed by [_debugPrefs].
 
 
-  static const List<int> _stageCardCounts = [0, 3, 4, 5];
   static const double _timelineExtent = 80.0;
   static const List<String> _stageNames = ['Preflop', 'Flop', 'Turn', 'River'];
   /// Duration for individual board card animations.
@@ -248,17 +247,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return _profile.heroIndex;
   }
 
-  int _inferBoardStreet() {
-    final count = boardCards.length;
-    if (count >= _stageCardCounts[3]) return 3;
-    if (count >= _stageCardCounts[2]) return 2;
-    if (count >= _stageCardCounts[1]) return 1;
-    return 0;
-  }
+  int _inferBoardStreet() => _boardSync.inferBoardStreet();
 
-  bool _isBoardStageComplete(int stage) {
-    return boardCards.length >= _stageCardCounts[stage];
-  }
+  bool _isBoardStageComplete(int stage) =>
+      _boardSync.isBoardStageComplete(stage);
 
 
 
@@ -759,7 +751,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (!mounted) return;
     final prevName = _stageNames[prevStage];
     final nextName = _stageNames[nextStage];
-    final count = _stageCardCounts[prevStage];
+    final count = BoardSyncService.stageCardCounts[prevStage];
     final cardWord = count == 1 ? 'card' : 'cards';
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
@@ -783,7 +775,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _showBoardSkipWarning(expectedStage, stage);
       return false;
     }
-    if (!_isBoardStageComplete(stage - 1)) {
+    if (!_boardSync.isBoardStageComplete(stage - 1)) {
       _showBoardSkipWarning(stage - 1, stage);
       return false;
     }
@@ -1191,7 +1183,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       {int? index, bool recordHistory = true}) {
     if (lockService.boardTransitioning) return;
     final prevStreet = currentStreet;
-    final inferred = _inferBoardStreet();
+    final inferred = _boardSync.inferBoardStreet();
     if (inferred > currentStreet) {
       _boardManager.boardStreet = inferred;
       _boardManager.changeStreet(inferred);
@@ -3280,7 +3272,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
   }
 
   void _updateAnimations(List<CardModel> oldCards) {
-    final visible = _stageCardCounts[widget.currentStreet];
+    final visible = BoardSyncService.stageCardCounts[widget.currentStreet];
     final List<int> toAnimate = [];
     _sequenceId++;
     final currentSeq = _sequenceId;
