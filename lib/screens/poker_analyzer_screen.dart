@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import '../services/evaluation_queue_service.dart';
 import '../services/evaluation_queue_import_export_service.dart';
 import '../services/saved_hand_import_export_service.dart';
+import '../services/training_import_export_service.dart';
 import '../services/evaluation_processing_service.dart';
 import '../services/debug_panel_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -81,6 +82,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final EvaluationQueueService? queueService;
   final EvaluationQueueImportExportService? importExportService;
   final SavedHandImportExportService? handImportExportService;
+  final TrainingImportExportService? trainingImportExportService;
   final EvaluationProcessingService? processingService;
   final DebugPanelPreferences? debugPrefsService;
   final ActionSyncService actionSync;
@@ -108,6 +110,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     this.queueService,
     this.importExportService,
     this.handImportExportService,
+    this.trainingImportExportService,
     this.processingService,
     this.debugPrefsService,
     required this.actionSync,
@@ -138,6 +141,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
   late SavedHandManagerService _handManager;
   late SavedHandImportExportService _handImportExportService;
+  late TrainingImportExportService _trainingImportExportService;
   late PlayerManagerService _playerManager;
   late PlayerProfileService _profile;
   late BoardManagerService _boardManager;
@@ -550,6 +554,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _importExportService =
         widget.importExportService ??
             EvaluationQueueImportExportService(queueService: _queueService);
+    _trainingImportExportService =
+        widget.trainingImportExportService ?? const TrainingImportExportService();
     final backupManager = widget.backupManagerService ??
         BackupManagerService(queueService: _queueService, debugPrefs: _debugPrefs);
     _importExportService.attachBackupManager(backupManager);
@@ -1507,6 +1513,42 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _boardManager.startBoardTransition();
   }
 
+  Map<String, dynamic> _currentTrainingSpot() {
+    return {
+      'playerCards': [
+        for (int i = 0; i < _playerManager.numberOfPlayers; i++)
+          [
+            for (final c in _playerManager.playerCards[i])
+              {'rank': c.rank, 'suit': c.suit}
+          ]
+      ],
+      'boardCards': [
+        for (final c in _boardManager.boardCards) {'rank': c.rank, 'suit': c.suit}
+      ],
+      'actions': [
+        for (final a in actions)
+          {
+            'street': a.street,
+            'playerIndex': a.playerIndex,
+            'action': a.action,
+            if (a.amount != null) 'amount': a.amount,
+          }
+      ],
+      'heroIndex': heroIndex,
+      'numberOfPlayers': numberOfPlayers,
+      'playerTypes': [
+        for (int i = 0; i < numberOfPlayers; i++) playerTypes[i].name
+      ],
+      'positions': [
+        for (int i = 0; i < numberOfPlayers; i++) playerPositions[i]
+      ],
+      'stacks': [
+        for (int i = 0; i < numberOfPlayers; i++)
+          _stackService.getStackForPlayer(i)
+      ],
+    };
+  }
+
 
   /// Load a training spot represented as a JSON-like map.
   ///
@@ -1626,6 +1668,38 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> importAllHandsFromClipboard() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     await _handImportExportService.importAllHandsFromClipboard(context);
+  }
+
+  Future<void> exportTrainingSpotToClipboard() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    await _trainingImportExportService.exportToClipboard(
+        context, _currentTrainingSpot());
+  }
+
+  Future<void> importTrainingSpotFromClipboard() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    final spot = await _trainingImportExportService.importFromClipboard(context);
+    if (spot != null) {
+      loadTrainingSpot(spot);
+    }
+  }
+
+  Future<void> exportTrainingSpotToFile() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    await _trainingImportExportService.exportToFile(
+        context, _currentTrainingSpot());
+  }
+
+  Future<void> importTrainingSpotFromFile() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    final spot = await _trainingImportExportService.importFromFile(context);
+    if (spot != null) loadTrainingSpot(spot);
+  }
+
+  Future<void> exportTrainingArchive() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    await _trainingImportExportService
+        .exportArchive(context, [_currentTrainingSpot()]);
   }
 
 
@@ -4832,6 +4906,16 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
         _dialogBtn('Export Queue To Clipboard', s._exportQueueToClipboard,
             disableDuringTransition: true),
         _dialogBtn('Import Queue From Clipboard', s._importQueueFromClipboard,
+            disableDuringTransition: true),
+        _dialogBtn('Export Spot To Clipboard', s.exportTrainingSpotToClipboard,
+            disableDuringTransition: true),
+        _dialogBtn('Import Spot From Clipboard', s.importTrainingSpotFromClipboard,
+            disableDuringTransition: true),
+        _dialogBtn('Export Spot To File', s.exportTrainingSpotToFile,
+            disableDuringTransition: true),
+        _dialogBtn('Import Spot From File', s.importTrainingSpotFromFile,
+            disableDuringTransition: true),
+        _dialogBtn('Export Spot Archive', s.exportTrainingArchive,
             disableDuringTransition: true),
         _dialogBtn('Backup Evaluation Queue', s._backupEvaluationQueue,
             disableDuringTransition: true),
