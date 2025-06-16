@@ -137,24 +137,6 @@ class BackupManagerService {
     }
   }
 
-  Future<void> exportQueueToClipboard(BuildContext context) async {
-    await queueService.exportToClipboard();
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Queue copied to clipboard')),
-      );
-    }
-  }
-
-  Future<void> importQueueFromClipboard(BuildContext context) async {
-    await queueService.importFromClipboard();
-    if (context.mounted) {
-      debugPanelCallback?.call();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Queue imported from clipboard')),
-      );
-    }
-  }
 
   Future<void> exportFullQueueState(BuildContext context) async {
     try {
