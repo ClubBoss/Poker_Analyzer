@@ -1016,20 +1016,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void _removeFutureActionsForPlayer(
-      int playerIndex, int street, int fromIndex) {
-    final toRemove = <int>[];
-    for (int i = actions.length - 1; i > fromIndex; i--) {
-      final a = actions[i];
-      if (a.playerIndex == playerIndex && a.street >= street) {
-        toRemove.add(i);
-      }
-    }
-    if (toRemove.isEmpty) return;
-    for (final idx in toRemove) {
-      _actionEditing.deleteAction(idx, recordHistory: false);
-    }
-  }
 
 
   void _addAutoFolds(ActionEntry entry) {
@@ -1048,7 +1034,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (final i in toFold) {
       final autoFold = ActionEntry(street, i, 'fold', generated: true);
       _addAction(autoFold);
-      _removeFutureActionsForPlayer(i, street, actions.length - 1);
+      _actionEditing.removeFutureActionsForPlayer(
+          i, street, actions.length - 1);
       inserted = true;
     }
     if (inserted) {
@@ -1071,7 +1058,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _addAutoFolds(entry);
       _addAction(entry);
       if (entry.action == 'fold') {
-        _removeFutureActionsForPlayer(
+        _actionEditing.removeFutureActionsForPlayer(
             entry.playerIndex, entry.street, actions.length - 1);
       }
     });
