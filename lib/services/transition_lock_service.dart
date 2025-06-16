@@ -23,6 +23,15 @@ class TransitionLockService {
     state.setState(fn);
   }
 
+  /// Wrap [callback] so it only executes when transitions are unlocked.
+  VoidCallback? transitionSafe(VoidCallback? callback) {
+    if (callback == null) return null;
+    return () {
+      if (isLocked) return;
+      callback();
+    };
+  }
+
   /// Start a board transition lock for [duration].
   void startBoardTransition(Duration duration, [VoidCallback? onComplete]) {
     _transitionTimer?.cancel();

@@ -4029,18 +4029,10 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
     super.dispose();
   }
 
-  VoidCallback? _transitionSafe(VoidCallback? cb) {
-    if (cb == null) return null;
-    return () {
-      if (s.lockService.isLocked) return;
-      cb();
-    };
-  }
-
   Widget _btn(String label, VoidCallback? onPressed,
       {bool disableDuringTransition = false}) {
     final cb =
-        disableDuringTransition ? _transitionSafe(onPressed) : onPressed;
+        disableDuringTransition ? s.lockService.transitionSafe(onPressed) : onPressed;
     final disabled = disableDuringTransition && s.lockService.isLocked;
     return ElevatedButton(onPressed: disabled ? null : cb, child: Text(label));
   }
@@ -4720,7 +4712,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
   TextButton _dialogBtn(String label, VoidCallback? onPressed,
       {bool disableDuringTransition = false}) {
     final cb =
-        disableDuringTransition ? _transitionSafe(onPressed) : onPressed;
+        disableDuringTransition ? s.lockService.transitionSafe(onPressed) : onPressed;
     final disabled = disableDuringTransition && s.lockService.isLocked;
     return TextButton(onPressed: disabled ? null : cb, child: Text(label));
   }
