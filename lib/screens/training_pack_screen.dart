@@ -19,6 +19,7 @@ import 'create_pack_screen.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/action_sync_service.dart';
 import '../services/pot_sync_service.dart';
+import '../services/pot_history_service.dart';
 import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
@@ -614,7 +615,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                   child: Builder(
                     builder: (context) => ChangeNotifierProvider(
                       create: (_) {
-                        final potSync = PotSyncService();
+                        final history = PotHistoryService();
+                        final potSync = PotSyncService(historyService: history);
                         final stackService = StackManagerService(
                           Map<int, int>.from(
                               context.read<PlayerManagerService>().initialStacks),
