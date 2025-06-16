@@ -98,11 +98,11 @@ class SavedHandImportExportService {
       actionTags: actionTags.toNullableMap(),
       pendingEvaluations:
           queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(queueService.pending),
-      playbackIndex: playbackManager.playbackIndex,
       showFullBoard: reveal['showFullBoard'] as bool,
       revealStreet: reveal['revealStreet'] as int,
     );
-    return handContext.applyTo(hand);
+    final withPlayback = playbackManager.applyTo(hand);
+    return handContext.applyTo(withPlayback);
   }
 
   Future<void> exportLastHand(BuildContext context) async {

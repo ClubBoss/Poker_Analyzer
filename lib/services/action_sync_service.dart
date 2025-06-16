@@ -125,7 +125,7 @@ class ActionSyncService extends ChangeNotifier {
   void restoreSnapshot(ActionSnapshot snap) {
     currentStreet = snap.street;
     boardStreet = snap.boardStreet;
-    playbackManager?.seek(snap.playbackIndex);
+    playbackManager?.restoreFromJson({'playbackIndex': snap.playbackIndex});
     _syncStacks();
     notifyListeners();
   }

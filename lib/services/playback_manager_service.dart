@@ -4,6 +4,7 @@ import 'action_sync_service.dart';
 import 'playback_service.dart';
 import 'stack_manager_service.dart';
 import 'pot_sync_service.dart';
+import '../models/saved_hand.dart';
 
 /// Manages playback state updates and delegates to [PlaybackService].
 class PlaybackManagerService extends ChangeNotifier {
@@ -120,4 +121,28 @@ class PlaybackManagerService extends ChangeNotifier {
       ..dispose();
     super.dispose();
   }
+
+  /// Serializes the current playback state.
+  Map<String, dynamic> toJson() => {'playbackIndex': playbackIndex};
+
+  /// Returns `null` when [playbackIndex] is zero, otherwise [toJson()].
+  Map<String, dynamic>? toNullableJson() =>
+      playbackIndex == 0 ? null : toJson();
+
+  /// Applies the current playback state to [hand].
+  SavedHand applyTo(SavedHand hand) =>
+      hand.copyWith(playbackIndex: playbackIndex);
+
+  /// Restores playback state from [json].
+  void restoreFromJson(Map<String, dynamic>? json) {
+    final idx = (json?['playbackIndex'] as int?) ?? 0;
+    final clamped = idx.clamp(0, actionSync.analyzerActions.length);
+    seek(clamped);
+    animatedPlayersPerStreet.clear();
+    updatePlaybackState();
+  }
+
+  /// Restores playback state from [hand].
+  void restoreFromHand(SavedHand hand) =>
+      restoreFromJson({'playbackIndex': hand.playbackIndex});
 }
