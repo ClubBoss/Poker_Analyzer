@@ -54,6 +54,7 @@ import '../widgets/chip_moving_widget.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
+import '../services/player_editing_service.dart';
 import '../services/hand_restore_service.dart';
 import '../services/action_tag_service.dart';
 import '../helpers/date_utils.dart';
@@ -86,6 +87,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final BoardManagerService boardManager;
   final BoardSyncService boardSync;
   final BoardEditingService boardEditing;
+  final PlayerEditingService playerEditing;
   final PlayerManagerService playerManager;
   final PlayerProfileService playerProfile;
   final ActionTagService actionTagService;
@@ -109,6 +111,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.boardManager,
     required this.boardSync,
     required this.boardEditing,
+    required this.playerEditing,
     required this.playerManager,
     required this.playerProfile,
     required this.actionTagService,
@@ -130,10 +133,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late BoardManagerService _boardManager;
   late BoardSyncService _boardSync;
   late BoardEditingService _boardEditing;
+  late PlayerEditingService _playerEditing;
   late BoardRevealService _boardReveal;
   late ActionTagService _actionTagService;
   int get heroIndex => _playerManager.heroIndex;
-  set heroIndex(int v) => _playerManager.setHeroIndex(v);
+  set heroIndex(int v) => _playerEditing.setHeroIndex(v);
   String get _heroPosition => _profile.heroPosition;
   set _heroPosition(String v) => _profile.heroPosition = v;
   int get numberOfPlayers => _playerManager.numberOfPlayers;
@@ -223,21 +227,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void setPosition(int playerIndex, String position) {
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
-      _playerManager.setPosition(playerIndex, position);
+      _playerEditing.setPosition(playerIndex, position);
     });
   }
 
   void _setHeroIndex(int index) {
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
-      _playerManager.setHeroIndex(index);
+      _playerEditing.setHeroIndex(index);
     });
   }
 
   void _onPlayerCountChanged(int value) {
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
-      _playerManager.onPlayerCountChanged(value);
+      _playerEditing.onPlayerCountChanged(value);
     });
   }
 
@@ -509,7 +513,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             final cards = <CardModel>[];
             if (c1 != null) cards.add(c1);
             if (c2 != null) cards.add(c2);
-            _playerManager.updatePlayer(
+            _playerEditing.updatePlayer(
               index,
               stack: stack,
               type: type,
@@ -517,9 +521,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               cards: cards,
               disableCards: disableCards,
             );
-            _stackService
-                .reset(Map<int, int>.from(_playerManager.initialStacks));
-            _playbackManager.updatePlaybackState();
           });
         },
       ),
@@ -560,6 +561,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
     _boardSync = widget.boardSync;
     _boardEditing = widget.boardEditing;
+    _playerEditing = widget.playerEditing;
     _stackService = widget.stackService;
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
@@ -1196,18 +1198,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     lockService.safeSetState(this, () {
-      _playerManager.removePlayer(
+      _playerEditing.removePlayer(
         index,
         heroIndexOverride: updatedHeroIndex,
         actions: actions,
         hintFlags: _playerManager.showActionHints,
       );
-      if (_playbackManager.playbackIndex > actions.length) {
-        _playbackManager.seek(actions.length);
-      }
-      _stackService.reset(
-          Map<int, int>.from(_playerManager.initialStacks));
-      _playbackManager.updatePlaybackState();
     });
   }
 
@@ -2147,10 +2143,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             onStackTap: lockService.isLocked
                 ? null
                 : (value) => lockService.safeSetState(this, () {
-                      _playerManager.setInitialStack(index, value);
-                      _stackService
-                          .reset(Map<int, int>.from(_playerManager.initialStacks));
-                      _playbackManager.updatePlaybackState();
+                      _playerEditing.setInitialStack(index, value);
                     }),
             onRemove: _playerManager.numberOfPlayers > 2 && !lockService.isLocked
                 ? () {
