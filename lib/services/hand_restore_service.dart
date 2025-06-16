@@ -42,7 +42,6 @@ class HandRestoreService {
     required this.handContext,
     required this.foldedPlayers,
     required this.actionTags,
-    required this.setCurrentHandName,
     required this.setActivePlayerIndex,
     required this.potSync,
   }) {
@@ -62,13 +61,12 @@ class HandRestoreService {
   final CurrentHandContextService handContext;
   final FoldedPlayersService foldedPlayers;
   final ActionTagService actionTags;
-  final void Function(String) setCurrentHandName;
   final void Function(int?) setActivePlayerIndex;
   final PotSyncService potSync;
 
 
   StackManagerService restoreHand(SavedHand hand) {
-    setCurrentHandName(hand.name);
+    handContext.currentHandName = hand.name;
     profile.heroIndex = hand.heroIndex;
     profile.heroPosition = hand.heroPosition;
     profile.numberOfPlayers = hand.numberOfPlayers;
@@ -110,17 +108,13 @@ class HandRestoreService {
       ..clear()
       ..addAll(hand.playerTypes ??
           {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
-    handContext.commentController.text = hand.comment ?? '';
-    handContext.tagsController.text = hand.tags.join(', ');
-    handContext.commentController.selection = TextSelection.collapsed(
-        offset: hand.commentCursor != null &&
-                hand.commentCursor! <= handContext.commentController.text.length
-            ? hand.commentCursor!
-            : handContext.commentController.text.length);
-    handContext.tagsController.selection = TextSelection.collapsed(
-        offset: hand.tagsCursor != null && hand.tagsCursor! <= handContext.tagsController.text.length
-            ? hand.tagsCursor!
-            : handContext.tagsController.text.length);
+    handContext.restore(
+      name: hand.name,
+      comment: hand.comment,
+      commentCursor: hand.commentCursor,
+      tags: hand.tags,
+      tagsCursor: hand.tagsCursor,
+    );
     actionTags.restore(hand.actionTags);
     unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
     if (hand.foldedPlayers != null) {
