@@ -1452,39 +1452,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Map<String, dynamic> _currentTrainingSpot() {
-    return {
-      'playerCards': [
-        for (int i = 0; i < _playerManager.numberOfPlayers; i++)
-          [
-            for (final c in _playerManager.playerCards[i])
-              {'rank': c.rank, 'suit': c.suit}
-          ]
-      ],
-      'boardCards': [
-        for (final c in _boardManager.boardCards) {'rank': c.rank, 'suit': c.suit}
-      ],
-      'actions': [
-        for (final a in actions)
-          {
-            'street': a.street,
-            'playerIndex': a.playerIndex,
-            'action': a.action,
-            if (a.amount != null) 'amount': a.amount,
-          }
-      ],
-      'heroIndex': heroIndex,
-      'numberOfPlayers': numberOfPlayers,
-      'playerTypes': [
-        for (int i = 0; i < numberOfPlayers; i++) playerTypes[i].name
-      ],
-      'positions': [
-        for (int i = 0; i < numberOfPlayers; i++) playerPositions[i]
-      ],
-      'stacks': [
-        for (int i = 0; i < numberOfPlayers; i++)
-          _stackService.getStackForPlayer(i)
-      ],
-    };
+    return _trainingImportExportService.buildSpot(
+      playerManager: _playerManager,
+      boardManager: _boardManager,
+      actionSync: _actionSync,
+      stackManager: _stackService,
+    );
   }
 
 
@@ -1500,28 +1473,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// - `positions`: list of position strings for each player.
   /// - `stacks`: optional list of stack sizes.
   void loadTrainingSpot(Map<String, dynamic> data) {
-
-    final actionsData = data['actions'] as List? ?? [];
-    final newActions = <ActionEntry>[];
-    for (final a in actionsData) {
-      if (a is Map) {
-        newActions.add(ActionEntry(
-          a['street'] as int,
-          a['playerIndex'] as int,
-          a['action'] as String,
-          amount: (a['amount'] as num?)?.toInt(),
-        ));
-      }
-    }
-
     lockService.safeSetState(this, () {
-      _playerManager.loadFromMap(data);
-      _boardManager.loadFromMap(data);
-
-      _actionSync.setAnalyzerActions(newActions);
-
-      _playbackManager.resetHand();
-      _handContext.clearName();
+      _trainingImportExportService.applySpot(
+        data,
+        playerManager: _playerManager,
+        boardManager: _boardManager,
+        actionSync: _actionSync,
+        playbackManager: _playbackManager,
+        handContext: _handContext,
+      );
     });
     _boardManager.startBoardTransition();
   }

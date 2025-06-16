@@ -7,8 +7,92 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 
+import '../models/action_entry.dart';
+import '../models/player_model.dart';
+import 'action_sync_service.dart';
+import 'board_manager_service.dart';
+import 'current_hand_context_service.dart';
+import 'player_manager_service.dart';
+import 'playback_manager_service.dart';
+import 'stack_manager_service.dart';
+
 class TrainingImportExportService {
   const TrainingImportExportService();
+
+  /// Build a spot map from current services.
+  Map<String, dynamic> buildSpot({
+    required PlayerManagerService playerManager,
+    required BoardManagerService boardManager,
+    required ActionSyncService actionSync,
+    required StackManagerService stackManager,
+  }) {
+    return {
+      'playerCards': [
+        for (int i = 0; i < playerManager.numberOfPlayers; i++)
+          [
+            for (final c in playerManager.playerCards[i])
+              {'rank': c.rank, 'suit': c.suit}
+          ]
+      ],
+      'boardCards': [
+        for (final c in boardManager.boardCards) {'rank': c.rank, 'suit': c.suit}
+      ],
+      'actions': [
+        for (final a in actionSync.analyzerActions)
+          {
+            'street': a.street,
+            'playerIndex': a.playerIndex,
+            'action': a.action,
+            if (a.amount != null) 'amount': a.amount,
+          }
+      ],
+      'heroIndex': playerManager.heroIndex,
+      'numberOfPlayers': playerManager.numberOfPlayers,
+      'playerTypes': [
+        for (int i = 0; i < playerManager.numberOfPlayers; i++)
+          playerManager.playerTypes[i]?.name ?? PlayerType.unknown.name
+      ],
+      'positions': [
+        for (int i = 0; i < playerManager.numberOfPlayers; i++)
+          playerManager.playerPositions[i]
+      ],
+      'stacks': [
+        for (int i = 0; i < playerManager.numberOfPlayers; i++)
+          stackManager.getStackForPlayer(i)
+      ],
+    };
+  }
+
+  /// Apply a spot map to the provided services.
+  void applySpot(
+    Map<String, dynamic> data, {
+    required PlayerManagerService playerManager,
+    required BoardManagerService boardManager,
+    required ActionSyncService actionSync,
+    required PlaybackManagerService playbackManager,
+    required CurrentHandContextService handContext,
+  }) {
+    final actionsData = data['actions'] as List? ?? [];
+    final newActions = <ActionEntry>[];
+    for (final a in actionsData) {
+      if (a is Map) {
+        newActions.add(
+          ActionEntry(
+            a['street'] as int,
+            a['playerIndex'] as int,
+            a['action'] as String,
+            amount: (a['amount'] as num?)?.toInt(),
+          ),
+        );
+      }
+    }
+
+    playerManager.loadFromMap(data);
+    boardManager.loadFromMap(data);
+    actionSync.setAnalyzerActions(newActions);
+    playbackManager.resetHand();
+    handContext.clearName();
+  }
 
   /// Serialize spot map to json string.
   String serializeSpot(Map<String, dynamic> spot) => jsonEncode(spot);
