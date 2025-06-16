@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/action_entry.dart';
+import '../models/saved_hand.dart';
 import 'action_sync_service.dart';
 
 /// Manages the set of folded players and provides helpers to update it.
@@ -76,9 +77,14 @@ class FoldedPlayersService extends ChangeNotifier {
     addFromAction(newEntry);
   }
 
+  /// Returns the list of folded player indexes.
+  List<int> toList() => List<int>.from(_foldedPlayers);
+
+  /// Returns `null` when no players have folded, otherwise a copy of the list.
+  List<int>? toNullableList() => _foldedPlayers.isEmpty ? null : toList();
+
   /// Returns a JSON-compatible list of folded player indexes, or `null` if none.
-  List<int>? toJson() =>
-      _foldedPlayers.isEmpty ? null : List<int>.from(_foldedPlayers);
+  List<int>? toJson() => toNullableList();
 
   /// Restores folded players from a list produced by [toJson].
   void restoreFromJson(List<dynamic>? json) {
@@ -86,6 +92,16 @@ class FoldedPlayersService extends ChangeNotifier {
       reset();
     } else {
       restore(json.cast<int>());
+    }
+  }
+
+  /// Restores folded players from [hand], recomputing from actions when
+  /// no folded player list is present.
+  void restoreFromHand(SavedHand hand) {
+    if (hand.foldedPlayers != null) {
+      restoreFromJson(hand.foldedPlayers);
+    } else {
+      recompute(hand.actions);
     }
   }
 

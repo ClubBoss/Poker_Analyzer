@@ -89,11 +89,7 @@ class HandRestoreService {
         visibleCount: playbackManager.playbackIndex);
     actionTags.restoreFromHand(hand);
     unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
-    if (hand.foldedPlayers != null) {
-      foldedPlayers.restoreFromJson(hand.foldedPlayers);
-    } else {
-      foldedPlayers.recompute(hand.actions);
-    }
+    foldedPlayers.restoreFromHand(hand);
     actionHistory.restoreFromCollapsed(hand.collapsedHistoryStreets);
     _autoCollapseStreets();
     actionHistory.updateHistory(actionSync.analyzerActions,
