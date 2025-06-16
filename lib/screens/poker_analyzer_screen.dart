@@ -8,6 +8,7 @@ import '../services/evaluation_queue_service.dart';
 import '../services/evaluation_queue_import_export_service.dart';
 import '../services/saved_hand_import_export_service.dart';
 import '../services/training_import_export_service.dart';
+import '../services/player_profile_import_export_service.dart';
 import '../services/evaluation_processing_service.dart';
 import '../services/debug_panel_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -83,6 +84,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final EvaluationQueueImportExportService? importExportService;
   final SavedHandImportExportService? handImportExportService;
   final TrainingImportExportService? trainingImportExportService;
+  final PlayerProfileImportExportService? playerProfileImportExportService;
   final EvaluationProcessingService? processingService;
   final DebugPanelPreferences? debugPrefsService;
   final ActionSyncService actionSync;
@@ -111,6 +113,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     this.importExportService,
     this.handImportExportService,
     this.trainingImportExportService,
+    this.playerProfileImportExportService,
     this.processingService,
     this.debugPrefsService,
     required this.actionSync,
@@ -142,6 +145,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late SavedHandManagerService _handManager;
   late SavedHandImportExportService _handImportExportService;
   late TrainingImportExportService _trainingImportExportService;
+  late PlayerProfileImportExportService _profileImportExportService;
   late PlayerManagerService _playerManager;
   late PlayerProfileService _profile;
   late BoardManagerService _boardManager;
@@ -573,6 +577,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playerManager = widget.playerManager
       ..addListener(_onPlayerManagerChanged);
     _profile = widget.playerManager.profileService;
+    _profileImportExportService =
+        widget.playerProfileImportExportService ??
+            PlayerProfileImportExportService(_profile);
     _actionTagService = widget.actionTagService;
     _boardReveal = widget.boardReveal;
     _potSync = widget.potSyncService;
@@ -1700,6 +1707,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     await _trainingImportExportService
         .exportArchive(context, [_currentTrainingSpot()]);
+  }
+
+  Future<void> exportPlayerProfileToClipboard() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    await _profileImportExportService.exportToClipboard(context);
+  }
+
+  Future<void> importPlayerProfileFromClipboard() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    await _profileImportExportService.importFromClipboard(context);
+  }
+
+  Future<void> exportPlayerProfileToFile() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    await _profileImportExportService.exportToFile(context);
+  }
+
+  Future<void> importPlayerProfileFromFile() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    await _profileImportExportService.importFromFile(context);
+  }
+
+  Future<void> exportPlayerProfileArchive() async {
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    await _profileImportExportService.exportArchive(context);
   }
 
 
@@ -4916,6 +4948,18 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
         _dialogBtn('Import Spot From File', s.importTrainingSpotFromFile,
             disableDuringTransition: true),
         _dialogBtn('Export Spot Archive', s.exportTrainingArchive,
+            disableDuringTransition: true),
+        _dialogBtn('Export Profile To Clipboard',
+            s.exportPlayerProfileToClipboard,
+            disableDuringTransition: true),
+        _dialogBtn('Import Profile From Clipboard',
+            s.importPlayerProfileFromClipboard,
+            disableDuringTransition: true),
+        _dialogBtn('Export Profile To File', s.exportPlayerProfileToFile,
+            disableDuringTransition: true),
+        _dialogBtn('Import Profile From File', s.importPlayerProfileFromFile,
+            disableDuringTransition: true),
+        _dialogBtn('Export Profile Archive', s.exportPlayerProfileArchive,
             disableDuringTransition: true),
         _dialogBtn('Backup Evaluation Queue', s._backupEvaluationQueue,
             disableDuringTransition: true),
