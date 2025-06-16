@@ -20,16 +20,27 @@ class PotSyncService {
   set stackService(StackManagerService v) => _stackService = v;
   StackManagerService get stackService => _stackService!;
 
-  /// Recompute [pots] based on visible [actions].
-  void updatePots(List<ActionEntry> actions) {
+  /// Computes pot sizes for [actions] without mutating [pots].
+  List<int> computePots(List<ActionEntry> actions) {
     final investments = StreetInvestments();
     for (final a in actions) {
       investments.addAction(a);
     }
-    final p = _potCalculator.calculatePots(actions, investments);
+    return _potCalculator.calculatePots(actions, investments);
+  }
+
+  /// Recompute [pots] based on visible [actions].
+  void updatePots(List<ActionEntry> actions) {
+    final p = computePots(actions);
     for (int i = 0; i < pots.length; i++) {
       pots[i] = p[i];
     }
+  }
+
+  /// Updates [pots] using only actions up to [playbackIndex].
+  void updateForPlayback(int playbackIndex, List<ActionEntry> actions) {
+    final subset = actions.take(playbackIndex).toList();
+    updatePots(subset);
   }
 
   /// Calculates the effective stack size using [actions] visible up to the

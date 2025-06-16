@@ -1811,7 +1811,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _potSync.calculateEffectiveStack(currentStreet, visibleActions);
     final currentStreetEffectiveStack = _potSync
         .calculateEffectiveStackForStreet(currentStreet, visibleActions, numberOfPlayers);
-    final pot = _playbackManager.pots[currentStreet];
+    final pot = _potSync.pots[currentStreet];
     final double? sprValue =
         pot > 0 ? effectiveStack / pot : null;
 
@@ -1902,7 +1902,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     currentStreet: currentStreet,
                     viewIndex: viewIndex,
                     actions: actions,
-                    pots: _playbackManager.pots,
+                    pots: _potSync.pots,
                     playbackManager: _playbackManager,
                     centerChipAction: _centerChipAction,
                     showCenterChip: _showCenterChip,
@@ -1929,7 +1929,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     streetName:
                         ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
                     potText: ActionFormattingHelper
-                        .formatAmount(_playbackManager.pots[currentStreet]),
+                        .formatAmount(_potSync.pots[currentStreet]),
                     stackText:
                         ActionFormattingHelper.formatAmount(effectiveStack),
                     sprText: sprValue != null
@@ -1960,7 +1960,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             (i) => CollapsibleStreetSection(
               street: i,
               actions: savedActions,
-              pots: _playbackManager.pots,
+              pots: _potSync.pots,
               stackSizes: _stackService.currentStacks,
               playerPositions: playerPositions,
               onEdit: _editAction,
@@ -1977,7 +1977,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       child: ActionHistoryExpansionTile(
         actions: visibleActions,
         playerPositions: playerPositions,
-        pots: _playbackManager.pots,
+        pots: _potSync.pots,
         stackSizes: _stackService.currentStacks,
         onEdit: _editAction,
       onDelete: _deleteAction,
@@ -2059,7 +2059,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   tagsController: _handContext.tagsController,
                   currentStreet: currentStreet,
                   actions: actions,
-                  pots: _playbackManager.pots,
+                  pots: _potSync.pots,
                   stackSizes: _stackService.currentStacks,
                   onEdit: _editAction,
                   onDelete: _deleteAction,
@@ -2197,10 +2197,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ? Colors.blue
                 : null;
     final double maxRadius = 36 * scale;
-    final double radius = (_playbackManager.pots[currentStreet] > 0)
+    final double radius = (_potSync.pots[currentStreet] > 0)
         ? min(
             maxRadius,
-            (invested / _playbackManager.pots[currentStreet]) * maxRadius,
+            (invested / _potSync.pots[currentStreet]) * maxRadius,
           )
         : 0.0;
 
@@ -2420,7 +2420,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     ];
 
     if (invested > 0) {
-      if (_playbackManager.pots[currentStreet] > 0 &&
+      if (_potSync.pots[currentStreet] > 0 &&
           (lastAction?.action == 'bet' ||
               lastAction?.action == 'raise' ||
               lastAction?.action == 'call')) {
@@ -2522,8 +2522,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     if (!showTrail) return [];
 
-    final fraction = _playbackManager.pots[currentStreet] > 0
-        ? invested / _playbackManager.pots[currentStreet]
+    final fraction = _potSync.pots[currentStreet] > 0
+        ? invested / _potSync.pots[currentStreet]
         : 0.0;
     final trailCount = 3 + (fraction * 2).clamp(0, 2).round();
 
@@ -4501,11 +4501,11 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
     final _PokerAnalyzerScreenState s = state.s;
     final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
     final hudPotText =
-        ActionFormattingHelper.formatAmount(s._playbackManager.pots[s.currentStreet]);
+        ActionFormattingHelper.formatAmount(s._potSync.pots[s.currentStreet]);
     final int hudEffStack = s._potSync.calculateEffectiveStackForStreet(
         s.currentStreet, s.actions, s.numberOfPlayers);
-    final double? hudSprValue = s._playbackManager.pots[s.currentStreet] > 0
-        ? hudEffStack / s._playbackManager.pots[s.currentStreet]
+    final double? hudSprValue = s._potSync.pots[s.currentStreet] > 0
+        ? hudEffStack / s._potSync.pots[s.currentStreet]
         : null;
     final String? hudSprText =
         hudSprValue != null ? 'SPR: ${hudSprValue.toStringAsFixed(1)}' : null;
