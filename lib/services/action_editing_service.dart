@@ -93,7 +93,10 @@ class ActionEditingService {
   /// Replace the action at [index] with [entry].
   void editAction(int index, ActionEntry entry, {bool recordHistory = true}) {
     if (index < 0 || index >= actions.length) return;
-    final previous = actions[index];
+    if (entry.street != currentStreet) {
+      entry = ActionEntry(currentStreet, entry.playerIndex, entry.action,
+          amount: entry.amount, generated: entry.generated);
+    }
     if (recordHistory) {
       undoRedo.recordSnapshot();
     }
@@ -114,6 +117,7 @@ class ActionEditingService {
       _removeFutureActionsForPlayer(entry.playerIndex, entry.street, index);
     }
     playbackManager.updatePlaybackState();
+    _autoAdvanceStreetIfComplete(entry.street);
   }
 
   /// Remove the action at [index].
@@ -131,6 +135,14 @@ class ActionEditingService {
     actionTag.updateAfterActionRemoval(removed.playerIndex, actions);
     actionHistory.autoCollapseStreets(actions);
     playbackManager.updatePlaybackState();
+  }
+
+  /// Remove all future actions for [playerIndex] starting from [fromIndex]
+  /// on [street]. This is typically called after a fold or when auto-folds
+  /// are inserted.
+  void removeFutureActionsForPlayer(
+      int playerIndex, int street, int fromIndex) {
+    _removeFutureActionsForPlayer(playerIndex, street, fromIndex);
   }
 
   // ----- Helpers -----
