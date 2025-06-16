@@ -64,6 +64,7 @@ import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
 import '../services/action_sync_service.dart';
 import '../services/action_undo_redo_service.dart';
+import '../services/action_editing_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/folded_players_service.dart';
@@ -165,6 +166,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late FoldedPlayersService _foldedPlayers;
   late ActionSyncService _actionSync;
   late ActionUndoRedoService _undoRedoService;
+  late ActionEditingService _actionEditing;
 
   Set<int> get _expandedHistoryStreets => _actionHistory.expandedStreets;
 
@@ -330,29 +332,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
-  void _autoCollapseStreets() {
-    _actionHistory.autoCollapseStreets(actions);
-  }
-
-  bool _isStreetComplete(int street) {
-    final active = <int>{};
-    for (int i = 0; i < _playerManager.numberOfPlayers; i++) {
-      if (!_foldedPlayers.contains(i)) active.add(i);
-    }
-    if (active.length <= 1) return true;
-    final acted = actions
-        .where((a) => a.street == street)
-        .map((a) => a.playerIndex)
-        .toSet();
-    return active.difference(acted).isEmpty;
-  }
-
-  void _autoAdvanceStreetIfComplete(int street) {
-    if (street != currentStreet || street >= 3) return;
-    if (!_isStreetComplete(street)) return;
-    _undoRedoService.recordSnapshot();
-    _changeStreet(street + 1);
-  }
 
   bool _canReverseStreet() => _boardManager.canReverseStreet();
 
@@ -621,6 +600,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionTagService: _actionTagService,
       actionHistory: _actionHistory,
       lockService: lockService,
+    );
+    _actionEditing = ActionEditingService(
+      actionSync: _actionSync,
+      undoRedo: _undoRedoService,
+      actionTag: _actionTagService,
+      playbackManager: _playbackManager,
+      foldedPlayers: _foldedPlayers,
+      boardManager: _boardManager,
+      boardSync: _boardSync,
+      actionHistory: _actionHistory,
+      playerManager: _playerManager,
+      triggerCenterChip: _triggerCenterChip,
+      playChipAnimation: _playUnifiedChipAnimation,
     );
     Future(() => _initializeDebugPreferences());
     Future.microtask(_queueService.loadQueueSnapshot);
@@ -1035,15 +1027,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     if (toRemove.isEmpty) return;
     for (final idx in toRemove) {
-      final s = actions[idx].street;
-      _actionSync.deleteAnalyzerAction(idx,
-          recordHistory: false, street: s);
+      _actionEditing.deleteAction(idx, recordHistory: false);
     }
-    if (_playbackManager.playbackIndex > actions.length) {
-      _playbackManager.seek(actions.length);
-    }
-    _actionTagService.updateAfterActionRemoval(playerIndex, actions);
-    _playbackManager.updatePlaybackState();
   }
 
 
@@ -1076,42 +1061,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _addAction(ActionEntry entry,
       {int? index, bool recordHistory = true}) {
     if (lockService.isLocked) return;
-    final prevStreet = currentStreet;
-    final inferred = _boardSync.inferBoardStreet();
-    if (inferred > currentStreet) {
-      _boardManager.boardStreet = inferred;
-      _boardManager.changeStreet(inferred);
-    }
-    if (entry.street != currentStreet) {
-      entry = ActionEntry(currentStreet, entry.playerIndex, entry.action,
-          amount: entry.amount, generated: entry.generated);
-    }
     final insertIndex = index ?? actions.length;
-    if (recordHistory) {
-      _undoRedoService.recordSnapshot();
-    }
-    _actionSync.addAnalyzerAction(entry,
-        index: index,
-        recordHistory: recordHistory,
-        prevStreet: prevStreet,
-        newStreet: currentStreet);
-    _actionHistory.addStreet(entry.street);
-    _actionTagService.updateForAction(entry);
-    setPlayerLastAction(
-      players[entry.playerIndex].name,
-      ActionFormattingHelper.formatLastAction(entry),
-      ActionFormattingHelper.actionColor(entry.action),
-      entry.amount,
-    );
-    if (recordHistory) {
-      _triggerCenterChip(entry);
-      _playUnifiedChipAnimation(entry);
-    }
-    if (_playbackManager.playbackIndex > actions.length) {
-      _playbackManager.seek(actions.length);
-    }
-    _playbackManager.updatePlaybackState();
-    _autoAdvanceStreetIfComplete(entry.street);
+    _actionEditing.insertAction(insertIndex, entry,
+        recordHistory: recordHistory);
   }
 
   void onActionSelected(ActionEntry entry) {
@@ -1125,35 +1077,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void _updateAction(int index, ActionEntry entry,
-      {bool recordHistory = true}) {
-    final previous = actions[index];
-    if (recordHistory) {
-      _undoRedoService.recordSnapshot();
-    }
-    _actionSync.updateAnalyzerAction(index, entry,
-        recordHistory: recordHistory, street: currentStreet);
-    _actionTagService.updateForAction(entry);
-    setPlayerLastAction(
-      players[entry.playerIndex].name,
-      ActionFormattingHelper.formatLastAction(entry),
-      ActionFormattingHelper.actionColor(entry.action),
-      entry.amount,
-    );
-    if (recordHistory) {
-      _triggerCenterChip(entry);
-      _playUnifiedChipAnimation(entry);
-    }
-    _playbackManager.updatePlaybackState();
-  }
-
   void _editAction(int index, ActionEntry entry) {
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
-      _updateAction(index, entry);
-      if (entry.action == 'fold') {
-        _removeFutureActionsForPlayer(entry.playerIndex, entry.street, index);
-      }
+      _actionEditing.editAction(index, entry);
     });
   }
 
@@ -1161,20 +1088,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _deleteAction(int index,
       {bool recordHistory = true, bool withSetState = true}) {
     void perform() {
-      if (recordHistory) {
-        _undoRedoService.recordSnapshot();
-      }
-      final removed = actions[index];
-      _actionSync.deleteAnalyzerAction(index,
-          recordHistory: recordHistory, street: currentStreet);
-      if (_playbackManager.playbackIndex > actions.length) {
-        _playbackManager.seek(actions.length);
-      }
-      // Update action tag for player whose action was removed
-      _actionTagService.updateAfterActionRemoval(
-          removed.playerIndex, actions);
-      _autoCollapseStreets();
-      _playbackManager.updatePlaybackState();
+      _actionEditing.deleteAction(index, recordHistory: recordHistory);
     }
 
     if (withSetState) {

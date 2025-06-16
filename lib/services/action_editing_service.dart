@@ -1,0 +1,179 @@
+import '../models/action_entry.dart';
+import '../models/player_model.dart';
+import '../helpers/action_formatting_helper.dart';
+import '../widgets/player_zone_widget.dart';
+import 'action_sync_service.dart';
+import 'action_undo_redo_service.dart';
+import 'action_tag_service.dart';
+import 'playback_manager_service.dart';
+import 'folded_players_service.dart';
+import 'board_manager_service.dart';
+import 'board_sync_service.dart';
+import 'action_history_service.dart';
+import 'player_manager_service.dart';
+
+/// Centralized service for modifying analyzer actions and keeping related
+/// state in sync across the application.
+class ActionEditingService {
+  final ActionSyncService actionSync;
+  final ActionUndoRedoService undoRedo;
+  final ActionTagService actionTag;
+  final PlaybackManagerService playbackManager;
+  final FoldedPlayersService foldedPlayers;
+  final BoardManagerService boardManager;
+  final BoardSyncService boardSync;
+  final ActionHistoryService actionHistory;
+  final PlayerManagerService playerManager;
+  final void Function(ActionEntry entry)? triggerCenterChip;
+  final void Function(ActionEntry entry)? playChipAnimation;
+
+  ActionEditingService({
+    required this.actionSync,
+    required this.undoRedo,
+    required this.actionTag,
+    required this.playbackManager,
+    required this.foldedPlayers,
+    required this.boardManager,
+    required this.boardSync,
+    required this.actionHistory,
+    required this.playerManager,
+    this.triggerCenterChip,
+    this.playChipAnimation,
+  });
+
+  List<ActionEntry> get actions => actionSync.analyzerActions;
+  int get currentStreet => boardManager.currentStreet;
+  List<PlayerModel> get players => playerManager.players;
+
+  /// Append [entry] to the end of the actions list.
+  void addAction(ActionEntry entry, {bool recordHistory = true}) {
+    insertAction(actions.length, entry, recordHistory: recordHistory);
+  }
+
+  /// Insert [entry] at [index] in the actions list.
+  void insertAction(int index, ActionEntry entry,
+      {bool recordHistory = true}) {
+    final prevStreet = currentStreet;
+    final inferred = boardSync.inferBoardStreet();
+    if (inferred > currentStreet) {
+      boardManager.boardStreet = inferred;
+      boardManager.changeStreet(inferred);
+    }
+    if (entry.street != currentStreet) {
+      entry = ActionEntry(currentStreet, entry.playerIndex, entry.action,
+          amount: entry.amount, generated: entry.generated);
+    }
+    if (recordHistory) {
+      undoRedo.recordSnapshot();
+    }
+    actionSync.addAnalyzerAction(entry,
+        index: index,
+        recordHistory: recordHistory,
+        prevStreet: prevStreet,
+        newStreet: currentStreet);
+    actionHistory.addStreet(entry.street);
+    actionTag.updateForAction(entry);
+    setPlayerLastAction(
+      players[entry.playerIndex].name,
+      ActionFormattingHelper.formatLastAction(entry),
+      ActionFormattingHelper.actionColor(entry.action),
+      entry.amount,
+    );
+    if (recordHistory) {
+      triggerCenterChip?.call(entry);
+      playChipAnimation?.call(entry);
+    }
+    if (playbackManager.playbackIndex > actions.length) {
+      playbackManager.seek(actions.length);
+    }
+    playbackManager.updatePlaybackState();
+    _autoAdvanceStreetIfComplete(entry.street);
+  }
+
+  /// Replace the action at [index] with [entry].
+  void editAction(int index, ActionEntry entry, {bool recordHistory = true}) {
+    if (index < 0 || index >= actions.length) return;
+    final previous = actions[index];
+    if (recordHistory) {
+      undoRedo.recordSnapshot();
+    }
+    actionSync.updateAnalyzerAction(index, entry,
+        recordHistory: recordHistory, street: currentStreet);
+    actionTag.updateForAction(entry);
+    setPlayerLastAction(
+      players[entry.playerIndex].name,
+      ActionFormattingHelper.formatLastAction(entry),
+      ActionFormattingHelper.actionColor(entry.action),
+      entry.amount,
+    );
+    if (recordHistory) {
+      triggerCenterChip?.call(entry);
+      playChipAnimation?.call(entry);
+    }
+    if (entry.action == 'fold') {
+      _removeFutureActionsForPlayer(entry.playerIndex, entry.street, index);
+    }
+    playbackManager.updatePlaybackState();
+  }
+
+  /// Remove the action at [index].
+  void deleteAction(int index, {bool recordHistory = true}) {
+    if (index < 0 || index >= actions.length) return;
+    if (recordHistory) {
+      undoRedo.recordSnapshot();
+    }
+    final removed = actions[index];
+    actionSync.deleteAnalyzerAction(index,
+        recordHistory: recordHistory, street: currentStreet);
+    if (playbackManager.playbackIndex > actions.length) {
+      playbackManager.seek(actions.length);
+    }
+    actionTag.updateAfterActionRemoval(removed.playerIndex, actions);
+    actionHistory.autoCollapseStreets(actions);
+    playbackManager.updatePlaybackState();
+  }
+
+  // ----- Helpers -----
+
+  bool _isStreetComplete(int street) {
+    final active = <int>{};
+    for (int i = 0; i < playerManager.numberOfPlayers; i++) {
+      if (!foldedPlayers.contains(i)) active.add(i);
+    }
+    if (active.length <= 1) return true;
+    final acted = actions
+        .where((a) => a.street == street)
+        .map((a) => a.playerIndex)
+        .toSet();
+    return active.difference(acted).isEmpty;
+  }
+
+  void _autoAdvanceStreetIfComplete(int street) {
+    if (street != currentStreet || street >= 3) return;
+    if (!_isStreetComplete(street)) return;
+    undoRedo.recordSnapshot();
+    boardManager.changeStreet(street + 1);
+  }
+
+  void _removeFutureActionsForPlayer(
+      int playerIndex, int street, int fromIndex) {
+    final toRemove = <int>[];
+    for (int i = actions.length - 1; i > fromIndex; i--) {
+      final a = actions[i];
+      if (a.playerIndex == playerIndex && a.street >= street) {
+        toRemove.add(i);
+      }
+    }
+    if (toRemove.isEmpty) return;
+    for (final idx in toRemove) {
+      final s = actions[idx].street;
+      actionSync.deleteAnalyzerAction(idx,
+          recordHistory: false, street: s);
+    }
+    if (playbackManager.playbackIndex > actions.length) {
+      playbackManager.seek(actions.length);
+    }
+    actionTag.updateAfterActionRemoval(playerIndex, actions);
+    playbackManager.updatePlaybackState();
+  }
+}
