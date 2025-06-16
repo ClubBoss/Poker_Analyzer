@@ -11,6 +11,7 @@ import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
 import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
+import '../services/board_editing_service.dart';
 import '../services/transition_lock_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
@@ -135,25 +136,34 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                 lockService: TransitionLockService(),
                                 boardSync: context.read<BoardSyncService>(),
                               ),
-                              child: Builder(
-                                builder: (context) => PokerAnalyzerScreen(
-                                key: key,
-                                actionSync: context.read<ActionSyncService>(),
-                                handContext: CurrentHandContextService(),
-                                playbackManager:
-                                    context.read<PlaybackManagerService>(),
-                                stackService: context
-                                    .read<PlaybackManagerService>()
-                                    .stackService,
-                                boardManager:
-                                    context.read<BoardManagerService>(),
-                                boardSync:
-                                    context.read<BoardSyncService>(),
-                                playerProfile:
-                                    context.read<PlayerProfileService>(),
-                                actionTagService: context
-                                    .read<PlayerProfileService>()
-                                    .actionTagService,
+                              child: Provider(
+                                create: (_) => BoardEditingService(
+                                  boardManager: context.read<BoardManagerService>(),
+                                  boardSync: context.read<BoardSyncService>(),
+                                  playerManager: context.read<PlayerManagerService>(),
+                                  profile: context.read<PlayerProfileService>(),
+                                ),
+                                child: Builder(
+                                  builder: (context) => PokerAnalyzerScreen(
+                                    key: key,
+                                    actionSync: context.read<ActionSyncService>(),
+                                    handContext: CurrentHandContextService(),
+                                    playbackManager:
+                                        context.read<PlaybackManagerService>(),
+                                    stackService: context
+                                        .read<PlaybackManagerService>()
+                                        .stackService,
+                                    boardManager:
+                                        context.read<BoardManagerService>(),
+                                    boardSync:
+                                        context.read<BoardSyncService>(),
+                                    boardEditing:
+                                        context.read<BoardEditingService>(),
+                                    playerProfile:
+                                        context.read<PlayerProfileService>(),
+                                    actionTagService: context
+                                        .read<PlayerProfileService>()
+                                        .actionTagService,
                               ),
                             ),
                           ),
@@ -211,24 +221,33 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                 lockService: TransitionLockService(),
                                 boardSync: context.read<BoardSyncService>(),
                               ),
-                              child: Builder(
-                                builder: (context) => PokerAnalyzerScreen(
-                                actionSync: context.read<ActionSyncService>(),
-                                handContext: CurrentHandContextService(),
-                                playbackManager:
-                                    context.read<PlaybackManagerService>(),
-                                stackService: context
-                                    .read<PlaybackManagerService>()
-                                    .stackService,
-                                boardManager:
-                                    context.read<BoardManagerService>(),
-                                boardSync:
-                                    context.read<BoardSyncService>(),
-                                playerProfile:
-                                    context.read<PlayerProfileService>(),
-                                actionTagService: context
-                                    .read<PlayerProfileService>()
-                                    .actionTagService,
+                              child: Provider(
+                                create: (_) => BoardEditingService(
+                                  boardManager: context.read<BoardManagerService>(),
+                                  boardSync: context.read<BoardSyncService>(),
+                                  playerManager: context.read<PlayerManagerService>(),
+                                  profile: context.read<PlayerProfileService>(),
+                                ),
+                                child: Builder(
+                                  builder: (context) => PokerAnalyzerScreen(
+                                    actionSync: context.read<ActionSyncService>(),
+                                    handContext: CurrentHandContextService(),
+                                    playbackManager:
+                                        context.read<PlaybackManagerService>(),
+                                    stackService: context
+                                        .read<PlaybackManagerService>()
+                                        .stackService,
+                                    boardManager:
+                                        context.read<BoardManagerService>(),
+                                    boardSync:
+                                        context.read<BoardSyncService>(),
+                                    boardEditing:
+                                        context.read<BoardEditingService>(),
+                                    playerProfile:
+                                        context.read<PlayerProfileService>(),
+                                    actionTagService: context
+                                        .read<PlayerProfileService>()
+                                        .actionTagService,
                               ),
                             ),
                           ),
