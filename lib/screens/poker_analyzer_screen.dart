@@ -1690,11 +1690,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   String saveHand() {
     _addQualityTags();
     final hand = _currentSavedHand();
-    return jsonEncode(hand.toJson());
+    return _handManager.serializeHand(hand);
   }
 
   void loadHand(String jsonStr) {
-    final hand = SavedHand.fromJson(jsonDecode(jsonStr));
+    final hand = _handManager.deserializeHand(jsonStr);
     _stackService = _handRestore.restoreHand(hand);
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;

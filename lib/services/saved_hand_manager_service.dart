@@ -18,6 +18,13 @@ class SavedHandManagerService extends ChangeNotifier {
 
   Set<String> get allTags => hands.expand((h) => h.tags).toSet();
 
+  /// Convert a [SavedHand] object to a JSON string.
+  String serializeHand(SavedHand hand) => jsonEncode(hand.toJson());
+
+  /// Parse a [SavedHand] from a JSON string.
+  SavedHand deserializeHand(String jsonStr) =>
+      SavedHand.fromJson(jsonDecode(jsonStr) as Map<String, dynamic>);
+
   Future<void> add(SavedHand hand) async {
     await _storage.add(hand);
   }
