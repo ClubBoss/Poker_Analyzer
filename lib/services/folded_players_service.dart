@@ -75,6 +75,19 @@ class FoldedPlayersService extends ChangeNotifier {
     addFromAction(newEntry);
   }
 
+  /// Returns a JSON-compatible list of folded player indexes, or `null` if none.
+  List<int>? toJson() =>
+      _foldedPlayers.isEmpty ? null : List<int>.from(_foldedPlayers);
+
+  /// Restores folded players from a list produced by [toJson].
+  void restoreFromJson(List<dynamic>? json) {
+    if (json == null) {
+      reset();
+    } else {
+      restore(json.cast<int>());
+    }
+  }
+
   void attach(ActionSyncService actionSync) {
     _actionSync?.removeListener(_listener ?? () {});
     _actionSync = actionSync;
