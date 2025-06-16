@@ -504,11 +504,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _addQualityTags() {
-    final tags = _handContext.tagsController.text
-        .split(',')
-        .map((t) => t.trim())
-        .where((t) => t.isNotEmpty)
-        .toSet();
+    final tags = _handContext.tags.toSet();
     bool misplay = false;
     bool aggressive = false;
     for (final a in actions) {
@@ -522,7 +518,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     if (misplay) tags.add('🚫 Мисс-плей');
     if (aggressive) tags.add('🤯 Слишком агрессивно');
-    _handContext.tagsController.text = tags.join(', ');
+    _handContext.tags = tags.toList();
   }
 
 
@@ -617,7 +613,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       handContext: _handContext,
       foldedPlayers: _foldedPlayers,
       actionTags: _actionTagService,
-      setCurrentHandName: (name) => _handContext.currentHandName = name,
       setActivePlayerIndex: (i) => activePlayerIndex = i,
       potSync: _potSync,
     );
@@ -1408,9 +1403,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _stackService.reset(
             Map<int, int>.from(_playerManager.initialStacks));
         _playbackManager.resetHand();
-        _handContext.commentController.clear();
-        _handContext.tagsController.clear();
-        _handContext.currentHandName = null;
+        _handContext.clear();
       });
     }
   }
@@ -1630,20 +1623,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       },
       playerPositions: Map<int, String>.from(_profile.playerPositions),
       playerTypes: Map<int, PlayerType>.from(_profile.playerTypes),
-      comment: _handContext.commentController.text.isNotEmpty
-          ? _handContext.commentController.text
-          : null,
-      tags: _handContext.tagsController.text
-          .split(',')
-          .map((t) => t.trim())
-          .where((t) => t.isNotEmpty)
-          .toList(),
-      commentCursor: _handContext.commentController.selection.baseOffset >= 0
-          ? _handContext.commentController.selection.baseOffset
-          : null,
-      tagsCursor: _handContext.tagsController.selection.baseOffset >= 0
-          ? _handContext.tagsController.selection.baseOffset
-          : null,
+      comment: _handContext.comment,
+      tags: _handContext.tags,
+      commentCursor: _handContext.commentCursor,
+      tagsCursor: _handContext.tagsCursor,
       isFavorite: false,
       date: DateTime.now(),
       effectiveStacksPerStreet: stacks,
