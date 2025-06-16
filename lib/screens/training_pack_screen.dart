@@ -623,8 +623,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                           potSync: potSync,
                         );
                         return PlaybackManagerService(
-                          actions:
-                              context.read<ActionSyncService>().analyzerActions,
                           stackService: stackService,
                           potSync: potSync,
                           actionSync: context.read<ActionSyncService>(),

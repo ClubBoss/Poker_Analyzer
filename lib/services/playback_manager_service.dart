@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/action_entry.dart';
 import 'action_sync_service.dart';
 import 'playback_service.dart';
 import 'stack_manager_service.dart';
@@ -9,7 +8,6 @@ import 'pot_sync_service.dart';
 /// Manages playback state updates and delegates to [PlaybackService].
 class PlaybackManagerService extends ChangeNotifier {
   final PlaybackService _playbackService;
-  final List<ActionEntry> actions;
   StackManagerService stackService;
   final PotSyncService potSync;
   final ActionSyncService actionSync;
@@ -27,7 +25,6 @@ class PlaybackManagerService extends ChangeNotifier {
 
   PlaybackManagerService({
     PlaybackService? playbackService,
-    required this.actions,
     required this.stackService,
     required this.potSync,
     required this.actionSync,
@@ -49,11 +46,13 @@ class PlaybackManagerService extends ChangeNotifier {
     return false;
   }
 
-  void startPlayback() => _playbackService.startPlayback(actions.length);
+  void startPlayback() =>
+      _playbackService.startPlayback(actionSync.analyzerActions.length);
 
   void pausePlayback() => _playbackService.pausePlayback();
 
-  void stepForward() => _playbackService.stepForward(actions.length);
+  void stepForward() =>
+      _playbackService.stepForward(actionSync.analyzerActions.length);
 
   void stepBackward() => _playbackService.stepBackward();
 
@@ -67,7 +66,9 @@ class PlaybackManagerService extends ChangeNotifier {
   }
 
   void updatePlaybackState() {
-    final subset = actions.take(_playbackService.playbackIndex).toList();
+    final subset = actionSync.analyzerActions
+        .take(_playbackService.playbackIndex)
+        .toList();
 
     // Determine players with chip animations up to the current index.
     final previous = {
@@ -97,7 +98,8 @@ class PlaybackManagerService extends ChangeNotifier {
     });
 
     // Pot sizes are synchronized via [PotSyncService].
-    potSync.updateForPlayback(_playbackService.playbackIndex, actions);
+    potSync.updateForPlayback(
+        _playbackService.playbackIndex, actionSync.analyzerActions);
     for (int i = 0; i < pots.length; i++) {
       pots[i] = potSync.pots[i];
     }
