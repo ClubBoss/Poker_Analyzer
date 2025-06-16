@@ -128,11 +128,10 @@ class BoardRevealService {
 
   /// Synchronize [boardSync.revealedBoardCards] with the current reveal state.
   void updateRevealState() {
-    final street = revealStreet.clamp(0, boardSync.boardStreet);
-    final count = BoardSyncService.stageCardCounts[street];
-    boardSync.revealedBoardCards
-      ..clear()
-      ..addAll(boardSync.boardCards.take(count));
+    boardSync.syncRevealState(
+      revealStreet: _revealStreet,
+      showFullBoard: _showFullBoard,
+    );
   }
 
   /// Toggle showing the full board regardless of the current street.

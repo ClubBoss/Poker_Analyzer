@@ -101,7 +101,6 @@ class HandRestoreService {
         visibleCount: playbackManager.playbackIndex);
     boardManager.boardStreet = hand.boardStreet;
     boardManager.currentStreet = hand.boardStreet;
-    boardSync.updateRevealedBoardCards();
     boardReveal.restoreFromJson({
       'showFullBoard': hand.showFullBoard,
       'revealStreet': hand.revealStreet,
