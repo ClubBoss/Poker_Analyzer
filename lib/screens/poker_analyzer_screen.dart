@@ -531,7 +531,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     await showDialog(
       context: context,
       builder: (context) => _PlayerEditorSection(
-        initialStack: _stackService.initialStacks[index] ?? 0,
+        initialStack: _stackService.getInitialStack(index),
         initialType: _playerManager.playerTypes[index] ?? PlayerType.unknown,
         isHeroSelected: index == _playerManager.heroIndex,
         card1: _playerManager.playerCards[index].isNotEmpty
@@ -1961,7 +1961,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               street: i,
               actions: savedActions,
               pots: _playbackManager.pots,
-              stackSizes: _stackService.stackSizes,
+              stackSizes: _stackService.currentStacks,
               playerPositions: playerPositions,
               onEdit: _editAction,
               onDelete: _deleteAction,
@@ -1978,7 +1978,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         actions: visibleActions,
         playerPositions: playerPositions,
         pots: _playbackManager.pots,
-        stackSizes: _stackService.stackSizes,
+        stackSizes: _stackService.currentStacks,
         onEdit: _editAction,
       onDelete: _deleteAction,
       visibleCount: _playbackManager.playbackIndex,
@@ -2060,7 +2060,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   currentStreet: currentStreet,
                   actions: actions,
                   pots: _playbackManager.pots,
-                  stackSizes: _stackService.stackSizes,
+                  stackSizes: _stackService.currentStacks,
                   onEdit: _editAction,
                   onDelete: _deleteAction,
                   visibleCount: _playbackManager.playbackIndex,
@@ -2159,7 +2159,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
 
     final String position = playerPositions[index] ?? '';
-    final int stack = _stackService.stackSizes[index] ?? 0;
+    final int stack = _stackService.getStackForPlayer(index);
     final String tag = _actionTagService.getTag(index) ?? '';
     final bool isActive = activePlayerIndex == index;
     final bool isFolded = _foldedPlayers.contains(index);
@@ -4794,7 +4794,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             for (int i = 0; i < s.numberOfPlayers; i++)
               debugDiag(
                 'Player ${i + 1}',
-                'Initial ${s._stackService.initialStacks[i] ?? 0}, '
+                'Initial ${s._stackService.getInitialStack(i)}, '
                 'Invested ${s._stackService.getTotalInvested(i)}, '
                 'Remaining ${s._stackService.getStackForPlayer(i)}',
               ),
