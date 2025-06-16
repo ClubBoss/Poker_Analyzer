@@ -130,15 +130,6 @@ class BoardManagerService extends ChangeNotifier {
     _playerManager.notifyListeners();
   }
 
-  /// Select a community card at [index].
-  void selectBoardCard(int index, CardModel card) {
-    _playerManager.selectBoardCard(index, card);
-  }
-
-  /// Remove the board card at [index] if it exists.
-  void removeBoardCard(int index) {
-    _playerManager.removeBoardCard(index);
-  }
 
   /// Clear all community cards and reset board streets.
   void clearBoard() {

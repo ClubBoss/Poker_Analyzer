@@ -174,12 +174,12 @@ class BoardEditingService {
       showDuplicateCardMessage(context);
       return false;
     }
-    _boardManager.selectBoardCard(index, card);
+    _playerManager.selectBoardCard(index, card);
     return true;
   }
 
   /// Remove the board card at [index] if it exists.
   void removeBoardCard(int index) {
-    _boardManager.removeBoardCard(index);
+    _playerManager.removeBoardCard(index);
   }
 }
