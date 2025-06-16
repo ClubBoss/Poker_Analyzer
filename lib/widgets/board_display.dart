@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/card_model.dart';
-import '../models/action_entry.dart';
+import '../services/pot_sync_service.dart';
 import 'board_cards_widget.dart';
 import 'pot_over_board_widget.dart';
 
@@ -9,7 +9,7 @@ class BoardDisplay extends StatelessWidget {
   final int currentStreet;
   final List<CardModel> boardCards;
   final List<CardModel> revealedBoardCards;
-  final List<ActionEntry> visibleActions;
+  final PotSyncService potSync;
   final void Function(int, CardModel) onCardSelected;
   final void Function(int index)? onCardLongPress;
   final bool Function(int index)? canEditBoard;
@@ -23,7 +23,7 @@ class BoardDisplay extends StatelessWidget {
     required this.currentStreet,
     required this.boardCards,
     required this.revealedBoardCards,
-    required this.visibleActions,
+    required this.potSync,
     required this.onCardSelected,
     this.onCardLongPress,
     this.canEditBoard,
@@ -49,7 +49,7 @@ class BoardDisplay extends StatelessWidget {
           editingDisabled: editingDisabled,
         ),
         PotOverBoardWidget(
-          visibleActions: visibleActions,
+          potSync: potSync,
           currentStreet: currentStreet,
           scale: scale,
         ),
