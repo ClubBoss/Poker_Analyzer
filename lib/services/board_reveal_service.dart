@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -25,7 +24,6 @@ class BoardRevealService {
   int _sequenceId = 0;
   int _prevStreet = 0;
   List<CardModel> _prevCards = [];
-  Timer? _transitionTimer;
 
   void attachTicker(TickerProvider vsync) {
     for (final c in _controllers) {
@@ -55,11 +53,7 @@ class BoardRevealService {
   /// Cancel any pending reveal animations and transition timers.
   void cancelBoardReveal() {
     _sequenceId++;
-    _transitionTimer?.cancel();
-    if (lockService.boardTransitioning) {
-      lockService.boardTransitioning = false;
-      lockService.undoRedoTransitionLock = false;
-    }
+    lockService.cancelBoardTransition();
     for (final c in _controllers) {
       c.stop();
       c.value = 1;
@@ -72,20 +66,13 @@ class BoardRevealService {
   /// [onComplete] is called when the transition finishes and the lock is
   /// released.
   void startBoardTransition([VoidCallback? onComplete]) {
-    _transitionTimer?.cancel();
     final targetVisible = BoardSyncService.stageCardCounts[boardSync.currentStreet];
     final revealCount = max(0, targetVisible - boardSync.revealedBoardCards.length);
     final duration = Duration(
       milliseconds: revealDuration.inMilliseconds +
           revealStagger.inMilliseconds * (revealCount > 1 ? revealCount - 1 : 0),
     );
-    lockService.boardTransitioning = true;
-    lockService.undoRedoTransitionLock = true;
-    _transitionTimer = Timer(duration, () {
-      lockService.boardTransitioning = false;
-      lockService.undoRedoTransitionLock = false;
-      onComplete?.call();
-    });
+    lockService.startBoardTransition(duration, onComplete);
   }
 
   /// Update reveal animations based on the current board state.

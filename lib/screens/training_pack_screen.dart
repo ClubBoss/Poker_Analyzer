@@ -685,6 +685,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                                       .read<PlayerProfileService>()
                                       .actionTagService,
                                   boardReveal: context.read<BoardRevealService>(),
+                                  lockService: lockService,
                                 ),
                               ),
                               );

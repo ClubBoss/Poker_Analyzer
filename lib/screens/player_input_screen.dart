@@ -189,14 +189,15 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                           context.read<BoardEditingService>(),
                                       playerProfile:
                                           context.read<PlayerProfileService>(),
-                                      actionTagService: context
-                                          .read<PlayerProfileService>()
-                                          .actionTagService,
-                                      boardReveal:
-                                          context.read<BoardRevealService>(),
-                                    ),
-                                  ),
-                                );
+                                  actionTagService: context
+                                      .read<PlayerProfileService>()
+                                      .actionTagService,
+                                  boardReveal:
+                                      context.read<BoardRevealService>(),
+                                  lockService: lockService,
+                                ),
+                              ),
+                              );
                               },
                             ),
                           ),
@@ -306,11 +307,12 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                       actionTagService: context
                                           .read<PlayerProfileService>()
                                           .actionTagService,
-                                      boardReveal:
-                                          context.read<BoardRevealService>(),
-                                    ),
-                                  ),
-                                );
+                                  boardReveal:
+                                      context.read<BoardRevealService>(),
+                                  lockService: lockService,
+                                ),
+                              ),
+                              );
                               },
                             ),
                           ),
