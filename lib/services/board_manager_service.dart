@@ -29,7 +29,7 @@ class BoardManagerService extends ChangeNotifier {
         _playbackManager = playbackManager,
         _boardSync = boardSync {
     _playerManager.addListener(_onPlayerManagerChanged);
-    _boardSync.updateRevealedBoardCards();
+    boardReveal.setRevealStreet(currentStreet);
   }
 
   final PlayerManagerService _playerManager;
@@ -67,7 +67,7 @@ class BoardManagerService extends ChangeNotifier {
     if (boardStreet != prevStreet) {
       _playbackManager.updatePlaybackState();
     }
-    _boardSync.updateRevealedBoardCards();
+    boardReveal.setRevealStreet(currentStreet);
     notifyListeners();
   }
 
@@ -87,7 +87,7 @@ class BoardManagerService extends ChangeNotifier {
     startBoardTransition();
     _playbackManager.animatedPlayersPerStreet
         .putIfAbsent(street, () => <int>{});
-    _boardSync.updateRevealedBoardCards();
+    boardReveal.setRevealStreet(currentStreet);
     _jumpPlaybackToStreet(street);
     notifyListeners();
   }

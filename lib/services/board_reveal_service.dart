@@ -16,6 +16,20 @@ class BoardRevealService {
   final TransitionLockService lockService;
   final BoardSyncService boardSync;
 
+  /// Whether all board cards should be shown regardless of the current street.
+  bool _showFullBoard = false;
+
+  /// Street currently revealed to the user. Normally matches
+  /// [boardSync.currentStreet] unless [_showFullBoard] is true.
+  int _revealStreet = 0;
+
+  bool get showFullBoard => _showFullBoard;
+
+  int get revealStreet => _showFullBoard ? boardSync.boardStreet : _revealStreet;
+
+  /// Visible board cards after applying the reveal state.
+  List<CardModel> get revealedBoardCards => boardSync.revealedBoardCards;
+
   static const Duration revealDuration = Duration(milliseconds: 200);
   static const Duration revealStagger = Duration(milliseconds: 50);
 
@@ -37,6 +51,8 @@ class BoardRevealService {
         .map((c) => CurvedAnimation(parent: c, curve: Curves.easeIn))
         .toList();
     _prevStreet = boardSync.currentStreet;
+    _revealStreet = boardSync.currentStreet;
+    updateRevealState();
     _prevCards = List<CardModel>.from(boardSync.revealedBoardCards);
     for (int i = 0; i < _prevCards.length; i++) {
       _controllers[i].value = 1;
@@ -109,5 +125,29 @@ class BoardRevealService {
     _prevCards = List<CardModel>.from(boardSync.revealedBoardCards);
     _prevStreet = boardSync.currentStreet;
   }
+
+  /// Synchronize [boardSync.revealedBoardCards] with the current reveal state.
+  void updateRevealState() {
+    final street = revealStreet.clamp(0, boardSync.boardStreet);
+    final count = BoardSyncService.stageCardCounts[street];
+    boardSync.revealedBoardCards
+      ..clear()
+      ..addAll(boardSync.boardCards.take(count));
+  }
+
+  /// Toggle showing the full board regardless of the current street.
+  void toggleFullBoard() {
+    _showFullBoard = !_showFullBoard;
+    updateRevealState();
+  }
+
+  /// Reset reveal tracking to the provided [street].
+  void setRevealStreet(int street) {
+    _revealStreet = street;
+    updateRevealState();
+  }
+
+  /// Returns true if [stage] is currently revealed.
+  bool isStageRevealed(int stage) => revealStreet >= stage;
 }
 

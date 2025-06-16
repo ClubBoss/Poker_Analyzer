@@ -142,7 +142,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Map<int, String> get playerPositions => _playerManager.playerPositions;
   Map<int, PlayerType> get playerTypes => _playerManager.playerTypes;
   List<bool> get _showActionHints => _playerManager.showActionHints;
-  List<CardModel> get revealedBoardCards => _boardSync.revealedBoardCards;
+  List<CardModel> get revealedBoardCards => _boardReveal.revealedBoardCards;
   int? get opponentIndex => _playerManager.opponentIndex;
   set opponentIndex(int? v) => _playerManager.opponentIndex = v;
   int get currentStreet => _boardManager.currentStreet;
@@ -1862,7 +1862,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       scale: scale,
                       currentStreet: currentStreet,
                       boardCards: boardCards,
-                      revealedBoardCards: _boardSync.revealedBoardCards,
+                      revealedBoardCards: _boardReveal.revealedBoardCards,
                       onCardSelected: selectBoardCard,
                       onCardLongPress: _removeBoardCard,
                       canEditBoard: (i) => _boardEditing.canEditBoard(context, i),
