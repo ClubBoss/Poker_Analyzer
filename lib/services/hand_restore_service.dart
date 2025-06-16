@@ -31,7 +31,6 @@ import 'board_reveal_service.dart';
 class HandRestoreService {
   HandRestoreService({
     required this.playerManager,
-    required this.profile,
     required this.actionSync,
     required this.playbackManager,
     required this.boardManager,
@@ -51,7 +50,6 @@ class HandRestoreService {
   }
 
   final PlayerManagerService playerManager;
-  final PlayerProfileService profile;
   final ActionSyncService actionSync;
   final PlaybackManagerService playbackManager;
   final BoardManagerService boardManager;
@@ -72,34 +70,8 @@ class HandRestoreService {
     lockService.lock();
     try {
     handContext.restoreFromHand(hand);
-    profile.heroIndex = hand.heroIndex;
-    profile.heroPosition = hand.heroPosition;
-    profile.numberOfPlayers = hand.numberOfPlayers;
-    playerManager.numberOfPlayers = hand.numberOfPlayers;
-    for (int i = 0; i < playerManager.playerCards.length; i++) {
-      playerManager.playerCards[i]
-        ..clear()
-        ..addAll(i < hand.playerCards.length ? hand.playerCards[i] : []);
-    }
+    playerManager.restoreFromHand(hand);
     boardManager.setBoardCards(hand.boardCards);
-    for (int i = 0; i < profile.players.length; i++) {
-      final list = profile.players[i].revealedCards;
-      list.fillRange(0, list.length, null);
-      if (i < hand.revealedCards.length) {
-        final from = hand.revealedCards[i];
-        for (int j = 0; j < list.length && j < from.length; j++) {
-          list[j] = from[j];
-        }
-      }
-    }
-    profile.opponentIndex = hand.opponentIndex;
-    setActivePlayerIndex(hand.activePlayerIndex);
-    actionSync.setAnalyzerActions(hand.actions);
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
-    playerManager.initialStacks
-      ..clear()
-      ..addAll(hand.stackSizes);
     final stackService = StackManagerService(
       Map<int, int>.from(playerManager.initialStacks),
       potSync: potSync,
@@ -108,13 +80,10 @@ class HandRestoreService {
     actionSync.attachStackManager(stackService);
     playbackManager.stackService = stackService;
     potSync.stackService = stackService;
-    profile.playerPositions
-      ..clear()
-      ..addAll(hand.playerPositions);
-    profile.playerTypes
-      ..clear()
-      ..addAll(hand.playerTypes ??
-          {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
+    setActivePlayerIndex(hand.activePlayerIndex);
+    actionSync.setAnalyzerActions(hand.actions);
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
     if (hand.actionTags != null) {
       actionTags.restore(hand.actionTags);
     } else {
@@ -142,7 +111,6 @@ class HandRestoreService {
     playbackManager.seek(seekIndex);
     playbackManager.animatedPlayersPerStreet.clear();
     playbackManager.updatePlaybackState();
-    profile.updatePositions();
     // foldedPlayers recomputes automatically when actions change
     queueService.persist();
     queueService.startAutoBackupTimer();
