@@ -9,7 +9,7 @@ import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/action_evaluation_request.dart';
-import 'snapshot_service.dart';
+import 'debug_snapshot_service.dart';
 import 'retry_evaluation_service.dart';
 
 class EvaluationQueueService {
@@ -23,7 +23,6 @@ class EvaluationQueueService {
   Lock get queueLock => _queueLock;
 
 
-  static const int _snapshotRetentionLimit = 50;
 
   static const _pendingOrderKey = 'pending_queue_order';
   static const _failedOrderKey = 'failed_queue_order';
@@ -36,7 +35,7 @@ class EvaluationQueueService {
 
   // Cached SharedPreferences instance for quick persistence operations.
   late final SharedPreferences _sharedPrefs;
-  late final SnapshotService _snapshotService;
+  late final DebugSnapshotService _snapshotService;
   late final RetryEvaluationService _retryService;
   late final Future<void> _initFuture;
   /// Optional callback invoked whenever the queue state changes so the
@@ -45,9 +44,11 @@ class EvaluationQueueService {
 
   EvaluationQueueService({
     RetryEvaluationService? retryService,
+    DebugSnapshotService? debugSnapshotService,
     this.debugPanelCallback,
   }) {
     _retryService = retryService ?? RetryEvaluationService();
+    _snapshotService = debugSnapshotService ?? DebugSnapshotService();
     _initFuture = _initialize();
   }
 
@@ -55,8 +56,6 @@ class EvaluationQueueService {
   Future<void> _initialize() async {
     _documentsDirPath = (await getApplicationDocumentsDirectory()).path;
     _sharedPrefs = await SharedPreferences.getInstance();
-    _snapshotService =
-        SnapshotService(_documentsDirPath, _snapshotRetentionLimit);
   }
 
   Future<void> _writeJson(File file, Object data) async {
