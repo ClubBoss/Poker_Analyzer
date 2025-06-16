@@ -10,11 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
 
-import 'debug_panel_preferences.dart';
 import '../models/action_evaluation_request.dart';
 import 'snapshot_service.dart';
 import 'retry_evaluation_service.dart';
-import 'evaluation_executor_service.dart';
 import 'backup_manager_service.dart';
 
 class EvaluationQueueService {
@@ -24,10 +22,9 @@ class EvaluationQueueService {
 
   final Lock _queueLock = Lock();
 
-  /// Indicates if queue processing is underway.
-  bool processing = false;
-  bool pauseRequested = false;
-  bool cancelRequested = false;
+  /// Exposes the queue lock for synchronized access by helpers.
+  Lock get queueLock => _queueLock;
+
 
   static const int _snapshotRetentionLimit = 50;
 
@@ -35,9 +32,7 @@ class EvaluationQueueService {
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
 
-  final DebugPanelPreferences debugPrefs;
   bool snapshotRetentionEnabled = true;
-  int processingDelay = 500;
 
   // Cached application documents directory path to avoid repeated lookups.
   late final String _documentsDirPath;
@@ -45,7 +40,6 @@ class EvaluationQueueService {
   // Cached SharedPreferences instance for quick persistence operations.
   late final SharedPreferences _sharedPrefs;
   late final SnapshotService _snapshotService;
-  late final EvaluationExecutorService _executorService;
   late final RetryEvaluationService _retryService;
   BackupManagerService? _backupManager;
   late final Future<void> _initFuture;
@@ -54,21 +48,11 @@ class EvaluationQueueService {
   VoidCallback? debugPanelCallback;
 
   EvaluationQueueService({
-    required this.debugPrefs,
-    EvaluationExecutorService? executorService,
     RetryEvaluationService? retryService,
     this.debugPanelCallback,
   }) {
-    _executorService = executorService ?? EvaluationExecutorService();
-    _retryService =
-        retryService ?? RetryEvaluationService(executorService: _executorService);
-    debugPrefs.addListener(_onPrefsChanged);
+    _retryService = retryService ?? RetryEvaluationService();
     _initFuture = _initialize();
-  }
-
-  void _onPrefsChanged() {
-    snapshotRetentionEnabled = debugPrefs.snapshotRetentionEnabled;
-    processingDelay = debugPrefs.processingDelay;
   }
 
   /// Attach an external [BackupManagerService] for import/export operations.
@@ -77,10 +61,6 @@ class EvaluationQueueService {
   }
 
   Future<void> _initialize() async {
-    await debugPrefs.loadSnapshotRetention();
-    await debugPrefs.loadProcessingDelay();
-    snapshotRetentionEnabled = debugPrefs.snapshotRetentionEnabled;
-    processingDelay = debugPrefs.processingDelay;
     _documentsDirPath = (await getApplicationDocumentsDirectory()).path;
     _sharedPrefs = await SharedPreferences.getInstance();
     _snapshotService =
@@ -199,39 +179,6 @@ class EvaluationQueueService {
     await _persist();
   }
 
-  Future<bool> _processSingleEvaluation(ActionEvaluationRequest req) async {
-    return _retryService.processEvaluation(req);
-  }
-
-  Future<void> processQueue() async {
-    if (processing ||
-        await _queueLock.synchronized(() => pending.isEmpty)) return;
-    processing = true;
-    while (await _queueLock.synchronized(() => pending.isNotEmpty)) {
-      if (pauseRequested || cancelRequested) break;
-      final req = await _queueLock.synchronized(() => pending.first);
-      await Future.delayed(Duration(milliseconds: processingDelay));
-      if (cancelRequested) break;
-      if (await _queueLock.synchronized(() => pending.isEmpty)) break;
-      final success = await _processSingleEvaluation(req);
-      await _queueLock.synchronized(() {
-        if (pending.isNotEmpty) {
-          pending.removeAt(0);
-        }
-      });
-      (success ? completed : failed).add(req);
-      if (success) {
-        await saveQueueSnapshot(showNotification: false);
-        _backupManager?.scheduleSnapshotExport();
-      }
-      await _persist();
-      if (pauseRequested || cancelRequested) break;
-    }
-    processing = false;
-    pauseRequested = false;
-    cancelRequested = false;
-    await _persist();
-  }
 
   /// Replace the current evaluation queue with data taken from the clipboard.
   Future<void> importFromClipboard() async {
@@ -323,7 +270,6 @@ class EvaluationQueueService {
   }
 
   Future<void> cleanup() async {
-    debugPrefs.removeListener(_onPrefsChanged);
     _backupManager?.dispose();
   }
 
@@ -507,39 +453,6 @@ class EvaluationQueueService {
     await _persist();
   }
 
-  /// Toggle paused processing state. When resuming, processing restarts if
-  /// pending items exist.
-  Future<void> togglePauseProcessing() async {
-    pauseRequested = !pauseRequested;
-    if (!pauseRequested && !processing && pending.isNotEmpty) {
-      await processQueue();
-    }
-  }
-
-  /// Cancel processing and clear the pending queue.
-  Future<void> cancelProcessing() async {
-    cancelRequested = true;
-    pauseRequested = false;
-    await _queueLock.synchronized(pending.clear);
-    processing = false;
-    await _persist();
-  }
-
-  /// Force stop any running processing and restart if pending items remain.
-  Future<void> forceRestartProcessing() async {
-    if (processing) {
-      cancelRequested = true;
-      pauseRequested = false;
-      while (processing) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
-    }
-    processing = false;
-    cancelRequested = false;
-    if (pending.isNotEmpty) {
-      await processQueue();
-    }
-  }
 
   // ----- Import/Export helpers delegated to [_backupManager] -----
 

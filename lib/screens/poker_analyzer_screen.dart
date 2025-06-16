@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import '../services/evaluation_queue_service.dart';
+import '../services/evaluation_processing_service.dart';
 import '../services/debug_panel_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
@@ -76,6 +77,7 @@ import '../services/action_history_service.dart';
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
   final EvaluationQueueService? queueService;
+  final EvaluationProcessingService? processingService;
   final DebugPanelPreferences? debugPrefsService;
   final ActionSyncService actionSync;
   final HandRestoreService? handRestoreService;
@@ -100,6 +102,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     super.key,
     this.initialHand,
     this.queueService,
+    this.processingService,
     this.debugPrefsService,
     required this.actionSync,
     this.handRestoreService,
@@ -189,6 +192,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   /// Handles evaluation queue state and processing.
   late final EvaluationQueueService _queueService;
+  late final EvaluationProcessingService _processingService;
 
 
 
@@ -534,14 +538,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _actionSync = widget.actionSync;
     _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
     _debugPrefs = widget.debugPrefsService ?? DebugPanelPreferences();
-    _queueService =
-        widget.queueService ?? EvaluationQueueService(debugPrefs: _debugPrefs);
-    final backupManager =
-        widget.backupManagerService ?? BackupManagerService(
-          queueService: _queueService,
-          debugPrefs: _debugPrefs,
-        );
+    _queueService = widget.queueService ?? EvaluationQueueService();
+    final backupManager = widget.backupManagerService ??
+        BackupManagerService(queueService: _queueService, debugPrefs: _debugPrefs);
     _queueService.attachBackupManager(backupManager);
+    _processingService = widget.processingService ?? EvaluationProcessingService(
+      queueService: _queueService,
+      debugPrefs: _debugPrefs,
+      backupManager: backupManager,
+    );
     lockService = widget.lockService;
     _centerChipController = AnimationController(
       vsync: this,
@@ -991,19 +996,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _toggleEvaluationProcessingPause() async {
-    await _queueService.togglePauseProcessing();
+    await _processingService.togglePauseProcessing();
     if (mounted) lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _cancelEvaluationProcessing() async {
-    await _queueService.cancelProcessing();
+    await _processingService.cancelProcessing();
     if (mounted) lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _forceRestartEvaluationProcessing() async {
-    await _queueService.forceRestartProcessing();
+    await _processingService.forceRestartProcessing();
     if (mounted) lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
   }
@@ -1323,12 +1328,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _processEvaluationQueue() async {
-    await _queueService.processQueue();
+    await _processingService.processQueue();
     if (mounted) lockService.safeSetState(this, () {});
   }
 
   Future<void> _processNextEvaluation() async {
-    await _queueService.processQueue();
+    await _processingService.processQueue();
     if (mounted) lockService.safeSetState(this, () {});
   }
 
@@ -1617,7 +1622,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playerManager.removeListener(_onPlayerManagerChanged);
     _playbackManager.removeListener(_onPlaybackManagerChanged);
     _centerChipTimer?.cancel();
-    _queueService.cleanup();
+    _processingService.cleanup();
     _centerChipController.dispose();
     _timelineController.dispose();
     _handContext.dispose();
@@ -3938,14 +3943,14 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
   void initState() {
     super.initState();
     s._debugPanelSetState = setState;
-    s._queueService.debugPanelCallback = setState;
+    s._processingService.debugPanelCallback = setState;
     _searchController.text = s._debugPrefs.searchQuery;
   }
 
   @override
   void dispose() {
     s._debugPanelSetState = null;
-    s._queueService.debugPanelCallback = null;
+    s._processingService.debugPanelCallback = null;
     _searchController.dispose();
     super.dispose();
   }
@@ -4051,10 +4056,10 @@ class _SnapshotControls extends StatelessWidget {
     return state._buttonsColumn({
       'Retry Failed Evaluations':
           s._queueService.failed.isEmpty ? null : s._retryFailedEvaluations,
-      'Export Snapshot Now': s._queueService.processing
+      'Export Snapshot Now': s._processingService.processing
           ? null
           : () => s._exportEvaluationQueueSnapshot(showNotification: true),
-      'Backup Queue Now': s._queueService.processing
+      'Backup Queue Now': s._processingService.processing
           ? null
           : () async {
               await s._backupEvaluationQueue();
@@ -4127,13 +4132,13 @@ class _ProcessingControls extends StatelessWidget {
     final disabled = s._queueService.pending.isEmpty;
     return state._buttonsWrap({
       'Process Next':
-          disabled || s._queueService.processing ? null : s._processNextEvaluation,
+          disabled || s._processingService.processing ? null : s._processNextEvaluation,
       'Start Evaluation Processing':
-          disabled || s._queueService.processing ? null : s._processEvaluationQueue,
-      s._queueService.pauseRequested ? 'Resume' : 'Pause':
-          disabled || !s._queueService.processing ? null : s._toggleEvaluationProcessingPause,
+          disabled || s._processingService.processing ? null : s._processEvaluationQueue,
+      s._processingService.pauseRequested ? 'Resume' : 'Pause':
+          disabled || !s._processingService.processing ? null : s._toggleEvaluationProcessingPause,
       'Cancel Evaluation Processing':
-          !s._queueService.processing && disabled ? null : s._cancelEvaluationProcessing,
+          !s._processingService.processing && disabled ? null : s._cancelEvaluationProcessing,
       'Force Evaluation Restart': disabled ? null : s._forceRestartEvaluationProcessing,
     });
   }
