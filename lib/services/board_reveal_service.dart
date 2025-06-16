@@ -68,7 +68,10 @@ class BoardRevealService {
   }
 
   /// Start a board transition and lock actions until animations finish.
-  Duration startBoardTransition() {
+  ///
+  /// [onComplete] is called when the transition finishes and the lock is
+  /// released.
+  void startBoardTransition([VoidCallback? onComplete]) {
     _transitionTimer?.cancel();
     final targetVisible = BoardSyncService.stageCardCounts[boardSync.currentStreet];
     final revealCount = max(0, targetVisible - boardSync.revealedBoardCards.length);
@@ -81,8 +84,8 @@ class BoardRevealService {
     _transitionTimer = Timer(duration, () {
       lockService.boardTransitioning = false;
       lockService.undoRedoTransitionLock = false;
+      onComplete?.call();
     });
-    return duration;
   }
 
   /// Update reveal animations based on the current board state.

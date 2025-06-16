@@ -188,9 +188,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   static const double _timelineExtent = 80.0;
   /// Duration for individual board card animations.
-  static const Duration _boardRevealDuration = Duration(milliseconds: 200);
-  /// Delay between sequential board reveals.
-  static const Duration _boardRevealStagger = Duration(milliseconds: 50);
+  static const Duration _boardRevealDuration =
+      BoardRevealService.revealDuration;
 
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
