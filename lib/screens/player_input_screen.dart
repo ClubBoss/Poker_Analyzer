@@ -175,6 +175,7 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                         playerManager: context.read<PlayerManagerService>(),
                                         stackService: context.read<PlaybackManagerService>().stackService,
                                         playbackManager: context.read<PlaybackManagerService>(),
+                                        profile: context.read<PlayerProfileService>(),
                                       ),
                                     ),
                                   ],
