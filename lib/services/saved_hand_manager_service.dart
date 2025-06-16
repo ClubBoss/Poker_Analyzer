@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../models/saved_hand.dart';
 import 'saved_hand_storage_service.dart';
@@ -18,13 +16,6 @@ class SavedHandManagerService extends ChangeNotifier {
 
   Set<String> get allTags => hands.expand((h) => h.tags).toSet();
 
-  /// Convert a [SavedHand] object to a JSON string.
-  String serializeHand(SavedHand hand) => jsonEncode(hand.toJson());
-
-  /// Parse a [SavedHand] from a JSON string.
-  SavedHand deserializeHand(String jsonStr) =>
-      SavedHand.fromJson(jsonDecode(jsonStr) as Map<String, dynamic>);
-
   Future<void> add(SavedHand hand) async {
     await _storage.add(hand);
   }
@@ -38,93 +29,6 @@ class SavedHandManagerService extends ChangeNotifier {
   }
 
   SavedHand? get lastHand => hands.isNotEmpty ? hands.last : null;
-
-  Future<void> exportLastHand(BuildContext context) async {
-    final hand = lastHand;
-    if (hand == null) return;
-    final jsonStr = jsonEncode(hand.toJson());
-    await Clipboard.setData(ClipboardData(text: jsonStr));
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Раздача скопирована.')),
-      );
-    }
-  }
-
-  Future<void> exportAllHands(BuildContext context) async {
-    if (hands.isEmpty) return;
-    final jsonStr = jsonEncode([for (final h in hands) h.toJson()]);
-    await Clipboard.setData(ClipboardData(text: jsonStr));
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${hands.length} hands exported to clipboard')),
-      );
-    }
-  }
-
-  Future<SavedHand?> importHandFromClipboard(BuildContext context) async {
-    final data = await Clipboard.getData('text/plain');
-    if (data == null || data.text == null) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Неверный формат данных.')),
-        );
-      }
-      return null;
-    }
-    try {
-      return SavedHand.fromJson(jsonDecode(data.text!) as Map<String, dynamic>);
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Неверный формат данных.')),
-        );
-      }
-      return null;
-    }
-  }
-
-  Future<int> importAllHandsFromClipboard(BuildContext context) async {
-    final data = await Clipboard.getData('text/plain');
-    if (data == null || data.text == null) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid data format')),
-        );
-      }
-      return 0;
-    }
-    try {
-      final parsed = jsonDecode(data.text!);
-      if (parsed is! List) throw const FormatException();
-
-      int count = 0;
-      for (final item in parsed) {
-        if (item is Map<String, dynamic>) {
-          try {
-            await _storage.add(SavedHand.fromJson(item));
-            count++;
-          } catch (_) {}
-        }
-      }
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          count > 0
-              ? SnackBar(content: Text('Imported $count hands'))
-              : const SnackBar(content: Text('Invalid data format')),
-        );
-      }
-      return count;
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid data format')),
-        );
-      }
-      return 0;
-    }
-  }
 
   Future<SavedHand?> selectHand(BuildContext context) async {
     if (hands.isEmpty) return null;

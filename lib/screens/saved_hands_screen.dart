@@ -1,13 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/saved_hand_import_export_service.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../widgets/saved_hand_detail_sheet.dart';
@@ -25,9 +21,17 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
   String _positionFilter = 'Все';
   String _dateFilter = 'Все';
   bool _onlyFavorites = false;
+  late SavedHandImportExportService _importExport;
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final manager = context.read<SavedHandManagerService>();
+    _importExport = SavedHandImportExportService(manager);
   }
 
   @override
@@ -164,30 +168,10 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
   }
 
   Future<void> _exportJson(SavedHand hand) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final fileName = '${hand.name}_${hand.date.millisecondsSinceEpoch}.json';
-    final file = File('${dir.path}/$fileName');
-    await file.writeAsString(jsonEncode(hand.toJson()));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Файл сохранён: $fileName')),
-    );
-    OpenFile.open(file.path);
+    await _importExport.exportJsonFile(context, hand);
   }
 
   Future<void> _exportCsv(SavedHand hand) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final fileName = '${hand.name}_${hand.date.millisecondsSinceEpoch}.csv';
-    final file = File('${dir.path}/$fileName');
-    final buffer = StringBuffer()
-      ..writeln('name,heroPosition,date,isFavorite,tags,comment')
-      ..writeln(
-          '${hand.name},${hand.heroPosition},${hand.date.toIso8601String()},${hand.isFavorite},"${hand.tags.join('|')}","${hand.comment ?? ''}"');
-    await file.writeAsString(buffer.toString());
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Файл сохранён: $fileName')),
-    );
-    OpenFile.open(file.path);
+    await _importExport.exportCsvFile(context, hand);
   }
 }
