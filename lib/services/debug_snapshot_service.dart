@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:archive/archive.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
@@ -159,6 +162,69 @@ class DebugSnapshotService {
     await _initFuture;
     await _ioLock.synchronized(
         () => _cleanupOldFiles(snapshotsFolder, snapshotRetentionLimit));
+  }
+
+  /// Returns the directory containing snapshot files.
+  Future<Directory> getSnapshotsDirectory() async {
+    await _initFuture;
+    return _getDir(snapshotsFolder);
+  }
+
+  /// Reads a snapshot JSON file and returns the decoded content.
+  Future<dynamic> readSnapshotFile(File file) async {
+    await _initFuture;
+    return _readJson(file);
+  }
+
+  /// Exports all snapshot files as a ZIP archive selected by the user.
+  Future<void> exportSnapshots(BuildContext context) async {
+    await _initFuture;
+    try {
+      final dir = await _getDir(snapshotsFolder);
+      if (!await dir.exists()) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('No snapshot files found')));
+        }
+        return;
+      }
+      final files = await dir.list(recursive: true).whereType<File>().toList();
+      if (files.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('No snapshot files found')));
+        }
+        return;
+      }
+      final archive = Archive();
+      for (final file in files) {
+        final data = await file.readAsBytes();
+        final name = file.path.substring(dir.path.length + 1);
+        archive.addFile(ArchiveFile(name, data.length, data));
+      }
+      final bytes = ZipEncoder().encode(archive);
+      if (bytes == null) throw Exception('Could not create archive');
+      final fileName = 'evaluation_snapshots_${_timestamp()}.zip';
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Snapshots Archive',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+      );
+      if (savePath == null) return;
+      final zipFile = File(savePath);
+      await zipFile.writeAsBytes(bytes, flush: true);
+      if (context.mounted) {
+        final name = savePath.split(Platform.pathSeparator).last;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Failed to export snapshots')));
+      }
+    }
   }
 }
 

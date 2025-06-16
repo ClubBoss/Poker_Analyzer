@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/action_evaluation_request.dart';
 import 'backup_manager_service.dart';
+import 'debug_snapshot_service.dart';
 import 'retry_evaluation_service.dart';
 
 class EvaluationQueueService {
@@ -41,15 +42,21 @@ class EvaluationQueueService {
   /// debug panel can update immediately.
   VoidCallback? debugPanelCallback;
   BackupManagerService? backupManager;
+  DebugSnapshotService? debugSnapshotService;
 
   void attachBackupManager(BackupManagerService manager) {
     backupManager = manager;
+  }
+
+  void attachDebugSnapshotService(DebugSnapshotService service) {
+    debugSnapshotService = service;
   }
 
   EvaluationQueueService({
     RetryEvaluationService? retryService,
     this.debugPanelCallback,
     this.backupManager,
+    this.debugSnapshotService,
   }) {
     _retryService = retryService ?? RetryEvaluationService();
     _initFuture = _initialize();
@@ -177,7 +184,7 @@ class EvaluationQueueService {
 
   Future<void> saveQueueSnapshot({bool showNotification = true}) async {
     await _initFuture;
-    await backupManager?.saveQueueSnapshot(
+    await debugSnapshotService?.saveQueueSnapshot(
       await state(),
       showNotification: showNotification,
       snapshotRetentionEnabled: snapshotRetentionEnabled,
@@ -186,7 +193,7 @@ class EvaluationQueueService {
 
   Future<void> loadQueueSnapshot() async {
     await _initFuture;
-    final decoded = await backupManager?.loadLatestQueueSnapshot();
+    final decoded = await debugSnapshotService?.loadQueueSnapshot();
     if (decoded == null) return;
     final queues = _decodeQueues(decoded);
     await _queueLock.synchronized(() {

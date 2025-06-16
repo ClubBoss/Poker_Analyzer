@@ -68,6 +68,7 @@ import '../helpers/debug_helpers.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
+import '../services/debug_snapshot_service.dart';
 import '../services/action_sync_service.dart';
 import '../services/undo_redo_service.dart';
 import '../services/action_editing_service.dart';
@@ -209,6 +210,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late final EvaluationQueueService _queueService;
   late final EvaluationQueueImportExportService _importExportService;
   late final EvaluationProcessingService _processingService;
+  late final DebugSnapshotService _debugSnapshotService;
 
 
 
@@ -558,16 +560,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _importExportService =
         widget.importExportService ??
             EvaluationQueueImportExportService(queueService: _queueService);
+    _debugSnapshotService = DebugSnapshotService();
     _trainingImportExportService =
         widget.trainingImportExportService ?? const TrainingImportExportService();
     final backupManager = widget.backupManagerService ??
         BackupManagerService(queueService: _queueService, debugPrefs: _debugPrefs);
     _importExportService.attachBackupManager(backupManager);
-    _queueService.attachBackupManager(backupManager);
+    _queueService
+      ..attachBackupManager(backupManager)
+      ..attachDebugSnapshotService(_debugSnapshotService);
+    _importExportService.attachDebugSnapshotService(_debugSnapshotService);
     _processingService = widget.processingService ?? EvaluationProcessingService(
       queueService: _queueService,
       debugPrefs: _debugPrefs,
-      backupManager: backupManager,
+      debugSnapshotService: _debugSnapshotService,
     );
     lockService = widget.lockService;
     _centerChipController = AnimationController(
