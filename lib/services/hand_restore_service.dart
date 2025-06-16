@@ -10,7 +10,6 @@ import 'evaluation_queue_service.dart';
 import 'player_manager_service.dart';
 import 'playback_manager_service.dart';
 import 'stack_manager_service.dart';
-import 'backup_manager_service.dart';
 import 'debug_preferences_service.dart';
 import 'transition_lock_service.dart';
 import 'current_hand_context_service.dart';
@@ -37,7 +36,6 @@ class HandRestoreService {
     required this.boardManager,
     required this.boardSync,
     required this.queueService,
-    required this.backupManager,
     required this.debugPrefs,
     required this.lockService,
     required this.handContext,
@@ -57,7 +55,6 @@ class HandRestoreService {
   final BoardManagerService boardManager;
   final BoardSyncService boardSync;
   final EvaluationQueueService queueService;
-  final BackupManagerService backupManager;
   final DebugPreferencesService debugPrefs;
   final TransitionLockService lockService;
   final CurrentHandContextService handContext;
@@ -138,7 +135,7 @@ class HandRestoreService {
     profile.updatePositions();
     // foldedPlayers recomputes automatically when actions change
     queueService.persist();
-    backupManager.startAutoBackupTimer();
+    queueService.startAutoBackupTimer();
     unawaited(debugPrefs.setEvaluationQueueResumed(false));
     return stackService;
   }
