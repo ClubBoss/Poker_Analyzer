@@ -1390,7 +1390,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _boardManager.changeStreet(0);
         _boardManager.startBoardTransition();
         _actionTagService.clear();
-        _playbackManager.animatedPlayersPerStreet.clear();
         _stackService.reset(
             Map<int, int>.from(_playerManager.initialStacks));
         _playbackManager.resetHand();
@@ -1905,8 +1904,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     viewIndex: viewIndex,
                     actions: actions,
                     pots: _playbackManager.pots,
-                    animatedPlayersPerStreet:
-                        _playbackManager.animatedPlayersPerStreet,
+                    playbackManager: _playbackManager,
                     centerChipAction: _centerChipAction,
                     showCenterChip: _showCenterChip,
                     centerChipController: _centerChipController,
@@ -2715,7 +2713,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
   final int viewIndex;
   final List<ActionEntry> actions;
   final List<int> pots;
-  final Map<int, Set<int>> animatedPlayersPerStreet;
+  final PlaybackManagerService playbackManager;
   final ActionEntry? centerChipAction;
   final bool showCenterChip;
   final Animation<double> centerChipController;
@@ -2728,7 +2726,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.viewIndex,
     required this.actions,
     required this.pots,
-    required this.animatedPlayersPerStreet,
+    required this.playbackManager,
     required this.centerChipAction,
     required this.showCenterChip,
     required this.centerChipController,
@@ -2820,12 +2818,8 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
         final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
         final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset(centerX, centerY);
-        final streetSet =
-            animatedPlayersPerStreet.putIfAbsent(currentStreet, () => <int>{});
-        final animate = !streetSet.contains(index);
-        if (animate) {
-          streetSet.add(index);
-        }
+        final animate =
+            playbackManager.shouldAnimatePlayer(currentStreet, index);
         items.add(
           Positioned.fill(
             child: BetChipsOnTable(
@@ -2959,12 +2953,8 @@ class _InvestedChipsOverlaySection extends StatelessWidget {
         final start =
             Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset.lerp(start, Offset(centerX, centerY), 0.2)!;
-        final streetSet = state._playbackManager.animatedPlayersPerStreet
-            .putIfAbsent(state.currentStreet, () => <int>{});
-        final animate = !streetSet.contains(index);
-        if (animate) {
-          streetSet.add(index);
-        }
+        final animate =
+            state._playbackManager.shouldAnimatePlayer(state.currentStreet, index);
         chips.add(Positioned.fill(
           child: BetChipsOnTable(
             start: start,
