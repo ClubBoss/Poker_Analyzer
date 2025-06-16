@@ -1831,7 +1831,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       canEditBoard: (i) => _boardEditing.canEditBoard(context, i),
                       usedCards: _boardEditing.usedCardKeys(),
                       editingDisabled: lockService.isLocked,
-                      visibleActions: visibleActions,
+                      potSync: _potSync,
                       boardReveal: widget.boardReveal,
                     ),
                   ),
@@ -2965,7 +2965,7 @@ class _BoardCardsSection extends StatefulWidget {
   final int currentStreet;
   final List<CardModel> boardCards;
   final List<CardModel> revealedBoardCards;
-  final List<ActionEntry> visibleActions;
+  final PotSyncService potSync;
   final void Function(int, CardModel) onCardSelected;
   final void Function(int) onCardLongPress;
   final bool Function(int index)? canEditBoard;
@@ -2981,7 +2981,7 @@ class _BoardCardsSection extends StatefulWidget {
     required this.revealedBoardCards,
     required this.onCardSelected,
     required this.onCardLongPress,
-    required this.visibleActions,
+    required this.potSync,
     required this.boardReveal,
     this.canEditBoard,
     this.usedCards = const {},
@@ -3052,7 +3052,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
         canEditBoard: widget.canEditBoard,
         usedCards: widget.usedCards,
         editingDisabled: widget.editingDisabled,
-        visibleActions: widget.visibleActions,
+        potSync: widget.potSync,
       ),
     );
   }
