@@ -63,7 +63,7 @@ import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
 import '../services/action_sync_service.dart';
-import "../services/transition_lock_service.dart";
+import '../services/transition_lock_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/folded_players_service.dart';
 import '../services/action_history_service.dart';
@@ -89,6 +89,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final BoardRevealService boardReveal;
   final PotSyncService potSyncService;
   final ActionHistoryService actionHistory;
+  final TransitionLockService lockService;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -110,6 +111,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.boardReveal,
     required this.potSyncService,
     required this.actionHistory,
+    required this.lockService,
   });
 
   @override
@@ -166,7 +168,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showCenterChip = false;
   Timer? _centerChipTimer;
   late AnimationController _centerChipController;
-  final TransitionLockService lockService = TransitionLockService();
+  late TransitionLockService lockService;
   final GlobalKey<_BoardCardsSectionState> _boardKey =
       GlobalKey<_BoardCardsSectionState>();
   late final ScrollController _timelineController;
@@ -214,21 +216,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   void setPosition(int playerIndex, String position) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
       _playerManager.setPosition(playerIndex, position);
     });
   }
 
   void _setHeroIndex(int index) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
       _playerManager.setHeroIndex(index);
     });
   }
 
   void _onPlayerCountChanged(int value) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
       _playerManager.onPlayerCountChanged(value);
     });
@@ -356,7 +358,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _reverseStreet() {
-    if (lockService.boardTransitioning || !_canReverseStreet()) return;
+    if (lockService.isLocked || !_canReverseStreet()) return;
     _recordSnapshot();
     _changeStreet(currentStreet - 1);
   }
@@ -364,13 +366,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _canAdvanceStreet() => currentStreet < boardStreet;
 
   void _advanceStreet() {
-    if (lockService.boardTransitioning || !_canAdvanceStreet()) return;
+    if (lockService.isLocked || !_canAdvanceStreet()) return;
     _recordSnapshot();
     _changeStreet(currentStreet + 1);
   }
 
   void _changeStreet(int street) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     _actionTagService.clear();
     _boardManager.changeStreet(street);
   }
@@ -378,27 +380,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   void _play() {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     _playbackManager.startPlayback();
   }
 
   void _pause() {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     _playbackManager.pausePlayback();
   }
 
   void _stepBackwardPlayback() {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     _playbackManager.stepBackward();
   }
 
   void _stepForwardPlayback() {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     _playbackManager.stepForward();
   }
 
   void _seekPlayback(double value) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     _playbackManager.seek(value.round());
     _playbackManager.updatePlaybackState();
   }
@@ -523,7 +525,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> _editPlayerInfo(int index) async {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     final disableCards = index != _profile.heroIndex;
 
     await showDialog(
@@ -540,7 +542,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             : null,
         disableCards: disableCards,
         onSave: (stack, type, isHero, c1, c2) {
-          if (lockService.boardTransitioning) return;
+          if (lockService.isLocked) return;
           lockService.safeSetState(this, () {
             final cards = <CardModel>[];
             if (c1 != null) cards.add(c1);
@@ -574,6 +576,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       queueService: _queueService,
       debugPrefs: _debugPrefs,
     );
+    lockService = widget.lockService;
     _centerChipController = AnimationController(
       vsync: this,
       duration: _boardRevealDuration,
@@ -643,7 +646,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onPlayerCardTap(int index, int cardIndex) async {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     final current =
         cardIndex < playerCards[index].length ? playerCards[index][cardIndex] : null;
     final selectedCard = await showCardSelector(
@@ -658,21 +661,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onPlayerTimeExpired(int index) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     if (activePlayerIndex == index) {
       lockService.safeSetState(this, () => activePlayerIndex = null);
     }
   }
 
   Future<void> _onOpponentCardTap(int cardIndex) async {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     if (opponentIndex == null) opponentIndex = activePlayerIndex;
     final idx = opponentIndex ?? 0;
     await _onRevealedCardTap(idx, cardIndex);
   }
 
   Future<void> _onRevealedCardTap(int playerIndex, int cardIndex) async {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     final current = players[playerIndex].revealedCards[cardIndex];
     final selected = await showCardSelector(
       context,
@@ -688,7 +691,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   void selectBoardCard(int index, CardModel card) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     final current = index < boardCards.length ? boardCards[index] : null;
     if (_boardEditing.selectBoardCard(context, index, card, current: current)) {
       lockService.safeSetState(this, () {
@@ -698,7 +701,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _removeBoardCard(int index) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     if (index >= boardCards.length) return;
     _boardEditing.removeBoardCard(index);
     lockService.safeSetState(this, () {
@@ -828,7 +831,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _onPlayerTap(int index) async {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     lockService.safeSetState(this, () => activePlayerIndex = index);
     final result = await _showActionPicker();
     if (result == null) return;
@@ -1078,7 +1081,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _addAction(ActionEntry entry,
       {int? index, bool recordHistory = true}) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     final prevStreet = currentStreet;
     final inferred = _boardSync.inferBoardStreet();
     if (inferred > currentStreet) {
@@ -1151,7 +1154,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _editAction(int index, ActionEntry entry) {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
       _updateAction(index, entry);
       if (entry.action == 'fold') {
@@ -1215,7 +1218,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _undoAction() {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     _boardManager.cancelBoardReveal();
     final result = _actionSync.undo(_currentSnapshot());
     if (result.entry == null && result.snapshot == null) return;
@@ -1247,7 +1250,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _redoAction() {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     _boardManager.cancelBoardReveal();
     final result = _actionSync.redo(_currentSnapshot());
     if (result.entry == null && result.snapshot == null) return;
@@ -1279,7 +1282,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _previousStreet() {
-    if (lockService.boardTransitioning || currentStreet <= 0) return;
+    if (lockService.isLocked || currentStreet <= 0) return;
     lockService.safeSetState(this, () {
       _recordSnapshot();
       _boardManager.changeStreet(currentStreet - 1);
@@ -1293,7 +1296,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _nextStreet() {
-    if (lockService.boardTransitioning || currentStreet >= boardStreet) return;
+    if (lockService.isLocked || currentStreet >= boardStreet) return;
     lockService.safeSetState(this, () {
       _recordSnapshot();
       _boardManager.changeStreet(currentStreet + 1);
@@ -1307,7 +1310,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _removePlayer(int index) async {
-    if (lockService.boardTransitioning) return;
+    if (lockService.isLocked) return;
     if (_playerManager.numberOfPlayers <= 2) return;
 
     int updatedHeroIndex = _profile.heroIndex;
@@ -1756,7 +1759,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> saveCurrentHand() async {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
@@ -1787,7 +1790,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void loadLastSavedHand() {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     final hand = _handManager.lastHand;
     if (hand == null) return;
     _stackService = _handRestore.restoreHand(hand);
@@ -1798,7 +1801,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> loadHandByName() async {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     final selected = await _handManager.selectHand(context);
       if (selected != null) {
         _stackService = _handRestore.restoreHand(selected);
@@ -1811,17 +1814,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> exportLastSavedHand() async {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     await _handManager.exportLastHand(context);
   }
 
   Future<void> exportAllHands() async {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     await _handManager.exportAllHands(context);
   }
 
   Future<void> importHandFromClipboard() async {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     final hand = await _handManager.importHandFromClipboard(context);
     if (hand != null) {
       _stackService = _handRestore.restoreHand(hand);
@@ -1833,7 +1836,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> importAllHandsFromClipboard() async {
-    if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
+    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     await _handManager.importAllHandsFromClipboard(context);
   }
 
@@ -1905,8 +1908,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               numberOfPlayers: numberOfPlayers,
               playerPositions: playerPositions,
               playerTypes: playerTypes,
-              onChanged: lockService.boardTransitioning ? null : _onPlayerCountChanged,
-              disabled: lockService.boardTransitioning,
+              onChanged: lockService.isLocked ? null : _onPlayerCountChanged,
+              disabled: lockService.isLocked,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -1923,7 +1926,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   children: [
                   _TableBackgroundSection(scale: scale),
                   AbsorbPointer(
-                    absorbing: lockService.boardTransitioning,
+                    absorbing: lockService.isLocked,
                     child: _BoardCardsSection(
                       key: _boardKey,
                       scale: scale,
@@ -1934,7 +1937,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       onCardLongPress: _removeBoardCard,
                       canEditBoard: (i) => _boardEditing.canEditBoard(context, i),
                       usedCards: _boardEditing.usedCardKeys(),
-                      editingDisabled: lockService.boardTransitioning,
+                      editingDisabled: lockService.isLocked,
                       visibleActions: visibleActions,
                       boardReveal: widget.boardReveal,
                     ),
@@ -1944,14 +1947,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     scale: scale,
                     playerPositions: playerPositions,
                     opponentCardRow: AbsorbPointer(
-                      absorbing: lockService.boardTransitioning,
+                      absorbing: lockService.isLocked,
                       child: _OpponentCardRowSection(
                         scale: scale,
                         players: players,
                         activePlayerIndex: activePlayerIndex,
                         opponentIndex: opponentIndex,
                         onCardTap:
-                            lockService.boardTransitioning ? null : _onOpponentCardTap,
+                            lockService.isLocked ? null : _onOpponentCardTap,
                       ),
                     ),
                     playerBuilder: _buildPlayerWidgets,
@@ -2006,7 +2009,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? 'SPR: ${sprValue.toStringAsFixed(1)}'
                         : null,
                   ),
-                  if (lockService.boardTransitioning)
+                  if (lockService.isLocked)
                     const _BoardTransitionBusyIndicator(),
                 _RevealAllCardsButton(
                   showAllRevealedCards: _debugPrefs.showAllRevealedCards,
@@ -2023,7 +2026,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: AbsorbPointer(
-        absorbing: lockService.boardTransitioning,
+        absorbing: lockService.isLocked,
         child: Column(
           children: List.generate(
             4,
@@ -2043,7 +2046,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     ),
     AbsorbPointer(
-      absorbing: lockService.boardTransitioning,
+      absorbing: lockService.isLocked,
       child: ActionHistoryExpansionTile(
         actions: visibleActions,
         playerPositions: playerPositions,
@@ -2058,9 +2061,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       currentStreet: currentStreet,
       canGoPrev: _canReverseStreet(),
       onPrevStreet:
-          lockService.boardTransitioning ? null : () => lockService.safeSetState(this, _reverseStreet),
+          lockService.isLocked ? null : () => lockService.safeSetState(this, _reverseStreet),
       onStreetChanged: (index) {
-        if (lockService.boardTransitioning) return;
+        if (lockService.isLocked) return;
         lockService.safeSetState(this, () {
           _recordSnapshot();
           _changeStreet(index);
@@ -2068,7 +2071,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       },
             ),
             AbsorbPointer(
-              absorbing: lockService.boardTransitioning,
+              absorbing: lockService.isLocked,
               child: StreetActionInputWidget(
                 currentStreet: currentStreet,
                 numberOfPlayers: numberOfPlayers,
@@ -2081,7 +2084,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               ),
             ),
             AbsorbPointer(
-              absorbing: lockService.boardTransitioning,
+              absorbing: lockService.isLocked,
               child: ActionTimelineWidget(
                 actions: visibleActions,
                 playbackIndex: _playbackManager.playbackIndex,
@@ -2115,12 +2118,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onImport: importHandFromClipboard,
                 onImportAll: importAllHandsFromClipboard,
                 onReset: _resetHand,
-                disabled: lockService.boardTransitioning || lockService.undoRedoTransitionLock,
+                disabled: lockService.isLocked || lockService.undoRedoTransitionLock,
               ),
             ),
             Expanded(
               child: AbsorbPointer(
-                absorbing: lockService.boardTransitioning,
+                absorbing: lockService.isLocked,
                 child: _HandEditorSection(
                   historyActions: visibleActions,
                   playerPositions: playerPositions,
@@ -2324,7 +2327,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         child: Transform.scale(
           scale: infoScale,
           child: AbsorbPointer(
-            absorbing: lockService.boardTransitioning,
+            absorbing: lockService.isLocked,
             child: PlayerInfoWidget(
             position: position,
             stack: stack,
@@ -2360,17 +2363,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     _profile.playerPositions[index] == 'BB')
                 ? _profile.playerPositions[index]
                 : null,
-            timersDisabled: lockService.boardTransitioning,
-            onCardTap: lockService.boardTransitioning
+            timersDisabled: lockService.isLocked,
+            onCardTap: lockService.isLocked
                 ? null
                 : (cardIndex) => _onPlayerCardTap(index, cardIndex),
             onTap: () => _onPlayerTap(index),
-            onDoubleTap: lockService.boardTransitioning
+            onDoubleTap: lockService.isLocked
                 ? null
                 : () => _setHeroIndex(index),
-            onLongPress: lockService.boardTransitioning ? null : () => _editPlayerInfo(index),
-            onEdit: lockService.boardTransitioning ? null : () => _editPlayerInfo(index),
-            onStackTap: lockService.boardTransitioning
+            onLongPress: lockService.isLocked ? null : () => _editPlayerInfo(index),
+            onEdit: lockService.isLocked ? null : () => _editPlayerInfo(index),
+            onStackTap: lockService.isLocked
                 ? null
                 : (value) => lockService.safeSetState(this, () {
                       _playerManager.setInitialStack(index, value);
@@ -2378,7 +2381,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                           .reset(Map<int, int>.from(_playerManager.initialStacks));
                       _playbackManager.updatePlaybackState();
                     }),
-            onRemove: _playerManager.numberOfPlayers > 2 && !lockService.boardTransitioning
+            onRemove: _playerManager.numberOfPlayers > 2 && !lockService.isLocked
                 ? () {
                     _removePlayer(index);
                   }
@@ -4192,7 +4195,7 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
   VoidCallback? _transitionSafe(VoidCallback? cb) {
     if (cb == null) return null;
     return () {
-      if (s.lockService.boardTransitioning) return;
+      if (s.lockService.isLocked) return;
       cb();
     };
   }
@@ -4201,7 +4204,7 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
       {bool disableDuringTransition = false}) {
     final cb =
         disableDuringTransition ? _transitionSafe(onPressed) : onPressed;
-    final disabled = disableDuringTransition && s.lockService.boardTransitioning;
+    final disabled = disableDuringTransition && s.lockService.isLocked;
     return ElevatedButton(onPressed: disabled ? null : cb, child: Text(label));
   }
 
@@ -4851,7 +4854,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
       {bool disableDuringTransition = false}) {
     final cb =
         disableDuringTransition ? _transitionSafe(onPressed) : onPressed;
-    final disabled = disableDuringTransition && s.lockService.boardTransitioning;
+    final disabled = disableDuringTransition && s.lockService.isLocked;
     return TextButton(onPressed: disabled ? null : cb, child: Text(label));
   }
 
@@ -5074,13 +5077,13 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             disableDuringTransition: true),
         _dialogBtn(
           'Undo',
-          s.lockService.boardTransitioning || s.lockService.undoRedoTransitionLock
+          s.lockService.isLocked || s.lockService.undoRedoTransitionLock
               ? null
               : s._undoAction,
         ),
         _dialogBtn(
           'Redo',
-          s.lockService.boardTransitioning || s.lockService.undoRedoTransitionLock
+          s.lockService.isLocked || s.lockService.undoRedoTransitionLock
               ? null
               : s._redoAction,
         ),
