@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import '../services/evaluation_queue_service.dart';
+import '../services/evaluation_queue_import_export_service.dart';
 import '../services/evaluation_processing_service.dart';
 import '../services/debug_panel_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -77,6 +78,7 @@ import '../services/action_history_service.dart';
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
   final EvaluationQueueService? queueService;
+  final EvaluationQueueImportExportService? importExportService;
   final EvaluationProcessingService? processingService;
   final DebugPanelPreferences? debugPrefsService;
   final ActionSyncService actionSync;
@@ -102,6 +104,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     super.key,
     this.initialHand,
     this.queueService,
+    this.importExportService,
     this.processingService,
     this.debugPrefsService,
     required this.actionSync,
@@ -192,6 +195,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   /// Handles evaluation queue state and processing.
   late final EvaluationQueueService _queueService;
+  late final EvaluationQueueImportExportService _importExportService;
   late final EvaluationProcessingService _processingService;
 
 
@@ -539,9 +543,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
     _debugPrefs = widget.debugPrefsService ?? DebugPanelPreferences();
     _queueService = widget.queueService ?? EvaluationQueueService();
+    _importExportService =
+        widget.importExportService ??
+            EvaluationQueueImportExportService(queueService: _queueService);
     final backupManager = widget.backupManagerService ??
         BackupManagerService(queueService: _queueService, debugPrefs: _debugPrefs);
-    _queueService.attachBackupManager(backupManager);
+    _importExportService.attachBackupManager(backupManager);
     _processingService = widget.processingService ?? EvaluationProcessingService(
       queueService: _queueService,
       debugPrefs: _debugPrefs,
@@ -1255,46 +1262,46 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _exportEvaluationQueue() async {
-    await _queueService.exportEvaluationQueue(context);
+    await _importExportService.exportEvaluationQueue(context);
   }
 
   Future<void> _exportQueueToClipboard() async {
-    await _queueService.exportQueueToClipboard(context);
+    await _importExportService.exportQueueToClipboard(context);
   }
 
   Future<void> _importQueueFromClipboard() async {
-    await _queueService.importQueueFromClipboard(context);
+    await _importExportService.importQueueFromClipboard(context);
     lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _exportFullEvaluationQueueState() async {
-    await _queueService.exportFullQueueState(context);
+    await _importExportService.exportFullQueueState(context);
   }
 
   Future<void> _importFullEvaluationQueueState() async {
-    await _queueService.importFullQueueState(context);
+    await _importExportService.importFullQueueState(context);
     if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _restoreFullEvaluationQueueState() async {
-    await _queueService.restoreFullQueueState(context);
+    await _importExportService.restoreFullQueueState(context);
     if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _backupEvaluationQueue() async {
-    await _queueService.backupEvaluationQueue(context);
+    await _importExportService.backupEvaluationQueue(context);
   }
 
   Future<void> _quickBackupEvaluationQueue() async {
-    await _queueService.quickBackupEvaluationQueue(context);
+    await _importExportService.quickBackupEvaluationQueue(context);
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _exportEvaluationQueueSnapshot({bool showNotification = true}) async {
-    await _queueService.exportEvaluationQueueSnapshot(
+    await _importExportService.exportEvaluationQueueSnapshot(
       context,
       showNotification: showNotification,
     );
@@ -1340,63 +1347,63 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _initializeDebugPreferences() async {
     await _debugPrefs.loadAllPreferences();
     if (_debugPrefs.snapshotRetentionEnabled) {
-      await _queueService.cleanupOldEvaluationSnapshots();
+      await _importExportService.cleanupOldEvaluationSnapshots();
     }
     if (mounted) lockService.safeSetState(this, () {});
   }
 
   Future<void> _exportArchive(String subfolder, String archivePrefix) async {
-    await _queueService.exportArchive(context, subfolder, archivePrefix);
+    await _importExportService.exportArchive(context, subfolder, archivePrefix);
     if (mounted) setState(() {});
   }
 
   Future<void> _exportAllEvaluationBackups() async {
-    await _queueService.exportAllEvaluationBackups(context);
+    await _importExportService.exportAllEvaluationBackups(context);
   }
 
   Future<void> _exportAutoBackups() async {
-    await _queueService.exportAutoBackups(context);
+    await _importExportService.exportAutoBackups(context);
   }
 
   Future<void> _exportSnapshots() async {
-    await _queueService.exportSnapshots(context);
+    await _importExportService.exportSnapshots(context);
   }
 
   Future<void> _restoreFromAutoBackup() async {
-    await _queueService.restoreFromAutoBackup(context);
+    await _importExportService.restoreFromAutoBackup(context);
     if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _exportAllEvaluationSnapshots() async {
-    await _queueService.exportAllEvaluationSnapshots(context);
+    await _importExportService.exportAllEvaluationSnapshots(context);
   }
 
   Future<void> _importEvaluationQueue() async {
-    await _queueService.importEvaluationQueue(context);
+    await _importExportService.importEvaluationQueue(context);
     _debugPanelSetState?.call(() {});
     unawaited(_debugPrefs.setEvaluationQueueResumed(false));
   }
 
   Future<void> _restoreEvaluationQueue() async {
-    await _queueService.restoreEvaluationQueue(context);
+    await _importExportService.restoreEvaluationQueue(context);
   }
 
   Future<void> _bulkImportEvaluationQueue() async {
-    await _queueService.bulkImportEvaluationQueue(context);
+    await _importExportService.bulkImportEvaluationQueue(context);
     if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
 
 
   Future<void> _importEvaluationQueueSnapshot() async {
-    await _queueService.importEvaluationQueueSnapshot(context);
+    await _importExportService.importEvaluationQueueSnapshot(context);
     if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
 
   Future<void> _bulkImportEvaluationSnapshots() async {
-    await _queueService.bulkImportEvaluationSnapshots(context);
+    await _importExportService.bulkImportEvaluationSnapshots(context);
     if (mounted) setState(() {});
     _debugPanelSetState?.call(() {});
   }
@@ -1415,7 +1422,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _resetDebugPanelPreferences() async {
     await _debugPrefs.clearAll();
     if (_debugPrefs.snapshotRetentionEnabled) {
-      await _queueService.cleanupOldEvaluationSnapshots();
+      await _importExportService.cleanupOldEvaluationSnapshots();
     }
     lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
@@ -4002,12 +4009,12 @@ class _QueueTools extends StatelessWidget {
       'Restore From Auto-Backup': s._restoreFromAutoBackup,
       'Bulk Import Evaluation Queue': s._bulkImportEvaluationQueue,
       'Bulk Import Backups': () async {
-        await s._queueService.bulkImportEvaluationBackups(s.context);
+        await s._importExportService.bulkImportEvaluationBackups(s.context);
         if (s.mounted) s.setState(() {});
         s._debugPanelSetState?.call(() {});
       },
       'Bulk Import Auto-Backups': () async {
-        await s._queueService.bulkImportAutoBackups(s.context);
+        await s._importExportService.bulkImportAutoBackups(s.context);
         if (s.mounted) s.setState(() {});
         s._debugPanelSetState?.call(() {});
       },
@@ -4022,7 +4029,7 @@ class _QueueTools extends StatelessWidget {
       'Export Current Queue Snapshot': s._exportEvaluationQueueSnapshot,
       'Quick Backup': s._quickBackupEvaluationQueue,
       'Import Quick Backups': () async {
-        await s._queueService.importQuickBackups(s.context);
+        await s._importExportService.importQuickBackups(s.context);
         s._debugPanelSetState?.call(() {});
       },
       'Export All Backups': s._exportAllEvaluationBackups,
@@ -4093,7 +4100,7 @@ class _SnapshotControls extends StatelessWidget {
           value: s._debugPrefs.snapshotRetentionEnabled,
           onChanged: (v) async {
             await s._debugPrefs.setSnapshotRetentionEnabled(v);
-            if (v) await s._queueService.cleanupOldEvaluationSnapshots();
+            if (v) await s._importExportService.cleanupOldEvaluationSnapshots();
             s.lockService.safeSetState(this, () {});
             s._debugPanelSetState?.call(() {});
           },
