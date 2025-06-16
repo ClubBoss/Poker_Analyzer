@@ -204,11 +204,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             _debugPrefs.searchQuery.isEmpty
             ? (oldIndex, newIndex) {
                 if (newIndex > oldIndex) newIndex -= 1;
-                lockService.safeSetState(this, () {
-                  final item = queue.removeAt(oldIndex);
-                  queue.insert(newIndex, item);
-                });
-                _queueService.persist();
+                lockService.safeSetState(this, () {});
+                unawaited(
+                    _queueService.reorderQueue(queue, oldIndex, newIndex));
                 _debugPanelSetState?.call(() {});
               }
             : (_, __) {});
@@ -617,7 +615,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       debugPrefs: _debugPrefs,
       lockService: lockService,
       handContext: _handContext,
-      pendingEvaluations: _queueService.pending,
       foldedPlayers: _foldedPlayers,
       actionTags: _actionTagService,
       setCurrentHandName: (name) => _handContext.currentHandName = name,

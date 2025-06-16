@@ -40,7 +40,6 @@ class HandRestoreService {
     required this.debugPrefs,
     required this.lockService,
     required this.handContext,
-    required this.pendingEvaluations,
     required this.foldedPlayers,
     required this.actionTags,
     required this.setCurrentHandName,
@@ -61,7 +60,6 @@ class HandRestoreService {
   final DebugPreferencesService debugPrefs;
   final TransitionLockService lockService;
   final CurrentHandContextService handContext;
-  final List<ActionEvaluationRequest> pendingEvaluations;
   final FoldedPlayersService foldedPlayers;
   final ActionTagService actionTags;
   final void Function(String) setCurrentHandName;
@@ -124,9 +122,7 @@ class HandRestoreService {
             ? hand.tagsCursor!
             : handContext.tagsController.text.length);
     actionTags.restore(hand.actionTags);
-    pendingEvaluations
-      ..clear()
-      ..addAll(hand.pendingEvaluations ?? []);
+    unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
     if (hand.foldedPlayers != null) {
       foldedPlayers.restore(hand.foldedPlayers!);
     } else {
