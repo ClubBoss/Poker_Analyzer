@@ -1228,13 +1228,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (op != null) {
         switch (op.type) {
           case ActionChangeType.add:
-            _deleteAction(op.index, recordHistory: false, withSetState: false);
+            _actionTagService.updateAfterActionRemoval(
+                op.newEntry!.playerIndex, actions);
             break;
           case ActionChangeType.edit:
-            _updateAction(op.index, op.oldEntry!, recordHistory: false);
+            _actionTagService.updateForAction(op.oldEntry!);
             break;
           case ActionChangeType.delete:
-            _addAction(op.oldEntry!, index: op.index, recordHistory: false);
+            _actionTagService.updateForAction(op.oldEntry!);
             break;
         }
         _boardManager.changeStreet(op.prevStreet);
@@ -1260,13 +1261,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (op != null) {
         switch (op.type) {
           case ActionChangeType.add:
-            _addAction(op.newEntry!, index: op.index, recordHistory: false);
+            _actionTagService.updateForAction(op.newEntry!);
             break;
           case ActionChangeType.edit:
-            _updateAction(op.index, op.newEntry!, recordHistory: false);
+            _actionTagService.updateForAction(op.newEntry!);
             break;
           case ActionChangeType.delete:
-            _deleteAction(op.index, recordHistory: false, withSetState: false);
+            _actionTagService.updateAfterActionRemoval(
+                op.oldEntry!.playerIndex, actions);
             break;
         }
         _boardManager.changeStreet(op.newStreet);
@@ -1676,12 +1678,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playerManager.loadFromMap(data);
       _boardManager.loadFromMap(data);
 
-      actions
-        ..clear()
-        ..addAll(newActions);
+      _actionSync.setAnalyzerActions(newActions);
 
       _playbackManager.resetHand();
-      _playbackManager.updatePlaybackState();
       _handContext.currentHandName = null;
     });
     _boardManager.startBoardTransition();
