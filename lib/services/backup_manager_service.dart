@@ -23,7 +23,16 @@ class BackupManagerService {
     required this.queueService,
     required this.debugPrefs,
     BackupService? backupService,
-  }) : backupService = backupService ?? BackupService();
+  }) : backupService = backupService ?? BackupService() {
+    // Start periodic automatic backups when the service is created and
+    // clean up any stale files in the background.
+    startAutoBackupTimer();
+    unawaited(cleanupOldAutoBackups());
+    unawaited(cleanupOldEvaluationBackups());
+    if (debugPrefs.snapshotRetentionEnabled) {
+      unawaited(cleanupOldEvaluationSnapshots());
+    }
+  }
 
   final EvaluationQueueService queueService;
   final DebugPreferencesService debugPrefs;
