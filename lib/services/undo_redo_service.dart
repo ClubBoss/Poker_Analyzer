@@ -44,6 +44,7 @@ class UndoRedoService {
 
   SavedHand _currentSnapshot() {
     final stackService = playbackManager.stackService;
+    final reveal = boardReveal.toJson();
     return SavedHand(
       name: handContext.currentHandName ?? '',
       heroIndex: playerManager.heroIndex,
@@ -76,8 +77,8 @@ class UndoRedoService {
       foldedPlayers: foldedPlayers.toNullableList(),
       actionTags: actionTagService.toNullableMap(),
       playbackIndex: playbackManager.playbackIndex,
-      showFullBoard: boardReveal.showFullBoard,
-      revealStreet: boardReveal.revealStreet,
+      showFullBoard: reveal['showFullBoard'] as bool,
+      revealStreet: reveal['revealStreet'] as int,
     );
   }
 
@@ -115,10 +116,7 @@ class UndoRedoService {
           visibleCount: playbackManager.playbackIndex);
       boardManager.boardStreet = snap.boardStreet;
       boardManager.currentStreet = snap.boardStreet;
-      boardReveal.restoreFromJson({
-        'showFullBoard': snap.showFullBoard,
-        'revealStreet': snap.revealStreet,
-      });
+      boardReveal.restoreFromHand(snap);
       final idx = snap.playbackIndex > snap.actions.length
           ? snap.actions.length
           : snap.playbackIndex;

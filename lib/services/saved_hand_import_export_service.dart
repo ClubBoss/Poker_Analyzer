@@ -57,6 +57,7 @@ class SavedHandImportExportService {
     final stacks =
         potSync.calculateEffectiveStacksPerStreet(actions, playerManager.numberOfPlayers);
     final collapsed = actionHistory.collapsedStreets();
+    final reveal = boardReveal.toJson();
     final hand = SavedHand(
       name: name ?? handContext.currentHandName ?? '',
       heroIndex: playerManager.heroIndex,
@@ -91,8 +92,8 @@ class SavedHandImportExportService {
       pendingEvaluations:
           queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(queueService.pending),
       playbackIndex: playbackManager.playbackIndex,
-      showFullBoard: boardReveal.showFullBoard,
-      revealStreet: boardReveal.revealStreet,
+      showFullBoard: reveal['showFullBoard'] as bool,
+      revealStreet: reveal['revealStreet'] as int,
     );
     return handContext.applyTo(hand);
   }
