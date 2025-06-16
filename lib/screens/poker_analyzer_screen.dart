@@ -1495,7 +1495,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> saveCurrentHand() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
@@ -1526,7 +1526,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void loadLastSavedHand() {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     final hand = _handManager.lastHand;
     if (hand == null) return;
     _stackService = _handRestore.restoreHand(hand);
@@ -1537,7 +1537,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> loadHandByName() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     final selected = await _handManager.selectHand(context);
       if (selected != null) {
         _stackService = _handRestore.restoreHand(selected);
@@ -1550,17 +1550,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   Future<void> exportLastSavedHand() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _handImportExportService.exportLastHand(context);
   }
 
   Future<void> exportAllHands() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _handImportExportService.exportAllHands(context);
   }
 
   Future<void> importHandFromClipboard() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     final hand = await _handImportExportService.importHandFromClipboard(context);
     if (hand != null) {
       _stackService = _handRestore.restoreHand(hand);
@@ -1572,18 +1572,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> importAllHandsFromClipboard() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _handImportExportService.importAllHandsFromClipboard(context);
   }
 
   Future<void> exportTrainingSpotToClipboard() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _trainingImportExportService.exportToClipboard(
         context, _currentTrainingSpot());
   }
 
   Future<void> importTrainingSpotFromClipboard() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     final spot = await _trainingImportExportService.importFromClipboard(context);
     if (spot != null) {
       loadTrainingSpot(spot);
@@ -1591,45 +1591,45 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> exportTrainingSpotToFile() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _trainingImportExportService.exportToFile(
         context, _currentTrainingSpot());
   }
 
   Future<void> importTrainingSpotFromFile() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     final spot = await _trainingImportExportService.importFromFile(context);
     if (spot != null) loadTrainingSpot(spot);
   }
 
   Future<void> exportTrainingArchive() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _trainingImportExportService
         .exportArchive(context, [_currentTrainingSpot()]);
   }
 
   Future<void> exportPlayerProfileToClipboard() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _playerManager.exportProfileToClipboard(context);
   }
 
   Future<void> importPlayerProfileFromClipboard() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _playerManager.importProfileFromClipboard(context);
   }
 
   Future<void> exportPlayerProfileToFile() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _playerManager.exportProfileToFile(context);
   }
 
   Future<void> importPlayerProfileFromFile() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _playerManager.importProfileFromFile(context);
   }
 
   Future<void> exportPlayerProfileArchive() async {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (_transitionHistory.isLocked) return;
     await _playerManager.exportProfileArchive(context);
   }
 
@@ -1907,7 +1907,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onImport: importHandFromClipboard,
                 onImportAll: importAllHandsFromClipboard,
                 onReset: _resetHand,
-                disabled: lockService.isLocked || lockService.undoRedoTransitionLock,
+                disabled: _transitionHistory.isLocked,
               ),
             ),
             Expanded(
@@ -3967,9 +3967,10 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
 
   Widget _btn(String label, VoidCallback? onPressed,
       {bool disableDuringTransition = false}) {
-    final cb =
-        disableDuringTransition ? s.lockService.transitionSafe(onPressed) : onPressed;
-    final disabled = disableDuringTransition && s.lockService.isLocked;
+    final cb = disableDuringTransition
+        ? s.lockService.transitionSafe(onPressed)
+        : onPressed;
+    final disabled = disableDuringTransition && s._transitionHistory.isLocked;
     return ElevatedButton(onPressed: disabled ? null : cb, child: Text(label));
   }
 
@@ -4894,13 +4895,13 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             disableDuringTransition: true),
         _dialogBtn(
           'Undo',
-          s.lockService.isLocked || s.lockService.undoRedoTransitionLock
+          s._transitionHistory.isLocked
               ? null
               : s._undoAction,
         ),
         _dialogBtn(
           'Redo',
-          s.lockService.isLocked || s.lockService.undoRedoTransitionLock
+          s._transitionHistory.isLocked
               ? null
               : s._redoAction,
         ),
