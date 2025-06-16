@@ -1418,48 +1418,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   SavedHand _currentSavedHand({String? name}) {
-    final stacks =
-        _potSync.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
-    final collapsed = _actionHistory.collapsedStreets();
-    final hand = SavedHand(
+    return _handImportExportService.buildHand(
       name: name ?? _defaultHandName(),
-      heroIndex: _playerManager.heroIndex,
-      heroPosition: _playerManager.heroPosition,
-      numberOfPlayers: _playerManager.numberOfPlayers,
-      playerCards: [
-        for (int i = 0; i < _playerManager.numberOfPlayers; i++)
-          List<CardModel>.from(_playerManager.playerCards[i])
-      ],
-      boardCards: List<CardModel>.from(_playerManager.boardCards),
-      boardStreet: boardStreet,
-      revealedCards: [
-        for (int i = 0; i < _playerManager.numberOfPlayers; i++)
-          [for (final c in _playerManager.players[i].revealedCards) if (c != null) c]
-      ],
-      opponentIndex: opponentIndex,
+      playerManager: _playerManager,
+      stackService: _stackService,
+      boardManager: _boardManager,
+      actionSync: _actionSync,
+      potSync: _potSync,
+      actionHistory: _actionHistory,
+      foldedPlayers: _foldedPlayers,
+      actionTags: _actionTagService,
+      queueService: _queueService,
+      playbackManager: _playbackManager,
+      boardReveal: _boardReveal,
+      handContext: _handContext,
       activePlayerIndex: activePlayerIndex,
-      actions: List<ActionEntry>.from(actions),
-      stackSizes: Map<int, int>.from(_stackService.initialStacks),
-      remainingStacks: {
-        for (int i = 0; i < _playerManager.numberOfPlayers; i++)
-          i: _stackService.getStackForPlayer(i)
-      },
-      playerPositions: Map<int, String>.from(_playerManager.playerPositions),
-      playerTypes: Map<int, PlayerType>.from(_playerManager.playerTypes),
-      isFavorite: false,
-      date: DateTime.now(),
-      effectiveStacksPerStreet: stacks,
-      collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
-      foldedPlayers: _foldedPlayers.toJson(),
-      actionTags:
-          _actionTagService.toMap().isEmpty ? null : _actionTagService.toMap(),
-      pendingEvaluations:
-          _queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(_queueService.pending),
-      playbackIndex: _playbackManager.playbackIndex,
-      showFullBoard: _boardReveal.showFullBoard,
-      revealStreet: _boardReveal.revealStreet,
     );
-    return _handContext.applyTo(hand);
   }
 
   String saveHand() {

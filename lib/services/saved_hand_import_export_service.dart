@@ -8,8 +8,24 @@ import 'package:flutter/services.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../models/action_entry.dart';
 import '../models/saved_hand.dart';
+import '../models/action_evaluation_request.dart';
+import '../models/card_model.dart';
+import '../models/player_model.dart';
 import 'saved_hand_manager_service.dart';
+import 'player_manager_service.dart';
+import 'stack_manager_service.dart';
+import 'board_manager_service.dart';
+import 'action_sync_service.dart';
+import 'pot_sync_service.dart';
+import 'action_history_service.dart';
+import 'board_reveal_service.dart';
+import 'evaluation_queue_service.dart';
+import 'current_hand_context_service.dart';
+import 'playback_manager_service.dart';
+import 'folded_players_service.dart';
+import 'action_tag_service.dart';
 
 class SavedHandImportExportService {
   SavedHandImportExportService(this.manager);
@@ -20,6 +36,66 @@ class SavedHandImportExportService {
 
   SavedHand deserializeHand(String jsonStr) =>
       SavedHand.fromJson(jsonDecode(jsonStr) as Map<String, dynamic>);
+
+  SavedHand buildHand({
+    String? name,
+    required PlayerManagerService playerManager,
+    required StackManagerService stackService,
+    required BoardManagerService boardManager,
+    required ActionSyncService actionSync,
+    required PotSyncService potSync,
+    required ActionHistoryService actionHistory,
+    required FoldedPlayersService foldedPlayers,
+    required ActionTagService actionTags,
+    required EvaluationQueueService queueService,
+    required PlaybackManagerService playbackManager,
+    required BoardRevealService boardReveal,
+    required CurrentHandContextService handContext,
+    int? activePlayerIndex,
+  }) {
+    final actions = actionSync.analyzerActions;
+    final stacks =
+        potSync.calculateEffectiveStacksPerStreet(actions, playerManager.numberOfPlayers);
+    final collapsed = actionHistory.collapsedStreets();
+    final hand = SavedHand(
+      name: name ?? handContext.currentHandName ?? '',
+      heroIndex: playerManager.heroIndex,
+      heroPosition: playerManager.heroPosition,
+      numberOfPlayers: playerManager.numberOfPlayers,
+      playerCards: [
+        for (int i = 0; i < playerManager.numberOfPlayers; i++)
+          List<CardModel>.from(playerManager.playerCards[i])
+      ],
+      boardCards: List<CardModel>.from(boardManager.boardCards),
+      boardStreet: boardManager.boardStreet,
+      revealedCards: [
+        for (int i = 0; i < playerManager.numberOfPlayers; i++)
+          [for (final c in playerManager.players[i].revealedCards) if (c != null) c]
+      ],
+      opponentIndex: playerManager.opponentIndex,
+      activePlayerIndex: activePlayerIndex,
+      actions: List<ActionEntry>.from(actions),
+      stackSizes: Map<int, int>.from(stackService.initialStacks),
+      remainingStacks: {
+        for (int i = 0; i < playerManager.numberOfPlayers; i++)
+          i: stackService.getStackForPlayer(i)
+      },
+      playerPositions: Map<int, String>.from(playerManager.playerPositions),
+      playerTypes: Map<int, PlayerType>.from(playerManager.playerTypes),
+      isFavorite: false,
+      date: DateTime.now(),
+      effectiveStacksPerStreet: stacks,
+      collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
+      foldedPlayers: foldedPlayers.toJson(),
+      actionTags: actionTags.toMap().isEmpty ? null : actionTags.toMap(),
+      pendingEvaluations:
+          queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(queueService.pending),
+      playbackIndex: playbackManager.playbackIndex,
+      showFullBoard: boardReveal.showFullBoard,
+      revealStreet: boardReveal.revealStreet,
+    );
+    return handContext.applyTo(hand);
+  }
 
   Future<void> exportLastHand(BuildContext context) async {
     final hand = manager.lastHand;
