@@ -213,6 +213,7 @@ class EvaluationQueueService {
       (success ? completed : failed).add(req);
       if (success) {
         await saveQueueSnapshot(showNotification: false);
+        _backupManager?.scheduleSnapshotExport();
       }
       await _persist();
       if (pauseRequested || cancelRequested) break;
