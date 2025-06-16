@@ -98,11 +98,7 @@ class HandRestoreService {
     boardManager.boardStreet = hand.boardStreet;
     boardManager.currentStreet = hand.boardStreet;
     boardReveal.restoreFromHand(hand);
-    final seekIndex =
-        hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
-    playbackManager.seek(seekIndex);
-    playbackManager.animatedPlayersPerStreet.clear();
-    playbackManager.updatePlaybackState();
+    playbackManager.restoreFromHand(hand);
     // foldedPlayers recomputes automatically when actions change
     queueService.persist();
     backupManager.startAutoBackupTimer();

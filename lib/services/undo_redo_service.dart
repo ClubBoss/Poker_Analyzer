@@ -50,7 +50,7 @@ class UndoRedoService {
     final reveal = boardReveal.toJson();
     potSync.updateEffectiveStacks(
         actionSync.analyzerActions, playerManager.numberOfPlayers);
-    return SavedHand(
+    final hand = SavedHand(
       name: handContext.currentHandName ?? '',
       heroIndex: playerManager.heroIndex,
       heroPosition: playerManager.heroPosition,
@@ -82,10 +82,10 @@ class UndoRedoService {
       foldedPlayers: foldedPlayers.toNullableList(),
       actionTags: actionTagService.toNullableMap(),
       effectiveStacksPerStreet: potSync.toNullableJson(),
-      playbackIndex: playbackManager.playbackIndex,
       showFullBoard: reveal['showFullBoard'] as bool,
       revealStreet: reveal['revealStreet'] as int,
     );
+    return playbackManager.applyTo(hand);
   }
 
   void recordSnapshot() {
@@ -124,12 +124,7 @@ class UndoRedoService {
       boardManager.boardStreet = snap.boardStreet;
       boardManager.currentStreet = snap.boardStreet;
       boardReveal.restoreFromHand(snap);
-      final idx = snap.playbackIndex > snap.actions.length
-          ? snap.actions.length
-          : snap.playbackIndex;
-      playbackManager.seek(idx);
-      playbackManager.animatedPlayersPerStreet.clear();
-      playbackManager.updatePlaybackState();
+      playbackManager.restoreFromHand(snap);
       boardManager.startBoardTransition();
     } finally {
       lockService.unlock();
