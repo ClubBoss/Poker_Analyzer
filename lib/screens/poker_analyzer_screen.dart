@@ -468,18 +468,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionSync.buildSnapshot(List<CardModel>.from(boardCards));
 
   void _recordSnapshot() {
-    _boardSync.ensureBoardStreetConsistent();
     _actionSync.recordSnapshot(_currentSnapshot());
   }
 
   void _applySnapshot(ActionSnapshot snap) {
     final prevStreet = currentStreet;
     _actionSync.restoreSnapshot(snap);
-    boardCards
-      ..clear()
-      ..addAll(snap.board);
+    _boardManager.setBoardCards(snap.board);
     _animateTimeline = true;
-    _boardSync.updateRevealedBoardCards();
     if (currentStreet != prevStreet) {
       _boardManager.startBoardTransition();
     }
@@ -682,10 +678,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       setActivePlayerIndex: (i) => activePlayerIndex = i,
     );
     _profile.updatePositions();
-    _boardSync.ensureBoardStreetConsistent();
-    _boardSync.updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
-    _boardSync.updateRevealedBoardCards();
     if (widget.initialHand != null) {
       _stackService = _handRestore.restoreHand(widget.initialHand!);
       _actionSync.attachStackManager(_stackService);
@@ -798,7 +791,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   bool _canEditBoard(int index) {
-    _boardSync.ensureBoardStreetConsistent();
     return _isBoardEditAllowed(index);
   }
 
@@ -812,9 +804,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     lockService.safeSetState(this, () {
       _recordSnapshot();
-      _playerManager.selectBoardCard(index, card);
-      _boardSync.ensureBoardStreetConsistent();
-      _boardSync.updateRevealedBoardCards();
+      _boardManager.selectBoardCard(index, card);
     });
   }
 
@@ -823,9 +813,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (index >= boardCards.length) return;
     lockService.safeSetState(this, () {
       _recordSnapshot();
-      _playerManager.removeBoardCard(index);
-      _boardSync.ensureBoardStreetConsistent();
-      _boardSync.updateRevealedBoardCards();
+      _boardManager.removeBoardCard(index);
     });
   }
 
@@ -1205,10 +1193,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final prevStreet = currentStreet;
     final inferred = _inferBoardStreet();
     if (inferred > currentStreet) {
-      _actionSync.changeStreet(inferred);
-      _actionSync.setBoardStreet(inferred);
-      _boardManager.startBoardTransition();
-      _boardSync.updateRevealedBoardCards();
+      _boardManager.boardStreet = inferred;
+      _boardManager.changeStreet(inferred);
     }
     if (entry.street != currentStreet) {
       entry = ActionEntry(currentStreet, entry.playerIndex, entry.action,
@@ -1238,7 +1224,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_playbackManager.playbackIndex > actions.length) {
       _playbackManager.seek(actions.length);
     }
-    _boardSync.updateRevealedBoardCards();
     _playbackManager.updatePlaybackState();
     _autoAdvanceStreetIfComplete(entry.street);
   }
@@ -1360,12 +1345,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             _addAction(op.oldEntry!, index: op.index, recordHistory: false);
             break;
         }
-        _actionSync.changeStreet(op.prevStreet);
+        _boardManager.changeStreet(op.prevStreet);
       }
       if (snap != null) {
         _applySnapshot(snap);
       }
-      _boardSync.updateRevealedBoardCards();
       _playbackManager.updatePlaybackState();
       _autoCollapseStreets();
       _boardManager.startBoardTransition();
@@ -1393,12 +1377,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             _deleteAction(op.index, recordHistory: false, withSetState: false);
             break;
         }
-        _actionSync.changeStreet(op.newStreet);
+        _boardManager.changeStreet(op.newStreet);
       }
       if (snap != null) {
         _applySnapshot(snap);
       }
-      _boardSync.updateRevealedBoardCards();
       _playbackManager.updatePlaybackState();
       _autoCollapseStreets();
       _boardManager.startBoardTransition();
@@ -1410,11 +1393,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.boardTransitioning || currentStreet <= 0) return;
     lockService.safeSetState(this, () {
       _recordSnapshot();
-      _actionSync.changeStreet(currentStreet - 1);
+      _boardManager.changeStreet(currentStreet - 1);
       _actionTagService.clear();
       _playbackManager.animatedPlayersPerStreet
           .putIfAbsent(currentStreet, () => <int>{});
-      _boardSync.updateRevealedBoardCards();
       _playbackManager.updatePlaybackState();
       _boardManager.startBoardTransition();
     });
@@ -1425,11 +1407,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.boardTransitioning || currentStreet >= boardStreet) return;
     lockService.safeSetState(this, () {
       _recordSnapshot();
-      _actionSync.changeStreet(currentStreet + 1);
+      _boardManager.changeStreet(currentStreet + 1);
       _actionTagService.clear();
       _playbackManager.animatedPlayersPerStreet
           .putIfAbsent(currentStreet, () => <int>{});
-      _boardSync.updateRevealedBoardCards();
       _playbackManager.updatePlaybackState();
       _boardManager.startBoardTransition();
     });
@@ -1526,8 +1507,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playerManager.reset();
         _actionSync.clearAnalyzerActions();
         _foldedPlayers.reset();
-        _actionSync.changeStreet(0);
-        _boardSync.updateRevealedBoardCards();
+        _boardManager.changeStreet(0);
         _boardManager.startBoardTransition();
         _actionTagService.clear();
         _playbackManager.animatedPlayersPerStreet.clear();
@@ -1745,7 +1725,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   SavedHand _currentSavedHand({String? name}) {
-    _boardSync.ensureBoardStreetConsistent();
     final stacks =
         _stackService.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
     final collapsed = [
@@ -1902,8 +1881,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..clear()
         ..addAll(newBoard);
 
-      _boardSync.updateRevealedBoardCards();
-
       actions
         ..clear()
         ..addAll(newActions);
@@ -1912,8 +1889,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..clear()
         ..addAll(newPositions);
 
-      _actionSync.changeStreet(0);
-      _boardSync.updateRevealedBoardCards();
+      _boardManager.changeStreet(0);
       _playbackManager.resetHand();
       _playbackManager.updatePlaybackState();
       _profile.updatePositions();

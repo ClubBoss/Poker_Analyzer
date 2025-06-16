@@ -77,9 +77,7 @@ class HandRestoreService {
         ..clear()
         ..addAll(i < hand.playerCards.length ? hand.playerCards[i] : []);
     }
-    playerManager.boardCards
-      ..clear()
-      ..addAll(hand.boardCards);
+    boardManager.setBoardCards(hand.boardCards);
     for (int i = 0; i < profile.players.length; i++) {
       final list = profile.players[i].revealedCards;
       list.fillRange(0, list.length, null);
@@ -136,10 +134,8 @@ class HandRestoreService {
           i
     ]);
     _autoCollapseStreets();
-    actionSync.setBoardStreet(hand.boardStreet);
-    actionSync.changeStreet(hand.boardStreet);
-    boardSync.ensureBoardStreetConsistent();
-    boardSync.updateRevealedBoardCards();
+    boardManager.boardStreet = hand.boardStreet;
+    boardManager.currentStreet = hand.boardStreet;
     final seekIndex =
         hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
     playbackManager.seek(seekIndex);
