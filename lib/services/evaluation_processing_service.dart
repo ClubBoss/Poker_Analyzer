@@ -88,7 +88,6 @@ class EvaluationProcessingService {
           showNotification: false,
           snapshotRetentionEnabled: snapshotRetentionEnabled,
         );
-        backupManager?.scheduleSnapshotExport();
       }
       await queueService.persist();
       if (pauseRequested || cancelRequested) break;

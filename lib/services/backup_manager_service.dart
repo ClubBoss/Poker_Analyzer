@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/action_evaluation_request.dart';
@@ -29,9 +28,6 @@ class BackupManagerService {
     startAutoBackupTimer();
     unawaited(cleanupOldAutoBackups());
     unawaited(cleanupOldEvaluationBackups());
-    if (debugPrefs.snapshotRetentionEnabled) {
-      unawaited(cleanupOldEvaluationSnapshots());
-    }
   }
 
   final EvaluationQueueService queueService;
@@ -44,8 +40,6 @@ class BackupManagerService {
   static const String autoBackupsFolder = BackupService.autoBackupsFolder;
   static const String snapshotsFolder = BackupService.snapshotsFolder;
   static const String exportsFolder = BackupService.exportsFolder;
-
-  static const int _snapshotRetentionLimit = 50;
   static const int _backupRetentionLimit = 30;
 
   List<ActionEvaluationRequest> get _pending => queueService.pending;
@@ -394,47 +388,11 @@ class BackupManagerService {
     await backupService.cleanupOldFiles(backupsFolder, _backupRetentionLimit);
   }
 
-  Future<void> cleanupOldEvaluationSnapshots() async {
-    await backupService.cleanupOldFiles(snapshotsFolder, _snapshotRetentionLimit);
-  }
-
   Future<void> cleanupOldAutoBackups() async {
     await backupService.cleanupOldFiles(
         autoBackupsFolder, BackupService.defaultAutoBackupRetentionLimit);
   }
 
-  Future<void> exportEvaluationQueueSnapshot(BuildContext context,
-      {bool showNotification = true}) async {
-    try {
-      final dir = await _dir(snapshotsFolder);
-      final fileName = 'snapshot_${_timestamp()}.json';
-      final file = await _jsonFile(dir, fileName);
-      await backupService.writeJsonFile(file, _currentState());
-      if (debugPrefs.snapshotRetentionEnabled) {
-        await cleanupOldEvaluationSnapshots();
-      }
-      if (showNotification && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Snapshot saved: ${file.path}')),
-        );
-      }
-    } catch (e) {
-      if (showNotification && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export snapshot')),
-        );
-      } else if (kDebugMode) {
-        debugPrint('Failed to export snapshot: $e');
-      }
-    }
-  }
-
-  void scheduleSnapshotExport() {
-    unawaited(exportEvaluationQueueSnapshot(nullContext, showNotification: false));
-  }
-
-  /// Dummy context used when no context is available.
-  final BuildContext nullContext = _FakeContext();
 
   Future<void> exportArchive(
       BuildContext context, String subfolder, String prefix) async {
@@ -818,9 +776,4 @@ class BackupManagerService {
     }
     await _bulkImport(context, dir.path, null);
   }
-}
-
-class _FakeContext extends BuildContext {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
