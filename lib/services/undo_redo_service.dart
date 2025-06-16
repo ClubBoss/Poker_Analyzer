@@ -5,6 +5,7 @@ import '../models/saved_hand.dart';
 import 'action_sync_service.dart';
 import 'board_manager_service.dart';
 import 'board_reveal_service.dart';
+import 'pot_sync_service.dart';
 import 'playback_manager_service.dart';
 import 'action_tag_service.dart';
 import 'action_history_service.dart';
@@ -24,6 +25,7 @@ class UndoRedoService {
   final ActionHistoryService actionHistory;
   final FoldedPlayersService foldedPlayers;
   final BoardRevealService boardReveal;
+  final PotSyncService potSync;
   final TransitionLockService lockService;
 
   UndoRedoService({
@@ -36,6 +38,7 @@ class UndoRedoService {
     required this.actionHistory,
     required this.foldedPlayers,
     required this.boardReveal,
+    required this.potSync,
     required this.lockService,
   });
 
@@ -45,6 +48,8 @@ class UndoRedoService {
   SavedHand _currentSnapshot() {
     final stackService = playbackManager.stackService;
     final reveal = boardReveal.toJson();
+    potSync.updateEffectiveStacks(
+        actionSync.analyzerActions, playerManager.numberOfPlayers);
     return SavedHand(
       name: handContext.currentHandName ?? '',
       heroIndex: playerManager.heroIndex,
@@ -76,6 +81,7 @@ class UndoRedoService {
       collapsedHistoryStreets: actionHistory.collapsedStreets(),
       foldedPlayers: foldedPlayers.toNullableList(),
       actionTags: actionTagService.toNullableMap(),
+      effectiveStacksPerStreet: potSync.toNullableJson(),
       playbackIndex: playbackManager.playbackIndex,
       showFullBoard: reveal['showFullBoard'] as bool,
       revealStreet: reveal['revealStreet'] as int,
@@ -109,6 +115,7 @@ class UndoRedoService {
         remainingStacks: snap.remainingStacks,
       );
       actionSync.setAnalyzerActions(List<ActionEntry>.from(snap.actions));
+      potSync.restoreFromHand(snap);
       actionTagService.restoreFromHand(snap);
       foldedPlayers.restoreFromHand(snap);
       actionHistory.restoreFromCollapsed(snap.collapsedHistoryStreets);

@@ -54,8 +54,7 @@ class SavedHandImportExportService {
     int? activePlayerIndex,
   }) {
     final actions = actionSync.analyzerActions;
-    final stacks =
-        potSync.calculateEffectiveStacksPerStreet(actions, playerManager.numberOfPlayers);
+    potSync.updateEffectiveStacks(actions, playerManager.numberOfPlayers);
     final collapsed = actionHistory.collapsedStreets();
     final reveal = boardReveal.toJson();
     final hand = SavedHand(
@@ -85,7 +84,7 @@ class SavedHandImportExportService {
       playerTypes: Map<int, PlayerType>.from(playerManager.playerTypes),
       isFavorite: false,
       date: DateTime.now(),
-      effectiveStacksPerStreet: stacks,
+      effectiveStacksPerStreet: potSync.toNullableJson(),
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
       foldedPlayers: foldedPlayers.toNullableList(),
       actionTags: actionTags.toNullableMap(),
