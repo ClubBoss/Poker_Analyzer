@@ -13,6 +13,7 @@ import '../models/action_entry.dart';
 import '../services/playback_manager_service.dart';
 import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
+import '../services/board_editing_service.dart';
 import '../widgets/player_zone_widget.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_display.dart';
@@ -81,6 +82,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final StackManagerService stackService;
   final BoardManagerService boardManager;
   final BoardSyncService boardSync;
+  final BoardEditingService boardEditing;
   final PlayerProfileService playerProfile;
   final ActionTagService actionTagService;
 
@@ -98,6 +100,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.stackService,
     required this.boardManager,
     required this.boardSync,
+    required this.boardEditing,
     required this.playerProfile,
     required this.actionTagService,
   });
@@ -113,6 +116,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late PlayerProfileService _profile;
   late BoardManagerService _boardManager;
   late BoardSyncService _boardSync;
+  late BoardEditingService _boardEditing;
   late ActionTagService _actionTagService;
   int get heroIndex => _profile.heroIndex;
   set heroIndex(int v) => _profile.heroIndex = v;
@@ -179,18 +183,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   static const double _timelineExtent = 80.0;
-  static const List<String> _stageNames = ['Preflop', 'Flop', 'Turn', 'River'];
   /// Duration for individual board card animations.
   static const Duration _boardRevealDuration = Duration(milliseconds: 200);
   /// Delay between sequential board reveals.
   static const Duration _boardRevealStagger = Duration(milliseconds: 50);
 
-  /// Determine which board stage a particular card index belongs to.
-  int _stageForBoardIndex(int index) {
-    if (index <= 2) return 1; // Flop
-    if (index == 3) return 2; // Turn
-    return 3; // River
-  }
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
     final filtered = _debugPrefs.applyAdvancedFilters(queue);
@@ -254,59 +251,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
 
-  bool _cardsEqual(CardModel? a, CardModel b) =>
-      a != null && a.rank == b.rank && a.suit == b.suit;
 
-  bool _isCardInUse(CardModel card) {
-    for (final c in boardCards) {
-      if (_cardsEqual(c, card)) return true;
-    }
-    for (final list in playerCards) {
-      for (final c in list) {
-        if (_cardsEqual(c, card)) return true;
-      }
-    }
-    for (final p in players) {
-      for (final c in p.revealedCards) {
-        if (_cardsEqual(c, card)) return true;
-      }
-    }
-    return false;
-  }
-
-  bool _isDuplicateSelection(CardModel card, CardModel? current) {
-    if (_cardsEqual(current, card)) return false;
-    return _isCardInUse(card);
-  }
-
-  Set<String> _usedCardKeys({CardModel? except}) {
-    String key(CardModel c) => '${c.rank}${c.suit}';
-    final keys = <String>{};
-    for (final c in boardCards) {
-      keys.add(key(c));
-    }
-    for (final list in playerCards) {
-      for (final c in list) {
-        keys.add(key(c));
-      }
-    }
-    for (final p in players) {
-      for (final c in p.revealedCards) {
-        keys.add(key(c));
-      }
-    }
-    if (except != null) keys.remove(key(except));
-    return keys;
-  }
-
-  void _showDuplicateCardMessage() {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        const SnackBar(content: Text('This card is already in use')),
-      );
-  }
 
   void _triggerCenterChip(ActionEntry entry) {
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
@@ -645,6 +590,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         if (mounted) lockService.safeSetState(this, () {});
       });
     _boardSync = widget.boardSync;
+    _boardEditing = widget.boardEditing;
     _stackService = widget.stackService;
     _actionSync.attachStackManager(_stackService);
     _playbackManager = widget.playbackManager;
@@ -691,8 +637,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void selectCard(int index, CardModel card) {
-    if (_isCardInUse(card)) {
-      _showDuplicateCardMessage();
+    if (_boardEditing.isDuplicateSelection(card, null)) {
+      _boardEditing.showDuplicateCardMessage(context);
       return;
     }
     lockService.safeSetState(this, () => _playerManager.selectCard(index, card));
@@ -704,11 +650,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         cardIndex < playerCards[index].length ? playerCards[index][cardIndex] : null;
     final selectedCard = await showCardSelector(
       context,
-      disabledCards: _usedCardKeys(except: current),
+      disabledCards: _boardEditing.usedCardKeys(except: current),
     );
     if (selectedCard == null) return;
-    if (_isDuplicateSelection(selectedCard, current)) {
-      _showDuplicateCardMessage();
+    if (_boardEditing.isDuplicateSelection(selectedCard, current)) {
+      _boardEditing.showDuplicateCardMessage(context);
       return;
     }
     lockService.safeSetState(this, () =>
@@ -734,64 +680,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final current = players[playerIndex].revealedCards[cardIndex];
     final selected = await showCardSelector(
       context,
-      disabledCards: _usedCardKeys(except: current),
+      disabledCards: _boardEditing.usedCardKeys(except: current),
     );
     if (selected == null) return;
-    if (_isDuplicateSelection(selected, current)) {
-      _showDuplicateCardMessage();
+    if (_boardEditing.isDuplicateSelection(selected, current)) {
+      _boardEditing.showDuplicateCardMessage(context);
       return;
     }
     lockService.safeSetState(this, () =>
         _playerManager.setRevealedCard(playerIndex, cardIndex, selected));
   }
 
-  /// Inform the user when they attempt to skip a board stage while editing.
-  /// [prevStage] and [nextStage] are indices into [_stageNames].
-  void _showBoardSkipWarning(int prevStage, int nextStage) {
-    if (!mounted) return;
-    final prevName = _stageNames[prevStage];
-    final nextName = _stageNames[nextStage];
-    final count = BoardSyncService.stageCardCounts[prevStage];
-    final cardWord = count == 1 ? 'card' : 'cards';
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please complete the $prevName by adding $count $cardWord before editing the $nextName.',
-          ),
-        ),
-      );
-  }
 
-  /// Validate editing the board at [index].
-  ///
-  /// Prevents skipping streets by ensuring previous stages are complete.
-  /// Shows a warning message if the user attempts to add cards out of order.
-  bool _isBoardEditAllowed(int index) {
-    final stage = _stageForBoardIndex(index);
-    if (index > boardCards.length) {
-      final expectedStage = _stageForBoardIndex(boardCards.length);
-      _showBoardSkipWarning(expectedStage, stage);
-      return false;
-    }
-    if (!_boardSync.isBoardStageComplete(stage - 1)) {
-      _showBoardSkipWarning(stage - 1, stage);
-      return false;
-    }
-    return true;
-  }
-
-  bool _canEditBoard(int index) {
-    return _isBoardEditAllowed(index);
-  }
 
   void selectBoardCard(int index, CardModel card) {
     if (lockService.boardTransitioning) return;
-    if (!_canEditBoard(index)) return;
+    if (!_boardEditing.canEditBoard(context, index)) return;
     final current = index < boardCards.length ? boardCards[index] : null;
-    if (_isDuplicateSelection(card, current)) {
-      _showDuplicateCardMessage();
+    if (_boardEditing.isDuplicateSelection(card, current)) {
+      _boardEditing.showDuplicateCardMessage(context);
       return;
     }
     lockService.safeSetState(this, () {
@@ -2064,8 +1971,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       revealedBoardCards: _boardSync.revealedBoardCards,
                       onCardSelected: selectBoardCard,
                       onCardLongPress: _removeBoardCard,
-                      canEditBoard: _canEditBoard,
-                      usedCards: _usedCardKeys(),
+                      canEditBoard: (i) => _boardEditing.canEditBoard(context, i),
+                      usedCards: _boardEditing.usedCardKeys(),
                       editingDisabled: lockService.boardTransitioning,
                       visibleActions: visibleActions,
                     ),
