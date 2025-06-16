@@ -9,6 +9,7 @@ import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
 import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
+import '../services/pot_sync_service.dart';
 import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
@@ -111,16 +112,20 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                         ],
                         child: Builder(
                           builder: (context) => ChangeNotifierProvider(
-                            create: (_) => PlaybackManagerService(
-                              actions: context
-                                  .read<ActionSyncService>()
-                                  .analyzerActions,
-                              stackService: StackManagerService(
+                            create: (_) {
+                              final potSync = PotSyncService();
+                              final stackService = StackManagerService(
                                 Map<int, int>.from(
                                     context.read<PlayerManagerService>().initialStacks),
-                              ),
-                              actionSync: context.read<ActionSyncService>(),
-                            ),
+                                potSync: potSync,
+                              );
+                              return PlaybackManagerService(
+                                actions: context.read<ActionSyncService>().analyzerActions,
+                                stackService: stackService,
+                                potSync: potSync,
+                                actionSync: context.read<ActionSyncService>(),
+                              );
+                            },
                             child: Builder(
                           builder: (context) => Provider(
                             create: (_) => BoardSyncService(
@@ -173,6 +178,9 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                       stackService: context
                                           .read<PlaybackManagerService>()
                                           .stackService,
+                                      potSyncService: context
+                                          .read<PlaybackManagerService>()
+                                          .potSync,
                                       boardManager:
                                           context.read<BoardManagerService>(),
                                       boardSync:
@@ -219,16 +227,20 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                         ],
                         child: Builder(
                           builder: (context) => ChangeNotifierProvider(
-                            create: (_) => PlaybackManagerService(
-                              actions: context
-                                  .read<ActionSyncService>()
-                                  .analyzerActions,
-                              stackService: StackManagerService(
+                            create: (_) {
+                              final potSync = PotSyncService();
+                              final stackService = StackManagerService(
                                 Map<int, int>.from(
                                     context.read<PlayerManagerService>().initialStacks),
-                              ),
-                              actionSync: context.read<ActionSyncService>(),
-                            ),
+                                potSync: potSync,
+                              );
+                              return PlaybackManagerService(
+                                actions: context.read<ActionSyncService>().analyzerActions,
+                                stackService: stackService,
+                                potSync: potSync,
+                                actionSync: context.read<ActionSyncService>(),
+                              );
+                            },
                             child: Builder(
                           builder: (context) => Provider(
                             create: (_) => BoardSyncService(
@@ -280,6 +292,9 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                       stackService: context
                                           .read<PlaybackManagerService>()
                                           .stackService,
+                                      potSyncService: context
+                                          .read<PlaybackManagerService>()
+                                          .potSync,
                                       boardManager:
                                           context.read<BoardManagerService>(),
                                       boardSync:

@@ -1,16 +1,20 @@
 import '../helpers/stack_manager.dart';
 import '../models/action_entry.dart';
+import 'pot_sync_service.dart';
 
 /// Service that manages stack sizes and investments based on actions.
 class StackManagerService {
   final Map<int, int> _initialStacks;
   late StackManager _manager;
   final Map<int, int> stackSizes = {};
+  final PotSyncService potSync;
 
-  StackManagerService(Map<int, int> initialStacks, {Map<int, int>? remainingStacks})
+  StackManagerService(Map<int, int> initialStacks,
+      {required this.potSync, Map<int, int>? remainingStacks})
       : _initialStacks = Map<int, int>.from(initialStacks) {
     _manager = StackManager(_initialStacks, remainingStacks: remainingStacks);
     stackSizes.addAll(_manager.currentStacks);
+    potSync.stackService = this;
   }
 
   /// Current initial stack sizes.
@@ -26,6 +30,7 @@ class StackManagerService {
     stackSizes
       ..clear()
       ..addAll(_manager.currentStacks);
+    potSync.stackService = this;
   }
 
   /// Apply [actions] and update current stack sizes.
@@ -34,6 +39,7 @@ class StackManagerService {
     stackSizes
       ..clear()
       ..addAll(_manager.currentStacks);
+    potSync.updatePots(actions);
   }
 
   int getStackForPlayer(int playerIndex) =>
@@ -44,56 +50,4 @@ class StackManagerService {
 
   int getTotalInvested(int playerIndex) =>
       _manager.getTotalInvested(playerIndex);
-
-  /// Calculates the effective stack size using [actions] visible up to the
-  /// current point in the hand.
-  int calculateEffectiveStack(int currentStreet, List<ActionEntry> actions) {
-    int? minStack;
-    for (final entry in stackSizes.entries) {
-      final index = entry.key;
-      final folded = actions.any((a) =>
-          a.playerIndex == index && a.action == 'fold' && a.street <= currentStreet);
-      if (folded) continue;
-      final stack = entry.value;
-      if (minStack == null || stack < minStack) {
-        minStack = stack;
-      }
-    }
-    return minStack ?? 0;
-  }
-
-  /// Calculates the effective stack size at the end of [street].
-  int calculateEffectiveStackForStreet(
-      int street, List<ActionEntry> visibleActions, int numberOfPlayers) {
-    int? minStack;
-    for (int index = 0; index < numberOfPlayers; index++) {
-      final folded = visibleActions.any((a) =>
-          a.playerIndex == index && a.action == 'fold' && a.street <= street);
-      if (folded) continue;
-
-      final initial = _initialStacks[index] ?? 0;
-      int invested = 0;
-      for (int s = 0; s <= street; s++) {
-        invested += _manager.getInvestmentForStreet(index, s);
-      }
-      final remaining = initial - invested;
-
-      if (minStack == null || remaining < minStack) {
-        minStack = remaining;
-      }
-    }
-    return minStack ?? 0;
-  }
-
-  /// Calculates effective stack sizes for every street.
-  Map<String, int> calculateEffectiveStacksPerStreet(
-      List<ActionEntry> actions, int numberOfPlayers) {
-    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
-    final Map<String, int> stacks = {};
-    for (int street = 0; street < streetNames.length; street++) {
-      stacks[streetNames[street]] =
-          calculateEffectiveStackForStreet(street, actions, numberOfPlayers);
-    }
-    return stacks;
-  }
 }
