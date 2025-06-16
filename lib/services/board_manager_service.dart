@@ -140,4 +140,26 @@ class BoardManagerService extends ChangeNotifier {
       lockService.undoRedoTransitionLock = false;
     }
   }
+
+  /// Replace the current board with [cards] and notify listeners.
+  void setBoardCards(List<CardModel> cards) {
+    _playerManager.boardCards
+      ..clear()
+      ..addAll(cards);
+    _playerManager.notifyListeners();
+  }
+
+  /// Select a community card at [index].
+  void selectBoardCard(int index, CardModel card) {
+    _playerManager.selectBoardCard(index, card);
+  }
+
+  /// Remove the board card at [index] if it exists.
+  void removeBoardCard(int index) {
+    _playerManager.removeBoardCard(index);
+  }
+
+  /// Whether [stage] has the required number of board cards.
+  bool isBoardStageComplete(int stage) =>
+      _boardSync.isBoardStageComplete(stage);
 }
