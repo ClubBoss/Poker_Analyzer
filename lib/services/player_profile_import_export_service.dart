@@ -15,7 +15,8 @@ class PlayerProfileImportExportService {
 
   final PlayerProfileService profile;
 
-  Map<String, dynamic> _toMap() => {
+  /// Convert the current player profile to a serializable map.
+  Map<String, dynamic> toMap() => {
         'heroIndex': profile.heroIndex,
         'heroPosition': profile.heroPosition,
         'numberOfPlayers': profile.numberOfPlayers,
@@ -32,7 +33,8 @@ class PlayerProfileImportExportService {
         'playerNames': [for (final p in profile.players) p.name],
       };
 
-  void _loadFromMap(Map<String, dynamic> data) {
+  /// Load player profile information from a previously serialized map.
+  void loadFromMap(Map<String, dynamic> data) {
     final heroIndex = data['heroIndex'] as int? ?? 0;
     final heroPosition = data['heroPosition'] as String? ?? profile.heroPosition;
     final count = data['numberOfPlayers'] as int? ?? profile.numberOfPlayers;
@@ -67,13 +69,13 @@ class PlayerProfileImportExportService {
     profile.updatePositions();
   }
 
-  String serialize() => jsonEncode(_toMap());
+  String serialize() => jsonEncode(toMap());
 
   bool deserialize(String jsonStr) {
     try {
       final decoded = jsonDecode(jsonStr);
       if (decoded is Map<String, dynamic>) {
-        _loadFromMap(Map<String, dynamic>.from(decoded));
+        loadFromMap(Map<String, dynamic>.from(decoded));
         return true;
       }
     } catch (_) {}

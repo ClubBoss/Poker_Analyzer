@@ -146,9 +146,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late SavedHandManagerService _handManager;
   late SavedHandImportExportService _handImportExportService;
   late TrainingImportExportService _trainingImportExportService;
-  late PlayerProfileImportExportService _profileImportExportService;
   late PlayerManagerService _playerManager;
-  late PlayerProfileService _profile;
   late BoardManagerService _boardManager;
   late BoardSyncService _boardSync;
   late BoardEditingService _boardEditing;
@@ -583,10 +581,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _timelineController = ScrollController();
     _playerManager = widget.playerManager
       ..addListener(_onPlayerManagerChanged);
-    _profile = widget.playerManager.profileService;
-    _profileImportExportService =
-        widget.playerProfileImportExportService ??
-            PlayerProfileImportExportService(_profile);
     _actionTagService = widget.actionTagService;
     _boardReveal = widget.boardReveal;
     _potSync = widget.potSyncService;
@@ -1674,27 +1668,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> exportPlayerProfileToClipboard() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    await _profileImportExportService.exportToClipboard(context);
+    await _playerManager.exportProfileToClipboard(context);
   }
 
   Future<void> importPlayerProfileFromClipboard() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    await _profileImportExportService.importFromClipboard(context);
+    await _playerManager.importProfileFromClipboard(context);
   }
 
   Future<void> exportPlayerProfileToFile() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    await _profileImportExportService.exportToFile(context);
+    await _playerManager.exportProfileToFile(context);
   }
 
   Future<void> importPlayerProfileFromFile() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    await _profileImportExportService.importFromFile(context);
+    await _playerManager.importProfileFromFile(context);
   }
 
   Future<void> exportPlayerProfileArchive() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    await _profileImportExportService.exportArchive(context);
+    await _playerManager.exportProfileArchive(context);
   }
 
 
