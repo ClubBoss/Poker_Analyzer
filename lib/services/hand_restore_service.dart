@@ -71,11 +71,11 @@ class HandRestoreService {
   StackManagerService restoreHand(SavedHand hand) {
     lockService.lock();
     try {
-      handContext.currentHandName = hand.name;
-      profile.heroIndex = hand.heroIndex;
-      profile.heroPosition = hand.heroPosition;
-      profile.numberOfPlayers = hand.numberOfPlayers;
-      playerManager.numberOfPlayers = hand.numberOfPlayers;
+    handContext.restoreFromHand(hand);
+    profile.heroIndex = hand.heroIndex;
+    profile.heroPosition = hand.heroPosition;
+    profile.numberOfPlayers = hand.numberOfPlayers;
+    playerManager.numberOfPlayers = hand.numberOfPlayers;
     for (int i = 0; i < playerManager.playerCards.length; i++) {
       playerManager.playerCards[i]
         ..clear()
@@ -115,13 +115,6 @@ class HandRestoreService {
       ..clear()
       ..addAll(hand.playerTypes ??
           {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
-    handContext.restore(
-      name: hand.name,
-      comment: hand.comment,
-      commentCursor: hand.commentCursor,
-      tags: hand.tags,
-      tagsCursor: hand.tagsCursor,
-    );
     if (hand.actionTags != null) {
       actionTags.restore(hand.actionTags);
     } else {
