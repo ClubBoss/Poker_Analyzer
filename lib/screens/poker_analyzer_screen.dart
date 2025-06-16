@@ -66,6 +66,7 @@ import '../services/action_sync_service.dart';
 import "../services/transition_lock_service.dart";
 import '../services/current_hand_context_service.dart';
 import '../services/folded_players_service.dart';
+import '../services/action_history_service.dart';
 
 
 
@@ -87,6 +88,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final ActionTagService actionTagService;
   final BoardRevealService boardReveal;
   final PotSyncService potSyncService;
+  final ActionHistoryService actionHistory;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -107,6 +109,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.actionTagService,
     required this.boardReveal,
     required this.potSyncService,
+    required this.actionHistory,
   });
 
   @override
@@ -145,6 +148,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   List<ActionEntry> get actions => _actionSync.analyzerActions;
   late PlaybackManagerService _playbackManager;
   late PotSyncService _potSync;
+  late ActionHistoryService _actionHistory;
   late StackManagerService _stackService;
   late HandRestoreService _handRestore;
   late CurrentHandContextService _handContext;
@@ -156,7 +160,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late FoldedPlayersService _foldedPlayers;
   late ActionSyncService _actionSync;
 
-  Set<int> get _expandedHistoryStreets => _actionSync.expandedHistoryStreets;
+  Set<int> get _expandedHistoryStreets => _actionHistory.expandedStreets;
 
   ActionEntry? _centerChipAction;
   bool _showCenterChip = false;
@@ -324,11 +328,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _autoCollapseStreets() {
-    for (int i = 0; i < 4; i++) {
-      if (!actions.any((a) => a.street == i)) {
-        _actionSync.removeExpandedStreet(i);
-      }
-    }
+    _actionHistory.autoCollapseStreets(actions);
   }
 
   bool _isStreetComplete(int street) {
@@ -591,6 +591,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _actionTagService = widget.actionTagService;
     _boardReveal = widget.boardReveal;
     _potSync = widget.potSyncService;
+    _actionHistory = widget.actionHistory;
     _boardManager = widget.boardManager
       ..addListener(() {
         if (mounted) lockService.safeSetState(this, () {});
@@ -1117,7 +1118,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         recordHistory: recordHistory,
         prevStreet: prevStreet,
         newStreet: currentStreet);
-    _actionSync.addExpandedStreet(entry.street);
+    _actionHistory.addStreet(entry.street);
     _actionTagService.updateForAction(entry);
     setPlayerLastAction(
       players[entry.playerIndex].name,
@@ -1635,10 +1636,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   SavedHand _currentSavedHand({String? name}) {
     final stacks =
         _potSync.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
-    final collapsed = [
-      for (int i = 0; i < 4; i++)
-        if (!_expandedHistoryStreets.contains(i)) i
-    ];
+    final collapsed = _actionHistory.collapsedStreets();
     return SavedHand(
       name: name ?? _defaultHandName(),
       heroIndex: _profile.heroIndex,
@@ -2038,11 +2036,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     expandedStreets: _expandedHistoryStreets,
                     onToggleStreet: (index) {
                       lockService.safeSetState(this, () {
-                        if (_expandedHistoryStreets.contains(index)) {
-                          _actionSync.removeExpandedStreet(index);
-                        } else {
-                          _actionSync.addExpandedStreet(index);
-                        }
+                        _actionHistory.toggleStreet(index);
                       });
                     },
                   ),
@@ -2130,6 +2124,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 numberOfPlayers: numberOfPlayers,
                 actions: actions,
                 playerPositions: playerPositions,
+                actionHistory: _actionHistory,
                 onAdd: onActionSelected,
                 onEdit: _editAction,
                 onDelete: _deleteAction,
@@ -4015,6 +4010,7 @@ class StreetActionInputWidget extends StatefulWidget {
   final int numberOfPlayers;
   final List<ActionEntry> actions;
   final Map<int, String> playerPositions;
+  final ActionHistoryService actionHistory;
   final void Function(ActionEntry) onAdd;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
@@ -4025,6 +4021,7 @@ class StreetActionInputWidget extends StatefulWidget {
     required this.numberOfPlayers,
     required this.actions,
     required this.playerPositions,
+    required this.actionHistory,
     required this.onAdd,
     required this.onEdit,
     required this.onDelete,
@@ -4132,9 +4129,8 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final streetActions = widget.actions
-        .where((a) => a.street == widget.currentStreet)
-        .toList();
+    final streetActions = widget.actionHistory
+        .actionsForStreet(widget.currentStreet, widget.actions);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -4853,7 +4849,7 @@ class _CollapsedStreetsSection extends StatelessWidget {
         for (int street = 0; street < 4; street++) ...[
           debugDiag(
             'Street \$street Collapsed',
-            !s._expandedHistoryStreets.contains(street),
+            !s._actionHistory.expandedStreets.contains(street),
           ),
           _DebugPanelDialogState._vGap,
         ],
