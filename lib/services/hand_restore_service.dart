@@ -122,7 +122,11 @@ class HandRestoreService {
       tags: hand.tags,
       tagsCursor: hand.tagsCursor,
     );
-    actionTags.restore(hand.actionTags);
+    if (hand.actionTags != null) {
+      actionTags.restore(hand.actionTags);
+    } else {
+      actionTags.recompute(hand.actions);
+    }
     unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
     if (hand.foldedPlayers != null) {
       foldedPlayers.restoreFromJson(hand.foldedPlayers);
