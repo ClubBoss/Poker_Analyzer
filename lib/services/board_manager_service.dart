@@ -138,6 +138,21 @@ class BoardManagerService extends ChangeNotifier {
     _playerManager.removeBoardCard(index);
   }
 
+  /// Load board information from a training spot map and reset to preflop.
+  void loadFromMap(Map<String, dynamic> data) {
+    final boardData = data['boardCards'] as List? ?? [];
+    final cards = <CardModel>[];
+    for (final c in boardData) {
+      if (c is Map) {
+        cards.add(
+          CardModel(rank: c['rank'] as String, suit: c['suit'] as String),
+        );
+      }
+    }
+    setBoardCards(cards);
+    changeStreet(0);
+  }
+
   /// Whether [stage] has the required number of board cards.
   bool isBoardStageComplete(int stage) =>
       _boardSync.isBoardStageComplete(stage);
