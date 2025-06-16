@@ -29,6 +29,7 @@ import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
 import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
+import '../services/folded_players_service.dart';
 
 class _ResultEntry {
   final String name;
@@ -662,11 +663,13 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                                   ),
                                 ],
                                 child: Builder(
-                                builder: (context) => PokerAnalyzerScreen(
-                                  key: _analyzerKey,
-                                  initialHand: hands[_currentIndex],
-                                  actionSync: context.read<ActionSyncService>(),
-                                  handContext: CurrentHandContextService(),
+                                  builder: (context) => PokerAnalyzerScreen(
+                                    key: _analyzerKey,
+                                    initialHand: hands[_currentIndex],
+                                    actionSync: context.read<ActionSyncService>(),
+                                    foldedPlayersService:
+                                        context.read<FoldedPlayersService>(),
+                                    handContext: CurrentHandContextService(),
                                   playbackManager:
                                       context.read<PlaybackManagerService>(),
                                   stackService: context

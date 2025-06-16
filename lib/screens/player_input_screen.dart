@@ -15,6 +15,7 @@ import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/board_reveal_service.dart';
+import '../services/folded_players_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -172,6 +173,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                       key: key,
                                       actionSync:
                                           context.read<ActionSyncService>(),
+                                      foldedPlayersService:
+                                          context.read<FoldedPlayersService>(),
                                       handContext: CurrentHandContextService(),
                                       playbackManager:
                                           context.read<PlaybackManagerService>(),
