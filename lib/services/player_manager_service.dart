@@ -10,6 +10,8 @@ class PlayerManagerService extends ChangeNotifier {
 
   final PlayerProfileService profileService;
 
+  int get heroIndex => profileService.heroIndex;
+
   int numberOfPlayers = 6;
 
   final List<List<CardModel>> playerCards = List.generate(10, (_) => []);
@@ -136,6 +138,54 @@ class PlayerManagerService extends ChangeNotifier {
   void removeBoardCard(int index) {
     if (index < 0 || index >= boardCards.length) return;
     boardCards.removeAt(index);
+    notifyListeners();
+  }
+
+  /// Load player-related info from a training spot map.
+  void loadFromMap(Map<String, dynamic> data) {
+    final pcData = data['playerCards'] as List? ?? [];
+    final newCards = List.generate(playerCards.length, (_) => <CardModel>[]);
+    for (var i = 0; i < pcData.length && i < playerCards.length; i++) {
+      final list = pcData[i];
+      if (list is List) {
+        for (var j = 0; j < list.length && j < 2; j++) {
+          final cardMap = list[j];
+          if (cardMap is Map) {
+            newCards[i].add(CardModel(
+              rank: cardMap['rank'] as String,
+              suit: cardMap['suit'] as String,
+            ));
+          }
+        }
+      }
+    }
+
+    final newHeroIndex = data['heroIndex'] as int? ?? 0;
+    final newPlayerCount = data['numberOfPlayers'] as int? ?? pcData.length;
+
+    final posList = (data['positions'] as List?)?.cast<String>() ?? [];
+    final heroPos =
+        newHeroIndex < posList.length ? posList[newHeroIndex] : profileService.heroPosition;
+    final newPositions = <int, String>{};
+    for (var i = 0; i < posList.length; i++) {
+      newPositions[i] = posList[i];
+    }
+
+    onPlayerCountChanged(newPlayerCount);
+    setHeroIndex(newHeroIndex);
+    profileService.heroPosition = heroPos;
+
+    for (final list in playerCards) {
+      list.clear();
+    }
+    for (var i = 0; i < newCards.length; i++) {
+      playerCards[i].addAll(newCards[i]);
+    }
+
+    profileService.playerPositions
+      ..clear()
+      ..addAll(newPositions);
+    profileService.updatePositions();
     notifyListeners();
   }
 
