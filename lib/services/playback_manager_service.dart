@@ -96,8 +96,8 @@ class PlaybackManagerService extends ChangeNotifier {
       }
     });
 
-    // Stack sizes are synchronized via [ActionSyncService].
-    potSync.updatePots(subset);
+    // Pot sizes are synchronized via [PotSyncService].
+    potSync.updateForPlayback(_playbackService.playbackIndex, actions);
     for (int i = 0; i < pots.length; i++) {
       pots[i] = potSync.pots[i];
     }
