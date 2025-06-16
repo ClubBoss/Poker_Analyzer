@@ -128,7 +128,6 @@ class BoardEditingService {
 
   bool canEditBoard(BuildContext context, int index) =>
       isBoardEditAllowed(context, index);
-}
 
   /// Select a new card for a player by index. Returns true if the card was
   /// applied, otherwise shows a duplicate warning and returns false.
