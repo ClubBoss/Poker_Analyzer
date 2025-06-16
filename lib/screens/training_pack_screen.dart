@@ -32,6 +32,7 @@ import '../services/player_profile_service.dart';
 import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
 import '../services/folded_players_service.dart';
+import '../services/saved_hand_import_export_service.dart';
 
 class _ResultEntry {
   final String name;
@@ -111,7 +112,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (state != null) {
       try {
         final jsonStr = state.saveHand() as String;
-        played = SavedHand.fromJson(jsonDecode(jsonStr));
+        played =
+            SavedHandImportExportService.decode(jsonStr);
       } catch (_) {}
     }
     final original = _sessionHands[_currentIndex];
