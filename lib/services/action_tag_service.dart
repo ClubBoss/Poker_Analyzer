@@ -20,6 +20,15 @@ class ActionTagService {
       ..addAll(saved ?? {});
   }
 
+  /// Recomputes all tags based on [actions].
+  void recompute(List<ActionEntry> actions) {
+    _tags.clear();
+    for (final a in actions) {
+      _tags[a.playerIndex] =
+          '${a.action}${a.amount != null ? ' ${a.amount}' : ''}';
+    }
+  }
+
   /// Updates the tag for a newly added or edited [entry].
   void updateForAction(ActionEntry entry) {
     _tags[entry.playerIndex] =
