@@ -41,6 +41,20 @@ class ActionHistoryService {
   /// Add [street] to expanded list.
   void addStreet(int street) => expandedStreets.add(street);
 
+  /// Replace the entire set of expanded streets.
+  void setExpandedStreets(Iterable<int> streets) {
+    expandedStreets
+      ..clear()
+      ..addAll(streets);
+  }
+
+  /// Restores expanded streets based on [collapsed] list from a saved hand.
+  void restoreFromCollapsed(List<int>? collapsed) {
+    setExpandedStreets(
+      [for (int i = 0; i < 4; i++) if (collapsed == null || !collapsed.contains(i)) i],
+    );
+  }
+
   /// Collapses streets that have no actions.
   void autoCollapseStreets(List<ActionEntry> actions) {
     final active = actions.map((a) => a.street).toSet();

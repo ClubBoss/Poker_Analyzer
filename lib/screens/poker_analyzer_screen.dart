@@ -405,8 +405,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.updatePlaybackState();
   }
 
-  ActionSnapshot _currentSnapshot() =>
-      _actionSync.buildSnapshot(List<CardModel>.from(boardCards));
+  ActionSnapshot _currentSnapshot() => _actionSync.buildSnapshot(
+      List<CardModel>.from(boardCards), _actionHistory.expandedStreets);
 
   void _recordSnapshot() {
     _actionSync.recordSnapshot(_currentSnapshot());
@@ -415,6 +415,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _applySnapshot(ActionSnapshot snap) {
     final prevStreet = currentStreet;
     _actionSync.restoreSnapshot(snap);
+    _actionHistory.setExpandedStreets(snap.expandedStreets);
     _boardManager.setBoardCards(snap.board);
     _animateTimeline = true;
     if (currentStreet != prevStreet) {
@@ -618,6 +619,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionTags: _actionTagService,
       setActivePlayerIndex: (i) => activePlayerIndex = i,
       potSync: _potSync,
+      actionHistory: _actionHistory,
     );
     _playerManager.updatePositions();
     _playbackManager.updatePlaybackState();
