@@ -21,6 +21,10 @@ class TransitionHistoryService {
   final List<TransitionLockSnapshot> _undoStack = [];
   final List<TransitionLockSnapshot> _redoStack = [];
 
+  /// Whether transitions are currently locked or an undo/redo is in progress.
+  bool get isLocked =>
+      lockService.undoRedoTransitionLock || lockService.isLocked;
+
   TransitionLockSnapshot _currentSnapshot() =>
       TransitionLockSnapshot(isTransitioning: lockService.boardTransitioning);
 
@@ -58,7 +62,7 @@ class TransitionHistoryService {
 
   /// Undo the last recorded transition applying [restore] afterwards.
   void undo(void Function() restore) {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (isLocked) return;
     if (_undoStack.isEmpty) return;
     final snap = _undoStack.removeLast();
     _redoStack.add(_currentSnapshot());
@@ -67,7 +71,7 @@ class TransitionHistoryService {
 
   /// Redo the next transition applying [restore] afterwards.
   void redo(void Function() restore) {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
+    if (isLocked) return;
     if (_redoStack.isEmpty) return;
     final snap = _redoStack.removeLast();
     _undoStack.add(_currentSnapshot());
