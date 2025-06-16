@@ -63,6 +63,7 @@ import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
 import '../services/action_sync_service.dart';
+import '../services/action_undo_redo_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/folded_players_service.dart';
@@ -163,6 +164,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _activeTimer;
   late FoldedPlayersService _foldedPlayers;
   late ActionSyncService _actionSync;
+  late ActionUndoRedoService _undoRedoService;
 
   Set<int> get _expandedHistoryStreets => _actionHistory.expandedStreets;
 
@@ -348,7 +350,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _autoAdvanceStreetIfComplete(int street) {
     if (street != currentStreet || street >= 3) return;
     if (!_isStreetComplete(street)) return;
-    _recordSnapshot();
+    _undoRedoService.recordSnapshot();
     _changeStreet(street + 1);
   }
 
@@ -356,7 +358,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _reverseStreet() {
     if (lockService.isLocked || !_boardManager.canReverseStreet()) return;
-    _recordSnapshot();
+    _undoRedoService.recordSnapshot();
     _actionTagService.clear();
     _boardManager.reverseStreet();
   }
@@ -365,7 +367,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _advanceStreet() {
     if (lockService.isLocked || !_boardManager.canAdvanceStreet()) return;
-    _recordSnapshot();
+    _undoRedoService.recordSnapshot();
     _actionTagService.clear();
     _boardManager.advanceStreet();
   }
@@ -403,25 +405,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.seek(value.round());
     _playbackManager.updatePlaybackState();
   }
-
-  ActionSnapshot _currentSnapshot() => _actionSync.buildSnapshot(
-      List<CardModel>.from(boardCards), _actionHistory.expandedStreets);
-
-  void _recordSnapshot() {
-    _actionSync.recordSnapshot(_currentSnapshot());
-  }
-
-  void _applySnapshot(ActionSnapshot snap) {
-    final prevStreet = currentStreet;
-    _actionSync.restoreSnapshot(snap);
-    _actionHistory.setExpandedStreets(snap.expandedStreets);
-    _boardManager.setBoardCards(snap.board);
-    _animateTimeline = true;
-    if (currentStreet != prevStreet) {
-      _boardManager.startBoardTransition();
-    }
-  }
-
 
   // Formatting helpers moved to [ActionFormattingHelper].
 
@@ -631,6 +614,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
+    _undoRedoService = ActionUndoRedoService(
+      actionSync: _actionSync,
+      boardManager: _boardManager,
+      playbackManager: _playbackManager,
+      actionTagService: _actionTagService,
+      actionHistory: _actionHistory,
+      lockService: lockService,
+    );
     Future(() => _initializeDebugPreferences());
     Future.microtask(_queueService.loadQueueSnapshot);
     // BackupManagerService handles periodic backups and cleanup internally.
@@ -698,7 +689,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final current = index < boardCards.length ? boardCards[index] : null;
     if (_boardEditing.selectBoardCard(context, index, card, current: current)) {
       lockService.safeSetState(this, () {
-        _recordSnapshot();
+        _undoRedoService.recordSnapshot();
       });
     }
   }
@@ -708,7 +699,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (index >= boardCards.length) return;
     _boardEditing.removeBoardCard(index);
     lockService.safeSetState(this, () {
-      _recordSnapshot();
+      _undoRedoService.recordSnapshot();
     });
   }
 
@@ -1097,7 +1088,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     final insertIndex = index ?? actions.length;
     if (recordHistory) {
-      _recordSnapshot();
+      _undoRedoService.recordSnapshot();
     }
     _actionSync.addAnalyzerAction(entry,
         index: index,
@@ -1138,7 +1129,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       {bool recordHistory = true}) {
     final previous = actions[index];
     if (recordHistory) {
-      _recordSnapshot();
+      _undoRedoService.recordSnapshot();
     }
     _actionSync.updateAnalyzerAction(index, entry,
         recordHistory: recordHistory, street: currentStreet);
@@ -1171,7 +1162,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       {bool recordHistory = true, bool withSetState = true}) {
     void perform() {
       if (recordHistory) {
-        _recordSnapshot();
+        _undoRedoService.recordSnapshot();
       }
       final removed = actions[index];
       _actionSync.deleteAnalyzerAction(index,
@@ -1221,67 +1212,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _undoAction() {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    _boardManager.cancelBoardReveal();
-    final result = _actionSync.undo(_currentSnapshot());
-    if (result.entry == null && result.snapshot == null) return;
     lockService.safeSetState(this, () {
-      final op = result.entry;
-      final snap = result.snapshot;
-      if (op != null) {
-        switch (op.type) {
-          case ActionChangeType.add:
-            _actionTagService.updateAfterActionRemoval(
-                op.newEntry!.playerIndex, actions);
-            break;
-          case ActionChangeType.edit:
-            _actionTagService.updateForAction(op.oldEntry!);
-            break;
-          case ActionChangeType.delete:
-            _actionTagService.updateForAction(op.oldEntry!);
-            break;
-        }
-        _boardManager.changeStreet(op.prevStreet);
-      }
-      if (snap != null) {
-        _applySnapshot(snap);
-      }
-      _playbackManager.updatePlaybackState();
-      _autoCollapseStreets();
-      _boardManager.startBoardTransition();
+      _undoRedoService.undo();
+      _animateTimeline = true;
     });
     _debugPanelSetState?.call(() {});
   }
 
   void _redoAction() {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    _boardManager.cancelBoardReveal();
-    final result = _actionSync.redo(_currentSnapshot());
-    if (result.entry == null && result.snapshot == null) return;
     lockService.safeSetState(this, () {
-      final op = result.entry;
-      final snap = result.snapshot;
-      if (op != null) {
-        switch (op.type) {
-          case ActionChangeType.add:
-            _actionTagService.updateForAction(op.newEntry!);
-            break;
-          case ActionChangeType.edit:
-            _actionTagService.updateForAction(op.newEntry!);
-            break;
-          case ActionChangeType.delete:
-            _actionTagService.updateAfterActionRemoval(
-                op.oldEntry!.playerIndex, actions);
-            break;
-        }
-        _boardManager.changeStreet(op.newStreet);
-      }
-      if (snap != null) {
-        _applySnapshot(snap);
-      }
-      _playbackManager.updatePlaybackState();
-      _autoCollapseStreets();
-      _boardManager.startBoardTransition();
+      _undoRedoService.redo();
+      _animateTimeline = true;
     });
     _debugPanelSetState?.call(() {});
   }
@@ -1289,7 +1230,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _previousStreet() {
     if (lockService.isLocked || !_boardManager.canReverseStreet()) return;
     lockService.safeSetState(this, () {
-      _recordSnapshot();
+      _undoRedoService.recordSnapshot();
       _actionTagService.clear();
       _boardManager.reverseStreet();
     });
@@ -1299,7 +1240,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _nextStreet() {
     if (lockService.isLocked || !_boardManager.canAdvanceStreet()) return;
     lockService.safeSetState(this, () {
-      _recordSnapshot();
+      _undoRedoService.recordSnapshot();
       _actionTagService.clear();
       _boardManager.advanceStreet();
     });
@@ -1390,7 +1331,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (confirm == true) {
       lockService.safeSetState(this, () {
         _playerManager.reset();
-        _actionSync.clearAnalyzerActions();
+        _undoRedoService.resetHistory();
         _foldedPlayers.reset();
         _boardManager.changeStreet(0);
         _boardManager.startBoardTransition();
@@ -1994,7 +1935,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       onStreetChanged: (index) {
         if (lockService.isLocked) return;
         lockService.safeSetState(this, () {
-          _recordSnapshot();
+          _undoRedoService.recordSnapshot();
           _changeStreet(index);
         });
       },
