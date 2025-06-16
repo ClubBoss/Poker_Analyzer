@@ -116,28 +116,20 @@ class EvaluationQueueImportExportService {
   }
 
   Future<void> exportQueueToClipboard(BuildContext context) async {
-    if (backupManager != null) {
-      await backupManager!.exportQueueToClipboard(context);
-    } else {
-      await _exportToClipboard();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Queue copied to clipboard')),
-        );
-      }
+    await _exportToClipboard();
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Queue copied to clipboard')),
+      );
     }
   }
 
   Future<void> importQueueFromClipboard(BuildContext context) async {
-    if (backupManager != null) {
-      await backupManager!.importQueueFromClipboard(context);
-    } else {
-      await _importFromClipboard();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Queue imported from clipboard')),
-        );
-      }
+    await _importFromClipboard();
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Queue imported from clipboard')),
+      );
     }
     debugPanelCallback?.call();
   }
