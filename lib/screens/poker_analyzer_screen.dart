@@ -4102,12 +4102,14 @@ class _DebugPanelDialogState extends State<_DebugPanelDialog> {
   void initState() {
     super.initState();
     s._debugPanelSetState = setState;
+    s._queueService.debugPanelCallback = setState;
     _searchController.text = s._debugPrefs.searchQuery;
   }
 
   @override
   void dispose() {
     s._debugPanelSetState = null;
+    s._queueService.debugPanelCallback = null;
     _searchController.dispose();
     super.dispose();
   }

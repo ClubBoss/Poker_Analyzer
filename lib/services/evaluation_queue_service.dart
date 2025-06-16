@@ -49,10 +49,14 @@ class EvaluationQueueService {
   late final RetryEvaluationService _retryService;
   BackupManagerService? _backupManager;
   late final Future<void> _initFuture;
+  /// Optional callback invoked whenever the queue state changes so the
+  /// debug panel can update immediately.
+  VoidCallback? debugPanelCallback;
 
   EvaluationQueueService({
     EvaluationExecutorService? executorService,
     RetryEvaluationService? retryService,
+    this.debugPanelCallback,
   }) {
     _executorService = executorService ?? EvaluationExecutorService();
     _retryService =
@@ -175,6 +179,7 @@ class EvaluationQueueService {
         debugPrint('Persist error: $e');
       }
     }
+    debugPanelCallback?.call();
   }
 
   /// Exposes persistence for external helpers.
