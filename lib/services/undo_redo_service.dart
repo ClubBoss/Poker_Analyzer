@@ -13,6 +13,7 @@ import 'current_hand_context_service.dart';
 import 'folded_players_service.dart';
 import 'player_manager_service.dart';
 import 'transition_lock_service.dart';
+import 'transition_history_service.dart';
 
 /// Manages undo/redo snapshots for the full analyzer state.
 class UndoRedoService {
@@ -27,6 +28,7 @@ class UndoRedoService {
   final BoardRevealService boardReveal;
   final PotSyncService potSync;
   final TransitionLockService lockService;
+  final TransitionHistoryService transitionHistory;
 
   UndoRedoService({
     required this.actionSync,
@@ -40,6 +42,7 @@ class UndoRedoService {
     required this.boardReveal,
     required this.potSync,
     required this.lockService,
+    required this.transitionHistory,
   });
 
   final List<SavedHand> _undoStack = [];
@@ -91,59 +94,53 @@ class UndoRedoService {
   void recordSnapshot() {
     _undoStack.add(_currentSnapshot());
     _redoStack.clear();
+    transitionHistory.recordSnapshot();
   }
 
   void resetHistory() {
     _undoStack.clear();
     _redoStack.clear();
+    transitionHistory.resetHistory();
   }
 
   void _applySnapshot(SavedHand snap) {
-    lockService.lock();
-    try {
-      handContext.restore(
-        name: snap.name,
-        comment: snap.comment,
-        commentCursor: snap.commentCursor,
-        tags: snap.tags,
-        tagsCursor: snap.tagsCursor,
-      );
-      playerManager.restoreFromHand(snap);
-      boardManager.setBoardCards(snap.boardCards);
-      playbackManager.stackService.reset(
-        Map<int, int>.from(snap.stackSizes),
-        remainingStacks: snap.remainingStacks,
-      );
-      actionSync.setAnalyzerActions(List<ActionEntry>.from(snap.actions));
-      potSync.restoreFromHand(snap);
-      actionTagService.restoreFromHand(snap);
-      foldedPlayers.restoreFromHand(snap);
-      actionHistory.restoreFromCollapsed(snap.collapsedHistoryStreets);
-      actionHistory.updateHistory(actionSync.analyzerActions,
-          visibleCount: playbackManager.playbackIndex);
-      boardManager.boardStreet = snap.boardStreet;
-      boardManager.currentStreet = snap.boardStreet;
-      boardReveal.restoreFromHand(snap);
-      playbackManager.restoreFromHand(snap);
-      boardManager.startBoardTransition();
-    } finally {
-      lockService.unlock();
-    }
+    handContext.restore(
+      name: snap.name,
+      comment: snap.comment,
+      commentCursor: snap.commentCursor,
+      tags: snap.tags,
+      tagsCursor: snap.tagsCursor,
+    );
+    playerManager.restoreFromHand(snap);
+    boardManager.setBoardCards(snap.boardCards);
+    playbackManager.stackService.reset(
+      Map<int, int>.from(snap.stackSizes),
+      remainingStacks: snap.remainingStacks,
+    );
+    actionSync.setAnalyzerActions(List<ActionEntry>.from(snap.actions));
+    potSync.restoreFromHand(snap);
+    actionTagService.restoreFromHand(snap);
+    foldedPlayers.restoreFromHand(snap);
+    actionHistory.restoreFromCollapsed(snap.collapsedHistoryStreets);
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
+    boardManager.boardStreet = snap.boardStreet;
+    boardManager.currentStreet = snap.boardStreet;
+    boardReveal.restoreFromHand(snap);
+    playbackManager.restoreFromHand(snap);
   }
 
   void undo() {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     if (_undoStack.isEmpty) return;
     final snap = _undoStack.removeLast();
     _redoStack.add(_currentSnapshot());
-    _applySnapshot(snap);
+    transitionHistory.undo(() => _applySnapshot(snap));
   }
 
   void redo() {
-    if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
     if (_redoStack.isEmpty) return;
     final snap = _redoStack.removeLast();
     _undoStack.add(_currentSnapshot());
-    _applySnapshot(snap);
+    transitionHistory.redo(() => _applySnapshot(snap));
   }
 }
