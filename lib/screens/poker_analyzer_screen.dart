@@ -662,7 +662,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void selectCard(int index, CardModel card) {
-    if (_boardEditing.selectCard(context, index, card)) {
+    if (_playerEditing.selectCard(context, index, card)) {
       lockService.safeSetState(this, () {});
     }
   }
@@ -673,10 +673,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         cardIndex < playerCards[index].length ? playerCards[index][cardIndex] : null;
     final selectedCard = await showCardSelector(
       context,
-      disabledCards: _boardEditing.usedCardKeys(except: current),
+      disabledCards: _playerEditing.usedCardKeys(except: current),
     );
     if (selectedCard == null) return;
-    if (_boardEditing.setPlayerCard(
+    if (_playerEditing.setPlayerCard(
         context, index, cardIndex, selectedCard, current)) {
       lockService.safeSetState(this, () {});
     }
@@ -701,10 +701,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final current = players[playerIndex].revealedCards[cardIndex];
     final selected = await showCardSelector(
       context,
-      disabledCards: _boardEditing.usedCardKeys(except: current),
+      disabledCards: _playerEditing.usedCardKeys(except: current),
     );
     if (selected == null) return;
-    if (_boardEditing.setRevealedCard(
+    if (_playerEditing.setRevealedCard(
         context, playerIndex, cardIndex, selected, current)) {
       lockService.safeSetState(this, () {});
     }
