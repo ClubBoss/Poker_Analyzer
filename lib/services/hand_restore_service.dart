@@ -96,10 +96,7 @@ class HandRestoreService {
         visibleCount: playbackManager.playbackIndex);
     boardManager.boardStreet = hand.boardStreet;
     boardManager.currentStreet = hand.boardStreet;
-    boardReveal.restoreFromJson({
-      'showFullBoard': hand.showFullBoard,
-      'revealStreet': hand.revealStreet,
-    });
+    boardReveal.restoreFromHand(hand);
     final seekIndex =
         hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
     playbackManager.seek(seekIndex);

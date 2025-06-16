@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../models/card_model.dart';
+import '../models/saved_hand.dart';
 import 'board_sync_service.dart';
 import 'transition_lock_service.dart';
 
@@ -153,11 +154,26 @@ class BoardRevealService {
   Map<String, dynamic> toJson() =>
       {'showFullBoard': _showFullBoard, 'revealStreet': revealStreet};
 
+  /// Returns a copy of the current reveal state map, or `null` when
+  /// using the default values.
+  Map<String, dynamic>? toNullableJson() {
+    if (!_showFullBoard && revealStreet == boardSync.boardStreet) return null;
+    return toJson();
+  }
+
   /// Restores reveal state from [json] produced by [toJson].
   void restoreFromJson(Map<String, dynamic>? json) {
     _showFullBoard = json?['showFullBoard'] as bool? ?? false;
     _revealStreet = (json?['revealStreet'] as int?) ?? boardSync.currentStreet;
     updateRevealState();
+  }
+
+  /// Restores board reveal information from [hand].
+  void restoreFromHand(SavedHand hand) {
+    restoreFromJson({
+      'showFullBoard': hand.showFullBoard,
+      'revealStreet': hand.revealStreet,
+    });
   }
 }
 
