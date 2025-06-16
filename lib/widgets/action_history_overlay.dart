@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../models/action_entry.dart';
 import '../helpers/action_formatting_helper.dart';
+import '../services/action_history_service.dart';
 
 class ActionHistoryOverlay extends StatelessWidget {
-  final List<ActionEntry> actions;
-  final int playbackIndex;
+  final ActionHistoryService actionHistory;
   final Map<int, String> playerPositions;
   final Set<int> expandedStreets;
   final ValueChanged<int>? onToggleStreet;
 
   const ActionHistoryOverlay({
     Key? key,
-    required this.actions,
-    required this.playbackIndex,
+    required this.actionHistory,
     required this.playerPositions,
     required this.expandedStreets,
     this.onToggleStreet,
@@ -23,12 +22,7 @@ class ActionHistoryOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final visible = actions.take(playbackIndex).toList();
-    final Map<int, List<ActionEntry>> grouped =
-        {for (var i = 0; i < 4; i++) i: <ActionEntry>[]};
-    for (final a in visible) {
-      grouped[a.street]?.add(a);
-    }
+    final Map<int, List<ActionEntry>> grouped = actionHistory.hudView();
     final screenWidth = MediaQuery.of(context).size.width;
     final double scale = screenWidth < 350 ? 0.8 : 1.0;
     const streetNames = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
@@ -67,10 +61,7 @@ class ActionHistoryOverlay extends StatelessWidget {
             if (list.isEmpty) {
               return const SizedBox.shrink();
             }
-            final expanded = expandedStreets.contains(index);
-            final visibleList = expanded || list.length <= 5
-                ? list
-                : list.sublist(list.length - 5);
+            final visibleList = list;
             return GestureDetector(
               onTap: () => onToggleStreet?.call(index),
               child: Container(

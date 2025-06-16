@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import '../helpers/action_utils.dart';
+import '../services/action_history_service.dart';
 
 class CollapsibleActionHistory extends StatefulWidget {
-  final List<ActionEntry> actions;
+  final ActionHistoryService actionHistory;
   final Map<int, String> playerPositions;
   final int heroIndex;
 
   const CollapsibleActionHistory({
     super.key,
-    required this.actions,
+    required this.actionHistory,
     required this.playerPositions,
     required this.heroIndex,
   });
@@ -51,8 +52,9 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
   }
 
   List<ActionEntry> _forStreet(int street) {
-    return widget.actions
-        .where((a) => a.street == street && !a.generated)
+    return widget.actionHistory
+        .actionsForStreet(street)
+        .where((a) => !a.generated)
         .toList();
   }
 
