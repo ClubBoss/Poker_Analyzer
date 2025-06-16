@@ -66,11 +66,14 @@ class ActionEditingService {
     if (recordHistory) {
       undoRedo.recordSnapshot();
     }
-    actionSync.addAnalyzerAction(entry,
-        index: index,
-        recordHistory: recordHistory,
-        prevStreet: prevStreet,
-        newStreet: currentStreet);
+    actionSync.analyzerActions.insert(index, entry);
+    if (recordHistory) {
+      actionSync.recordHistory(ActionHistoryEntry(ActionChangeType.add, index,
+          newEntry: entry, prevStreet: prevStreet, newStreet: currentStreet));
+    }
+    actionSync.foldedPlayers?.addFromAction(entry);
+    actionSync.syncStacks();
+    actionSync.notifyListeners();
     actionHistory.addStreet(entry.street);
     actionHistory.updateHistory(actionSync.analyzerActions,
         visibleCount: playbackManager.playbackIndex);
@@ -102,8 +105,18 @@ class ActionEditingService {
     if (recordHistory) {
       undoRedo.recordSnapshot();
     }
-    actionSync.updateAnalyzerAction(index, entry,
-        recordHistory: recordHistory, street: currentStreet);
+    final previous = actions[index];
+    actionSync.analyzerActions[index] = entry;
+    if (recordHistory) {
+      actionSync.recordHistory(ActionHistoryEntry(ActionChangeType.edit, index,
+          oldEntry: previous,
+          newEntry: entry,
+          prevStreet: currentStreet,
+          newStreet: currentStreet));
+    }
+    actionSync.foldedPlayers?.editAction(previous, entry, actionSync.analyzerActions);
+    actionSync.syncStacks();
+    actionSync.notifyListeners();
     actionTag.updateForAction(entry);
     setPlayerLastAction(
       players[entry.playerIndex].name,
@@ -131,8 +144,16 @@ class ActionEditingService {
       undoRedo.recordSnapshot();
     }
     final removed = actions[index];
-    actionSync.deleteAnalyzerAction(index,
-        recordHistory: recordHistory, street: currentStreet);
+    actionSync.analyzerActions.removeAt(index);
+    if (recordHistory) {
+      actionSync.recordHistory(ActionHistoryEntry(ActionChangeType.delete, index,
+          oldEntry: removed,
+          prevStreet: currentStreet,
+          newStreet: currentStreet));
+    }
+    actionSync.foldedPlayers?.removeFromAction(removed, actionSync.analyzerActions);
+    actionSync.syncStacks();
+    actionSync.notifyListeners();
     if (playbackManager.playbackIndex > actions.length) {
       playbackManager.seek(actions.length);
     }
@@ -187,10 +208,12 @@ class ActionEditingService {
     }
     if (toRemove.isEmpty) return;
     for (final idx in toRemove) {
-      final s = actions[idx].street;
-      actionSync.deleteAnalyzerAction(idx,
-          recordHistory: false, street: s);
+      final removed = actions[idx];
+      actionSync.analyzerActions.removeAt(idx);
+      actionSync.foldedPlayers?.removeFromAction(removed, actionSync.analyzerActions);
     }
+    actionSync.syncStacks();
+    actionSync.notifyListeners();
     if (playbackManager.playbackIndex > actions.length) {
       playbackManager.seek(actions.length);
     }
