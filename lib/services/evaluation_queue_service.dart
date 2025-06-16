@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
 
-import '../helpers/debug_panel_preferences.dart';
+import 'debug_panel_preferences.dart';
 import '../models/action_evaluation_request.dart';
 import 'snapshot_service.dart';
 import 'retry_evaluation_service.dart';
@@ -35,7 +35,7 @@ class EvaluationQueueService {
   static const _failedOrderKey = 'failed_queue_order';
   static const _completedOrderKey = 'completed_queue_order';
 
-  final DebugPanelPreferences _prefs = DebugPanelPreferences();
+  final DebugPanelPreferences debugPrefs;
   bool snapshotRetentionEnabled = true;
   int processingDelay = 500;
 
@@ -54,6 +54,7 @@ class EvaluationQueueService {
   VoidCallback? debugPanelCallback;
 
   EvaluationQueueService({
+    required this.debugPrefs,
     EvaluationExecutorService? executorService,
     RetryEvaluationService? retryService,
     this.debugPanelCallback,
@@ -61,7 +62,13 @@ class EvaluationQueueService {
     _executorService = executorService ?? EvaluationExecutorService();
     _retryService =
         retryService ?? RetryEvaluationService(executorService: _executorService);
+    debugPrefs.addListener(_onPrefsChanged);
     _initFuture = _initialize();
+  }
+
+  void _onPrefsChanged() {
+    snapshotRetentionEnabled = debugPrefs.snapshotRetentionEnabled;
+    processingDelay = debugPrefs.processingDelay;
   }
 
   /// Attach an external [BackupManagerService] for import/export operations.
@@ -70,8 +77,10 @@ class EvaluationQueueService {
   }
 
   Future<void> _initialize() async {
-    snapshotRetentionEnabled = await _prefs.getSnapshotRetentionEnabled();
-    processingDelay = await _prefs.getProcessingDelay();
+    await debugPrefs.loadSnapshotRetention();
+    await debugPrefs.loadProcessingDelay();
+    snapshotRetentionEnabled = debugPrefs.snapshotRetentionEnabled;
+    processingDelay = debugPrefs.processingDelay;
     _documentsDirPath = (await getApplicationDocumentsDirectory()).path;
     _sharedPrefs = await SharedPreferences.getInstance();
     _snapshotService =
@@ -314,6 +323,7 @@ class EvaluationQueueService {
   }
 
   Future<void> cleanup() async {
+    debugPrefs.removeListener(_onPrefsChanged);
     _backupManager?.dispose();
   }
 

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import '../services/evaluation_queue_service.dart';
-import '../services/debug_preferences_service.dart';
+import '../services/debug_panel_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../models/card_model.dart';
@@ -73,7 +73,7 @@ import '../services/action_history_service.dart';
 class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
   final EvaluationQueueService? queueService;
-  final DebugPreferencesService? debugPrefsService;
+  final DebugPanelPreferences? debugPrefsService;
   final ActionSyncService actionSync;
   final HandRestoreService? handRestoreService;
   final CurrentHandContextService? handContext;
@@ -188,7 +188,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
 
-  late final DebugPreferencesService _debugPrefs;
+  late final DebugPanelPreferences _debugPrefs;
 
   /// Evaluation processing delay, snapshot retention and other debug
   /// preferences are managed by [_debugPrefs].
@@ -570,8 +570,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _handContext = widget.handContext ?? CurrentHandContextService();
     _actionSync = widget.actionSync;
     _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
-    _queueService = widget.queueService ?? EvaluationQueueService();
-    _debugPrefs = widget.debugPrefsService ?? DebugPreferencesService();
+    _debugPrefs = widget.debugPrefsService ?? DebugPanelPreferences();
+    _queueService =
+        widget.queueService ?? EvaluationQueueService(debugPrefs: _debugPrefs);
     final backupManager =
         widget.backupManagerService ?? BackupManagerService(
           queueService: _queueService,

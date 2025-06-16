@@ -10,7 +10,7 @@ import 'evaluation_queue_service.dart';
 import 'player_manager_service.dart';
 import 'playback_manager_service.dart';
 import 'stack_manager_service.dart';
-import 'debug_preferences_service.dart';
+import 'debug_panel_preferences.dart';
 import 'transition_lock_service.dart';
 import 'current_hand_context_service.dart';
 import 'pot_sync_service.dart';
@@ -55,7 +55,7 @@ class HandRestoreService {
   final BoardManagerService boardManager;
   final BoardSyncService boardSync;
   final EvaluationQueueService queueService;
-  final DebugPreferencesService debugPrefs;
+  final DebugPanelPreferences debugPrefs;
   final TransitionLockService lockService;
   final CurrentHandContextService handContext;
   final FoldedPlayersService foldedPlayers;

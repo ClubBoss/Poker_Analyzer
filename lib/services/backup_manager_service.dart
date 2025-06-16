@@ -13,7 +13,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/action_evaluation_request.dart';
 import 'backup_service.dart';
-import 'debug_preferences_service.dart';
+import 'debug_panel_preferences.dart';
 import 'evaluation_queue_service.dart';
 
 /// Manages creation, loading and cleanup of evaluation queue backups
@@ -35,7 +35,7 @@ class BackupManagerService {
   }
 
   final EvaluationQueueService queueService;
-  final DebugPreferencesService debugPrefs;
+  final DebugPanelPreferences debugPrefs;
   final BackupService backupService;
 
   VoidCallback? debugPanelCallback;
