@@ -2131,7 +2131,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final int stack = _stackService.getStackForPlayer(index);
     final String tag = _actionTagService.getTag(index) ?? '';
     final bool isActive = activePlayerIndex == index;
-    final bool isFolded = _foldedPlayers.contains(index);
+    final bool isFolded = _foldedPlayers.isPlayerFolded(index);
 
     ActionEntry? lastAction;
     for (final a in visibleActions.reversed) {

@@ -159,7 +159,7 @@ class ActionEditingService {
   bool _isStreetComplete(int street) {
     final active = <int>{};
     for (int i = 0; i < playerManager.numberOfPlayers; i++) {
-      if (!foldedPlayers.contains(i)) active.add(i);
+      if (!foldedPlayers.isPlayerFolded(i)) active.add(i);
     }
     if (active.length <= 1) return true;
     final acted = actions
