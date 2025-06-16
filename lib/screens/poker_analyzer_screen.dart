@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import '../services/evaluation_queue_service.dart';
 import '../services/evaluation_queue_import_export_service.dart';
+import '../services/saved_hand_import_export_service.dart';
 import '../services/evaluation_processing_service.dart';
 import '../services/debug_panel_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -79,6 +80,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final SavedHand? initialHand;
   final EvaluationQueueService? queueService;
   final EvaluationQueueImportExportService? importExportService;
+  final SavedHandImportExportService? handImportExportService;
   final EvaluationProcessingService? processingService;
   final DebugPanelPreferences? debugPrefsService;
   final ActionSyncService actionSync;
@@ -105,6 +107,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     this.initialHand,
     this.queueService,
     this.importExportService,
+    this.handImportExportService,
     this.processingService,
     this.debugPrefsService,
     required this.actionSync,
@@ -134,6 +137,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
   late SavedHandManagerService _handManager;
+  late SavedHandImportExportService _handImportExportService;
   late PlayerManagerService _playerManager;
   late PlayerProfileService _profile;
   late BoardManagerService _boardManager;
@@ -637,6 +641,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _handManager = context.read<SavedHandManagerService>();
+    _handImportExportService =
+        widget.handImportExportService ??
+            SavedHandImportExportService(_handManager);
   }
 
   void selectCard(int index, CardModel card) {
@@ -1488,11 +1495,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   String saveHand() {
     _addQualityTags();
     final hand = _currentSavedHand();
-    return _handManager.serializeHand(hand);
+    return _handImportExportService.serializeHand(hand);
   }
 
   void loadHand(String jsonStr) {
-    final hand = _handManager.deserializeHand(jsonStr);
+    final hand = _handImportExportService.deserializeHand(jsonStr);
     _stackService = _handRestore.restoreHand(hand);
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
@@ -1596,17 +1603,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> exportLastSavedHand() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    await _handManager.exportLastHand(context);
+    await _handImportExportService.exportLastHand(context);
   }
 
   Future<void> exportAllHands() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    await _handManager.exportAllHands(context);
+    await _handImportExportService.exportAllHands(context);
   }
 
   Future<void> importHandFromClipboard() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    final hand = await _handManager.importHandFromClipboard(context);
+    final hand = await _handImportExportService.importHandFromClipboard(context);
     if (hand != null) {
       _stackService = _handRestore.restoreHand(hand);
       _actionSync.attachStackManager(_stackService);
@@ -1618,7 +1625,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> importAllHandsFromClipboard() async {
     if (lockService.undoRedoTransitionLock || lockService.isLocked) return;
-    await _handManager.importAllHandsFromClipboard(context);
+    await _handImportExportService.importAllHandsFromClipboard(context);
   }
 
 
