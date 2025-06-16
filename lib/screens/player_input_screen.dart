@@ -124,7 +124,6 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                 potSync: potSync,
                               );
                               return PlaybackManagerService(
-                                actions: context.read<ActionSyncService>().analyzerActions,
                                 stackService: stackService,
                                 potSync: potSync,
                                 actionSync: context.read<ActionSyncService>(),
@@ -255,7 +254,6 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                 potSync: potSync,
                               );
                               return PlaybackManagerService(
-                                actions: context.read<ActionSyncService>().analyzerActions,
                                 stackService: stackService,
                                 potSync: potSync,
                                 actionSync: context.read<ActionSyncService>(),
