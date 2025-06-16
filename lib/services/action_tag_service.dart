@@ -1,4 +1,5 @@
 import '../models/action_entry.dart';
+import '../models/saved_hand.dart';
 
 /// Manages action tags for each player, such as the last action and amount.
 class ActionTagService {
@@ -79,4 +80,17 @@ class ActionTagService {
 
   /// Returns a copy of the current tags map.
   Map<int, String?> toMap() => Map<int, String?>.from(_tags);
+
+  /// Returns `null` when no tags are present, otherwise a copy of the map.
+  Map<int, String?>? toNullableMap() => _tags.isEmpty ? null : toMap();
+
+  /// Restores tags from [hand], falling back to recomputing from actions
+  /// when the saved map is absent.
+  void restoreFromHand(SavedHand hand) {
+    if (hand.actionTags != null) {
+      restore(hand.actionTags);
+    } else {
+      recompute(hand.actions);
+    }
+  }
 }

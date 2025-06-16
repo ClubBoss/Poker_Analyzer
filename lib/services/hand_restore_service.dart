@@ -87,11 +87,7 @@ class HandRestoreService {
     actionSync.setAnalyzerActions(hand.actions);
     actionHistory.updateHistory(actionSync.analyzerActions,
         visibleCount: playbackManager.playbackIndex);
-    if (hand.actionTags != null) {
-      actionTags.restore(hand.actionTags);
-    } else {
-      actionTags.recompute(hand.actions);
-    }
+    actionTags.restoreFromHand(hand);
     unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
     if (hand.foldedPlayers != null) {
       foldedPlayers.restoreFromJson(hand.foldedPlayers);

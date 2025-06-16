@@ -74,8 +74,7 @@ class UndoRedoService {
       tagsCursor: handContext.tagsCursor,
       collapsedHistoryStreets: actionHistory.collapsedStreets(),
       foldedPlayers: foldedPlayers.toJson(),
-      actionTags:
-          actionTagService.toMap().isEmpty ? null : actionTagService.toMap(),
+      actionTags: actionTagService.toNullableMap(),
       playbackIndex: playbackManager.playbackIndex,
       showFullBoard: boardReveal.showFullBoard,
       revealStreet: boardReveal.revealStreet,
@@ -109,11 +108,7 @@ class UndoRedoService {
         remainingStacks: snap.remainingStacks,
       );
       actionSync.setAnalyzerActions(List<ActionEntry>.from(snap.actions));
-      if (snap.actionTags != null) {
-        actionTagService.restore(snap.actionTags);
-      } else {
-        actionTagService.recompute(snap.actions);
-      }
+      actionTagService.restoreFromHand(snap);
       if (snap.foldedPlayers != null) {
         foldedPlayers.restoreFromJson(snap.foldedPlayers);
       } else {
