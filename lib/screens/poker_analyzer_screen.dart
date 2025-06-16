@@ -617,6 +617,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     _playerManager.updatePositions();
     _playbackManager.updatePlaybackState();
+    _actionHistory.updateHistory(actions,
+        visibleCount: _playbackManager.playbackIndex);
     if (widget.initialHand != null) {
       _stackService = _handRestore.restoreHand(widget.initialHand!);
       _actionSync.attachStackManager(_stackService);
@@ -883,6 +885,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           curve: Curves.easeOut,
         );
       }
+      _actionHistory.updateHistory(actions,
+          visibleCount: _playbackManager.playbackIndex);
     }
   }
 
@@ -1875,8 +1879,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     actionColor: ActionFormattingHelper.actionColor,
                   ),
                   _ActionHistorySection(
-                    actions: actions,
-                    playbackIndex: _playbackManager.playbackIndex,
+                    actionHistory: _actionHistory,
                     playerPositions: playerPositions,
                     expandedStreets: _expandedHistoryStreets,
                     onToggleStreet: (index) {
@@ -1967,7 +1970,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               child: StreetActionInputWidget(
                 currentStreet: currentStreet,
                 numberOfPlayers: numberOfPlayers,
-                actions: actions,
                 playerPositions: playerPositions,
                 actionHistory: _actionHistory,
                 onAdd: onActionSelected,
@@ -2017,13 +2019,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               child: AbsorbPointer(
                 absorbing: lockService.isLocked,
                 child: _HandEditorSection(
-                  historyActions: visibleActions,
+                  actionHistory: _actionHistory,
                   playerPositions: playerPositions,
                   heroIndex: heroIndex,
                   commentController: _handContext.commentController,
                   tagsController: _handContext.tagsController,
                   currentStreet: currentStreet,
-                  actions: actions,
                   pots: _potSync.pots,
                   stackSizes: _stackService.currentStacks,
                   onEdit: _editAction,
@@ -2933,15 +2934,13 @@ class _InvestedChipsOverlaySection extends StatelessWidget {
 }
 
 class _ActionHistorySection extends StatelessWidget {
-  final List<ActionEntry> actions;
-  final int playbackIndex;
+  final ActionHistoryService actionHistory;
   final Map<int, String> playerPositions;
   final Set<int> expandedStreets;
   final ValueChanged<int> onToggleStreet;
 
   const _ActionHistorySection({
-    required this.actions,
-    required this.playbackIndex,
+    required this.actionHistory,
     required this.playerPositions,
     required this.expandedStreets,
     required this.onToggleStreet,
@@ -2950,8 +2949,7 @@ class _ActionHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActionHistoryOverlay(
-      actions: actions,
-      playbackIndex: playbackIndex,
+      actionHistory: actionHistory,
       playerPositions: playerPositions,
       expandedStreets: expandedStreets,
       onToggleStreet: onToggleStreet,
@@ -3331,12 +3329,12 @@ class _PlaybackAndHandControls extends StatelessWidget {
 
 /// Collapsed view of action history with tabs for each street.
 class _CollapsibleActionHistorySection extends StatelessWidget {
-  final List<ActionEntry> actions;
+  final ActionHistoryService actionHistory;
   final Map<int, String> playerPositions;
   final int heroIndex;
 
   const _CollapsibleActionHistorySection({
-    required this.actions,
+    required this.actionHistory,
     required this.playerPositions,
     required this.heroIndex,
   });
@@ -3344,7 +3342,7 @@ class _CollapsibleActionHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CollapsibleActionHistory(
-      actions: actions,
+      actionHistory: actionHistory,
       playerPositions: playerPositions,
       heroIndex: heroIndex,
     );
@@ -3400,7 +3398,7 @@ class _HandNotesSection extends StatelessWidget {
 
 class _StreetActionsSection extends StatelessWidget {
   final int street;
-  final List<ActionEntry> actions;
+  final ActionHistoryService actionHistory;
   final List<int> pots;
   final Map<int, int> stackSizes;
   final Map<int, String> playerPositions;
@@ -3411,7 +3409,7 @@ class _StreetActionsSection extends StatelessWidget {
 
   const _StreetActionsSection({
     required this.street,
-    required this.actions,
+    required this.actionHistory,
     required this.pots,
     required this.stackSizes,
     required this.playerPositions,
@@ -3427,7 +3425,8 @@ class _StreetActionsSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: StreetActionsList(
         street: street,
-        actions: actions,
+        actions: actionHistory.actionsForStreet(street,
+            collapsed: false),
         pots: pots,
         stackSizes: stackSizes,
         playerPositions: playerPositions,
@@ -3745,13 +3744,12 @@ class _PlayerEditorSectionState extends State<_PlayerEditorSection> {
 }
 
 class _HandEditorSection extends StatelessWidget {
-  final List<ActionEntry> historyActions;
+  final ActionHistoryService actionHistory;
   final Map<int, String> playerPositions;
   final int heroIndex;
   final TextEditingController commentController;
   final TextEditingController tagsController;
   final int currentStreet;
-  final List<ActionEntry> actions;
   final List<int> pots;
   final Map<int, int> stackSizes;
   final void Function(int, ActionEntry) onEdit;
@@ -3761,13 +3759,12 @@ class _HandEditorSection extends StatelessWidget {
   final VoidCallback onAnalyze;
 
   const _HandEditorSection({
-    required this.historyActions,
+    required this.actionHistory,
     required this.playerPositions,
     required this.heroIndex,
     required this.commentController,
     required this.tagsController,
     required this.currentStreet,
-    required this.actions,
     required this.pots,
     required this.stackSizes,
     required this.onEdit,
@@ -3782,7 +3779,7 @@ class _HandEditorSection extends StatelessWidget {
     return Column(
       children: [
         _CollapsibleActionHistorySection(
-          actions: historyActions,
+          actionHistory: _actionHistory,
           playerPositions: playerPositions,
           heroIndex: heroIndex,
         ),
@@ -3795,7 +3792,7 @@ class _HandEditorSection extends StatelessWidget {
                     tagsController: tagsController),
                 _StreetActionsSection(
                   street: currentStreet,
-                  actions: actions,
+                  actionHistory: _actionHistory,
                   pots: pots,
                   stackSizes: stackSizes,
                   playerPositions: playerPositions,
@@ -3842,7 +3839,6 @@ class _RevealAllCardsButton extends StatelessWidget {
 class StreetActionInputWidget extends StatefulWidget {
   final int currentStreet;
   final int numberOfPlayers;
-  final List<ActionEntry> actions;
   final Map<int, String> playerPositions;
   final ActionHistoryService actionHistory;
   final void Function(ActionEntry) onAdd;
@@ -3853,7 +3849,6 @@ class StreetActionInputWidget extends StatefulWidget {
     super.key,
     required this.currentStreet,
     required this.numberOfPlayers,
-    required this.actions,
     required this.playerPositions,
     required this.actionHistory,
     required this.onAdd,
@@ -3963,8 +3958,8 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final streetActions = widget.actionHistory
-        .actionsForStreet(widget.currentStreet, widget.actions);
+    final streetActions =
+        widget.actionHistory.actionsForStreet(widget.currentStreet);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -4027,12 +4022,12 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                 IconButton(
                   icon: const Icon(Icons.edit, color: Colors.amber),
                   onPressed: () =>
-                      _editDialog(widget.actions.indexOf(a), a),
+                      _editDialog(widget.actionHistory.indexOf(a), a),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () =>
-                      widget.onDelete(widget.actions.indexOf(a)),
+                      widget.onDelete(widget.actionHistory.indexOf(a)),
                 ),
               ],
             ),

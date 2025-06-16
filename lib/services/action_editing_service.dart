@@ -72,6 +72,8 @@ class ActionEditingService {
         prevStreet: prevStreet,
         newStreet: currentStreet);
     actionHistory.addStreet(entry.street);
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
     actionTag.updateForAction(entry);
     setPlayerLastAction(
       players[entry.playerIndex].name,
@@ -117,6 +119,8 @@ class ActionEditingService {
       _removeFutureActionsForPlayer(entry.playerIndex, entry.street, index);
     }
     playbackManager.updatePlaybackState();
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
     _autoAdvanceStreetIfComplete(entry.street);
   }
 
@@ -133,6 +137,8 @@ class ActionEditingService {
       playbackManager.seek(actions.length);
     }
     actionTag.updateAfterActionRemoval(removed.playerIndex, actions);
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
     actionHistory.autoCollapseStreets(actions);
     playbackManager.updatePlaybackState();
   }
@@ -143,6 +149,9 @@ class ActionEditingService {
   void removeFutureActionsForPlayer(
       int playerIndex, int street, int fromIndex) {
     _removeFutureActionsForPlayer(playerIndex, street, fromIndex);
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
+    actionHistory.autoCollapseStreets(actions);
   }
 
   // ----- Helpers -----
@@ -187,5 +196,8 @@ class ActionEditingService {
     }
     actionTag.updateAfterActionRemoval(playerIndex, actions);
     playbackManager.updatePlaybackState();
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
+    actionHistory.autoCollapseStreets(actions);
   }
 }

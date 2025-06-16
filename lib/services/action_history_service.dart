@@ -1,30 +1,55 @@
 import '../models/action_entry.dart';
 
-/// Provides grouped access to action history and manages expanded/collapsed
-/// state for each street.
+/// Centralized storage and management of action history grouped by street.
 class ActionHistoryService {
   /// Streets that should appear expanded in history views.
   final Set<int> expandedStreets = {0, 1, 2, 3};
 
-  /// Returns actions grouped by street. If [visibleCount] is provided, only
-  /// the first [visibleCount] actions are considered.
-  Map<int, List<ActionEntry>> groupByStreet(List<ActionEntry> actions,
-      {int? visibleCount}) {
-    final grouped = {for (var i = 0; i < 4; i++) i: <ActionEntry>[]};
-    final list =
+  /// Internal map of actions per street. Indexes correspond to street numbers.
+  final Map<int, List<ActionEntry>> _actionsByStreet =
+      {for (var i = 0; i < 4; i++) i: <ActionEntry>[]};
+
+  /// Complete list of actions in their original order.
+  List<ActionEntry> _allActions = [];
+
+  /// Update history from [actions]. If [visibleCount] is provided only the first
+  /// [visibleCount] actions are taken into account. Existing lists are replaced.
+  void updateHistory(List<ActionEntry> actions, {int? visibleCount}) {
+    _allActions = List<ActionEntry>.from(actions);
+    for (final list in _actionsByStreet.values) list.clear();
+    final source =
         visibleCount != null ? actions.take(visibleCount).toList() : actions;
-    for (final a in list) {
-      grouped[a.street]?.add(a);
+    for (final a in source) {
+      _actionsByStreet[a.street]?.add(a);
     }
-    return grouped;
   }
 
-  /// Returns the list of actions for [street].
-  List<ActionEntry> actionsForStreet(
-      int street, List<ActionEntry> actions, {int? visibleCount}) {
-    final grouped = groupByStreet(actions, visibleCount: visibleCount);
-    return grouped[street] ?? const <ActionEntry>[];
+  /// Clears all stored actions.
+  void clear() {
+    for (final list in _actionsByStreet.values) list.clear();
+    _allActions.clear();
   }
+
+  /// Returns the list of actions for [street]. If [collapsed] is true and the
+  /// list is longer than [limit], only the last [limit] actions are returned.
+  List<ActionEntry> actionsForStreet(int street,
+      {bool collapsed = false, int limit = 5}) {
+    final list = _actionsByStreet[street] ?? const <ActionEntry>[];
+    if (!collapsed || list.length <= limit) return List.unmodifiable(list);
+    return List.unmodifiable(list.sublist(list.length - limit));
+  }
+
+  /// Returns grouped actions for HUD overlay respecting collapsed streets.
+  Map<int, List<ActionEntry>> hudView({int limit = 5}) {
+    return {
+      for (int i = 0; i < 4; i++)
+        i: actionsForStreet(i,
+            collapsed: !expandedStreets.contains(i), limit: limit)
+    };
+  }
+
+  /// Returns the index of [entry] in the full action list.
+  int indexOf(ActionEntry entry) => _allActions.indexOf(entry);
 
   /// Toggles expansion state for [street].
   void toggleStreet(int street) {
@@ -71,9 +96,8 @@ class ActionHistoryService {
   }
 
   /// Builds a short summary for the last action on [street].
-  String streetSummary(
-      int street, List<ActionEntry> actions, Map<int, String> positions) {
-    final list = actionsForStreet(street, actions);
+  String streetSummary(int street, Map<int, String> positions) {
+    final list = actionsForStreet(street);
     if (list.isEmpty) return 'Нет действий';
     final last = list.last;
     final pos = positions[last.playerIndex] ?? 'P${last.playerIndex + 1}';

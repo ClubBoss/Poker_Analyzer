@@ -35,6 +35,7 @@ class ActionUndoRedoService {
 
   void resetHistory() {
     actionSync.clearAnalyzerActions();
+    actionHistory.clear();
   }
 
   void _applySnapshot(ActionSnapshot snap) {
@@ -74,6 +75,8 @@ class ActionUndoRedoService {
       _applySnapshot(snap);
     }
     playbackManager.updatePlaybackState();
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
     actionHistory.autoCollapseStreets(actionSync.analyzerActions);
     boardManager.startBoardTransition();
   }
@@ -105,6 +108,8 @@ class ActionUndoRedoService {
       _applySnapshot(snap);
     }
     playbackManager.updatePlaybackState();
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
     actionHistory.autoCollapseStreets(actionSync.analyzerActions);
     boardManager.startBoardTransition();
   }

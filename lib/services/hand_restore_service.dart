@@ -92,6 +92,8 @@ class HandRestoreService {
     profile.opponentIndex = hand.opponentIndex;
     setActivePlayerIndex(hand.activePlayerIndex);
     actionSync.setAnalyzerActions(hand.actions);
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
     playerManager.initialStacks
       ..clear()
       ..addAll(hand.stackSizes);
@@ -126,6 +128,8 @@ class HandRestoreService {
     }
     actionHistory.restoreFromCollapsed(hand.collapsedHistoryStreets);
     _autoCollapseStreets();
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
     boardManager.boardStreet = hand.boardStreet;
     boardManager.currentStreet = hand.boardStreet;
     boardSync.updateRevealedBoardCards();
