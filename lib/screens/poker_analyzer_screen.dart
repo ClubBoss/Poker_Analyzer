@@ -84,6 +84,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final BoardManagerService boardManager;
   final BoardSyncService boardSync;
   final BoardEditingService boardEditing;
+  final PlayerManagerService playerManager;
   final PlayerProfileService playerProfile;
   final ActionTagService actionTagService;
   final BoardRevealService boardReveal;
@@ -106,6 +107,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.boardManager,
     required this.boardSync,
     required this.boardEditing,
+    required this.playerManager,
     required this.playerProfile,
     required this.actionTagService,
     required this.boardReveal,
@@ -128,21 +130,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late BoardEditingService _boardEditing;
   late BoardRevealService _boardReveal;
   late ActionTagService _actionTagService;
-  int get heroIndex => _profile.heroIndex;
-  set heroIndex(int v) => _profile.heroIndex = v;
+  int get heroIndex => _playerManager.heroIndex;
+  set heroIndex(int v) => _playerManager.setHeroIndex(v);
   String get _heroPosition => _profile.heroPosition;
   set _heroPosition(String v) => _profile.heroPosition = v;
   int get numberOfPlayers => _playerManager.numberOfPlayers;
   set numberOfPlayers(int v) => _playerManager.numberOfPlayers = v;
   List<List<CardModel>> get playerCards => _playerManager.playerCards;
   List<CardModel> get boardCards => _boardManager.boardCards;
-  List<PlayerModel> get players => _profile.players;
-  Map<int, String> get playerPositions => _profile.playerPositions;
-  Map<int, PlayerType> get playerTypes => _profile.playerTypes;
+  List<PlayerModel> get players => _playerManager.players;
+  Map<int, String> get playerPositions => _playerManager.playerPositions;
+  Map<int, PlayerType> get playerTypes => _playerManager.playerTypes;
   List<bool> get _showActionHints => _playerManager.showActionHints;
   List<CardModel> get revealedBoardCards => _boardSync.revealedBoardCards;
-  int? get opponentIndex => _profile.opponentIndex;
-  set opponentIndex(int? v) => _profile.opponentIndex = v;
+  int? get opponentIndex => _playerManager.opponentIndex;
+  set opponentIndex(int? v) => _playerManager.opponentIndex = v;
   int get currentStreet => _boardManager.currentStreet;
   set currentStreet(int v) => _boardManager.currentStreet = v;
   int get boardStreet => _boardManager.boardStreet;
@@ -249,7 +251,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (isPerspectiveSwitched && opponentIndex != null) {
       return opponentIndex!;
     }
-    return _profile.heroIndex;
+    return _playerManager.heroIndex;
   }
 
   int _inferBoardStreet() => _boardSync.inferBoardStreet();
@@ -526,14 +528,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _editPlayerInfo(int index) async {
     if (lockService.isLocked) return;
-    final disableCards = index != _profile.heroIndex;
+    final disableCards = index != _playerManager.heroIndex;
 
     await showDialog(
       context: context,
       builder: (context) => _PlayerEditorSection(
         initialStack: _stackService.initialStacks[index] ?? 0,
-        initialType: _profile.playerTypes[index] ?? PlayerType.unknown,
-        isHeroSelected: index == _profile.heroIndex,
+        initialType: _playerManager.playerTypes[index] ?? PlayerType.unknown,
+        isHeroSelected: index == _playerManager.heroIndex,
         card1: _playerManager.playerCards[index].isNotEmpty
             ? _playerManager.playerCards[index][0]
             : null,
@@ -582,9 +584,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       duration: _boardRevealDuration,
     );
     _timelineController = ScrollController();
-    _playerManager = context.read<PlayerManagerService>()
+    _playerManager = widget.playerManager
       ..addListener(_onPlayerManagerChanged);
-    _profile = widget.playerProfile;
+    _profile = widget.playerManager.profileService;
     _actionTagService = widget.actionTagService;
     _boardReveal = widget.boardReveal;
     _potSync = widget.potSyncService;
@@ -619,7 +621,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       setActivePlayerIndex: (i) => activePlayerIndex = i,
       potSync: _potSync,
     );
-    _profile.updatePositions();
+    _playerManager.updatePositions();
     _playbackManager.updatePlaybackState();
     if (widget.initialHand != null) {
       _stackService = _handRestore.restoreHand(widget.initialHand!);
@@ -1056,7 +1058,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _addAutoFolds(ActionEntry entry) {
     final street = entry.street;
     final ordered = List.generate(_playerManager.numberOfPlayers,
-        (i) => (i + _profile.heroIndex) % _playerManager.numberOfPlayers);
+        (i) => (i + _playerManager.heroIndex) % _playerManager.numberOfPlayers);
     final acted = actions
         .where((a) => a.street == street)
         .map((a) => a.playerIndex)
@@ -1313,7 +1315,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.isLocked) return;
     if (_playerManager.numberOfPlayers <= 2) return;
 
-    int updatedHeroIndex = _profile.heroIndex;
+    int updatedHeroIndex = _playerManager.heroIndex;
 
     if (index == heroIndex) {
       final choice = await showDialog<String>(
@@ -1603,7 +1605,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final collapsed = _actionHistory.collapsedStreets();
     return SavedHand(
       name: name ?? _defaultHandName(),
-      heroIndex: _profile.heroIndex,
+      heroIndex: _playerManager.heroIndex,
       heroPosition: _profile.heroPosition,
       numberOfPlayers: _playerManager.numberOfPlayers,
       playerCards: [
@@ -1614,7 +1616,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardStreet: boardStreet,
       revealedCards: [
         for (int i = 0; i < _playerManager.numberOfPlayers; i++)
-          [for (final c in _profile.players[i].revealedCards) if (c != null) c]
+          [for (final c in _playerManager.players[i].revealedCards) if (c != null) c]
       ],
       opponentIndex: opponentIndex,
       activePlayerIndex: activePlayerIndex,
@@ -1624,8 +1626,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (int i = 0; i < _playerManager.numberOfPlayers; i++)
           i: _stackService.getStackForPlayer(i)
       },
-      playerPositions: Map<int, String>.from(_profile.playerPositions),
-      playerTypes: Map<int, PlayerType>.from(_profile.playerTypes),
+      playerPositions: Map<int, String>.from(_playerManager.playerPositions),
+      playerTypes: Map<int, PlayerType>.from(_playerManager.playerTypes),
       comment: _handContext.comment,
       tags: _handContext.tags,
       commentCursor: _handContext.commentCursor,
@@ -1720,22 +1722,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final posList = (data['positions'] as List?)?.cast<String>() ?? [];
     final heroPos =
         newHeroIndex < posList.length ? posList[newHeroIndex] : _heroPosition;
-    final newPositions = <int, String>{};
-    for (var i = 0; i < posList.length; i++) {
-      newPositions[i] = posList[i];
-    }
 
     lockService.safeSetState(this, () {
-      heroIndex = newHeroIndex;
-      numberOfPlayers = newPlayerCount;
+      _playerManager.loadFromMap(data);
       _heroPosition = heroPos;
-
-      for (final list in playerCards) {
-        list.clear();
-      }
-      for (var i = 0; i < newCards.length; i++) {
-      playerCards[i].addAll(newCards[i]);
-      }
 
       boardCards
         ..clear()
@@ -1745,14 +1735,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..clear()
         ..addAll(newActions);
 
-      playerPositions
-        ..clear()
-        ..addAll(newPositions);
-
       _boardManager.changeStreet(0);
       _playbackManager.resetHand();
       _playbackManager.updatePlaybackState();
-      _profile.updatePositions();
       _handContext.currentHandName = null;
     });
     _boardManager.startBoardTransition();
@@ -2349,19 +2334,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             showLastIndicator: lastStreetAction?.playerIndex == index,
             isActive: isActive,
             isFolded: isFolded,
-            isHero: index == _profile.heroIndex,
+            isHero: index == _playerManager.heroIndex,
             isOpponent: index == opponentIndex,
             playerTypeIcon: '',
             playerTypeLabel: _playerManager.numberOfPlayers > 9
                 ? null
-                : _playerTypeLabel(_profile.playerTypes[index]),
+                : _playerTypeLabel(_playerManager.playerTypes[index]),
             positionLabel:
                 _playerManager.numberOfPlayers <= 9
                     ? _positionLabelForIndex(index)
                     : null,
-            blindLabel: (_profile.playerPositions[index] == 'SB' ||
-                    _profile.playerPositions[index] == 'BB')
-                ? _profile.playerPositions[index]
+            blindLabel: (_playerManager.playerPositions[index] == 'SB' ||
+                    _playerManager.playerPositions[index] == 'BB')
+                ? _playerManager.playerPositions[index]
                 : null,
             timersDisabled: lockService.isLocked,
             onCardTap: lockService.isLocked
@@ -2394,7 +2379,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Positioned(
         left: centerX + dx - 8 * scale,
         top: centerY + dy + bias - 70 * scale,
-        child: _playerTypeIcon(_profile.playerTypes[index]),
+        child: _playerTypeIcon(_playerManager.playerTypes[index]),
       ),
       if (lastAmountAction != null)
         Positioned(

@@ -679,6 +679,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                                   boardSync: context.read<BoardSyncService>(),
                                   boardEditing:
                                       context.read<BoardEditingService>(),
+                                  playerManager:
+                                      context.read<PlayerManagerService>(),
                                   playerProfile:
                                       context.read<PlayerProfileService>(),
                                   actionTagService: context
