@@ -167,55 +167,12 @@ class ActionSyncService extends ChangeNotifier {
     _redoSnapshots.clear();
   }
 
-  void addAnalyzerAction(ActionEntry entry,
-      {int? index, bool recordHistory = true, required int prevStreet, required int newStreet}) {
-    final insertIndex = index ?? analyzerActions.length;
-    if (index != null) {
-      analyzerActions.insert(index, entry);
-    } else {
-      analyzerActions.add(entry);
-    }
-    if (recordHistory) {
-      _undoStack.add(ActionHistoryEntry(ActionChangeType.add, insertIndex,
-          newEntry: entry, prevStreet: prevStreet, newStreet: newStreet));
-      _redoStack.clear();
-    }
-    foldedPlayers?.addFromAction(entry);
-    _syncStacks();
-    notifyListeners();
+  void recordHistory(ActionHistoryEntry entry) {
+    _undoStack.add(entry);
+    _redoStack.clear();
   }
 
-  void updateAnalyzerAction(int index, ActionEntry entry,
-      {bool recordHistory = true, required int street}) {
-    final previous = analyzerActions[index];
-    analyzerActions[index] = entry;
-    if (recordHistory) {
-      _undoStack.add(ActionHistoryEntry(ActionChangeType.edit, index,
-          oldEntry: previous,
-          newEntry: entry,
-          prevStreet: street,
-          newStreet: street));
-      _redoStack.clear();
-    }
-    foldedPlayers?.editAction(previous, entry, analyzerActions);
-    _syncStacks();
-    notifyListeners();
-  }
-
-  void deleteAnalyzerAction(int index,
-      {bool recordHistory = true, required int street}) {
-    final removed = analyzerActions.removeAt(index);
-    if (recordHistory) {
-      _undoStack.add(ActionHistoryEntry(ActionChangeType.delete, index,
-          oldEntry: removed,
-          prevStreet: street,
-          newStreet: street));
-      _redoStack.clear();
-    }
-    foldedPlayers?.removeFromAction(removed, analyzerActions);
-    _syncStacks();
-    notifyListeners();
-  }
+  void syncStacks() => _syncStacks();
 
   UndoRedoResult undo(ActionSnapshot currentSnapshot) {
     if (_undoStack.isEmpty) {
