@@ -129,3 +129,58 @@ class BoardEditingService {
   bool canEditBoard(BuildContext context, int index) =>
       isBoardEditAllowed(context, index);
 }
+
+  /// Select a new card for a player by index. Returns true if the card was
+  /// applied, otherwise shows a duplicate warning and returns false.
+  bool selectCard(BuildContext context, int playerIndex, CardModel card) {
+    if (isDuplicateSelection(card, null)) {
+      showDuplicateCardMessage(context);
+      return false;
+    }
+    _playerManager.selectCard(playerIndex, card);
+    return true;
+  }
+
+  /// Replace the card at [cardIndex] for the player at [playerIndex].
+  /// [current] should be the existing card at that position if any.
+  /// Returns true if the replacement succeeded.
+  bool setPlayerCard(BuildContext context, int playerIndex, int cardIndex,
+      CardModel card, CardModel? current) {
+    if (isDuplicateSelection(card, current)) {
+      showDuplicateCardMessage(context);
+      return false;
+    }
+    _playerManager.setPlayerCard(playerIndex, cardIndex, card);
+    return true;
+  }
+
+  /// Replace a revealed card for [playerIndex]. Similar duplicate protection
+  /// as [setPlayerCard].
+  bool setRevealedCard(BuildContext context, int playerIndex, int cardIndex,
+      CardModel card, CardModel? current) {
+    if (isDuplicateSelection(card, current)) {
+      showDuplicateCardMessage(context);
+      return false;
+    }
+    _playerManager.setRevealedCard(playerIndex, cardIndex, card);
+    return true;
+  }
+
+  /// Select or add a board card at [index]. Duplicate and stage order checks
+  /// are enforced. Returns true if the card was applied.
+  bool selectBoardCard(BuildContext context, int index, CardModel card,
+      {CardModel? current}) {
+    if (!isBoardEditAllowed(context, index)) return false;
+    if (isDuplicateSelection(card, current)) {
+      showDuplicateCardMessage(context);
+      return false;
+    }
+    _boardManager.selectBoardCard(index, card);
+    return true;
+  }
+
+  /// Remove the board card at [index] if it exists.
+  void removeBoardCard(int index) {
+    _boardManager.removeBoardCard(index);
+  }
+}
