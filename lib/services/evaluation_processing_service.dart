@@ -104,6 +104,7 @@ class EvaluationProcessingService {
     if (!pauseRequested && !processing && queueService.pending.isNotEmpty) {
       await processQueue();
     }
+    debugPanelCallback?.call();
   }
 
   Future<void> cancelProcessing() async {
@@ -128,6 +129,21 @@ class EvaluationProcessingService {
     if (queueService.pending.isNotEmpty) {
       await processQueue();
     }
+    debugPanelCallback?.call();
+  }
+
+  Future<void> addEvaluationRequest(ActionEvaluationRequest req) async {
+    await queueService.addToQueue(req);
+    if (!processing && !pauseRequested) {
+      await processQueue();
+    } else {
+      debugPanelCallback?.call();
+    }
+  }
+
+  Future<void> retryFailedEvaluations() async {
+    await _retryService.retryFailedEvaluations(queueService);
+    debugPanelCallback?.call();
   }
 
   void cleanup() {

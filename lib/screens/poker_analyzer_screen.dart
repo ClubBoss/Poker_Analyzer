@@ -1026,33 +1026,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
-  Future<void> _toggleEvaluationProcessingPause() async {
-    await _processingService.togglePauseProcessing();
-    if (mounted) lockService.safeSetState(this, () {});
-    _debugPanelSetState?.call(() {});
-  }
-
-  Future<void> _cancelEvaluationProcessing() async {
-    await _processingService.cancelProcessing();
-    if (mounted) lockService.safeSetState(this, () {});
-    _debugPanelSetState?.call(() {});
-  }
-
-  Future<void> _forceRestartEvaluationProcessing() async {
-    await _processingService.forceRestartProcessing();
-    if (mounted) lockService.safeSetState(this, () {});
-    _debugPanelSetState?.call(() {});
-  }
-
-  void _retryFailedEvaluations() {
-    _queueService.retryFailedEvaluations().then((_) {
-      if (mounted) {
-        lockService.safeSetState(this, () {});
-      }
-      _queueService.persist();
-      _debugPanelSetState?.call(() {});
-    });
-  }
 
 
 
@@ -1341,30 +1314,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } catch (_) {
       await s._debugPrefs.setEvaluationQueueResumed(false);
     }
-  }
-
-  /// Executes a single evaluation request.
-  ///
-  /// This stub simply waits briefly and sometimes throws an exception to
-  /// help debug how the UI reacts to evaluation failures.
-  Future<void> _executeEvaluation(ActionEvaluationRequest req) async {
-    // Delay to mimic heavy evaluation logic.
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    // Introduce a 20% chance of failure for testing purposes.
-    if (Random().nextDouble() < 0.2) {
-      throw Exception('Simulated evaluation failure');
-    }
-  }
-
-  Future<void> _processEvaluationQueue() async {
-    await _processingService.processQueue();
-    if (mounted) lockService.safeSetState(this, () {});
-  }
-
-  Future<void> _processNextEvaluation() async {
-    await _processingService.processQueue();
-    if (mounted) lockService.safeSetState(this, () {});
   }
 
   Future<void> _initializeDebugPreferences() async {
@@ -4116,12 +4065,12 @@ class _QueueTools extends StatelessWidget {
       'Bulk Import Evaluation Queue': s._bulkImportEvaluationQueue,
       'Bulk Import Backups': () async {
         await s._importExportService.bulkImportEvaluationBackups(s.context);
-        if (s.mounted) s.setState(() {});
+        if (s.mounted) s.lockService.safeSetState(s, () {});
         s._debugPanelSetState?.call(() {});
       },
       'Bulk Import Auto-Backups': () async {
         await s._importExportService.bulkImportAutoBackups(s.context);
-        if (s.mounted) s.setState(() {});
+        if (s.mounted) s.lockService.safeSetState(s, () {});
         s._debugPanelSetState?.call(() {});
       },
       'Import Queue Snapshot': s._importEvaluationQueueSnapshot,
@@ -4168,7 +4117,12 @@ class _SnapshotControls extends StatelessWidget {
     final _PokerAnalyzerScreenState s = state.s;
     return state._buttonsColumn({
       'Retry Failed Evaluations':
-          s._queueService.failed.isEmpty ? null : s._retryFailedEvaluations,
+          s._queueService.failed.isEmpty
+              ? null
+              : () async {
+                  await s._processingService.retryFailedEvaluations();
+                  if (s.mounted) s.lockService.safeSetState(s, () {});
+                },
       'Export Snapshot Now': s._processingService.processing
           ? null
           : () => s._exportEvaluationQueueSnapshot(showNotification: true),
@@ -4245,14 +4199,39 @@ class _ProcessingControls extends StatelessWidget {
     final disabled = s._queueService.pending.isEmpty;
     return state._buttonsWrap({
       'Process Next':
-          disabled || s._processingService.processing ? null : s._processNextEvaluation,
+          disabled || s._processingService.processing
+              ? null
+              : () async {
+                  await s._processingService.processQueue();
+                  if (s.mounted) s.lockService.safeSetState(s, () {});
+                },
       'Start Evaluation Processing':
-          disabled || s._processingService.processing ? null : s._processEvaluationQueue,
+          disabled || s._processingService.processing
+              ? null
+              : () async {
+                  await s._processingService.processQueue();
+                  if (s.mounted) s.lockService.safeSetState(s, () {});
+                },
       s._processingService.pauseRequested ? 'Resume' : 'Pause':
-          disabled || !s._processingService.processing ? null : s._toggleEvaluationProcessingPause,
+          disabled || !s._processingService.processing
+              ? null
+              : () async {
+                  await s._processingService.togglePauseProcessing();
+                  if (s.mounted) s.lockService.safeSetState(s, () {});
+                },
       'Cancel Evaluation Processing':
-          !s._processingService.processing && disabled ? null : s._cancelEvaluationProcessing,
-      'Force Evaluation Restart': disabled ? null : s._forceRestartEvaluationProcessing,
+          !s._processingService.processing && disabled
+              ? null
+              : () async {
+                  await s._processingService.cancelProcessing();
+                  if (s.mounted) s.lockService.safeSetState(s, () {});
+                },
+      'Force Evaluation Restart': disabled
+          ? null
+          : () async {
+              await s._processingService.forceRestartProcessing();
+              if (s.mounted) s.lockService.safeSetState(s, () {});
+            },
     });
   }
 }
