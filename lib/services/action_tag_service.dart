@@ -47,4 +47,27 @@ class ActionTagService {
 
   /// Removes the tag for [playerIndex].
   void removeTag(int playerIndex) => _tags.remove(playerIndex);
+
+  /// Assigns [tag] to the player at [playerIndex].
+  void setTag(int playerIndex, String? tag) => _tags[playerIndex] = tag;
+
+  /// Serializes tags to a JSON-friendly map.
+  Map<String, String?> toJson() =>
+      {for (final e in _tags.entries) e.key.toString(): e.value};
+
+  /// Restores tags from a JSON map produced by [toJson].
+  void restoreFromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      clear();
+      return;
+    }
+    _tags
+      ..clear()
+      ..addAll({
+        for (final e in json.entries) int.parse(e.key): e.value as String?
+      });
+  }
+
+  /// Returns a copy of the current tags map.
+  Map<int, String?> toMap() => Map<int, String?>.from(_tags);
 }

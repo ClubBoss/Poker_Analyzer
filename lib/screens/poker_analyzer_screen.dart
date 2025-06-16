@@ -1651,7 +1651,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       foldedPlayers:
           _foldedPlayers.isEmpty ? null : List<int>.from(_foldedPlayers.players),
       actionTags:
-          _actionTagService.tags.isEmpty ? null : Map<int, String?>.from(_actionTagService.tags),
+          _actionTagService.toMap().isEmpty ? null : _actionTagService.toMap(),
       pendingEvaluations:
           _queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(_queueService.pending),
       playbackIndex: _playbackManager.playbackIndex,
@@ -4989,8 +4989,8 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             debugDiag('Total Actions', s.actions.length),
             _vGap,
             const Text('Action Tags Diagnostics:'),
-            if (s._actionTagService.tags.isNotEmpty)
-              for (final entry in s._actionTagService.tags.entries) ...[
+            if (s._actionTagService.toMap().isNotEmpty)
+              for (final entry in s._actionTagService.toMap().entries) ...[
                 debugDiag('Player ${entry.key + 1} Action Tag', entry.value),
                 _vGap,
               ]
