@@ -367,6 +367,26 @@ class EvaluationQueueService {
     await _persist();
   }
 
+  /// Replace the entire pending queue with [items].
+  Future<void> setPending(List<ActionEvaluationRequest> items) async {
+    await _queueLock.synchronized(() {
+      pending
+        ..clear()
+        ..addAll(items);
+    });
+    await _persist();
+  }
+
+  /// Reorder [queue] moving the item at [oldIndex] to [newIndex].
+  Future<void> reorderQueue(
+      List<ActionEvaluationRequest> queue, int oldIndex, int newIndex) async {
+    await _queueLock.synchronized(() {
+      final item = queue.removeAt(oldIndex);
+      queue.insert(newIndex, item);
+    });
+    await _persist();
+  }
+
   int _deduplicateList(List<ActionEvaluationRequest> list, Set<String> seenIds) {
     final originalLength = list.length;
     final unique = <ActionEvaluationRequest>[];
