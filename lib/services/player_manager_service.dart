@@ -1,15 +1,20 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../models/action_entry.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/saved_hand.dart';
 import 'player_profile_service.dart';
+import 'player_profile_import_export_service.dart';
 
 class PlayerManagerService extends ChangeNotifier {
-  PlayerManagerService(this.profileService);
+  PlayerManagerService(this.profileService)
+      : profileImportExportService =
+            PlayerProfileImportExportService(profileService);
 
   final PlayerProfileService profileService;
+  final PlayerProfileImportExportService profileImportExportService;
 
   int get heroIndex => profileService.heroIndex;
   String get heroPosition => profileService.heroPosition;
@@ -62,6 +67,48 @@ class PlayerManagerService extends ChangeNotifier {
 
   void setHeroIndex(int index) {
     profileService.setHeroIndex(index);
+  }
+
+  /// Convert the player profile to a map via [PlayerProfileImportExportService].
+  Map<String, dynamic> profileToMap() =>
+      profileImportExportService.toMap();
+
+  /// Load player profile information from a serialized map.
+  void loadProfileFromMap(Map<String, dynamic> data) {
+    profileImportExportService.loadFromMap(data);
+    notifyListeners();
+  }
+
+  /// Serialize the current player profile to a json string.
+  String serializeProfile() => profileImportExportService.serialize();
+
+  /// Deserialize the given json string into the player profile.
+  bool deserializeProfile(String jsonStr) {
+    final result = profileImportExportService.deserialize(jsonStr);
+    if (result) notifyListeners();
+    return result;
+  }
+
+  Future<void> exportProfileToClipboard(BuildContext context) async {
+    await profileImportExportService.exportToClipboard(context);
+  }
+
+  Future<void> importProfileFromClipboard(BuildContext context) async {
+    await profileImportExportService.importFromClipboard(context);
+    notifyListeners();
+  }
+
+  Future<void> exportProfileToFile(BuildContext context) async {
+    await profileImportExportService.exportToFile(context);
+  }
+
+  Future<void> importProfileFromFile(BuildContext context) async {
+    await profileImportExportService.importFromFile(context);
+    notifyListeners();
+  }
+
+  Future<void> exportProfileArchive(BuildContext context) async {
+    await profileImportExportService.exportArchive(context);
   }
 
   void setInitialStack(int index, int stack) {
