@@ -563,6 +563,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final backupManager = widget.backupManagerService ??
         BackupManagerService(queueService: _queueService, debugPrefs: _debugPrefs);
     _importExportService.attachBackupManager(backupManager);
+    _queueService.attachBackupManager(backupManager);
     _processingService = widget.processingService ?? EvaluationProcessingService(
       queueService: _queueService,
       debugPrefs: _debugPrefs,
@@ -605,6 +606,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardManager: _boardManager,
       boardSync: _boardSync,
       queueService: _queueService,
+      backupManager: backupManager,
       debugPrefs: _debugPrefs,
       lockService: lockService,
       handContext: _handContext,

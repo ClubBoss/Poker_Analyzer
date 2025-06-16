@@ -9,7 +9,7 @@ import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/action_evaluation_request.dart';
-import 'debug_snapshot_service.dart';
+import 'backup_manager_service.dart';
 import 'retry_evaluation_service.dart';
 
 class EvaluationQueueService {
@@ -35,20 +35,23 @@ class EvaluationQueueService {
 
   // Cached SharedPreferences instance for quick persistence operations.
   late final SharedPreferences _sharedPrefs;
-  late final DebugSnapshotService _snapshotService;
   late final RetryEvaluationService _retryService;
   late final Future<void> _initFuture;
   /// Optional callback invoked whenever the queue state changes so the
   /// debug panel can update immediately.
   VoidCallback? debugPanelCallback;
+  BackupManagerService? backupManager;
+
+  void attachBackupManager(BackupManagerService manager) {
+    backupManager = manager;
+  }
 
   EvaluationQueueService({
     RetryEvaluationService? retryService,
-    DebugSnapshotService? debugSnapshotService,
     this.debugPanelCallback,
+    this.backupManager,
   }) {
     _retryService = retryService ?? RetryEvaluationService();
-    _snapshotService = debugSnapshotService ?? DebugSnapshotService();
     _initFuture = _initialize();
   }
 
@@ -174,7 +177,7 @@ class EvaluationQueueService {
 
   Future<void> saveQueueSnapshot({bool showNotification = true}) async {
     await _initFuture;
-    await _snapshotService.saveQueueSnapshot(
+    await backupManager?.saveQueueSnapshot(
       await state(),
       showNotification: showNotification,
       snapshotRetentionEnabled: snapshotRetentionEnabled,
@@ -183,7 +186,7 @@ class EvaluationQueueService {
 
   Future<void> loadQueueSnapshot() async {
     await _initFuture;
-    final decoded = await _snapshotService.loadQueueSnapshot();
+    final decoded = await backupManager?.loadLatestQueueSnapshot();
     if (decoded == null) return;
     final queues = _decodeQueues(decoded);
     await _queueLock.synchronized(() {

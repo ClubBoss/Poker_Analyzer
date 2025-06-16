@@ -41,6 +41,7 @@ class BackupManagerService {
   static const String snapshotsFolder = BackupService.snapshotsFolder;
   static const String exportsFolder = BackupService.exportsFolder;
   static const int _backupRetentionLimit = 30;
+  static const int _snapshotRetentionLimit = 50;
 
   List<ActionEvaluationRequest> get _pending => queueService.pending;
   List<ActionEvaluationRequest> get _failed => queueService.failed;
@@ -373,6 +374,65 @@ class BackupManagerService {
   Future<void> cleanupOldAutoBackups() async {
     await backupService.cleanupOldFiles(
         autoBackupsFolder, BackupService.defaultAutoBackupRetentionLimit);
+  }
+
+  Future<void> cleanupOldEvaluationSnapshots() async {
+    await backupService.cleanupOldFiles(
+        snapshotsFolder, _snapshotRetentionLimit);
+  }
+
+  Future<void> saveQueueSnapshot(
+    Map<String, dynamic> state, {
+    bool showNotification = true,
+    bool snapshotRetentionEnabled = true,
+  }) async {
+    try {
+      final dir = await _dir(snapshotsFolder);
+      final fileName = 'snapshot_${_timestamp()}.json';
+      final file = await _jsonFile(dir, fileName);
+      await backupService.writeJsonFile(file, state);
+      if (snapshotRetentionEnabled) {
+        await cleanupOldEvaluationSnapshots();
+      }
+      if (showNotification && kDebugMode) {
+        debugPrint('Snapshot saved: ${file.path}');
+      }
+    } catch (e) {
+      if (showNotification && kDebugMode) {
+        debugPrint('Failed to export snapshot: $e');
+      }
+    }
+  }
+
+  Future<dynamic> loadLatestQueueSnapshot() async {
+    try {
+      final dir = await _dir(snapshotsFolder);
+      if (!await dir.exists()) return null;
+      final files = await dir
+          .list()
+          .where((e) => e is File && e.path.endsWith('.json'))
+          .cast<File>()
+          .toList();
+      if (files.isEmpty) return null;
+      final results = await Future.wait(files.map((f) async {
+        try {
+          final stat = await f.stat();
+          return MapEntry(f, stat.modified);
+        } catch (_) {
+          return null;
+        }
+      }));
+      final entries = results.whereType<MapEntry<File, DateTime>>().toList();
+      if (entries.isEmpty) return null;
+      entries.sort((a, b) => b.value.compareTo(a.value));
+      final file = entries.first.key;
+      return await backupService.readJsonFile(file);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Failed to load snapshot: $e');
+      }
+      return null;
+    }
   }
 
 
