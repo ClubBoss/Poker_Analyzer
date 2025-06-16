@@ -3,7 +3,7 @@ import '../models/player_model.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../widgets/player_zone_widget.dart';
 import 'action_sync_service.dart';
-import 'action_undo_redo_service.dart';
+import 'undo_redo_service.dart';
 import 'action_tag_service.dart';
 import 'playback_manager_service.dart';
 import 'folded_players_service.dart';
@@ -16,7 +16,7 @@ import 'player_manager_service.dart';
 /// state in sync across the application.
 class ActionEditingService {
   final ActionSyncService actionSync;
-  final ActionUndoRedoService undoRedo;
+  final UndoRedoService undoRedo;
   final ActionTagService actionTag;
   final PlaybackManagerService playbackManager;
   final FoldedPlayersService foldedPlayers;
