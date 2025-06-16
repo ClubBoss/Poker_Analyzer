@@ -41,7 +41,17 @@ class BoardSyncService {
   int inferBoardStreet() => _inferBoardStreet();
 
   void updateRevealedBoardCards() {
-    final visibleCount = stageCardCounts[currentStreet];
+    syncRevealState(revealStreet: currentStreet);
+  }
+
+  /// Synchronize [revealedBoardCards] for the given [revealStreet].
+  ///
+  /// When [showFullBoard] is true the board is shown up to [boardStreet]
+  /// regardless of the current street.
+  void syncRevealState({required int revealStreet, bool showFullBoard = false}) {
+    final street =
+        (showFullBoard ? boardStreet : revealStreet).clamp(0, boardStreet);
+    final visibleCount = stageCardCounts[street];
     revealedBoardCards
       ..clear()
       ..addAll(boardCards.take(visibleCount));
