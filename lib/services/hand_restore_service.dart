@@ -20,6 +20,7 @@ import 'folded_players_service.dart';
 import 'board_manager_service.dart';
 import 'board_sync_service.dart';
 import 'action_tag_service.dart';
+import 'board_reveal_service.dart';
 
 /// Restores a [SavedHand] object by updating all runtime services.
 ///
@@ -44,6 +45,7 @@ class HandRestoreService {
     required this.setActivePlayerIndex,
     required this.potSync,
     required this.actionHistory,
+    required this.boardReveal,
   }) {
     foldedPlayers.attach(actionSync);
   }
@@ -63,6 +65,7 @@ class HandRestoreService {
   final void Function(int?) setActivePlayerIndex;
   final PotSyncService potSync;
   final ActionHistoryService actionHistory;
+  final BoardRevealService boardReveal;
 
 
   StackManagerService restoreHand(SavedHand hand) {
@@ -133,6 +136,10 @@ class HandRestoreService {
     boardManager.boardStreet = hand.boardStreet;
     boardManager.currentStreet = hand.boardStreet;
     boardSync.updateRevealedBoardCards();
+    boardReveal.restoreFromJson({
+      'showFullBoard': hand.showFullBoard,
+      'revealStreet': hand.revealStreet,
+    });
     final seekIndex =
         hand.playbackIndex > hand.actions.length ? hand.actions.length : hand.playbackIndex;
     playbackManager.seek(seekIndex);

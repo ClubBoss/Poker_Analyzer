@@ -149,5 +149,16 @@ class BoardRevealService {
 
   /// Returns true if [stage] is currently revealed.
   bool isStageRevealed(int stage) => revealStreet >= stage;
+
+  /// Serializes the current reveal state to a JSON-compatible map.
+  Map<String, dynamic> toJson() =>
+      {'showFullBoard': _showFullBoard, 'revealStreet': revealStreet};
+
+  /// Restores reveal state from [json] produced by [toJson].
+  void restoreFromJson(Map<String, dynamic>? json) {
+    _showFullBoard = json?['showFullBoard'] as bool? ?? false;
+    _revealStreet = (json?['revealStreet'] as int?) ?? boardSync.currentStreet;
+    updateRevealState();
+  }
 }
 
