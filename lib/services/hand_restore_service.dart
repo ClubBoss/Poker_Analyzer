@@ -14,6 +14,7 @@ import 'backup_manager_service.dart';
 import 'debug_preferences_service.dart';
 import 'transition_lock_service.dart';
 import 'current_hand_context_service.dart';
+import 'pot_sync_service.dart';
 
 import 'folded_players_service.dart';
 import 'board_manager_service.dart';
@@ -44,6 +45,7 @@ class HandRestoreService {
     required this.actionTags,
     required this.setCurrentHandName,
     required this.setActivePlayerIndex,
+    required this.potSync,
   }) {
     foldedPlayers.attach(actionSync);
   }
@@ -64,6 +66,7 @@ class HandRestoreService {
   final ActionTagService actionTags;
   final void Function(String) setCurrentHandName;
   final void Function(int?) setActivePlayerIndex;
+  final PotSyncService potSync;
 
 
   StackManagerService restoreHand(SavedHand hand) {
@@ -96,10 +99,12 @@ class HandRestoreService {
       ..addAll(hand.stackSizes);
     final stackService = StackManagerService(
       Map<int, int>.from(playerManager.initialStacks),
+      potSync: potSync,
       remainingStacks: hand.remainingStacks,
     );
     actionSync.attachStackManager(stackService);
     playbackManager.stackService = stackService;
+    potSync.stackService = stackService;
     profile.playerPositions
       ..clear()
       ..addAll(hand.playerPositions);

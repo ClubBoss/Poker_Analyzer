@@ -49,8 +49,7 @@ import '../models/saved_hand.dart';
 import '../models/player_model.dart';
 import '../models/action_evaluation_request.dart';
 import '../widgets/action_timeline_widget.dart';
-import '../models/street_investments.dart';
-import '../helpers/pot_calculator.dart';
+import '../services/pot_sync_service.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
@@ -87,6 +86,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final PlayerProfileService playerProfile;
   final ActionTagService actionTagService;
   final BoardRevealService boardReveal;
+  final PotSyncService potSyncService;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -106,6 +106,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.playerProfile,
     required this.actionTagService,
     required this.boardReveal,
+    required this.potSyncService,
   });
 
   @override
@@ -143,7 +144,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   set boardStreet(int v) => _boardManager.boardStreet = v;
   List<ActionEntry> get actions => _actionSync.analyzerActions;
   late PlaybackManagerService _playbackManager;
-  final PotCalculator _potCalculator = PotCalculator();
+  late PotSyncService _potSync;
   late StackManagerService _stackService;
   late HandRestoreService _handRestore;
   late CurrentHandContextService _handContext;
@@ -589,6 +590,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _profile = widget.playerProfile;
     _actionTagService = widget.actionTagService;
     _boardReveal = widget.boardReveal;
+    _potSync = widget.potSyncService;
     _boardManager = widget.boardManager
       ..addListener(() {
         if (mounted) lockService.safeSetState(this, () {});
@@ -597,6 +599,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _boardEditing = widget.boardEditing;
     _stackService = widget.stackService;
     _actionSync.attachStackManager(_stackService);
+    _potSync.stackService = _stackService;
     _playbackManager = widget.playbackManager;
     _playbackManager
       ..stackService = _stackService
@@ -618,12 +621,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionTags: _actionTagService,
       setCurrentHandName: (name) => _handContext.currentHandName = name,
       setActivePlayerIndex: (i) => activePlayerIndex = i,
+      potSync: _potSync,
     );
     _profile.updatePositions();
     _playbackManager.updatePlaybackState();
     if (widget.initialHand != null) {
       _stackService = _handRestore.restoreHand(widget.initialHand!);
       _actionSync.attachStackManager(_stackService);
+      _potSync.stackService = _stackService;
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
@@ -1629,7 +1634,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   SavedHand _currentSavedHand({String? name}) {
     final stacks =
-        _stackService.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
+        _potSync.calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
     final collapsed = [
       for (int i = 0; i < 4; i++)
         if (!_expandedHistoryStreets.contains(i)) i
@@ -1697,6 +1702,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final hand = SavedHand.fromJson(jsonDecode(jsonStr));
     _stackService = _handRestore.restoreHand(hand);
     _actionSync.attachStackManager(_stackService);
+    _potSync.stackService = _stackService;
     _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     _boardManager.startBoardTransition();
   }
@@ -1838,6 +1844,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (hand == null) return;
     _stackService = _handRestore.restoreHand(hand);
     _actionSync.attachStackManager(_stackService);
+    _potSync.stackService = _stackService;
     _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     _boardManager.startBoardTransition();
   }
@@ -1845,12 +1852,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> loadHandByName() async {
     if (lockService.undoRedoTransitionLock || lockService.boardTransitioning) return;
     final selected = await _handManager.selectHand(context);
-    if (selected != null) {
-      _stackService = _handRestore.restoreHand(selected);
-      _actionSync.attachStackManager(_stackService);
-      _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
-      _boardManager.startBoardTransition();
-    }
+      if (selected != null) {
+        _stackService = _handRestore.restoreHand(selected);
+        _actionSync.attachStackManager(_stackService);
+        _potSync.stackService = _stackService;
+        _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
+        _boardManager.startBoardTransition();
+      }
   }
 
 
@@ -1870,6 +1878,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (hand != null) {
       _stackService = _handRestore.restoreHand(hand);
       _actionSync.attachStackManager(_stackService);
+      _potSync.stackService = _stackService;
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
@@ -1920,8 +1929,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
     final effectiveStack =
-        _stackService.calculateEffectiveStack(currentStreet, visibleActions);
-    final currentStreetEffectiveStack = _stackService
+        _potSync.calculateEffectiveStack(currentStreet, visibleActions);
+    final currentStreetEffectiveStack = _potSync
         .calculateEffectiveStackForStreet(currentStreet, visibleActions, numberOfPlayers);
     final pot = _playbackManager.pots[currentStreet];
     final double? sprValue =
@@ -4625,7 +4634,7 @@ class _HudOverlayDiagnosticsSection extends StatelessWidget {
     final hudStreetName = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][s.currentStreet];
     final hudPotText =
         ActionFormattingHelper.formatAmount(s._playbackManager.pots[s.currentStreet]);
-    final int hudEffStack = s._stackService.calculateEffectiveStackForStreet(
+    final int hudEffStack = s._potSync.calculateEffectiveStackForStreet(
         s.currentStreet, s.actions, s.numberOfPlayers);
     final double? hudSprValue = s._playbackManager.pots[s.currentStreet] > 0
         ? hudEffStack / s._playbackManager.pots[s.currentStreet]
@@ -4999,7 +5008,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
                   'Turn',
                   'River',
                 ][street],
-                s._stackService.calculateEffectiveStackForStreet(
+                s._potSync.calculateEffectiveStackForStreet(
                     street, s.actions, s.numberOfPlayers),
               ),
             _vGap,

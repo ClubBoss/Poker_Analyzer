@@ -1,21 +1,20 @@
 import 'package:flutter/foundation.dart';
 
-import '../helpers/pot_calculator.dart';
 import '../models/action_entry.dart';
-import '../models/street_investments.dart';
 import 'action_sync_service.dart';
 import 'playback_service.dart';
 import 'stack_manager_service.dart';
+import 'pot_sync_service.dart';
 
 /// Manages playback state updates and delegates to [PlaybackService].
 class PlaybackManagerService extends ChangeNotifier {
   final PlaybackService _playbackService;
   final List<ActionEntry> actions;
   StackManagerService stackService;
-  final PotCalculator _potCalculator;
+  final PotSyncService potSync;
   final ActionSyncService actionSync;
 
-  /// Current pot size for each street.
+  /// Current pot size for each street, mirrored from [potSync].
   final List<int> pots = List.filled(4, 0);
 
   /// Tracks which players have animated chips on each street.
@@ -27,10 +26,9 @@ class PlaybackManagerService extends ChangeNotifier {
     PlaybackService? playbackService,
     required this.actions,
     required this.stackService,
+    required this.potSync,
     required this.actionSync,
-    PotCalculator? potCalculator,
-  })  : _playbackService = playbackService ?? PlaybackService(),
-        _potCalculator = potCalculator ?? PotCalculator() {
+  })  : _playbackService = playbackService ?? PlaybackService() {
     _playbackService.addListener(_onPlaybackChanged);
     actionSync.attachPlaybackManager(this);
   }
@@ -60,22 +58,13 @@ class PlaybackManagerService extends ChangeNotifier {
       animatedPlayersPerStreet.clear();
     }
     // Stack sizes are synchronized via [ActionSyncService].
-    _updatePots(fromActions: subset);
+    potSync.updatePots(subset);
+    for (int i = 0; i < pots.length; i++) {
+      pots[i] = potSync.pots[i];
+    }
     lastActionPlayerIndex =
         subset.isNotEmpty ? subset.last.playerIndex : null;
     notifyListeners();
-  }
-
-  void _updatePots({List<ActionEntry>? fromActions}) {
-    final list = fromActions ?? actions;
-    final investments = StreetInvestments();
-    for (final a in list) {
-      investments.addAction(a);
-    }
-    final pots = _potCalculator.calculatePots(list, investments);
-    for (int i = 0; i < this.pots.length; i++) {
-      this.pots[i] = pots[i];
-    }
   }
 
   void _onPlaybackChanged() {

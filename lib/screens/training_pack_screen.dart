@@ -18,6 +18,7 @@ import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/action_sync_service.dart';
+import '../services/pot_sync_service.dart';
 import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
@@ -610,14 +611,21 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                   ],
                   child: Builder(
                     builder: (context) => ChangeNotifierProvider(
-                      create: (_) => PlaybackManagerService(
-                        actions: context.read<ActionSyncService>().analyzerActions,
-                        stackService: StackManagerService(
+                      create: (_) {
+                        final potSync = PotSyncService();
+                        final stackService = StackManagerService(
                           Map<int, int>.from(
                               context.read<PlayerManagerService>().initialStacks),
-                        ),
-                        actionSync: context.read<ActionSyncService>(),
-                      ),
+                          potSync: potSync,
+                        );
+                        return PlaybackManagerService(
+                          actions:
+                              context.read<ActionSyncService>().analyzerActions,
+                          stackService: stackService,
+                          potSync: potSync,
+                          actionSync: context.read<ActionSyncService>(),
+                        );
+                      },
                       child: Builder(
                         builder: (context) => Provider(
                           create: (_) => BoardSyncService(
@@ -664,6 +672,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                                   stackService: context
                                       .read<PlaybackManagerService>()
                                       .stackService,
+                                  potSyncService: context
+                                      .read<PlaybackManagerService>()
+                                      .potSync,
                                   boardManager: context.read<BoardManagerService>(),
                                   boardSync: context.read<BoardSyncService>(),
                                   boardEditing:
@@ -673,7 +684,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                                   actionTagService: context
                                       .read<PlayerProfileService>()
                                       .actionTagService,
-                                   boardReveal: context.read<BoardRevealService>(),
+                                  boardReveal: context.read<BoardRevealService>(),
                                 ),
                               ),
                               );
