@@ -200,10 +200,6 @@ class EvaluationQueueService {
     await _persist();
   }
 
-  /// Moves failed requests back into the pending queue.
-  Future<void> retryFailedEvaluations() async {
-    await _retryService.retryFailedEvaluations(this);
-  }
 
   void applySavedOrder(List<ActionEvaluationRequest> list, List<String>? order) {
     if (order == null || order.isEmpty) return;
