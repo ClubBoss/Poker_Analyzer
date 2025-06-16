@@ -1266,8 +1266,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playerManager.reset();
         _undoRedoService.resetHistory();
         _foldedPlayers.reset();
-        _boardManager.changeStreet(0);
-        _boardManager.startBoardTransition();
+        _boardManager.clearBoard();
         _actionTagService.clear();
         _stackService.reset(
             Map<int, int>.from(_playerManager.initialStacks));
