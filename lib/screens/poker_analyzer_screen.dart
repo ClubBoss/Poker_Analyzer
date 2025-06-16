@@ -353,24 +353,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _changeStreet(street + 1);
   }
 
-  bool _canReverseStreet() {
-    if (currentStreet == 0) return false;
-    final prev = currentStreet - 1;
-    return !actions.any((a) => a.street > prev);
-  }
+  bool _canReverseStreet() => _boardManager.canReverseStreet();
 
   void _reverseStreet() {
-    if (lockService.isLocked || !_canReverseStreet()) return;
+    if (lockService.isLocked || !_boardManager.canReverseStreet()) return;
     _recordSnapshot();
-    _changeStreet(currentStreet - 1);
+    _actionTagService.clear();
+    _boardManager.reverseStreet();
   }
 
-  bool _canAdvanceStreet() => currentStreet < boardStreet;
+  bool _canAdvanceStreet() => _boardManager.canAdvanceStreet();
 
   void _advanceStreet() {
-    if (lockService.isLocked || !_canAdvanceStreet()) return;
+    if (lockService.isLocked || !_boardManager.canAdvanceStreet()) return;
     _recordSnapshot();
-    _changeStreet(currentStreet + 1);
+    _actionTagService.clear();
+    _boardManager.advanceStreet();
   }
 
   void _changeStreet(int street) {
@@ -1284,36 +1282,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _previousStreet() {
-    if (lockService.isLocked || currentStreet <= 0) return;
+    if (lockService.isLocked || !_boardManager.canReverseStreet()) return;
     lockService.safeSetState(this, () {
       _recordSnapshot();
-      _boardManager.changeStreet(currentStreet - 1);
       _actionTagService.clear();
-      _playbackManager.animatedPlayersPerStreet
-          .putIfAbsent(currentStreet, () => <int>{});
-      _playbackManager.updatePlaybackState();
-      _boardManager.startBoardTransition();
+      _boardManager.reverseStreet();
     });
     _debugPanelSetState?.call(() {});
   }
 
   void _nextStreet() {
-    if (lockService.isLocked || currentStreet >= boardStreet) return;
+    if (lockService.isLocked || !_boardManager.canAdvanceStreet()) return;
     lockService.safeSetState(this, () {
       _recordSnapshot();
-      _boardManager.changeStreet(currentStreet + 1);
       _actionTagService.clear();
-      _playbackManager.animatedPlayersPerStreet
-          .putIfAbsent(currentStreet, () => <int>{});
-      _playbackManager.updatePlaybackState();
-      _boardManager.startBoardTransition();
+      _boardManager.advanceStreet();
     });
     _debugPanelSetState?.call(() {});
   }
-
-  Future<void> _removePlayer(int index) async {
-    if (lockService.isLocked) return;
-    if (_playerManager.numberOfPlayers <= 2) return;
 
     int updatedHeroIndex = _playerManager.heroIndex;
 
@@ -1673,33 +1659,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// - `positions`: list of position strings for each player.
   /// - `stacks`: optional list of stack sizes.
   void loadTrainingSpot(Map<String, dynamic> data) {
-    final pcData = data['playerCards'] as List? ?? [];
-    final newCards =
-        List.generate(playerCards.length, (_) => <CardModel>[]);
-    for (var i = 0; i < pcData.length && i < playerCards.length; i++) {
-      final list = pcData[i];
-      if (list is List) {
-        for (var j = 0; j < list.length && j < 2; j++) {
-          final cardMap = list[j];
-          if (cardMap is Map) {
-            newCards[i].add(CardModel(
-              rank: cardMap['rank'] as String,
-              suit: cardMap['suit'] as String,
-            ));
-          }
-        }
-      }
-    }
-
-    final boardData = data['boardCards'] as List? ?? [];
-    final newBoard = <CardModel>[];
-    for (final c in boardData) {
-      if (c is Map) {
-        newBoard.add(
-          CardModel(rank: c['rank'] as String, suit: c['suit'] as String),
-        );
-      }
-    }
 
     final actionsData = data['actions'] as List? ?? [];
     final newActions = <ActionEntry>[];
@@ -1714,28 +1673,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
 
-
-    final newHeroIndex = data['heroIndex'] as int? ?? 0;
-    final newPlayerCount =
-        data['numberOfPlayers'] as int? ?? pcData.length;
-
-    final posList = (data['positions'] as List?)?.cast<String>() ?? [];
-    final heroPos =
-        newHeroIndex < posList.length ? posList[newHeroIndex] : _heroPosition;
-
     lockService.safeSetState(this, () {
       _playerManager.loadFromMap(data);
-      _heroPosition = heroPos;
-
-      boardCards
-        ..clear()
-        ..addAll(newBoard);
+      _boardManager.loadFromMap(data);
 
       actions
         ..clear()
         ..addAll(newActions);
 
-      _boardManager.changeStreet(0);
       _playbackManager.resetHand();
       _playbackManager.updatePlaybackState();
       _handContext.currentHandName = null;
@@ -2044,7 +1989,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     ),
     StreetActionsWidget(
       currentStreet: currentStreet,
-      canGoPrev: _canReverseStreet(),
+      canGoPrev: _boardManager.canReverseStreet(),
       onPrevStreet:
           lockService.isLocked ? null : () => lockService.safeSetState(this, _reverseStreet),
       onStreetChanged: (index) {
