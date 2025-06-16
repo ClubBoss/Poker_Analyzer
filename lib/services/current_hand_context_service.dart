@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../models/saved_hand.dart';
+
 class CurrentHandContextService {
   String? _currentHandName;
 
@@ -71,6 +73,33 @@ class CurrentHandContextService {
     this.tags = tags ?? <String>[];
     this.commentCursor = commentCursor;
     this.tagsCursor = tagsCursor;
+  }
+
+  /// Restore context directly from a [SavedHand].
+  void restoreFromHand(SavedHand hand) {
+    restore(
+      name: hand.name,
+      comment: hand.comment,
+      commentCursor: hand.commentCursor,
+      tags: hand.tags,
+      tagsCursor: hand.tagsCursor,
+    );
+  }
+
+  /// Apply the current context values to an existing [SavedHand].
+  SavedHand applyTo(SavedHand hand) {
+    return hand.copyWith(
+      name: _currentHandName ?? hand.name,
+      comment: comment,
+      tags: tags,
+      commentCursor: commentCursor,
+      tagsCursor: tagsCursor,
+    );
+  }
+
+  /// Clear only the name of the current hand.
+  void clearName() {
+    _currentHandName = null;
   }
 
   void dispose() {
