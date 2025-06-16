@@ -156,8 +156,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late ActionTagService _actionTagService;
   int get heroIndex => _playerManager.heroIndex;
   set heroIndex(int v) => _playerEditing.setHeroIndex(v);
-  String get _heroPosition => _profile.heroPosition;
-  set _heroPosition(String v) => _profile.heroPosition = v;
+  String get _heroPosition => _playerManager.heroPosition;
+  set _heroPosition(String v) => _playerManager.heroPosition = v;
   int get numberOfPlayers => _playerManager.numberOfPlayers;
   set numberOfPlayers(int v) => _playerManager.numberOfPlayers = v;
   List<List<CardModel>> get playerCards => _playerManager.playerCards;
@@ -600,7 +600,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addListener(_onPlaybackManagerChanged);
     _handRestore = widget.handRestoreService ?? HandRestoreService(
       playerManager: _playerManager,
-      profile: _profile,
       actionSync: _actionSync,
       playbackManager: _playbackManager,
       boardManager: _boardManager,
@@ -1471,7 +1470,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final hand = SavedHand(
       name: name ?? _defaultHandName(),
       heroIndex: _playerManager.heroIndex,
-      heroPosition: _profile.heroPosition,
+      heroPosition: _playerManager.heroPosition,
       numberOfPlayers: _playerManager.numberOfPlayers,
       playerCards: [
         for (int i = 0; i < _playerManager.numberOfPlayers; i++)

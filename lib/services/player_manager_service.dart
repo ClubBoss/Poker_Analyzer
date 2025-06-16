@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../models/action_entry.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
+import '../models/saved_hand.dart';
 import 'player_profile_service.dart';
 
 class PlayerManagerService extends ChangeNotifier {
@@ -11,6 +12,11 @@ class PlayerManagerService extends ChangeNotifier {
   final PlayerProfileService profileService;
 
   int get heroIndex => profileService.heroIndex;
+  String get heroPosition => profileService.heroPosition;
+  set heroPosition(String v) {
+    profileService.heroPosition = v;
+    profileService.updatePositions();
+  }
 
   int numberOfPlayers = 6;
 
@@ -271,6 +277,41 @@ class PlayerManagerService extends ChangeNotifier {
     for (int i = 0; i < showActionHints.length; i++) {
       showActionHints[i] = true;
     }
+    notifyListeners();
+  }
+
+  /// Restore all player-related state from a saved hand.
+  void restoreFromHand(SavedHand hand) {
+    onPlayerCountChanged(hand.numberOfPlayers);
+    setHeroIndex(hand.heroIndex);
+    heroPosition = hand.heroPosition;
+    for (int i = 0; i < playerCards.length; i++) {
+      playerCards[i]
+        ..clear()
+        ..addAll(i < hand.playerCards.length ? hand.playerCards[i] : []);
+    }
+    for (int i = 0; i < players.length; i++) {
+      final list = players[i].revealedCards;
+      list.fillRange(0, list.length, null);
+      if (i < hand.revealedCards.length) {
+        final from = hand.revealedCards[i];
+        for (int j = 0; j < list.length && j < from.length; j++) {
+          list[j] = from[j];
+        }
+      }
+    }
+    opponentIndex = hand.opponentIndex;
+    initialStacks
+      ..clear()
+      ..addAll(hand.stackSizes);
+    profileService.playerPositions
+      ..clear()
+      ..addAll(hand.playerPositions);
+    profileService.playerTypes
+      ..clear()
+      ..addAll(hand.playerTypes ??
+          {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
+    profileService.updatePositions();
     notifyListeners();
   }
 }
