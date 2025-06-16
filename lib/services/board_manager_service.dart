@@ -10,6 +10,7 @@ import 'playback_manager_service.dart';
 import 'player_manager_service.dart';
 import 'transition_lock_service.dart';
 import 'board_sync_service.dart';
+import 'board_reveal_service.dart';
 
 /// Manages board state transitions and reveal timing.
 ///
@@ -25,6 +26,7 @@ class BoardManagerService extends ChangeNotifier {
     required PlaybackManagerService playbackManager,
     required this.lockService,
     required BoardSyncService boardSync,
+    required this.boardReveal,
   })  : _playerManager = playerManager,
         _actionSync = actionSync,
         _playbackManager = playbackManager,
@@ -38,11 +40,7 @@ class BoardManagerService extends ChangeNotifier {
   final PlaybackManagerService _playbackManager;
   final TransitionLockService lockService;
   final BoardSyncService _boardSync;
-
-  static const Duration _boardRevealDuration = Duration(milliseconds: 200);
-  static const Duration _boardRevealStagger = Duration(milliseconds: 50);
-
-  Timer? _boardTransitionTimer;
+  final BoardRevealService boardReveal;
 
   List<CardModel> get boardCards => _playerManager.boardCards;
 
@@ -59,7 +57,7 @@ class BoardManagerService extends ChangeNotifier {
   @override
   void dispose() {
     _playerManager.removeListener(_onPlayerManagerChanged);
-    _boardTransitionTimer?.cancel();
+    boardReveal.cancelBoardReveal();
     super.dispose();
   }
 
@@ -117,28 +115,11 @@ class BoardManagerService extends ChangeNotifier {
   }
 
   void startBoardTransition() {
-    _boardTransitionTimer?.cancel();
-    final targetVisible = BoardSyncService.stageCardCounts[currentStreet];
-    final revealCount = max(0, targetVisible - revealedBoardCards.length);
-    final duration = Duration(
-      milliseconds: _boardRevealDuration.inMilliseconds +
-          _boardRevealStagger.inMilliseconds * (revealCount > 1 ? revealCount - 1 : 0),
-    );
-    lockService.boardTransitioning = true;
-    lockService.undoRedoTransitionLock = true;
-    _boardTransitionTimer = Timer(duration, () {
-      lockService.boardTransitioning = false;
-      lockService.undoRedoTransitionLock = false;
-      notifyListeners();
-    });
+    boardReveal.startBoardTransition(currentStreet);
   }
 
   void cancelBoardReveal() {
-    if (lockService.boardTransitioning) {
-      _boardTransitionTimer?.cancel();
-      lockService.boardTransitioning = false;
-      lockService.undoRedoTransitionLock = false;
-    }
+    boardReveal.cancelBoardReveal();
   }
 
   /// Replace the current board with [cards] and notify listeners.

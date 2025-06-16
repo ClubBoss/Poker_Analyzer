@@ -85,6 +85,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final BoardEditingService boardEditing;
   final PlayerProfileService playerProfile;
   final ActionTagService actionTagService;
+  final BoardRevealService boardReveal;
 
   const PokerAnalyzerScreen({
     super.key,
@@ -103,6 +104,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.boardEditing,
     required this.playerProfile,
     required this.actionTagService,
+    required this.boardReveal,
   });
 
   @override
@@ -150,6 +152,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Timer? _activeTimer;
   late FoldedPlayersService _foldedPlayers;
   late ActionSyncService _actionSync;
+  late BoardRevealService _boardReveal;
 
   Set<int> get _expandedHistoryStreets => _actionSync.expandedHistoryStreets;
 
@@ -183,10 +186,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   static const double _timelineExtent = 80.0;
-  /// Duration for individual board card animations.
-  static const Duration _boardRevealDuration = Duration(milliseconds: 200);
-  /// Delay between sequential board reveals.
-  static const Duration _boardRevealStagger = Duration(milliseconds: 50);
+  /// See [BoardRevealService.revealDuration] for board animation timing.
 
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
@@ -578,7 +578,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     _centerChipController = AnimationController(
       vsync: this,
-      duration: _boardRevealDuration,
+      duration: BoardRevealService.revealDuration,
     );
     _timelineController = ScrollController();
     _playerManager = context.read<PlayerManagerService>()
@@ -591,6 +591,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
     _boardSync = widget.boardSync;
     _boardEditing = widget.boardEditing;
+    _boardReveal = widget.boardReveal..init(this);
     _stackService = widget.stackService;
     _actionSync.attachStackManager(_stackService);
     _playbackManager = widget.playbackManager;
@@ -2539,7 +2540,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           left: centerX + dx - radius,
           top: centerY + dy + bias + 112 * scale - radius,
           child: AnimatedSwitcher(
-            duration: _boardRevealDuration,
+            duration: BoardRevealService.revealDuration,
             transitionBuilder: (child, animation) => FadeTransition(
               opacity: animation,
               child: ScaleTransition(scale: animation, child: child),
@@ -3150,23 +3151,14 @@ class _BoardCardsSection extends StatefulWidget {
 class _BoardCardsSectionState extends State<_BoardCardsSection>
     with TickerProviderStateMixin {
   late int _prevStreet;
-  late final List<AnimationController> _controllers;
-  late final List<Animation<double>> _animations;
-  List<CardModel> _prevCards = [];
-  int _sequenceId = 0;
+  late BoardRevealService _revealService;
 
   @override
   void initState() {
     super.initState();
     _prevStreet = widget.currentStreet;
-    _controllers =
-        List.generate(5, (_) => AnimationController(vsync: this, duration: _boardRevealDuration));
-    _animations =
-        _controllers.map((c) => CurvedAnimation(parent: c, curve: Curves.easeIn)).toList();
-    _prevCards = List<CardModel>.from(widget.revealedBoardCards);
-    for (int i = 0; i < _prevCards.length; i++) {
-      _controllers[i].value = 1;
-    }
+    _revealService = context.read<BoardRevealService>()..init(this);
+    _revealService.updateAnimations(widget.currentStreet);
   }
 
   @override
@@ -3175,56 +3167,15 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
     if (oldWidget.currentStreet != widget.currentStreet) {
       _prevStreet = oldWidget.currentStreet;
     }
-    _updateAnimations(oldWidget.revealedBoardCards);
-  }
-
-  void _updateAnimations(List<CardModel> oldCards) {
-    final visible = BoardSyncService.stageCardCounts[widget.currentStreet];
-    final List<int> toAnimate = [];
-    _sequenceId++;
-    final currentSeq = _sequenceId;
-    for (int i = 0; i < 5; i++) {
-      final oldCard = i < oldCards.length ? oldCards[i] : null;
-      final newCard =
-          i < widget.revealedBoardCards.length ? widget.revealedBoardCards[i] : null;
-      final shouldShow = i < visible && newCard != null;
-      if (shouldShow && oldCard == null) {
-        _controllers[i].value = 0;
-        toAnimate.add(i);
-      } else if (!shouldShow) {
-        _controllers[i].value = 0;
-      } else if (oldCard != null && newCard != null &&
-          (oldCard.rank != newCard.rank || oldCard.suit != newCard.suit)) {
-        _controllers[i].value = 0;
-        toAnimate.add(i);
-      } else if (shouldShow) {
-        _controllers[i].value = 1;
-      }
-    }
-    for (int j = 0; j < toAnimate.length; j++) {
-      final index = toAnimate[j];
-      Future.delayed(_boardRevealStagger * j, () {
-        if (!mounted || currentSeq != _sequenceId) return;
-        _controllers[index].forward(from: 0);
-      });
-    }
-    _prevCards = List<CardModel>.from(widget.revealedBoardCards);
+    _revealService.updateAnimations(widget.currentStreet);
   }
 
   void cancelPendingReveals() {
-    _sequenceId++;
-    for (final c in _controllers) {
-      c.stop();
-      c.value = 1;
-    }
-    _prevCards = List<CardModel>.from(widget.revealedBoardCards);
+    _revealService.cancelPendingReveals();
   }
 
   @override
   void dispose() {
-    for (final c in _controllers) {
-      c.dispose();
-    }
     super.dispose();
   }
 
@@ -3232,7 +3183,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
   Widget build(BuildContext context) {
     final reversing = widget.currentStreet < _prevStreet;
     return AnimatedSwitcher(
-      duration: _boardRevealDuration,
+      duration: BoardRevealService.revealDuration,
       transitionBuilder: (child, animation) {
         final slide = Tween<Offset>(
           begin: reversing ? const Offset(0, -0.1) : const Offset(0, 0.1),
@@ -3249,8 +3200,8 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
         currentStreet: widget.currentStreet,
         boardCards: widget.boardCards,
         revealedBoardCards: widget.revealedBoardCards,
-        revealAnimations: _animations,
-        onCardSelected: widget.onCardSelected,
+        revealAnimations: _revealService.animations,
+      onCardSelected: widget.onCardSelected,
         onCardLongPress: widget.onCardLongPress,
         canEditBoard: widget.canEditBoard,
         usedCards: widget.usedCards,

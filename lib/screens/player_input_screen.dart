@@ -13,6 +13,7 @@ import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
 import '../services/transition_lock_service.dart';
+import '../services/board_reveal_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -126,24 +127,32 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                               playerManager: context.read<PlayerManagerService>(),
                               actionSync: context.read<ActionSyncService>(),
                             ),
-                            child: ChangeNotifierProvider(
-                              create: (_) => BoardManagerService(
-                                playerManager:
-                                    context.read<PlayerManagerService>(),
-                                actionSync: context.read<ActionSyncService>(),
-                                playbackManager:
-                                    context.read<PlaybackManagerService>(),
-                                lockService: TransitionLockService(),
-                                boardSync: context.read<BoardSyncService>(),
-                              ),
-                              child: Provider(
-                                create: (_) => BoardEditingService(
-                                  boardManager: context.read<BoardManagerService>(),
+                            child: Provider(
+                              create: (_) => TransitionLockService(),
+                              child: ChangeNotifierProvider(
+                                create: (_) => BoardRevealService(
                                   boardSync: context.read<BoardSyncService>(),
-                                  playerManager: context.read<PlayerManagerService>(),
-                                  profile: context.read<PlayerProfileService>(),
+                                  lockService: context.read<TransitionLockService>(),
                                 ),
-                                child: Builder(
+                                child: ChangeNotifierProvider(
+                                  create: (_) => BoardManagerService(
+                                    playerManager:
+                                        context.read<PlayerManagerService>(),
+                                    actionSync: context.read<ActionSyncService>(),
+                                    playbackManager:
+                                        context.read<PlaybackManagerService>(),
+                                    lockService: context.read<TransitionLockService>(),
+                                    boardSync: context.read<BoardSyncService>(),
+                                    boardReveal: context.read<BoardRevealService>(),
+                                  ),
+                                  child: Provider(
+                                  create: (_) => BoardEditingService(
+                                    boardManager: context.read<BoardManagerService>(),
+                                    boardSync: context.read<BoardSyncService>(),
+                                    playerManager: context.read<PlayerManagerService>(),
+                                    profile: context.read<PlayerProfileService>(),
+                                  ),
+                                  child: Builder(
                                   builder: (context) => PokerAnalyzerScreen(
                                     key: key,
                                     actionSync: context.read<ActionSyncService>(),
@@ -159,6 +168,7 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                         context.read<BoardSyncService>(),
                                     boardEditing:
                                         context.read<BoardEditingService>(),
+                                    boardReveal: context.read<BoardRevealService>(),
                                     playerProfile:
                                         context.read<PlayerProfileService>(),
                                     actionTagService: context
@@ -211,24 +221,32 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                               playerManager: context.read<PlayerManagerService>(),
                               actionSync: context.read<ActionSyncService>(),
                             ),
-                            child: ChangeNotifierProvider(
-                              create: (_) => BoardManagerService(
-                                playerManager:
-                                    context.read<PlayerManagerService>(),
-                                actionSync: context.read<ActionSyncService>(),
-                                playbackManager:
-                                    context.read<PlaybackManagerService>(),
-                                lockService: TransitionLockService(),
-                                boardSync: context.read<BoardSyncService>(),
-                              ),
-                              child: Provider(
-                                create: (_) => BoardEditingService(
-                                  boardManager: context.read<BoardManagerService>(),
+                            child: Provider(
+                              create: (_) => TransitionLockService(),
+                              child: ChangeNotifierProvider(
+                                create: (_) => BoardRevealService(
                                   boardSync: context.read<BoardSyncService>(),
-                                  playerManager: context.read<PlayerManagerService>(),
-                                  profile: context.read<PlayerProfileService>(),
+                                  lockService: context.read<TransitionLockService>(),
                                 ),
-                                child: Builder(
+                                child: ChangeNotifierProvider(
+                                  create: (_) => BoardManagerService(
+                                    playerManager:
+                                        context.read<PlayerManagerService>(),
+                                    actionSync: context.read<ActionSyncService>(),
+                                    playbackManager:
+                                        context.read<PlaybackManagerService>(),
+                                    lockService: context.read<TransitionLockService>(),
+                                    boardSync: context.read<BoardSyncService>(),
+                                    boardReveal: context.read<BoardRevealService>(),
+                                  ),
+                                  child: Provider(
+                                  create: (_) => BoardEditingService(
+                                    boardManager: context.read<BoardManagerService>(),
+                                    boardSync: context.read<BoardSyncService>(),
+                                    playerManager: context.read<PlayerManagerService>(),
+                                    profile: context.read<PlayerProfileService>(),
+                                  ),
+                                  child: Builder(
                                   builder: (context) => PokerAnalyzerScreen(
                                     actionSync: context.read<ActionSyncService>(),
                                     handContext: CurrentHandContextService(),
@@ -243,6 +261,7 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                         context.read<BoardSyncService>(),
                                     boardEditing:
                                         context.read<BoardEditingService>(),
+                                    boardReveal: context.read<BoardRevealService>(),
                                     playerProfile:
                                         context.read<PlayerProfileService>(),
                                     actionTagService: context
