@@ -2,17 +2,24 @@ import '../helpers/pot_calculator.dart';
 import '../models/action_entry.dart';
 import '../models/street_investments.dart';
 import 'stack_manager_service.dart';
+import 'pot_history_service.dart';
 
 /// Synchronizes pot sizes and provides effective stack calculations.
 class PotSyncService {
   PotSyncService({
     PotCalculator? potCalculator,
     StackManagerService? stackService,
+    PotHistoryService? historyService,
   })  : _potCalculator = potCalculator ?? PotCalculator(),
-        _stackService = stackService;
+        _stackService = stackService,
+        _history = historyService ?? PotHistoryService();
 
   final PotCalculator _potCalculator;
   StackManagerService? _stackService;
+  final PotHistoryService _history;
+
+  /// Provides access to recorded pot history.
+  PotHistoryService get history => _history;
 
   /// Current pot size for each street.
   final List<int> pots = List.filled(4, 0);
@@ -29,19 +36,34 @@ class PotSyncService {
     return _potCalculator.calculatePots(actions, investments);
   }
 
-  /// Recompute [pots] based on visible [actions].
+  /// Recompute [pots] based on visible [actions] and record history.
   void updatePots(List<ActionEntry> actions) {
     final p = computePots(actions);
     for (int i = 0; i < pots.length; i++) {
       pots[i] = p[i];
     }
+    _history.record(actions.length, pots);
   }
 
   /// Updates [pots] using only actions up to [playbackIndex].
   void updateForPlayback(int playbackIndex, List<ActionEntry> actions) {
     final subset = actions.take(playbackIndex).toList();
-    updatePots(subset);
+    final p = computePots(subset);
+    for (int i = 0; i < pots.length; i++) {
+      pots[i] = p[i];
+    }
+    _history.record(playbackIndex, pots);
   }
+
+  /// Returns the recorded pot sizes for [index].
+  List<int> potsAt(int index) => _history.potsAt(index);
+
+  /// Returns the pot size for [street] at [index].
+  int potForStreet(int street, int index) =>
+      _history.potForStreet(street, index);
+
+  /// Discards history entries after [index].
+  void rewindHistory(int index) => _history.rewindTo(index);
 
   /// Calculates the effective stack size using [actions] visible up to the
   /// current point in the hand.

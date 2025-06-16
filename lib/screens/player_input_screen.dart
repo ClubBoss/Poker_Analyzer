@@ -10,6 +10,7 @@ import '../services/player_profile_service.dart';
 import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
 import '../services/pot_sync_service.dart';
+import '../services/pot_history_service.dart';
 import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
@@ -115,7 +116,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                         child: Builder(
                           builder: (context) => ChangeNotifierProvider(
                             create: (_) {
-                              final potSync = PotSyncService();
+                              final history = PotHistoryService();
+                              final potSync = PotSyncService(historyService: history);
                               final stackService = StackManagerService(
                                 Map<int, int>.from(
                                     context.read<PlayerManagerService>().initialStacks),
@@ -244,7 +246,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                         child: Builder(
                           builder: (context) => ChangeNotifierProvider(
                             create: (_) {
-                              final potSync = PotSyncService();
+                              final history = PotHistoryService();
+                              final potSync = PotSyncService(historyService: history);
                               final stackService = StackManagerService(
                                 Map<int, int>.from(
                                     context.read<PlayerManagerService>().initialStacks),
