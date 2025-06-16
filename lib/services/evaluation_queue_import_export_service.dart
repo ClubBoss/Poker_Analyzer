@@ -1,26 +1,35 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/action_evaluation_request.dart';
 import 'evaluation_queue_service.dart';
 import 'backup_manager_service.dart';
+import 'debug_snapshot_service.dart';
 
 class EvaluationQueueImportExportService {
   EvaluationQueueImportExportService({
     required this.queueService,
     this.backupManager,
+    this.debugSnapshotService,
     this.debugPanelCallback,
   });
 
   final EvaluationQueueService queueService;
   BackupManagerService? backupManager;
+  DebugSnapshotService? debugSnapshotService;
   VoidCallback? debugPanelCallback;
 
   void attachBackupManager(BackupManagerService manager) {
     backupManager = manager;
+  }
+
+  void attachDebugSnapshotService(DebugSnapshotService service) {
+    debugSnapshotService = service;
   }
 
   Future<void> startAutoBackupTimer() async {
@@ -160,12 +169,12 @@ class EvaluationQueueImportExportService {
   }
 
   Future<void> cleanupOldEvaluationSnapshots() async {
-    await backupManager?.cleanupOldEvaluationSnapshots();
+    await debugSnapshotService?.cleanupOldSnapshots();
   }
 
   Future<void> exportEvaluationQueueSnapshot(BuildContext context,
       {bool showNotification = true}) async {
-    await backupManager?.saveQueueSnapshot(
+    await debugSnapshotService?.saveQueueSnapshot(
       await queueService.state(),
       showNotification: showNotification,
       snapshotRetentionEnabled: queueService.snapshotRetentionEnabled,
@@ -186,7 +195,7 @@ class EvaluationQueueImportExportService {
   }
 
   Future<void> exportSnapshots(BuildContext context) async {
-    await backupManager?.exportSnapshots(context);
+    await debugSnapshotService?.exportSnapshots(context);
   }
 
   Future<void> restoreFromAutoBackup(BuildContext context) async {
@@ -195,7 +204,7 @@ class EvaluationQueueImportExportService {
   }
 
   Future<void> exportAllEvaluationSnapshots(BuildContext context) async {
-    await backupManager?.exportAllEvaluationSnapshots(context);
+    await debugSnapshotService?.exportSnapshots(context);
   }
 
   Future<void> importEvaluationQueue(BuildContext context) async {
@@ -223,12 +232,96 @@ class EvaluationQueueImportExportService {
   }
 
   Future<void> importEvaluationQueueSnapshot(BuildContext context) async {
-    await backupManager?.importEvaluationQueueSnapshot(context);
+    final dir = await debugSnapshotService?.getSnapshotsDirectory();
+    if (dir == null) return;
+    if (!await dir.exists()) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No snapshot files found')));
+      }
+      return;
+    }
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      initialDirectory: dir.path,
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final decoded = await debugSnapshotService!.readSnapshotFile(File(path));
+    final queues = _decodeQueues(decoded);
+    await queueService.queueLock.synchronized(() {
+      queueService.pending
+        ..clear()
+        ..addAll(queues['pending']!);
+    });
+    queueService.failed
+      ..clear()
+      ..addAll(queues['failed']!);
+    queueService.completed
+      ..clear()
+      ..addAll(queues['completed']!);
+    await _persist();
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              'Imported ${queueService.pending.length} pending, ${queueService.failed.length} failed, ${queueService.completed.length} completed evaluations')));
+    }
     debugPanelCallback?.call();
   }
 
   Future<void> bulkImportEvaluationSnapshots(BuildContext context) async {
-    await backupManager?.bulkImportEvaluationSnapshots(context);
+    final dir = await debugSnapshotService?.getSnapshotsDirectory();
+    if (dir == null) return;
+    if (!await dir.exists()) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No snapshot files found')));
+      }
+      return;
+    }
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      allowMultiple: true,
+      initialDirectory: dir.path,
+    );
+    if (result == null || result.files.isEmpty) return;
+    final importedPending = <ActionEvaluationRequest>[];
+    final importedFailed = <ActionEvaluationRequest>[];
+    final importedCompleted = <ActionEvaluationRequest>[];
+    int skipped = 0;
+    for (final f in result.files) {
+      final path = f.path;
+      if (path == null) {
+        skipped++;
+        continue;
+      }
+      try {
+        final decoded = await debugSnapshotService!.readSnapshotFile(File(path));
+        final queues = _decodeQueues(decoded);
+        importedPending.addAll(queues['pending']!);
+        importedFailed.addAll(queues['failed']!);
+        importedCompleted.addAll(queues['completed']!);
+      } catch (_) {
+        skipped++;
+      }
+    }
+    await queueService.queueLock.synchronized(() {
+      queueService.pending.addAll(importedPending);
+    });
+    queueService.failed.addAll(importedFailed);
+    queueService.completed.addAll(importedCompleted);
+    await _persist();
+    final total =
+        importedPending.length + importedFailed.length + importedCompleted.length;
+    final msg = skipped == 0
+        ? 'Imported $total evaluations from ${result.files.length} files'
+        : 'Imported $total evaluations, $skipped files skipped';
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
     debugPanelCallback?.call();
   }
 
