@@ -630,11 +630,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
-    Future(() => _cleanupOldEvaluationBackups());
     Future(() => _initializeDebugPreferences());
     Future.microtask(_queueService.loadQueueSnapshot);
-    Future(() => _backupManager.cleanupOldAutoBackups());
-    _backupManager.startAutoBackupTimer();
+    // BackupManagerService handles periodic backups and cleanup internally.
   }
 
   @override
@@ -1481,15 +1479,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
-  /// Schedule snapshot export without awaiting the result.
-  void _scheduleSnapshotExport() {
-    unawaited(
-      _backupManager.exportEvaluationQueueSnapshot(
-        context,
-        showNotification: false,
-      ),
-    );
-  }
 
   /// Load persisted evaluation queue if available.
   Future<void> _loadSavedEvaluationQueue() async {
@@ -1527,18 +1516,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (mounted) lockService.safeSetState(this, () {});
   }
 
-  Future<void> _cleanupOldEvaluationBackups() async {
-    await _backupManager.cleanupOldEvaluationBackups();
-  }
-
-  Future<void> _cleanupOldEvaluationSnapshots() async {
-    await _backupManager.cleanupOldEvaluationSnapshots();
-  }
-
   Future<void> _initializeDebugPreferences() async {
     await _debugPrefs.loadAllPreferences();
     if (_debugPrefs.snapshotRetentionEnabled) {
-      await _cleanupOldEvaluationSnapshots();
+      await _backupManager.cleanupOldEvaluationSnapshots();
     }
     if (mounted) lockService.safeSetState(this, () {});
   }
@@ -1613,7 +1594,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _resetDebugPanelPreferences() async {
     await _debugPrefs.clearAll();
     if (_debugPrefs.snapshotRetentionEnabled) {
-      await _cleanupOldEvaluationSnapshots();
+      await _backupManager.cleanupOldEvaluationSnapshots();
     }
     lockService.safeSetState(this, () {});
     _debugPanelSetState?.call(() {});
@@ -4374,7 +4355,7 @@ class _SnapshotControls extends StatelessWidget {
           value: s._debugPrefs.snapshotRetentionEnabled,
           onChanged: (v) async {
             await s._debugPrefs.setSnapshotRetentionEnabled(v);
-            if (v) await s._cleanupOldEvaluationSnapshots();
+            if (v) await s._backupManager.cleanupOldEvaluationSnapshots();
             s.lockService.safeSetState(this, () {});
             s._debugPanelSetState?.call(() {});
           },
