@@ -73,7 +73,7 @@ class UndoRedoService {
       commentCursor: handContext.commentCursor,
       tagsCursor: handContext.tagsCursor,
       collapsedHistoryStreets: actionHistory.collapsedStreets(),
-      foldedPlayers: foldedPlayers.toJson(),
+      foldedPlayers: foldedPlayers.toNullableList(),
       actionTags: actionTagService.toNullableMap(),
       playbackIndex: playbackManager.playbackIndex,
       showFullBoard: boardReveal.showFullBoard,
@@ -109,11 +109,7 @@ class UndoRedoService {
       );
       actionSync.setAnalyzerActions(List<ActionEntry>.from(snap.actions));
       actionTagService.restoreFromHand(snap);
-      if (snap.foldedPlayers != null) {
-        foldedPlayers.restoreFromJson(snap.foldedPlayers);
-      } else {
-        foldedPlayers.recompute(snap.actions);
-      }
+      foldedPlayers.restoreFromHand(snap);
       actionHistory.restoreFromCollapsed(snap.collapsedHistoryStreets);
       actionHistory.updateHistory(actionSync.analyzerActions,
           visibleCount: playbackManager.playbackIndex);

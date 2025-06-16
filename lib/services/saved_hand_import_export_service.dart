@@ -86,7 +86,7 @@ class SavedHandImportExportService {
       date: DateTime.now(),
       effectiveStacksPerStreet: stacks,
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
-      foldedPlayers: foldedPlayers.toJson(),
+      foldedPlayers: foldedPlayers.toNullableList(),
       actionTags: actionTags.toNullableMap(),
       pendingEvaluations:
           queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(queueService.pending),
