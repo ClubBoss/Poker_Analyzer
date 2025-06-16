@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 
 import '../models/action_entry.dart';
@@ -40,7 +38,6 @@ class BoardManagerService extends ChangeNotifier {
   final TransitionLockService lockService;
   final BoardSyncService _boardSync;
   final BoardRevealService boardReveal;
-  Timer? _boardTransitionTimer;
 
   List<CardModel> get boardCards => _playerManager.boardCards;
 
@@ -57,7 +54,6 @@ class BoardManagerService extends ChangeNotifier {
   @override
   void dispose() {
     _playerManager.removeListener(_onPlayerManagerChanged);
-    _boardTransitionTimer?.cancel();
     super.dispose();
   }
 
@@ -115,14 +111,11 @@ class BoardManagerService extends ChangeNotifier {
   }
 
   void startBoardTransition() {
-    _boardTransitionTimer?.cancel();
-    final duration = boardReveal.startBoardTransition();
-    _boardTransitionTimer = Timer(duration, notifyListeners);
+    boardReveal.startBoardTransition(notifyListeners);
   }
 
   void cancelBoardReveal() {
     if (lockService.boardTransitioning) {
-      _boardTransitionTimer?.cancel();
       boardReveal.cancelBoardReveal();
     }
   }
