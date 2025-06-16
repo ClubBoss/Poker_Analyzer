@@ -32,10 +32,18 @@ class SavedHandImportExportService {
 
   final SavedHandManagerService manager;
 
-  String serializeHand(SavedHand hand) => jsonEncode(hand.toJson());
+  /// Serialize [hand] to a JSON string.
+  static String encode(SavedHand hand) => jsonEncode(hand.toJson());
 
-  SavedHand deserializeHand(String jsonStr) =>
+  /// Deserialize a [SavedHand] from the given JSON string.
+  static SavedHand decode(String jsonStr) =>
       SavedHand.fromJson(jsonDecode(jsonStr) as Map<String, dynamic>);
+
+  /// Instance convenience wrapper around [encode].
+  String serializeHand(SavedHand hand) => encode(hand);
+
+  /// Instance convenience wrapper around [decode].
+  SavedHand deserializeHand(String jsonStr) => decode(jsonStr);
 
   SavedHand buildHand({
     String? name,
