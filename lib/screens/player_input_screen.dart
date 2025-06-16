@@ -13,6 +13,7 @@ import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
 import '../services/transition_lock_service.dart';
+import '../services/board_reveal_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -126,51 +127,74 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                               playerManager: context.read<PlayerManagerService>(),
                               actionSync: context.read<ActionSyncService>(),
                             ),
-                            child: ChangeNotifierProvider(
-                              create: (_) => BoardManagerService(
-                                playerManager:
-                                    context.read<PlayerManagerService>(),
-                                actionSync: context.read<ActionSyncService>(),
-                                playbackManager:
-                                    context.read<PlaybackManagerService>(),
-                                lockService: TransitionLockService(),
-                                boardSync: context.read<BoardSyncService>(),
-                              ),
-                              child: Provider(
-                                create: (_) => BoardEditingService(
-                                  boardManager: context.read<BoardManagerService>(),
+                            child: Builder(
+                              builder: (context) {
+                                final lockService = TransitionLockService();
+                                final reveal = BoardRevealService(
+                                  lockService: lockService,
                                   boardSync: context.read<BoardSyncService>(),
-                                  playerManager: context.read<PlayerManagerService>(),
-                                  profile: context.read<PlayerProfileService>(),
-                                ),
-                                child: Builder(
-                                  builder: (context) => PokerAnalyzerScreen(
-                                    key: key,
-                                    actionSync: context.read<ActionSyncService>(),
-                                    handContext: CurrentHandContextService(),
-                                    playbackManager:
-                                        context.read<PlaybackManagerService>(),
-                                    stackService: context
-                                        .read<PlaybackManagerService>()
-                                        .stackService,
-                                    boardManager:
-                                        context.read<BoardManagerService>(),
-                                    boardSync:
-                                        context.read<BoardSyncService>(),
-                                    boardEditing:
-                                        context.read<BoardEditingService>(),
-                                    playerProfile:
-                                        context.read<PlayerProfileService>(),
-                                    actionTagService: context
-                                        .read<PlayerProfileService>()
-                                        .actionTagService,
-                              ),
-                            ),
-                          ),
+                                );
+                                return MultiProvider(
+                                  providers: [
+                                    Provider<BoardRevealService>.value(
+                                        value: reveal),
+                                    ChangeNotifierProvider(
+                                      create: (_) => BoardManagerService(
+                                        playerManager:
+                                            context.read<PlayerManagerService>(),
+                                        actionSync:
+                                            context.read<ActionSyncService>(),
+                                        playbackManager:
+                                            context.read<PlaybackManagerService>(),
+                                        lockService: lockService,
+                                        boardSync: context.read<BoardSyncService>(),
+                                        boardReveal: reveal,
+                                      ),
+                                    ),
+                                    Provider(
+                                      create: (_) => BoardEditingService(
+                                        boardManager:
+                                            context.read<BoardManagerService>(),
+                                        boardSync: context.read<BoardSyncService>(),
+                                        playerManager:
+                                            context.read<PlayerManagerService>(),
+                                        profile: context.read<PlayerProfileService>(),
+                                      ),
+                                    ),
+                                  ],
+                                  child: Builder(
+                                    builder: (context) => PokerAnalyzerScreen(
+                                      key: key,
+                                      actionSync:
+                                          context.read<ActionSyncService>(),
+                                      handContext: CurrentHandContextService(),
+                                      playbackManager:
+                                          context.read<PlaybackManagerService>(),
+                                      stackService: context
+                                          .read<PlaybackManagerService>()
+                                          .stackService,
+                                      boardManager:
+                                          context.read<BoardManagerService>(),
+                                      boardSync:
+                                          context.read<BoardSyncService>(),
+                                      boardEditing:
+                                          context.read<BoardEditingService>(),
+                                      playerProfile:
+                                          context.read<PlayerProfileService>(),
+                                      actionTagService: context
+                                          .read<PlayerProfileService>()
+                                          .actionTagService,
+                                      boardReveal:
+                                          context.read<BoardRevealService>(),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                       ),
+                    ),
                     ),
                   );
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -211,47 +235,70 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                               playerManager: context.read<PlayerManagerService>(),
                               actionSync: context.read<ActionSyncService>(),
                             ),
-                            child: ChangeNotifierProvider(
-                              create: (_) => BoardManagerService(
-                                playerManager:
-                                    context.read<PlayerManagerService>(),
-                                actionSync: context.read<ActionSyncService>(),
-                                playbackManager:
-                                    context.read<PlaybackManagerService>(),
-                                lockService: TransitionLockService(),
-                                boardSync: context.read<BoardSyncService>(),
-                              ),
-                              child: Provider(
-                                create: (_) => BoardEditingService(
-                                  boardManager: context.read<BoardManagerService>(),
+                            child: Builder(
+                              builder: (context) {
+                                final lockService = TransitionLockService();
+                                final reveal = BoardRevealService(
+                                  lockService: lockService,
                                   boardSync: context.read<BoardSyncService>(),
-                                  playerManager: context.read<PlayerManagerService>(),
-                                  profile: context.read<PlayerProfileService>(),
-                                ),
-                                child: Builder(
-                                  builder: (context) => PokerAnalyzerScreen(
-                                    actionSync: context.read<ActionSyncService>(),
-                                    handContext: CurrentHandContextService(),
-                                    playbackManager:
-                                        context.read<PlaybackManagerService>(),
-                                    stackService: context
-                                        .read<PlaybackManagerService>()
-                                        .stackService,
-                                    boardManager:
-                                        context.read<BoardManagerService>(),
-                                    boardSync:
-                                        context.read<BoardSyncService>(),
-                                    boardEditing:
-                                        context.read<BoardEditingService>(),
-                                    playerProfile:
-                                        context.read<PlayerProfileService>(),
-                                    actionTagService: context
-                                        .read<PlayerProfileService>()
-                                        .actionTagService,
-                              ),
+                                );
+                                return MultiProvider(
+                                  providers: [
+                                    Provider<BoardRevealService>.value(
+                                        value: reveal),
+                                    ChangeNotifierProvider(
+                                      create: (_) => BoardManagerService(
+                                        playerManager:
+                                            context.read<PlayerManagerService>(),
+                                        actionSync:
+                                            context.read<ActionSyncService>(),
+                                        playbackManager:
+                                            context.read<PlaybackManagerService>(),
+                                        lockService: lockService,
+                                        boardSync: context.read<BoardSyncService>(),
+                                        boardReveal: reveal,
+                                      ),
+                                    ),
+                                    Provider(
+                                      create: (_) => BoardEditingService(
+                                        boardManager:
+                                            context.read<BoardManagerService>(),
+                                        boardSync: context.read<BoardSyncService>(),
+                                        playerManager:
+                                            context.read<PlayerManagerService>(),
+                                        profile: context.read<PlayerProfileService>(),
+                                      ),
+                                    ),
+                                  ],
+                                  child: Builder(
+                                    builder: (context) => PokerAnalyzerScreen(
+                                      actionSync:
+                                          context.read<ActionSyncService>(),
+                                      handContext: CurrentHandContextService(),
+                                      playbackManager:
+                                          context.read<PlaybackManagerService>(),
+                                      stackService: context
+                                          .read<PlaybackManagerService>()
+                                          .stackService,
+                                      boardManager:
+                                          context.read<BoardManagerService>(),
+                                      boardSync:
+                                          context.read<BoardSyncService>(),
+                                      boardEditing:
+                                          context.read<BoardEditingService>(),
+                                      playerProfile:
+                                          context.read<PlayerProfileService>(),
+                                      actionTagService: context
+                                          .read<PlayerProfileService>()
+                                          .actionTagService,
+                                      boardReveal:
+                                          context.read<BoardRevealService>(),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                            ),
                           ),
                         ),
                       ),
