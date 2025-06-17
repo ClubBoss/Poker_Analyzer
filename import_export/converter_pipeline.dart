@@ -40,8 +40,15 @@ class ConverterPipeline {
     return _registry.dumpFormatIds();
   }
 
-  /// Lists metadata for all registered converters.
-  List<ConverterInfo> availableConverters() {
-    return _registry.dumpConverters();
+  /// Lists metadata for registered converters, optionally filtered by
+  /// [supportsImport] or [supportsExport].
+  List<ConverterInfo> availableConverters({
+    bool? supportsImport,
+    bool? supportsExport,
+  }) {
+    return _registry.queryConverters(
+      supportsImport: supportsImport,
+      supportsExport: supportsExport,
+    );
   }
 }

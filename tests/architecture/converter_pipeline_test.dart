@@ -99,5 +99,45 @@ void main() {
       expect(list.first.description, 'Desc');
       expect(list.first.capabilities.supportsImport, isTrue);
     });
+
+    test('availableConverters supports capability filters', () {
+      final registry = ConverterRegistry();
+      registry.register(
+        _MockConverter(
+          'exp',
+          'Export',
+          const ConverterFormatCapabilities(
+            supportsImport: false,
+            supportsExport: true,
+            requiresBoard: false,
+            supportsMultiStreet: true,
+          ),
+        ),
+      );
+      registry.register(
+        _MockConverter(
+          'imp',
+          'Import',
+          const ConverterFormatCapabilities(
+            supportsImport: true,
+            supportsExport: false,
+            requiresBoard: false,
+            supportsMultiStreet: true,
+          ),
+        ),
+      );
+
+      final pipeline = ConverterPipeline(registry);
+
+      final exportList =
+          pipeline.availableConverters(supportsExport: true, supportsImport: false);
+      expect(exportList.map((c) => c.formatId), contains('exp'));
+      expect(exportList.map((c) => c.formatId), isNot(contains('imp')));
+
+      final importList =
+          pipeline.availableConverters(supportsImport: true, supportsExport: false);
+      expect(importList.map((c) => c.formatId), contains('imp'));
+      expect(importList.map((c) => c.formatId), isNot(contains('exp')));
+    });
   });
 }
