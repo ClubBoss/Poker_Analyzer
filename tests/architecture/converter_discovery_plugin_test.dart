@@ -3,6 +3,7 @@ import 'package:poker_ai_analyzer/plugins/converter_discovery_plugin.dart';
 import 'package:poker_ai_analyzer/plugins/converter_plugin.dart';
 import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
 import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_loader.dart';
 import 'package:poker_ai_analyzer/services/service_registry.dart';
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 
@@ -38,6 +39,26 @@ void main() {
       final converterRegistry = registry.get<ConverterRegistry>();
       expect(converterRegistry.findByFormatId('a'), isNotNull);
       expect(converterRegistry.findByFormatId('b'), isNotNull);
+    });
+
+    test('built-in plugins register converters', () {
+      final loader = PluginLoader();
+      final manager = PluginManager();
+      final registry = ServiceRegistry();
+
+      for (final plugin in loader.loadBuiltInPlugins()) {
+        manager.load(plugin);
+      }
+      manager.initializeAll(registry);
+
+      final converterRegistry = registry.get<ConverterRegistry>();
+      final converters = converterRegistry.dumpConverters();
+      expect(converters, isNotEmpty);
+
+      for (final info in converters) {
+        expect(info.formatId.trim(), isNotEmpty);
+        expect(info.description.trim(), isNotEmpty);
+      }
     });
   });
 }
