@@ -37,6 +37,17 @@ class ConverterRegistry {
     return plugin.convertFrom(data);
   }
 
+  /// Attempts to export [hand] using the converter associated with [id].
+  /// Returns the external format string on success or `null` if no converter
+  /// exists or the converter does not support exporting.
+  String? tryExport(String id, SavedHand hand) {
+    final ConverterPlugin? plugin = findByFormatId(id);
+    if (plugin == null) {
+      return null;
+    }
+    return plugin.convertTo(hand);
+  }
+
   /// Returns the list of registered converter format identifiers.
   List<String> dumpFormatIds() =>
       List<String>.unmodifiable(<String>[for (final p in _plugins) p.formatId]);

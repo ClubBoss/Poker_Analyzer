@@ -9,4 +9,9 @@ abstract class ConverterPlugin {
   ///
   /// Returns `null` if [externalData] cannot be parsed.
   SavedHand? convertFrom(String externalData);
+
+  /// Converts [hand] to an external representation.
+  ///
+  /// Implementations may return `null` if export is unsupported or fails.
+  String? convertTo(SavedHand hand) => null;
 }
