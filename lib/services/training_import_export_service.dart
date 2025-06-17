@@ -81,6 +81,11 @@ class TrainingImportExportService {
     boardManager.loadFromMap(map);
     playbackManager.resetHand();
     handContext.clearName();
+    handContext.tournamentId = spot.tournamentId;
+    handContext.buyIn = spot.buyIn;
+    handContext.totalPrizePool = spot.totalPrizePool;
+    handContext.numberOfEntrants = spot.numberOfEntrants;
+    handContext.gameType = spot.gameType;
   }
 
   /// Serialize a TrainingSpot to json string.
