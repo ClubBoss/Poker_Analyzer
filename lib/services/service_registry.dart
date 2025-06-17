@@ -3,9 +3,16 @@
 ///
 /// Services are registered and looked up by their runtime type. Attempts to
 /// register the same type twice or retrieve an unregistered service will throw
-/// a [StateError].
+/// a [StateError]. Child registries created via [createChild] inherit the
+/// parent's services and fall back to the parent when a lookup fails locally.
 class ServiceRegistry {
+  ServiceRegistry({ServiceRegistry? parent}) : _parent = parent;
+
   final Map<Type, Object> _services = <Type, Object>{};
+  final ServiceRegistry? _parent;
+
+  /// Creates a child registry that inherits services from this registry.
+  ServiceRegistry createChild() => ServiceRegistry(parent: this);
 
   /// Registers [service] for type [T].
   /// Throws a [StateError] if a service of this type is already registered.
@@ -21,14 +28,22 @@ class ServiceRegistry {
   /// Throws a [StateError] if no service is registered for this type.
   T get<T>() {
     final Object? service = _services[T];
-    if (service == null) {
-      throw StateError('Service of type $T is not registered');
+    if (service != null) {
+      return service as T;
     }
-    return service as T;
+    if (_parent != null) {
+      return _parent!.get<T>();
+    }
+    throw StateError('Service of type $T is not registered');
   }
 
   /// Whether a service of type [T] is registered.
-  bool contains<T>() => _services.containsKey(T);
+  bool contains<T>() {
+    if (_services.containsKey(T)) {
+      return true;
+    }
+    return _parent?.contains<T>() ?? false;
+  }
 
   /// Unregisters and returns the service of type [T] if it exists.
   T? unregister<T>() => _services.remove(T) as T?;
