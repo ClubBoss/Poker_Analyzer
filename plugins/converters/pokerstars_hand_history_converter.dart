@@ -393,6 +393,8 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
 
     // Phase 25: parse winnings from summary section.
     final Map<int, int> winnings = {};
+    int? totalPotBb;
+    int? rakeBb;
     final summaryIndexForWinnings =
         lines.indexWhere((l) => l.startsWith('*** SUMMARY'));
     if (summaryIndexForWinnings != -1) {
@@ -400,6 +402,11 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
           RegExp(r'^(.+?) collected (?:\$|€|£)?([\d,.]+)', caseSensitive: false);
       final winsRegex =
           RegExp(r'^(.+?) wins (?:\$|€|£)?([\d,.]+)', caseSensitive: false);
+      final potRakeRegex = RegExp(
+          r'^Total pot (?:\$|€|£)?([\d,.]+).*?\|\s*Rake (?:\$|€|£)?([\d,.]+)',
+          caseSensitive: false);
+      double? totalPot;
+      double? rake;
       for (var i = summaryIndexForWinnings + 1; i < lines.length; i++) {
         final line = lines[i].trim();
         if (line.startsWith('***')) break;
@@ -416,6 +423,21 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
             winnings[idx] = (winnings[idx] ?? 0) + win;
           }
         }
+        m = potRakeRegex.firstMatch(line);
+        if (m != null) {
+          totalPot = _parseAmount(m.group(1)!);
+          rake = _parseAmount(m.group(2)!);
+        }
+      }
+      if (totalPot != null && bigBlind != null && bigBlind > 0) {
+        totalPotBb = (totalPot / bigBlind).round();
+      } else if (totalPot != null) {
+        totalPotBb = totalPot.round();
+      }
+      if (rake != null && bigBlind != null && bigBlind > 0) {
+        rakeBb = (rake / bigBlind).round();
+      } else if (rake != null) {
+        rakeBb = rake.round();
       }
     }
 
@@ -457,6 +479,8 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       actions: actions,
       stackSizes: stackSizes,
       winnings: winnings.isEmpty ? null : winnings,
+      totalPot: totalPotBb,
+      rake: rakeBb,
       playerPositions: playerPositions,
       playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
       comment: tableName,
