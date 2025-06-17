@@ -12,6 +12,11 @@ class CurrentHandContextService {
   /// Text field controllers shared with the UI.
   final TextEditingController commentController = TextEditingController();
   final TextEditingController tagsController = TextEditingController();
+  final TextEditingController tournamentIdController = TextEditingController();
+  final TextEditingController buyInController = TextEditingController();
+  final TextEditingController totalPrizePoolController = TextEditingController();
+  final TextEditingController numberOfEntrantsController = TextEditingController();
+  final TextEditingController gameTypeController = TextEditingController();
 
   /// Current comment text or `null` if empty.
   String? get comment =>
@@ -41,6 +46,25 @@ class CurrentHandContextService {
 
   set tags(List<String> value) => tagsController.text = value.join(', ');
 
+  String? get tournamentId =>
+      tournamentIdController.text.isNotEmpty ? tournamentIdController.text : null;
+  set tournamentId(String? value) => tournamentIdController.text = value ?? '';
+
+  int? get buyIn => int.tryParse(buyInController.text);
+  set buyIn(int? value) => buyInController.text = value?.toString() ?? '';
+
+  int? get totalPrizePool => int.tryParse(totalPrizePoolController.text);
+  set totalPrizePool(int? value) =>
+      totalPrizePoolController.text = value?.toString() ?? '';
+
+  int? get numberOfEntrants => int.tryParse(numberOfEntrantsController.text);
+  set numberOfEntrants(int? value) =>
+      numberOfEntrantsController.text = value?.toString() ?? '';
+
+  String? get gameType =>
+      gameTypeController.text.isNotEmpty ? gameTypeController.text : null;
+  set gameType(String? value) => gameTypeController.text = value ?? '';
+
   /// Cursor offset inside the tag field.
   int? get tagsCursor => tagsController.selection.baseOffset >= 0
       ? tagsController.selection.baseOffset
@@ -58,6 +82,11 @@ class CurrentHandContextService {
     _currentHandName = null;
     commentController.clear();
     tagsController.clear();
+    tournamentIdController.clear();
+    buyInController.clear();
+    totalPrizePoolController.clear();
+    numberOfEntrantsController.clear();
+    gameTypeController.clear();
   }
 
   /// Restore context from persisted data.
@@ -67,12 +96,22 @@ class CurrentHandContextService {
     int? commentCursor,
     List<String>? tags,
     int? tagsCursor,
+    String? tournamentId,
+    int? buyIn,
+    int? totalPrizePool,
+    int? numberOfEntrants,
+    String? gameType,
   }) {
     _currentHandName = name;
     this.comment = comment;
     this.tags = tags ?? <String>[];
     this.commentCursor = commentCursor;
     this.tagsCursor = tagsCursor;
+    this.tournamentId = tournamentId;
+    this.buyIn = buyIn;
+    this.totalPrizePool = totalPrizePool;
+    this.numberOfEntrants = numberOfEntrants;
+    this.gameType = gameType;
   }
 
   /// Restore context directly from a [SavedHand].
@@ -83,6 +122,11 @@ class CurrentHandContextService {
       commentCursor: hand.commentCursor,
       tags: hand.tags,
       tagsCursor: hand.tagsCursor,
+      tournamentId: hand.tournamentId,
+      buyIn: hand.buyIn,
+      totalPrizePool: hand.totalPrizePool,
+      numberOfEntrants: hand.numberOfEntrants,
+      gameType: hand.gameType,
     );
   }
 
@@ -94,6 +138,11 @@ class CurrentHandContextService {
       tags: tags,
       commentCursor: commentCursor,
       tagsCursor: tagsCursor,
+      tournamentId: tournamentId,
+      buyIn: buyIn,
+      totalPrizePool: totalPrizePool,
+      numberOfEntrants: numberOfEntrants,
+      gameType: gameType,
     );
   }
 
@@ -105,5 +154,10 @@ class CurrentHandContextService {
   void dispose() {
     commentController.dispose();
     tagsController.dispose();
+    tournamentIdController.dispose();
+    buyInController.dispose();
+    totalPrizePoolController.dispose();
+    numberOfEntrantsController.dispose();
+    gameTypeController.dispose();
   }
 }

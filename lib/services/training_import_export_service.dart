@@ -31,6 +31,11 @@ class TrainingImportExportService {
     required BoardManagerService boardManager,
     required ActionSyncService actionSync,
     required StackManagerService stackManager,
+    String? tournamentId,
+    int? buyIn,
+    int? totalPrizePool,
+    int? numberOfEntrants,
+    String? gameType,
   }) {
     return TrainingSpot(
       playerCards: [
@@ -53,6 +58,11 @@ class TrainingImportExportService {
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
           stackManager.getStackForPlayer(i)
       ],
+      tournamentId: tournamentId,
+      buyIn: buyIn,
+      totalPrizePool: totalPrizePool,
+      numberOfEntrants: numberOfEntrants,
+      gameType: gameType,
     );
   }
 
