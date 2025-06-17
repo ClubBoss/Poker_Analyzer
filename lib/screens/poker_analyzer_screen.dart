@@ -77,6 +77,9 @@ import '../services/transition_history_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/folded_players_service.dart';
 import '../services/action_history_service.dart';
+import '../services/service_registry.dart';
+import '../../plugins/plugin_manager.dart';
+import '../../plugins/sample_logging_plugin.dart';
 
 
 
@@ -211,6 +214,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late final EvaluationQueueImportExportService _importExportService;
   late final EvaluationProcessingService _processingService;
   late final DebugSnapshotService _debugSnapshotService;
+  late final ServiceRegistry _serviceRegistry;
 
 
 
@@ -552,6 +556,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
+    _serviceRegistry = ServiceRegistry();
+    final PluginManager pluginManager = PluginManager();
+    pluginManager.load(SampleLoggingPlugin());
+    pluginManager.initializeAll(_serviceRegistry);
     _handContext = widget.handContext ?? CurrentHandContextService();
     _actionSync = widget.actionSync;
     _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
