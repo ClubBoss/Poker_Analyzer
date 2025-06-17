@@ -33,6 +33,8 @@ import '../services/playback_manager_service.dart';
 import '../services/stack_manager_service.dart';
 import '../services/folded_players_service.dart';
 import '../services/saved_hand_import_export_service.dart';
+import '../services/training_import_export_service.dart';
+import '../models/training_spot.dart';
 
 class _ResultEntry {
   final String name;
@@ -78,6 +80,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   bool _isMistakeReviewMode = false;
 
   final List<_ResultEntry> _results = [];
+
+  final TrainingImportExportService _importExportService =
+      const TrainingImportExportService();
+  List<TrainingSpot> _spots = [];
 
   @override
   void initState() {
@@ -339,6 +345,43 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
   }
 
+  Future<void> _importSpotsCsv() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final spots = _importExportService.importAllSpotsCsv(content);
+      if (spots.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ошибка импорта CSV')),
+          );
+        }
+        return;
+      }
+      if (mounted) {
+        setState(() {
+          _spots = spots;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Импортировано спотов: ${spots.length}')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ошибка чтения файла')),
+        );
+      }
+    }
+  }
+
   void _repeatMistakes() {
     final mistakes = _results.where((r) => !r.correct).toList();
     if (mistakes.isEmpty) return;
@@ -495,6 +538,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ElevatedButton(
                 onPressed: _exportMarkdown,
                 child: const Text('Export to Markdown'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _importSpotsCsv,
+                child: const Text('Импорт из CSV'),
               ),
             ],
             const SizedBox(height: 24),
