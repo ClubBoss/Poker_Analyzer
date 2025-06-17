@@ -1,6 +1,7 @@
 import 'package:poker_ai_analyzer/services/service_registry.dart';
 
 import 'plugin.dart';
+import 'service_extension.dart';
 
 /// Manages plug-ins for the Poker Analyzer application.
 class PluginManager {
@@ -16,6 +17,9 @@ class PluginManager {
   void initializeAll(ServiceRegistry registry) {
     for (final Plugin plugin in _plugins) {
       plugin.register(registry);
+      for (final ServiceExtension<dynamic> extension in plugin.extensions) {
+        extension.register(registry);
+      }
     }
   }
 }
