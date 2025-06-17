@@ -63,7 +63,7 @@ void main() {
       registry.register(converter);
 
       final pipeline = ConverterPipeline(registry);
-      expect(pipeline.tryExport(_dummyHand(), 'fmt'), 'out');
+      expect(pipeline.tryExport('fmt', _dummyHand()), 'out');
     });
 
     test('delegates validation to registry', () {
@@ -72,7 +72,7 @@ void main() {
       registry.register(converter);
 
       final pipeline = ConverterPipeline(registry);
-      expect(pipeline.validateForExport(_dummyHand(), 'fmt'), 'err');
+      expect(pipeline.validateForExport('fmt', _dummyHand()), 'err');
     });
   });
 }
