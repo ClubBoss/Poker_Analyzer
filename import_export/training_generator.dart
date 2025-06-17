@@ -30,6 +30,7 @@ class TrainingGenerator {
       totalPrizePool: hand.totalPrizePool,
       numberOfEntrants: hand.numberOfEntrants,
       gameType: hand.gameType,
+      tags: List<String>.from(hand.tags),
     );
   }
 }

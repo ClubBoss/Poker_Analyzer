@@ -17,6 +17,7 @@ class TrainingSpot {
   final int? totalPrizePool;
   final int? numberOfEntrants;
   final String? gameType;
+  final List<String> tags;
 
   TrainingSpot({
     required this.playerCards,
@@ -32,7 +33,8 @@ class TrainingSpot {
     this.totalPrizePool,
     this.numberOfEntrants,
     this.gameType,
-  });
+    List<String>? tags,
+  }) : tags = tags ?? [];
 
   factory TrainingSpot.fromSavedHand(SavedHand hand) {
     return TrainingSpot(
@@ -60,6 +62,7 @@ class TrainingSpot {
       totalPrizePool: hand.totalPrizePool,
       numberOfEntrants: hand.numberOfEntrants,
       gameType: hand.gameType,
+      tags: List<String>.from(hand.tags),
     );
   }
 
@@ -90,6 +93,7 @@ class TrainingSpot {
         if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
         if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
         if (gameType != null) 'gameType': gameType,
+        if (tags.isNotEmpty) 'tags': tags,
       };
 
   factory TrainingSpot.fromJson(Map<String, dynamic> json) {
@@ -167,6 +171,7 @@ class TrainingSpot {
       totalPrizePool: (json['totalPrizePool'] as num?)?.toInt(),
       numberOfEntrants: (json['numberOfEntrants'] as num?)?.toInt(),
       gameType: json['gameType'] as String?,
+      tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
     );
   }
 }

@@ -15,6 +15,13 @@ class TrainingSpotList extends StatefulWidget {
 
 class _TrainingSpotListState extends State<TrainingSpotList> {
   final TextEditingController _searchController = TextEditingController();
+  static const List<String> _availableTags = [
+    '3бет пот',
+    'Фиш',
+    'Рег',
+    'ICM',
+    'vs агро',
+  ];
 
   @override
   void initState() {
@@ -79,6 +86,28 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
                             if (spot.gameType != null && spot.gameType!.isNotEmpty)
                               Text('Game: ${spot.gameType}',
                                   style: const TextStyle(color: Colors.white)),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 4,
+                              children: [
+                                for (final tag in _availableTags)
+                                  FilterChip(
+                                    label: Text(tag),
+                                    selected: spot.tags.contains(tag),
+                                    onSelected: (selected) {
+                                      setState(() {
+                                        if (selected) {
+                                          if (!spot.tags.contains(tag)) {
+                                            spot.tags.add(tag);
+                                          }
+                                        } else {
+                                          spot.tags.remove(tag);
+                                        }
+                                      });
+                                    },
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
