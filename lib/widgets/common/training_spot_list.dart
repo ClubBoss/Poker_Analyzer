@@ -307,6 +307,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(Icons.drag_handle, color: Colors.white70),
+                      ),
+                      const SizedBox(width: 8),
                       Checkbox(
                         value: _selectedSpots.contains(spot),
                         onChanged: (v) {
@@ -318,10 +323,6 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                             }
                           });
                         },
-                      ),
-                      ReorderableDragStartListener(
-                        index: index,
-                        child: const Icon(Icons.drag_handle, color: Colors.white70),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -376,21 +377,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                   ),
                 );
               },
-              onReorder: (oldIndex, newIndex) {
-                if (widget.onReorder == null) return;
-                if (newIndex > oldIndex) newIndex -= 1;
-                final oldSpot = filtered[oldIndex];
-                int newMainIndex;
-                if (newIndex >= filtered.length) {
-                  newMainIndex = widget.spots.length - 1;
-                } else {
-                  final targetSpot = filtered[newIndex];
-                  newMainIndex = widget.spots.indexOf(targetSpot);
-                }
-                final oldMainIndex = widget.spots.indexOf(oldSpot);
-                widget.onReorder!(oldMainIndex, newMainIndex);
-                widget.onChanged?.call();
-              },
+              onReorder: (oldIndex, newIndex) =>
+                  _handleReorder(oldIndex, newIndex, filtered),
             ),
           ),
       ],
@@ -514,5 +502,28 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _selectedTags.clear();
       _selectedPreset = null;
     });
+  }
+
+  void _handleReorder(
+    int oldIndex,
+    int newIndex,
+    List<TrainingSpot> filtered,
+  ) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final movedSpot = filtered[oldIndex];
+    final oldMainIndex = widget.spots.indexOf(movedSpot);
+    int newMainIndex;
+    if (newIndex >= filtered.length) {
+      newMainIndex = widget.spots.length - 1;
+    } else {
+      final targetSpot = filtered[newIndex];
+      newMainIndex = widget.spots.indexOf(targetSpot);
+    }
+    setState(() {
+      final spot = widget.spots.removeAt(oldMainIndex);
+      widget.spots.insert(newMainIndex, spot);
+    });
+    widget.onReorder?.call(oldMainIndex, newMainIndex);
+    widget.onChanged?.call();
   }
 }
