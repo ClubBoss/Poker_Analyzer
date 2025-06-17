@@ -287,33 +287,49 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         if (widget.onRemove != null) ...[
           Align(
             alignment: Alignment.centerLeft,
-            child: Stack(
-              clipBehavior: Clip.none,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 ElevatedButton(
-                  onPressed:
-                      _selectedSpots.isEmpty ? null : _deleteSelected,
-                  child: const Text('Удалить выбранные'),
+                  onPressed: () => _selectAllVisible(filtered),
+                  child: const Text('Выделить все'),
                 ),
-                if (_selectedSpots.isNotEmpty)
-                  Positioned(
-                    right: -6,
-                    top: -6,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        '${_selectedSpots.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed:
+                      _selectedSpots.isEmpty ? null : _clearSelection,
+                  child: const Text('Снять выделение'),
+                ),
+                const SizedBox(width: 8),
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ElevatedButton(
+                      onPressed:
+                          _selectedSpots.isEmpty ? null : _deleteSelected,
+                      child: const Text('Удалить выбранные'),
+                    ),
+                    if (_selectedSpots.isNotEmpty)
+                      Positioned(
+                        right: -6,
+                        top: -6,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${_selectedSpots.length}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -659,6 +675,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         widget.spots[indices[i]] = shuffled[i];
       }
     });
+    widget.onChanged?.call();
+  }
+
+  void _selectAllVisible(List<TrainingSpot> filtered) {
+    setState(() {
+      _selectedSpots.addAll(filtered);
+    });
+    widget.onChanged?.call();
+  }
+
+  void _clearSelection() {
+    setState(() => _selectedSpots.clear());
     widget.onChanged?.call();
   }
 
