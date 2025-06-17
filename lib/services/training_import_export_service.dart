@@ -195,6 +195,61 @@ class TrainingImportExportService {
     return buffer.toString().trimRight();
   }
 
+  /// Parse multiple tournament metadata rows from a CSV string.
+  /// Returns an empty list if no valid rows are found.
+  List<TrainingSpot> importAllSpotsCsv(String csvStr) {
+    final spots = <TrainingSpot>[];
+    final lines = csvStr.trim().split(RegExp(r'\r?\n'));
+    if (lines.length < 2) return spots;
+
+    final headers = _parseCsvLine(lines.first).map((h) => h.trim()).toList();
+
+    String? strOrNull(String? v) {
+      if (v == null) return null;
+      final t = v.trim();
+      return t.isEmpty ? null : t;
+    }
+
+    int? intOrNull(String? v) => int.tryParse(v?.trim() ?? '');
+
+    for (int i = 1; i < lines.length; i++) {
+      final line = lines[i].trim();
+      if (line.isEmpty) continue;
+
+      try {
+        final values = _parseCsvLine(line);
+        if (values.every((v) => v.trim().isEmpty)) continue;
+
+        final map = <String, String>{};
+        for (int j = 0; j < headers.length && j < values.length; j++) {
+          map[headers[j]] = values[j].trim();
+        }
+
+        spots.add(
+          TrainingSpot(
+            playerCards: const [],
+            boardCards: const [],
+            actions: const [],
+            heroIndex: 0,
+            numberOfPlayers: 0,
+            playerTypes: const [],
+            positions: const [],
+            stacks: const [],
+            tournamentId: strOrNull(map['tournamentId']),
+            buyIn: intOrNull(map['buyIn']),
+            totalPrizePool: intOrNull(map['totalPrizePool']),
+            numberOfEntrants: intOrNull(map['numberOfEntrants']),
+            gameType: strOrNull(map['gameType']),
+          ),
+        );
+      } catch (_) {
+        // Skip malformed rows
+      }
+    }
+
+    return spots;
+  }
+
   /// Parse tournament metadata from a CSV string. Returns `null` on failure.
   TrainingSpot? importCsvSpot(String csvStr) {
     try {
