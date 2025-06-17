@@ -614,6 +614,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         const SizedBox(height: 8),
         _buildListToggleButton(),
         const SizedBox(height: 8),
+        _buildPackSummary(filtered),
+        const SizedBox(height: 8),
         if (_listVisible)
           if (filtered.isEmpty)
             const Text(
@@ -840,6 +842,19 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         summary,
         style: const TextStyle(color: Colors.white60),
       ),
+    );
+  }
+
+  Widget _buildPackSummary(List<TrainingSpot> filtered) {
+    final selected =
+        filtered.where((s) => _selectedSpots.contains(s)).length;
+    final uniqueTags = <String>{};
+    for (final spot in filtered) {
+      uniqueTags.addAll(spot.tags);
+    }
+    return Text(
+      'Спотов: ${filtered.length}, Выбрано: $selected, Тегов: ${uniqueTags.length}',
+      style: const TextStyle(color: Colors.white),
     );
   }
 
