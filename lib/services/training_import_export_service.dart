@@ -195,6 +195,51 @@ class TrainingImportExportService {
     return buffer.toString().trimRight();
   }
 
+  /// Export multiple [TrainingSpot]s to Markdown summarizing tournament metadata.
+  /// Each spot gets a numbered heading followed by a bullet list of non-null fields.
+  String exportAllSpotsMarkdown(List<TrainingSpot> spots) {
+    if (spots.isEmpty) return '';
+
+    const fieldOrder = [
+      'tournamentId',
+      'buyIn',
+      'totalPrizePool',
+      'numberOfEntrants',
+      'gameType',
+    ];
+
+    String? getField(TrainingSpot s, String field) {
+      switch (field) {
+        case 'tournamentId':
+          return s.tournamentId;
+        case 'buyIn':
+          return s.buyIn?.toString();
+        case 'totalPrizePool':
+          return s.totalPrizePool?.toString();
+        case 'numberOfEntrants':
+          return s.numberOfEntrants?.toString();
+        case 'gameType':
+          return s.gameType;
+      }
+      return null;
+    }
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < spots.length; i++) {
+      final s = spots[i];
+      buffer.writeln('### Spot ${i + 1}');
+      for (final field in fieldOrder) {
+        final val = getField(s, field);
+        if (val != null) {
+          buffer.writeln('- **$field:** $val');
+        }
+      }
+      buffer.writeln();
+    }
+
+    return buffer.toString().trimRight();
+  }
+
   /// Parse multiple tournament metadata rows from a CSV string.
   /// Returns an empty list if no valid rows are found.
   List<TrainingSpot> importAllSpotsCsv(String csvStr) {
