@@ -2,6 +2,7 @@ import 'converter_discovery_plugin.dart';
 import 'converter_plugin.dart';
 import 'plugin.dart';
 import 'sample_logging_plugin.dart';
+import 'converters/poker_analyzer_json_converter.dart';
 
 /// Prototype loader for built-in plug-ins.
 ///
@@ -10,11 +11,10 @@ import 'sample_logging_plugin.dart';
 class PluginLoader {
   /// Returns all built-in plug-ins included with the application.
   List<Plugin> loadBuiltInPlugins() {
-    // Currently there are no built-in converter plug-ins to supply to the
-    // discovery plug-in, so an empty list is passed.
+    final converters = <ConverterPlugin>[PokerAnalyzerJsonConverter()];
     return <Plugin>[
       SampleLoggingPlugin(),
-      ConverterDiscoveryPlugin(<ConverterPlugin>[]),
+      ConverterDiscoveryPlugin(converters),
     ];
   }
 }
