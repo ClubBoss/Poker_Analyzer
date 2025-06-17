@@ -564,9 +564,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       pluginManager.load(plugin);
     }
     pluginManager.initializeAll(_serviceRegistry);
-    _handContext = widget.handContext ?? CurrentHandContextService();
-    _actionSync = widget.actionSync;
-    _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
+
+    _serviceRegistry.register<CurrentHandContextService>(
+        widget.handContext ?? CurrentHandContextService());
+    _handContext = _serviceRegistry.get<CurrentHandContextService>();
+
+    _serviceRegistry.register<ActionSyncService>(widget.actionSync);
+    _actionSync = _serviceRegistry.get<ActionSyncService>();
+
+    _serviceRegistry.register<FoldedPlayersService>(
+        widget.foldedPlayersService ?? FoldedPlayersService());
+    _foldedPlayers = _serviceRegistry.get<FoldedPlayersService>();
 
     _debugPrefs = widget.debugPrefsService ?? DebugPanelPreferences();
     _serviceRegistry.register<DebugPanelPreferences>(_debugPrefs);
@@ -609,50 +617,76 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             debugSnapshotService: _debugSnapshotService,
           ));
     _processingService = _serviceRegistry.get<EvaluationProcessingService>();
-    lockService = widget.lockService;
+    _serviceRegistry.register<TransitionLockService>(widget.lockService);
+    lockService = _serviceRegistry.get<TransitionLockService>();
     _centerChipController = AnimationController(
       vsync: this,
       duration: _boardRevealDuration,
     );
     _timelineController = ScrollController();
-    _playerManager = widget.playerManager
-      ..addListener(_onPlayerManagerChanged);
-    _actionTagService = widget.actionTagService;
-    _boardReveal = widget.boardReveal;
-    _potSync = widget.potSyncService;
-    _actionHistory = widget.actionHistory;
-    _boardManager = widget.boardManager
+
+    _serviceRegistry.register<PlayerManagerService>(widget.playerManager);
+    _playerManager =
+        _serviceRegistry.get<PlayerManagerService>()..addListener(_onPlayerManagerChanged);
+
+    _serviceRegistry.register<ActionTagService>(widget.actionTagService);
+    _actionTagService = _serviceRegistry.get<ActionTagService>();
+
+    _serviceRegistry.register<BoardRevealService>(widget.boardReveal);
+    _boardReveal = _serviceRegistry.get<BoardRevealService>();
+
+    _serviceRegistry.register<PotSyncService>(widget.potSyncService);
+    _potSync = _serviceRegistry.get<PotSyncService>();
+
+    _serviceRegistry.register<ActionHistoryService>(widget.actionHistory);
+    _actionHistory = _serviceRegistry.get<ActionHistoryService>();
+
+    _serviceRegistry.register<BoardManagerService>(widget.boardManager);
+    _boardManager = _serviceRegistry.get<BoardManagerService>()
       ..addListener(() {
         if (mounted) lockService.safeSetState(this, () {});
       });
-    _boardSync = widget.boardSync;
-    _boardEditing = widget.boardEditing;
-    _playerEditing = widget.playerEditing;
-    _stackService = widget.stackService;
+
+    _serviceRegistry.register<BoardSyncService>(widget.boardSync);
+    _boardSync = _serviceRegistry.get<BoardSyncService>();
+
+    _serviceRegistry.register<BoardEditingService>(widget.boardEditing);
+    _boardEditing = _serviceRegistry.get<BoardEditingService>();
+
+    _serviceRegistry.register<PlayerEditingService>(widget.playerEditing);
+    _playerEditing = _serviceRegistry.get<PlayerEditingService>();
+
+    _serviceRegistry.register<StackManagerService>(widget.stackService);
+    _stackService = _serviceRegistry.get<StackManagerService>();
+
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
-    _playbackManager = widget.playbackManager;
-    _playbackManager
+
+    _serviceRegistry.register<PlaybackManagerService>(widget.playbackManager);
+    _playbackManager = _serviceRegistry.get<PlaybackManagerService>()
       ..stackService = _stackService
       ..addListener(_onPlaybackManagerChanged);
-    _handRestore = widget.handRestoreService ?? HandRestoreService(
-      playerManager: _playerManager,
-      actionSync: _actionSync,
-      playbackManager: _playbackManager,
-      boardManager: _boardManager,
-      boardSync: _boardSync,
-      queueService: _queueService,
-      backupManager: backupManager,
-      debugPrefs: _debugPrefs,
-      lockService: lockService,
-      handContext: _handContext,
-      foldedPlayers: _foldedPlayers,
-      actionTags: _actionTagService,
-      setActivePlayerIndex: (i) => activePlayerIndex = i,
-      potSync: _potSync,
-      actionHistory: _actionHistory,
-      boardReveal: _boardReveal,
-    );
+    _serviceRegistry.register<HandRestoreService>(
+        widget.handRestoreService ??
+            HandRestoreService(
+              playerManager: _playerManager,
+              actionSync: _actionSync,
+              playbackManager: _playbackManager,
+              boardManager: _boardManager,
+              boardSync: _boardSync,
+              queueService: _queueService,
+              backupManager: backupManager,
+              debugPrefs: _debugPrefs,
+              lockService: lockService,
+              handContext: _handContext,
+              foldedPlayers: _foldedPlayers,
+              actionTags: _actionTagService,
+              setActivePlayerIndex: (i) => activePlayerIndex = i,
+              potSync: _potSync,
+              actionHistory: _actionHistory,
+              boardReveal: _boardReveal,
+            ));
+    _handRestore = _serviceRegistry.get<HandRestoreService>();
     _playerManager.updatePositions();
     _playbackManager.updatePlaybackState();
     _actionHistory.updateHistory(actions,
@@ -664,11 +698,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
-    _transitionHistory = TransitionHistoryService(
+    _serviceRegistry.register<TransitionHistoryService>(TransitionHistoryService(
       lockService: lockService,
       boardManager: _boardManager,
-    );
-    _undoRedoService = UndoRedoService(
+    ));
+    _transitionHistory = _serviceRegistry.get<TransitionHistoryService>();
+
+    _serviceRegistry.register<UndoRedoService>(UndoRedoService(
       actionSync: _actionSync,
       boardManager: _boardManager,
       playbackManager: _playbackManager,
@@ -681,8 +717,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       potSync: _potSync,
       lockService: lockService,
       transitionHistory: _transitionHistory,
-    );
-    _actionEditing = ActionEditingService(
+    ));
+    _undoRedoService = _serviceRegistry.get<UndoRedoService>();
+
+    _serviceRegistry.register<ActionEditingService>(ActionEditingService(
       actionSync: _actionSync,
       undoRedo: _undoRedoService,
       actionTag: _actionTagService,
@@ -694,7 +732,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       playerManager: _playerManager,
       triggerCenterChip: _triggerCenterChip,
       playChipAnimation: _playUnifiedChipAnimation,
-    );
+    ));
+    _actionEditing = _serviceRegistry.get<ActionEditingService>();
     Future(() => _initializeDebugPreferences());
     Future.microtask(_queueService.loadQueueSnapshot);
     // BackupManagerService handles periodic backups and cleanup internally.
