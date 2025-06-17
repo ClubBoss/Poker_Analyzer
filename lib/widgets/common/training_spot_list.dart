@@ -4,6 +4,13 @@ import 'dart:math';
 import '../../models/training_spot.dart';
 import '../../theme/app_colors.dart';
 
+enum SortOption {
+  buyInAsc,
+  buyInDesc,
+  gameType,
+  tournamentId,
+}
+
 class TrainingSpotList extends StatefulWidget {
   final List<TrainingSpot> spots;
   final ValueChanged<int>? onRemove;
@@ -47,6 +54,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   final Set<String> _selectedTags = {};
   final Set<TrainingSpot> _selectedSpots = {};
   bool _tagFiltersExpanded = true;
+  SortOption? _sortOption;
 
   Future<void> _editSpot(TrainingSpot spot) async {
     final idController =
@@ -312,11 +320,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         ],
         Align(
           alignment: Alignment.centerLeft,
-          child: ElevatedButton(
-            onPressed: filtered.length <= 1
-                ? null
-                : () => _shuffleFiltered(filtered),
-            child: const Text('Перемешать'),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: filtered.length <= 1
+                    ? null
+                    : () => _shuffleFiltered(filtered),
+                child: const Text('Перемешать'),
+              ),
+              const SizedBox(width: 8),
+              _buildSortDropdown(filtered),
+            ],
           ),
         ),
         const SizedBox(height: 8),
@@ -554,6 +569,37 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     );
   }
 
+  Widget _buildSortDropdown(List<TrainingSpot> filtered) {
+    return DropdownButton<SortOption>(
+      value: _sortOption,
+      hint: const Text('Сортировать', style: TextStyle(color: Colors.white60)),
+      dropdownColor: AppColors.cardBackground,
+      style: const TextStyle(color: Colors.white),
+      items: const [
+        DropdownMenuItem(
+          value: SortOption.buyInAsc,
+          child: Text('Buy-In ↑'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.buyInDesc,
+          child: Text('Buy-In ↓'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.gameType,
+          child: Text('Тип игры'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.tournamentId,
+          child: Text('ID турнира'),
+        ),
+      ],
+      onChanged: (value) {
+        if (value == null) return;
+        _sortFiltered(filtered, value);
+      },
+    );
+  }
+
   void clearFilters() {
     setState(() {
       _searchController.clear();
@@ -599,6 +645,33 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       for (int i = 0; i < indices.length; i++) {
         widget.spots[indices[i]] = shuffled[i];
       }
+    });
+    widget.onChanged?.call();
+  }
+
+  void _sortFiltered(List<TrainingSpot> filtered, SortOption option) {
+    final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
+    final sorted = List<TrainingSpot>.from(filtered);
+    switch (option) {
+      case SortOption.buyInAsc:
+        sorted.sort((a, b) => (a.buyIn ?? 0).compareTo(b.buyIn ?? 0));
+        break;
+      case SortOption.buyInDesc:
+        sorted.sort((a, b) => (b.buyIn ?? 0).compareTo(a.buyIn ?? 0));
+        break;
+      case SortOption.gameType:
+        sorted.sort((a, b) => (a.gameType ?? '').compareTo(b.gameType ?? ''));
+        break;
+      case SortOption.tournamentId:
+        sorted
+            .sort((a, b) => (a.tournamentId ?? '').compareTo(b.tournamentId ?? ''));
+        break;
+    }
+    setState(() {
+      for (int i = 0; i < indices.length; i++) {
+        widget.spots[indices[i]] = sorted[i];
+      }
+      _sortOption = option;
     });
     widget.onChanged?.call();
   }
