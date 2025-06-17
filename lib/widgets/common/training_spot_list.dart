@@ -6,8 +6,14 @@ import '../../theme/app_colors.dart';
 class TrainingSpotList extends StatefulWidget {
   final List<TrainingSpot> spots;
   final ValueChanged<int>? onRemove;
+  final VoidCallback? onChanged;
 
-  const TrainingSpotList({super.key, required this.spots, this.onRemove});
+  const TrainingSpotList({
+    super.key,
+    required this.spots,
+    this.onRemove,
+    this.onChanged,
+  });
 
   @override
   State<TrainingSpotList> createState() => _TrainingSpotListState();
@@ -113,6 +119,7 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
                                           spot.tags.remove(tag);
                                         }
                                       });
+                                      widget.onChanged?.call();
                                     },
                                   ),
                               ],

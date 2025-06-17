@@ -35,6 +35,7 @@ import '../services/folded_players_service.dart';
 import '../services/saved_hand_import_export_service.dart';
 import '../services/training_import_export_service.dart';
 import '../services/training_spot_file_service.dart';
+import '../services/training_spot_storage_service.dart';
 import '../models/training_spot.dart';
 import '../widgets/common/training_spot_list.dart';
 
@@ -87,6 +88,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       const TrainingImportExportService();
   final TrainingSpotFileService _spotFileService =
       const TrainingSpotFileService();
+  final TrainingSpotStorageService _spotStorageService =
+      const TrainingSpotStorageService();
   List<TrainingSpot> _spots = [];
 
   @override
@@ -96,6 +99,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     _sessionHands = widget.hands ?? _pack.hands;
     _isMistakeReviewMode = widget.mistakeReviewMode;
     _loadProgress();
+    _loadSpots();
   }
 
   Future<void> _loadProgress() async {
@@ -114,6 +118,17 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   Future<void> _saveProgress() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('training_progress_${_pack.name}', _currentIndex);
+  }
+
+  Future<void> _loadSpots() async {
+    final loaded = await _spotStorageService.load();
+    if (mounted && loaded.isNotEmpty) {
+      setState(() => _spots = loaded);
+    }
+  }
+
+  Future<void> _saveSpots() async {
+    await _spotStorageService.save(_spots);
   }
 
   Future<_ResultEntry> _showFeedback() async {
@@ -353,6 +368,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final spots = await _spotFileService.importSpotsCsv(context);
     if (spots.isNotEmpty && mounted) {
       setState(() => _spots = spots);
+      await _saveSpots();
     }
   }
 
@@ -545,7 +561,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         setState(() {
           _spots.removeAt(index);
         });
+        _saveSpots();
       },
+      onChanged: _saveSpots,
     );
   }
 
