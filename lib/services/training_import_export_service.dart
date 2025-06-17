@@ -63,6 +63,7 @@ class TrainingImportExportService {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
+      tags: const [],
     );
   }
 
