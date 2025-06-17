@@ -1,17 +1,20 @@
 import 'package:test/test.dart';
 import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
 import 'package:poker_ai_analyzer/plugins/converter_plugin.dart';
+import 'package:poker_ai_analyzer/plugins/converter_info.dart';
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import 'package:poker_ai_analyzer/models/card_model.dart';
 import 'package:poker_ai_analyzer/models/action_entry.dart';
 import 'package:poker_ai_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId,
+  _MockConverter(this.formatId, this.description,
       [this.onConvertFrom, this.onConvertTo, this.onValidate]);
 
   @override
   final String formatId;
+  @override
+  final String description;
 
   final SavedHand? Function(String data)? onConvertFrom;
   final String? Function(SavedHand hand)? onConvertTo;
@@ -53,7 +56,7 @@ void main() {
   group('ConverterRegistry', () {
     test('registers converter plugins', () {
       final registry = ConverterRegistry();
-      final plugin = _MockConverter('foo');
+      final plugin = _MockConverter('foo', 'Foo converter');
       registry.register(plugin);
 
       expect(registry.findByFormatId('foo'), same(plugin));
@@ -61,15 +64,15 @@ void main() {
 
     test('rejects duplicate format ids', () {
       final registry = ConverterRegistry();
-      registry.register(_MockConverter('dup'));
+      registry.register(_MockConverter('dup', 'D'));
 
-      expect(() => registry.register(_MockConverter('dup')), throwsStateError);
+      expect(() => registry.register(_MockConverter('dup', 'D')), throwsStateError);
     });
 
     test('findByFormatId returns the correct plugin', () {
       final registry = ConverterRegistry();
-      final first = _MockConverter('a');
-      final second = _MockConverter('b');
+      final first = _MockConverter('a', 'A');
+      final second = _MockConverter('b', 'B');
       registry.register(first);
       registry.register(second);
 
@@ -80,7 +83,7 @@ void main() {
     test('tryConvert returns result on success', () {
       final hand = _dummyHand();
       final registry = ConverterRegistry();
-      registry.register(_MockConverter('ok', (_) => hand));
+      registry.register(_MockConverter('ok', 'Ok', (_) => hand));
 
       final result = registry.tryConvert('ok', 'data');
       expect(result, same(hand));
@@ -88,7 +91,7 @@ void main() {
 
     test('tryConvert returns null on failure or missing plugin', () {
       final registry = ConverterRegistry();
-      registry.register(_MockConverter('fail'));
+      registry.register(_MockConverter('fail', 'Fail'));
 
       expect(registry.tryConvert('fail', 'data'), isNull);
       expect(registry.tryConvert('missing', 'data'), isNull);
@@ -97,7 +100,7 @@ void main() {
     test('tryExport returns result on success', () {
       final registry = ConverterRegistry();
       registry.register(
-          _MockConverter('ok', null, (_) => 'exported'));
+          _MockConverter('ok', 'Ok', null, (_) => 'exported'));
 
       final result = registry.tryExport('ok', _dummyHand());
       expect(result, 'exported');
@@ -105,7 +108,7 @@ void main() {
 
     test('tryExport returns null on failure or missing plugin', () {
       final registry = ConverterRegistry();
-      registry.register(_MockConverter('fail'));
+      registry.register(_MockConverter('fail', 'Fail'));
 
       expect(registry.tryExport('fail', _dummyHand()), isNull);
       expect(registry.tryExport('missing', _dummyHand()), isNull);
@@ -113,17 +116,27 @@ void main() {
 
     test('validateForExport forwards validation', () {
       final registry = ConverterRegistry();
-      registry.register(_MockConverter('fmt', null, null, (_) => 'bad'));
+      registry.register(_MockConverter('fmt', 'Fmt', null, null, (_) => 'bad'));
 
       expect(registry.validateForExport('fmt', _dummyHand()), 'bad');
     });
 
     test('validateForExport returns null for success or missing plugin', () {
       final registry = ConverterRegistry();
-      registry.register(_MockConverter('ok', null, null, (_) => null));
+      registry.register(_MockConverter('ok', 'Ok', null, null, (_) => null));
 
       expect(registry.validateForExport('ok', _dummyHand()), isNull);
       expect(registry.validateForExport('missing', _dummyHand()), isNull);
+    });
+
+    test('dumpConverters returns converter metadata', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('fmt', 'Test fmt'));
+
+      final converters = registry.dumpConverters();
+      expect(converters, hasLength(1));
+      expect(converters.first.formatId, 'fmt');
+      expect(converters.first.description, 'Test fmt');
     });
   });
 }

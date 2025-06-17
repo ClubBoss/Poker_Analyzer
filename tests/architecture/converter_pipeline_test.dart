@@ -2,16 +2,19 @@ import 'package:test/test.dart';
 import 'package:poker_ai_analyzer/import_export/converter_pipeline.dart';
 import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
 import 'package:poker_ai_analyzer/plugins/converter_plugin.dart';
+import 'package:poker_ai_analyzer/plugins/converter_info.dart';
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import 'package:poker_ai_analyzer/models/card_model.dart';
 import 'package:poker_ai_analyzer/models/action_entry.dart';
 import 'package:poker_ai_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId);
+  _MockConverter(this.formatId, this.description);
 
   @override
   final String formatId;
+  @override
+  final String description;
 
   SavedHand? importResult;
   String? exportResult;
@@ -50,7 +53,7 @@ void main() {
   group('ConverterPipeline', () {
     test('delegates import to registry', () {
       final registry = ConverterRegistry();
-      final converter = _MockConverter('fmt')..importResult = _dummyHand();
+      final converter = _MockConverter('fmt', 'Format')..importResult = _dummyHand();
       registry.register(converter);
 
       final pipeline = ConverterPipeline(registry);
@@ -59,7 +62,7 @@ void main() {
 
     test('delegates export to registry', () {
       final registry = ConverterRegistry();
-      final converter = _MockConverter('fmt')..exportResult = 'out';
+      final converter = _MockConverter('fmt', 'Format')..exportResult = 'out';
       registry.register(converter);
 
       final pipeline = ConverterPipeline(registry);
@@ -68,11 +71,22 @@ void main() {
 
     test('delegates validation to registry', () {
       final registry = ConverterRegistry();
-      final converter = _MockConverter('fmt')..validationResult = 'err';
+      final converter = _MockConverter('fmt', 'Format')..validationResult = 'err';
       registry.register(converter);
 
       final pipeline = ConverterPipeline(registry);
       expect(pipeline.validateForExport('fmt', _dummyHand()), 'err');
+    });
+
+    test('provides converter metadata via availableConverters', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('fmt', 'Desc'));
+
+      final pipeline = ConverterPipeline(registry);
+      final list = pipeline.availableConverters();
+      expect(list, hasLength(1));
+      expect(list.first.formatId, 'fmt');
+      expect(list.first.description, 'Desc');
     });
   });
 }

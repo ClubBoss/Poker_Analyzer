@@ -1,5 +1,6 @@
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import '../plugins/converter_registry.dart';
+import '../plugins/converter_info.dart';
 
 /// High level pipeline for converting external hand formats.
 ///
@@ -37,5 +38,10 @@ class ConverterPipeline {
   /// Lists all format identifiers for which converters are registered.
   List<String> supportedFormats() {
     return _registry.dumpFormatIds();
+  }
+
+  /// Lists metadata for all registered converters.
+  List<ConverterInfo> availableConverters() {
+    return _registry.dumpConverters();
   }
 }
