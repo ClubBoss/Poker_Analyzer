@@ -30,6 +30,9 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
   the 50 most recent files to save storage
 - Import and export the full evaluation queue state through the debug panel
 - Bulk import evaluation snapshots from the debug panel
+- Import and export hand histories through plug-in converters
+  with metadata and validation so incompatible hands can be
+  detected before export
 
 ![screenshot](flutter_01.png)
 
