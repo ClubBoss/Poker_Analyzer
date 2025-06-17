@@ -40,6 +40,14 @@ void main() {
           case 'simple_hand_history':
             sample = 'hand\ntable\n1\n';
             break;
+          case 'pokerstars_hand_history':
+            sample = [
+              'PokerStars Hand #1: Hold\'em No Limit (\$0.01/\$0.02 USD) - 2023/01/01 00:00:00 ET',
+              'Table \u0027Alpha\u0027 6-max Seat #1 is the button',
+              'Seat 1: Player1 (\$1 in chips)',
+              'Seat 2: Player2 (\$1 in chips)',
+            ].join('\n');
+            break;
           default:
             sample = '';
         }
