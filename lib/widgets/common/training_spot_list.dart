@@ -159,6 +159,29 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
     }
   }
 
+  Future<void> _deleteSpot(TrainingSpot spot) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить спот?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true && widget.onRemove != null) {
+      widget.onRemove!(widget.spots.indexOf(spot));
+      widget.onChanged?.call();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -269,7 +292,7 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
                       if (widget.onRemove != null)
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => widget.onRemove!(widget.spots.indexOf(spot)),
+                          onPressed: () => _deleteSpot(spot),
                         ),
                     ],
                   ),
