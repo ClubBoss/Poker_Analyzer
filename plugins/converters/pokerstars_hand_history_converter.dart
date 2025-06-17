@@ -4,6 +4,7 @@ import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import 'package:poker_ai_analyzer/models/card_model.dart';
 import 'package:poker_ai_analyzer/models/action_entry.dart';
 import 'package:poker_ai_analyzer/models/player_model.dart';
+import 'package:poker_ai_analyzer/helpers/poker_position_helper.dart';
 
 /// Converter for PokerStars text hand histories.
 class PokerStarsHandHistoryConverter extends ConverterPlugin {
@@ -35,6 +36,17 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         .firstMatch(lines[1]);
     if (tableMatch == null) return null;
     final tableName = tableMatch.group(1)!.trim();
+
+    // Determine which seat has the dealer button.
+    int? buttonSeat;
+    final buttonRegex = RegExp(r'Seat #?(\d+) is the button', caseSensitive: false);
+    for (var i = 0; i < lines.length && i < 5; i++) {
+      final m = buttonRegex.firstMatch(lines[i]);
+      if (m != null) {
+        buttonSeat = int.tryParse(m.group(1)!);
+        break;
+      }
+    }
 
     // Attempt to determine blind amounts from the header or post lines.
     double? bigBlind;
@@ -174,17 +186,44 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       }
     }
 
+    // Infer player positions based on the button seat and seat order.
+    final playerPositions = <int, String>{};
+    String heroPosition = 'BTN';
+    try {
+      final positionOrder = getPositionList(playerCount);
+      final btnPosIdx = positionOrder.indexOf('BTN');
+      final orderFromBtn = [
+        ...positionOrder.sublist(btnPosIdx),
+        ...positionOrder.sublist(0, btnPosIdx)
+      ];
+      int buttonIndex = -1;
+      if (buttonSeat != null) {
+        buttonIndex =
+            seatEntries.indexWhere((e) => e['seat'] == buttonSeat);
+      }
+      if (buttonIndex < 0) buttonIndex = 0;
+      for (int i = 0; i < playerCount; i++) {
+        final posIndex = (i - buttonIndex + playerCount) % playerCount;
+        playerPositions[i] = orderFromBtn[posIndex];
+      }
+      heroPosition = playerPositions[heroIndex] ?? heroPosition;
+    } catch (_) {
+      for (int i = 0; i < playerCount; i++) {
+        playerPositions[i] = '';
+      }
+    }
+
     return SavedHand(
       name: handId,
       heroIndex: heroIndex,
-      heroPosition: 'BTN',
+      heroPosition: heroPosition,
       numberOfPlayers: playerCount,
       playerCards: playerCards,
       boardCards: boardCards,
       boardStreet: boardStreet,
       actions: <ActionEntry>[],
       stackSizes: stackSizes,
-      playerPositions: {for (var i = 0; i < playerCount; i++) i: ''},
+      playerPositions: playerPositions,
       playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
       comment: tableName,
     );
