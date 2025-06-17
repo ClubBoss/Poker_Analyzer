@@ -55,6 +55,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   final Set<TrainingSpot> _selectedSpots = {};
   bool _tagFiltersExpanded = true;
   SortOption? _sortOption;
+  List<TrainingSpot>? _originalOrder;
 
   Future<void> _editSpot(TrainingSpot spot) async {
     final idController =
@@ -570,12 +571,16 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
   Widget _buildSortDropdown(List<TrainingSpot> filtered) {
-    return DropdownButton<SortOption>(
+    return DropdownButton<SortOption?>(
       value: _sortOption,
       hint: const Text('Сортировать', style: TextStyle(color: Colors.white60)),
       dropdownColor: AppColors.cardBackground,
       style: const TextStyle(color: Colors.white),
       items: const [
+        DropdownMenuItem(
+          value: null,
+          child: Text('Сбросить сортировку'),
+        ),
         DropdownMenuItem(
           value: SortOption.buyInAsc,
           child: Text('Buy-In ↑'),
@@ -594,8 +599,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         ),
       ],
       onChanged: (value) {
-        if (value == null) return;
-        _sortFiltered(filtered, value);
+        if (value == null) {
+          _resetSort();
+        } else {
+          _sortFiltered(filtered, value);
+        }
       },
     );
   }
@@ -652,6 +660,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   void _sortFiltered(List<TrainingSpot> filtered, SortOption option) {
     final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
     final sorted = List<TrainingSpot>.from(filtered);
+    _originalOrder ??= List<TrainingSpot>.from(widget.spots);
     switch (option) {
       case SortOption.buyInAsc:
         sorted.sort((a, b) => (a.buyIn ?? 0).compareTo(b.buyIn ?? 0));
@@ -672,6 +681,19 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         widget.spots[indices[i]] = sorted[i];
       }
       _sortOption = option;
+    });
+    widget.onChanged?.call();
+  }
+
+  void _resetSort() {
+    if (_sortOption == null) return;
+    setState(() {
+      if (_originalOrder != null &&
+          widget.spots.length == _originalOrder!.length) {
+        widget.spots.setAll(0, _originalOrder!);
+      }
+      _originalOrder = null;
+      _sortOption = null;
     });
     widget.onChanged?.call();
   }
