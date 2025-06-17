@@ -23,6 +23,8 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
     'vs агро',
   ];
 
+  final Set<String> _selectedTags = {};
+
   @override
   void initState() {
     super.initState();
@@ -39,17 +41,24 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
   Widget build(BuildContext context) {
     final query = _searchController.text.toLowerCase();
     final filtered = widget.spots.where((spot) {
-      if (query.isEmpty) return true;
       final id = spot.tournamentId?.toLowerCase() ?? '';
       final game = spot.gameType?.toLowerCase() ?? '';
       final buyIn = spot.buyIn?.toString() ?? '';
-      return id.contains(query) || game.contains(query) || buyIn.contains(query);
+      final matchesQuery = query.isEmpty ||
+          id.contains(query) ||
+          game.contains(query) ||
+          buyIn.contains(query);
+      final matchesTags =
+          _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
+      return matchesQuery && matchesTags;
     }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSearchField(),
+        const SizedBox(height: 8),
+        _buildTagFilters(),
         const SizedBox(height: 8),
         if (filtered.isEmpty)
           const Text(
@@ -138,6 +147,28 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
       style: const TextStyle(color: Colors.white),
+    );
+  }
+
+  Widget _buildTagFilters() {
+    return Wrap(
+      spacing: 4,
+      children: [
+        for (final tag in _availableTags)
+          FilterChip(
+            label: Text(tag),
+            selected: _selectedTags.contains(tag),
+            onSelected: (selected) {
+              setState(() {
+                if (selected) {
+                  _selectedTags.add(tag);
+                } else {
+                  _selectedTags.remove(tag);
+                }
+              });
+            },
+          ),
+      ],
     );
   }
 }
