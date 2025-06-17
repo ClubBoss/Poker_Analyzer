@@ -41,7 +41,16 @@ class ConverterPipeline {
   }
 
   /// Lists metadata for all registered converters.
-  List<ConverterInfo> availableConverters() {
-    return _registry.dumpConverters();
+  ///
+  /// Optional parameters can filter by import/export support. This is useful
+  /// for building UI selection lists.
+  List<ConverterInfo> availableConverters({
+    bool? supportsImport,
+    bool? supportsExport,
+  }) {
+    return _registry.dumpConverters(
+      supportsImport: supportsImport,
+      supportsExport: supportsExport,
+    );
   }
 }

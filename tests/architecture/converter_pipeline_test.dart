@@ -99,5 +99,32 @@ void main() {
       expect(list.first.description, 'Desc');
       expect(list.first.capabilities.supportsImport, isTrue);
     });
+
+    test('availableConverters supports filtering', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('i', 'Import', null, null, null,
+          const ConverterFormatCapabilities(
+            supportsImport: true,
+            supportsExport: false,
+            requiresBoard: false,
+            supportsMultiStreet: true,
+          )));
+      registry.register(_MockConverter('e', 'Export', null, null, null,
+          const ConverterFormatCapabilities(
+            supportsImport: true,
+            supportsExport: true,
+            requiresBoard: false,
+            supportsMultiStreet: true,
+          )));
+      final pipeline = ConverterPipeline(registry);
+
+      final onlyExports = pipeline.availableConverters(supportsExport: true);
+      expect(onlyExports, hasLength(1));
+      expect(onlyExports.first.formatId, 'e');
+
+      final onlyImports = pipeline.availableConverters(supportsExport: false);
+      expect(onlyImports, hasLength(1));
+      expect(onlyImports.first.formatId, 'i');
+    });
   });
 }

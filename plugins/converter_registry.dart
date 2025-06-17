@@ -66,11 +66,36 @@ class ConverterRegistry {
       List<String>.unmodifiable(<String>[for (final p in _plugins) p.formatId]);
 
   /// Returns metadata about all registered converters.
-  List<ConverterInfo> dumpConverters() => List<ConverterInfo>.unmodifiable(
-      <ConverterInfo>[for (final p in _plugins)
+  ///
+  /// Optional parameters can filter converters by their capability flags.
+  /// If a parameter is `null`, it is ignored during filtering.
+  List<ConverterInfo> dumpConverters({
+    bool? supportsImport,
+    bool? supportsExport,
+    bool? requiresBoard,
+  }) {
+    final filtered = _plugins.where((ConverterPlugin p) {
+      if (supportsImport != null &&
+          p.capabilities.supportsImport != supportsImport) {
+        return false;
+      }
+      if (supportsExport != null &&
+          p.capabilities.supportsExport != supportsExport) {
+        return false;
+      }
+      if (requiresBoard != null &&
+          p.capabilities.requiresBoard != requiresBoard) {
+        return false;
+      }
+      return true;
+    });
+    return List<ConverterInfo>.unmodifiable(<ConverterInfo>[
+      for (final p in filtered)
         ConverterInfo(
           formatId: p.formatId,
           description: p.description,
           capabilities: p.capabilities,
-        )]);
+        )
+    ]);
+  }
 }
