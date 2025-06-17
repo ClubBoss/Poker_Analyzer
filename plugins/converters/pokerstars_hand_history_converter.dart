@@ -278,6 +278,27 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       }
     }
 
+    // Phase 24: parse uncalled bet lines from the summary section.
+    final Map<String, double> uncalledReturned = {};
+    final summaryIndexForUncalled =
+        lines.indexWhere((l) => l.startsWith('*** SUMMARY'));
+    if (summaryIndexForUncalled != -1) {
+      final uncalledRegex = RegExp(
+          r'^Uncalled bet \((?:\$|€|£)?([\d,.]+)\) returned to (.+)',
+          caseSensitive: false);
+      for (var i = summaryIndexForUncalled + 1; i < lines.length; i++) {
+        final line = lines[i].trim();
+        if (line.startsWith('***')) break;
+        final m = uncalledRegex.firstMatch(line);
+        if (m != null) {
+          final amount = _parseAmount(m.group(1)!);
+          final name = m.group(2)!.trim();
+          final key = name.toLowerCase();
+          uncalledReturned[key] = (uncalledReturned[key] ?? 0) + amount;
+        }
+      }
+    }
+
     // Parse preflop actions between HOLE CARDS and FLOP.
     final Map<String, int> nameToIndex = {
       for (int i = 0; i < seatEntries.length; i++)
@@ -357,10 +378,13 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     final stackSizes = <int, int>{};
     for (int i = 0; i < seatEntries.length; i++) {
       final stack = seatEntries[i]['stack'] as double? ?? 0;
+      final name = (seatEntries[i]['name'] as String).toLowerCase();
+      final returned = uncalledReturned[name] ?? 0;
+      final adjustedStack = stack - returned;
       if (bigBlind != null && bigBlind! > 0) {
-        stackSizes[i] = (stack / bigBlind!).round();
+        stackSizes[i] = (adjustedStack / bigBlind!).round();
       } else {
-        stackSizes[i] = stack.round();
+        stackSizes[i] = adjustedStack.round();
       }
     }
 
