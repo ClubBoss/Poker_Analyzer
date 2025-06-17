@@ -149,5 +149,49 @@ void main() {
       expect(converters.first.description, 'Test fmt');
       expect(converters.first.capabilities.supportsExport, isTrue);
     });
+
+    test('queryConverters filters by capability flags', () {
+      final registry = ConverterRegistry();
+      registry.register(
+        _MockConverter(
+          'import_only',
+          'Import Only',
+          null,
+          null,
+          null,
+          const ConverterFormatCapabilities(
+            supportsImport: true,
+            supportsExport: false,
+            requiresBoard: false,
+            supportsMultiStreet: true,
+          ),
+        ),
+      );
+      registry.register(
+        _MockConverter(
+          'export_only',
+          'Export Only',
+          null,
+          null,
+          null,
+          const ConverterFormatCapabilities(
+            supportsImport: false,
+            supportsExport: true,
+            requiresBoard: false,
+            supportsMultiStreet: true,
+          ),
+        ),
+      );
+
+      final importConverters =
+          registry.queryConverters(supportsImport: true, supportsExport: false);
+      expect(importConverters, hasLength(1));
+      expect(importConverters.first.formatId, 'import_only');
+
+      final exportConverters =
+          registry.queryConverters(supportsExport: true, supportsImport: false);
+      expect(exportConverters, hasLength(1));
+      expect(exportConverters.first.formatId, 'export_only');
+    });
   });
 }

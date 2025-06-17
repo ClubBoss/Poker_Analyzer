@@ -73,4 +73,28 @@ class ConverterRegistry {
           description: p.description,
           capabilities: p.capabilities,
         )]);
+
+  /// Returns converter metadata filtered by capability flags.
+  ///
+  /// When a flag is `null` it will not be used for filtering.
+  List<ConverterInfo> queryConverters({
+    bool? supportsImport,
+    bool? supportsExport,
+    bool? requiresBoard,
+  }) {
+    return List<ConverterInfo>.unmodifiable(<ConverterInfo>[
+      for (final p in _plugins)
+        if ((supportsImport == null ||
+                p.capabilities.supportsImport == supportsImport) &&
+            (supportsExport == null ||
+                p.capabilities.supportsExport == supportsExport) &&
+            (requiresBoard == null ||
+                p.capabilities.requiresBoard == requiresBoard))
+          ConverterInfo(
+            formatId: p.formatId,
+            description: p.description,
+            capabilities: p.capabilities,
+          )
+    ]);
+  }
 }
