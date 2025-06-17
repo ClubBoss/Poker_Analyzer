@@ -510,17 +510,30 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
   Widget _buildSearchField() {
-    return TextField(
-      controller: _searchController,
-      decoration: InputDecoration(
-        hintText: 'Поиск...',
-        hintStyle: const TextStyle(color: Colors.white54),
-        prefixIcon: const Icon(Icons.search, color: Colors.white54),
-        filled: true,
-        fillColor: AppColors.cardBackground,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      style: const TextStyle(color: Colors.white),
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Поиск...',
+              hintStyle: const TextStyle(color: Colors.white54),
+              prefixIcon: const Icon(Icons.search, color: Colors.white54),
+              filled: true,
+              fillColor: AppColors.cardBackground,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+        const SizedBox(width: 8),
+        ElevatedButton(
+          onPressed: clearFilters,
+          child: const Text('Сбросить все'),
+        ),
+      ],
     );
   }
 
@@ -690,6 +703,9 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _selectedTags.clear();
       _selectedPreset = null;
     });
+    final bool hadSort = _sortOption != null;
+    _resetSort();
+    if (!hadSort) widget.onChanged?.call();
     _savePresets();
   }
 
