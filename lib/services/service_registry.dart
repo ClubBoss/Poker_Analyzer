@@ -47,4 +47,17 @@ class ServiceRegistry {
 
   /// Unregisters and returns the service of type [T] if it exists.
   T? unregister<T>() => _services.remove(T) as T?;
+
+  /// Returns the list of types registered in this registry only.
+  List<Type> dump() => List<Type>.unmodifiable(_services.keys);
+
+  /// Returns all registered types visible from this registry,
+  /// including those from parent registries.
+  List<Type> dumpAll() {
+    final Set<Type> types = <Type>{..._services.keys};
+    if (_parent != null) {
+      types.addAll(_parent!.dumpAll());
+    }
+    return List<Type>.unmodifiable(types);
+  }
 }
