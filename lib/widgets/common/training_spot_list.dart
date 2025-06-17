@@ -273,6 +273,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         const SizedBox(height: 8),
         _buildTagFilterSection(filtered),
         const SizedBox(height: 8),
+        _buildTagFilterRow(),
+        const SizedBox(height: 8),
         if (widget.onRemove != null) ...[
           Align(
             alignment: Alignment.centerLeft,
@@ -408,6 +410,34 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       ),
       style: const TextStyle(color: Colors.white),
+    );
+  }
+
+  Widget _buildTagFilterRow() {
+    return SizedBox(
+      height: 40,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          for (final tag in _availableTags)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: FilterChip(
+                label: Text(tag),
+                selected: _selectedTags.contains(tag),
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      _selectedTags.add(tag);
+                    } else {
+                      _selectedTags.remove(tag);
+                    }
+                  });
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 
