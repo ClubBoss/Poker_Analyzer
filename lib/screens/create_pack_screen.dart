@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../models/training_pack.dart';
+import '../models/training_spot.dart';
+import '../services/training_spot_file_service.dart';
+import '../widgets/common/training_spot_list.dart';
 
 class CreatePackScreen extends StatefulWidget {
   final TrainingPack? initialPack;
@@ -15,6 +18,8 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+  final TrainingSpotFileService _spotFileService = const TrainingSpotFileService();
+  List<TrainingSpot> _spots = [];
 
   @override
   void initState() {
@@ -40,6 +45,17 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
     Navigator.pop(context, pack);
   }
 
+  Future<void> _importSpotsCsv() async {
+    final spots = await _spotFileService.importSpotsCsv(context);
+    if (spots.isNotEmpty) {
+      setState(() => _spots = spots);
+    }
+  }
+
+  Future<void> _exportSpotsMarkdown() async {
+    await _spotFileService.exportSpotsMarkdown(context, _spots);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,9 +64,10 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFF1B1C1E),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _nameController,
@@ -85,6 +102,25 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
             ElevatedButton(
               onPressed: _save,
               child: const Text('Сохранить'),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _importSpotsCsv,
+              child: const Text('Импорт спотов из CSV'),
+            ),
+            const SizedBox(height: 12),
+            TrainingSpotList(
+              spots: _spots,
+              onRemove: (index) {
+                setState(() {
+                  _spots.removeAt(index);
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _spots.isEmpty ? null : _exportSpotsMarkdown,
+              child: const Text('Экспортировать в Markdown'),
             ),
           ],
         ),

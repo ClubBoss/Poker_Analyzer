@@ -34,7 +34,9 @@ import '../services/stack_manager_service.dart';
 import '../services/folded_players_service.dart';
 import '../services/saved_hand_import_export_service.dart';
 import '../services/training_import_export_service.dart';
+import '../services/training_spot_file_service.dart';
 import '../models/training_spot.dart';
+import '../widgets/common/training_spot_list.dart';
 
 class _ResultEntry {
   final String name;
@@ -83,6 +85,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
 
   final TrainingImportExportService _importExportService =
       const TrainingImportExportService();
+  final TrainingSpotFileService _spotFileService =
+      const TrainingSpotFileService();
   List<TrainingSpot> _spots = [];
 
   @override
@@ -346,58 +350,14 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   }
 
   Future<void> _importSpotsCsv() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['csv'],
-    );
-    if (result == null || result.files.isEmpty) return;
-    final path = result.files.single.path;
-    if (path == null) return;
-    final file = File(path);
-    try {
-      final content = await file.readAsString();
-      final spots = _importExportService.importAllSpotsCsv(content);
-      if (spots.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ошибка импорта CSV')),
-          );
-        }
-        return;
-      }
-      if (mounted) {
-        setState(() {
-          _spots = spots;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Импортировано спотов: ${spots.length}')),
-        );
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка чтения файла')),
-        );
-      }
+    final spots = await _spotFileService.importSpotsCsv(context);
+    if (spots.isNotEmpty && mounted) {
+      setState(() => _spots = spots);
     }
   }
 
   Future<void> _exportSpotsMarkdown() async {
-    if (_spots.isEmpty) return;
-    final markdown = _importExportService.exportAllSpotsMarkdown(_spots);
-    if (markdown.isEmpty) return;
-
-    final dir = await getApplicationDocumentsDirectory();
-    final fileName =
-        'spots_${DateTime.now().millisecondsSinceEpoch}.md';
-    final file = File('${dir.path}/$fileName');
-    await file.writeAsString(markdown);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: ${file.path}')),
-      );
-    }
+    await _spotFileService.exportSpotsMarkdown(context, _spots);
   }
 
   void _repeatMistakes() {
@@ -579,58 +539,13 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   }
 
   Widget _buildImportedSpotsList() {
-    if (_spots.isEmpty) {
-      return const Text(
-        'Нет импортированных спотов',
-        style: TextStyle(color: Colors.white54),
-      );
-    }
-
-    return SizedBox(
-      height: 150,
-      child: ListView.builder(
-        itemCount: _spots.length,
-        itemBuilder: (context, index) {
-          final spot = _spots[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2A2B2E),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty)
-                        Text('ID: ${spot.tournamentId}',
-                            style: const TextStyle(color: Colors.white)),
-                      if (spot.buyIn != null)
-                        Text('Buy-In: ${spot.buyIn}',
-                            style: const TextStyle(color: Colors.white)),
-                      if (spot.gameType != null && spot.gameType!.isNotEmpty)
-                        Text('Game: ${spot.gameType}',
-                            style: const TextStyle(color: Colors.white)),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    setState(() {
-                      _spots.removeAt(index);
-                    });
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    return TrainingSpotList(
+      spots: _spots,
+      onRemove: (index) {
+        setState(() {
+          _spots.removeAt(index);
+        });
+      },
     );
   }
 
