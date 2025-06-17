@@ -91,6 +91,39 @@ class TrainingImportExportService {
   /// Serialize a TrainingSpot to json string.
   String serializeSpot(TrainingSpot spot) => jsonEncode(spot.toJson());
 
+  /// Export a TrainingSpot to a formatted JSON string including tournament metadata.
+  String exportJsonSpot(TrainingSpot spot) {
+    const encoder = JsonEncoder.withIndent('  ');
+    return encoder.convert(spot.toJson());
+  }
+
+  /// Export tournament metadata from a TrainingSpot to CSV.
+  /// Null values are omitted from both header and row.
+  String exportCsvSpot(TrainingSpot spot) {
+    final headers = <String>[];
+    final values = <String>[];
+
+    void addField(String name, Object? value) {
+      if (value == null) return;
+      headers.add(name);
+      final str = value.toString();
+      if (str.contains(',') || str.contains('"') || str.contains('\n')) {
+        final escaped = str.replaceAll('"', '""');
+        values.add('"$escaped"');
+      } else {
+        values.add(str);
+      }
+    }
+
+    addField('tournamentId', spot.tournamentId);
+    addField('buyIn', spot.buyIn);
+    addField('totalPrizePool', spot.totalPrizePool);
+    addField('numberOfEntrants', spot.numberOfEntrants);
+    addField('gameType', spot.gameType);
+
+    return '${headers.join(',')}\n${values.join(',')}';
+  }
+
   /// Deserialize spot from json string. Returns null if format is invalid.
   TrainingSpot? deserializeSpot(String jsonStr) {
     try {
