@@ -1498,7 +1498,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
 
-  SavedHand _currentSavedHand({String? name}) {
+  SavedHand _currentSavedHand({
+    String? name,
+    String? tournamentId,
+    int? buyIn,
+    int? totalPrizePool,
+    int? numberOfEntrants,
+    String? gameType,
+  }) {
     return _handImportExportService.buildHand(
       name: name ?? _defaultHandName(),
       playerManager: _playerManager,
@@ -1513,6 +1520,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       playbackManager: _playbackManager,
       boardReveal: _boardReveal,
       handContext: _handContext,
+      tournamentId: tournamentId,
+      buyIn: buyIn,
+      totalPrizePool: totalPrizePool,
+      numberOfEntrants: numberOfEntrants,
+      gameType: gameType,
       activePlayerIndex: activePlayerIndex,
     );
   }
