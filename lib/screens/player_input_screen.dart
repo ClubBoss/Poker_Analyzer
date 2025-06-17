@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'poker_analyzer_screen.dart';
 import 'settings_screen.dart';
 import 'training_packs_screen.dart';
+import '../models/training_spot.dart';
 import 'package:provider/provider.dart';
 import '../services/action_sync_service.dart';
 import '../services/current_hand_context_service.dart';
@@ -225,7 +226,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                   );
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     final state = key.currentState as dynamic;
-                    state?.loadTrainingSpot(data);
+                    state?.loadTrainingSpot(
+                        TrainingSpot.fromJson(Map<String, dynamic>.from(data)));
                   });
                 }
               },

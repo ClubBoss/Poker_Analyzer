@@ -9,6 +9,9 @@ import 'package:open_file/open_file.dart';
 
 import '../models/action_entry.dart';
 import '../models/player_model.dart';
+import '../models/training_spot.dart';
+import '../models/card_model.dart';
+import '../models/saved_hand.dart';
 import 'action_sync_service.dart';
 import 'board_manager_service.dart';
 import 'current_hand_context_service.dart';
@@ -19,96 +22,72 @@ import 'stack_manager_service.dart';
 class TrainingImportExportService {
   const TrainingImportExportService();
 
-  /// Build a spot map from current services.
-  Map<String, dynamic> buildSpot({
+  /// Create a TrainingSpot from a saved hand, including tournament metadata.
+  TrainingSpot fromSavedHand(SavedHand hand) => TrainingSpot.fromSavedHand(hand);
+
+  /// Build a TrainingSpot from current services.
+  TrainingSpot buildSpot({
     required PlayerManagerService playerManager,
     required BoardManagerService boardManager,
     required ActionSyncService actionSync,
     required StackManagerService stackManager,
   }) {
-    return {
-      'playerCards': [
+    return TrainingSpot(
+      playerCards: [
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          [
-            for (final c in playerManager.playerCards[i])
-              {'rank': c.rank, 'suit': c.suit}
-          ]
+          List<CardModel>.from(playerManager.playerCards[i])
       ],
-      'boardCards': [
-        for (final c in boardManager.boardCards) {'rank': c.rank, 'suit': c.suit}
-      ],
-      'actions': [
-        for (final a in actionSync.analyzerActions)
-          {
-            'street': a.street,
-            'playerIndex': a.playerIndex,
-            'action': a.action,
-            if (a.amount != null) 'amount': a.amount,
-          }
-      ],
-      'heroIndex': playerManager.heroIndex,
-      'numberOfPlayers': playerManager.numberOfPlayers,
-      'playerTypes': [
+      boardCards: List<CardModel>.from(boardManager.boardCards),
+      actions: List<ActionEntry>.from(actionSync.analyzerActions),
+      heroIndex: playerManager.heroIndex,
+      numberOfPlayers: playerManager.numberOfPlayers,
+      playerTypes: [
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          playerManager.playerTypes[i]?.name ?? PlayerType.unknown.name
+          playerManager.playerTypes[i] ?? PlayerType.unknown
       ],
-      'positions': [
+      positions: [
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
           playerManager.playerPositions[i]
       ],
-      'stacks': [
+      stacks: [
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
           stackManager.getStackForPlayer(i)
       ],
-    };
+    );
   }
 
   /// Apply a spot map to the provided services.
   void applySpot(
-    Map<String, dynamic> data, {
+    TrainingSpot spot, {
     required PlayerManagerService playerManager,
     required BoardManagerService boardManager,
     required ActionSyncService actionSync,
     required PlaybackManagerService playbackManager,
     required CurrentHandContextService handContext,
   }) {
-    final actionsData = data['actions'] as List? ?? [];
-    final newActions = <ActionEntry>[];
-    for (final a in actionsData) {
-      if (a is Map) {
-        newActions.add(
-          ActionEntry(
-            a['street'] as int,
-            a['playerIndex'] as int,
-            a['action'] as String,
-            amount: (a['amount'] as num?)?.toInt(),
-          ),
-        );
-      }
-    }
-
-    playerManager.loadFromMap(data);
-    boardManager.loadFromMap(data);
-    actionSync.setAnalyzerActions(newActions);
+    actionSync.setAnalyzerActions(List<ActionEntry>.from(spot.actions));
+    final map = spot.toJson();
+    playerManager.loadFromMap(map);
+    boardManager.loadFromMap(map);
     playbackManager.resetHand();
     handContext.clearName();
   }
 
-  /// Serialize spot map to json string.
-  String serializeSpot(Map<String, dynamic> spot) => jsonEncode(spot);
+  /// Serialize a TrainingSpot to json string.
+  String serializeSpot(TrainingSpot spot) => jsonEncode(spot.toJson());
 
   /// Deserialize spot from json string. Returns null if format is invalid.
-  Map<String, dynamic>? deserializeSpot(String jsonStr) {
+  TrainingSpot? deserializeSpot(String jsonStr) {
     try {
       final decoded = jsonDecode(jsonStr);
       if (decoded is Map<String, dynamic>) {
-        return Map<String, dynamic>.from(decoded);
+        return TrainingSpot.fromJson(Map<String, dynamic>.from(decoded));
       }
     } catch (_) {}
     return null;
   }
 
-  Future<Map<String, dynamic>?> importFromClipboard(BuildContext context) async {
+  Future<TrainingSpot?> importFromClipboard(BuildContext context) async {
     try {
       final data = await Clipboard.getData('text/plain');
       if (data == null || data.text == null) {
@@ -141,7 +120,7 @@ class TrainingImportExportService {
   }
 
   Future<void> exportToClipboard(
-      BuildContext context, Map<String, dynamic> spot) async {
+      BuildContext context, TrainingSpot spot) async {
     final jsonStr = serializeSpot(spot);
     await Clipboard.setData(ClipboardData(text: jsonStr));
     if (context.mounted) {
@@ -150,7 +129,7 @@ class TrainingImportExportService {
     }
   }
 
-  Future<Map<String, dynamic>?> importFromFile(BuildContext context) async {
+  Future<TrainingSpot?> importFromFile(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
@@ -183,7 +162,7 @@ class TrainingImportExportService {
     }
   }
 
-  Future<void> exportToFile(BuildContext context, Map<String, dynamic> spot,
+  Future<void> exportToFile(BuildContext context, TrainingSpot spot,
       {String? fileName}) async {
     final name = fileName ??
         'training_spot_${DateTime.now().millisecondsSinceEpoch}.json';
@@ -218,7 +197,7 @@ class TrainingImportExportService {
   }
 
   Future<void> exportArchive(
-      BuildContext context, List<Map<String, dynamic>> spots) async {
+      BuildContext context, List<TrainingSpot> spots) async {
     if (spots.isEmpty) {
       if (context.mounted) {
         ScaffoldMessenger.of(context)
