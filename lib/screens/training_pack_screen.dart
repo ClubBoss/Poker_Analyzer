@@ -70,6 +70,8 @@ class TrainingPackScreen extends StatefulWidget {
 
 class _TrainingPackScreenState extends State<TrainingPackScreen> {
   final GlobalKey _analyzerKey = GlobalKey();
+  final GlobalKey<TrainingSpotListState> _spotListKey =
+      GlobalKey<TrainingSpotListState>();
   int _currentIndex = 0;
 
   late TrainingPack _pack;
@@ -555,22 +557,37 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   }
 
   Widget _buildImportedSpotsList() {
-    return TrainingSpotList(
-      spots: _spots,
-      onRemove: (index) {
-        setState(() {
-          _spots.removeAt(index);
-        });
-        _saveSpots();
-      },
-      onChanged: _saveSpots,
-      onReorder: (oldIndex, newIndex) {
-        setState(() {
-          final item = _spots.removeAt(oldIndex);
-          _spots.insert(newIndex, item);
-        });
-        _saveSpots();
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ElevatedButton(
+            onPressed: () =>
+                _spotListKey.currentState?.clearFilters(),
+            child: const Text('Очистить фильтры'),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TrainingSpotList(
+          key: _spotListKey,
+          spots: _spots,
+          onRemove: (index) {
+            setState(() {
+              _spots.removeAt(index);
+            });
+            _saveSpots();
+          },
+          onChanged: _saveSpots,
+          onReorder: (oldIndex, newIndex) {
+            setState(() {
+              final item = _spots.removeAt(oldIndex);
+              _spots.insert(newIndex, item);
+            });
+            _saveSpots();
+          },
+        ),
+      ],
     );
   }
 
