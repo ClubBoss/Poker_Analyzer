@@ -116,6 +116,12 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                   _spots.removeAt(index);
                 });
               },
+              onReorder: (oldIndex, newIndex) {
+                setState(() {
+                  final item = _spots.removeAt(oldIndex);
+                  _spots.insert(newIndex, item);
+                });
+              },
             ),
             const SizedBox(height: 12),
             ElevatedButton(

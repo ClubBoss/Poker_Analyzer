@@ -7,12 +7,14 @@ class TrainingSpotList extends StatefulWidget {
   final List<TrainingSpot> spots;
   final ValueChanged<int>? onRemove;
   final VoidCallback? onChanged;
+  final ReorderCallback? onReorder;
 
   const TrainingSpotList({
     super.key,
     required this.spots,
     this.onRemove,
     this.onChanged,
+    this.onReorder,
   });
 
   @override
@@ -74,11 +76,13 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
         else
           SizedBox(
             height: 150,
-            child: ListView.builder(
+            child: ReorderableListView.builder(
+              buildDefaultDragHandles: false,
               itemCount: filtered.length,
               itemBuilder: (context, index) {
                 final spot = filtered[index];
                 return Container(
+                  key: ValueKey(spot),
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -88,6 +92,11 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(Icons.drag_handle, color: Colors.white70),
+                      ),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,6 +144,21 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
                     ],
                   ),
                 );
+              },
+              onReorder: (oldIndex, newIndex) {
+                if (widget.onReorder == null) return;
+                if (newIndex > oldIndex) newIndex -= 1;
+                final oldSpot = filtered[oldIndex];
+                int newMainIndex;
+                if (newIndex >= filtered.length) {
+                  newMainIndex = widget.spots.length - 1;
+                } else {
+                  final targetSpot = filtered[newIndex];
+                  newMainIndex = widget.spots.indexOf(targetSpot);
+                }
+                final oldMainIndex = widget.spots.indexOf(oldSpot);
+                widget.onReorder!(oldMainIndex, newMainIndex);
+                widget.onChanged?.call();
               },
             ),
           ),
