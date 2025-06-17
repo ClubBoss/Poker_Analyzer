@@ -77,6 +77,9 @@ import '../services/transition_history_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/folded_players_service.dart';
 import '../services/action_history_service.dart';
+import 'package:poker_ai_analyzer/services/service_registry.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_ai_analyzer/plugins/sample_logging_plugin.dart';
 
 
 
@@ -144,6 +147,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
 
 class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     with TickerProviderStateMixin {
+  late final ServiceRegistry _serviceRegistry;
   late SavedHandManagerService _handManager;
   late SavedHandImportExportService _handImportExportService;
   late TrainingImportExportService _trainingImportExportService;
@@ -204,16 +208,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _animateTimeline = false;
   bool isPerspectiveSwitched = false;
 
-
-
-  /// Handles evaluation queue state and processing.
-  late final EvaluationQueueService _queueService;
-  late final EvaluationQueueImportExportService _importExportService;
-  late final EvaluationProcessingService _processingService;
-  late final DebugSnapshotService _debugSnapshotService;
-
-
-
+  EvaluationQueueService get _queueService =>
+      _serviceRegistry.get<EvaluationQueueService>();
+  EvaluationQueueImportExportService get _importExportService =>
+      _serviceRegistry.get<EvaluationQueueImportExportService>();
+  EvaluationProcessingService get _processingService =>
+      _serviceRegistry.get<EvaluationProcessingService>();
+  DebugSnapshotService get _debugSnapshotService =>
+      _serviceRegistry.get<DebugSnapshotService>();
+  BackupManagerService get _backupManager =>
+      _serviceRegistry.get<BackupManagerService>();
 
   /// Allows updating the debug panel while it's open.
   StateSetter? _debugPanelSetState;
@@ -552,29 +556,47 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
+    _serviceRegistry = ServiceRegistry();
+    final pluginManager = PluginManager();
+    pluginManager.load(SampleLoggingPlugin());
+    pluginManager.initializeAll(_serviceRegistry);
     _handContext = widget.handContext ?? CurrentHandContextService();
     _actionSync = widget.actionSync;
     _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
     _debugPrefs = widget.debugPrefsService ?? DebugPanelPreferences();
-    _queueService = widget.queueService ?? EvaluationQueueService();
-    _importExportService =
+    _serviceRegistry.register<DebugPanelPreferences>(_debugPrefs);
+    _serviceRegistry.register<EvaluationQueueService>(
+        widget.queueService ?? EvaluationQueueService());
+    _serviceRegistry.register<EvaluationQueueImportExportService>(
         widget.importExportService ??
-            EvaluationQueueImportExportService(queueService: _queueService);
-    _debugSnapshotService = DebugSnapshotService();
+            EvaluationQueueImportExportService(
+                queueService: _serviceRegistry.get<EvaluationQueueService>()));
+    _serviceRegistry.register<DebugSnapshotService>(DebugSnapshotService());
+    _serviceRegistry.register<TrainingImportExportService>(
+        widget.trainingImportExportService ?? const TrainingImportExportService());
     _trainingImportExportService =
-        widget.trainingImportExportService ?? const TrainingImportExportService();
-    final backupManager = widget.backupManagerService ??
-        BackupManagerService(queueService: _queueService, debugPrefs: _debugPrefs);
-    _importExportService.attachBackupManager(backupManager);
-    _queueService
-      ..attachBackupManager(backupManager)
-      ..attachDebugSnapshotService(_debugSnapshotService);
-    _importExportService.attachDebugSnapshotService(_debugSnapshotService);
-    _processingService = widget.processingService ?? EvaluationProcessingService(
-      queueService: _queueService,
-      debugPrefs: _debugPrefs,
-      debugSnapshotService: _debugSnapshotService,
-    );
+        _serviceRegistry.get<TrainingImportExportService>();
+    _serviceRegistry.register<BackupManagerService>(widget.backupManagerService ??
+        BackupManagerService(
+            queueService: _serviceRegistry.get<EvaluationQueueService>(),
+            debugPrefs: _serviceRegistry.get<DebugPanelPreferences>()));
+    _serviceRegistry.get<EvaluationQueueImportExportService>()
+        .attachBackupManager(_serviceRegistry.get<BackupManagerService>());
+    _serviceRegistry
+        .get<EvaluationQueueService>()
+      ..attachBackupManager(_serviceRegistry.get<BackupManagerService>())
+      ..attachDebugSnapshotService(
+          _serviceRegistry.get<DebugSnapshotService>());
+    _serviceRegistry
+        .get<EvaluationQueueImportExportService>()
+        .attachDebugSnapshotService(_serviceRegistry.get<DebugSnapshotService>());
+    _serviceRegistry.register<EvaluationProcessingService>(
+        widget.processingService ??
+            EvaluationProcessingService(
+              queueService: _serviceRegistry.get<EvaluationQueueService>(),
+              debugPrefs: _serviceRegistry.get<DebugPanelPreferences>(),
+              debugSnapshotService: _serviceRegistry.get<DebugSnapshotService>(),
+            ));
     lockService = widget.lockService;
     _centerChipController = AnimationController(
       vsync: this,
@@ -608,7 +630,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardManager: _boardManager,
       boardSync: _boardSync,
       queueService: _queueService,
-      backupManager: backupManager,
+      backupManager: _backupManager,
       debugPrefs: _debugPrefs,
       lockService: lockService,
       handContext: _handContext,
