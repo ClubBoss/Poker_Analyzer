@@ -3,6 +3,7 @@ import 'converter_plugin.dart';
 import 'plugin.dart';
 import 'sample_logging_plugin.dart';
 import 'converters/poker_analyzer_json_converter.dart';
+import 'converters/simple_hand_history_converter.dart';
 
 /// Prototype loader for built-in plug-ins.
 ///
@@ -11,7 +12,10 @@ import 'converters/poker_analyzer_json_converter.dart';
 class PluginLoader {
   /// Returns all built-in plug-ins included with the application.
   List<Plugin> loadBuiltInPlugins() {
-    final converters = <ConverterPlugin>[PokerAnalyzerJsonConverter()];
+    final converters = <ConverterPlugin>[
+      PokerAnalyzerJsonConverter(),
+      SimpleHandHistoryConverter(),
+    ];
     return <Plugin>[
       SampleLoggingPlugin(),
       ConverterDiscoveryPlugin(converters),
