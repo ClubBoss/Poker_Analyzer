@@ -20,13 +20,76 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
           ),
         );
 
+  double _parseAmount(String s) =>
+      double.tryParse(s.replaceAll(',', '')) ?? 0;
+
+  void _parseStreetActions(
+    int street,
+    List<String> lines,
+    int startIndex,
+    int endIndex,
+    Map<String, int> nameToIndex,
+    double? bigBlind,
+    List<ActionEntry> actions,
+    Map<int, String?> actionTags,
+  ) {
+    for (int i = startIndex;
+        i < lines.length && (endIndex == -1 || i < endIndex);
+        i++) {
+      final line = lines[i].trim();
+      if (line.isEmpty) continue;
+      Match? m;
+
+      m = RegExp(r'^(.+?): folds', caseSensitive: false).firstMatch(line);
+      if (m != null) {
+        final idx = nameToIndex[m.group(1)!.toLowerCase()];
+        if (idx != null) {
+          actions.add(ActionEntry(street, idx, 'fold'));
+          actionTags[idx] = 'fold';
+        }
+        continue;
+      }
+
+      m = RegExp(r'^(.+?): calls [\$€£]?([\d,.]+)(.*)',
+              caseSensitive: false)
+          .firstMatch(line);
+      if (m != null) {
+        final idx = nameToIndex[m.group(1)!.toLowerCase()];
+        if (idx != null) {
+          final amt = _parseAmount(m.group(2)!);
+          final amount =
+              bigBlind != null && bigBlind > 0 ? (amt / bigBlind).round() : amt.round();
+          final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
+          final action = isAllIn ? 'all-in' : 'call';
+          actions.add(ActionEntry(street, idx, action, amount: amount));
+          actionTags[idx] = '$action $amount';
+        }
+        continue;
+      }
+
+      m = RegExp(r'^(.+?): raises [\$€£]?([\d,.]+) to [\$€£]?([\d,.]+)(.*)',
+              caseSensitive: false)
+          .firstMatch(line);
+      if (m != null) {
+        final idx = nameToIndex[m.group(1)!.toLowerCase()];
+        if (idx != null) {
+          final amt = _parseAmount(m.group(3)!);
+          final amount =
+              bigBlind != null && bigBlind > 0 ? (amt / bigBlind).round() : amt.round();
+          final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
+          final action = isAllIn ? 'all-in' : 'raise';
+          actions.add(ActionEntry(street, idx, action, amount: amount));
+          actionTags[idx] = '$action $amount';
+        }
+        continue;
+      }
+    }
+  }
+
   @override
   SavedHand? convertFrom(String externalData) {
     final lines = externalData.split(RegExp(r'\r?\n'));
     if (lines.length < 3) return null;
-
-    double _parseAmount(String s) =>
-        double.tryParse(s.replaceAll(',', '')) ?? 0;
 
     final headerMatch = RegExp(r'^PokerStars Hand #(\d+)').firstMatch(lines[0]);
     if (headerMatch == null) return null;
@@ -183,254 +246,41 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     };
     final actions = <ActionEntry>[];
     final actionTags = <int, String?>{};
-    if (holeIndex != -1) {
-      final endIndex = lines.indexWhere(
-          (l) => l.startsWith('*** FLOP ***'), holeIndex + 1);
-      for (int i = holeIndex + 1;
-          i < lines.length && (endIndex == -1 || i < endIndex);
-          i++) {
-        final line = lines[i].trim();
-        if (line.isEmpty) continue;
-        Match? m;
+  if (holeIndex != -1) {
+    final endIndex =
+        lines.indexWhere((l) => l.startsWith('*** FLOP ***'), holeIndex + 1);
+    _parseStreetActions(0, lines, holeIndex + 1, endIndex, nameToIndex, bigBlind,
+        actions, actionTags);
+  }
 
-        m = RegExp(r'^(.+?): folds', caseSensitive: false).firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            actions.add(ActionEntry(0, idx, 'fold'));
-            actionTags[idx] = 'fold';
-          }
-          continue;
-        }
+  // Parse flop actions between FLOP and TURN.
+  final flopIndex = lines.indexWhere((l) => l.startsWith('*** FLOP ***'));
+  if (flopIndex != -1) {
+    final endIndex =
+        lines.indexWhere((l) => l.startsWith('*** TURN ***'), flopIndex + 1);
+    _parseStreetActions(1, lines, flopIndex + 1, endIndex, nameToIndex, bigBlind,
+        actions, actionTags);
+  }
 
-        m = RegExp(r'^(.+?): calls [\$€£]?([\d,.]+)(.*)',
-                caseSensitive: false)
-            .firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            final amt = _parseAmount(m.group(2)!);
-            final amount =
-                bigBlind != null && bigBlind! > 0
-                    ? (amt / bigBlind!).round()
-                    : amt.round();
-            final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
-            final action = isAllIn ? 'all-in' : 'call';
-            actions.add(ActionEntry(0, idx, action, amount: amount));
-            actionTags[idx] = '$action $amount';
-          }
-          continue;
-        }
+  // Parse turn actions between TURN and RIVER.
+  final turnIndex =
+      lines.indexWhere((l) => l.startsWith('*** TURN'), flopIndex + 1);
+  if (turnIndex != -1) {
+    final endIndex =
+        lines.indexWhere((l) => l.startsWith('*** RIVER'), turnIndex + 1);
+    _parseStreetActions(2, lines, turnIndex + 1, endIndex, nameToIndex, bigBlind,
+        actions, actionTags);
+  }
 
-        m = RegExp(r'^(.+?): raises [\$€£]?([\d,.]+) to [\$€£]?([\d,.]+)(.*)',
-                caseSensitive: false)
-            .firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            final amt = _parseAmount(m.group(3)!);
-            final amount =
-                bigBlind != null && bigBlind! > 0
-                    ? (amt / bigBlind!).round()
-                    : amt.round();
-            final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
-            final action = isAllIn ? 'all-in' : 'raise';
-            actions.add(ActionEntry(0, idx, action, amount: amount));
-            actionTags[idx] = '$action $amount';
-          }
-          continue;
-        }
-      }
-    }
-
-    // Parse flop actions between FLOP and TURN.
-    final flopIndex =
-        lines.indexWhere((l) => l.startsWith('*** FLOP ***'));
-    if (flopIndex != -1) {
-      final endIndex =
-          lines.indexWhere((l) => l.startsWith('*** TURN ***'), flopIndex + 1);
-      for (int i = flopIndex + 1;
-          i < lines.length && (endIndex == -1 || i < endIndex);
-          i++) {
-        final line = lines[i].trim();
-        if (line.isEmpty) continue;
-        Match? m;
-
-        m = RegExp(r'^(.+?): folds', caseSensitive: false).firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            actions.add(ActionEntry(1, idx, 'fold'));
-            actionTags[idx] = 'fold';
-          }
-          continue;
-        }
-
-        m = RegExp(r'^(.+?): calls [\$€£]?([\d,.]+)(.*)',
-                caseSensitive: false)
-            .firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            final amt = _parseAmount(m.group(2)!);
-            final amount =
-                bigBlind != null && bigBlind! > 0
-                    ? (amt / bigBlind!).round()
-                    : amt.round();
-            final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
-            final action = isAllIn ? 'all-in' : 'call';
-            actions.add(ActionEntry(1, idx, action, amount: amount));
-            actionTags[idx] = '$action $amount';
-          }
-          continue;
-        }
-
-        m = RegExp(r'^(.+?): raises [\$€£]?([\d,.]+) to [\$€£]?([\d,.]+)(.*)',
-                caseSensitive: false)
-            .firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            final amt = _parseAmount(m.group(3)!);
-            final amount =
-                bigBlind != null && bigBlind! > 0
-                    ? (amt / bigBlind!).round()
-                    : amt.round();
-            final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
-            final action = isAllIn ? 'all-in' : 'raise';
-            actions.add(ActionEntry(1, idx, action, amount: amount));
-            actionTags[idx] = '$action $amount';
-          }
-          continue;
-        }
-      }
-    }
-
-    // Parse turn actions between TURN and RIVER.
-    final turnIndex =
-        lines.indexWhere((l) => l.startsWith('*** TURN'), flopIndex + 1);
-    if (turnIndex != -1) {
-      final endIndex =
-          lines.indexWhere((l) => l.startsWith('*** RIVER'), turnIndex + 1);
-      for (int i = turnIndex + 1;
-          i < lines.length && (endIndex == -1 || i < endIndex);
-          i++) {
-        final line = lines[i].trim();
-        if (line.isEmpty) continue;
-        Match? m;
-
-        m = RegExp(r'^(.+?): folds', caseSensitive: false).firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            actions.add(ActionEntry(2, idx, 'fold'));
-            actionTags[idx] = 'fold';
-          }
-          continue;
-        }
-
-        m = RegExp(r'^(.+?): calls [\$€£]?([\d,.]+)(.*)',
-                caseSensitive: false)
-            .firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            final amt = _parseAmount(m.group(2)!);
-            final amount =
-                bigBlind != null && bigBlind! > 0
-                    ? (amt / bigBlind!).round()
-                    : amt.round();
-            final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
-            final action = isAllIn ? 'all-in' : 'call';
-            actions.add(ActionEntry(2, idx, action, amount: amount));
-            actionTags[idx] = '$action $amount';
-          }
-          continue;
-        }
-
-        m = RegExp(r'^(.+?): raises [\$€£]?([\d,.]+) to [\$€£]?([\d,.]+)(.*)',
-                caseSensitive: false)
-            .firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            final amt = _parseAmount(m.group(3)!);
-            final amount =
-                bigBlind != null && bigBlind! > 0
-                    ? (amt / bigBlind!).round()
-                    : amt.round();
-            final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
-            final action = isAllIn ? 'all-in' : 'raise';
-            actions.add(ActionEntry(2, idx, action, amount: amount));
-            actionTags[idx] = '$action $amount';
-          }
-          continue;
-        }
-      }
-    }
-
-    // Parse river actions after RIVER line.
-    final riverIndex = lines.indexWhere((l) => l.startsWith('*** RIVER'));
-    if (riverIndex != -1) {
-      final endIndex = lines.indexWhere(
-          (l) => l.startsWith('*** SHOW') || l.startsWith('*** SUMMARY'),
-          riverIndex + 1);
-      for (int i = riverIndex + 1;
-          i < lines.length && (endIndex == -1 || i < endIndex);
-          i++) {
-        final line = lines[i].trim();
-        if (line.isEmpty) continue;
-        Match? m;
-
-        m = RegExp(r'^(.+?): folds', caseSensitive: false).firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            actions.add(ActionEntry(3, idx, 'fold'));
-            actionTags[idx] = 'fold';
-          }
-          continue;
-        }
-
-        m = RegExp(r'^(.+?): calls [\$€£]?([\d,.]+)(.*)',
-                caseSensitive: false)
-            .firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            final amt = _parseAmount(m.group(2)!);
-            final amount =
-                bigBlind != null && bigBlind! > 0
-                    ? (amt / bigBlind!).round()
-                    : amt.round();
-            final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
-            final action = isAllIn ? 'all-in' : 'call';
-            actions.add(ActionEntry(3, idx, action, amount: amount));
-            actionTags[idx] = '$action $amount';
-          }
-          continue;
-        }
-
-        m = RegExp(r'^(.+?): raises [\$€£]?([\d,.]+) to [\$€£]?([\d,.]+)(.*)',
-                caseSensitive: false)
-            .firstMatch(line);
-        if (m != null) {
-          final idx = nameToIndex[m.group(1)!.toLowerCase()];
-          if (idx != null) {
-            final amt = _parseAmount(m.group(3)!);
-            final amount =
-                bigBlind != null && bigBlind! > 0
-                    ? (amt / bigBlind!).round()
-                    : amt.round();
-            final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
-            final action = isAllIn ? 'all-in' : 'raise';
-            actions.add(ActionEntry(3, idx, action, amount: amount));
-            actionTags[idx] = '$action $amount';
-          }
-          continue;
-        }
-      }
-    }
+  // Parse river actions after RIVER line.
+  final riverIndex = lines.indexWhere((l) => l.startsWith('*** RIVER'));
+  if (riverIndex != -1) {
+    final endIndex = lines.indexWhere(
+        (l) => l.startsWith('*** SHOW') || l.startsWith('*** SUMMARY'),
+        riverIndex + 1);
+    _parseStreetActions(3, lines, riverIndex + 1, endIndex, nameToIndex,
+        bigBlind, actions, actionTags);
+  }
 
     final stackSizes = <int, int>{};
     for (int i = 0; i < seatEntries.length; i++) {
