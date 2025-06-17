@@ -273,6 +273,105 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     }
   }
 
+  Future<void> _editTitleAndTags(TrainingSpot spot) async {
+    final idController =
+        TextEditingController(text: spot.tournamentId ?? '');
+    final Set<String> localTags = Set<String>.from(spot.tags);
+
+    final updated = await showDialog<TrainingSpot>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: AppColors.cardBackground,
+              title: const Text(
+                'Редактировать',
+                style: TextStyle(color: Colors.white),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: idController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'ID турнира',
+                        labelStyle: TextStyle(color: Colors.white),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 4,
+                      children: [
+                        for (final tag in _availableTags)
+                          FilterChip(
+                            label: Text(tag),
+                            selected: localTags.contains(tag),
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  localTags.add(tag);
+                                } else {
+                                  localTags.remove(tag);
+                                }
+                              });
+                            },
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Отмена'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                      TrainingSpot(
+                        playerCards: spot.playerCards,
+                        boardCards: spot.boardCards,
+                        actions: spot.actions,
+                        heroIndex: spot.heroIndex,
+                        numberOfPlayers: spot.numberOfPlayers,
+                        playerTypes: spot.playerTypes,
+                        positions: spot.positions,
+                        stacks: spot.stacks,
+                        tournamentId: idController.text.trim().isEmpty
+                            ? null
+                            : idController.text.trim(),
+                        buyIn: spot.buyIn,
+                        totalPrizePool: spot.totalPrizePool,
+                        numberOfEntrants: spot.numberOfEntrants,
+                        gameType: spot.gameType,
+                        tags: localTags.toList(),
+                      ),
+                    );
+                  },
+                  child: const Text('Сохранить'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (updated != null) {
+      final index = widget.spots.indexOf(spot);
+      if (index != -1) {
+        setState(() => widget.spots[index] = updated);
+        widget.onChanged?.call();
+      }
+    }
+  }
+
   Future<void> _deleteSpot(TrainingSpot spot) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -486,8 +585,13 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty)
-                              Text('ID: ${spot.tournamentId}',
-                                  style: const TextStyle(color: Colors.white)),
+                              GestureDetector(
+                                onTap: () => _editTitleAndTags(spot),
+                                child: Text(
+                                  'ID: ${spot.tournamentId}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
                             if (spot.buyIn != null)
                               Text('Buy-In: ${spot.buyIn}',
                                   style: const TextStyle(color: Colors.white)),
@@ -495,27 +599,22 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                               Text('Game: ${spot.gameType}',
                                   style: const TextStyle(color: Colors.white)),
                             const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 4,
-                              children: [
-                                for (final tag in _availableTags)
-                                  FilterChip(
-                                    label: Text(tag),
-                                    selected: spot.tags.contains(tag),
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        if (selected) {
-                                          if (!spot.tags.contains(tag)) {
-                                            spot.tags.add(tag);
-                                          }
-                                        } else {
-                                          spot.tags.remove(tag);
-                                        }
-                                      });
-                                      widget.onChanged?.call();
-                                    },
-                                  ),
-                              ],
+                            GestureDetector(
+                              onTap: () => _editTitleAndTags(spot),
+                              child: Wrap(
+                                spacing: 4,
+                                children: [
+                                  if (spot.tags.isEmpty)
+                                    const Text('Без тегов',
+                                        style: TextStyle(color: Colors.white54))
+                                  else
+                                    for (final tag in spot.tags)
+                                      Chip(
+                                        label: Text(tag),
+                                        backgroundColor: AppColors.cardBackground,
+                                      ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
