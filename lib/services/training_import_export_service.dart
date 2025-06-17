@@ -124,6 +124,72 @@ class TrainingImportExportService {
     return '${headers.join(',')}\n${values.join(',')}';
   }
 
+  /// Parse tournament metadata from a CSV string. Returns `null` on failure.
+  TrainingSpot? importCsvSpot(String csvStr) {
+    try {
+      final lines = csvStr.trim().split(RegExp(r'\r?\n'));
+      if (lines.length < 2) return null;
+
+      final headers = _parseCsvLine(lines.first);
+      final values = _parseCsvLine(lines[1]);
+
+      final map = <String, String>{};
+      for (int i = 0; i < headers.length && i < values.length; i++) {
+        map[headers[i].trim()] = values[i].trim();
+      }
+
+      String? strOrNull(String? v) {
+        if (v == null) return null;
+        final t = v.trim();
+        return t.isEmpty ? null : t;
+      }
+
+      int? intOrNull(String? v) => int.tryParse(v?.trim() ?? '');
+
+      return TrainingSpot(
+        playerCards: const [],
+        boardCards: const [],
+        actions: const [],
+        heroIndex: 0,
+        numberOfPlayers: 0,
+        playerTypes: const [],
+        positions: const [],
+        stacks: const [],
+        tournamentId: strOrNull(map['tournamentId']),
+        buyIn: intOrNull(map['buyIn']),
+        totalPrizePool: intOrNull(map['totalPrizePool']),
+        numberOfEntrants: intOrNull(map['numberOfEntrants']),
+        gameType: strOrNull(map['gameType']),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<String> _parseCsvLine(String line) {
+    final result = <String>[];
+    final buffer = StringBuffer();
+    bool inQuotes = false;
+    for (int i = 0; i < line.length; i++) {
+      final char = line[i];
+      if (char == '"') {
+        if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
+          buffer.write('"');
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char == ',' && !inQuotes) {
+        result.add(buffer.toString());
+        buffer.clear();
+      } else {
+        buffer.write(char);
+      }
+    }
+    result.add(buffer.toString());
+    return result;
+  }
+
   /// Deserialize spot from json string. Returns null if format is invalid.
   TrainingSpot? deserializeSpot(String jsonStr) {
     try {
