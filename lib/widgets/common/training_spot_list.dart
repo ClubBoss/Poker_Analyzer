@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/training_spot.dart';
@@ -39,8 +40,10 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsExpandedKey = 'training_preset_expanded';
   static const String _prefsSortKey = 'training_preset_sort';
   static const String _prefsIcmOnlyKey = 'training_preset_icm_only';
+  static const String _prefsOrderKey = 'training_spots_order';
 
   bool _presetsLoaded = false;
+  bool _orderRestored = false;
   static const List<String> _availableTags = [
     '3бет пот',
     'Фиш',
@@ -97,6 +100,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
 
   Future<void> _loadPresets() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await _restoreOrderFromPrefs(prefs);
     final List<String> tags = prefs.getStringList(_prefsTagsKey) ?? <String>[];
     final String search = prefs.getString(_prefsSearchKey) ?? '';
     final bool expanded = prefs.getBool(_prefsExpandedKey) ?? true;
@@ -145,6 +149,43 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     } else {
       await prefs.remove(_prefsSortKey);
     }
+  }
+
+  Future<void> _saveOrderToPrefs() async {
+    if (!_presetsLoaded) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _prefsOrderKey,
+      [for (final s in widget.spots) jsonEncode(s.toJson())],
+    );
+  }
+
+  Future<void> _restoreOrderFromPrefs(SharedPreferences prefs) async {
+    if (_orderRestored || widget.spots.isEmpty) return;
+    final stored = prefs.getStringList(_prefsOrderKey);
+    if (stored == null || stored.isEmpty) {
+      _orderRestored = true;
+      return;
+    }
+    final map = {
+      for (final s in widget.spots) jsonEncode(s.toJson()): s
+    };
+    final reordered = <TrainingSpot>[];
+    for (final key in stored) {
+      final spot = map.remove(key);
+      if (spot != null) reordered.add(spot);
+    }
+    reordered.addAll(map.values);
+    if (reordered.length == widget.spots.length) {
+      setState(() {
+        widget.spots
+          ..clear()
+          ..addAll(reordered);
+      });
+      widget.onChanged?.call();
+    }
+    _originalOrder = List<TrainingSpot>.from(widget.spots);
+    _orderRestored = true;
   }
 
   Future<void> _editSpot(TrainingSpot spot) async {
@@ -397,6 +438,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _selectedSpots.remove(spot);
       widget.onRemove!(widget.spots.indexOf(spot));
       widget.onChanged?.call();
+      _saveOrderToPrefs();
     }
   }
 
@@ -431,12 +473,21 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _selectedSpots.clear();
     });
     widget.onChanged?.call();
+    _saveOrderToPrefs();
   }
 
   @override
   void initState() {
     super.initState();
     _loadPresets();
+  }
+
+  @override
+  void didUpdateWidget(covariant TrainingSpotList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_orderRestored && widget.spots.isNotEmpty && _presetsLoaded) {
+      SharedPreferences.getInstance().then(_restoreOrderFromPrefs);
+    }
   }
 
   @override
@@ -910,6 +961,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     });
     widget.onReorder?.call(oldMainIndex, newMainIndex);
     widget.onChanged?.call();
+    _saveOrderToPrefs();
   }
 
   void _shuffleFiltered(List<TrainingSpot> filtered) {
@@ -921,6 +973,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       }
     });
     widget.onChanged?.call();
+    _saveOrderToPrefs();
   }
 
   void _selectAllVisible(List<TrainingSpot> filtered) {
@@ -974,6 +1027,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       const SnackBar(content: Text('Порядок сохранён')),
     );
     _savePresets();
+    _saveOrderToPrefs();
   }
 
   void _resetSort() {
@@ -988,5 +1042,6 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     });
     widget.onChanged?.call();
     _savePresets();
+    _saveOrderToPrefs();
   }
 }
