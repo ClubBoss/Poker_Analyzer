@@ -42,6 +42,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   String? _selectedPreset;
 
   final Set<String> _selectedTags = {};
+  final Set<TrainingSpot> _selectedSpots = {};
 
   Future<void> _editSpot(TrainingSpot spot) async {
     final idController =
@@ -191,9 +192,45 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     );
     if (confirm != true) return;
     if (widget.onRemove != null) {
+      _selectedSpots.remove(spot);
       widget.onRemove!(widget.spots.indexOf(spot));
       widget.onChanged?.call();
     }
+  }
+
+  Future<void> _deleteSelected() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить выбранные споты?'),
+        content: const Text(
+          'Вы уверены, что хотите удалить выбранные споты? Это действие нельзя отменить.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || widget.onRemove == null) return;
+    final indices = _selectedSpots
+        .map((s) => widget.spots.indexOf(s))
+        .where((i) => i != -1)
+        .toList()
+      ..sort((a, b) => b.compareTo(a));
+    for (final i in indices) {
+      widget.onRemove!(i);
+    }
+    setState(() {
+      _selectedSpots.clear();
+    });
+    widget.onChanged?.call();
   }
 
   @override
@@ -233,6 +270,17 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         const SizedBox(height: 8),
         _buildPresetDropdown(filtered),
         const SizedBox(height: 8),
+        if (widget.onRemove != null) ...[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton(
+              onPressed:
+                  _selectedSpots.isEmpty ? null : _deleteSelected,
+              child: const Text('Удалить выбранные'),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         if (filtered.isEmpty)
           const Text(
             'Нет импортированных спотов',
@@ -257,6 +305,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Checkbox(
+                        value: _selectedSpots.contains(spot),
+                        onChanged: (v) {
+                          setState(() {
+                            if (v == true) {
+                              _selectedSpots.add(spot);
+                            } else {
+                              _selectedSpots.remove(spot);
+                            }
+                          });
+                        },
+                      ),
                       ReorderableDragStartListener(
                         index: index,
                         child: const Icon(Icons.drag_handle, color: Colors.white70),
