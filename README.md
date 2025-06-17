@@ -34,6 +34,17 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
   with metadata and validation so incompatible hands can be
   detected before export
 
+
+## Converter plug-ins
+
+Custom import and export formats can be added by implementing the
+`ConverterPlugin` interface. Each plug-in exposes a `formatId` and a
+human readable `description` so the UI can list available options. Before an
+export occurs, the application calls `validateForExport(formatId, hand)` which
+delegates to the plug-in's optional `validate` method. Returning a string from
+`validate` will reject the hand for export and surface the message to the user,
+while returning `null` allows the export to proceed.
+
 ![screenshot](flutter_01.png)
 
 ## Future plans
