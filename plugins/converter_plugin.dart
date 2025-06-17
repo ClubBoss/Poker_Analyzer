@@ -5,6 +5,9 @@ abstract class ConverterPlugin {
   /// Unique identifier of the supported external format.
   String get formatId;
 
+  /// Human readable description of the supported format.
+  String get description;
+
   /// Converts [externalData] to a [SavedHand].
   ///
   /// Returns `null` if [externalData] cannot be parsed.

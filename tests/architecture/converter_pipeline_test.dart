@@ -8,10 +8,12 @@ import 'package:poker_ai_analyzer/models/action_entry.dart';
 import 'package:poker_ai_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId);
+  _MockConverter(this.formatId, [this.description = 'mock']);
 
   @override
   final String formatId;
+  @override
+  final String description;
 
   SavedHand? importResult;
   String? exportResult;
@@ -60,6 +62,17 @@ void main() {
 
       final pipeline = ConverterPipeline(registry);
       expect(pipeline.tryExport(_dummyHand(), 'fmt'), 'out');
+    });
+
+    test('availableConverters returns registry info', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('fmt', 'Format')); 
+
+      final pipeline = ConverterPipeline(registry);
+      final infos = pipeline.availableConverters();
+      expect(infos, hasLength(1));
+      expect(infos.first.formatId, 'fmt');
+      expect(infos.first.description, 'Format');
     });
   });
 }

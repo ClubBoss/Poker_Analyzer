@@ -3,6 +3,7 @@
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 
 import 'converter_plugin.dart';
+import 'converter_info.dart';
 
 /// Manages [ConverterPlugin] instances used for converting external data.
 class ConverterRegistry {
@@ -47,6 +48,11 @@ class ConverterRegistry {
     }
     return plugin.convertTo(hand);
   }
+
+  /// Returns metadata for all registered converters.
+  List<ConverterInfo> dumpConverters() => List<ConverterInfo>.unmodifiable(
+      <ConverterInfo>[for (final p in _plugins)
+        ConverterInfo(formatId: p.formatId, description: p.description)]);
 
   /// Returns the list of registered converter format identifiers.
   List<String> dumpFormatIds() =>

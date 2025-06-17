@@ -15,6 +15,9 @@ class _DummyConverter implements ConverterPlugin {
   String get formatId => id;
 
   @override
+  String get description => 'dummy';
+
+  @override
   SavedHand? convertFrom(String externalData) => null;
 }
 

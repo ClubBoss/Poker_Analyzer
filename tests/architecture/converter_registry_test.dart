@@ -7,10 +7,13 @@ import 'package:poker_ai_analyzer/models/action_entry.dart';
 import 'package:poker_ai_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId, [this.onConvertFrom, this.onConvertTo]);
+  _MockConverter(this.formatId,
+      [this.onConvertFrom, this.onConvertTo, this.description = 'mock']);
 
   @override
   final String formatId;
+  @override
+  final String description;
 
   final SavedHand? Function(String data)? onConvertFrom;
   final String? Function(SavedHand hand)? onConvertTo;
@@ -103,6 +106,17 @@ void main() {
 
       expect(registry.tryExport('fail', _dummyHand()), isNull);
       expect(registry.tryExport('missing', _dummyHand()), isNull);
+    });
+
+    test('dumpConverters exposes converter info', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('a', null, null, 'Format A'));
+      registry.register(_MockConverter('b', null, null, 'Format B'));
+
+      final infos = registry.dumpConverters();
+      expect(infos, hasLength(2));
+      expect(infos.firstWhere((i) => i.formatId == 'a').description, 'Format A');
+      expect(infos.firstWhere((i) => i.formatId == 'b').description, 'Format B');
     });
   });
 }
