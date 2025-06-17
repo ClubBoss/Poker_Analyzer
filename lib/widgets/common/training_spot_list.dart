@@ -332,6 +332,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
               ),
               const SizedBox(width: 8),
               _buildSortDropdown(filtered),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: _saveCurrentOrder,
+                child: const Text('Сохранить порядок'),
+              ),
             ],
           ),
         ),
@@ -683,6 +688,17 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _sortOption = option;
     });
     widget.onChanged?.call();
+  }
+
+  void _saveCurrentOrder() {
+    setState(() {
+      _originalOrder = List<TrainingSpot>.from(widget.spots);
+      _sortOption = null;
+    });
+    widget.onChanged?.call();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Порядок сохранён')),
+    );
   }
 
   void _resetSort() {
