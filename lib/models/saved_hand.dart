@@ -39,6 +39,8 @@ class SavedHand {
   final List<int>? firstActionTaken;
   final List<int>? foldedPlayers;
   final Map<int, String?>? actionTags;
+  /// Descriptions shown at showdown for each player.
+  final Map<int, String>? showdownDescriptions;
   /// Pending action evaluation requests queued when the hand was saved.
   final List<ActionEvaluationRequest>? pendingEvaluations;
   /// Index in the action list used when the hand was last viewed.
@@ -79,6 +81,7 @@ class SavedHand {
     this.firstActionTaken,
     this.foldedPlayers,
     this.actionTags,
+    this.showdownDescriptions,
     this.pendingEvaluations,
     this.playbackIndex = 0,
     this.showFullBoard = false,
@@ -120,6 +123,7 @@ class SavedHand {
     List<int>? firstActionTaken,
     List<int>? foldedPlayers,
     Map<int, String?>? actionTags,
+    Map<int, String>? showdownDescriptions,
     List<ActionEvaluationRequest>? pendingEvaluations,
     int? playbackIndex,
     bool? showFullBoard,
@@ -170,6 +174,10 @@ class SavedHand {
           (this.actionTags == null
               ? null
               : Map<int, String?>.from(this.actionTags!)),
+      showdownDescriptions: showdownDescriptions ??
+          (this.showdownDescriptions == null
+              ? null
+              : Map<int, String>.from(this.showdownDescriptions!)),
       pendingEvaluations:
           pendingEvaluations ??
               (this.pendingEvaluations == null
@@ -251,6 +259,9 @@ class SavedHand {
         if (actionTags != null)
           'actionTags':
               actionTags!.map((k, v) => MapEntry(k.toString(), v)),
+        if (showdownDescriptions != null)
+          'showdownDescriptions':
+              showdownDescriptions!.map((k, v) => MapEntry(k.toString(), v)),
         if (pendingEvaluations != null)
           'pendingEvaluations': [for (final e in pendingEvaluations!) e.toJson()],
         'playbackIndex': playbackIndex,
@@ -350,6 +361,13 @@ class SavedHand {
         aTags![int.parse(key as String)] = value as String?;
       });
     }
+    Map<int, String>? showDesc;
+    if (json['showdownDescriptions'] != null) {
+      showDesc = <int, String>{};
+      (json['showdownDescriptions'] as Map).forEach((key, value) {
+        showDesc![int.parse(key as String)] = value as String;
+      });
+    }
     List<ActionEvaluationRequest>? pending;
     if (json['pendingEvaluations'] != null) {
       pending = [
@@ -408,6 +426,7 @@ class SavedHand {
       firstActionTaken: firsts,
       foldedPlayers: folded,
       actionTags: aTags,
+      showdownDescriptions: showDesc,
       pendingEvaluations: pending,
       playbackIndex: playbackIndex,
       showFullBoard: showFullBoard,

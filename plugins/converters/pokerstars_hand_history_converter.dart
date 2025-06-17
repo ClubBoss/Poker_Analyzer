@@ -345,8 +345,10 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
   // Parse showdown section for revealed hole cards.
   final showdownIndex =
       lines.indexWhere((l) => l.startsWith('*** SHOW'));
+  Map<int, String> showdownDescriptions = {};
   if (showdownIndex != -1) {
-    final showRegex = RegExp(r'^([^:]+?):\s*shows? \[(.+?)\]',
+    final showRegex = RegExp(
+        r'^([^:]+?):\s*shows? \[(.+?)\](?:\s*\((.+)\))?',
         caseSensitive: false);
     for (var i = showdownIndex + 1; i < lines.length; i++) {
       final line = lines[i].trim();
@@ -356,10 +358,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         final name = m.group(1)!.trim();
         final idx = nameToIndex[name.toLowerCase()];
         if (idx != null) {
-          if (idx == heroIndex && playerCards[idx].isNotEmpty) {
-            continue; // don't overwrite hero cards
-          }
-          if (playerCards[idx].isEmpty) {
+          if (playerCards[idx].isEmpty || idx != heroIndex) {
             final tokens = m.group(2)!.split(RegExp(r'\s+'));
             final cards = <CardModel>[];
             for (final t in tokens) {
@@ -369,6 +368,10 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
             if (cards.length >= 2) {
               playerCards[idx] = cards.sublist(0, 2);
             }
+          }
+          final desc = m.group(3)?.trim();
+          if (desc != null && desc.isNotEmpty) {
+            showdownDescriptions[idx] = desc;
           }
         }
       }
@@ -458,6 +461,8 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
       comment: tableName,
       actionTags: actionTags.isEmpty ? null : actionTags,
+      showdownDescriptions:
+          showdownDescriptions.isEmpty ? null : showdownDescriptions,
     );
   }
 }
