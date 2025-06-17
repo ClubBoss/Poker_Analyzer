@@ -64,6 +64,23 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   SortOption? _sortOption;
   List<TrainingSpot>? _originalOrder;
 
+  List<TrainingSpot> _currentFilteredSpots() {
+    final query = _searchController.text.toLowerCase();
+    return widget.spots.where((spot) {
+      final id = spot.tournamentId?.toLowerCase() ?? '';
+      final game = spot.gameType?.toLowerCase() ?? '';
+      final buyIn = spot.buyIn?.toString() ?? '';
+      final matchesQuery = query.isEmpty ||
+          id.contains(query) ||
+          game.contains(query) ||
+          buyIn.contains(query);
+      final matchesTags =
+          _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
+      final matchesIcm = !widget.icmOnly || spot.tags.contains('ICM');
+      return matchesQuery && matchesTags && matchesIcm;
+    }).toList();
+  }
+
   String getActiveFilterSummary() {
     final search = _searchController.text.trim();
     final tags = _selectedTags.join(', ');
@@ -96,7 +113,12 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       }
     }
     _presetsLoaded = true;
-    setState(() {});
+    final filtered = _currentFilteredSpots();
+    if (_sortOption != null) {
+      _sortFiltered(filtered, _sortOption!);
+    } else {
+      setState(() {});
+    }
     _searchController.addListener(() {
       if (_presetsLoaded) {
         setState(() {});
@@ -321,20 +343,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
 
   @override
   Widget build(BuildContext context) {
-    final query = _searchController.text.toLowerCase();
-    final filtered = widget.spots.where((spot) {
-      final id = spot.tournamentId?.toLowerCase() ?? '';
-      final game = spot.gameType?.toLowerCase() ?? '';
-      final buyIn = spot.buyIn?.toString() ?? '';
-      final matchesQuery = query.isEmpty ||
-          id.contains(query) ||
-          game.contains(query) ||
-          buyIn.contains(query);
-      final matchesTags =
-          _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
-      final matchesIcm = !widget.icmOnly || spot.tags.contains('ICM');
-      return matchesQuery && matchesTags && matchesIcm;
-    }).toList();
+    final filtered = _currentFilteredSpots();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
