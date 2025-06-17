@@ -567,26 +567,48 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _handContext = widget.handContext ?? CurrentHandContextService();
     _actionSync = widget.actionSync;
     _foldedPlayers = widget.foldedPlayersService ?? FoldedPlayersService();
+
     _debugPrefs = widget.debugPrefsService ?? DebugPanelPreferences();
-    _queueService = widget.queueService ?? EvaluationQueueService();
-    _importExportService =
+    _serviceRegistry.register<DebugPanelPreferences>(_debugPrefs);
+
+    _serviceRegistry.register<EvaluationQueueService>(
+        widget.queueService ?? EvaluationQueueService());
+    _queueService = _serviceRegistry.get<EvaluationQueueService>();
+
+    _serviceRegistry.register<EvaluationQueueImportExportService>(
         widget.importExportService ??
-            EvaluationQueueImportExportService(queueService: _queueService);
-    _debugSnapshotService = DebugSnapshotService();
+            EvaluationQueueImportExportService(queueService: _queueService));
+    _importExportService =
+        _serviceRegistry.get<EvaluationQueueImportExportService>();
+
+    _serviceRegistry.register<DebugSnapshotService>(DebugSnapshotService());
+    _debugSnapshotService = _serviceRegistry.get<DebugSnapshotService>();
+
+    _serviceRegistry.register<TrainingImportExportService>(
+        widget.trainingImportExportService ?? const TrainingImportExportService());
     _trainingImportExportService =
-        widget.trainingImportExportService ?? const TrainingImportExportService();
-    final backupManager = widget.backupManagerService ??
-        BackupManagerService(queueService: _queueService, debugPrefs: _debugPrefs);
+        _serviceRegistry.get<TrainingImportExportService>();
+
+    _serviceRegistry.register<BackupManagerService>(
+        widget.backupManagerService ??
+            BackupManagerService(
+                queueService: _queueService, debugPrefs: _debugPrefs));
+    final backupManager = _serviceRegistry.get<BackupManagerService>();
+
     _importExportService.attachBackupManager(backupManager);
     _queueService
       ..attachBackupManager(backupManager)
       ..attachDebugSnapshotService(_debugSnapshotService);
     _importExportService.attachDebugSnapshotService(_debugSnapshotService);
-    _processingService = widget.processingService ?? EvaluationProcessingService(
-      queueService: _queueService,
-      debugPrefs: _debugPrefs,
-      debugSnapshotService: _debugSnapshotService,
-    );
+
+    _serviceRegistry.register<EvaluationProcessingService>(
+      widget.processingService ??
+          EvaluationProcessingService(
+            queueService: _queueService,
+            debugPrefs: _debugPrefs,
+            debugSnapshotService: _debugSnapshotService,
+          ));
+    _processingService = _serviceRegistry.get<EvaluationProcessingService>();
     lockService = widget.lockService;
     _centerChipController = AnimationController(
       vsync: this,
