@@ -382,6 +382,24 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
   }
 
+  Future<void> _exportSpotsMarkdown() async {
+    if (_spots.isEmpty) return;
+    final markdown = _importExportService.exportAllSpotsMarkdown(_spots);
+    if (markdown.isEmpty) return;
+
+    final dir = await getApplicationDocumentsDirectory();
+    final fileName =
+        'spots_${DateTime.now().millisecondsSinceEpoch}.md';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsString(markdown);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: ${file.path}')),
+      );
+    }
+  }
+
   void _repeatMistakes() {
     final mistakes = _results.where((r) => !r.correct).toList();
     if (mistakes.isEmpty) return;
@@ -546,6 +564,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ),
               const SizedBox(height: 12),
               _buildImportedSpotsList(),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _spots.isEmpty ? null : _exportSpotsMarkdown,
+                child: const Text('Экспортировать в Markdown'),
+              ),
             ],
             const SizedBox(height: 24),
             _buildHistory(),
