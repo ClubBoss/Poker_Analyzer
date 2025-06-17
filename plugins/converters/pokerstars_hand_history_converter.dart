@@ -24,6 +24,9 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     final lines = externalData.split(RegExp(r'\r?\n'));
     if (lines.length < 3) return null;
 
+    double _parseAmount(String s) =>
+        double.tryParse(s.replaceAll(',', '')) ?? 0;
+
     final headerMatch = RegExp(r'^PokerStars Hand #(\d+)').firstMatch(lines[0]);
     if (headerMatch == null) return null;
     final handId = headerMatch.group(1)!;
@@ -33,7 +36,29 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     if (tableMatch == null) return null;
     final tableName = tableMatch.group(1)!.trim();
 
-    final seatRegex = RegExp(r'^Seat (\d+):\s*(.+?)\s*(?:\(|\$)');
+    // Attempt to determine blind amounts from the header or post lines.
+    double? bigBlind;
+    final blindHeaderMatch =
+        RegExp(r'\((?:\$|€|£)?([\d,.]+)/(?:\$|€|£)?([\d,.]+)')
+            .firstMatch(lines[0]);
+    if (blindHeaderMatch != null) {
+      bigBlind = _parseAmount(blindHeaderMatch.group(2)!);
+    }
+    if (bigBlind == null) {
+      for (final line in lines) {
+        final bbMatch =
+            RegExp(r'posts big blind [\$€£]?([\d,.]+)', caseSensitive: false)
+                .firstMatch(line);
+        if (bbMatch != null) {
+          bigBlind = _parseAmount(bbMatch.group(1)!);
+          break;
+        }
+      }
+    }
+
+    final seatRegex =
+        RegExp(r'^Seat (\d+):\s*(.+?)\s*\((?:\$|€|£)?([\d,.]+) in chips\)',
+            caseSensitive: false);
     final seatEntries = <Map<String, dynamic>>[];
     for (var i = 2; i < lines.length; i++) {
       final match = seatRegex.firstMatch(lines[i]);
@@ -41,6 +66,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         seatEntries.add({
           'seat': int.parse(match.group(1)!),
           'name': match.group(2)!.trim(),
+          'stack': _parseAmount(match.group(3)!),
         });
       } else if (seatEntries.isNotEmpty) {
         break;
@@ -138,6 +164,16 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       }
     }
 
+    final stackSizes = <int, int>{};
+    for (int i = 0; i < seatEntries.length; i++) {
+      final stack = seatEntries[i]['stack'] as double? ?? 0;
+      if (bigBlind != null && bigBlind! > 0) {
+        stackSizes[i] = (stack / bigBlind!).round();
+      } else {
+        stackSizes[i] = stack.round();
+      }
+    }
+
     return SavedHand(
       name: handId,
       heroIndex: heroIndex,
@@ -147,7 +183,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       boardCards: boardCards,
       boardStreet: boardStreet,
       actions: <ActionEntry>[],
-      stackSizes: {for (var i = 0; i < playerCount; i++) i: 0},
+      stackSizes: stackSizes,
       playerPositions: {for (var i = 0; i < playerCount; i++) i: ''},
       playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
       comment: tableName,
