@@ -239,6 +239,41 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       }
     }
 
+    // Phase 22: parse summary section for final board if not already parsed.
+    if (boardCards.isEmpty) {
+      final summaryIndex =
+          lines.indexWhere((l) => l.startsWith('*** SUMMARY'));
+      if (summaryIndex != -1) {
+        for (var i = summaryIndex + 1; i < lines.length; i++) {
+          final line = lines[i].trim();
+          if (line.startsWith('***')) break;
+          final m =
+              RegExp(r'^Board \[(.+?)\]', caseSensitive: false).firstMatch(line);
+          if (m != null) {
+            final tokens = m.group(1)!.split(RegExp(r'\s+'));
+            final parsed = <CardModel>[];
+            for (final token in tokens) {
+              final card = parseCard(token);
+              if (card != null) parsed.add(card);
+            }
+            boardCards
+              ..clear()
+              ..addAll(parsed);
+            if (boardCards.length >= 5) {
+              boardStreet = 3;
+            } else if (boardCards.length == 4) {
+              boardStreet = 2;
+            } else if (boardCards.length >= 3) {
+              boardStreet = 1;
+            } else {
+              boardStreet = 0;
+            }
+            break;
+          }
+        }
+      }
+    }
+
     // Parse preflop actions between HOLE CARDS and FLOP.
     final Map<String, int> nameToIndex = {
       for (int i = 0; i < seatEntries.length; i++)
