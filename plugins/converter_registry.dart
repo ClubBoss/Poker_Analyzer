@@ -36,4 +36,8 @@ class ConverterRegistry {
     }
     return plugin.convertFrom(data);
   }
+
+  /// Returns the list of registered converter format identifiers.
+  List<String> dumpFormatIds() =>
+      List<String>.unmodifiable(<String>[for (final p in _plugins) p.formatId]);
 }
