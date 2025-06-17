@@ -18,10 +18,10 @@ class TrainingSpotList extends StatefulWidget {
   });
 
   @override
-  State<TrainingSpotList> createState() => _TrainingSpotListState();
+  TrainingSpotListState createState() => TrainingSpotListState();
 }
 
-class _TrainingSpotListState extends State<TrainingSpotList> {
+class TrainingSpotListState extends State<TrainingSpotList> {
   final TextEditingController _searchController = TextEditingController();
   static const List<String> _availableTags = [
     '3бет пот',
@@ -408,5 +408,13 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
         ),
       ],
     );
+  }
+
+  void clearFilters() {
+    setState(() {
+      _searchController.clear();
+      _selectedTags.clear();
+      _selectedPreset = null;
+    });
   }
 }

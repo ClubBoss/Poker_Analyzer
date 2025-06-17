@@ -20,6 +20,8 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
   final TextEditingController _categoryController = TextEditingController();
   final TrainingSpotFileService _spotFileService = const TrainingSpotFileService();
   List<TrainingSpot> _spots = [];
+  final GlobalKey<TrainingSpotListState> _spotListKey =
+      GlobalKey<TrainingSpotListState>();
 
   @override
   void initState() {
@@ -109,7 +111,17 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
               child: const Text('Импорт спотов из CSV'),
             ),
             const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: () =>
+                    _spotListKey.currentState?.clearFilters(),
+                child: const Text('Очистить фильтры'),
+              ),
+            ),
+            const SizedBox(height: 12),
             TrainingSpotList(
+              key: _spotListKey,
               spots: _spots,
               onRemove: (index) {
                 setState(() {
