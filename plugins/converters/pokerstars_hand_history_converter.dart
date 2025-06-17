@@ -142,6 +142,53 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     if (tableMatch == null) return null;
     final tableName = tableMatch.group(1)!.trim();
 
+    // Phase 29: parse tournament metadata from header lines.
+    String? tournamentId;
+    int? buyIn;
+    int? totalPrizePool;
+    int? numberOfEntrants;
+    String? gameType;
+
+    final tourneyHeader = RegExp(r'Tournament #(\d+),\s*([^\-]+)-',
+            caseSensitive: false)
+        .firstMatch(lines[0]);
+    if (tourneyHeader != null) {
+      tournamentId = tourneyHeader.group(1);
+      final info = tourneyHeader.group(2)!.trim();
+      final buyInMatch =
+          RegExp(r'(?:\$|€|£)?([\d,.]+)(?:\s*\+\s*(?:\$|€|£)?([\d,.]+))?')
+              .firstMatch(info);
+      if (buyInMatch != null) {
+        double amount = _parseAmount(buyInMatch.group(1)!);
+        if (buyInMatch.group(2) != null) {
+          amount += _parseAmount(buyInMatch.group(2)!);
+        }
+        buyIn = amount.round();
+      }
+      final gameMatch = RegExp(r"(Hold'em|Omaha|Stud|Razz|Badugi|Draw|HORSE|8-Game|2-7)",
+              caseSensitive: false)
+          .firstMatch(info);
+      if (gameMatch != null) {
+        gameType = info.substring(gameMatch.start).trim();
+      }
+    }
+    for (var i = 0; i < lines.length && i < 10; i++) {
+      final line = lines[i];
+      final prizeMatch = RegExp(r'Total prize pool\s*[:\-]?\s*(?:\$|€|£)?([\d,.]+)',
+              caseSensitive: false)
+          .firstMatch(line);
+      if (prizeMatch != null) {
+        totalPrizePool = _parseAmount(prizeMatch.group(1)!).round();
+      }
+      final entrantsMatch = RegExp(r'(?:Entrants|Players|Number of entrants)\s*[:\-]?\s*([\d,]+)',
+              caseSensitive: false)
+          .firstMatch(line);
+      if (entrantsMatch != null) {
+        numberOfEntrants =
+            int.tryParse(entrantsMatch.group(1)!.replaceAll(',', ''));
+      }
+    }
+
     // Determine which seat has the dealer button.
     int? buttonSeat;
     final buttonRegex = RegExp(r'Seat #?(\d+) is the button', caseSensitive: false);
@@ -508,6 +555,11 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       winnings: winnings.isEmpty ? null : winnings,
       totalPot: totalPotBb,
       rake: rakeBb,
+      tournamentId: tournamentId,
+      buyIn: buyIn,
+      totalPrizePool: totalPrizePool,
+      numberOfEntrants: numberOfEntrants,
+      gameType: gameType,
       eliminatedPositions:
           eliminatedPositions.isEmpty ? null : eliminatedPositions,
       playerPositions: playerPositions,

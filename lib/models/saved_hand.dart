@@ -17,6 +17,16 @@ class SavedHand {
   final List<ActionEntry> actions;
   /// Street the board was showing when the hand was saved.
   final int boardStreet;
+  /// Tournament identifier if the hand comes from a tournament.
+  final String? tournamentId;
+  /// Buy-in amount in whole currency units if available.
+  final int? buyIn;
+  /// Total prize pool in whole currency units if available.
+  final int? totalPrizePool;
+  /// Number of entrants in the tournament if known.
+  final int? numberOfEntrants;
+  /// Game type description such as "Hold'em No Limit".
+  final String? gameType;
   final Map<int, int> stackSizes;
   final Map<int, int>? remainingStacks;
   /// Winnings collected by each player in chips or big blinds.
@@ -73,6 +83,11 @@ class SavedHand {
     this.winnings,
     this.totalPot,
     this.rake,
+    this.tournamentId,
+    this.buyIn,
+    this.totalPrizePool,
+    this.numberOfEntrants,
+    this.gameType,
     required this.playerPositions,
     this.playerTypes,
     this.comment,
@@ -118,6 +133,11 @@ class SavedHand {
     Map<int, int>? winnings,
     int? totalPot,
     int? rake,
+    String? tournamentId,
+    int? buyIn,
+    int? totalPrizePool,
+    int? numberOfEntrants,
+    String? gameType,
     Map<int, String>? playerPositions,
     Map<int, PlayerType>? playerTypes,
     String? comment,
@@ -164,6 +184,11 @@ class SavedHand {
           (this.winnings == null ? null : Map<int, int>.from(this.winnings!)),
       totalPot: totalPot ?? this.totalPot,
       rake: rake ?? this.rake,
+      tournamentId: tournamentId ?? this.tournamentId,
+      buyIn: buyIn ?? this.buyIn,
+      totalPrizePool: totalPrizePool ?? this.totalPrizePool,
+      numberOfEntrants: numberOfEntrants ?? this.numberOfEntrants,
+      gameType: gameType ?? this.gameType,
       playerPositions: playerPositions ?? Map<int, String>.from(this.playerPositions),
       playerTypes: playerTypes ?? this.playerTypes,
       comment: comment ?? this.comment,
@@ -256,6 +281,11 @@ class SavedHand {
           'winnings': winnings!.map((k, v) => MapEntry(k.toString(), v)),
         if (totalPot != null) 'totalPot': totalPot,
         if (rake != null) 'rake': rake,
+        if (tournamentId != null) 'tournamentId': tournamentId,
+        if (buyIn != null) 'buyIn': buyIn,
+        if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
+        if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
+        if (gameType != null) 'gameType': gameType,
         'playerPositions': playerPositions.map((k, v) => MapEntry(k.toString(), v)),
         if (playerTypes != null)
           'playerTypes':
@@ -346,6 +376,11 @@ class SavedHand {
     }
     final totalPot = json['totalPot'] as int?;
     final rake = json['rake'] as int?;
+    final tournamentId = json['tournamentId'] as String?;
+    final buyIn = json['buyIn'] as int?;
+    final totalPrizePool = json['totalPrizePool'] as int?;
+    final numberOfEntrants = json['numberOfEntrants'] as int?;
+    final gameType = json['gameType'] as String?;
     final positions = <int, String>{};
     (json['playerPositions'] as Map? ?? {}).forEach((key, value) {
       positions[int.parse(key as String)] = value as String;
@@ -444,6 +479,11 @@ class SavedHand {
       winnings: wins,
       totalPot: totalPot,
       rake: rake,
+      tournamentId: tournamentId,
+      buyIn: buyIn,
+      totalPrizePool: totalPrizePool,
+      numberOfEntrants: numberOfEntrants,
+      gameType: gameType,
       playerPositions: positions,
       playerTypes: types,
       comment: json['comment'] as String?,
