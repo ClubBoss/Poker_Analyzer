@@ -564,6 +564,13 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         _saveSpots();
       },
       onChanged: _saveSpots,
+      onReorder: (oldIndex, newIndex) {
+        setState(() {
+          final item = _spots.removeAt(oldIndex);
+          _spots.insert(newIndex, item);
+        });
+        _saveSpots();
+      },
     );
   }
 
