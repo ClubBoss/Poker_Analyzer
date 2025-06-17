@@ -149,9 +149,9 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     int? numberOfEntrants;
     String? gameType;
 
-    final tourneyHeader = RegExp(r'Tournament #(\d+),\s*([^\-]+)-',
-            caseSensitive: false)
-        .firstMatch(lines[0]);
+    final tourneyHeader =
+        RegExp(r'Tournament #(\d+),\s*(.+?)\s*-', caseSensitive: false)
+            .firstMatch(lines[0]);
     if (tourneyHeader != null) {
       tournamentId = tourneyHeader.group(1);
       final info = tourneyHeader.group(2)!.trim();
@@ -172,8 +172,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         gameType = info.substring(gameMatch.start).trim();
       }
     }
-    for (var i = 0; i < lines.length && i < 10; i++) {
-      final line = lines[i];
+    for (final line in lines) {
       final prizeMatch = RegExp(r'Total prize pool\s*[:\-]?\s*(?:\$|€|£)?([\d,.]+)',
               caseSensitive: false)
           .firstMatch(line);
@@ -186,6 +185,9 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       if (entrantsMatch != null) {
         numberOfEntrants =
             int.tryParse(entrantsMatch.group(1)!.replaceAll(',', ''));
+      }
+      if (totalPrizePool != null && numberOfEntrants != null) {
+        break;
       }
     }
 
