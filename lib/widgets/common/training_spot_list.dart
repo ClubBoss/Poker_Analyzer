@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/training_spot.dart';
 import '../../theme/app_colors.dart';
@@ -33,6 +34,12 @@ class TrainingSpotList extends StatefulWidget {
 
 class TrainingSpotListState extends State<TrainingSpotList> {
   final TextEditingController _searchController = TextEditingController();
+  static const String _prefsTagsKey = 'training_preset_tags';
+  static const String _prefsSearchKey = 'training_preset_search';
+  static const String _prefsExpandedKey = 'training_preset_expanded';
+  static const String _prefsSortKey = 'training_preset_sort';
+
+  bool _presetsLoaded = false;
   static const List<String> _availableTags = [
     '3бет пот',
     'Фиш',
@@ -56,6 +63,50 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   bool _tagFiltersExpanded = true;
   SortOption? _sortOption;
   List<TrainingSpot>? _originalOrder;
+
+  Future<void> _loadPresets() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> tags = prefs.getStringList(_prefsTagsKey) ?? <String>[];
+    final String search = prefs.getString(_prefsSearchKey) ?? '';
+    final bool expanded = prefs.getBool(_prefsExpandedKey) ?? true;
+    final String? sortName = prefs.getString(_prefsSortKey);
+
+    _searchController.text = search;
+    _selectedTags
+      ..clear()
+      ..addAll(tags);
+    _tagFiltersExpanded = expanded;
+    if (sortName != null && sortName.isNotEmpty) {
+      try {
+        _sortOption = SortOption.values.byName(sortName);
+      } catch (_) {
+        _sortOption = null;
+      }
+    }
+    _presetsLoaded = true;
+    setState(() {});
+    _searchController.addListener(() {
+      if (_presetsLoaded) {
+        setState(() {});
+        _savePresets();
+      } else {
+        setState(() {});
+      }
+    });
+  }
+
+  Future<void> _savePresets() async {
+    if (!_presetsLoaded) return;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_prefsTagsKey, _selectedTags.toList());
+    await prefs.setString(_prefsSearchKey, _searchController.text);
+    await prefs.setBool(_prefsExpandedKey, _tagFiltersExpanded);
+    if (_sortOption != null) {
+      await prefs.setString(_prefsSortKey, _sortOption!.name);
+    } else {
+      await prefs.remove(_prefsSortKey);
+    }
+  }
 
   Future<void> _editSpot(TrainingSpot spot) async {
     final idController =
@@ -247,7 +298,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() => setState(() {}));
+    _loadPresets();
   }
 
   @override
@@ -493,6 +544,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                       _selectedTags.remove(tag);
                     }
                   });
+                  _savePresets();
                 },
               ),
             ),
@@ -517,6 +569,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                   _selectedTags.remove(tag);
                 }
               });
+              _savePresets();
             },
           ),
       ],
@@ -530,7 +583,10 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         style: TextStyle(color: Colors.white),
       ),
       initiallyExpanded: _tagFiltersExpanded,
-      onExpansionChanged: (v) => setState(() => _tagFiltersExpanded = v),
+      onExpansionChanged: (v) {
+        setState(() => _tagFiltersExpanded = v);
+        _savePresets();
+      },
       iconColor: Colors.white,
       collapsedIconColor: Colors.white,
       collapsedTextColor: Colors.white,
@@ -634,6 +690,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _selectedTags.clear();
       _selectedPreset = null;
     });
+    _savePresets();
   }
 
   void _clearTagFilters() {
@@ -641,6 +698,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _selectedTags.clear();
       _selectedPreset = null;
     });
+    _savePresets();
   }
 
   void _handleReorder(
@@ -715,6 +773,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _sortOption = option;
     });
     widget.onChanged?.call();
+    _savePresets();
   }
 
   void _saveCurrentOrder() {
@@ -726,6 +785,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Порядок сохранён')),
     );
+    _savePresets();
   }
 
   void _resetSort() {
@@ -739,5 +799,6 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _sortOption = null;
     });
     widget.onChanged?.call();
+    _savePresets();
   }
 }
