@@ -164,6 +164,9 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Удалить спот?'),
+        content: const Text(
+          'Вы уверены, что хотите удалить этот спот? Это действие нельзя отменить.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -176,7 +179,8 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
         ],
       ),
     );
-    if (confirm == true && widget.onRemove != null) {
+    if (confirm != true) return;
+    if (widget.onRemove != null) {
       widget.onRemove!(widget.spots.indexOf(spot));
       widget.onChanged?.call();
     }
