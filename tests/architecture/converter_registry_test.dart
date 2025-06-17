@@ -2,6 +2,7 @@ import 'package:test/test.dart';
 import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
 import 'package:poker_ai_analyzer/plugins/converter_plugin.dart';
 import 'package:poker_ai_analyzer/plugins/converter_info.dart';
+import 'package:poker_ai_analyzer/plugins/converter_format_capabilities.dart';
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import 'package:poker_ai_analyzer/models/card_model.dart';
 import 'package:poker_ai_analyzer/models/action_entry.dart';
@@ -9,12 +10,21 @@ import 'package:poker_ai_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
   _MockConverter(this.formatId, this.description,
-      [this.onConvertFrom, this.onConvertTo, this.onValidate]);
+      [this.onConvertFrom, this.onConvertTo, this.onValidate,
+      this.capabilities = const ConverterFormatCapabilities(
+        supportsImport: true,
+        supportsExport: true,
+        requiresBoard: false,
+        supportsMultiStreet: true,
+      )]);
 
   @override
   final String formatId;
   @override
   final String description;
+
+  @override
+  final ConverterFormatCapabilities capabilities;
 
   final SavedHand? Function(String data)? onConvertFrom;
   final String? Function(SavedHand hand)? onConvertTo;
@@ -137,6 +147,7 @@ void main() {
       expect(converters, hasLength(1));
       expect(converters.first.formatId, 'fmt');
       expect(converters.first.description, 'Test fmt');
+      expect(converters.first.capabilities.supportsExport, isTrue);
     });
   });
 }

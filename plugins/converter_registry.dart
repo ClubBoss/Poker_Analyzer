@@ -68,5 +68,9 @@ class ConverterRegistry {
   /// Returns metadata about all registered converters.
   List<ConverterInfo> dumpConverters() => List<ConverterInfo>.unmodifiable(
       <ConverterInfo>[for (final p in _plugins)
-        ConverterInfo(formatId: p.formatId, description: p.description)]);
+        ConverterInfo(
+          formatId: p.formatId,
+          description: p.description,
+          capabilities: p.capabilities,
+        )]);
 }
