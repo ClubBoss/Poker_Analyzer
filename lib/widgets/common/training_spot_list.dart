@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/training_spot.dart';
@@ -801,6 +804,15 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                     },
                   ),
           ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ElevatedButton(
+            onPressed:
+                filtered.isEmpty ? null : () => _exportPack(filtered),
+            child: const Text('Экспортировать пакет'),
+          ),
+        ),
       ],
     );
   }
@@ -1130,6 +1142,17 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   void _clearSelection() {
     setState(() => _selectedSpots.clear());
     widget.onChanged?.call();
+  }
+
+  Future<void> _exportPack(List<TrainingSpot> spots) async {
+    if (spots.isEmpty) return;
+    final encoder = JsonEncoder.withIndent('  ');
+    final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/training_spots_${DateTime.now().millisecondsSinceEpoch}.json');
+    await file.writeAsString(jsonStr);
+    await Share.shareXFiles([XFile(file.path)], text: 'training_spots.json');
   }
 
   void _sortFiltered(List<TrainingSpot> filtered, SortOption option) {
