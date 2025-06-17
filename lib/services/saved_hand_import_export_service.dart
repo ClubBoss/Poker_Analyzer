@@ -59,6 +59,11 @@ class SavedHandImportExportService {
     required PlaybackManagerService playbackManager,
     required BoardRevealService boardReveal,
     required CurrentHandContextService handContext,
+    String? tournamentId,
+    int? buyIn,
+    int? totalPrizePool,
+    int? numberOfEntrants,
+    String? gameType,
     int? activePlayerIndex,
   }) {
     final actions = actionSync.analyzerActions;
@@ -88,6 +93,11 @@ class SavedHandImportExportService {
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
           i: stackService.getStackForPlayer(i)
       },
+      tournamentId: tournamentId,
+      buyIn: buyIn,
+      totalPrizePool: totalPrizePool,
+      numberOfEntrants: numberOfEntrants,
+      gameType: gameType,
       playerPositions: Map<int, String>.from(playerManager.playerPositions),
       playerTypes: Map<int, PlayerType>.from(playerManager.playerTypes),
       isFavorite: false,
@@ -212,9 +222,10 @@ class SavedHandImportExportService {
     final fileName = '${hand.name}_${hand.date.millisecondsSinceEpoch}.csv';
     final file = await _defaultFile(fileName);
     final buffer = StringBuffer()
-      ..writeln('name,heroPosition,date,isFavorite,tags,comment')
       ..writeln(
-          '${hand.name},${hand.heroPosition},${hand.date.toIso8601String()},${hand.isFavorite},"${hand.tags.join('|')}","${hand.comment ?? ''}"');
+          'name,heroPosition,date,isFavorite,tags,comment,tournamentId,buyIn,totalPrizePool,numberOfEntrants,gameType')
+      ..writeln(
+          '${hand.name},${hand.heroPosition},${hand.date.toIso8601String()},${hand.isFavorite},"${hand.tags.join('|')}","${hand.comment ?? ''}","${hand.tournamentId ?? ''}",${hand.buyIn ?? ''},${hand.totalPrizePool ?? ''},${hand.numberOfEntrants ?? ''},"${hand.gameType ?? ''}"');
     await file.writeAsString(buffer.toString());
     if (context.mounted) {
       ScaffoldMessenger.of(context)
