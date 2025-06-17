@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 import '../../models/training_spot.dart';
 import '../../theme/app_colors.dart';
@@ -283,6 +284,16 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           ),
           const SizedBox(height: 8),
         ],
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ElevatedButton(
+            onPressed: filtered.length <= 1
+                ? null
+                : () => _shuffleFiltered(filtered),
+            child: const Text('Перемешать'),
+          ),
+        ),
+        const SizedBox(height: 8),
         if (filtered.isEmpty)
           const Text(
             'Нет импортированных спотов',
@@ -524,6 +535,17 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       widget.spots.insert(newMainIndex, spot);
     });
     widget.onReorder?.call(oldMainIndex, newMainIndex);
+    widget.onChanged?.call();
+  }
+
+  void _shuffleFiltered(List<TrainingSpot> filtered) {
+    final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
+    final shuffled = List<TrainingSpot>.from(filtered)..shuffle(Random());
+    setState(() {
+      for (int i = 0; i < indices.length; i++) {
+        widget.spots[indices[i]] = shuffled[i];
+      }
+    });
     widget.onChanged?.call();
   }
 }
