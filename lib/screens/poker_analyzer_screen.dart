@@ -15,6 +15,7 @@ import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
+import '../models/training_spot.dart';
 import '../services/playback_manager_service.dart';
 import '../services/board_manager_service.dart';
 import '../services/board_sync_service.dart';
@@ -1544,7 +1545,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _boardManager.startBoardTransition();
   }
 
-  Map<String, dynamic> _currentTrainingSpot() {
+  TrainingSpot _currentTrainingSpot() {
     return _trainingImportExportService.buildSpot(
       playerManager: _playerManager,
       boardManager: _boardManager,
@@ -1565,7 +1566,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// - `playerTypes`: optional list of player type names.
   /// - `positions`: list of position strings for each player.
   /// - `stacks`: optional list of stack sizes.
-  void loadTrainingSpot(Map<String, dynamic> data) {
+  void loadTrainingSpot(TrainingSpot data) {
     lockService.safeSetState(this, () {
       _trainingImportExportService.applySpot(
         data,
@@ -2059,7 +2060,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 'heroIndex': 0,
                 'numberOfPlayers': 3,
               };
-              loadTrainingSpot(data);
+              loadTrainingSpot(
+                  TrainingSpot.fromJson(Map<String, dynamic>.from(data)));
             },
             child: const Icon(Icons.play_arrow),
           ),
