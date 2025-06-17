@@ -24,6 +24,16 @@ class ServiceRegistry {
     _services[type] = service as Object;
   }
 
+  /// Registers [service] for type [T] only if absent.
+  ///
+  /// This allows plugins to provide default implementations without
+  /// overriding services that may have been registered earlier.
+  void registerIfAbsent<T>(T service) {
+    if (!contains<T>()) {
+      register<T>(service);
+    }
+  }
+
   /// Returns the registered service for type [T].
   /// Throws a [StateError] if no service is registered for this type.
   T get<T>() {
