@@ -394,6 +394,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                               _selectedSpots.remove(spot);
                             }
                           });
+                          widget.onChanged?.call();
                         },
                       ),
                       const SizedBox(width: 8),
