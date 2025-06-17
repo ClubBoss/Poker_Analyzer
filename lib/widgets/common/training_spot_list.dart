@@ -278,10 +278,34 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         if (widget.onRemove != null) ...[
           Align(
             alignment: Alignment.centerLeft,
-            child: ElevatedButton(
-              onPressed:
-                  _selectedSpots.isEmpty ? null : _deleteSelected,
-              child: const Text('Удалить выбранные'),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ElevatedButton(
+                  onPressed:
+                      _selectedSpots.isEmpty ? null : _deleteSelected,
+                  child: const Text('Удалить выбранные'),
+                ),
+                if (_selectedSpots.isNotEmpty)
+                  Positioned(
+                    right: -6,
+                    top: -6,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${_selectedSpots.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: 8),
