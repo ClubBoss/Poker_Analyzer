@@ -1,0 +1,86 @@
+import 'package:test/test.dart';
+import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
+import 'package:poker_ai_analyzer/plugins/converter_plugin.dart';
+import 'package:poker_ai_analyzer/models/saved_hand.dart';
+import 'package:poker_ai_analyzer/models/card_model.dart';
+import 'package:poker_ai_analyzer/models/action_entry.dart';
+import 'package:poker_ai_analyzer/models/player_model.dart';
+
+class _MockConverter implements ConverterPlugin {
+  _MockConverter(this.formatId, [this.onConvert]);
+
+  @override
+  final String formatId;
+
+  final SavedHand? Function(String data)? onConvert;
+
+  @override
+  SavedHand? convertFrom(String externalData) =>
+      onConvert != null ? onConvert!(externalData) : null;
+}
+
+SavedHand _dummyHand() {
+  return SavedHand(
+    name: 'Test',
+    heroIndex: 0,
+    heroPosition: 'BTN',
+    numberOfPlayers: 2,
+    playerCards: <List<CardModel>>[
+      <CardModel>[CardModel(rank: 'A', suit: '♠'), CardModel(rank: 'K', suit: '♦')],
+      <CardModel>[],
+    ],
+    boardCards: <CardModel>[],
+    boardStreet: 0,
+    actions: <ActionEntry>[ActionEntry(0, 0, 'call')],
+    stackSizes: <int, int>{0: 100, 1: 100},
+    playerPositions: <int, String>{0: 'BTN', 1: 'BB'},
+    playerTypes: <int, PlayerType>{0: PlayerType.unknown, 1: PlayerType.unknown},
+  );
+}
+
+void main() {
+  group('ConverterRegistry', () {
+    test('registers converter plugins', () {
+      final registry = ConverterRegistry();
+      final plugin = _MockConverter('foo');
+      registry.register(plugin);
+
+      expect(registry.findByFormatId('foo'), same(plugin));
+    });
+
+    test('rejects duplicate format ids', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('dup'));
+
+      expect(() => registry.register(_MockConverter('dup')), throwsStateError);
+    });
+
+    test('findByFormatId returns the correct plugin', () {
+      final registry = ConverterRegistry();
+      final first = _MockConverter('a');
+      final second = _MockConverter('b');
+      registry.register(first);
+      registry.register(second);
+
+      expect(registry.findByFormatId('b'), same(second));
+      expect(registry.findByFormatId('c'), isNull);
+    });
+
+    test('tryConvert returns result on success', () {
+      final hand = _dummyHand();
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('ok', (_) => hand));
+
+      final result = registry.tryConvert('ok', 'data');
+      expect(result, same(hand));
+    });
+
+    test('tryConvert returns null on failure or missing plugin', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('fail'));
+
+      expect(registry.tryConvert('fail', 'data'), isNull);
+      expect(registry.tryConvert('missing', 'data'), isNull);
+    });
+  });
+}
