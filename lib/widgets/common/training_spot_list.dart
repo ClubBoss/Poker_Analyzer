@@ -342,9 +342,13 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         _buildSearchField(),
         _buildFilterSummary(),
         const SizedBox(height: 8),
-        _buildTagFilterSection(filtered),
-        const SizedBox(height: 8),
-        _buildTagFilterRow(),
+        _buildFilterToggleButton(),
+        if (_tagFiltersExpanded) ...[
+          const SizedBox(height: 8),
+          _buildTagFilterSection(filtered),
+          const SizedBox(height: 8),
+          _buildTagFilterRow(),
+        ],
         const SizedBox(height: 8),
         if (widget.onRemove != null) ...[
           Align(
@@ -558,6 +562,21 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       child: Text(
         summary,
         style: const TextStyle(color: Colors.white60),
+      ),
+    );
+  }
+
+  Widget _buildFilterToggleButton() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton(
+        onPressed: () {
+          setState(() => _tagFiltersExpanded = !_tagFiltersExpanded);
+          _savePresets();
+        },
+        child: Text(
+          _tagFiltersExpanded ? 'Скрыть фильтры' : 'Показать фильтры',
+        ),
       ),
     );
   }
