@@ -19,6 +19,8 @@ class SavedHand {
   final int boardStreet;
   final Map<int, int> stackSizes;
   final Map<int, int>? remainingStacks;
+  /// Winnings collected by each player in chips or big blinds.
+  final Map<int, int>? winnings;
   final Map<int, String> playerPositions;
   final Map<int, PlayerType>? playerTypes;
   final String? comment;
@@ -60,6 +62,7 @@ class SavedHand {
     required this.actions,
     required this.stackSizes,
     this.remainingStacks,
+    this.winnings,
     required this.playerPositions,
     this.playerTypes,
     this.comment,
@@ -100,6 +103,7 @@ class SavedHand {
     List<ActionEntry>? actions,
     Map<int, int>? stackSizes,
     Map<int, int>? remainingStacks,
+    Map<int, int>? winnings,
     Map<int, String>? playerPositions,
     Map<int, PlayerType>? playerTypes,
     String? comment,
@@ -140,6 +144,8 @@ class SavedHand {
           (this.remainingStacks == null
               ? null
               : Map<int, int>.from(this.remainingStacks!)),
+      winnings: winnings ??
+          (this.winnings == null ? null : Map<int, int>.from(this.winnings!)),
       playerPositions: playerPositions ?? Map<int, String>.from(this.playerPositions),
       playerTypes: playerTypes ?? this.playerTypes,
       comment: comment ?? this.comment,
@@ -220,6 +226,8 @@ class SavedHand {
         if (remainingStacks != null)
           'remainingStacks':
               remainingStacks!.map((k, v) => MapEntry(k.toString(), v)),
+        if (winnings != null)
+          'winnings': winnings!.map((k, v) => MapEntry(k.toString(), v)),
         'playerPositions': playerPositions.map((k, v) => MapEntry(k.toString(), v)),
         if (playerTypes != null)
           'playerTypes':
@@ -293,6 +301,13 @@ class SavedHand {
       remaining = <int, int>{};
       (json['remainingStacks'] as Map).forEach((key, value) {
         remaining![int.parse(key as String)] = value as int;
+      });
+    }
+    Map<int, int>? wins;
+    if (json['winnings'] != null) {
+      wins = <int, int>{};
+      (json['winnings'] as Map).forEach((key, value) {
+        wins![int.parse(key as String)] = value as int;
       });
     }
     final positions = <int, String>{};
@@ -376,6 +391,7 @@ class SavedHand {
       actions: acts,
       stackSizes: stack,
       remainingStacks: remaining,
+      winnings: wins,
       playerPositions: positions,
       playerTypes: types,
       comment: json['comment'] as String?,

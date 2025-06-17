@@ -388,6 +388,34 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       }
     }
 
+    // Phase 25: parse winnings from summary section.
+    final Map<int, int> winnings = {};
+    final summaryIndexForWinnings =
+        lines.indexWhere((l) => l.startsWith('*** SUMMARY'));
+    if (summaryIndexForWinnings != -1) {
+      final collectRegex =
+          RegExp(r'^(.+?) collected (?:\$|€|£)?([\d,.]+)', caseSensitive: false);
+      final winsRegex =
+          RegExp(r'^(.+?) wins (?:\$|€|£)?([\d,.]+)', caseSensitive: false);
+      for (var i = summaryIndexForWinnings + 1; i < lines.length; i++) {
+        final line = lines[i].trim();
+        if (line.startsWith('***')) break;
+        Match? m = collectRegex.firstMatch(line);
+        m ??= winsRegex.firstMatch(line);
+        if (m != null) {
+          final name = m.group(1)!.trim();
+          final idx = nameToIndex[name.toLowerCase()];
+          if (idx != null) {
+            final amount = _parseAmount(m.group(2)!);
+            final win = bigBlind != null && bigBlind > 0
+                ? (amount / bigBlind).round()
+                : amount.round();
+            winnings[idx] = (winnings[idx] ?? 0) + win;
+          }
+        }
+      }
+    }
+
     // Infer player positions based on the button seat and seat order.
     final playerPositions = <int, String>{};
     String heroPosition = 'BTN';
@@ -425,6 +453,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       boardStreet: boardStreet,
       actions: actions,
       stackSizes: stackSizes,
+      winnings: winnings.isEmpty ? null : winnings,
       playerPositions: playerPositions,
       playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
       comment: tableName,
