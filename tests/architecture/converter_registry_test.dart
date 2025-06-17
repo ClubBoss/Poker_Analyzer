@@ -7,16 +7,21 @@ import 'package:poker_ai_analyzer/models/action_entry.dart';
 import 'package:poker_ai_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId, [this.onConvert]);
+  _MockConverter(this.formatId, [this.onConvertFrom, this.onConvertTo]);
 
   @override
   final String formatId;
 
-  final SavedHand? Function(String data)? onConvert;
+  final SavedHand? Function(String data)? onConvertFrom;
+  final String? Function(SavedHand hand)? onConvertTo;
 
   @override
   SavedHand? convertFrom(String externalData) =>
-      onConvert != null ? onConvert!(externalData) : null;
+      onConvertFrom != null ? onConvertFrom!(externalData) : null;
+
+  @override
+  String? convertTo(SavedHand hand) =>
+      onConvertTo != null ? onConvertTo!(hand) : null;
 }
 
 SavedHand _dummyHand() {
@@ -81,6 +86,23 @@ void main() {
 
       expect(registry.tryConvert('fail', 'data'), isNull);
       expect(registry.tryConvert('missing', 'data'), isNull);
+    });
+
+    test('tryExport returns result on success', () {
+      final registry = ConverterRegistry();
+      registry.register(
+          _MockConverter('ok', null, (_) => 'exported'));
+
+      final result = registry.tryExport('ok', _dummyHand());
+      expect(result, 'exported');
+    });
+
+    test('tryExport returns null on failure or missing plugin', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('fail'));
+
+      expect(registry.tryExport('fail', _dummyHand()), isNull);
+      expect(registry.tryExport('missing', _dummyHand()), isNull);
     });
   });
 }

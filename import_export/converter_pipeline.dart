@@ -18,6 +18,14 @@ class ConverterPipeline {
     return _registry.tryConvert(formatId, data);
   }
 
+  /// Attempts to export [hand] using the converter identified by [formatId].
+  ///
+  /// Returns a string on success or `null` if the format is unsupported or the
+  /// converter failed to produce a representation.
+  String? tryExport(SavedHand hand, String formatId) {
+    return _registry.tryExport(formatId, hand);
+  }
+
   /// Lists all format identifiers for which converters are registered.
   List<String> supportedFormats() {
     return _registry.dumpFormatIds();
