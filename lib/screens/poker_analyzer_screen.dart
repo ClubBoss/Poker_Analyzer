@@ -1521,11 +1521,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       playbackManager: _playbackManager,
       boardReveal: _boardReveal,
       handContext: _handContext,
-      tournamentId: tournamentId,
-      buyIn: buyIn,
-      totalPrizePool: totalPrizePool,
-      numberOfEntrants: numberOfEntrants,
-      gameType: gameType,
+      tournamentId: tournamentId ?? _handContext.tournamentId,
+      buyIn: buyIn ?? _handContext.buyIn,
+      totalPrizePool: totalPrizePool ?? _handContext.totalPrizePool,
+      numberOfEntrants: numberOfEntrants ?? _handContext.numberOfEntrants,
+      gameType: gameType ?? _handContext.gameType,
       activePlayerIndex: activePlayerIndex,
     );
   }
@@ -1551,6 +1551,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardManager: _boardManager,
       actionSync: _actionSync,
       stackManager: _stackService,
+      tournamentId: _handContext.tournamentId,
+      buyIn: _handContext.buyIn,
+      totalPrizePool: _handContext.totalPrizePool,
+      numberOfEntrants: _handContext.numberOfEntrants,
+      gameType: _handContext.gameType,
     );
   }
 
@@ -2005,6 +2010,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   heroIndex: heroIndex,
                   commentController: _handContext.commentController,
                   tagsController: _handContext.tagsController,
+                  tournamentIdController: _handContext.tournamentIdController,
+                  buyInController: _handContext.buyInController,
+                  prizePoolController: _handContext.totalPrizePoolController,
+                  entrantsController: _handContext.numberOfEntrantsController,
+                  gameTypeController: _handContext.gameTypeController,
                   currentStreet: currentStreet,
                   pots: _potSync.pots,
                   stackSizes: _stackService.currentStacks,
@@ -3334,6 +3344,11 @@ class _CollapsibleActionHistorySection extends StatelessWidget {
 class _HandNotesSection extends StatelessWidget {
   final TextEditingController commentController;
   final TextEditingController tagsController;
+  final TextEditingController tournamentIdController;
+  final TextEditingController buyInController;
+  final TextEditingController prizePoolController;
+  final TextEditingController entrantsController;
+  final TextEditingController gameTypeController;
 
   const _HandNotesSection({
     required this.commentController,
@@ -3374,6 +3389,182 @@ class _HandNotesSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _TournamentInfoSection extends StatefulWidget {
+  final TextEditingController idController;
+  final TextEditingController buyInController;
+  final TextEditingController prizePoolController;
+  final TextEditingController entrantsController;
+  final TextEditingController gameTypeController;
+
+  const _TournamentInfoSection({
+    required this.idController,
+    required this.buyInController,
+    required this.prizePoolController,
+    required this.entrantsController,
+    required this.gameTypeController,
+  });
+
+  @override
+  State<_TournamentInfoSection> createState() => _TournamentInfoSectionState();
+}
+
+class _TournamentInfoSectionState extends State<_TournamentInfoSection> {
+  bool _open = false;
+
+  bool get _allEmpty =>
+      widget.idController.text.isEmpty &&
+      widget.buyInController.text.isEmpty &&
+      widget.prizePoolController.text.isEmpty &&
+      widget.entrantsController.text.isEmpty &&
+      widget.gameTypeController.text.isEmpty;
+
+  Widget _summaryRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Text('$label: $value',
+          style: const TextStyle(color: Colors.white70)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final summary = <Widget>[];
+    if (widget.idController.text.isNotEmpty) {
+      summary.add(_summaryRow('ID', widget.idController.text));
+    }
+    if (widget.buyInController.text.isNotEmpty) {
+      summary.add(_summaryRow('Buy-In', widget.buyInController.text));
+    }
+    if (widget.prizePoolController.text.isNotEmpty) {
+      summary.add(_summaryRow('Prize Pool', widget.prizePoolController.text));
+    }
+    if (widget.entrantsController.text.isNotEmpty) {
+      summary.add(_summaryRow('Entrants', widget.entrantsController.text));
+    }
+    if (widget.gameTypeController.text.isNotEmpty) {
+      summary.add(_summaryRow('Game', widget.gameTypeController.text));
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: () => setState(() => _open = !_open),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text('Tournament Info',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                  AnimatedRotation(
+                    turns: _open ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child:
+                        const Icon(Icons.expand_more, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (!_open && summary.isNotEmpty)
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: summary,
+              ),
+            ),
+          ClipRect(
+            child: AnimatedAlign(
+              alignment: Alignment.topCenter,
+              duration: const Duration(milliseconds: 300),
+              heightFactor: _open ? 1 : 0,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0, vertical: 4.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: widget.idController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Tournament ID',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: widget.buyInController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Buy-In',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: widget.prizePoolController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Prize Pool',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: widget.entrantsController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: 'Entrants',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: widget.gameTypeController.text.isEmpty
+                          ? null
+                          : widget.gameTypeController.text,
+                      decoration: const InputDecoration(
+                        labelText: 'Game Type',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                      dropdownColor: Colors.grey[900],
+                      items: const [
+                        DropdownMenuItem(
+                            value: "Hold'em NL", child: Text("Hold'em NL")),
+                        DropdownMenuItem(value: 'Omaha PL', child: Text('Omaha PL')),
+                        DropdownMenuItem(value: 'Other', child: Text('Other')),
+                      ],
+                      onChanged: (v) =>
+                          setState(() => widget.gameTypeController.text = v ?? ''),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -3746,6 +3937,11 @@ class _HandEditorSection extends StatelessWidget {
     required this.heroIndex,
     required this.commentController,
     required this.tagsController,
+    required this.tournamentIdController,
+    required this.buyInController,
+    required this.prizePoolController,
+    required this.entrantsController,
+    required this.gameTypeController,
     required this.currentStreet,
     required this.pots,
     required this.stackSizes,
@@ -3772,6 +3968,13 @@ class _HandEditorSection extends StatelessWidget {
                 _HandNotesSection(
                     commentController: commentController,
                     tagsController: tagsController),
+                _TournamentInfoSection(
+                  idController: tournamentIdController,
+                  buyInController: buyInController,
+                  prizePoolController: prizePoolController,
+                  entrantsController: entrantsController,
+                  gameTypeController: gameTypeController,
+                ),
                 _StreetActionsSection(
                   street: currentStreet,
                   actionHistory: _actionHistory,
