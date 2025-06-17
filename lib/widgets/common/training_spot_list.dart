@@ -31,6 +31,16 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
     'vs агро',
   ];
 
+  static const Map<String, List<String>> _tagPresets = {
+    '3бет пот': ['3бет пот'],
+    'Фиш': ['Фиш'],
+    'Рег': ['Рег'],
+    'ICM': ['ICM'],
+    'vs агро': ['vs агро'],
+  };
+
+  String? _selectedPreset;
+
   final Set<String> _selectedTags = {};
 
   Future<void> _editSpot(TrainingSpot spot) async {
@@ -221,6 +231,8 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
         const SizedBox(height: 8),
         _buildTagFilters(),
         const SizedBox(height: 8),
+        _buildPresetDropdown(filtered),
+        const SizedBox(height: 8),
         if (filtered.isEmpty)
           const Text(
             'Нет импортированных спотов',
@@ -356,6 +368,44 @@ class _TrainingSpotListState extends State<TrainingSpotList> {
               });
             },
           ),
+      ],
+    );
+  }
+
+  Widget _buildPresetDropdown(List<TrainingSpot> filtered) {
+    return Row(
+      children: [
+        const Text('Применить теги ко всем',
+            style: TextStyle(color: Colors.white)),
+        const SizedBox(width: 8),
+        DropdownButton<String>(
+          value: _selectedPreset,
+          hint: const Text('Выбрать', style: TextStyle(color: Colors.white60)),
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: [
+            for (final entry in _tagPresets.entries)
+              DropdownMenuItem(
+                value: entry.key,
+                child: Text(entry.key),
+              ),
+          ],
+          onChanged: (value) {
+            if (value == null) return;
+            final tags = _tagPresets[value]!;
+            setState(() {
+              for (final spot in filtered) {
+                for (final t in tags) {
+                  if (!spot.tags.contains(t)) {
+                    spot.tags.add(t);
+                  }
+                }
+              }
+              _selectedPreset = null;
+            });
+            widget.onChanged?.call();
+          },
+        ),
       ],
     );
   }
