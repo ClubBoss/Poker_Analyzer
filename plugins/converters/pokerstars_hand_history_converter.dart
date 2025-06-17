@@ -33,22 +33,82 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     if (tableMatch == null) return null;
     final tableName = tableMatch.group(1)!.trim();
 
-    int playerCount = 0;
+    final seatRegex = RegExp(r'^Seat (\d+):\s*(.+?)\s*(?:\(|\$)');
+    final seatEntries = <Map<String, dynamic>>[];
     for (var i = 2; i < lines.length; i++) {
-      if (lines[i].startsWith('Seat ')) {
-        playerCount++;
-      } else if (playerCount > 0) {
+      final match = seatRegex.firstMatch(lines[i]);
+      if (match != null) {
+        seatEntries.add({
+          'seat': int.parse(match.group(1)!),
+          'name': match.group(2)!.trim(),
+        });
+      } else if (seatEntries.isNotEmpty) {
         break;
       }
     }
-    if (playerCount == 0) return null;
+
+    if (seatEntries.isEmpty) return null;
+    seatEntries.sort((a, b) => (a['seat'] as int).compareTo(b['seat'] as int));
+    final playerCount = seatEntries.length;
+
+    int heroIndex = 0;
+    final playerCards = List.generate(playerCount, (_) => <CardModel>[]);
+    String? heroName;
+    List<CardModel> heroCards = [];
+    CardModel? parseCard(String token) {
+      if (token.length < 2) return null;
+      final rank = token.substring(0, token.length - 1).toUpperCase();
+      final suitChar = token[token.length - 1].toLowerCase();
+      String suit;
+      switch (suitChar) {
+        case 'h':
+          suit = '♥';
+          break;
+        case 'd':
+          suit = '♦';
+          break;
+        case 'c':
+          suit = '♣';
+          break;
+        case 's':
+          suit = '♠';
+          break;
+        default:
+          return null;
+      }
+      return CardModel(rank: rank, suit: suit);
+    }
+    final holeIndex = lines.indexWhere((l) => l.startsWith('*** HOLE CARDS ***'));
+    if (holeIndex != -1) {
+      for (var i = holeIndex + 1; i < lines.length; i++) {
+        final dealtMatch = RegExp(r'^Dealt to (.+?) \[(.+?) (.+?)\]')
+            .firstMatch(lines[i]);
+        if (dealtMatch != null) {
+          heroName = dealtMatch.group(1)!.trim();
+          final c1 = parseCard(dealtMatch.group(2)!);
+          final c2 = parseCard(dealtMatch.group(3)!);
+          if (c1 != null && c2 != null) {
+            heroCards = [c1, c2];
+          }
+          break;
+        }
+      }
+    }
+    if (heroName != null) {
+      heroIndex = seatEntries.indexWhere(
+          (e) => (e['name'] as String).toLowerCase() == heroName!.toLowerCase());
+      if (heroIndex < 0) heroIndex = 0;
+    }
+    if (heroCards.isNotEmpty && heroIndex >= 0 && heroIndex < playerCount) {
+      playerCards[heroIndex] = heroCards;
+    }
 
     return SavedHand(
       name: handId,
-      heroIndex: 0,
-      heroPosition: '',
+      heroIndex: heroIndex,
+      heroPosition: 'BTN',
       numberOfPlayers: playerCount,
-      playerCards: List.generate(playerCount, (_) => <CardModel>[]),
+      playerCards: playerCards,
       boardCards: <CardModel>[],
       boardStreet: 0,
       actions: <ActionEntry>[],
