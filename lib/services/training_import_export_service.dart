@@ -124,6 +124,77 @@ class TrainingImportExportService {
     return '${headers.join(',')}\n${values.join(',')}';
   }
 
+  /// Export multiple [TrainingSpot]s to CSV. Only include headers once.
+  /// Fields that are `null` for a spot will produce empty cells in its row.
+  String exportAllSpotsCsv(List<TrainingSpot> spots) {
+    if (spots.isEmpty) return '';
+
+    const fieldOrder = [
+      'tournamentId',
+      'buyIn',
+      'totalPrizePool',
+      'numberOfEntrants',
+      'gameType',
+    ];
+
+    final headers = <String>[];
+    bool added(String name) => headers.contains(name);
+    void tryAdd(String name, bool include) {
+      if (include && !added(name)) headers.add(name);
+    }
+
+    for (final s in spots) {
+      tryAdd('tournamentId', s.tournamentId != null);
+      tryAdd('buyIn', s.buyIn != null);
+      tryAdd('totalPrizePool', s.totalPrizePool != null);
+      tryAdd('numberOfEntrants', s.numberOfEntrants != null);
+      tryAdd('gameType', s.gameType != null);
+    }
+
+    // Preserve predefined order
+    headers.sort((a, b) => fieldOrder.indexOf(a).compareTo(fieldOrder.indexOf(b)));
+
+    String escapeValue(Object value) {
+      final str = value.toString();
+      if (str.contains(',') || str.contains('"') || str.contains('\n')) {
+        final escaped = str.replaceAll('"', '""');
+        return '"$escaped"';
+      }
+      return str;
+    }
+
+    final buffer = StringBuffer();
+    buffer.writeln(headers.join(','));
+
+    for (final s in spots) {
+      final row = <String>[];
+      for (final h in headers) {
+        Object? val;
+        switch (h) {
+          case 'tournamentId':
+            val = s.tournamentId;
+            break;
+          case 'buyIn':
+            val = s.buyIn;
+            break;
+          case 'totalPrizePool':
+            val = s.totalPrizePool;
+            break;
+          case 'numberOfEntrants':
+            val = s.numberOfEntrants;
+            break;
+          case 'gameType':
+            val = s.gameType;
+            break;
+        }
+        row.add(val == null ? '' : escapeValue(val));
+      }
+      buffer.writeln(row.join(','));
+    }
+
+    return buffer.toString().trimRight();
+  }
+
   /// Parse tournament metadata from a CSV string. Returns `null` on failure.
   TrainingSpot? importCsvSpot(String csvStr) {
     try {
