@@ -393,6 +393,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
 
     // Phase 25: parse winnings from summary section.
     final Map<int, int> winnings = {};
+    final Map<int, int> eliminatedPositions = {};
     int? totalPotBb;
     int? rakeBb;
     final summaryIndexForWinnings =
@@ -402,6 +403,12 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
           RegExp(r'^(.+?) collected (?:\$|€|£)?([\d,.]+)', caseSensitive: false);
       final winsRegex =
           RegExp(r'^(.+?) wins (?:\$|€|£)?([\d,.]+)', caseSensitive: false);
+      final seatFinishRegex = RegExp(
+          r'^Seat (\d+):\s*(.+?) finished(?: the tournament)? in (\d+)[a-z]{2} place',
+          caseSensitive: false);
+      final nameFinishRegex = RegExp(
+          r'^(.+?) finished(?: the tournament)? in (\d+)[a-z]{2} place',
+          caseSensitive: false);
       final potRakeRegex = RegExp(
           r'^Total pot (?:\$|€|£)?([\d,.]+).*?\|\s*Rake (?:\$|€|£)?([\d,.]+)',
           caseSensitive: false);
@@ -422,6 +429,26 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
                 : amount.round();
             winnings[idx] = (winnings[idx] ?? 0) + win;
           }
+        }
+        m = seatFinishRegex.firstMatch(line);
+        if (m != null) {
+          final seatNum = int.tryParse(m.group(1)!);
+          final pos = int.tryParse(m.group(3)!);
+          if (seatNum != null && pos != null) {
+            final idx = seatEntries.indexWhere((e) => e['seat'] == seatNum);
+            if (idx != -1) eliminatedPositions[idx] = pos;
+          }
+          continue;
+        }
+        m = nameFinishRegex.firstMatch(line);
+        if (m != null) {
+          final name = m.group(1)!.trim();
+          final pos = int.tryParse(m.group(2)!);
+          if (pos != null) {
+            final idx = nameToIndex[name.toLowerCase()];
+            if (idx != null) eliminatedPositions[idx] = pos;
+          }
+          continue;
         }
         m = potRakeRegex.firstMatch(line);
         if (m != null) {
@@ -481,6 +508,8 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       winnings: winnings.isEmpty ? null : winnings,
       totalPot: totalPotBb,
       rake: rakeBb,
+      eliminatedPositions:
+          eliminatedPositions.isEmpty ? null : eliminatedPositions,
       playerPositions: playerPositions,
       playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
       comment: tableName,
