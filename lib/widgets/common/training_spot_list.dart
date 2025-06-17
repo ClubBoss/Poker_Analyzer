@@ -8,6 +8,7 @@ class TrainingSpotList extends StatefulWidget {
   final ValueChanged<int>? onRemove;
   final VoidCallback? onChanged;
   final ReorderCallback? onReorder;
+  final bool icmOnly;
 
   const TrainingSpotList({
     super.key,
@@ -15,6 +16,7 @@ class TrainingSpotList extends StatefulWidget {
     this.onRemove,
     this.onChanged,
     this.onReorder,
+    this.icmOnly = false,
   });
 
   @override
@@ -258,7 +260,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           buyIn.contains(query);
       final matchesTags =
           _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
-      return matchesQuery && matchesTags;
+      final matchesIcm = !widget.icmOnly || spot.tags.contains('ICM');
+      return matchesQuery && matchesTags && matchesIcm;
     }).toList();
 
     return Column(
