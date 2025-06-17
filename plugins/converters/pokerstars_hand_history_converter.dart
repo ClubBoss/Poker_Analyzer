@@ -282,6 +282,39 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         bigBlind, actions, actionTags);
   }
 
+  // Parse showdown section for revealed hole cards.
+  final showdownIndex =
+      lines.indexWhere((l) => l.startsWith('*** SHOW'));
+  if (showdownIndex != -1) {
+    final showRegex = RegExp(r'^([^:]+?):\s*shows? \[(.+?)\]',
+        caseSensitive: false);
+    for (var i = showdownIndex + 1; i < lines.length; i++) {
+      final line = lines[i].trim();
+      if (line.startsWith('***')) break;
+      final m = showRegex.firstMatch(line);
+      if (m != null) {
+        final name = m.group(1)!.trim();
+        final idx = nameToIndex[name.toLowerCase()];
+        if (idx != null) {
+          if (idx == heroIndex && playerCards[idx].isNotEmpty) {
+            continue; // don't overwrite hero cards
+          }
+          if (playerCards[idx].isEmpty) {
+            final tokens = m.group(2)!.split(RegExp(r'\s+'));
+            final cards = <CardModel>[];
+            for (final t in tokens) {
+              final c = parseCard(t);
+              if (c != null) cards.add(c);
+            }
+            if (cards.length >= 2) {
+              playerCards[idx] = cards.sublist(0, 2);
+            }
+          }
+        }
+      }
+    }
+  }
+
     final stackSizes = <int, int>{};
     for (int i = 0; i < seatEntries.length; i++) {
       final stack = seatEntries[i]['stack'] as double? ?? 0;
