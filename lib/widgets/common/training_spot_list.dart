@@ -212,13 +212,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
   Future<void> _deleteSelected() async {
+    final count = _selectedSpots.length;
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Удалить выбранные споты?'),
-        content: const Text(
-          'Вы уверены, что хотите удалить выбранные споты? Это действие нельзя отменить.',
-        ),
+        title: Text('Удалить $count спотов?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -226,7 +224,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Удалить'),
+            child: const Text('Да'),
           ),
         ],
       ),
