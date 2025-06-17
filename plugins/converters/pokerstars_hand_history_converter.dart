@@ -369,6 +369,69 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       }
     }
 
+    // Parse river actions after RIVER line.
+    final riverIndex = lines.indexWhere((l) => l.startsWith('*** RIVER'));
+    if (riverIndex != -1) {
+      final endIndex = lines.indexWhere(
+          (l) => l.startsWith('*** SHOW') || l.startsWith('*** SUMMARY'),
+          riverIndex + 1);
+      for (int i = riverIndex + 1;
+          i < lines.length && (endIndex == -1 || i < endIndex);
+          i++) {
+        final line = lines[i].trim();
+        if (line.isEmpty) continue;
+        Match? m;
+
+        m = RegExp(r'^(.+?): folds', caseSensitive: false).firstMatch(line);
+        if (m != null) {
+          final idx = nameToIndex[m.group(1)!.toLowerCase()];
+          if (idx != null) {
+            actions.add(ActionEntry(3, idx, 'fold'));
+            actionTags[idx] = 'fold';
+          }
+          continue;
+        }
+
+        m = RegExp(r'^(.+?): calls [\$€£]?([\d,.]+)(.*)',
+                caseSensitive: false)
+            .firstMatch(line);
+        if (m != null) {
+          final idx = nameToIndex[m.group(1)!.toLowerCase()];
+          if (idx != null) {
+            final amt = _parseAmount(m.group(2)!);
+            final amount =
+                bigBlind != null && bigBlind! > 0
+                    ? (amt / bigBlind!).round()
+                    : amt.round();
+            final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
+            final action = isAllIn ? 'all-in' : 'call';
+            actions.add(ActionEntry(3, idx, action, amount: amount));
+            actionTags[idx] = '$action $amount';
+          }
+          continue;
+        }
+
+        m = RegExp(r'^(.+?): raises [\$€£]?([\d,.]+) to [\$€£]?([\d,.]+)(.*)',
+                caseSensitive: false)
+            .firstMatch(line);
+        if (m != null) {
+          final idx = nameToIndex[m.group(1)!.toLowerCase()];
+          if (idx != null) {
+            final amt = _parseAmount(m.group(3)!);
+            final amount =
+                bigBlind != null && bigBlind! > 0
+                    ? (amt / bigBlind!).round()
+                    : amt.round();
+            final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
+            final action = isAllIn ? 'all-in' : 'raise';
+            actions.add(ActionEntry(3, idx, action, amount: amount));
+            actionTags[idx] = '$action $amount';
+          }
+          continue;
+        }
+      }
+    }
+
     final stackSizes = <int, int>{};
     for (int i = 0; i < seatEntries.length; i++) {
       final stack = seatEntries[i]['stack'] as double? ?? 0;
