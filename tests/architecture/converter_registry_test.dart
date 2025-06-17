@@ -7,13 +7,15 @@ import 'package:poker_ai_analyzer/models/action_entry.dart';
 import 'package:poker_ai_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId, [this.onConvertFrom, this.onConvertTo]);
+  _MockConverter(this.formatId,
+      [this.onConvertFrom, this.onConvertTo, this.onValidate]);
 
   @override
   final String formatId;
 
   final SavedHand? Function(String data)? onConvertFrom;
   final String? Function(SavedHand hand)? onConvertTo;
+  final String? Function(SavedHand hand)? onValidate;
 
   @override
   SavedHand? convertFrom(String externalData) =>
@@ -22,6 +24,10 @@ class _MockConverter implements ConverterPlugin {
   @override
   String? convertTo(SavedHand hand) =>
       onConvertTo != null ? onConvertTo!(hand) : null;
+
+  @override
+  String? validate(SavedHand hand) =>
+      onValidate != null ? onValidate!(hand) : null;
 }
 
 SavedHand _dummyHand() {
@@ -103,6 +109,21 @@ void main() {
 
       expect(registry.tryExport('fail', _dummyHand()), isNull);
       expect(registry.tryExport('missing', _dummyHand()), isNull);
+    });
+
+    test('validateForExport forwards validation', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('fmt', null, null, (_) => 'bad'));
+
+      expect(registry.validateForExport('fmt', _dummyHand()), 'bad');
+    });
+
+    test('validateForExport returns null for success or missing plugin', () {
+      final registry = ConverterRegistry();
+      registry.register(_MockConverter('ok', null, null, (_) => null));
+
+      expect(registry.validateForExport('ok', _dummyHand()), isNull);
+      expect(registry.validateForExport('missing', _dummyHand()), isNull);
     });
   });
 }

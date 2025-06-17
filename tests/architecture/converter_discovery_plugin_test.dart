@@ -16,6 +16,9 @@ class _DummyConverter implements ConverterPlugin {
 
   @override
   SavedHand? convertFrom(String externalData) => null;
+
+  @override
+  String? validate(SavedHand hand) => null;
 }
 
 void main() {

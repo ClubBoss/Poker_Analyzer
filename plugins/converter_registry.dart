@@ -48,6 +48,18 @@ class ConverterRegistry {
     return plugin.convertTo(hand);
   }
 
+  /// Validates [hand] before exporting with the converter associated with [id].
+  ///
+  /// Returns an error message if the converter rejects the hand, or `null` if
+  /// the hand is valid for export or the converter is not found.
+  String? validateForExport(String id, SavedHand hand) {
+    final ConverterPlugin? plugin = findByFormatId(id);
+    if (plugin == null) {
+      return null;
+    }
+    return plugin.validate(hand);
+  }
+
   /// Returns the list of registered converter format identifiers.
   List<String> dumpFormatIds() =>
       List<String>.unmodifiable(<String>[for (final p in _plugins) p.formatId]);
