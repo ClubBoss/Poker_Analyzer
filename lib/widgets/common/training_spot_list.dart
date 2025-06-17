@@ -41,6 +41,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsSortKey = 'training_preset_sort';
   static const String _prefsIcmOnlyKey = 'training_preset_icm_only';
   static const String _prefsOrderKey = 'training_spots_order';
+  static const String _prefsListVisibleKey = 'training_spot_list_visible';
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
@@ -69,6 +70,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   List<TrainingSpot>? _originalOrder;
   bool _icmOnly = false;
   bool _manualOrder = true;
+  bool _listVisible = true;
 
   List<TrainingSpot> _currentFilteredSpots() {
     final query = _searchController.text.toLowerCase();
@@ -105,6 +107,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final List<String> tags = prefs.getStringList(_prefsTagsKey) ?? <String>[];
     final String search = prefs.getString(_prefsSearchKey) ?? '';
     final bool expanded = prefs.getBool(_prefsExpandedKey) ?? true;
+    final bool listVisible = prefs.getBool(_prefsListVisibleKey) ?? true;
     final String? sortName = prefs.getString(_prefsSortKey);
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
 
@@ -113,6 +116,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       ..clear()
       ..addAll(tags);
     _tagFiltersExpanded = expanded;
+    _listVisible = listVisible;
     _icmOnly = icmOnly;
     if (sortName != null && sortName.isNotEmpty) {
       try {
@@ -146,6 +150,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     await prefs.setString(_prefsSearchKey, _searchController.text);
     await prefs.setBool(_prefsExpandedKey, _tagFiltersExpanded);
     await prefs.setBool(_prefsIcmOnlyKey, _icmOnly);
+    await prefs.setBool(_prefsListVisibleKey, _listVisible);
     if (_sortOption != null) {
       await prefs.setString(_prefsSortKey, _sortOption!.name);
     } else {
@@ -607,16 +612,19 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           ),
         ),
         const SizedBox(height: 8),
-        if (filtered.isEmpty)
-          const Text(
-            'Нет импортированных спотов',
-            style: TextStyle(color: Colors.white54),
-          )
-        else
-          SizedBox(
-            height: 150,
-            child: _manualOrder
-                ? ReorderableListView.builder(
+        _buildListToggleButton(),
+        const SizedBox(height: 8),
+        if (_listVisible)
+          if (filtered.isEmpty)
+            const Text(
+              'Нет импортированных спотов',
+              style: TextStyle(color: Colors.white54),
+            )
+          else
+            SizedBox(
+              height: 150,
+              child: _manualOrder
+                  ? ReorderableListView.builder(
                     buildDefaultDragHandles: false,
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
@@ -858,6 +866,21 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         },
         child: Text(
           _tagFiltersExpanded ? 'Скрыть фильтры' : 'Показать фильтры',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListToggleButton() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton(
+        onPressed: () {
+          setState(() => _listVisible = !_listVisible);
+          _savePresets();
+        },
+        child: Text(
+          _listVisible ? 'Скрыть список' : 'Показать список',
         ),
       ),
     );
