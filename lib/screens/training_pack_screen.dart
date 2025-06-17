@@ -544,6 +544,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                 onPressed: _importSpotsCsv,
                 child: const Text('Импорт из CSV'),
               ),
+              const SizedBox(height: 12),
+              _buildImportedSpotsList(),
             ],
             const SizedBox(height: 24),
             _buildHistory(),
@@ -551,6 +553,62 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         ),
       ),
       );
+  }
+
+  Widget _buildImportedSpotsList() {
+    if (_spots.isEmpty) {
+      return const Text(
+        'Нет импортированных спотов',
+        style: TextStyle(color: Colors.white54),
+      );
+    }
+
+    return SizedBox(
+      height: 150,
+      child: ListView.builder(
+        itemCount: _spots.length,
+        itemBuilder: (context, index) {
+          final spot = _spots[index];
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A2B2E),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty)
+                        Text('ID: ${spot.tournamentId}',
+                            style: const TextStyle(color: Colors.white)),
+                      if (spot.buyIn != null)
+                        Text('Buy-In: ${spot.buyIn}',
+                            style: const TextStyle(color: Colors.white)),
+                      if (spot.gameType != null && spot.gameType!.isNotEmpty)
+                        Text('Game: ${spot.gameType}',
+                            style: const TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    setState(() {
+                      _spots.removeAt(index);
+                    });
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildHistory() {
