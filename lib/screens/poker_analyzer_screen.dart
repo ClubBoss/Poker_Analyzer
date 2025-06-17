@@ -79,7 +79,8 @@ import '../services/folded_players_service.dart';
 import '../services/action_history_service.dart';
 import '../services/service_registry.dart';
 import '../../plugins/plugin_manager.dart';
-import '../../plugins/sample_logging_plugin.dart';
+import '../../plugins/plugin_loader.dart';
+import '../../plugins/plugin.dart';
 
 
 
@@ -558,7 +559,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     super.initState();
     _serviceRegistry = ServiceRegistry();
     final PluginManager pluginManager = PluginManager();
-    pluginManager.load(SampleLoggingPlugin());
+    final PluginLoader loader = PluginLoader();
+    for (final Plugin plugin in loader.loadBuiltInPlugins()) {
+      pluginManager.load(plugin);
+    }
     pluginManager.initializeAll(_serviceRegistry);
     _handContext = widget.handContext ?? CurrentHandContextService();
     _actionSync = widget.actionSync;
