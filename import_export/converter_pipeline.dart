@@ -22,7 +22,7 @@ class ConverterPipeline {
   ///
   /// Returns a string on success or `null` if the format is unsupported or the
   /// converter failed to produce a representation.
-  String? tryExport(SavedHand hand, String formatId) {
+  String? tryExport(String formatId, SavedHand hand) {
     return _registry.tryExport(formatId, hand);
   }
 
@@ -30,7 +30,7 @@ class ConverterPipeline {
   ///
   /// Returns an error message if the converter rejects the hand, or `null` if
   /// the hand is valid for export or the converter is not found.
-  String? validateForExport(SavedHand hand, String formatId) {
+  String? validateForExport(String formatId, SavedHand hand) {
     return _registry.validateForExport(formatId, hand);
   }
 
