@@ -26,6 +26,14 @@ class ConverterPipeline {
     return _registry.tryExport(formatId, hand);
   }
 
+  /// Validates [hand] for export using the converter identified by [formatId].
+  ///
+  /// Returns an error message if the converter rejects the hand, or `null` if
+  /// the hand is valid for export or the converter is not found.
+  String? validateForExport(SavedHand hand, String formatId) {
+    return _registry.validateForExport(formatId, hand);
+  }
+
   /// Lists all format identifiers for which converters are registered.
   List<String> supportedFormats() {
     return _registry.dumpFormatIds();

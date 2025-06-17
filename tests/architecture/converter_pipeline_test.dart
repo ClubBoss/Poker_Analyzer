@@ -15,12 +15,16 @@ class _MockConverter implements ConverterPlugin {
 
   SavedHand? importResult;
   String? exportResult;
+  String? validationResult;
 
   @override
   SavedHand? convertFrom(String externalData) => importResult;
 
   @override
   String? convertTo(SavedHand hand) => exportResult;
+
+  @override
+  String? validate(SavedHand hand) => validationResult;
 }
 
 SavedHand _dummyHand() {
@@ -60,6 +64,15 @@ void main() {
 
       final pipeline = ConverterPipeline(registry);
       expect(pipeline.tryExport(_dummyHand(), 'fmt'), 'out');
+    });
+
+    test('delegates validation to registry', () {
+      final registry = ConverterRegistry();
+      final converter = _MockConverter('fmt')..validationResult = 'err';
+      registry.register(converter);
+
+      final pipeline = ConverterPipeline(registry);
+      expect(pipeline.validateForExport(_dummyHand(), 'fmt'), 'err');
     });
   });
 }

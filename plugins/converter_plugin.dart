@@ -14,4 +14,10 @@ abstract class ConverterPlugin {
   ///
   /// Implementations may return `null` if export is unsupported or fails.
   String? convertTo(SavedHand hand) => null;
+
+  /// Validates whether [hand] can be exported by this converter.
+  ///
+  /// Returns an error message if the hand is incompatible with the format,
+  /// or `null` if the hand is valid for export.
+  String? validate(SavedHand hand) => null;
 }
