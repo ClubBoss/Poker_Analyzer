@@ -64,6 +64,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   SortOption? _sortOption;
   List<TrainingSpot>? _originalOrder;
 
+  String getActiveFilterSummary() {
+    final search = _searchController.text.trim();
+    final tags = _selectedTags.join(', ');
+    var summary = '';
+    if (tags.isNotEmpty) summary += tags;
+    if (search.isNotEmpty) {
+      if (summary.isNotEmpty) summary += ' + ';
+      summary += 'поиск: $search';
+    }
+    return summary;
+  }
+
   Future<void> _loadPresets() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<String> tags = prefs.getStringList(_prefsTagsKey) ?? <String>[];
@@ -328,6 +340,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSearchField(),
+        _buildFilterSummary(),
         const SizedBox(height: 8),
         _buildTagFilterSection(filtered),
         const SizedBox(height: 8),
@@ -534,6 +547,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           child: const Text('Сбросить все'),
         ),
       ],
+    );
+  }
+
+  Widget _buildFilterSummary() {
+    final summary = getActiveFilterSummary();
+    if (summary.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        summary,
+        style: const TextStyle(color: Colors.white60),
+      ),
     );
   }
 
