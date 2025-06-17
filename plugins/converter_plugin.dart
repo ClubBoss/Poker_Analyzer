@@ -1,4 +1,5 @@
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
+import 'converter_format_capabilities.dart';
 
 /// Plug-in contract for converting external formats into [SavedHand] models.
 abstract class ConverterPlugin {
@@ -7,6 +8,9 @@ abstract class ConverterPlugin {
 
   /// Human readable description of the supported format.
   String get description;
+
+  /// Capabilities supported by this converter's format.
+  ConverterFormatCapabilities get capabilities;
 
   /// Converts [externalData] to a [SavedHand].
   ///

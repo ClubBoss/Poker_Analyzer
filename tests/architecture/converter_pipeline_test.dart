@@ -3,18 +3,28 @@ import 'package:poker_ai_analyzer/import_export/converter_pipeline.dart';
 import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
 import 'package:poker_ai_analyzer/plugins/converter_plugin.dart';
 import 'package:poker_ai_analyzer/plugins/converter_info.dart';
+import 'package:poker_ai_analyzer/plugins/converter_format_capabilities.dart';
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import 'package:poker_ai_analyzer/models/card_model.dart';
 import 'package:poker_ai_analyzer/models/action_entry.dart';
 import 'package:poker_ai_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId, this.description);
+  _MockConverter(this.formatId, this.description,
+      [this.capabilities = const ConverterFormatCapabilities(
+        supportsImport: true,
+        supportsExport: true,
+        requiresBoard: false,
+        supportsMultiStreet: true,
+      )]);
 
   @override
   final String formatId;
   @override
   final String description;
+
+  @override
+  final ConverterFormatCapabilities capabilities;
 
   SavedHand? importResult;
   String? exportResult;
@@ -87,6 +97,7 @@ void main() {
       expect(list, hasLength(1));
       expect(list.first.formatId, 'fmt');
       expect(list.first.description, 'Desc');
+      expect(list.first.capabilities.supportsImport, isTrue);
     });
   });
 }
