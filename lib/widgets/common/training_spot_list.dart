@@ -451,6 +451,14 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         _buildTagFilters(),
         const SizedBox(height: 8),
         _buildPresetDropdown(filtered),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ElevatedButton(
+            onPressed: _clearTagFilters,
+            child: const Text('Сбросить теги'),
+          ),
+        ),
       ],
     );
   }
@@ -496,6 +504,13 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   void clearFilters() {
     setState(() {
       _searchController.clear();
+      _selectedTags.clear();
+      _selectedPreset = null;
+    });
+  }
+
+  void _clearTagFilters() {
+    setState(() {
       _selectedTags.clear();
       _selectedPreset = null;
     });
