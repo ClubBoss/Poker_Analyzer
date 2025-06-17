@@ -103,14 +103,49 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       playerCards[heroIndex] = heroCards;
     }
 
+    // Parse board streets.
+    final boardCards = <CardModel>[];
+    int boardStreet = 0;
+    final boardLineRegex =
+        RegExp(r'^\*\*\*\s+(FLOP|TURN|RIVER)\s+\*\*\*\s+(.*)');
+    for (final line in lines) {
+      final match = boardLineRegex.firstMatch(line);
+      if (match != null) {
+        final boardSection = match.group(2)!;
+        final cardMatches =
+            RegExp(r'\[([^\]]+)\]').allMatches(boardSection).toList();
+        final tokens = <String>[];
+        for (final m in cardMatches) {
+          tokens.addAll(m.group(1)!.split(RegExp(r'\s+')));
+        }
+        final parsed = <CardModel>[];
+        for (final token in tokens) {
+          final card = parseCard(token);
+          if (card != null) parsed.add(card);
+        }
+        boardCards
+          ..clear()
+          ..addAll(parsed);
+        if (boardCards.length >= 5) {
+          boardStreet = 3;
+        } else if (boardCards.length == 4) {
+          boardStreet = 2;
+        } else if (boardCards.length >= 3) {
+          boardStreet = 1;
+        } else {
+          boardStreet = 0;
+        }
+      }
+    }
+
     return SavedHand(
       name: handId,
       heroIndex: heroIndex,
       heroPosition: 'BTN',
       numberOfPlayers: playerCount,
       playerCards: playerCards,
-      boardCards: <CardModel>[],
-      boardStreet: 0,
+      boardCards: boardCards,
+      boardStreet: boardStreet,
       actions: <ActionEntry>[],
       stackSizes: {for (var i = 0; i < playerCount; i++) i: 0},
       playerPositions: {for (var i = 0; i < playerCount; i++) i: ''},
