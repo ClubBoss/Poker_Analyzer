@@ -38,6 +38,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsSearchKey = 'training_preset_search';
   static const String _prefsExpandedKey = 'training_preset_expanded';
   static const String _prefsSortKey = 'training_preset_sort';
+  static const String _prefsIcmOnlyKey = 'training_preset_icm_only';
 
   bool _presetsLoaded = false;
   static const List<String> _availableTags = [
@@ -63,6 +64,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   bool _tagFiltersExpanded = true;
   SortOption? _sortOption;
   List<TrainingSpot>? _originalOrder;
+  bool _icmOnly = false;
 
   List<TrainingSpot> _currentFilteredSpots() {
     final query = _searchController.text.toLowerCase();
@@ -76,7 +78,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           buyIn.contains(query);
       final matchesTags =
           _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
-      final matchesIcm = !widget.icmOnly || spot.tags.contains('ICM');
+      final matchesIcm = !_icmOnly || spot.tags.contains('ICM');
       return matchesQuery && matchesTags && matchesIcm;
     }).toList();
   }
@@ -99,12 +101,14 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final String search = prefs.getString(_prefsSearchKey) ?? '';
     final bool expanded = prefs.getBool(_prefsExpandedKey) ?? true;
     final String? sortName = prefs.getString(_prefsSortKey);
+    final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
 
     _searchController.text = search;
     _selectedTags
       ..clear()
       ..addAll(tags);
     _tagFiltersExpanded = expanded;
+    _icmOnly = icmOnly;
     if (sortName != null && sortName.isNotEmpty) {
       try {
         _sortOption = SortOption.values.byName(sortName);
@@ -135,6 +139,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     await prefs.setStringList(_prefsTagsKey, _selectedTags.toList());
     await prefs.setString(_prefsSearchKey, _searchController.text);
     await prefs.setBool(_prefsExpandedKey, _tagFiltersExpanded);
+    await prefs.setBool(_prefsIcmOnlyKey, _icmOnly);
     if (_sortOption != null) {
       await prefs.setString(_prefsSortKey, _sortOption!.name);
     } else {
@@ -350,6 +355,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       children: [
         _buildSearchField(),
         _buildFilterSummary(),
+        _buildIcmSwitch(),
         const SizedBox(height: 8),
         _buildFilterToggleButton(),
         if (_tagFiltersExpanded) ...[
@@ -575,6 +581,19 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     );
   }
 
+  Widget _buildIcmSwitch() {
+    return SwitchListTile(
+      value: _icmOnly,
+      onChanged: (v) {
+        setState(() => _icmOnly = v);
+        _savePresets();
+      },
+      title: const Text('Только ICM', style: TextStyle(color: Colors.white)),
+      activeColor: Colors.orange,
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
   Widget _buildFilterToggleButton() {
     return Align(
       alignment: Alignment.centerLeft,
@@ -755,6 +774,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _searchController.clear();
       _selectedTags.clear();
       _selectedPreset = null;
+      _icmOnly = false;
     });
     final bool hadSort = _sortOption != null;
     _resetSort();

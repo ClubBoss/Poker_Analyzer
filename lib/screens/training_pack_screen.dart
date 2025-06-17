@@ -72,7 +72,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   final GlobalKey _analyzerKey = GlobalKey();
   final GlobalKey<TrainingSpotListState> _spotListKey =
       GlobalKey<TrainingSpotListState>();
-  bool _icmOnly = false;
   int _currentIndex = 0;
 
   late TrainingPack _pack;
@@ -569,18 +568,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
             child: const Text('Очистить фильтры'),
           ),
         ),
-        SwitchListTile(
-          value: _icmOnly,
-          onChanged: (v) => setState(() => _icmOnly = v),
-          title:
-              const Text('Только ICM', style: TextStyle(color: Colors.white)),
-          activeColor: Colors.orange,
-        ),
         const SizedBox(height: 12),
         TrainingSpotList(
           key: _spotListKey,
           spots: _spots,
-          icmOnly: _icmOnly,
           onRemove: (index) {
             setState(() {
               _spots.removeAt(index);
