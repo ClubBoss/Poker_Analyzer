@@ -45,6 +45,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
 
   final Set<String> _selectedTags = {};
   final Set<TrainingSpot> _selectedSpots = {};
+  bool _tagFiltersExpanded = true;
 
   Future<void> _editSpot(TrainingSpot spot) async {
     final idController =
@@ -269,9 +270,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       children: [
         _buildSearchField(),
         const SizedBox(height: 8),
-        _buildTagFilters(),
-        const SizedBox(height: 8),
-        _buildPresetDropdown(filtered),
+        _buildTagFilterSection(filtered),
         const SizedBox(height: 8),
         if (widget.onRemove != null) ...[
           Align(
@@ -431,6 +430,27 @@ class TrainingSpotListState extends State<TrainingSpotList> {
               });
             },
           ),
+      ],
+    );
+  }
+
+  Widget _buildTagFilterSection(List<TrainingSpot> filtered) {
+    return ExpansionTile(
+      title: const Text(
+        'Фильтры тегов',
+        style: TextStyle(color: Colors.white),
+      ),
+      initiallyExpanded: _tagFiltersExpanded,
+      onExpansionChanged: (v) => setState(() => _tagFiltersExpanded = v),
+      iconColor: Colors.white,
+      collapsedIconColor: Colors.white,
+      collapsedTextColor: Colors.white,
+      textColor: Colors.white,
+      childrenPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+      children: [
+        _buildTagFilters(),
+        const SizedBox(height: 8),
+        _buildPresetDropdown(filtered),
       ],
     );
   }
