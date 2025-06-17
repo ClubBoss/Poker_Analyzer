@@ -68,6 +68,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   SortOption? _sortOption;
   List<TrainingSpot>? _originalOrder;
   bool _icmOnly = false;
+  bool _manualOrder = true;
 
   List<TrainingSpot> _currentFilteredSpots() {
     final query = _searchController.text.toLowerCase();
@@ -120,6 +121,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         _sortOption = null;
       }
     }
+    _manualOrder = _sortOption == null;
     _presetsLoaded = true;
     final filtered = _currentFilteredSpots();
     if (_sortOption != null) {
@@ -571,8 +573,25 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Row(
+                children: [
+                  const Text('Ручной порядок', style: TextStyle(color: Colors.white)),
+                  Switch(
+                    value: _manualOrder,
+                    onChanged: (v) {
+                      if (v) {
+                        _resetSort();
+                      } else {
+                        _sortOption ??= SortOption.buyInAsc;
+                        _sortFiltered(_currentFilteredSpots(), _sortOption!);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
               ElevatedButton(
-                onPressed: filtered.length <= 1
+                onPressed: !_manualOrder || filtered.length <= 1
                     ? null
                     : () => _shuffleFiltered(filtered),
                 child: const Text('Перемешать'),
@@ -596,30 +615,31 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         else
           SizedBox(
             height: 150,
-            child: ReorderableListView.builder(
-              buildDefaultDragHandles: false,
-              itemCount: filtered.length,
-              itemBuilder: (context, index) {
-                final spot = filtered[index];
-                return Container(
-                  key: ValueKey(spot),
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ReorderableDragStartListener(
-                        index: index,
-                        child: const Icon(Icons.drag_handle, color: Colors.white70),
-                      ),
-                      const SizedBox(width: 8),
-                      Checkbox(
-                        value: _selectedSpots.contains(spot),
-                        onChanged: (v) {
+            child: _manualOrder
+                ? ReorderableListView.builder(
+                    buildDefaultDragHandles: false,
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final spot = filtered[index];
+                      return Container(
+                        key: ValueKey(spot),
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.cardBackground,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ReorderableDragStartListener(
+                              index: index,
+                              child: const Icon(Icons.drag_handle, color: Colors.white70),
+                            ),
+                              const SizedBox(width: 8),
+                              Checkbox(
+                                value: _selectedSpots.contains(spot),
+                                onChanged: (v) {
                           setState(() {
                             if (v == true) {
                               _selectedSpots.add(spot);
@@ -681,11 +701,95 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                         ),
                     ],
                   ),
-                );
-              },
-              onReorder: (oldIndex, newIndex) =>
-                  _handleReorder(oldIndex, newIndex, filtered),
-            ),
+                  );
+                },
+                onReorder: (oldIndex, newIndex) =>
+                    _handleReorder(oldIndex, newIndex, filtered),
+              )
+                : ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final spot = filtered[index];
+                      return Container(
+                        key: ValueKey(spot),
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.cardBackground,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(width: 24),
+                            const SizedBox(width: 8),
+                            Checkbox(
+                              value: _selectedSpots.contains(spot),
+                              onChanged: (v) {
+                                setState(() {
+                                  if (v == true) {
+                                    _selectedSpots.add(spot);
+                                  } else {
+                                    _selectedSpots.remove(spot);
+                                  }
+                                });
+                                widget.onChanged?.call();
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty)
+                                    GestureDetector(
+                                      onTap: () => _editTitleAndTags(spot),
+                                      child: Text(
+                                        'ID: ${spot.tournamentId}',
+                                        style: const TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  if (spot.buyIn != null)
+                                    Text('Buy-In: ${spot.buyIn}',
+                                        style: const TextStyle(color: Colors.white)),
+                                  if (spot.gameType != null && spot.gameType!.isNotEmpty)
+                                    Text('Game: ${spot.gameType}',
+                                        style: const TextStyle(color: Colors.white)),
+                                  const SizedBox(height: 8),
+                                  GestureDetector(
+                                    onTap: () => _editTitleAndTags(spot),
+                                    child: Wrap(
+                                      spacing: 4,
+                                      children: [
+                                        if (spot.tags.isEmpty)
+                                          const Text('Без тегов',
+                                              style: TextStyle(color: Colors.white54))
+                                        else
+                                          for (final tag in spot.tags)
+                                            Chip(
+                                              label: Text(tag),
+                                              backgroundColor: AppColors.cardBackground,
+                                            ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.white70),
+                              onPressed: () => _editSpot(spot),
+                            ),
+                            if (widget.onRemove != null)
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _deleteSpot(spot),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
           ),
       ],
     );
@@ -909,13 +1013,15 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           child: Text('ID турнира'),
         ),
       ],
-      onChanged: (value) {
-        if (value == null) {
-          _resetSort();
-        } else {
-          _sortFiltered(filtered, value);
-        }
-      },
+      onChanged: _manualOrder
+          ? null
+          : (value) {
+              if (value == null) {
+                _resetSort();
+              } else {
+                _sortFiltered(filtered, value);
+              }
+            },
     );
   }
 
@@ -1012,6 +1118,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         widget.spots[indices[i]] = sorted[i];
       }
       _sortOption = option;
+      _manualOrder = false;
     });
     widget.onChanged?.call();
     _savePresets();
@@ -1021,6 +1128,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     setState(() {
       _originalOrder = List<TrainingSpot>.from(widget.spots);
       _sortOption = null;
+      _manualOrder = true;
     });
     widget.onChanged?.call();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1039,6 +1147,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       }
       _originalOrder = null;
       _sortOption = null;
+      _manualOrder = true;
     });
     widget.onChanged?.call();
     _savePresets();
