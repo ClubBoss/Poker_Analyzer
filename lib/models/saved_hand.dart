@@ -21,6 +21,10 @@ class SavedHand {
   final Map<int, int>? remainingStacks;
   /// Winnings collected by each player in chips or big blinds.
   final Map<int, int>? winnings;
+  /// Total pot size in chips or big blinds.
+  final int? totalPot;
+  /// Rake taken from the pot in chips or big blinds.
+  final int? rake;
   final Map<int, String> playerPositions;
   final Map<int, PlayerType>? playerTypes;
   final String? comment;
@@ -65,6 +69,8 @@ class SavedHand {
     required this.stackSizes,
     this.remainingStacks,
     this.winnings,
+    this.totalPot,
+    this.rake,
     required this.playerPositions,
     this.playerTypes,
     this.comment,
@@ -107,6 +113,8 @@ class SavedHand {
     Map<int, int>? stackSizes,
     Map<int, int>? remainingStacks,
     Map<int, int>? winnings,
+    int? totalPot,
+    int? rake,
     Map<int, String>? playerPositions,
     Map<int, PlayerType>? playerTypes,
     String? comment,
@@ -150,6 +158,8 @@ class SavedHand {
               : Map<int, int>.from(this.remainingStacks!)),
       winnings: winnings ??
           (this.winnings == null ? null : Map<int, int>.from(this.winnings!)),
+      totalPot: totalPot ?? this.totalPot,
+      rake: rake ?? this.rake,
       playerPositions: playerPositions ?? Map<int, String>.from(this.playerPositions),
       playerTypes: playerTypes ?? this.playerTypes,
       comment: comment ?? this.comment,
@@ -236,6 +246,8 @@ class SavedHand {
               remainingStacks!.map((k, v) => MapEntry(k.toString(), v)),
         if (winnings != null)
           'winnings': winnings!.map((k, v) => MapEntry(k.toString(), v)),
+        if (totalPot != null) 'totalPot': totalPot,
+        if (rake != null) 'rake': rake,
         'playerPositions': playerPositions.map((k, v) => MapEntry(k.toString(), v)),
         if (playerTypes != null)
           'playerTypes':
@@ -321,6 +333,8 @@ class SavedHand {
         wins![int.parse(key as String)] = value as int;
       });
     }
+    final totalPot = json['totalPot'] as int?;
+    final rake = json['rake'] as int?;
     final positions = <int, String>{};
     (json['playerPositions'] as Map? ?? {}).forEach((key, value) {
       positions[int.parse(key as String)] = value as String;
@@ -410,6 +424,8 @@ class SavedHand {
       stackSizes: stack,
       remainingStacks: remaining,
       winnings: wins,
+      totalPot: totalPot,
+      rake: rake,
       playerPositions: positions,
       playerTypes: types,
       comment: json['comment'] as String?,
