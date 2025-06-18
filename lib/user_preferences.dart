@@ -14,8 +14,10 @@ class UserPreferences {
   bool get showPotAnimation => service.showPotAnimation;
   bool get showCardReveal => service.showCardReveal;
   bool get showWinnerCelebration => service.showWinnerCelebration;
+  bool get showActionHints => service.showActionHints;
 
   Future<void> setShowPotAnimation(bool value) => service.setShowPotAnimation(value);
   Future<void> setShowCardReveal(bool value) => service.setShowCardReveal(value);
   Future<void> setShowWinnerCelebration(bool value) => service.setShowWinnerCelebration(value);
+  Future<void> setShowActionHints(bool value) => service.setShowActionHints(value);
 }
