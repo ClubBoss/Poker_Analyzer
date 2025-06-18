@@ -3687,14 +3687,73 @@ class TrainingSpotListState extends State<TrainingSpotList>
     return 'Ручной порядок';
   }
 
+  SimpleSortOrder? _currentSortOrder() {
+    if (_simpleSortField != null) {
+      return _simpleSortOrder;
+    }
+    if (_ratingSort != null) {
+      return _ratingSort == RatingSortOrder.highFirst
+          ? SimpleSortOrder.descending
+          : SimpleSortOrder.ascending;
+    }
+    if (_listSort != null) {
+      switch (_listSort!) {
+        case ListSortOption.dateNew:
+        case ListSortOption.rating:
+        case ListSortOption.difficulty:
+          return SimpleSortOrder.descending;
+        case ListSortOption.dateOld:
+        case ListSortOption.comment:
+          return SimpleSortOrder.ascending;
+      }
+    }
+    if (_quickSort != null) {
+      switch (_quickSort!) {
+        case QuickSortOption.rating:
+          return SimpleSortOrder.descending;
+        case QuickSortOption.id:
+        case QuickSortOption.difficulty:
+          return SimpleSortOrder.ascending;
+      }
+    }
+    if (_sortOption != null) {
+      switch (_sortOption!) {
+        case SortOption.buyInAsc:
+        case SortOption.gameType:
+        case SortOption.tournamentId:
+        case SortOption.difficultyAsc:
+          return SimpleSortOrder.ascending;
+        case SortOption.buyInDesc:
+        case SortOption.difficultyDesc:
+          return SimpleSortOrder.descending;
+      }
+    }
+    return null;
+  }
+
   Widget _buildSortHeader() {
+    final order = _currentSortOrder();
+    final arrow = order == null
+        ? null
+        : order == SimpleSortOrder.ascending
+            ? '↑'
+            : '↓';
     return Container(
       color: AppColors.background,
       padding: const EdgeInsets.all(8),
       alignment: Alignment.centerLeft,
-      child: Text(
-        'Сортировка: ${_currentSortFieldLabel()}',
-        style: const TextStyle(color: Colors.white),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Сортировка: ${_currentSortFieldLabel()}',
+            style: const TextStyle(color: Colors.white),
+          ),
+          if (arrow != null) ...[
+            const SizedBox(width: 4),
+            Text(arrow, style: const TextStyle(color: Colors.white)),
+          ]
+        ],
       ),
     );
   }
