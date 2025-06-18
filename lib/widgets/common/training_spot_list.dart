@@ -48,6 +48,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsExpandedKey = 'training_preset_expanded';
   static const String _prefsSortKey = 'training_preset_sort';
   static const String _prefsIcmOnlyKey = 'training_preset_icm_only';
+  static const String _prefsRatedOnlyKey = 'training_preset_rated_only';
   static const String _prefsOrderKey = 'training_spots_order';
   static const String _prefsListVisibleKey = 'training_spot_list_visible';
   static const String _prefsDifficultyKey = 'training_preset_difficulty';
@@ -78,6 +79,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   SortOption? _sortOption;
   List<TrainingSpot>? _originalOrder;
   bool _icmOnly = false;
+  bool _ratedOnly = false;
   bool _manualOrder = true;
   bool _listVisible = true;
   int? _difficultyFilter;
@@ -93,7 +95,9 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       final matchesIcm = !_icmOnly || spot.tags.contains('ICM');
       final matchesDifficulty =
           _difficultyFilter == null || spot.difficulty == _difficultyFilter;
-      return matchesQuery && matchesTags && matchesIcm && matchesDifficulty;
+      final matchesRated = !_ratedOnly || spot.userAction != null;
+      return
+          matchesQuery && matchesTags && matchesIcm && matchesDifficulty && matchesRated;
     }).toList();
   }
 
@@ -139,6 +143,10 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'сложность: $_difficultyFilter';
     }
+    if (_ratedOnly) {
+      if (summary.isNotEmpty) summary += ' + ';
+      summary += 'только с оценкой';
+    }
     return summary;
   }
 
@@ -151,6 +159,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final bool listVisible = prefs.getBool(_prefsListVisibleKey) ?? true;
     final String? sortName = prefs.getString(_prefsSortKey);
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
+    final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
     final int? difficulty = prefs.getInt(_prefsDifficultyKey);
 
     _searchController.text = search;
@@ -160,6 +169,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     _tagFiltersExpanded = expanded;
     _listVisible = listVisible;
     _icmOnly = icmOnly;
+    _ratedOnly = ratedOnly;
     if (difficulty != null && difficulty >= 1 && difficulty <= 5) {
       _difficultyFilter = difficulty;
     } else {
@@ -197,6 +207,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     await prefs.setString(_prefsSearchKey, _searchController.text);
     await prefs.setBool(_prefsExpandedKey, _tagFiltersExpanded);
     await prefs.setBool(_prefsIcmOnlyKey, _icmOnly);
+    await prefs.setBool(_prefsRatedOnlyKey, _ratedOnly);
     await prefs.setBool(_prefsListVisibleKey, _listVisible);
     if (_difficultyFilter != null) {
       await prefs.setInt(_prefsDifficultyKey, _difficultyFilter!);
@@ -599,6 +610,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           _buildSearchField(),
         _buildFilterSummary(),
         _buildIcmSwitch(),
+        _buildRatedSwitch(),
         const SizedBox(height: 8),
         _buildFilterToggleButton(),
         if (_tagFiltersExpanded) ...[
@@ -1006,6 +1018,20 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     );
   }
 
+  Widget _buildRatedSwitch() {
+    return SwitchListTile(
+      value: _ratedOnly,
+      onChanged: (v) {
+        setState(() => _ratedOnly = v);
+        _savePresets();
+      },
+      title: const Text('Только с оценкой',
+          style: TextStyle(color: Colors.white)),
+      activeColor: Colors.orange,
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
   Widget _buildFilterToggleButton() {
     return Align(
       alignment: Alignment.centerLeft,
@@ -1043,6 +1069,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _selectedTags.clear();
       _selectedPreset = null;
       _icmOnly = false;
+      _ratedOnly = false;
       _difficultyFilter = null;
     });
     final bool hadSort = _sortOption != null;
