@@ -48,6 +48,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsIcmOnlyKey = 'training_preset_icm_only';
   static const String _prefsOrderKey = 'training_spots_order';
   static const String _prefsListVisibleKey = 'training_spot_list_visible';
+  static const String _prefsDifficultyKey = 'training_preset_difficulty';
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
@@ -77,6 +78,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   bool _icmOnly = false;
   bool _manualOrder = true;
   bool _listVisible = true;
+  int? _difficultyFilter;
 
   List<TrainingSpot> _currentFilteredSpots() {
     final query = _searchController.text.toLowerCase();
@@ -87,7 +89,9 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       final matchesTags =
           _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
       final matchesIcm = !_icmOnly || spot.tags.contains('ICM');
-      return matchesQuery && matchesTags && matchesIcm;
+      final matchesDifficulty =
+          _difficultyFilter == null || spot.difficulty == _difficultyFilter;
+      return matchesQuery && matchesTags && matchesIcm && matchesDifficulty;
     }).toList();
   }
 
@@ -129,6 +133,10 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'поиск: $search';
     }
+    if (_difficultyFilter != null) {
+      if (summary.isNotEmpty) summary += ' + ';
+      summary += 'сложность: $_difficultyFilter';
+    }
     return summary;
   }
 
@@ -141,6 +149,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final bool listVisible = prefs.getBool(_prefsListVisibleKey) ?? true;
     final String? sortName = prefs.getString(_prefsSortKey);
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
+    final int? difficulty = prefs.getInt(_prefsDifficultyKey);
 
     _searchController.text = search;
     _selectedTags
@@ -149,6 +158,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     _tagFiltersExpanded = expanded;
     _listVisible = listVisible;
     _icmOnly = icmOnly;
+    if (difficulty != null && difficulty >= 1 && difficulty <= 5) {
+      _difficultyFilter = difficulty;
+    } else {
+      _difficultyFilter = null;
+    }
     if (sortName != null && sortName.isNotEmpty) {
       try {
         _sortOption = SortOption.values.byName(sortName);
@@ -182,6 +196,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     await prefs.setBool(_prefsExpandedKey, _tagFiltersExpanded);
     await prefs.setBool(_prefsIcmOnlyKey, _icmOnly);
     await prefs.setBool(_prefsListVisibleKey, _listVisible);
+    if (_difficultyFilter != null) {
+      await prefs.setInt(_prefsDifficultyKey, _difficultyFilter!);
+    } else {
+      await prefs.remove(_prefsDifficultyKey);
+    }
     if (_sortOption != null) {
       await prefs.setString(_prefsSortKey, _sortOption!.name);
     } else {
@@ -692,6 +711,14 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         const SizedBox(height: 8),
         _buildPackSummary(filtered),
         const SizedBox(height: 8),
+        _DifficultyDropdown(
+          difficulty: _difficultyFilter,
+          onChanged: (value) {
+            setState(() => _difficultyFilter = value);
+            _savePresets();
+          },
+        ),
+        const SizedBox(height: 8),
         if (_listVisible)
           if (filtered.isEmpty)
             const Text(
@@ -1022,6 +1049,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _selectedTags.clear();
       _selectedPreset = null;
       _icmOnly = false;
+      _difficultyFilter = null;
     });
     final bool hadSort = _sortOption != null;
     _resetSort();
@@ -1344,6 +1372,38 @@ class _TagFilterSection extends StatelessWidget {
               ),
           ],
           onChanged: onPresetSelected,
+        ),
+      ],
+    );
+  }
+}
+
+class _DifficultyDropdown extends StatelessWidget {
+  final int? difficulty;
+  final ValueChanged<int?> onChanged;
+
+  const _DifficultyDropdown({
+    required this.difficulty,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Text('Сложность', style: TextStyle(color: Colors.white)),
+        const SizedBox(width: 8),
+        DropdownButton<int?>(
+          value: difficulty,
+          hint: const Text('Любая', style: TextStyle(color: Colors.white60)),
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: [
+            const DropdownMenuItem(value: null, child: Text('Любая')),
+            for (int i = 1; i <= 5; i++)
+              DropdownMenuItem(value: i, child: Text('$i')),
+          ],
+          onChanged: onChanged,
         ),
       ],
     );
