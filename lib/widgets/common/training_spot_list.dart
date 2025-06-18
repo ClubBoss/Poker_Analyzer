@@ -29,6 +29,10 @@ enum RatingSortOrder {
   lowFirst,
 }
 
+enum SimpleSortField { createdAt, difficulty, rating }
+
+enum SimpleSortOrder { ascending, descending }
+
 class _FilterState {
   const _FilterState({
     required this.searchText,
@@ -81,6 +85,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
   static const String _prefsDifficultyKey = 'training_preset_difficulties';
   static const String _prefsRatingsKey = 'training_preset_ratings';
   static const String _prefsRatingSortKey = 'training_preset_rating_sort';
+  static const String _prefsSimpleSortField = 'training_simple_sort_field';
+  static const String _prefsSimpleSortOrder = 'training_simple_sort_order';
   static const String _prefsCustomPresetsKey =
       'training_custom_tag_presets';
   static const String _prefsQuickPresetKey = 'training_quick_preset';
@@ -129,6 +135,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
   final Set<int> _difficultyFilters = {};
   final Set<int> _ratingFilters = {};
   RatingSortOrder? _ratingSort;
+  SimpleSortField? _simpleSortField;
+  SimpleSortOrder _simpleSortOrder = SimpleSortOrder.ascending;
 
   _FilterState? _lastFilterState;
 
@@ -248,6 +256,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final bool listVisible = prefs.getBool(_prefsListVisibleKey) ?? true;
     final String? sortName = prefs.getString(_prefsSortKey);
     final String? ratingSortName = prefs.getString(_prefsRatingSortKey);
+    final String? simpleFieldName = prefs.getString(_prefsSimpleSortField);
+    final String? simpleOrderName = prefs.getString(_prefsSimpleSortOrder);
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
     final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
     final List<String>? diffs = prefs.getStringList(_prefsDifficultyKey);
@@ -311,13 +321,29 @@ class TrainingSpotListState extends State<TrainingSpotList>
         _ratingSort = null;
       }
     }
-    _manualOrder = _sortOption == null && _ratingSort == null;
+    if (simpleFieldName != null && simpleFieldName.isNotEmpty) {
+      try {
+        _simpleSortField = SimpleSortField.values.byName(simpleFieldName);
+      } catch (_) {
+        _simpleSortField = null;
+      }
+    }
+    if (simpleOrderName != null && simpleOrderName.isNotEmpty) {
+      try {
+        _simpleSortOrder = SimpleSortOrder.values.byName(simpleOrderName);
+      } catch (_) {
+        _simpleSortOrder = SimpleSortOrder.ascending;
+      }
+    }
+    _manualOrder = _sortOption == null && _ratingSort == null && _simpleSortField == null;
     _presetsLoaded = true;
     final filtered = _currentFilteredSpots();
     if (_sortOption != null) {
       _sortFiltered(filtered, _sortOption!);
     } else if (_ratingSort != null) {
       _sortByRating(filtered, _ratingSort!);
+    } else if (_simpleSortField != null) {
+      _applySimpleSort(filtered);
     } else {
       setState(() {});
     }
@@ -357,6 +383,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
     } else {
       await prefs.remove(_prefsRatingSortKey);
     }
+    if (_simpleSortField != null) {
+      await prefs.setString(_prefsSimpleSortField, _simpleSortField!.name);
+    } else {
+      await prefs.remove(_prefsSimpleSortField);
+    }
+    await prefs.setString(_prefsSimpleSortOrder, _simpleSortOrder.name);
     if (_sortOption != null) {
       await prefs.setString(_prefsSortKey, _sortOption!.name);
     } else {
@@ -1349,6 +1381,28 @@ class TrainingSpotListState extends State<TrainingSpotList>
                       _resetSort();
                     } else {
                       _sortByRating(spots, value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+                _SimpleSortRow(
+                  field: _simpleSortField,
+                  order: _simpleSortOrder,
+                  onFieldChanged: (value) {
+                    setState(() {
+                      _simpleSortField = value;
+                      _manualOrder = value == null;
+                    });
+                    if (value == null) {
+                      _resetSort();
+                    } else {
+                      _applySimpleSort(filtered);
+                    }
+                  },
+                  onOrderChanged: (order) {
+                    setState(() => _simpleSortOrder = order);
+                    if (_simpleSortField != null) {
+                      _applySimpleSort(filtered);
                     }
                   },
                 ),
@@ -2712,11 +2766,45 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _savePresets();
   }
 
+  void _applySimpleSort(List<TrainingSpot> filtered) {
+    if (_simpleSortField == null) return;
+    final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
+    final sorted = List<TrainingSpot>.from(filtered);
+    _originalOrder ??= List<TrainingSpot>.from(widget.spots);
+    int compare(TrainingSpot a, TrainingSpot b) {
+      int result;
+      switch (_simpleSortField!) {
+        case SimpleSortField.createdAt:
+          result = a.createdAt.compareTo(b.createdAt);
+          break;
+        case SimpleSortField.difficulty:
+          result = a.difficulty.compareTo(b.difficulty);
+          break;
+        case SimpleSortField.rating:
+          result = a.rating.compareTo(b.rating);
+          break;
+      }
+      return _simpleSortOrder == SimpleSortOrder.ascending ? result : -result;
+    }
+    sorted.sort(compare);
+    setState(() {
+      for (int i = 0; i < indices.length; i++) {
+        widget.spots[indices[i]] = sorted[i];
+      }
+      _sortOption = null;
+      _ratingSort = null;
+      _manualOrder = false;
+    });
+    widget.onChanged?.call();
+    _savePresets();
+  }
+
   void _saveCurrentOrder() {
     setState(() {
       _originalOrder = List<TrainingSpot>.from(widget.spots);
       _sortOption = null;
       _ratingSort = null;
+      _simpleSortField = null;
       _manualOrder = true;
     });
     widget.onChanged?.call();
@@ -2728,7 +2816,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   }
 
   void _resetSort() {
-    if (_sortOption == null && _ratingSort == null) return;
+    if (_sortOption == null && _ratingSort == null && _simpleSortField == null) return;
     setState(() {
       if (_originalOrder != null &&
           widget.spots.length == _originalOrder!.length) {
@@ -2737,6 +2825,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       _originalOrder = null;
       _sortOption = null;
       _ratingSort = null;
+      _simpleSortField = null;
       _manualOrder = true;
     });
     widget.onChanged?.call();
@@ -3187,6 +3276,60 @@ class _RatingSortDropdown extends StatelessWidget {
             ),
           ],
           onChanged: manualOrder ? null : (v) => onChanged(v, filtered),
+        ),
+      ],
+    );
+  }
+}
+
+class _SimpleSortRow extends StatelessWidget {
+  final SimpleSortField? field;
+  final SimpleSortOrder order;
+  final ValueChanged<SimpleSortField?> onFieldChanged;
+  final ValueChanged<SimpleSortOrder> onOrderChanged;
+
+  const _SimpleSortRow({
+    required this.field,
+    required this.order,
+    required this.onFieldChanged,
+    required this.onOrderChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        DropdownButton<SimpleSortField?>(
+          value: field,
+          hint: const Text('Сортировать по',
+              style: TextStyle(color: Colors.white60)),
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: const [
+            DropdownMenuItem(value: null, child: Text('Без сортировки')),
+            DropdownMenuItem(
+                value: SimpleSortField.createdAt, child: Text('Дата')),
+            DropdownMenuItem(
+                value: SimpleSortField.difficulty, child: Text('Сложность')),
+            DropdownMenuItem(
+                value: SimpleSortField.rating, child: Text('Рейтинг')),
+          ],
+          onChanged: onFieldChanged,
+        ),
+        const SizedBox(width: 8),
+        DropdownButton<SimpleSortOrder>(
+          value: order,
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: const [
+            DropdownMenuItem(
+                value: SimpleSortOrder.ascending,
+                child: Text('По возрастанию')),
+            DropdownMenuItem(
+                value: SimpleSortOrder.descending,
+                child: Text('По убыванию')),
+          ],
+          onChanged: (v) => onOrderChanged(v!),
         ),
       ],
     );

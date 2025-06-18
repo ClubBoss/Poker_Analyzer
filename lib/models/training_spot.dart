@@ -21,6 +21,7 @@ class TrainingSpot {
   final int difficulty;
   final int rating;
   final String? userAction;
+  final DateTime createdAt;
 
   TrainingSpot({
     required this.playerCards,
@@ -40,7 +41,9 @@ class TrainingSpot {
     this.userAction,
     this.difficulty = 3,
     this.rating = 0,
-  }) : tags = tags ?? [];
+    DateTime? createdAt,
+  })  : tags = tags ?? [],
+        createdAt = createdAt ?? DateTime.now();
 
   factory TrainingSpot.fromSavedHand(SavedHand hand) {
     return TrainingSpot(
@@ -72,6 +75,7 @@ class TrainingSpot {
       userAction: null,
       difficulty: 3,
       rating: 0,
+      createdAt: hand.date,
     );
   }
 
@@ -106,6 +110,7 @@ class TrainingSpot {
         'difficulty': difficulty,
         'rating': rating,
         if (userAction != null) 'userAction': userAction,
+        'createdAt': createdAt.toIso8601String(),
       };
 
   factory TrainingSpot.fromJson(Map<String, dynamic> json) {
@@ -187,10 +192,18 @@ class TrainingSpot {
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 3,
       rating: (json['rating'] as num?)?.toInt() ?? 0,
       userAction: json['userAction'] as String?,
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 
-  TrainingSpot copyWith({int? difficulty, int? rating, List<String>? tags, String? userAction}) {
+  TrainingSpot copyWith({
+    int? difficulty,
+    int? rating,
+    List<String>? tags,
+    String? userAction,
+    DateTime? createdAt,
+  }) {
     return TrainingSpot(
       playerCards: [for (final list in playerCards) List<CardModel>.from(list)],
       boardCards: List<CardModel>.from(boardCards),
@@ -209,6 +222,7 @@ class TrainingSpot {
       difficulty: difficulty ?? this.difficulty,
       rating: rating ?? this.rating,
       userAction: userAction ?? this.userAction,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
