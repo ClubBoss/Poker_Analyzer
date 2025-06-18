@@ -677,6 +677,71 @@ class TrainingSpotListState extends State<TrainingSpotList>
       }
     });
     widget.onChanged?.call();
+    _saveOrderToPrefs();
+  }
+
+  void _applyActiveFiltersToFiltered(List<TrainingSpot> filtered) {
+    if (filtered.isEmpty) return;
+    final diff = _difficultyFilters.length == 1 ? _difficultyFilters.first : null;
+    final rate = _ratingFilters.length == 1 ? _ratingFilters.first : null;
+    if (diff == null && rate == null) return;
+    setState(() {
+      for (final spot in filtered) {
+        final index = widget.spots.indexOf(spot);
+        if (index != -1) {
+          var updated = spot;
+          if (diff != null) {
+            updated = updated.copyWith(difficulty: diff);
+          }
+          if (rate != null) {
+            updated = updated.copyWith(rating: rate);
+          }
+          widget.spots[index] = updated;
+        }
+      }
+    });
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Фильтры применены ко всем ${filtered.length} спотам')),
+    );
+  }
+
+  Future<void> _deleteFiltered(List<TrainingSpot> filtered) async {
+    if (filtered.isEmpty || widget.onRemove == null) return;
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Удалить ${filtered.length} спотов?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Да'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final indices = filtered
+        .map((s) => widget.spots.indexOf(s))
+        .where((i) => i != -1)
+        .toList()
+      ..sort((a, b) => b.compareTo(a));
+    for (final i in indices) {
+      widget.onRemove!(i);
+    }
+    setState(() {
+      _selectedSpots.removeAll(filtered);
+    });
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Удалено ${filtered.length} спотов')),
+    );
   }
 
   Widget _buildRatingStars(TrainingSpot spot) {
@@ -784,6 +849,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
               children: [
                 _buildSearchField(),
                 _buildFilterSummary(),
+                const SizedBox(height: 4),
+                _BatchFilterActions(
+                  disabled: !_hasActiveFilters || filtered.isEmpty,
+                  onApply: () => _applyActiveFiltersToFiltered(filtered),
+                  onDelete: () => _deleteFiltered(filtered),
+                ),
                 _buildIcmSwitch(),
                 _buildRatedSwitch(),
                 const SizedBox(height: 8),
@@ -2803,6 +2874,39 @@ class _SelectionActions extends StatelessWidget {
                   ),
                 ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BatchFilterActions extends StatelessWidget {
+  final bool disabled;
+  final VoidCallback onApply;
+  final VoidCallback onDelete;
+
+  const _BatchFilterActions({
+    required this.disabled,
+    required this.onApply,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: disabled ? null : onApply,
+            child: const Text('Применить фильтры ко всем'),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: disabled ? null : onDelete,
+            child: const Text('Удалить все отфильтрованные'),
           ),
         ],
       ),
