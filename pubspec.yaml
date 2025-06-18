@@ -17,6 +17,7 @@ dependencies:
   path_provider: ^2.0.15
   open_file: ^3.5.10
   file_picker: ^5.2.10
+  desktop_drop: ^0.6.0
   fl_chart: ^0.64.0
   pdf: ^3.10.4
   printing: ^5.12.0

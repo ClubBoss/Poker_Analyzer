@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/training_spot.dart';
@@ -511,10 +512,12 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   Widget build(BuildContext context) {
     final filtered = _currentFilteredSpots();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSearchField(),
+    return DropTarget(
+      onDragDone: _handleDrop,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSearchField(),
         _buildFilterSummary(),
         _buildIcmSwitch(),
         const SizedBox(height: 8),
@@ -823,6 +826,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           ),
         ),
       ],
+      ),
     );
   }
 
@@ -1164,6 +1168,47 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     await Share.shareXFiles([XFile(file.path)], text: 'training_spots.json');
   }
 
+  Future<void> _importFromFile(String path) async {
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is! List) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
+        }
+        return;
+      }
+      final spots = <TrainingSpot>[];
+      for (final e in data) {
+        if (e is Map) {
+          try {
+            spots.add(TrainingSpot.fromJson(Map<String, dynamic>.from(e as Map)));
+          } catch (_) {}
+        }
+      }
+      if (spots.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
+        }
+        return;
+      }
+      setState(() => widget.spots.addAll(spots));
+      widget.onChanged?.call();
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
+      }
+    }
+  }
+
   Future<void> _importPack() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -1172,43 +1217,14 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     if (result == null || result.files.isEmpty) return;
     final path = result.files.single.path;
     if (path == null) return;
-    final file = File(path);
-    try {
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      if (data is! List) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Неверный формат файла')));
-        }
-        return;
-      }
-      final spots = <TrainingSpot>[];
-      for (final e in data) {
-        if (e is Map) {
-          try {
-            spots.add(TrainingSpot.fromJson(
-                Map<String, dynamic>.from(e as Map)));
-          } catch (_) {}
-        }
-      }
-      if (spots.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Неверный формат файла')));
-        }
-        return;
-      }
-      setState(() => widget.spots.addAll(spots));
-      widget.onChanged?.call();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
+    await _importFromFile(path);
+  }
+
+  Future<void> _handleDrop(DropDoneDetails details) async {
+    for (final item in details.files) {
+      final path = item.path;
+      if (path != null && path.toLowerCase().endsWith('.json')) {
+        await _importFromFile(path);
       }
     }
   }
