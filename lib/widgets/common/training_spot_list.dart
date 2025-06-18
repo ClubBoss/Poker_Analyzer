@@ -1426,11 +1426,11 @@ class _DifficultyDropdown extends StatelessWidget {
         const SizedBox(width: 8),
         DropdownButton<int?>(
           value: difficulty,
-          hint: const Text('Любая', style: TextStyle(color: Colors.white60)),
+          hint: const Text('Все', style: TextStyle(color: Colors.white60)),
           dropdownColor: AppColors.cardBackground,
           style: const TextStyle(color: Colors.white),
           items: [
-            const DropdownMenuItem(value: null, child: Text('Любая')),
+            const DropdownMenuItem(value: null, child: Text('Все')),
             for (int i = 1; i <= 5; i++)
               DropdownMenuItem(value: i, child: Text('$i')),
           ],
