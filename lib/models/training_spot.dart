@@ -21,6 +21,7 @@ class TrainingSpot {
   final int difficulty;
   final int rating;
   final String? userAction;
+  final String? userComment;
   final DateTime createdAt;
 
   TrainingSpot({
@@ -39,6 +40,7 @@ class TrainingSpot {
     this.gameType,
     List<String>? tags,
     this.userAction,
+    this.userComment,
     this.difficulty = 3,
     this.rating = 0,
     DateTime? createdAt,
@@ -73,6 +75,7 @@ class TrainingSpot {
       gameType: hand.gameType,
       tags: List<String>.from(hand.tags),
       userAction: null,
+      userComment: hand.comment,
       difficulty: 3,
       rating: 0,
       createdAt: hand.date,
@@ -110,6 +113,7 @@ class TrainingSpot {
         'difficulty': difficulty,
         'rating': rating,
         if (userAction != null) 'userAction': userAction,
+        if (userComment != null) 'userComment': userComment,
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -192,6 +196,7 @@ class TrainingSpot {
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 3,
       rating: (json['rating'] as num?)?.toInt() ?? 0,
       userAction: json['userAction'] as String?,
+      userComment: json['userComment'] as String?,
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
     );
@@ -202,6 +207,7 @@ class TrainingSpot {
     int? rating,
     List<String>? tags,
     String? userAction,
+    String? userComment,
     DateTime? createdAt,
   }) {
     return TrainingSpot(
@@ -222,6 +228,7 @@ class TrainingSpot {
       difficulty: difficulty ?? this.difficulty,
       rating: rating ?? this.rating,
       userAction: userAction ?? this.userAction,
+      userComment: userComment ?? this.userComment,
       createdAt: createdAt ?? this.createdAt,
     );
   }

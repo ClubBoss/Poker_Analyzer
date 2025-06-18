@@ -399,8 +399,20 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final query = _searchController.text.toLowerCase();
     return widget.spots.where((spot) {
       final id = spot.tournamentId?.toLowerCase() ?? '';
-      final tagMatch = spot.tags.any((t) => t.toLowerCase().contains(query));
-      final matchesQuery = query.isEmpty || id.contains(query) || tagMatch;
+      bool matchesQuery = query.isEmpty;
+      if (!matchesQuery) {
+        final tagMatch = spot.tags.any((t) => t.toLowerCase().contains(query));
+        final comment = spot.userComment?.toLowerCase() ?? '';
+        final actions = spot.actions
+            .map((a) => '${a.action} ${a.amount ?? ''} ${a.street} ${a.playerIndex}')
+            .join(' ')
+            .toLowerCase();
+        matchesQuery =
+            id.contains(query) ||
+            tagMatch ||
+            comment.contains(query) ||
+            actions.contains(query);
+      }
       final matchesTags =
           _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
       final matchesIcm = !_icmOnly || spot.tags.contains('ICM');
@@ -2182,9 +2194,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                               GestureDetector(
                                                 onTap: () =>
                                                     _editTitleAndTags(spot),
-                                                child: Wrap(
-                                                  spacing: 4,
-                                                  children: [
+                                            child: Wrap(
+                                                spacing: 4,
+                                                children: [
                                                     if (spot.tags.isEmpty)
                                                       const Text('Без тегов',
                                                           style: TextStyle(
@@ -2203,6 +2215,22 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                   ],
                                                 ),
                                               ),
+                                              if (spot.userComment != null &&
+                                                  spot.userComment!.isNotEmpty)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      top: 4),
+                                                  child: Builder(builder: (context) {
+                                                    var _txt = spot.userComment!
+                                                        .replaceAll('\n', ' ');
+                                                    if (_txt.length > 80) {
+                                                      _txt = _txt.substring(0, 80) + '…';
+                                                    }
+                                                    return Text.rich(
+                                                      _highlightSpan(_txt),
+                                                    );
+                                                  }),
+                                                ),
                                               _buildRatingStars(spot),
                                               IconButton(
                                                 icon: const Icon(Icons.label_outline,
@@ -2335,8 +2363,24 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                             AppColors.cardBackground,
                                                       ),
                                                 ],
-                                              ),
+                                                ),
                                             ),
+                                            if (spot.userComment != null &&
+                                                spot.userComment!.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 4),
+                                                child: Builder(builder: (context) {
+                                                  var _txt = spot.userComment!
+                                                      .replaceAll('\n', ' ');
+                                                  if (_txt.length > 80) {
+                                                    _txt = _txt.substring(0, 80) + '…';
+                                                  }
+                                                  return Text.rich(
+                                                    _highlightSpan(_txt),
+                                                  );
+                                                }),
+                                              ),
                                             _buildRatingStars(spot),
                                             IconButton(
                                               icon: const Icon(Icons.label_outline,
