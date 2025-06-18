@@ -26,6 +26,24 @@ enum RatingSortOrder {
   lowFirst,
 }
 
+class _FilterState {
+  const _FilterState({
+    required this.searchText,
+    required this.selectedTags,
+    required this.difficultyFilters,
+    required this.ratingFilters,
+    required this.icmOnly,
+    required this.ratedOnly,
+  });
+
+  final String searchText;
+  final Set<String> selectedTags;
+  final Set<int> difficultyFilters;
+  final Set<int> ratingFilters;
+  final bool icmOnly;
+  final bool ratedOnly;
+}
+
 class TrainingSpotList extends StatefulWidget {
   final List<TrainingSpot> spots;
   final ValueChanged<int>? onRemove;
@@ -97,6 +115,26 @@ class TrainingSpotListState extends State<TrainingSpotList>
   final Set<int> _difficultyFilters = {};
   final Set<int> _ratingFilters = {};
   RatingSortOrder? _ratingSort;
+
+  _FilterState? _lastFilterState;
+
+  void _restoreFilterState(_FilterState state) {
+    setState(() {
+      _searchController.text = state.searchText;
+      _selectedTags
+        ..clear()
+        ..addAll(state.selectedTags);
+      _difficultyFilters
+        ..clear()
+        ..addAll(state.difficultyFilters);
+      _ratingFilters
+        ..clear()
+        ..addAll(state.ratingFilters);
+      _icmOnly = state.icmOnly;
+      _ratedOnly = state.ratedOnly;
+    });
+    _savePresets();
+  }
 
   List<TrainingSpot> _currentFilteredSpots() {
     final query = _searchController.text.toLowerCase();
@@ -1756,6 +1794,14 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   /// Reset all active filters and sorting options.
   void clearFilters() {
+    _lastFilterState = _FilterState(
+      searchText: _searchController.text,
+      selectedTags: Set<String>.from(_selectedTags),
+      difficultyFilters: Set<int>.from(_difficultyFilters),
+      ratingFilters: Set<int>.from(_ratingFilters),
+      icmOnly: _icmOnly,
+      ratedOnly: _ratedOnly,
+    );
     setState(() {
       _searchController.clear();
       _selectedTags.clear();
@@ -1769,6 +1815,23 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _resetSort();
     if (!hadSort) widget.onChanged?.call();
     _savePresets();
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: const Text('Фильтры сброшены'),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Отменить',
+            onPressed: () {
+              final prev = _lastFilterState;
+              if (prev != null) {
+                _restoreFilterState(prev);
+              }
+            },
+          ),
+        ),
+      );
   }
 
   void _clearTagFilters() {
