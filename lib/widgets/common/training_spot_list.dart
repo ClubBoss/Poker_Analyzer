@@ -52,6 +52,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsOrderKey = 'training_spots_order';
   static const String _prefsListVisibleKey = 'training_spot_list_visible';
   static const String _prefsDifficultyKey = 'training_preset_difficulty';
+  static const String _prefsRatingKey = 'training_preset_rating';
   static const String _prefsCustomPresetsKey =
       'training_custom_tag_presets';
 
@@ -87,6 +88,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   bool _manualOrder = true;
   bool _listVisible = true;
   int? _difficultyFilter;
+  int? _ratingFilter;
 
   List<TrainingSpot> _currentFilteredSpots() {
     final query = _searchController.text.toLowerCase();
@@ -99,9 +101,16 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       final matchesIcm = !_icmOnly || spot.tags.contains('ICM');
       final matchesDifficulty =
           _difficultyFilter == null || spot.difficulty == _difficultyFilter;
+      final matchesRating =
+          _ratingFilter == null || spot.rating == _ratingFilter;
       final matchesRated = !_ratedOnly || spot.userAction != null;
       return
-          matchesQuery && matchesTags && matchesIcm && matchesDifficulty && matchesRated;
+          matchesQuery &&
+          matchesTags &&
+          matchesIcm &&
+          matchesDifficulty &&
+          matchesRating &&
+          matchesRated;
     }).toList();
   }
 
@@ -147,6 +156,10 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'сложность: $_difficultyFilter';
     }
+    if (_ratingFilter != null) {
+      if (summary.isNotEmpty) summary += ' + ';
+      summary += 'рейтинг: $_ratingFilter';
+    }
     if (_ratedOnly) {
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'только с оценкой';
@@ -165,6 +178,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
     final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
     final int? difficulty = prefs.getInt(_prefsDifficultyKey);
+    final int? rating = prefs.getInt(_prefsRatingKey);
     final String? customJson = prefs.getString(_prefsCustomPresetsKey);
     if (customJson != null && customJson.isNotEmpty) {
       final Map<String, dynamic> decoded = jsonDecode(customJson);
@@ -185,6 +199,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _difficultyFilter = difficulty;
     } else {
       _difficultyFilter = null;
+    }
+    if (rating != null && rating >= 1 && rating <= 5) {
+      _ratingFilter = rating;
+    } else {
+      _ratingFilter = null;
     }
     if (sortName != null && sortName.isNotEmpty) {
       try {
@@ -224,6 +243,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       await prefs.setInt(_prefsDifficultyKey, _difficultyFilter!);
     } else {
       await prefs.remove(_prefsDifficultyKey);
+    }
+    if (_ratingFilter != null) {
+      await prefs.setInt(_prefsRatingKey, _ratingFilter!);
+    } else {
+      await prefs.remove(_prefsRatingKey);
     }
     if (_sortOption != null) {
       await prefs.setString(_prefsSortKey, _sortOption!.name);
@@ -796,6 +820,14 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           },
         ),
         const SizedBox(height: 8),
+        _RatingDropdown(
+          rating: _ratingFilter,
+          onChanged: (value) {
+            setState(() => _ratingFilter = value);
+            _savePresets();
+          },
+        ),
+        const SizedBox(height: 8),
         _ApplyDifficultyDropdown(
           onChanged: (value) {
             if (value == null) return;
@@ -1175,6 +1207,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _icmOnly = false;
       _ratedOnly = false;
       _difficultyFilter = null;
+      _ratingFilter = null;
     });
     final bool hadSort = _sortOption != null;
     _resetSort();
@@ -1761,6 +1794,38 @@ class _DifficultyDropdown extends StatelessWidget {
         const SizedBox(width: 8),
         DropdownButton<int?>(
           value: difficulty,
+          hint: const Text('Все', style: TextStyle(color: Colors.white60)),
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: [
+            const DropdownMenuItem(value: null, child: Text('Все')),
+            for (int i = 1; i <= 5; i++)
+              DropdownMenuItem(value: i, child: Text('$i')),
+          ],
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _RatingDropdown extends StatelessWidget {
+  final int? rating;
+  final ValueChanged<int?> onChanged;
+
+  const _RatingDropdown({
+    required this.rating,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Text('Рейтинг', style: TextStyle(color: Colors.white)),
+        const SizedBox(width: 8),
+        DropdownButton<int?>(
+          value: rating,
           hint: const Text('Все', style: TextStyle(color: Colors.white60)),
           dropdownColor: AppColors.cardBackground,
           style: const TextStyle(color: Colors.white),
