@@ -65,6 +65,7 @@ class TrainingImportExportService {
       gameType: gameType,
       tags: const [],
       difficulty: 3,
+      createdAt: DateTime.now(),
     );
   }
 
