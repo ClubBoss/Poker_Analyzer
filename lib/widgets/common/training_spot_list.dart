@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/training_spot.dart';
@@ -813,6 +814,14 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             child: const Text('Экспортировать пакет'),
           ),
         ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ElevatedButton(
+            onPressed: _importPack,
+            child: const Text('Импортировать пакет'),
+          ),
+        ),
       ],
     );
   }
@@ -1153,6 +1162,55 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         '${dir.path}/training_spots_${DateTime.now().millisecondsSinceEpoch}.json');
     await file.writeAsString(jsonStr);
     await Share.shareXFiles([XFile(file.path)], text: 'training_spots.json');
+  }
+
+  Future<void> _importPack() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is! List) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Неверный формат файла')));
+        }
+        return;
+      }
+      final spots = <TrainingSpot>[];
+      for (final e in data) {
+        if (e is Map) {
+          try {
+            spots.add(TrainingSpot.fromJson(
+                Map<String, dynamic>.from(e as Map)));
+          } catch (_) {}
+        }
+      }
+      if (spots.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Неверный формат файла')));
+        }
+        return;
+      }
+      setState(() => widget.spots.addAll(spots));
+      widget.onChanged?.call();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
+      }
+    }
   }
 
   void _sortFiltered(List<TrainingSpot> filtered, SortOption option) {
