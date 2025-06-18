@@ -735,184 +735,532 @@ class TrainingSpotListState extends State<TrainingSpotList> {
 
     return DropTarget(
       onDragDone: _handleDrop,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSearchField(),
-        _buildFilterSummary(),
-        _buildIcmSwitch(),
-        _buildRatedSwitch(),
-        const SizedBox(height: 8),
-        _buildFilterToggleButton(),
-        if (_tagFiltersExpanded) ...[
-          const SizedBox(height: 8),
-          _TagFilterSection(
-            filtered: filtered,
-            selectedTags: _selectedTags,
-            expanded: _tagFiltersExpanded,
-            selectedPreset: _selectedPreset,
-            customPresets: _customTagPresets,
-            onExpanded: (v) {
-              setState(() => _tagFiltersExpanded = v);
-              _savePresets();
-            },
-            onTagToggle: (tag, selected) {
-              setState(() {
-                if (selected) {
-                  _selectedTags.add(tag);
-                } else {
-                  _selectedTags.remove(tag);
-                }
-              });
-              _savePresets();
-            },
-            onPresetSelected: (value) {
-              if (value == null) return;
-              final tags = TrainingSpotListState._tagPresets[value] ??
-                  _customTagPresets[value];
-              if (tags == null) return;
-              setState(() {
-                for (final spot in filtered) {
-                  for (final t in tags) {
-                    if (!spot.tags.contains(t)) {
-                      spot.tags.add(t);
-                    }
-                  }
-                }
-                _selectedPreset = null;
-              });
-              widget.onChanged?.call();
-            },
-            onClearTags: _clearTagFilters,
-            onOpenSelector: _showTagSelector,
-          ),
-        ],
-        const SizedBox(height: 8),
-        if (widget.onRemove != null) ...[
-          _SelectionActions(
-            selectedCount: _selectedSpots.length,
-            filtered: filtered,
-            onSelectAll: _selectAllVisible,
-            onClearSelection: _clearSelection,
-            onDeleteSelected: _deleteSelected,
-          ),
-          const SizedBox(height: 8),
-        ],
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  const Text('Ручной порядок', style: TextStyle(color: Colors.white)),
-                  Switch(
-                    value: _manualOrder,
-                    onChanged: (v) {
-                      if (v) {
-                        _resetSort();
-                      } else {
-                        _sortOption ??= SortOption.buyInAsc;
-                        _sortFiltered(_currentFilteredSpots(), _sortOption!);
-                      }
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSearchField(),
+                _buildFilterSummary(),
+                _buildIcmSwitch(),
+                _buildRatedSwitch(),
+                const SizedBox(height: 8),
+                _buildFilterToggleButton(),
+                if (_tagFiltersExpanded) ...[
+                  const SizedBox(height: 8),
+                  _TagFilterSection(
+                    filtered: filtered,
+                    selectedTags: _selectedTags,
+                    expanded: _tagFiltersExpanded,
+                    selectedPreset: _selectedPreset,
+                    customPresets: _customTagPresets,
+                    onExpanded: (v) {
+                      setState(() => _tagFiltersExpanded = v);
+                      _savePresets();
                     },
+                    onTagToggle: (tag, selected) {
+                      setState(() {
+                        if (selected) {
+                          _selectedTags.add(tag);
+                        } else {
+                          _selectedTags.remove(tag);
+                        }
+                      });
+                      _savePresets();
+                    },
+                    onPresetSelected: (value) {
+                      if (value == null) return;
+                      final tags = TrainingSpotListState._tagPresets[value] ??
+                          _customTagPresets[value];
+                      if (tags == null) return;
+                      setState(() {
+                        for (final spot in filtered) {
+                          for (final t in tags) {
+                            if (!spot.tags.contains(t)) {
+                              spot.tags.add(t);
+                            }
+                          }
+                        }
+                        _selectedPreset = null;
+                      });
+                      widget.onChanged?.call();
+                    },
+                    onClearTags: _clearTagFilters,
+                    onOpenSelector: _showTagSelector,
                   ),
                 ],
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: !_manualOrder || filtered.length <= 1
-                    ? null
-                    : () => _shuffleFiltered(filtered),
-                child: const Text('Перемешать'),
-              ),
-              const SizedBox(width: 8),
-              _SortDropdown(
-                sortOption: _sortOption,
-                filtered: filtered,
-                manualOrder: _manualOrder,
-                onChanged: (value, spots) {
-                  if (value == null) {
-                    _resetSort();
-                  } else {
-                    _sortFiltered(spots, value);
-                  }
+                const SizedBox(height: 8),
+                if (widget.onRemove != null) ...[
+                  _SelectionActions(
+                    selectedCount: _selectedSpots.length,
+                    filtered: filtered,
+                    onSelectAll: _selectAllVisible,
+                    onClearSelection: _clearSelection,
+                    onDeleteSelected: _deleteSelected,
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          const Text('Ручной порядок',
+                              style: TextStyle(color: Colors.white)),
+                          Switch(
+                            value: _manualOrder,
+                            onChanged: (v) {
+                              if (v) {
+                                _resetSort();
+                              } else {
+                                _sortOption ??= SortOption.buyInAsc;
+                                _sortFiltered(
+                                    _currentFilteredSpots(), _sortOption!);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: !_manualOrder || filtered.length <= 1
+                            ? null
+                            : () => _shuffleFiltered(filtered),
+                        child: const Text('Перемешать'),
+                      ),
+                      const SizedBox(width: 8),
+                      _SortDropdown(
+                        sortOption: _sortOption,
+                        filtered: filtered,
+                        manualOrder: _manualOrder,
+                        onChanged: (value, spots) {
+                          if (value == null) {
+                            _resetSort();
+                          } else {
+                            _sortFiltered(spots, value);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _saveCurrentOrder,
+                        child: const Text('Сохранить порядок'),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        onPressed: clearFilters,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.red),
+                          foregroundColor: Colors.red,
+                        ),
+                        child: const Text('Очистить фильтры'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildListToggleButton(),
+                const SizedBox(height: 8),
+                _buildPackSummary(filtered),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverFilterBarDelegate(
+              height: 140,
+              child: _FilterBar(
+                selectedTags: _selectedTags,
+                onTagToggle: (tag, selected) {
+                  setState(() {
+                    if (selected) {
+                      _selectedTags.add(tag);
+                    } else {
+                      _selectedTags.remove(tag);
+                    }
+                  });
+                  _savePresets();
+                },
+                difficultyFilters: _difficultyFilters,
+                onDifficultyChanged: (value) {
+                  setState(() {
+                    if (_difficultyFilters.contains(value)) {
+                      _difficultyFilters.remove(value);
+                    } else {
+                      _difficultyFilters.add(value);
+                    }
+                  });
+                  _savePresets();
+                },
+                onDifficultyToggleAll: () {
+                  setState(() {
+                    if (_difficultyFilters.length == 5) {
+                      _difficultyFilters.clear();
+                    } else {
+                      _difficultyFilters
+                        ..clear()
+                        ..addAll({1, 2, 3, 4, 5});
+                    }
+                  });
+                  _savePresets();
+                },
+                ratingFilters: _ratingFilters,
+                onRatingChanged: (value) {
+                  setState(() {
+                    if (_ratingFilters.contains(value)) {
+                      _ratingFilters.remove(value);
+                    } else {
+                      _ratingFilters.add(value);
+                    }
+                  });
+                  _savePresets();
+                },
+                onRatingToggleAll: () {
+                  setState(() {
+                    if (_ratingFilters.length == 5) {
+                      _ratingFilters.clear();
+                    } else {
+                      _ratingFilters
+                        ..clear()
+                        ..addAll({1, 2, 3, 4, 5});
+                    }
+                  });
+                  _savePresets();
                 },
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _saveCurrentOrder,
-                child: const Text('Сохранить порядок'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: clearFilters,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.red),
-                  foregroundColor: Colors.red,
-                ),
-                child: const Text('Очистить фильтры'),
-              ),
-            ],
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        _buildListToggleButton(),
-        const SizedBox(height: 8),
-        _buildPackSummary(filtered),
-        const SizedBox(height: 8),
-        _DifficultyChipRow(
-          selected: _difficultyFilters,
-          onChanged: (value) {
-            setState(() {
-              if (_difficultyFilters.contains(value)) {
-                _difficultyFilters.remove(value);
-              } else {
-                _difficultyFilters.add(value);
-              }
-            });
-            _savePresets();
-          },
-          onToggleAll: () {
-            setState(() {
-              if (_difficultyFilters.length == 5) {
-                _difficultyFilters.clear();
-              } else {
-                _difficultyFilters
-                  ..clear()
-                  ..addAll({1, 2, 3, 4, 5});
-              }
-            });
-            _savePresets();
-          },
-        ),
-        const SizedBox(height: 8),
-        _RatingChipRow(
-          selected: _ratingFilters,
-          onChanged: (value) {
-            setState(() {
-              if (_ratingFilters.contains(value)) {
-                _ratingFilters.remove(value);
-              } else {
-                _ratingFilters.add(value);
-              }
-            });
-            _savePresets();
-          },
-          onToggleAll: () {
-            setState(() {
-              if (_ratingFilters.length == 5) {
-                _ratingFilters.clear();
-              } else {
-                _ratingFilters
-                  ..clear()
-                  ..addAll({1, 2, 3, 4, 5});
-              }
-            });
-            _savePresets();
-          },
-        ),
-        const SizedBox(height: 8),
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _RatingSortDropdown(
+                  order: _ratingSort,
+                  filtered: filtered,
+                  manualOrder: _manualOrder,
+                  onChanged: (value, spots) {
+                    if (value == null) {
+                      _resetSort();
+                    } else {
+                      _sortByRating(spots, value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+                _buildVisibleSummary(filtered),
+                const SizedBox(height: 8),
+                _ApplyDifficultyDropdown(
+                  onChanged: (value) {
+                    if (value == null) return;
+                    _applyDifficultyToFiltered(value);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _ApplyRatingDropdown(
+                  onChanged: (value) {
+                    if (value == null) return;
+                    _applyRatingToFiltered(value);
+                  },
+                ),
+                const SizedBox(height: 8),
+                if (_listVisible)
+                  if (filtered.isEmpty)
+                    const Text(
+                      'Нет импортированных спотов',
+                      style: TextStyle(color: Colors.white54),
+                    )
+                  else
+                    SizedBox(
+                      height: 150,
+                      child: _manualOrder
+                          ? ReorderableListView.builder(
+                              buildDefaultDragHandles: false,
+                              itemCount: filtered.length,
+                              itemBuilder: (context, index) {
+                                final spot = filtered[index];
+                                return ReorderableDelayedDragStartListener(
+                                  key: ValueKey(spot),
+                                  index: index,
+                                  child: Container(
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.cardBackground,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.drag_handle,
+                                            color: Colors.white70),
+                                        const SizedBox(width: 8),
+                                        Checkbox(
+                                          value: _selectedSpots.contains(spot),
+                                          onChanged: (v) {
+                                            setState(() {
+                                              if (v == true) {
+                                                _selectedSpots.add(spot);
+                                              } else {
+                                                _selectedSpots.remove(spot);
+                                              }
+                                            });
+                                            widget.onChanged?.call();
+                                          },
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              if (spot.tournamentId != null &&
+                                                  spot.tournamentId!.isNotEmpty)
+                                                GestureDetector(
+                                                  onTap: () =>
+                                                      _editTitleAndTags(spot),
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text.rich(
+                                                          _highlightSpan(
+                                                              'ID: ${spot.tournamentId}'),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      _buildDifficultyDots(
+                                                          spot.difficulty),
+                                                    ],
+                                                  ),
+                                                )
+                                              else
+                                                _buildDifficultyDots(
+                                                    spot.difficulty),
+                                              if (spot.buyIn != null)
+                                                Text('Buy-In: ${spot.buyIn}',
+                                                    style: const TextStyle(
+                                                        color: Colors.white)),
+                                              if (spot.gameType != null &&
+                                                  spot.gameType!.isNotEmpty)
+                                                Text('Game: ${spot.gameType}',
+                                                    style: const TextStyle(
+                                                        color: Colors.white)),
+                                              const SizedBox(height: 8),
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    _editTitleAndTags(spot),
+                                                child: Wrap(
+                                                  spacing: 4,
+                                                  children: [
+                                                    if (spot.tags.isEmpty)
+                                                      const Text('Без тегов',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white54))
+                                                    else
+                                                      for (final tag in spot.tags)
+                                                        Chip(
+                                                          label:
+                                                              Text.rich(
+                                                                  _highlightSpan(
+                                                                      tag)),
+                                                          backgroundColor: AppColors
+                                                              .cardBackground,
+                                                        ),
+                                                  ],
+                                                ),
+                                              ),
+                                              _buildRatingStars(spot),
+                                            ],
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.edit,
+                                              color: Colors.white70),
+                                          onPressed: () => _editSpot(spot),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.copy,
+                                              color: Colors.white70),
+                                          onPressed: () => _duplicateSpot(spot),
+                                        ),
+                                        if (widget.onRemove != null)
+                                          IconButton(
+                                            icon: const Icon(Icons.delete,
+                                                color: Colors.red),
+                                            onPressed: () => _deleteSpot(spot),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              onReorder: (oldIndex, newIndex) =>
+                                  _handleReorder(oldIndex, newIndex, filtered),
+                            )
+                          : ListView.builder(
+                              itemCount: filtered.length,
+                              itemBuilder: (context, index) {
+                                final spot = filtered[index];
+                                return Container(
+                                  key: ValueKey(spot),
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 4),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.cardBackground,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(width: 24),
+                                      const SizedBox(width: 8),
+                                      Checkbox(
+                                        value: _selectedSpots.contains(spot),
+                                        onChanged: (v) {
+                                          setState(() {
+                                            if (v == true) {
+                                              _selectedSpots.add(spot);
+                                            } else {
+                                              _selectedSpots.remove(spot);
+                                            }
+                                          });
+                                          widget.onChanged?.call();
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if (spot.tournamentId != null &&
+                                                spot.tournamentId!.isNotEmpty)
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    _editTitleAndTags(spot),
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text.rich(
+                                                        _highlightSpan(
+                                                            'ID: ${spot.tournamentId}'),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    _buildDifficultyDots(
+                                                        spot.difficulty),
+                                                  ],
+                                                ),
+                                              )
+                                            else
+                                              _buildDifficultyDots(
+                                                  spot.difficulty),
+                                            if (spot.buyIn != null)
+                                              Text('Buy-In: ${spot.buyIn}',
+                                                  style: const TextStyle(
+                                                      color: Colors.white)),
+                                            if (spot.gameType != null &&
+                                                spot.gameType!.isNotEmpty)
+                                              Text('Game: ${spot.gameType}',
+                                                  style: const TextStyle(
+                                                      color: Colors.white)),
+                                            const SizedBox(height: 8),
+                                            GestureDetector(
+                                              onTap: () =>
+                                                  _editTitleAndTags(spot),
+                                              child: Wrap(
+                                                spacing: 4,
+                                                children: [
+                                                  if (spot.tags.isEmpty)
+                                                    const Text('Без тегов',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white54))
+                                                  else
+                                                    for (final tag in spot.tags)
+                                                      Chip(
+                                                        label: Text.rich(
+                                                            _highlightSpan(tag)),
+                                                        backgroundColor:
+                                                            AppColors.cardBackground,
+                                                      ),
+                                                ],
+                                              ),
+                                            ),
+                                            _buildRatingStars(spot),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.white70),
+                                        onPressed: () => _editSpot(spot),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.copy,
+                                            color: Colors.white70),
+                                        onPressed: () => _duplicateSpot(spot),
+                                      ),
+                                      if (widget.onRemove != null)
+                                        IconButton(
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.red),
+                                          onPressed: () => _deleteSpot(spot),
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed:
+                        filtered.isEmpty ? null : () => _exportPack(filtered),
+                    child: const Text('Экспортировать пакет'),
+                  ),
+                ),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ElevatedButton(
+                      onPressed: filtered.isEmpty
+                          ? null
+                          : () => _exportPackSummary(filtered),
+                      child: const Text('Export Spot Summary'),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: _importPack,
+                    child: const Text('Импортировать пакет'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
         _RatingSortDropdown(
           order: _ratingSort,
           filtered: filtered,
@@ -1995,6 +2343,93 @@ class _RatingChipRow extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _FilterBar extends StatelessWidget {
+  final Set<String> selectedTags;
+  final void Function(String tag, bool selected) onTagToggle;
+  final Set<int> difficultyFilters;
+  final ValueChanged<int> onDifficultyChanged;
+  final VoidCallback onDifficultyToggleAll;
+  final Set<int> ratingFilters;
+  final ValueChanged<int> onRatingChanged;
+  final VoidCallback onRatingToggleAll;
+
+  const _FilterBar({
+    required this.selectedTags,
+    required this.onTagToggle,
+    required this.difficultyFilters,
+    required this.onDifficultyChanged,
+    required this.onDifficultyToggleAll,
+    required this.ratingFilters,
+    required this.onRatingChanged,
+    required this.onRatingToggleAll,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.background,
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                for (final tag in selectedTags)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: FilterChip(
+                      label: Text(tag),
+                      selected: true,
+                      onSelected: (selected) => onTagToggle(tag, selected),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          _DifficultyChipRow(
+            selected: difficultyFilters,
+            onChanged: onDifficultyChanged,
+            onToggleAll: onDifficultyToggleAll,
+          ),
+          const SizedBox(height: 8),
+          _RatingChipRow(
+            selected: ratingFilters,
+            onChanged: onRatingChanged,
+            onToggleAll: onRatingToggleAll,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SliverFilterBarDelegate extends SliverPersistentHeaderDelegate {
+  final double height;
+  final Widget child;
+
+  _SliverFilterBarDelegate({required this.height, required this.child});
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(covariant _SliverFilterBarDelegate oldDelegate) {
+    return oldDelegate.child != child || oldDelegate.height != height;
   }
 }
 
