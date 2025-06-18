@@ -164,6 +164,237 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _savePresets();
   }
 
+  Future<MapEntry<String, List<String>>?> _editTagPreset(
+      {String? initialName, List<String>? initialTags}) async {
+    final controller = TextEditingController(text: initialName ?? '');
+    final local = <String>{...(initialTags ?? [])};
+    final suggestions = <String>{
+      ..._availableTags,
+      for (final list in _tagPresets.values) ...list,
+      for (final list in _customTagPresets.values) ...list,
+      for (final s in widget.spots) ...s.tags,
+    }..removeWhere((e) => e.isEmpty);
+    final result = await showDialog<MapEntry<String, List<String>>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: Text(
+            initialName == null ? 'Новый пресет' : 'Редактировать пресет',
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return SizedBox(
+                width: 300,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: controller,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Название',
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          for (final tag in suggestions)
+                            CheckboxListTile(
+                              value: local.contains(tag),
+                              title: Text(tag,
+                                  style: const TextStyle(color: Colors.white)),
+                              onChanged: (v) {
+                                setStateDialog(() {
+                                  if (v ?? false) {
+                                    local.add(tag);
+                                  } else {
+                                    local.remove(tag);
+                                  }
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(
+                  context, MapEntry(controller.text.trim(), local.toList())),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (result == null || result.key.isEmpty) return null;
+    return result;
+  }
+
+  Future<void> _manageTagPresets() async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final staticEntries = _tagPresets.entries.toList();
+            final customEntries = _customTagPresets.entries.toList();
+            return AlertDialog(
+              backgroundColor: AppColors.cardBackground,
+              title: const Text('Пресеты тегов',
+                  style: TextStyle(color: Colors.white)),
+              content: SizedBox(
+                width: 300,
+                height: 400,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ReorderableListView(
+                        onReorder: (oldIndex, newIndex) {
+                          final staticCount = staticEntries.length;
+                          if (oldIndex < staticCount || newIndex <= staticCount) {
+                            return;
+                          }
+                          var localOld = oldIndex - staticCount;
+                          var localNew = newIndex - staticCount;
+                          if (localNew > localOld) localNew--;
+                          final moved = customEntries.removeAt(localOld);
+                          customEntries.insert(localNew, moved);
+                          setStateDialog(() {
+                            _customTagPresets = {
+                              for (final e in customEntries) e.key: e.value,
+                            };
+                          });
+                        },
+                        children: [
+                          for (final entry in staticEntries)
+                            ListTile(
+                              key: ValueKey('s_${entry.key}'),
+                              title: Text(entry.key,
+                                  style: const TextStyle(color: Colors.white)),
+                              subtitle: Text(entry.value.join(', '),
+                                  style:
+                                      const TextStyle(color: Colors.white70)),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(Icons.edit, color: Colors.grey),
+                                  SizedBox(width: 8),
+                                  Icon(Icons.delete, color: Colors.grey),
+                                ],
+                              ),
+                            ),
+                          for (final entry in customEntries)
+                            ListTile(
+                              key: ValueKey(entry.key),
+                              title: Text(entry.key,
+                                  style: const TextStyle(color: Colors.white)),
+                              subtitle: Text(entry.value.join(', '),
+                                  style:
+                                      const TextStyle(color: Colors.white70)),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.white),
+                                    onPressed: () async {
+                                      final result = await _editTagPreset(
+                                          initialName: entry.key,
+                                          initialTags: entry.value);
+                                      if (result != null) {
+                                        setStateDialog(() {
+                                          _customTagPresets.remove(entry.key);
+                                          _customTagPresets[result.key] =
+                                              result.value;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon:
+                                        const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(
+                                              'Удалить пресет "${entry.key}"?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                              child: const Text('Отмена'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, true),
+                                              child: const Text('Удалить'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm == true) {
+                                        setStateDialog(() {
+                                          _customTagPresets.remove(entry.key);
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final result = await _editTagPreset();
+                          if (result != null &&
+                              !_customTagPresets.containsKey(result.key)) {
+                            setStateDialog(() {
+                              _customTagPresets[result.key] = result.value;
+                            });
+                          }
+                        },
+                        child: const Text('Создать новый пресет'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Закрыть'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    setState(() {});
+    _savePresets();
+  }
+
   List<TrainingSpot> _currentFilteredSpots() {
     final query = _searchController.text.toLowerCase();
     return widget.spots.where((spot) {
@@ -1636,6 +1867,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     },
                     onClearTags: _clearTagFilters,
                     onOpenSelector: _showTagSelector,
+                    onManagePresets: _manageTagPresets,
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -3308,6 +3540,7 @@ class _TagFilterSection extends StatelessWidget {
   final ValueChanged<String?> onPresetSelected;
   final VoidCallback onClearTags;
   final VoidCallback onOpenSelector;
+  final VoidCallback onManagePresets;
 
   const _TagFilterSection({
     required this.filtered,
@@ -3320,6 +3553,7 @@ class _TagFilterSection extends StatelessWidget {
     required this.onPresetSelected,
     required this.onClearTags,
     required this.onOpenSelector,
+    required this.onManagePresets,
   });
 
   @override
@@ -3356,6 +3590,14 @@ class _TagFilterSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _buildTagFilterRow(),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ElevatedButton(
+            onPressed: onManagePresets,
+            child: const Text('Редактировать пресеты'),
+          ),
+        ),
       ],
     );
   }
