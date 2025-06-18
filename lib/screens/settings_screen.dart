@@ -13,6 +13,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _showPotAnimation;
   late bool _showCardReveal;
   late bool _showWinnerCelebration;
+  late bool _showActionHints;
 
   @override
   void initState() {
@@ -21,6 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _showPotAnimation = prefs.showPotAnimation;
     _showCardReveal = prefs.showCardReveal;
     _showWinnerCelebration = prefs.showWinnerCelebration;
+    _showActionHints = prefs.showActionHints;
   }
 
   Future<void> _togglePotAnimation(bool value) async {
@@ -38,6 +40,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await UserPreferences.instance.setShowWinnerCelebration(value);
   }
 
+  Future<void> _toggleActionHints(bool value) async {
+    setState(() => _showActionHints = value);
+    await UserPreferences.instance.setShowActionHints(value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,34 +53,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text('Settings'),
         centerTitle: true,
       ),
-      body: ListView(
-        children: [
-          SwitchListTile(
-            value: _showPotAnimation,
-            title: const Text('Show Pot Animation'),
-            onChanged: _togglePotAnimation,
-            activeColor: Colors.orange,
-          ),
-          SwitchListTile(
-            value: _showCardReveal,
-            title: const Text('Show Card Reveal'),
-            onChanged: _toggleCardReveal,
-            activeColor: Colors.orange,
-          ),
-          SwitchListTile(
-            value: _showWinnerCelebration,
-            title: const Text('Show Winner Celebration'),
-            onChanged: _toggleWinnerCelebration,
-            activeColor: Colors.orange,
-          ),
-          const SizedBox(height: 20),
-          Center(
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Back to Main Menu'),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SwitchListTile(
+              value: _showPotAnimation,
+              title: const Text('Show Pot Animation'),
+              onChanged: _togglePotAnimation,
+              activeColor: Colors.orange,
             ),
-          ),
-        ],
+            SwitchListTile(
+              value: _showCardReveal,
+              title: const Text('Show Card Reveal'),
+              onChanged: _toggleCardReveal,
+              activeColor: Colors.orange,
+            ),
+            SwitchListTile(
+              value: _showWinnerCelebration,
+              title: const Text('Show Winner Celebration'),
+              onChanged: _toggleWinnerCelebration,
+              activeColor: Colors.orange,
+            ),
+            SwitchListTile(
+              value: _showActionHints,
+              title: const Text('Показывать подсказки к действиям'),
+              onChanged: _toggleActionHints,
+              activeColor: Colors.orange,
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Back to Main Menu'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

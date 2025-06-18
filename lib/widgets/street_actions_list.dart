@@ -4,8 +4,9 @@ import 'detailed_action_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 
 import 'street_pot_widget.dart';
-/// Whether action hints (tooltips) should be shown. TODO: load from preferences.
-const bool kShowActionHints = true;
+import '../user_preferences.dart';
+/// Whether action hints (tooltips) should be shown. Loaded from preferences.
+bool get kShowActionHints => UserPreferences.instance.showActionHints;
 
 /// Список действий на конкретной улице
 class StreetActionsList extends StatelessWidget {
