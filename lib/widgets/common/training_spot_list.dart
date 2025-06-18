@@ -17,6 +17,8 @@ enum SortOption {
   buyInDesc,
   gameType,
   tournamentId,
+  difficultyAsc,
+  difficultyDesc,
 }
 
 class TrainingSpotList extends StatefulWidget {
@@ -1209,6 +1211,16 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         sorted
             .sort((a, b) => (a.tournamentId ?? '').compareTo(b.tournamentId ?? ''));
         break;
+      case SortOption.difficultyAsc:
+        sorted.sort(
+          (a, b) => (a.difficulty).compareTo(b.difficulty),
+        );
+        break;
+      case SortOption.difficultyDesc:
+        sorted.sort(
+          (a, b) => (b.difficulty).compareTo(a.difficulty),
+        );
+        break;
     }
     setState(() {
       for (int i = 0; i < indices.length; i++) {
@@ -1442,6 +1454,14 @@ class _SortDropdown extends StatelessWidget {
         DropdownMenuItem(
           value: SortOption.tournamentId,
           child: Text('ID турнира'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.difficultyAsc,
+          child: Text('Сложность (по возрастанию)'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.difficultyDesc,
+          child: Text('Сложность (по убыванию)'),
         ),
       ],
       onChanged:
