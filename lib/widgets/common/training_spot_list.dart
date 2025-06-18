@@ -21,6 +21,11 @@ enum SortOption {
   difficultyDesc,
 }
 
+enum RatingSortOrder {
+  highFirst,
+  lowFirst,
+}
+
 class TrainingSpotList extends StatefulWidget {
   final List<TrainingSpot> spots;
   final ValueChanged<int>? onRemove;
@@ -53,6 +58,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsListVisibleKey = 'training_spot_list_visible';
   static const String _prefsDifficultyKey = 'training_preset_difficulty';
   static const String _prefsRatingKey = 'training_preset_rating';
+  static const String _prefsRatingSortKey = 'training_preset_rating_sort';
   static const String _prefsCustomPresetsKey =
       'training_custom_tag_presets';
 
@@ -89,6 +95,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   bool _listVisible = true;
   int? _difficultyFilter;
   int? _ratingFilter;
+  RatingSortOrder? _ratingSort;
 
   List<TrainingSpot> _currentFilteredSpots() {
     final query = _searchController.text.toLowerCase();
@@ -184,6 +191,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final bool expanded = prefs.getBool(_prefsExpandedKey) ?? true;
     final bool listVisible = prefs.getBool(_prefsListVisibleKey) ?? true;
     final String? sortName = prefs.getString(_prefsSortKey);
+    final String? ratingSortName = prefs.getString(_prefsRatingSortKey);
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
     final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
     final int? difficulty = prefs.getInt(_prefsDifficultyKey);
@@ -221,11 +229,20 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         _sortOption = null;
       }
     }
-    _manualOrder = _sortOption == null;
+    if (ratingSortName != null && ratingSortName.isNotEmpty) {
+      try {
+        _ratingSort = RatingSortOrder.values.byName(ratingSortName);
+      } catch (_) {
+        _ratingSort = null;
+      }
+    }
+    _manualOrder = _sortOption == null && _ratingSort == null;
     _presetsLoaded = true;
     final filtered = _currentFilteredSpots();
     if (_sortOption != null) {
       _sortFiltered(filtered, _sortOption!);
+    } else if (_ratingSort != null) {
+      _sortByRating(filtered, _ratingSort!);
     } else {
       setState(() {});
     }
@@ -257,6 +274,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       await prefs.setInt(_prefsRatingKey, _ratingFilter!);
     } else {
       await prefs.remove(_prefsRatingKey);
+    }
+    if (_ratingSort != null) {
+      await prefs.setString(_prefsRatingSortKey, _ratingSort!.name);
+    } else {
+      await prefs.remove(_prefsRatingSortKey);
     }
     if (_sortOption != null) {
       await prefs.setString(_prefsSortKey, _sortOption!.name);
@@ -843,6 +865,19 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           onChanged: (value) {
             setState(() => _ratingFilter = value);
             _savePresets();
+          },
+        ),
+        const SizedBox(height: 8),
+        _RatingSortDropdown(
+          order: _ratingSort,
+          filtered: filtered,
+          manualOrder: _manualOrder,
+          onChanged: (value, spots) {
+            if (value == null) {
+              _resetSort();
+            } else {
+              _sortByRating(spots, value);
+            }
           },
         ),
         const SizedBox(height: 8),
@@ -1658,10 +1693,35 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     _savePresets();
   }
 
+  void _sortByRating(List<TrainingSpot> filtered, RatingSortOrder order) {
+    final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
+    final sorted = List<TrainingSpot>.from(filtered);
+    _originalOrder ??= List<TrainingSpot>.from(widget.spots);
+    switch (order) {
+      case RatingSortOrder.highFirst:
+        sorted.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+      case RatingSortOrder.lowFirst:
+        sorted.sort((a, b) => a.rating.compareTo(b.rating));
+        break;
+    }
+    setState(() {
+      for (int i = 0; i < indices.length; i++) {
+        widget.spots[indices[i]] = sorted[i];
+      }
+      _ratingSort = order;
+      _sortOption = null;
+      _manualOrder = false;
+    });
+    widget.onChanged?.call();
+    _savePresets();
+  }
+
   void _saveCurrentOrder() {
     setState(() {
       _originalOrder = List<TrainingSpot>.from(widget.spots);
       _sortOption = null;
+      _ratingSort = null;
       _manualOrder = true;
     });
     widget.onChanged?.call();
@@ -1673,7 +1733,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
   void _resetSort() {
-    if (_sortOption == null) return;
+    if (_sortOption == null && _ratingSort == null) return;
     setState(() {
       if (_originalOrder != null &&
           widget.spots.length == _originalOrder!.length) {
@@ -1681,6 +1741,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       }
       _originalOrder = null;
       _sortOption = null;
+      _ratingSort = null;
       _manualOrder = true;
     });
     widget.onChanged?.call();
@@ -1985,6 +2046,54 @@ class _SortDropdown extends StatelessWidget {
       ],
       onChanged:
           manualOrder ? null : (value) => onChanged(value, filtered),
+    );
+  }
+}
+
+class _RatingSortDropdown extends StatelessWidget {
+  final RatingSortOrder? order;
+  final List<TrainingSpot> filtered;
+  final bool manualOrder;
+  final void Function(RatingSortOrder? value, List<TrainingSpot> spots)
+      onChanged;
+
+  const _RatingSortDropdown({
+    required this.order,
+    required this.filtered,
+    required this.manualOrder,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Text('Сортировать по рейтингу',
+            style: TextStyle(color: Colors.white)),
+        const SizedBox(width: 8),
+        DropdownButton<RatingSortOrder?>(
+          value: order,
+          hint:
+              const Text('Без сортировки', style: TextStyle(color: Colors.white60)),
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: const [
+            DropdownMenuItem(
+              value: null,
+              child: Text('Без сортировки'),
+            ),
+            DropdownMenuItem(
+              value: RatingSortOrder.highFirst,
+              child: Text('Сначала высокий'),
+            ),
+            DropdownMenuItem(
+              value: RatingSortOrder.lowFirst,
+              child: Text('Сначала низкий'),
+            ),
+          ],
+          onChanged: manualOrder ? null : (v) => onChanged(v, filtered),
+        ),
+      ],
     );
   }
 }
