@@ -539,6 +539,15 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     widget.onChanged?.call();
   }
 
+  void _updateRating(TrainingSpot spot, int value) {
+    final index = widget.spots.indexOf(spot);
+    if (index == -1) return;
+    setState(() {
+      widget.spots[index] = spot.copyWith(rating: value);
+    });
+    widget.onChanged?.call();
+  }
+
   void _applyDifficultyToFiltered(int value) {
     final filtered = _currentFilteredSpots();
     if (filtered.isEmpty) return;
@@ -575,11 +584,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
             icon: Icon(
-              i <= spot.difficulty ? Icons.star : Icons.star_border,
+              i <= spot.rating ? Icons.star : Icons.star_border,
               color: Colors.amber,
               size: 20,
             ),
-            onPressed: () => _updateDifficulty(spot, i),
+            onPressed: () => _updateRating(spot, i),
           ),
       ],
     );
