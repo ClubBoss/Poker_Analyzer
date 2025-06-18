@@ -36,6 +36,7 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
 - Batch operations in the Training Spot list allow applying the current
   difficulty and rating filters to all visible spots or deleting them in
   one step with confirmation dialogs.
+- Scan Ethereum addresses from QR codes for quick entry in the Ethereum tools.
 
 
 ## Converter plug-ins
