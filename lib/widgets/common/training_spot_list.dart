@@ -81,17 +81,42 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final query = _searchController.text.toLowerCase();
     return widget.spots.where((spot) {
       final id = spot.tournamentId?.toLowerCase() ?? '';
-      final game = spot.gameType?.toLowerCase() ?? '';
-      final buyIn = spot.buyIn?.toString() ?? '';
-      final matchesQuery = query.isEmpty ||
-          id.contains(query) ||
-          game.contains(query) ||
-          buyIn.contains(query);
+      final tagMatch = spot.tags.any((t) => t.toLowerCase().contains(query));
+      final matchesQuery = query.isEmpty || id.contains(query) || tagMatch;
       final matchesTags =
           _selectedTags.isEmpty || _selectedTags.every(spot.tags.contains);
       final matchesIcm = !_icmOnly || spot.tags.contains('ICM');
       return matchesQuery && matchesTags && matchesIcm;
     }).toList();
+  }
+
+  TextSpan _highlightSpan(String text) {
+    final query = _searchController.text.trim();
+    if (query.isEmpty) {
+      return TextSpan(text: text, style: const TextStyle(color: Colors.white));
+    }
+    final lcText = text.toLowerCase();
+    final lcQuery = query.toLowerCase();
+    final spans = <TextSpan>[];
+    int start = 0;
+    int index;
+    while ((index = lcText.indexOf(lcQuery, start)) != -1) {
+      if (index > start) {
+        spans.add(TextSpan(
+            text: text.substring(start, index),
+            style: const TextStyle(color: Colors.white)));
+      }
+      spans.add(TextSpan(
+          text: text.substring(index, index + query.length),
+          style: const TextStyle(color: Colors.orange)));
+      start = index + query.length;
+    }
+    if (start < text.length) {
+      spans.add(TextSpan(
+          text: text.substring(start),
+          style: const TextStyle(color: Colors.white)));
+    }
+    return TextSpan(children: spans);
   }
 
   String getActiveFilterSummary() {
@@ -689,9 +714,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                             if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty)
                               GestureDetector(
                                 onTap: () => _editTitleAndTags(spot),
-                                child: Text(
-                                  'ID: ${spot.tournamentId}',
-                                  style: const TextStyle(color: Colors.white),
+                                child: Text.rich(
+                                  _highlightSpan('ID: ${spot.tournamentId}'),
                                 ),
                               ),
                             if (spot.buyIn != null)
@@ -712,7 +736,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                                   else
                                     for (final tag in spot.tags)
                                       Chip(
-                                        label: Text(tag),
+                                        label: Text.rich(_highlightSpan(tag)),
                                         backgroundColor: AppColors.cardBackground,
                                       ),
                                 ],
@@ -779,9 +803,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                                   if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty)
                                     GestureDetector(
                                       onTap: () => _editTitleAndTags(spot),
-                                      child: Text(
-                                        'ID: ${spot.tournamentId}',
-                                        style: const TextStyle(color: Colors.white),
+                                      child: Text.rich(
+                                        _highlightSpan('ID: ${spot.tournamentId}'),
                                       ),
                                     ),
                                   if (spot.buyIn != null)
@@ -802,7 +825,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                                         else
                                           for (final tag in spot.tags)
                                             Chip(
-                                              label: Text(tag),
+                                              label: Text.rich(_highlightSpan(tag)),
                                               backgroundColor: AppColors.cardBackground,
                                             ),
                                       ],
@@ -859,7 +882,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Поиск...',
+              hintText: 'Поиск по ID или тегу...',
               hintStyle: const TextStyle(color: Colors.white54),
               prefixIcon: const Icon(Icons.search, color: Colors.white54),
               filled: true,
