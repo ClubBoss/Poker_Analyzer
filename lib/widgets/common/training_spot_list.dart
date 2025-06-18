@@ -1921,7 +1921,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     await _exportNamedPack(filtered, name);
   }
 
-  Widget _buildRatingStars(TrainingSpot spot) {
+  Widget _buildRatingStars(TrainingSpot spot, {bool highlight = false}) {
     return Row(
       children: [
         for (int i = 1; i <= 5; i++)
@@ -1930,7 +1930,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
             constraints: const BoxConstraints(),
             icon: Icon(
               i <= spot.rating ? Icons.star : Icons.star_border,
-              color: Colors.amber,
+              color: highlight ? Colors.orangeAccent : Colors.amber,
               size: 20,
             ),
             onPressed: () => _updateRating(spot, i),
@@ -1939,12 +1939,15 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
-  Widget _buildDifficultyDropdown(TrainingSpot spot) {
+  Widget _buildDifficultyDropdown(TrainingSpot spot, {bool highlight = false}) {
     return DropdownButton<int>(
       value: spot.difficulty,
       underline: const SizedBox(),
       dropdownColor: AppColors.cardBackground,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
+      ),
       items: [for (int i = 1; i <= 5; i++) DropdownMenuItem(value: i, child: Text('$i'))],
       onChanged: (v) {
         if (v != null) _updateDifficulty(spot, v);
@@ -2655,16 +2658,28 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                         child: Text.rich(
                                                           _highlightSpan(
                                                               'ID: ${spot.tournamentId}'),
+                                                          style: _quickSort ==
+                                                                  QuickSortOption.id
+                                                              ? const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold)
+                                                              : null,
                                                         ),
                                                       ),
                                                       const SizedBox(width: 4),
                                                       _buildDifficultyDropdown(
-                                                          spot),
+                                                          spot,
+                                                          highlight: _quickSort ==
+                                                              QuickSortOption.difficulty),
                                                     ],
                                                   ),
                                                 )
                                               else
-                                                _buildDifficultyDropdown(spot),
+                                                _buildDifficultyDropdown(
+                                                    spot,
+                                                    highlight: _quickSort ==
+                                                        QuickSortOption.difficulty),
                                               if (spot.buyIn != null)
                                                 Text('Buy-In: ${spot.buyIn}',
                                                     style: const TextStyle(
@@ -2749,7 +2764,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                     );
                                                   }),
                                                 ),
-                                              _buildRatingStars(spot),
+                                                _buildRatingStars(
+                                                    spot,
+                                                    highlight: _quickSort ==
+                                                        QuickSortOption.rating),
                                               IconButton(
                                                 icon: const Icon(Icons.label_outline,
                                                     color: Colors.white70),
@@ -2842,20 +2860,32 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                     _editTitleAndTags(spot),
                                                 child: Row(
                                                   children: [
-                                                    Expanded(
-                                                      child: Text.rich(
-                                                        _highlightSpan(
-                                                            'ID: ${spot.tournamentId}'),
+                                                      Expanded(
+                                                        child: Text.rich(
+                                                          _highlightSpan(
+                                                              'ID: ${spot.tournamentId}'),
+                                                          style: _quickSort ==
+                                                                  QuickSortOption.id
+                                                              ? const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold)
+                                                              : null,
+                                                        ),
                                                       ),
-                                                    ),
-                                                    const SizedBox(width: 4),
-                                                    _buildDifficultyDropdown(
-                                                        spot),
+                                                      const SizedBox(width: 4),
+                                                      _buildDifficultyDropdown(
+                                                          spot,
+                                                          highlight: _quickSort ==
+                                                              QuickSortOption.difficulty),
                                                   ],
                                                 ),
                                               )
-                                            else
-                                              _buildDifficultyDropdown(spot),
+                                              else
+                                                _buildDifficultyDropdown(
+                                                    spot,
+                                                    highlight: _quickSort ==
+                                                        QuickSortOption.difficulty),
                                             if (spot.buyIn != null)
                                               Text('Buy-In: ${spot.buyIn}',
                                                   style: const TextStyle(
@@ -2939,7 +2969,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                   );
                                                 }),
                                               ),
-                                            _buildRatingStars(spot),
+                                              _buildRatingStars(
+                                                  spot,
+                                                  highlight:
+                                                      _quickSort == QuickSortOption.rating),
                                             IconButton(
                                               icon: const Icon(Icons.label_outline,
                                                   color: Colors.white70),
@@ -3141,18 +3174,27 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                 onTap: () => _editTitleAndTags(spot),
                                 child: Row(
                                   children: [
-                                    Expanded(
-                                      child: Text.rich(
-                                        _highlightSpan('ID: ${spot.tournamentId}'),
+                                      Expanded(
+                                        child: Text.rich(
+                                          _highlightSpan('ID: ${spot.tournamentId}'),
+                                          style: _quickSort == QuickSortOption.id
+                                              ? const TextStyle(fontWeight: FontWeight.bold)
+                                              : null,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    _buildDifficultyDropdown(spot),
+                                      const SizedBox(width: 4),
+                                      _buildDifficultyDropdown(
+                                          spot,
+                                          highlight:
+                                              _quickSort == QuickSortOption.difficulty),
                                   ],
                                 ),
                               ),
-                            else
-                              _buildDifficultyDropdown(spot),
+                              else
+                                _buildDifficultyDropdown(
+                                    spot,
+                                    highlight:
+                                        _quickSort == QuickSortOption.difficulty),
                             if (spot.buyIn != null)
                               Text('Buy-In: ${spot.buyIn}',
                                   style: const TextStyle(color: Colors.white)),
@@ -3177,7 +3219,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                 ],
                               ),
                             ),
-                            _buildRatingStars(spot),
+                              _buildRatingStars(
+                                  spot,
+                                  highlight:
+                                      _quickSort == QuickSortOption.rating),
                             IconButton(
                               icon: const Icon(Icons.label_outline,
                                   color: Colors.white70),
@@ -3264,15 +3309,24 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                           Expanded(
                                             child: Text.rich(
                                               _highlightSpan('ID: ${spot.tournamentId}'),
+                                              style: _quickSort == QuickSortOption.id
+                                                  ? const TextStyle(fontWeight: FontWeight.bold)
+                                                  : null,
                                             ),
                                           ),
                                           const SizedBox(width: 4),
-                                          _buildDifficultyDropdown(spot),
+                                            _buildDifficultyDropdown(
+                                                spot,
+                                                highlight:
+                                                    _quickSort == QuickSortOption.difficulty),
                                         ],
                                       ),
                                     )
-                                  else
-                                    _buildDifficultyDropdown(spot),
+                                    else
+                                      _buildDifficultyDropdown(
+                                          spot,
+                                          highlight:
+                                              _quickSort == QuickSortOption.difficulty),
                                   if (spot.buyIn != null)
                                     Text('Buy-In: ${spot.buyIn}',
                                         style: const TextStyle(color: Colors.white)),
@@ -3297,7 +3351,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                       ],
                                     ),
                                   ),
-                                  _buildRatingStars(spot),
+                                    _buildRatingStars(
+                                        spot,
+                                        highlight:
+                                            _quickSort == QuickSortOption.rating),
                                   IconButton(
                                   icon: const Icon(Icons.label_outline,
                                       color: Colors.white70),
