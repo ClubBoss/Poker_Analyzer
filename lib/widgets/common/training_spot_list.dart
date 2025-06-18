@@ -403,6 +403,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       if (!matchesQuery) {
         final tagMatch = spot.tags.any((t) => t.toLowerCase().contains(query));
         final comment = spot.userComment?.toLowerCase() ?? '';
+        final history = spot.actionHistory?.toLowerCase() ?? '';
         final actions = spot.actions
             .map((a) => '${a.action} ${a.amount ?? ''} ${a.street} ${a.playerIndex}')
             .join(' ')
@@ -411,6 +412,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
             id.contains(query) ||
             tagMatch ||
             comment.contains(query) ||
+            history.contains(query) ||
             actions.contains(query);
       }
       final matchesTags =
@@ -1051,6 +1053,63 @@ class TrainingSpotListState extends State<TrainingSpotList>
         _saveOrderToPrefs();
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Комментарий обновлен')));
+      }
+    }
+  }
+
+  Future<void> _editActionHistory(TrainingSpot spot) async {
+    final controller = TextEditingController(text: spot.actionHistory ?? '');
+
+    final String? result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text(
+            'История действий',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: TextField(
+                controller: controller,
+                maxLines: null,
+                minLines: 5,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'История действий',
+                  labelStyle: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Сохранить'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      final index = widget.spots.indexOf(spot);
+      if (index != -1) {
+        setState(() {
+          widget.spots[index] =
+              spot.copyWith(actionHistory: result.isEmpty ? null : result);
+        });
+        widget.onChanged?.call();
+        _saveOrderToPrefs();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('История действий обновлена')));
       }
     }
   }
@@ -2294,6 +2353,29 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                     );
                                                   }),
                                                 ),
+                                              if (spot.actionHistory != null &&
+                                                  spot.actionHistory!.isNotEmpty)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 4),
+                                                  child: Builder(builder: (context) {
+                                                    var _txt = spot.actionHistory!
+                                                        .replaceAll('\n', ' ');
+                                                    if (_txt.length > 80) {
+                                                      _txt = _txt.substring(0, 80) + '…';
+                                                    }
+                                                    return Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text('⚔️',
+                                                            style: TextStyle(color: Colors.white70)),
+                                                        const SizedBox(width: 4),
+                                                        Expanded(
+                                                          child: Text.rich(_highlightSpan(_txt)),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  }),
+                                                ),
                                               _buildRatingStars(spot),
                                               IconButton(
                                                 icon: const Icon(Icons.label_outline,
@@ -2318,6 +2400,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                           icon: const Icon(Icons.edit,
                                               color: Colors.white70),
                                           onPressed: () => _editComment(spot),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.history,
+                                              color: Colors.white70),
+                                          onPressed: () => _editActionHistory(spot),
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.copy,
@@ -2454,6 +2541,31 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                   );
                                                 }),
                                               ),
+                                            if (spot.actionHistory != null &&
+                                                spot.actionHistory!.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 4),
+                                                child: Builder(builder: (context) {
+                                                  var _txt = spot.actionHistory!
+                                                      .replaceAll('\n', ' ');
+                                                  if (_txt.length > 80) {
+                                                    _txt = _txt.substring(0, 80) + '…';
+                                                  }
+                                                  return Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      const Text('⚔️',
+                                                          style: TextStyle(color: Colors.white70)),
+                                                      const SizedBox(width: 4),
+                                                      Expanded(
+                                                        child: Text.rich(
+                                                          _highlightSpan(_txt),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                }),
+                                              ),
                                             _buildRatingStars(spot),
                                             IconButton(
                                               icon: const Icon(Icons.label_outline,
@@ -2478,6 +2590,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                         icon: const Icon(Icons.edit,
                                             color: Colors.white70),
                                         onPressed: () => _editComment(spot),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.history,
+                                            color: Colors.white70),
+                                        onPressed: () => _editActionHistory(spot),
                                       ),
                                       IconButton(
                                         icon: const Icon(Icons.copy,
@@ -2711,6 +2828,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
                         onPressed: () => _editComment(spot),
                       ),
                       IconButton(
+                        icon: const Icon(Icons.history, color: Colors.white70),
+                        onPressed: () => _editActionHistory(spot),
+                      ),
+                      IconButton(
                         icon: const Icon(Icons.copy, color: Colors.white70),
                         onPressed: () => _duplicateSpot(spot),
                       ),
@@ -2826,10 +2947,14 @@ class TrainingSpotListState extends State<TrainingSpotList>
                             icon: const Icon(Icons.edit, color: Colors.white70),
                             onPressed: () => _editComment(spot),
                           ),
-                            IconButton(
-                              icon: const Icon(Icons.copy, color: Colors.white70),
-                              onPressed: () => _duplicateSpot(spot),
-                            ),
+                          IconButton(
+                            icon: const Icon(Icons.history, color: Colors.white70),
+                            onPressed: () => _editActionHistory(spot),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.copy, color: Colors.white70),
+                            onPressed: () => _duplicateSpot(spot),
+                          ),
                             if (widget.onRemove != null)
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.red),

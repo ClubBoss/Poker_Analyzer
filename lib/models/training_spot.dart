@@ -22,6 +22,7 @@ class TrainingSpot {
   final int rating;
   final String? userAction;
   final String? userComment;
+  final String? actionHistory;
   final DateTime createdAt;
 
   TrainingSpot({
@@ -41,6 +42,7 @@ class TrainingSpot {
     List<String>? tags,
     this.userAction,
     this.userComment,
+    this.actionHistory,
     this.difficulty = 3,
     this.rating = 0,
     DateTime? createdAt,
@@ -76,6 +78,7 @@ class TrainingSpot {
       tags: List<String>.from(hand.tags),
       userAction: null,
       userComment: hand.comment,
+      actionHistory: null,
       difficulty: 3,
       rating: 0,
       createdAt: hand.date,
@@ -114,6 +117,7 @@ class TrainingSpot {
         'rating': rating,
         if (userAction != null) 'userAction': userAction,
         if (userComment != null) 'userComment': userComment,
+        if (actionHistory != null) 'actionHistory': actionHistory,
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -197,6 +201,7 @@ class TrainingSpot {
       rating: (json['rating'] as num?)?.toInt() ?? 0,
       userAction: json['userAction'] as String?,
       userComment: json['userComment'] as String?,
+      actionHistory: json['actionHistory'] as String?,
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
     );
@@ -208,6 +213,7 @@ class TrainingSpot {
     List<String>? tags,
     String? userAction,
     String? userComment,
+    String? actionHistory,
     DateTime? createdAt,
   }) {
     return TrainingSpot(
@@ -229,6 +235,7 @@ class TrainingSpot {
       rating: rating ?? this.rating,
       userAction: userAction ?? this.userAction,
       userComment: userComment ?? this.userComment,
+      actionHistory: actionHistory ?? this.actionHistory,
       createdAt: createdAt ?? this.createdAt,
     );
   }
