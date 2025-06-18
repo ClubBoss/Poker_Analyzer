@@ -524,9 +524,42 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         _buildFilterToggleButton(),
         if (_tagFiltersExpanded) ...[
           const SizedBox(height: 8),
-          _buildTagFilterSection(filtered),
-          const SizedBox(height: 8),
-          _buildTagFilterRow(),
+          _TagFilterSection(
+            filtered: filtered,
+            selectedTags: _selectedTags,
+            expanded: _tagFiltersExpanded,
+            selectedPreset: _selectedPreset,
+            onExpanded: (v) {
+              setState(() => _tagFiltersExpanded = v);
+              _savePresets();
+            },
+            onTagToggle: (tag, selected) {
+              setState(() {
+                if (selected) {
+                  _selectedTags.add(tag);
+                } else {
+                  _selectedTags.remove(tag);
+                }
+              });
+              _savePresets();
+            },
+            onPresetSelected: (value) {
+              if (value == null) return;
+              final tags = TrainingSpotListState._tagPresets[value]!;
+              setState(() {
+                for (final spot in filtered) {
+                  for (final t in tags) {
+                    if (!spot.tags.contains(t)) {
+                      spot.tags.add(t);
+                    }
+                  }
+                }
+                _selectedPreset = null;
+              });
+              widget.onChanged?.call();
+            },
+            onClearTags: _clearTagFilters,
+          ),
         ],
         const SizedBox(height: 8),
         if (widget.onRemove != null) ...[
@@ -926,127 +959,6 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     );
   }
 
-  Widget _buildTagFilterRow() {
-    return SizedBox(
-      height: 40,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          for (final tag in _availableTags)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: FilterChip(
-                label: Text(tag),
-                selected: _selectedTags.contains(tag),
-                onSelected: (selected) {
-                  setState(() {
-                    if (selected) {
-                      _selectedTags.add(tag);
-                    } else {
-                      _selectedTags.remove(tag);
-                    }
-                  });
-                  _savePresets();
-                },
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTagFilters() {
-    return Wrap(
-      spacing: 4,
-      children: [
-        for (final tag in _availableTags)
-          FilterChip(
-            label: Text(tag),
-            selected: _selectedTags.contains(tag),
-            onSelected: (selected) {
-              setState(() {
-                if (selected) {
-                  _selectedTags.add(tag);
-                } else {
-                  _selectedTags.remove(tag);
-                }
-              });
-              _savePresets();
-            },
-          ),
-      ],
-    );
-  }
-
-  Widget _buildTagFilterSection(List<TrainingSpot> filtered) {
-    return ExpansionTile(
-      title: const Text(
-        'Фильтры тегов',
-        style: TextStyle(color: Colors.white),
-      ),
-      initiallyExpanded: _tagFiltersExpanded,
-      onExpansionChanged: (v) {
-        setState(() => _tagFiltersExpanded = v);
-        _savePresets();
-      },
-      iconColor: Colors.white,
-      collapsedIconColor: Colors.white,
-      collapsedTextColor: Colors.white,
-      textColor: Colors.white,
-      childrenPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-      children: [
-        _buildTagFilters(),
-        const SizedBox(height: 8),
-        _buildPresetDropdown(filtered),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ElevatedButton(
-            onPressed: _clearTagFilters,
-            child: const Text('Сбросить теги'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPresetDropdown(List<TrainingSpot> filtered) {
-    return Row(
-      children: [
-        const Text('Применить теги ко всем',
-            style: TextStyle(color: Colors.white)),
-        const SizedBox(width: 8),
-        DropdownButton<String>(
-          value: _selectedPreset,
-          hint: const Text('Выбрать', style: TextStyle(color: Colors.white60)),
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: [
-            for (final entry in _tagPresets.entries)
-              DropdownMenuItem(
-                value: entry.key,
-                child: Text(entry.key),
-              ),
-          ],
-          onChanged: (value) {
-            if (value == null) return;
-            final tags = _tagPresets[value]!;
-            setState(() {
-              for (final spot in filtered) {
-                for (final t in tags) {
-                  if (!spot.tags.contains(t)) {
-                    spot.tags.add(t);
-                  }
-                }
-              }
-              _selectedPreset = null;
-            });
-            widget.onChanged?.call();
-          },
-        ),
-      ],
-    );
-  }
 
   Widget _buildSortDropdown(List<TrainingSpot> filtered) {
     return DropdownButton<SortOption?>(
@@ -1287,5 +1199,123 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     widget.onChanged?.call();
     _savePresets();
     _saveOrderToPrefs();
+  }
+}
+
+class _TagFilterSection extends StatelessWidget {
+  final List<TrainingSpot> filtered;
+  final Set<String> selectedTags;
+  final bool expanded;
+  final String? selectedPreset;
+  final ValueChanged<bool> onExpanded;
+  final void Function(String tag, bool selected) onTagToggle;
+  final ValueChanged<String?> onPresetSelected;
+  final VoidCallback onClearTags;
+
+  const _TagFilterSection({
+    required this.filtered,
+    required this.selectedTags,
+    required this.expanded,
+    required this.selectedPreset,
+    required this.onExpanded,
+    required this.onTagToggle,
+    required this.onPresetSelected,
+    required this.onClearTags,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ExpansionTile(
+          title: const Text(
+            'Фильтры тегов',
+            style: TextStyle(color: Colors.white),
+          ),
+          initiallyExpanded: expanded,
+          onExpansionChanged: onExpanded,
+          iconColor: Colors.white,
+          collapsedIconColor: Colors.white,
+          collapsedTextColor: Colors.white,
+          textColor: Colors.white,
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          children: [
+            _buildTagFilters(),
+            const SizedBox(height: 8),
+            _buildPresetDropdown(),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: onClearTags,
+                child: const Text('Сбросить теги'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildTagFilterRow(),
+      ],
+    );
+  }
+
+  Widget _buildTagFilterRow() {
+    return SizedBox(
+      height: 40,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          for (final tag in TrainingSpotListState._availableTags)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: FilterChip(
+                label: Text(tag),
+                selected: selectedTags.contains(tag),
+                onSelected: (selected) => onTagToggle(tag, selected),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTagFilters() {
+    return Wrap(
+      spacing: 4,
+      children: [
+        for (final tag in TrainingSpotListState._availableTags)
+          FilterChip(
+            label: Text(tag),
+            selected: selectedTags.contains(tag),
+            onSelected: (selected) => onTagToggle(tag, selected),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPresetDropdown() {
+    return Row(
+      children: [
+        const Text('Применить теги ко всем',
+            style: TextStyle(color: Colors.white)),
+        const SizedBox(width: 8),
+        DropdownButton<String>(
+          value: selectedPreset,
+          hint: const Text('Выбрать', style: TextStyle(color: Colors.white60)),
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: [
+            for (final entry in TrainingSpotListState._tagPresets.entries)
+              DropdownMenuItem(
+                value: entry.key,
+                child: Text(entry.key),
+              ),
+          ],
+          onChanged: onPresetSelected,
+        ),
+      ],
+    );
   }
 }
