@@ -544,6 +544,23 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     );
   }
 
+  Widget _buildDifficultyDots(int difficulty) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (int i = 1; i <= 5; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1.0),
+            child: Icon(
+              Icons.circle,
+              size: 8,
+              color: i <= difficulty ? Colors.amber : Colors.grey,
+            ),
+          ),
+      ],
+    );
+  }
+
   Future<void> _deleteSelected() async {
     final count = _selectedSpots.length;
     final bool? confirm = await showDialog<bool>(
@@ -776,10 +793,20 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                             if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty)
                               GestureDetector(
                                 onTap: () => _editTitleAndTags(spot),
-                                child: Text.rich(
-                                  _highlightSpan('ID: ${spot.tournamentId}'),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text.rich(
+                                        _highlightSpan('ID: ${spot.tournamentId}'),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    _buildDifficultyDots(spot.difficulty),
+                                  ],
                                 ),
                               ),
+                            else
+                              _buildDifficultyDots(spot.difficulty),
                             if (spot.buyIn != null)
                               Text('Buy-In: ${spot.buyIn}',
                                   style: const TextStyle(color: Colors.white)),
@@ -866,10 +893,20 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                                   if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty)
                                     GestureDetector(
                                       onTap: () => _editTitleAndTags(spot),
-                                      child: Text.rich(
-                                        _highlightSpan('ID: ${spot.tournamentId}'),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text.rich(
+                                              _highlightSpan('ID: ${spot.tournamentId}'),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          _buildDifficultyDots(spot.difficulty),
+                                        ],
                                       ),
-                                    ),
+                                    )
+                                  else
+                                    _buildDifficultyDots(spot.difficulty),
                                   if (spot.buyIn != null)
                                     Text('Buy-In: ${spot.buyIn}',
                                         style: const TextStyle(color: Colors.white)),
