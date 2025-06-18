@@ -83,6 +83,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   static const String _prefsRatingSortKey = 'training_preset_rating_sort';
   static const String _prefsCustomPresetsKey =
       'training_custom_tag_presets';
+  static const String _prefsQuickPresetKey = 'training_quick_preset';
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
@@ -102,9 +103,19 @@ class TrainingSpotListState extends State<TrainingSpotList>
     'vs агро': ['vs агро'],
   };
 
+  static const Map<String, String> _quickFilterPresets = {
+    'ICM': 'ICM',
+    'Push/Fold': 'Push/Fold',
+    'Postflop': 'Postflop',
+    '3-bet': '3-bet',
+    'Bubble': 'Bubble',
+  };
+
   Map<String, List<String>> _customTagPresets = {};
 
   String? _selectedPreset;
+  String? _activeQuickPreset;
+  Set<String>? _prevQuickTags;
 
   final Set<String> _selectedTags = {};
   final Set<TrainingSpot> _selectedSpots = {};
@@ -127,6 +138,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
       _selectedTags
         ..clear()
         ..addAll(state.selectedTags);
+      _activeQuickPreset = null;
+      _prevQuickTags = null;
       _difficultyFilters
         ..clear()
         ..addAll(state.difficultyFilters);
@@ -240,6 +253,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final List<String>? diffs = prefs.getStringList(_prefsDifficultyKey);
     final List<String>? ratings = prefs.getStringList(_prefsRatingsKey);
     final String? customJson = prefs.getString(_prefsCustomPresetsKey);
+    final String? quickPreset = prefs.getString(_prefsQuickPresetKey);
     if (customJson != null && customJson.isNotEmpty) {
       final Map<String, dynamic> decoded = jsonDecode(customJson);
       _customTagPresets = {
@@ -251,6 +265,18 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _selectedTags
       ..clear()
       ..addAll(tags);
+    _activeQuickPreset = quickPreset;
+    if (_activeQuickPreset != null) {
+      _prevQuickTags = Set<String>.from(_selectedTags);
+      final tag = _quickFilterPresets[_activeQuickPreset!];
+      if (tag != null) {
+        _selectedTags
+          ..clear()
+          ..add(tag);
+      } else {
+        _activeQuickPreset = null;
+      }
+    }
     _tagFiltersExpanded = expanded;
     _listVisible = listVisible;
     _icmOnly = icmOnly;
@@ -335,6 +361,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
       await prefs.setString(_prefsSortKey, _sortOption!.name);
     } else {
       await prefs.remove(_prefsSortKey);
+    }
+    if (_activeQuickPreset != null) {
+      await prefs.setString(_prefsQuickPresetKey, _activeQuickPreset!);
+    } else {
+      await prefs.remove(_prefsQuickPresetKey);
     }
     await prefs.setString(
         _prefsCustomPresetsKey, jsonEncode(_customTagPresets));
@@ -1006,6 +1037,33 @@ class TrainingSpotListState extends State<TrainingSpotList>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSearchField(),
+                const SizedBox(height: 4),
+                _QuickPresetRow(
+                  active: _activeQuickPreset,
+                  onChanged: (value) {
+                    setState(() {
+                      if (value != null) {
+                        if (_activeQuickPreset == null) {
+                          _prevQuickTags = Set<String>.from(_selectedTags);
+                        }
+                        _activeQuickPreset = value;
+                        final tag = _quickFilterPresets[value];
+                        if (tag != null) {
+                          _selectedTags
+                            ..clear()
+                            ..add(tag);
+                        }
+                      } else if (_activeQuickPreset != null) {
+                        _selectedTags
+                          ..clear()
+                          ..addAll(_prevQuickTags ?? {});
+                        _activeQuickPreset = null;
+                        _prevQuickTags = null;
+                      }
+                    });
+                    _savePresets();
+                  },
+                ),
                 _buildFilterSummary(),
                 const SizedBox(height: 4),
                 _BatchFilterActions(
@@ -2057,6 +2115,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
       _searchController.clear();
       _selectedTags.clear();
       _selectedPreset = null;
+      _activeQuickPreset = null;
+      _prevQuickTags = null;
       _icmOnly = false;
       _ratedOnly = false;
       _difficultyFilters.clear();
@@ -2089,6 +2149,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     setState(() {
       _selectedTags.clear();
       _selectedPreset = null;
+      _activeQuickPreset = null;
+      _prevQuickTags = null;
     });
     _savePresets();
   }
@@ -3149,6 +3211,35 @@ class _BatchFilterActions extends StatelessWidget {
             onPressed: disabled ? null : onDelete,
             child: const Text('Удалить все отфильтрованные'),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickPresetRow extends StatelessWidget {
+  final String? active;
+  final ValueChanged<String?> onChanged;
+
+  const _QuickPresetRow({required this.active, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          for (final entry in TrainingSpotListState._quickFilterPresets.entries)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: ChoiceChip(
+                label: Text(entry.key),
+                selected: active == entry.key,
+                onSelected: (selected) =>
+                    onChanged(selected ? entry.key : null),
+              ),
+            ),
         ],
       ),
     );
