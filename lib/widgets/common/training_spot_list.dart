@@ -846,6 +846,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           },
         ),
         const SizedBox(height: 8),
+        _buildVisibleSummary(filtered),
+        const SizedBox(height: 8),
         _ApplyDifficultyDropdown(
           onChanged: (value) {
             if (value == null) return;
@@ -1156,6 +1158,13 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     return Text(
       'Спотов: ${filtered.length}, Выбрано: $selected, Тегов: ${uniqueTags.length}',
       style: const TextStyle(color: Colors.white),
+    );
+  }
+
+  Widget _buildVisibleSummary(List<TrainingSpot> filtered) {
+    return Text(
+      'Показано: ${filtered.length} спотов из ${widget.spots.length}',
+      style: const TextStyle(color: Colors.white60),
     );
   }
 
