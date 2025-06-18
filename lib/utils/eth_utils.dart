@@ -11,6 +11,12 @@ bool isValidAddress(String address) {
   return regex.hasMatch(address);
 }
 
+/// Checks if [key] is a valid 64-character lowercase hexadecimal private key.
+bool isValidPrivateKey(String key) {
+  final regex = RegExp(r'^[0-9a-f]{64}\$');
+  return regex.hasMatch(key);
+}
+
 /// Converts [address] to its EIP-55 checksum representation.
 /// Throws an [ArgumentError] if [address] is not valid.
 String toChecksumAddress(String address) {

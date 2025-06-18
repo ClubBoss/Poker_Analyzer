@@ -16,6 +16,8 @@ class EthereumToolsScreen extends StatefulWidget {
 class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
   String? _generated;
   String? _checksum;
+  final TextEditingController _keyController = TextEditingController();
+  bool? _keyValid;
 
   void _generate() {
     final addr = generateRandomAddress();
@@ -31,6 +33,19 @@ class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
     }
+  }
+
+  void _validateKey() {
+    final text = _keyController.text.trim();
+    setState(() {
+      _keyValid = isValidPrivateKey(text);
+    });
+  }
+
+  @override
+  void dispose() {
+    _keyController.dispose();
+    super.dispose();
   }
 
   @override
@@ -49,6 +64,28 @@ class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const EthereumAddressInput(),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _keyController,
+                decoration: const InputDecoration(
+                  labelText: 'Private Key',
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _validateKey,
+                child: const Text('Проверить'),
+              ),
+              if (_keyValid != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    _keyValid! ? 'Valid private key' : 'Invalid private key',
+                    style:
+                        TextStyle(color: _keyValid! ? Colors.green : Colors.red),
+                  ),
+                ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _generate,
