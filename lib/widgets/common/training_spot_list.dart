@@ -46,7 +46,8 @@ class TrainingSpotList extends StatefulWidget {
   TrainingSpotListState createState() => TrainingSpotListState();
 }
 
-class TrainingSpotListState extends State<TrainingSpotList> {
+class TrainingSpotListState extends State<TrainingSpotList>
+    with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   static const String _prefsTagsKey = 'training_preset_tags';
   static const String _prefsSearchKey = 'training_preset_search';
@@ -863,11 +864,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                _buildListToggleButton(),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
+                _buildListHeader(),
+                const SizedBox(height: 12),
                 _buildPackSummary(filtered),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
               ],
             ),
           ),
@@ -937,9 +938,13 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             ),
           ),
           SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: _listVisible
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                 _RatingSortDropdown(
                   order: _ratingSort,
                   filtered: filtered,
@@ -971,9 +976,30 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                 const SizedBox(height: 8),
                 if (_listVisible)
                   if (filtered.isEmpty)
-                    const Text(
-                      'Нет импортированных спотов',
-                      style: TextStyle(color: Colors.white54),
+                    SizedBox(
+                      height: 150,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              widget.spots.isEmpty
+                                  ? Icons.folder_open
+                                  : Icons.sentiment_dissatisfied,
+                              color: Colors.white54,
+                              size: 48,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              widget.spots.isEmpty
+                                  ? 'Нет импортированных спотов. Загрузите пакет, чтобы начать.'
+                                  : 'Нет подходящих спотов',
+                              style: const TextStyle(color: Colors.white54),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
                     )
                   else
                     SizedBox(
@@ -1294,9 +1320,30 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         const SizedBox(height: 8),
         if (_listVisible)
           if (filtered.isEmpty)
-            const Text(
-              'Нет импортированных спотов',
-              style: TextStyle(color: Colors.white54),
+            SizedBox(
+              height: 150,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      widget.spots.isEmpty
+                          ? Icons.folder_open
+                          : Icons.sentiment_dissatisfied,
+                      color: Colors.white54,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.spots.isEmpty
+                          ? 'Нет импортированных спотов. Загрузите пакет, чтобы начать.'
+                          : 'Нет подходящих спотов',
+                      style: const TextStyle(color: Colors.white54),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             )
           else
             SizedBox(
@@ -1666,16 +1713,26 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     );
   }
 
-  Widget _buildListToggleButton() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: TextButton(
-        onPressed: () {
-          setState(() => _listVisible = !_listVisible);
-          _savePresets();
-        },
-        child: Text(
-          _listVisible ? 'Скрыть список' : 'Показать список',
+  Widget _buildListHeader() {
+    return InkWell(
+      onTap: () {
+        setState(() => _listVisible = !_listVisible);
+        _savePresets();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Список спотов',
+              style: TextStyle(color: Colors.white),
+            ),
+            Icon(
+              _listVisible ? Icons.expand_less : Icons.expand_more,
+              color: Colors.white,
+            ),
+          ],
         ),
       ),
     );
