@@ -63,19 +63,14 @@ class _EthereumAddressInputState extends State<EthereumAddressInput> {
           ),
         ),
         const SizedBox(height: 8),
-        Row(
-          children: [
-            ElevatedButton(
-              onPressed: _validate,
-              child: const Text('Validate'),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              onPressed: _scanQr,
-              icon: const Icon(Icons.camera_alt),
-              tooltip: 'Scan QR code',
-            ),
-          ],
+        ElevatedButton(
+          onPressed: _scanQr,
+          child: const Text('📷 Сканировать QR'),
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: _validate,
+          child: const Text('Validate'),
         ),
         if (_valid != null)
           Padding(
