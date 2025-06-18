@@ -1528,6 +1528,90 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
+  Future<void> _removeTagsFromFiltered(List<TrainingSpot> filtered) async {
+    final count = filtered.length;
+    if (count == 0) return;
+
+    final allTags = <String>{};
+    for (final spot in filtered) {
+      allTags.addAll(spot.tags);
+    }
+
+    final removeTags = <String>{};
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          return AlertDialog(
+            backgroundColor: AppColors.cardBackground,
+            title: Text(
+              'Удалить теги у $count спотов',
+              style: const TextStyle(color: Colors.white),
+            ),
+            content: SizedBox(
+              width: 300,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final tag in (allTags.toList()..sort()))
+                      CheckboxListTile(
+                        value: removeTags.contains(tag),
+                        title: Text(tag, style: const TextStyle(color: Colors.white)),
+                        onChanged: (v) {
+                          setStateDialog(() {
+                            if (v ?? false) {
+                              removeTags.add(tag);
+                            } else {
+                              removeTags.remove(tag);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Отмена'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Удалить'),
+              ),
+            ],
+          );
+        });
+      },
+    );
+
+    if (confirmed != true || removeTags.isEmpty) return;
+
+    int updated = 0;
+    setState(() {
+      for (final spot in filtered) {
+        final index = widget.spots.indexOf(spot);
+        if (index == -1) continue;
+        final tags = List<String>.from(spot.tags);
+        final before = tags.length;
+        tags.removeWhere(removeTags.contains);
+        if (tags.length != before) {
+          widget.spots[index] = spot.copyWith(tags: tags);
+          updated++;
+        }
+      }
+    });
+    if (updated == 0) return;
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Теги удалены у $updated спотов')),
+    );
+  }
+
   Future<void> _setDifficultyForFiltered(List<TrainingSpot> filtered) async {
     final count = filtered.length;
     if (count == 0) return;
@@ -2052,6 +2136,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   },
                 ),
                 _buildFilterSummary(),
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: filtered.isEmpty
+                        ? null
+                        : () => _removeTagsFromFiltered(filtered),
+                    child: const Text('Удалить тег у всех'),
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Align(
                   alignment: Alignment.centerLeft,
