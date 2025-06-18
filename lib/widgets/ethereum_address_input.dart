@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/eth_utils.dart';
+import '../screens/qr_code_scanner_screen.dart';
 
 /// Widget allowing input and validation of an Ethereum address.
 class EthereumAddressInput extends StatefulWidget {
@@ -15,6 +16,25 @@ class _EthereumAddressInputState extends State<EthereumAddressInput> {
 
   bool? _valid;
   String? _checksum;
+
+  Future<void> _scanQr() async {
+    final result = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const QRCodeScannerScreen()),
+    );
+    if (result != null) {
+      final text = result.trim();
+      if (isValidAddress(text)) {
+        _controller.text = text;
+        _validate();
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Scanned value is not a valid address')),
+          );
+        }
+      }
+    }
+  }
 
   void _validate() {
     final text = _controller.text.trim();
@@ -43,9 +63,19 @@ class _EthereumAddressInputState extends State<EthereumAddressInput> {
           ),
         ),
         const SizedBox(height: 8),
-        ElevatedButton(
-          onPressed: _validate,
-          child: const Text('Validate'),
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: _validate,
+              child: const Text('Validate'),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: _scanQr,
+              icon: const Icon(Icons.camera_alt),
+              tooltip: 'Scan QR code',
+            ),
+          ],
         ),
         if (_valid != null)
           Padding(
