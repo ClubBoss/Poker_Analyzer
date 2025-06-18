@@ -32,6 +32,7 @@ class TrainingGenerator {
       gameType: hand.gameType,
       tags: List<String>.from(hand.tags),
       difficulty: 3,
+      rating: 0,
     );
   }
 }
