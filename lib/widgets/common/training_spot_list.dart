@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../models/training_spot.dart';
 import '../../theme/app_colors.dart';
@@ -862,6 +863,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             child: const Text('Экспортировать пакет'),
           ),
         ),
+        if (kDebugMode) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton(
+              onPressed: filtered.isEmpty
+                  ? null
+                  : () => _exportPackSummary(filtered),
+              child: const Text('Export Spot Summary'),
+            ),
+          ),
+        ],
         const SizedBox(height: 8),
         Align(
           alignment: Alignment.centerLeft,
@@ -1050,6 +1063,20 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         '${dir.path}/training_spots_${DateTime.now().millisecondsSinceEpoch}.json');
     await file.writeAsString(jsonStr);
     await Share.shareXFiles([XFile(file.path)], text: 'training_spots.json');
+  }
+
+  Future<void> _exportPackSummary(List<TrainingSpot> spots) async {
+    if (spots.isEmpty) return;
+    final buffer = StringBuffer();
+    for (final spot in spots) {
+      buffer.writeln(
+          'ID: ${spot.tournamentId ?? '-'}, Buy-In: ${spot.buyIn ?? '-'}, Game: ${spot.gameType ?? '-'}, Tags: ${spot.tags.length}');
+    }
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/spot_summary_${DateTime.now().millisecondsSinceEpoch}.txt');
+    await file.writeAsString(buffer.toString());
+    await Share.shareXFiles([XFile(file.path)], text: 'spot_summary.txt');
   }
 
   Future<void> _importFromFile(String path) async {
