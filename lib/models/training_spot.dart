@@ -174,4 +174,8 @@ class TrainingSpot {
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
     );
   }
+
+  TrainingSpot copy() {
+    return TrainingSpot.fromJson(toJson());
+  }
 }

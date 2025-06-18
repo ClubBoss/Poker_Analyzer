@@ -454,6 +454,17 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     }
   }
 
+  void _duplicateSpot(TrainingSpot spot) {
+    final index = widget.spots.indexOf(spot);
+    if (index == -1) return;
+    setState(() {
+      final copy = spot.copy();
+      widget.spots.insert(index + 1, copy);
+    });
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+  }
+
   Future<void> _deleteSelected() async {
     final count = _selectedSpots.length;
     final bool? confirm = await showDialog<bool>(
@@ -714,6 +725,10 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                         icon: const Icon(Icons.edit, color: Colors.white70),
                         onPressed: () => _editSpot(spot),
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.copy, color: Colors.white70),
+                        onPressed: () => _duplicateSpot(spot),
+                      ),
                       if (widget.onRemove != null)
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
@@ -799,6 +814,10 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                             IconButton(
                               icon: const Icon(Icons.edit, color: Colors.white70),
                               onPressed: () => _editSpot(spot),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.copy, color: Colors.white70),
+                              onPressed: () => _duplicateSpot(spot),
                             ),
                             if (widget.onRemove != null)
                               IconButton(
