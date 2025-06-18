@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../models/training_spot.dart';
 import '../../theme/app_colors.dart';
+import '../../screens/training_spot_analysis_screen.dart';
 
 enum SortOption {
   buyInAsc,
@@ -2809,6 +2810,21 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                               color: Colors.white70),
                                           onPressed: () => _duplicateSpot(spot),
                                         ),
+                                        IconButton(
+                                          icon: const Text('⚔️',
+                                              style: TextStyle(fontSize: 18)),
+                                          tooltip: 'Анализ',
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    TrainingSpotAnalysisScreen(
+                                                        spot: spot),
+                                              ),
+                                            );
+                                          },
+                                        ),
                                         if (widget.onRemove != null)
                                           IconButton(
                                             icon: const Icon(Icons.delete,
@@ -3013,6 +3029,21 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                         icon: const Icon(Icons.copy,
                                             color: Colors.white70),
                                         onPressed: () => _duplicateSpot(spot),
+                                      ),
+                                      IconButton(
+                                        icon: const Text('⚔️',
+                                            style: TextStyle(fontSize: 18)),
+                                        tooltip: 'Анализ',
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  TrainingSpotAnalysisScreen(
+                                                      spot: spot),
+                                            ),
+                                          );
+                                        },
                                       ),
                                       if (widget.onRemove != null)
                                         IconButton(
