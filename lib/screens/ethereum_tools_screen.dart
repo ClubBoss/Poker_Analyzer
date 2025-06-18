@@ -4,6 +4,9 @@ import '../widgets/ethereum_address_input.dart';
 import '../utils/eth_utils.dart';
 import 'package:flutter/services.dart';
 import 'qr_code_scanner_screen.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:web3dart/crypto.dart';
+import 'dart:math';
 
 class EthereumToolsScreen extends StatefulWidget {
   static const routeName = '/ethereum-tools';
@@ -15,16 +18,18 @@ class EthereumToolsScreen extends StatefulWidget {
 }
 
 class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
-  String? _generated;
-  String? _checksum;
+  String? _generatedPrivateKey;
+  String? _generatedAddress;
   final TextEditingController _keyController = TextEditingController();
   bool? _keyValid;
 
   void _generate() {
-    final addr = generateRandomAddress();
+    final credentials = EthPrivateKey.createRandom(Random.secure());
+    final pkHex = bytesToHex(credentials.privateKey,
+        include0x: false, forcePadLength: 64);
     setState(() {
-      _generated = addr;
-      _checksum = toChecksumAddress(addr);
+      _generatedPrivateKey = pkHex;
+      _generatedAddress = credentials.address.hexEip55;
     });
   }
 
@@ -121,19 +126,19 @@ class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
                 onPressed: _generate,
                 child: const Text('Сгенерировать новый адрес'),
               ),
-              if (_generated != null) ...[
+              if (_generatedPrivateKey != null) ...[
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
                       child: SelectableText(
-                        _generated!,
+                        _generatedPrivateKey!,
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.copy, color: Colors.white70),
-                      onPressed: () => _copy(_generated!),
+                      onPressed: () => _copy(_generatedPrivateKey!),
                     ),
                   ],
                 ),
@@ -142,13 +147,13 @@ class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
                   children: [
                     Expanded(
                       child: SelectableText(
-                        _checksum!,
+                        _generatedAddress!,
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.copy, color: Colors.white70),
-                      onPressed: () => _copy(_checksum!),
+                      onPressed: () => _copy(_generatedAddress!),
                     ),
                   ],
                 ),
