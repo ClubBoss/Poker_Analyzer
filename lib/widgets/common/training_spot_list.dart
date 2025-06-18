@@ -553,6 +553,20 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     widget.onChanged?.call();
   }
 
+  void _applyRatingToFiltered(int value) {
+    final filtered = _currentFilteredSpots();
+    if (filtered.isEmpty) return;
+    setState(() {
+      for (final spot in filtered) {
+        final index = widget.spots.indexOf(spot);
+        if (index != -1) {
+          widget.spots[index] = spot.copyWith(rating: value);
+        }
+      }
+    });
+    widget.onChanged?.call();
+  }
+
   Widget _buildRatingStars(TrainingSpot spot) {
     return Row(
       children: [
@@ -777,6 +791,13 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           onChanged: (value) {
             if (value == null) return;
             _applyDifficultyToFiltered(value);
+          },
+        ),
+        const SizedBox(height: 8),
+        _ApplyRatingDropdown(
+          onChanged: (value) {
+            if (value == null) return;
+            _applyRatingToFiltered(value);
           },
         ),
         const SizedBox(height: 8),
@@ -1756,6 +1777,33 @@ class _ApplyDifficultyDropdown extends StatelessWidget {
     return Row(
       children: [
         const Text('Применить сложность ко всем',
+            style: TextStyle(color: Colors.white)),
+        const SizedBox(width: 8),
+        DropdownButton<int?>(
+          hint: const Text('Выбрать', style: TextStyle(color: Colors.white60)),
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: [
+            for (int i = 1; i <= 5; i++)
+              DropdownMenuItem(value: i, child: Text('$i')),
+          ],
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _ApplyRatingDropdown extends StatelessWidget {
+  final ValueChanged<int?> onChanged;
+
+  const _ApplyRatingDropdown({required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Text('Применить рейтинг ко всем',
             style: TextStyle(color: Colors.white)),
         const SizedBox(width: 8),
         DropdownButton<int?>(
