@@ -1203,7 +1203,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             if (_hasActiveFilters)
               const Padding(
                 padding: EdgeInsets.only(left: 4.0),
-                child: Icon(Icons.circle, size: 8, color: Colors.red),
+                child: _PulsingIndicator(),
               ),
           ],
         ),
@@ -2042,6 +2042,33 @@ class _SelectionActions extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _PulsingIndicator extends StatefulWidget {
+  const _PulsingIndicator();
+
+  @override
+  State<_PulsingIndicator> createState() => _PulsingIndicatorState();
+}
+
+class _PulsingIndicatorState extends State<_PulsingIndicator> {
+  bool _fadeIn = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: _fadeIn ? 1.0 : 0.4, end: _fadeIn ? 0.4 : 1.0),
+      duration: const Duration(seconds: 1),
+      onEnd: () => setState(() => _fadeIn = !_fadeIn),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: child,
+        );
+      },
+      child: const Icon(Icons.circle, size: 8, color: Colors.red),
     );
   }
 }
