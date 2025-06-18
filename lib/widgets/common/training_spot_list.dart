@@ -873,6 +873,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             });
             _savePresets();
           },
+          onToggleAll: () {
+            setState(() {
+              if (_difficultyFilters.length == 5) {
+                _difficultyFilters.clear();
+              } else {
+                _difficultyFilters
+                  ..clear()
+                  ..addAll({1, 2, 3, 4, 5});
+              }
+            });
+            _savePresets();
+          },
         ),
         const SizedBox(height: 8),
         _RatingChipRow(
@@ -883,6 +895,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                 _ratingFilters.remove(value);
               } else {
                 _ratingFilters.add(value);
+              }
+            });
+            _savePresets();
+          },
+          onToggleAll: () {
+            setState(() {
+              if (_ratingFilters.length == 5) {
+                _ratingFilters.clear();
+              } else {
+                _ratingFilters
+                  ..clear()
+                  ..addAll({1, 2, 3, 4, 5});
               }
             });
             _savePresets();
@@ -1900,10 +1924,12 @@ class _TagFilterSection extends StatelessWidget {
 class _DifficultyChipRow extends StatelessWidget {
   final Set<int> selected;
   final ValueChanged<int> onChanged;
+  final VoidCallback onToggleAll;
 
   const _DifficultyChipRow({
     required this.selected,
     required this.onChanged,
+    required this.onToggleAll,
   });
 
   @override
@@ -1923,6 +1949,11 @@ class _DifficultyChipRow extends StatelessWidget {
               ),
           ],
         ),
+        const SizedBox(width: 8),
+        TextButton(
+          onPressed: onToggleAll,
+          child: const Text('Выбрать все'),
+        ),
       ],
     );
   }
@@ -1932,10 +1963,12 @@ class _DifficultyChipRow extends StatelessWidget {
 class _RatingChipRow extends StatelessWidget {
   final Set<int> selected;
   final ValueChanged<int> onChanged;
+  final VoidCallback onToggleAll;
 
   const _RatingChipRow({
     required this.selected,
     required this.onChanged,
+    required this.onToggleAll,
   });
 
   @override
@@ -1954,6 +1987,11 @@ class _RatingChipRow extends StatelessWidget {
                 onSelected: (_) => onChanged(i),
               ),
           ],
+        ),
+        const SizedBox(width: 8),
+        TextButton(
+          onPressed: onToggleAll,
+          child: const Text('Выбрать все'),
         ),
       ],
     );
