@@ -8,6 +8,8 @@ import 'training_history_screen.dart';
 import 'player_zone_demo_screen.dart';
 import 'settings_screen.dart';
 import 'daily_hand_screen.dart';
+import 'create_pack_screen.dart';
+import 'edit_pack_screen.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
@@ -62,6 +64,30 @@ class MainMenuScreen extends StatelessWidget {
                 );
               },
               child: const Text('🎯 Тренировка'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CreatePackScreen(),
+                  ),
+                );
+              },
+              child: const Text('📦 Создать тренировку'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const EditPackScreen(),
+                  ),
+                );
+              },
+              child: const Text('✏️ Редактировать тренировку'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
