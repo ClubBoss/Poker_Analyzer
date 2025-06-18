@@ -642,7 +642,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                 child: const Text('Перемешать'),
               ),
               const SizedBox(width: 8),
-              _buildSortDropdown(filtered),
+              _SortDropdown(
+                sortOption: _sortOption,
+                filtered: filtered,
+                manualOrder: _manualOrder,
+                onChanged: (value, spots) {
+                  if (value == null) {
+                    _resetSort();
+                  } else {
+                    _sortFiltered(spots, value);
+                  }
+                },
+              ),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: _saveCurrentOrder,
@@ -960,46 +971,6 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
 
-  Widget _buildSortDropdown(List<TrainingSpot> filtered) {
-    return DropdownButton<SortOption?>(
-      value: _sortOption,
-      hint: const Text('Сортировать', style: TextStyle(color: Colors.white60)),
-      dropdownColor: AppColors.cardBackground,
-      style: const TextStyle(color: Colors.white),
-      items: const [
-        DropdownMenuItem(
-          value: null,
-          child: Text('Сбросить сортировку'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.buyInAsc,
-          child: Text('Buy-In ↑'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.buyInDesc,
-          child: Text('Buy-In ↓'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.gameType,
-          child: Text('Тип игры'),
-        ),
-        DropdownMenuItem(
-          value: SortOption.tournamentId,
-          child: Text('ID турнира'),
-        ),
-      ],
-      onChanged: _manualOrder
-          ? null
-          : (value) {
-              if (value == null) {
-                _resetSort();
-              } else {
-                _sortFiltered(filtered, value);
-              }
-            },
-    );
-  }
-
   void clearFilters() {
     setState(() {
       _searchController.clear();
@@ -1316,6 +1287,54 @@ class _TagFilterSection extends StatelessWidget {
           onChanged: onPresetSelected,
         ),
       ],
+    );
+  }
+}
+
+class _SortDropdown extends StatelessWidget {
+  final SortOption? sortOption;
+  final List<TrainingSpot> filtered;
+  final bool manualOrder;
+  final void Function(SortOption? value, List<TrainingSpot> spots) onChanged;
+
+  const _SortDropdown({
+    required this.sortOption,
+    required this.filtered,
+    required this.manualOrder,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<SortOption?>(
+      value: sortOption,
+      hint: const Text('Сортировать', style: TextStyle(color: Colors.white60)),
+      dropdownColor: AppColors.cardBackground,
+      style: const TextStyle(color: Colors.white),
+      items: const [
+        DropdownMenuItem(
+          value: null,
+          child: Text('Сбросить сортировку'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.buyInAsc,
+          child: Text('Buy-In ↑'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.buyInDesc,
+          child: Text('Buy-In ↓'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.gameType,
+          child: Text('Тип игры'),
+        ),
+        DropdownMenuItem(
+          value: SortOption.tournamentId,
+          child: Text('ID турнира'),
+        ),
+      ],
+      onChanged:
+          manualOrder ? null : (value) => onChanged(value, filtered),
     );
   }
 }
