@@ -19,6 +19,7 @@ class TrainingSpot {
   final String? gameType;
   final List<String> tags;
   final int difficulty;
+  final int rating;
   final String? userAction;
 
   TrainingSpot({
@@ -38,6 +39,7 @@ class TrainingSpot {
     List<String>? tags,
     this.userAction,
     this.difficulty = 3,
+    this.rating = 0,
   }) : tags = tags ?? [];
 
   factory TrainingSpot.fromSavedHand(SavedHand hand) {
@@ -69,6 +71,7 @@ class TrainingSpot {
       tags: List<String>.from(hand.tags),
       userAction: null,
       difficulty: 3,
+      rating: 0,
     );
   }
 
@@ -101,6 +104,7 @@ class TrainingSpot {
         if (gameType != null) 'gameType': gameType,
         if (tags.isNotEmpty) 'tags': tags,
         'difficulty': difficulty,
+        'rating': rating,
         if (userAction != null) 'userAction': userAction,
       };
 
@@ -181,11 +185,12 @@ class TrainingSpot {
       gameType: json['gameType'] as String?,
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 3,
+      rating: (json['rating'] as num?)?.toInt() ?? 0,
       userAction: json['userAction'] as String?,
     );
   }
 
-  TrainingSpot copyWith({int? difficulty, List<String>? tags, String? userAction}) {
+  TrainingSpot copyWith({int? difficulty, int? rating, List<String>? tags, String? userAction}) {
     return TrainingSpot(
       playerCards: [for (final list in playerCards) List<CardModel>.from(list)],
       boardCards: List<CardModel>.from(boardCards),
@@ -202,6 +207,7 @@ class TrainingSpot {
       gameType: gameType,
       tags: tags ?? List<String>.from(this.tags),
       difficulty: difficulty ?? this.difficulty,
+      rating: rating ?? this.rating,
       userAction: userAction ?? this.userAction,
     );
   }
