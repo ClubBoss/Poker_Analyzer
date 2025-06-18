@@ -1003,6 +1003,58 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _saveOrderToPrefs();
   }
 
+  Future<void> _editComment(TrainingSpot spot) async {
+    final controller = TextEditingController(text: spot.userComment ?? '');
+
+    final String? result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text(
+            'Комментарий',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: TextField(
+            controller: controller,
+            maxLines: null,
+            minLines: 3,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Комментарий',
+              labelStyle: TextStyle(color: Colors.white),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Сохранить'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      final index = widget.spots.indexOf(spot);
+      if (index != -1) {
+        setState(() {
+          widget.spots[index] =
+              spot.copyWith(userComment: result.isEmpty ? null : result);
+        });
+        widget.onChanged?.call();
+        _saveOrderToPrefs();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Комментарий обновлен')));
+      }
+    }
+  }
+
   Future<void> _editTagsForSpot(TrainingSpot spot) async {
     final Set<String> localTags = Set<String>.from(spot.tags);
     final confirmed = await showDialog<bool>(
@@ -2226,8 +2278,19 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                     if (_txt.length > 80) {
                                                       _txt = _txt.substring(0, 80) + '…';
                                                     }
-                                                    return Text.rich(
-                                                      _highlightSpan(_txt),
+                                                    return Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text('📝',
+                                                            style: TextStyle(
+                                                                color: Colors.white70)),
+                                                        const SizedBox(width: 4),
+                                                        Expanded(
+                                                          child: Text.rich(
+                                                            _highlightSpan(_txt),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     );
                                                   }),
                                                 ),
@@ -2254,7 +2317,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                         IconButton(
                                           icon: const Icon(Icons.edit,
                                               color: Colors.white70),
-                                          onPressed: () => _editSpot(spot),
+                                          onPressed: () => _editComment(spot),
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.copy,
@@ -2376,8 +2439,18 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                   if (_txt.length > 80) {
                                                     _txt = _txt.substring(0, 80) + '…';
                                                   }
-                                                  return Text.rich(
-                                                    _highlightSpan(_txt),
+                                                  return Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      const Text('📝',
+                                                          style: TextStyle(color: Colors.white70)),
+                                                      const SizedBox(width: 4),
+                                                      Expanded(
+                                                        child: Text.rich(
+                                                          _highlightSpan(_txt),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   );
                                                 }),
                                               ),
@@ -2404,7 +2477,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                       IconButton(
                                         icon: const Icon(Icons.edit,
                                             color: Colors.white70),
-                                        onPressed: () => _editSpot(spot),
+                                        onPressed: () => _editComment(spot),
                                       ),
                                       IconButton(
                                         icon: const Icon(Icons.copy,
@@ -2635,7 +2708,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                       ),
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.white70),
-                        onPressed: () => _editSpot(spot),
+                        onPressed: () => _editComment(spot),
                       ),
                       IconButton(
                         icon: const Icon(Icons.copy, color: Colors.white70),
@@ -2751,8 +2824,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
                           ),
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.white70),
-                              onPressed: () => _editSpot(spot),
-                            ),
+                            onPressed: () => _editComment(spot),
+                          ),
                             IconButton(
                               icon: const Icon(Icons.copy, color: Colors.white70),
                               onPressed: () => _duplicateSpot(spot),
