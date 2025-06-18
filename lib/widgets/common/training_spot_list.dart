@@ -735,8 +735,10 @@ class TrainingSpotListState extends State<TrainingSpotList> {
 
     return DropTarget(
       onDragDone: _handleDrop,
-      child: CustomScrollView(
-        slivers: [
+      child: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
           SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1532,6 +1534,22 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           ),
         ),
       ],
+          ),
+          if (_hasActiveFilters)
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: FloatingActionButton(
+                heroTag: 'clearFiltersFab',
+                onPressed: clearFilters,
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                elevation: 2,
+                tooltip: 'Сбросить фильтры',
+                child: const Icon(Icons.filter_alt_off),
+              ),
+            ),
+        ],
       ),
     );
   }
