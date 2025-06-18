@@ -8,6 +8,9 @@ import 'training_history_screen.dart';
 import 'player_zone_demo_screen.dart';
 import 'settings_screen.dart';
 import 'daily_hand_screen.dart';
+import '../services/hand_history_file_import_service.dart';
+import '../services/saved_hand_manager_service.dart';
+import 'package:provider/provider.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
@@ -94,6 +97,17 @@ class MainMenuScreen extends StatelessWidget {
                 );
               },
               child: const Text('🧪 Player Zone Demo'),
+            ),
+            const SizedBox(height: 32),
+            const Text('🛠️ Инструменты'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                final manager = context.read<SavedHandManagerService>();
+                final service = HandHistoryFileImportService();
+                await service.importHandsFromFiles(context, manager);
+              },
+              child: const Text('Импортировать Hand History'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
