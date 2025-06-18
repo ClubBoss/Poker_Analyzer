@@ -33,6 +33,7 @@ dependencies:
   csv: ^6.0.0
   file_saver: ^0.2.14
   qr_code_scanner: ^1.0.1
+  web3dart: ^3.0.1
 
 dev_dependencies:
   flutter_test:
