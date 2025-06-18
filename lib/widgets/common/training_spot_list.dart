@@ -2492,6 +2492,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
               ),
             ),
           ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverSortHeaderDelegate(
+              height: 40,
+              child: _buildSortHeader(),
+            ),
+          ),
           SliverToBoxAdapter(
             child: AnimatedSize(
               duration: const Duration(milliseconds: 300),
@@ -3626,6 +3633,72 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
+  String _currentSortFieldLabel() {
+    if (_quickSort != null) {
+      switch (_quickSort!) {
+        case QuickSortOption.id:
+          return 'ID';
+        case QuickSortOption.difficulty:
+          return 'Сложность';
+        case QuickSortOption.rating:
+          return 'Рейтинг';
+      }
+    }
+    if (_listSort != null) {
+      switch (_listSort!) {
+        case ListSortOption.dateNew:
+        case ListSortOption.dateOld:
+          return 'Дата';
+        case ListSortOption.rating:
+          return 'Рейтинг';
+        case ListSortOption.difficulty:
+          return 'Сложность';
+        case ListSortOption.comment:
+          return 'Комментарий';
+      }
+    }
+    if (_simpleSortField != null) {
+      switch (_simpleSortField!) {
+        case SimpleSortField.createdAt:
+          return 'Дата';
+        case SimpleSortField.difficulty:
+          return 'Сложность';
+        case SimpleSortField.rating:
+          return 'Рейтинг';
+      }
+    }
+    if (_ratingSort != null) {
+      return 'Рейтинг';
+    }
+    if (_sortOption != null) {
+      switch (_sortOption!) {
+        case SortOption.buyInAsc:
+        case SortOption.buyInDesc:
+          return 'Buy-In';
+        case SortOption.gameType:
+          return 'Тип игры';
+        case SortOption.tournamentId:
+          return 'ID';
+        case SortOption.difficultyAsc:
+        case SortOption.difficultyDesc:
+          return 'Сложность';
+      }
+    }
+    return 'Ручной порядок';
+  }
+
+  Widget _buildSortHeader() {
+    return Container(
+      color: AppColors.background,
+      padding: const EdgeInsets.all(8),
+      alignment: Alignment.centerLeft,
+      child: Text(
+        'Сортировка: ${_currentSortFieldLabel()}',
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
 
   /// Reset all active filters and sorting options.
   void clearFilters() {
@@ -4600,6 +4673,29 @@ class _SliverFilterBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant _SliverFilterBarDelegate oldDelegate) {
+    return oldDelegate.child != child || oldDelegate.height != height;
+  }
+}
+
+class _SliverSortHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double height;
+  final Widget child;
+
+  _SliverSortHeaderDelegate({required this.height, required this.child});
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(covariant _SliverSortHeaderDelegate oldDelegate) {
     return oldDelegate.child != child || oldDelegate.height != height;
   }
 }
