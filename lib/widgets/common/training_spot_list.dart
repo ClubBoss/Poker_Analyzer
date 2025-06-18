@@ -57,7 +57,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsOrderKey = 'training_spots_order';
   static const String _prefsListVisibleKey = 'training_spot_list_visible';
   static const String _prefsDifficultyKey = 'training_preset_difficulties';
-  static const String _prefsRatingKey = 'training_preset_rating';
+  static const String _prefsRatingsKey = 'training_preset_ratings';
   static const String _prefsRatingSortKey = 'training_preset_rating_sort';
   static const String _prefsCustomPresetsKey =
       'training_custom_tag_presets';
@@ -94,7 +94,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   bool _manualOrder = true;
   bool _listVisible = true;
   final Set<int> _difficultyFilters = {};
-  int? _ratingFilter;
+  final Set<int> _ratingFilters = {};
   RatingSortOrder? _ratingSort;
 
   List<TrainingSpot> _currentFilteredSpots() {
@@ -110,7 +110,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           _difficultyFilters.isEmpty ||
               _difficultyFilters.contains(spot.difficulty);
       final matchesRating =
-          _ratingFilter == null || spot.rating == _ratingFilter;
+          _ratingFilters.isEmpty || _ratingFilters.contains(spot.rating);
       final matchesRated = !_ratedOnly || spot.userAction != null;
       return
           matchesQuery &&
@@ -164,9 +164,9 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'сложность: ${_difficultyFilters.join(', ')}';
     }
-    if (_ratingFilter != null) {
+    if (_ratingFilters.isNotEmpty) {
       if (summary.isNotEmpty) summary += ' + ';
-      summary += 'рейтинг: $_ratingFilter';
+      summary += 'рейтинг: ${_ratingFilters.join(', ')}';
     }
     if (_ratedOnly) {
       if (summary.isNotEmpty) summary += ' + ';
@@ -179,7 +179,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     return _searchController.text.trim().isNotEmpty ||
         _selectedTags.isNotEmpty ||
         _difficultyFilters.isNotEmpty ||
-        _ratingFilter != null ||
+        _ratingFilters.isNotEmpty ||
         _icmOnly ||
         _ratedOnly;
   }
@@ -196,7 +196,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
     final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
     final List<String>? diffs = prefs.getStringList(_prefsDifficultyKey);
-    final int? rating = prefs.getInt(_prefsRatingKey);
+    final List<String>? ratings = prefs.getStringList(_prefsRatingsKey);
     final String? customJson = prefs.getString(_prefsCustomPresetsKey);
     if (customJson != null && customJson.isNotEmpty) {
       final Map<String, dynamic> decoded = jsonDecode(customJson);
@@ -221,11 +221,14 @@ class TrainingSpotListState extends State<TrainingSpotList> {
               .map(int.tryParse)
               .whereType<int>()
               .where((d) => d >= 1 && d <= 5));
-    if (rating != null && rating >= 1 && rating <= 5) {
-      _ratingFilter = rating;
-    } else {
-      _ratingFilter = null;
-    }
+    _ratingFilters
+      ..clear()
+      ..addAll(ratings == null
+          ? []
+          : ratings
+              .map(int.tryParse)
+              .whereType<int>()
+              .where((r) => r >= 1 && r <= 5));
     if (sortName != null && sortName.isNotEmpty) {
       try {
         _sortOption = SortOption.values.byName(sortName);
@@ -275,10 +278,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     } else {
       await prefs.remove(_prefsDifficultyKey);
     }
-    if (_ratingFilter != null) {
-      await prefs.setInt(_prefsRatingKey, _ratingFilter!);
+    if (_ratingFilters.isNotEmpty) {
+      await prefs.setStringList(_prefsRatingsKey,
+          _ratingFilters.map((e) => e.toString()).toList());
     } else {
-      await prefs.remove(_prefsRatingKey);
+      await prefs.remove(_prefsRatingsKey);
     }
     if (_ratingSort != null) {
       await prefs.setString(_prefsRatingSortKey, _ratingSort!.name);
@@ -871,10 +875,16 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           },
         ),
         const SizedBox(height: 8),
-        _RatingDropdown(
-          rating: _ratingFilter,
+        _RatingChipRow(
+          selected: _ratingFilters,
           onChanged: (value) {
-            setState(() => _ratingFilter = value);
+            setState(() {
+              if (_ratingFilters.contains(value)) {
+                _ratingFilters.remove(value);
+              } else {
+                _ratingFilters.add(value);
+              }
+            });
             _savePresets();
           },
         ),
@@ -1291,7 +1301,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
       _icmOnly = false;
       _ratedOnly = false;
       _difficultyFilters.clear();
-      _ratingFilter = null;
+      _ratingFilters.clear();
     });
     final bool hadSort = _sortOption != null;
     _resetSort();
@@ -1918,12 +1928,13 @@ class _DifficultyChipRow extends StatelessWidget {
   }
 }
 
-class _RatingDropdown extends StatelessWidget {
-  final int? rating;
-  final ValueChanged<int?> onChanged;
 
-  const _RatingDropdown({
-    required this.rating,
+class _RatingChipRow extends StatelessWidget {
+  final Set<int> selected;
+  final ValueChanged<int> onChanged;
+
+  const _RatingChipRow({
+    required this.selected,
     required this.onChanged,
   });
 
@@ -1933,17 +1944,16 @@ class _RatingDropdown extends StatelessWidget {
       children: [
         const Text('Рейтинг', style: TextStyle(color: Colors.white)),
         const SizedBox(width: 8),
-        DropdownButton<int?>(
-          value: rating,
-          hint: const Text('Все', style: TextStyle(color: Colors.white60)),
-          dropdownColor: AppColors.cardBackground,
-          style: const TextStyle(color: Colors.white),
-          items: [
-            const DropdownMenuItem(value: null, child: Text('Все')),
+        Wrap(
+          spacing: 4,
+          children: [
             for (int i = 1; i <= 5; i++)
-              DropdownMenuItem(value: i, child: Text('$i')),
+              FilterChip(
+                label: Text('$i'),
+                selected: selected.contains(i),
+                onSelected: (_) => onChanged(i),
+              ),
           ],
-          onChanged: onChanged,
         ),
       ],
     );
