@@ -804,6 +804,15 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                 onPressed: _saveCurrentOrder,
                 child: const Text('Сохранить порядок'),
               ),
+              const SizedBox(width: 8),
+              OutlinedButton(
+                onPressed: clearFilters,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.red),
+                  foregroundColor: Colors.red,
+                ),
+                child: const Text('Очистить фильтры'),
+              ),
             ],
           ),
         ),
