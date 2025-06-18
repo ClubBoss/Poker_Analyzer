@@ -7,6 +7,10 @@ import 'qr_code_scanner_screen.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web3dart/crypto.dart';
 import 'dart:math';
+import 'dart:io';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class EthereumToolsScreen extends StatefulWidget {
   static const routeName = '/ethereum-tools';
@@ -65,6 +69,37 @@ class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
     setState(() {
       _keyValid = isValidPrivateKey(text);
     });
+  }
+
+  Future<bool> _ensurePermission() async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      final status = await Permission.storage.request();
+      return status.isGranted;
+    }
+    return true;
+  }
+
+  Future<void> _exportToFile() async {
+    if (_generatedPrivateKey == null || _generatedAddress == null) return;
+    final allowed = await _ensurePermission();
+    if (!allowed) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Storage permission denied')));
+      }
+      return;
+    }
+    final dir = await getApplicationDocumentsDirectory();
+    final timestamp = DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
+    final file = File('${dir.path}/wallet_$timestamp.txt');
+    final content =
+        'Private Key: $_generatedPrivateKey\nAddress: $_generatedAddress\n';
+    await file.writeAsString(content, flush: true);
+    if (mounted) {
+      final name = file.path.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    }
   }
 
   @override
@@ -156,6 +191,11 @@ class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
                       onPressed: () => _copy(_generatedAddress!),
                     ),
                   ],
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _exportToFile,
+                  child: const Text('Сохранить в файл'),
                 ),
               ],
             ],
