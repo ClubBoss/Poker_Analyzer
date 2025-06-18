@@ -667,6 +667,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
               widget.onChanged?.call();
             },
             onClearTags: _clearTagFilters,
+            onOpenSelector: _showTagSelector,
           ),
         ],
         const SizedBox(height: 8),
@@ -1122,6 +1123,67 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     _savePresets();
   }
 
+  Future<void> _showTagSelector() async {
+    final local = Set<String>.from(_selectedTags);
+    final result = await showDialog<Set<String>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text(
+            'Выберите теги',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return SizedBox(
+                width: 300,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final tag in _availableTags)
+                      CheckboxListTile(
+                        value: local.contains(tag),
+                        title: Text(tag, style: const TextStyle(color: Colors.white)),
+                        onChanged: (checked) {
+                          setStateDialog(() {
+                            if (checked ?? false) {
+                              local.add(tag);
+                            } else {
+                              local.remove(tag);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, local),
+              child: const Text('Готово'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedTags
+          ..clear()
+          ..addAll(result);
+      });
+      _savePresets();
+    }
+  }
+
   void _handleReorder(
     int oldIndex,
     int newIndex,
@@ -1336,6 +1398,7 @@ class _TagFilterSection extends StatelessWidget {
   final void Function(String tag, bool selected) onTagToggle;
   final ValueChanged<String?> onPresetSelected;
   final VoidCallback onClearTags;
+  final VoidCallback onOpenSelector;
 
   const _TagFilterSection({
     required this.filtered,
@@ -1346,6 +1409,7 @@ class _TagFilterSection extends StatelessWidget {
     required this.onTagToggle,
     required this.onPresetSelected,
     required this.onClearTags,
+    required this.onOpenSelector,
   });
 
   @override
@@ -1392,12 +1456,12 @@ class _TagFilterSection extends StatelessWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          for (final tag in TrainingSpotListState._availableTags)
+          for (final tag in selectedTags)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: FilterChip(
                 label: Text(tag),
-                selected: selectedTags.contains(tag),
+                selected: true,
                 onSelected: (selected) => onTagToggle(tag, selected),
               ),
             ),
@@ -1407,16 +1471,15 @@ class _TagFilterSection extends StatelessWidget {
   }
 
   Widget _buildTagFilters() {
-    return Wrap(
-      spacing: 4,
-      children: [
-        for (final tag in TrainingSpotListState._availableTags)
-          FilterChip(
-            label: Text(tag),
-            selected: selectedTags.contains(tag),
-            onSelected: (selected) => onTagToggle(tag, selected),
-          ),
-      ],
+    final count = selectedTags.length;
+    final label =
+        count == 0 ? 'Выбрать теги' : 'Выбрано: $count';
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: ElevatedButton(
+        onPressed: onOpenSelector,
+        child: Text(label),
+      ),
     );
   }
 
