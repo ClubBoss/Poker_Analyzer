@@ -52,6 +52,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   static const String _prefsOrderKey = 'training_spots_order';
   static const String _prefsListVisibleKey = 'training_spot_list_visible';
   static const String _prefsDifficultyKey = 'training_preset_difficulty';
+  static const String _prefsCustomPresetsKey =
+      'training_custom_tag_presets';
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
@@ -70,6 +72,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     'ICM': ['ICM'],
     'vs агро': ['vs агро'],
   };
+
+  Map<String, List<String>> _customTagPresets = {};
 
   String? _selectedPreset;
 
@@ -161,6 +165,13 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
     final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
     final int? difficulty = prefs.getInt(_prefsDifficultyKey);
+    final String? customJson = prefs.getString(_prefsCustomPresetsKey);
+    if (customJson != null && customJson.isNotEmpty) {
+      final Map<String, dynamic> decoded = jsonDecode(customJson);
+      _customTagPresets = {
+        for (final e in decoded.entries) e.key: List<String>.from(e.value as List)
+      };
+    }
 
     _searchController.text = search;
     _selectedTags
@@ -219,6 +230,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     } else {
       await prefs.remove(_prefsSortKey);
     }
+    await prefs.setString(
+        _prefsCustomPresetsKey, jsonEncode(_customTagPresets));
   }
 
   Future<void> _saveOrderToPrefs() async {
@@ -637,6 +650,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             selectedTags: _selectedTags,
             expanded: _tagFiltersExpanded,
             selectedPreset: _selectedPreset,
+            customPresets: _customTagPresets,
             onExpanded: (v) {
               setState(() => _tagFiltersExpanded = v);
               _savePresets();
@@ -653,7 +667,9 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             },
             onPresetSelected: (value) {
               if (value == null) return;
-              final tags = TrainingSpotListState._tagPresets[value]!;
+              final tags = TrainingSpotListState._tagPresets[value] ??
+                  _customTagPresets[value];
+              if (tags == null) return;
               setState(() {
                 for (final spot in filtered) {
                   for (final t in tags) {
@@ -1125,6 +1141,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
 
   Future<void> _showTagSelector() async {
     final local = Set<String>.from(_selectedTags);
+    String? selectedPreset;
     final result = await showDialog<Set<String>>(
       context: context,
       builder: (context) {
@@ -1138,23 +1155,184 @@ class TrainingSpotListState extends State<TrainingSpotList> {
             builder: (context, setStateDialog) {
               return SizedBox(
                 width: 300,
-                child: ListView(
-                  shrinkWrap: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (final tag in _availableTags)
-                      CheckboxListTile(
-                        value: local.contains(tag),
-                        title: Text(tag, style: const TextStyle(color: Colors.white)),
-                        onChanged: (checked) {
-                          setStateDialog(() {
-                            if (checked ?? false) {
-                              local.add(tag);
-                            } else {
-                              local.remove(tag);
-                            }
-                          });
-                        },
+                    Expanded(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          for (final tag in _availableTags)
+                            CheckboxListTile(
+                              value: local.contains(tag),
+                              title:
+                                  Text(tag, style: const TextStyle(color: Colors.white)),
+                              onChanged: (checked) {
+                                setStateDialog(() {
+                                  if (checked ?? false) {
+                                    local.add(tag);
+                                  } else {
+                                    local.remove(tag);
+                                  }
+                                });
+                              },
+                            ),
+                        ],
                       ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButton<String>(
+                            value: selectedPreset,
+                            hint: const Text('Пресет',
+                                style: TextStyle(color: Colors.white60)),
+                            dropdownColor: AppColors.cardBackground,
+                            style: const TextStyle(color: Colors.white),
+                            items: [
+                              for (final name in _customTagPresets.keys)
+                                DropdownMenuItem(value: name, child: Text(name)),
+                            ],
+                            onChanged: (v) {
+                              setStateDialog(() {
+                                selectedPreset = v;
+                                if (v != null) {
+                                  local
+                                    ..clear()
+                                    ..addAll(_customTagPresets[v] ?? const []);
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Сохранить',
+                          icon: const Icon(Icons.save, color: Colors.white),
+                          onPressed: () async {
+                            final controller =
+                                TextEditingController(text: selectedPreset ?? '');
+                            final name = await showDialog<String>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: AppColors.cardBackground,
+                                title: Text(
+                                  selectedPreset == null
+                                      ? 'Новый пресет'
+                                      : 'Сохранить пресет',
+                                  style:
+                                      const TextStyle(color: Colors.white),
+                                ),
+                                content: TextField(
+                                  controller: controller,
+                                  autofocus: true,
+                                  style:
+                                      const TextStyle(color: Colors.white),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Отмена'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(
+                                        context, controller.text.trim()),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (name != null && name.isNotEmpty) {
+                              setStateDialog(() {
+                                if (selectedPreset != null &&
+                                    selectedPreset != name) {
+                                  _customTagPresets.remove(selectedPreset);
+                                }
+                                _customTagPresets[name] = local.toList();
+                                selectedPreset = name;
+                              });
+                            }
+                          },
+                        ),
+                        IconButton(
+                          tooltip: 'Переименовать',
+                          icon: const Icon(Icons.edit, color: Colors.white),
+                          onPressed: selectedPreset == null
+                              ? null
+                              : () async {
+                                  final controller =
+                                      TextEditingController(text: selectedPreset);
+                                  final name = await showDialog<String>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      backgroundColor: AppColors.cardBackground,
+                                      title: const Text('Переименовать',
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                      content: TextField(
+                                        controller: controller,
+                                        autofocus: true,
+                                        style: const TextStyle(color: Colors.white),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text('Отмена'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(
+                                              context, controller.text.trim()),
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (name != null &&
+                                      name.isNotEmpty &&
+                                      name != selectedPreset) {
+                                    setStateDialog(() {
+                                      final tags =
+                                          _customTagPresets.remove(selectedPreset);
+                                      if (tags != null) {
+                                        _customTagPresets[name] = tags;
+                                        selectedPreset = name;
+                                      }
+                                    });
+                                  }
+                                },
+                        ),
+                        IconButton(
+                          tooltip: 'Удалить',
+                          icon: const Icon(Icons.delete, color: Colors.white),
+                          onPressed: selectedPreset == null
+                              ? null
+                              : () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text('Удалить пресет "$selectedPreset"?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, false),
+                                          child: const Text('Отмена'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          child: const Text('Удалить'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirm == true) {
+                                    setStateDialog(() {
+                                      _customTagPresets.remove(selectedPreset);
+                                      selectedPreset = null;
+                                    });
+                                  }
+                                },
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               );
@@ -1180,8 +1358,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           ..clear()
           ..addAll(result);
       });
-      _savePresets();
     }
+    _savePresets();
   }
 
   void _handleReorder(
@@ -1394,6 +1572,7 @@ class _TagFilterSection extends StatelessWidget {
   final Set<String> selectedTags;
   final bool expanded;
   final String? selectedPreset;
+  final Map<String, List<String>> customPresets;
   final ValueChanged<bool> onExpanded;
   final void Function(String tag, bool selected) onTagToggle;
   final ValueChanged<String?> onPresetSelected;
@@ -1405,6 +1584,7 @@ class _TagFilterSection extends StatelessWidget {
     required this.selectedTags,
     required this.expanded,
     required this.selectedPreset,
+    required this.customPresets,
     required this.onExpanded,
     required this.onTagToggle,
     required this.onPresetSelected,
@@ -1496,6 +1676,11 @@ class _TagFilterSection extends StatelessWidget {
           style: const TextStyle(color: Colors.white),
           items: [
             for (final entry in TrainingSpotListState._tagPresets.entries)
+              DropdownMenuItem(
+                value: entry.key,
+                child: Text(entry.key),
+              ),
+            for (final entry in customPresets.entries)
               DropdownMenuItem(
                 value: entry.key,
                 child: Text(entry.key),
