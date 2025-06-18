@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../widgets/ethereum_address_input.dart';
 import '../utils/eth_utils.dart';
 import 'package:flutter/services.dart';
+import 'qr_code_scanner_screen.dart';
 
 class EthereumToolsScreen extends StatefulWidget {
   static const routeName = '/ethereum-tools';
@@ -32,6 +33,25 @@ class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Copied to clipboard')));
+    }
+  }
+
+  Future<void> _scanKey() async {
+    final result = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const QRCodeScannerScreen()),
+    );
+    if (result != null) {
+      final text = result.trim();
+      if (isValidPrivateKey(text)) {
+        _keyController.text = text;
+        _validateKey();
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Scanned value is not a valid private key')),
+          );
+        }
+      }
     }
   }
 
@@ -65,12 +85,22 @@ class _EthereumToolsScreenState extends State<EthereumToolsScreen> {
             children: [
               const EthereumAddressInput(),
               const SizedBox(height: 16),
-              TextField(
-                controller: _keyController,
-                decoration: const InputDecoration(
-                  labelText: 'Private Key',
-                ),
-                obscureText: true,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _keyController,
+                      decoration: const InputDecoration(
+                        labelText: 'Private Key',
+                      ),
+                      obscureText: true,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.qr_code_scanner, color: Colors.white70),
+                    onPressed: _scanKey,
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               ElevatedButton(
