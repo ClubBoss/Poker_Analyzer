@@ -373,92 +373,84 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
   Future<void> _editTitleAndTags(TrainingSpot spot) async {
-    final idController =
+    final titleController =
         TextEditingController(text: spot.tournamentId ?? '');
-    final Set<String> localTags = Set<String>.from(spot.tags);
+    final tagsController =
+        TextEditingController(text: spot.tags.join(', '));
 
     final updated = await showDialog<TrainingSpot>(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: AppColors.cardBackground,
-              title: const Text(
-                'Редактировать',
-                style: TextStyle(color: Colors.white),
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: idController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'ID турнира',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 4,
-                      children: [
-                        for (final tag in _availableTags)
-                          FilterChip(
-                            label: Text(tag),
-                            selected: localTags.contains(tag),
-                            onSelected: (selected) {
-                              setState(() {
-                                if (selected) {
-                                  localTags.add(tag);
-                                } else {
-                                  localTags.remove(tag);
-                                }
-                              });
-                            },
-                          ),
-                      ],
-                    ),
-                  ],
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text(
+            'Редактировать',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Название',
+                    labelStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Отмена'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(
-                      context,
-                      TrainingSpot(
-                        playerCards: spot.playerCards,
-                        boardCards: spot.boardCards,
-                        actions: spot.actions,
-                        heroIndex: spot.heroIndex,
-                        numberOfPlayers: spot.numberOfPlayers,
-                        playerTypes: spot.playerTypes,
-                        positions: spot.positions,
-                        stacks: spot.stacks,
-                        tournamentId: idController.text.trim().isEmpty
-                            ? null
-                            : idController.text.trim(),
-                        buyIn: spot.buyIn,
-                        totalPrizePool: spot.totalPrizePool,
-                        numberOfEntrants: spot.numberOfEntrants,
-                        gameType: spot.gameType,
-                        difficulty: spot.difficulty,
-                        tags: localTags.toList(),
-                      ),
-                    );
-                  },
-                  child: const Text('Сохранить'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: tagsController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Теги (через запятую)',
+                    labelStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ],
-            );
-          },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                final tags = tagsController.text
+                    .split(',')
+                    .map((e) => e.trim())
+                    .where((e) => e.isNotEmpty)
+                    .toList();
+                Navigator.pop(
+                  context,
+                  TrainingSpot(
+                    playerCards: spot.playerCards,
+                    boardCards: spot.boardCards,
+                    actions: spot.actions,
+                    heroIndex: spot.heroIndex,
+                    numberOfPlayers: spot.numberOfPlayers,
+                    playerTypes: spot.playerTypes,
+                    positions: spot.positions,
+                    stacks: spot.stacks,
+                    tournamentId: titleController.text.trim().isEmpty
+                        ? null
+                        : titleController.text.trim(),
+                    buyIn: spot.buyIn,
+                    totalPrizePool: spot.totalPrizePool,
+                    numberOfEntrants: spot.numberOfEntrants,
+                    gameType: spot.gameType,
+                    difficulty: spot.difficulty,
+                    tags: tags,
+                  ),
+                );
+              },
+              child: const Text('Сохранить'),
+            ),
+          ],
         );
       },
     );
