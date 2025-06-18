@@ -33,6 +33,8 @@ enum SimpleSortField { createdAt, difficulty, rating }
 
 enum SimpleSortOrder { ascending, descending }
 
+enum ListSortOption { dateNew, dateOld, rating, difficulty, comment }
+
 class _FilterState {
   const _FilterState({
     required this.searchText,
@@ -91,6 +93,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       'training_custom_tag_presets';
   static const String _prefsQuickPresetKey = 'training_quick_preset';
   static const String _prefsSearchHistoryKey = 'training_search_history';
+  static const String _prefsListSortKey = 'training_spot_list_sort';
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
@@ -141,6 +144,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   RatingSortOrder? _ratingSort;
   SimpleSortField? _simpleSortField;
   SimpleSortOrder _simpleSortOrder = SimpleSortOrder.ascending;
+  ListSortOption? _listSort;
 
   _FilterState? _lastFilterState;
 
@@ -507,6 +511,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final String? ratingSortName = prefs.getString(_prefsRatingSortKey);
     final String? simpleFieldName = prefs.getString(_prefsSimpleSortField);
     final String? simpleOrderName = prefs.getString(_prefsSimpleSortOrder);
+    final String? listSortName = prefs.getString(_prefsListSortKey);
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
     final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
     final List<String>? diffs = prefs.getStringList(_prefsDifficultyKey);
@@ -586,7 +591,17 @@ class TrainingSpotListState extends State<TrainingSpotList>
         _simpleSortOrder = SimpleSortOrder.ascending;
       }
     }
-    _manualOrder = _sortOption == null && _ratingSort == null && _simpleSortField == null;
+    if (listSortName != null && listSortName.isNotEmpty) {
+      try {
+        _listSort = ListSortOption.values.byName(listSortName);
+      } catch (_) {
+        _listSort = null;
+      }
+    }
+    _manualOrder = _sortOption == null &&
+        _ratingSort == null &&
+        _simpleSortField == null &&
+        _listSort == null;
     _presetsLoaded = true;
     final filtered = _currentFilteredSpots();
     if (_sortOption != null) {
@@ -595,6 +610,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
       _sortByRating(filtered, _ratingSort!);
     } else if (_simpleSortField != null) {
       _applySimpleSort(filtered);
+    } else if (_listSort != null) {
+      _applyListSort(filtered);
     } else {
       setState(() {});
     }
@@ -640,6 +657,11 @@ class TrainingSpotListState extends State<TrainingSpotList>
       await prefs.remove(_prefsSimpleSortField);
     }
     await prefs.setString(_prefsSimpleSortOrder, _simpleSortOrder.name);
+    if (_listSort != null) {
+      await prefs.setString(_prefsListSortKey, _listSort!.name);
+    } else {
+      await prefs.remove(_prefsListSortKey);
+    }
     if (_sortOption != null) {
       await prefs.setString(_prefsSortKey, _sortOption!.name);
     } else {
@@ -2162,9 +2184,21 @@ class TrainingSpotListState extends State<TrainingSpotList>
                               if (v) {
                                 _resetSort();
                               } else {
-                                _sortOption ??= SortOption.buyInAsc;
-                                _sortFiltered(
-                                    _currentFilteredSpots(), _sortOption!);
+                                if (_sortOption != null) {
+                                  _sortFiltered(
+                                      _currentFilteredSpots(), _sortOption!);
+                                } else if (_ratingSort != null) {
+                                  _sortByRating(
+                                      _currentFilteredSpots(), _ratingSort!);
+                                } else if (_simpleSortField != null) {
+                                  _applySimpleSort(_currentFilteredSpots());
+                                } else if (_listSort != null) {
+                                  _applyListSort(_currentFilteredSpots());
+                                } else {
+                                  _sortOption = SortOption.buyInAsc;
+                                  _sortFiltered(
+                                      _currentFilteredSpots(), _sortOption!);
+                                }
                               }
                             },
                           ),
@@ -2288,6 +2322,20 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                _ListSortDropdown(
+                  value: _listSort,
+                  filtered: filtered,
+                  manualOrder: _manualOrder,
+                  onChanged: (value, spots) {
+                    if (value == null) {
+                      _resetSort();
+                    } else {
+                      setState(() => _listSort = value);
+                      _applyListSort(spots);
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
                 _RatingSortDropdown(
                   order: _ratingSort,
                   filtered: filtered,
@@ -3877,12 +3925,47 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _savePresets();
   }
 
+  void _applyListSort(List<TrainingSpot> filtered) {
+    if (_listSort == null) return;
+    final indices = filtered.map((s) => widget.spots.indexOf(s)).toList();
+    final sorted = List<TrainingSpot>.from(filtered);
+    _originalOrder ??= List<TrainingSpot>.from(widget.spots);
+    int compare(TrainingSpot a, TrainingSpot b) {
+      switch (_listSort!) {
+        case ListSortOption.dateNew:
+          return b.createdAt.compareTo(a.createdAt);
+        case ListSortOption.dateOld:
+          return a.createdAt.compareTo(b.createdAt);
+        case ListSortOption.rating:
+          return b.rating.compareTo(a.rating);
+        case ListSortOption.difficulty:
+          return b.difficulty.compareTo(a.difficulty);
+        case ListSortOption.comment:
+          return (a.userComment ?? '').toLowerCase().compareTo(
+              (b.userComment ?? '').toLowerCase());
+      }
+    }
+    sorted.sort(compare);
+    setState(() {
+      for (int i = 0; i < indices.length; i++) {
+        widget.spots[indices[i]] = sorted[i];
+      }
+      _sortOption = null;
+      _ratingSort = null;
+      _simpleSortField = null;
+      _manualOrder = false;
+    });
+    widget.onChanged?.call();
+    _savePresets();
+  }
+
   void _saveCurrentOrder() {
     setState(() {
       _originalOrder = List<TrainingSpot>.from(widget.spots);
       _sortOption = null;
       _ratingSort = null;
       _simpleSortField = null;
+      _listSort = null;
       _manualOrder = true;
     });
     widget.onChanged?.call();
@@ -3894,7 +3977,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
   }
 
   void _resetSort() {
-    if (_sortOption == null && _ratingSort == null && _simpleSortField == null) return;
+    if (_sortOption == null &&
+        _ratingSort == null &&
+        _simpleSortField == null &&
+        _listSort == null) return;
     setState(() {
       if (_originalOrder != null &&
           widget.spots.length == _originalOrder!.length) {
@@ -3904,6 +3990,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       _sortOption = null;
       _ratingSort = null;
       _simpleSortField = null;
+      _listSort = null;
       _manualOrder = true;
     });
     widget.onChanged?.call();
@@ -4318,6 +4405,53 @@ class _SortDropdown extends StatelessWidget {
       ],
       onChanged:
           manualOrder ? null : (value) => onChanged(value, filtered),
+    );
+  }
+}
+
+class _ListSortDropdown extends StatelessWidget {
+  final ListSortOption? value;
+  final List<TrainingSpot> filtered;
+  final bool manualOrder;
+  final void Function(ListSortOption? value, List<TrainingSpot> spots) onChanged;
+
+  const _ListSortDropdown({
+    required this.value,
+    required this.filtered,
+    required this.manualOrder,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Text('Сортировка', style: TextStyle(color: Colors.white)),
+        const SizedBox(width: 8),
+        DropdownButton<ListSortOption?>(
+          value: value,
+          hint:
+              const Text('Без сортировки', style: TextStyle(color: Colors.white60)),
+          dropdownColor: AppColors.cardBackground,
+          style: const TextStyle(color: Colors.white),
+          items: const [
+            DropdownMenuItem(value: null, child: Text('Без сортировки')),
+            DropdownMenuItem(
+                value: ListSortOption.dateNew,
+                child: Text('Дата добавления (новые)')),
+            DropdownMenuItem(
+                value: ListSortOption.dateOld,
+                child: Text('Дата добавления (старые)')),
+            DropdownMenuItem(
+                value: ListSortOption.rating, child: Text('Рейтинг')),
+            DropdownMenuItem(
+                value: ListSortOption.difficulty, child: Text('Сложность')),
+            DropdownMenuItem(
+                value: ListSortOption.comment, child: Text('Комментарий')),
+          ],
+          onChanged: manualOrder ? null : (v) => onChanged(v, filtered),
+        ),
+      ],
     );
   }
 }
