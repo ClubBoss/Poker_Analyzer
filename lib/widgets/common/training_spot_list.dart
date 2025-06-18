@@ -740,6 +740,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
       widget.spots[index] = spot.copyWith(difficulty: value);
     });
     widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Сложность обновлена')));
   }
 
   void _updateRating(TrainingSpot spot, int value) {
@@ -749,6 +752,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
       widget.spots[index] = spot.copyWith(rating: value);
     });
     widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Рейтинг обновлен')));
   }
 
   void _applyDifficultyToFiltered(int value) {
@@ -862,20 +868,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
-  Widget _buildDifficultyDots(int difficulty) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (int i = 1; i <= 5; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 1.0),
-            child: Icon(
-              Icons.circle,
-              size: 8,
-              color: i <= difficulty ? Colors.amber : Colors.grey,
-            ),
-          ),
-      ],
+  Widget _buildDifficultyDropdown(TrainingSpot spot) {
+    return DropdownButton<int>(
+      value: spot.difficulty,
+      underline: const SizedBox(),
+      dropdownColor: AppColors.cardBackground,
+      style: const TextStyle(color: Colors.white),
+      items: [for (int i = 1; i <= 5; i++) DropdownMenuItem(value: i, child: Text('$i'))],
+      onChanged: (v) {
+        if (v != null) _updateDifficulty(spot, v);
+      },
     );
   }
 
@@ -1454,14 +1456,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                         ),
                                                       ),
                                                       const SizedBox(width: 4),
-                                                      _buildDifficultyDots(
-                                                          spot.difficulty),
+                                                      _buildDifficultyDropdown(
+                                                          spot),
                                                     ],
                                                   ),
                                                 )
                                               else
-                                                _buildDifficultyDots(
-                                                    spot.difficulty),
+                                                _buildDifficultyDropdown(spot),
                                               if (spot.buyIn != null)
                                                 Text('Buy-In: ${spot.buyIn}',
                                                     style: const TextStyle(
@@ -1581,14 +1582,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                       ),
                                                     ),
                                                     const SizedBox(width: 4),
-                                                    _buildDifficultyDots(
-                                                        spot.difficulty),
+                                                    _buildDifficultyDropdown(
+                                                        spot),
                                                   ],
                                                 ),
                                               )
                                             else
-                                              _buildDifficultyDots(
-                                                  spot.difficulty),
+                                              _buildDifficultyDropdown(spot),
                                             if (spot.buyIn != null)
                                               Text('Buy-In: ${spot.buyIn}',
                                                   style: const TextStyle(
@@ -1813,12 +1813,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                       ),
                                     ),
                                     const SizedBox(width: 4),
-                                    _buildDifficultyDots(spot.difficulty),
+                                    _buildDifficultyDropdown(spot),
                                   ],
                                 ),
                               ),
                             else
-                              _buildDifficultyDots(spot.difficulty),
+                              _buildDifficultyDropdown(spot),
                             if (spot.buyIn != null)
                               Text('Buy-In: ${spot.buyIn}',
                                   style: const TextStyle(color: Colors.white)),
@@ -1919,12 +1919,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                             ),
                                           ),
                                           const SizedBox(width: 4),
-                                          _buildDifficultyDots(spot.difficulty),
+                                          _buildDifficultyDropdown(spot),
                                         ],
                                       ),
                                     )
                                   else
-                                    _buildDifficultyDots(spot.difficulty),
+                                    _buildDifficultyDropdown(spot),
                                   if (spot.buyIn != null)
                                     Text('Buy-In: ${spot.buyIn}',
                                         style: const TextStyle(color: Colors.white)),
