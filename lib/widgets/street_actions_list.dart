@@ -4,9 +4,8 @@ import 'detailed_action_bottom_sheet.dart';
 import 'package:intl/intl.dart';
 
 import 'street_pot_widget.dart';
-import '../user_preferences.dart';
-/// Whether action hints (tooltips) should be shown. Loaded from preferences.
-bool get kShowActionHints => UserPreferences.instance.showActionHints;
+import 'package:provider/provider.dart';
+import '../services/user_preferences_service.dart';
 
 /// Список действий на конкретной улице
 class StreetActionsList extends StatelessWidget {
@@ -148,7 +147,8 @@ class StreetActionsList extends StatelessWidget {
       ),
     );
 
-    if (!kShowActionHints || a.generated) return tile;
+    final prefs = context.watch<UserPreferencesService>();
+    if (!prefs.showActionHints || a.generated) return tile;
 
     return Tooltip(
       message: _buildTooltipMessage(a, globalIndex, qualityText),
