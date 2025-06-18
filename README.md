@@ -33,6 +33,9 @@ Poker AI Analyzer helps analyze and train poker decision making. The app lets yo
 - Import and export hand histories through plug-in converters
   with metadata and validation so incompatible hands can be
   detected before export
+- Batch operations in the Training Spot list allow applying the current
+  difficulty and rating filters to all visible spots or deleting them in
+  one step with confirmation dialogs.
 
 
 ## Converter plug-ins
