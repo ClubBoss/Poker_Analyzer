@@ -90,6 +90,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   static const String _prefsCustomPresetsKey =
       'training_custom_tag_presets';
   static const String _prefsQuickPresetKey = 'training_quick_preset';
+  static const String _prefsSearchHistoryKey = 'training_search_history';
 
   bool _presetsLoaded = false;
   bool _orderRestored = false;
@@ -118,6 +119,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
   };
 
   Map<String, List<String>> _customTagPresets = {};
+
+  final FocusNode _searchFocusNode = FocusNode();
+  List<String> _searchHistory = [];
 
   String? _selectedPreset;
   String? _activeQuickPreset;
@@ -264,6 +268,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final List<String>? ratings = prefs.getStringList(_prefsRatingsKey);
     final String? customJson = prefs.getString(_prefsCustomPresetsKey);
     final String? quickPreset = prefs.getString(_prefsQuickPresetKey);
+    _searchHistory =
+        prefs.getStringList(_prefsSearchHistoryKey) ?? <String>[];
     if (customJson != null && customJson.isNotEmpty) {
       final Map<String, dynamic> decoded = jsonDecode(customJson);
       _customTagPresets = {
@@ -410,6 +416,61 @@ class TrainingSpotListState extends State<TrainingSpotList>
       _prefsOrderKey,
       [for (final s in widget.spots) jsonEncode(s.toJson())],
     );
+  }
+
+  Future<void> _saveSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_prefsSearchHistoryKey, _searchHistory);
+  }
+
+  Future<void> _addToSearchHistory(String query) async {
+    query = query.trim();
+    if (query.isEmpty) return;
+    _searchHistory.remove(query);
+    _searchHistory.insert(0, query);
+    if (_searchHistory.length > 5) {
+      _searchHistory = _searchHistory.sublist(0, 5);
+    }
+    await _saveSearchHistory();
+  }
+
+  Future<void> _clearSearchHistory() async {
+    _searchHistory.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefsSearchHistoryKey);
+  }
+
+  Future<void> _showSearchHistoryDropdown(BuildContext context) async {
+    if (_searchHistory.isEmpty) return;
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final offset = renderBox.localToGlobal(Offset.zero);
+    final selected = await showMenu<String>(
+      context: context,
+      color: AppColors.cardBackground,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        0,
+      ),
+      items: [
+        for (final q in _searchHistory)
+          PopupMenuItem<String>(value: q, child: Text(q)),
+        const PopupMenuDivider(),
+        const PopupMenuItem<String>(
+          value: '__clear__',
+          child: Text('Очистить историю'),
+        ),
+      ],
+    );
+    if (selected == null) return;
+    if (selected == '__clear__') {
+      await _clearSearchHistory();
+    } else {
+      _searchController.text = selected;
+      await _addToSearchHistory(selected);
+    }
   }
 
   Future<void> _restoreOrderFromPrefs(SharedPreferences prefs) async {
@@ -1119,6 +1180,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -2113,6 +2175,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
         Expanded(
           child: TextField(
             controller: _searchController,
+            focusNode: _searchFocusNode,
+            onTap: () => _showSearchHistoryDropdown(context),
+            onSubmitted: (value) => _addToSearchHistory(value),
             decoration: InputDecoration(
               hintText: 'Поиск по ID или тегу...',
               hintStyle: const TextStyle(color: Colors.white54),
