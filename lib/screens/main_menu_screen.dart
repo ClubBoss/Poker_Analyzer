@@ -10,6 +10,9 @@ import 'settings_screen.dart';
 import 'daily_hand_screen.dart';
 import 'create_pack_screen.dart';
 import 'edit_pack_screen.dart';
+import 'package:provider/provider.dart';
+import '../services/hand_history_file_service.dart';
+import '../services/saved_hand_manager_service.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
@@ -130,6 +133,21 @@ class MainMenuScreen extends StatelessWidget {
                 );
               },
               child: const Text('⚙️ Settings'),
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              '🛠️ Инструменты',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                final manager =
+                    Provider.of<SavedHandManagerService>(context, listen: false);
+                final service = HandHistoryFileService(manager);
+                await service.importFromFiles(context);
+              },
+              child: const Text('Импортировать Hand History'),
             ),
           ],
         ),
