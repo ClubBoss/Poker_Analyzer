@@ -82,6 +82,13 @@ class TrainingSpotAnalysisScreen extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         children: tiles,
       ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(8),
+        child: ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Назад к тренировке'),
+        ),
+      ),
     );
   }
 }
