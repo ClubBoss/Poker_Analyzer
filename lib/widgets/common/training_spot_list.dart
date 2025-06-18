@@ -563,53 +563,12 @@ class TrainingSpotListState extends State<TrainingSpotList> {
         ],
         const SizedBox(height: 8),
         if (widget.onRemove != null) ...[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _selectAllVisible(filtered),
-                  child: const Text('Выделить все'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed:
-                      _selectedSpots.isEmpty ? null : _clearSelection,
-                  child: const Text('Снять выделение'),
-                ),
-                const SizedBox(width: 8),
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    ElevatedButton(
-                      onPressed:
-                          _selectedSpots.isEmpty ? null : _deleteSelected,
-                      child: const Text('Удалить выбранные'),
-                    ),
-                    if (_selectedSpots.isNotEmpty)
-                      Positioned(
-                        right: -6,
-                        top: -6,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '${_selectedSpots.length}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+          _SelectionActions(
+            selectedCount: _selectedSpots.length,
+            filtered: filtered,
+            onSelectAll: _selectAllVisible,
+            onClearSelection: _clearSelection,
+            onDeleteSelected: _deleteSelected,
           ),
           const SizedBox(height: 8),
         ],
@@ -1335,6 +1294,72 @@ class _SortDropdown extends StatelessWidget {
       ],
       onChanged:
           manualOrder ? null : (value) => onChanged(value, filtered),
+    );
+  }
+}
+
+class _SelectionActions extends StatelessWidget {
+  final int selectedCount;
+  final List<TrainingSpot> filtered;
+  final void Function(List<TrainingSpot> spots) onSelectAll;
+  final VoidCallback onClearSelection;
+  final VoidCallback onDeleteSelected;
+
+  const _SelectionActions({
+    required this.selectedCount,
+    required this.filtered,
+    required this.onSelectAll,
+    required this.onClearSelection,
+    required this.onDeleteSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            onPressed: () => onSelectAll(filtered),
+            child: const Text('Выделить все'),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: selectedCount == 0 ? null : onClearSelection,
+            child: const Text('Снять выделение'),
+          ),
+          const SizedBox(width: 8),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              ElevatedButton(
+                onPressed: selectedCount == 0 ? null : onDeleteSelected,
+                child: const Text('Удалить выбранные'),
+              ),
+              if (selectedCount > 0)
+                Positioned(
+                  right: -6,
+                  top: -6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$selectedCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
