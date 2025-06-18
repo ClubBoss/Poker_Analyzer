@@ -5,12 +5,30 @@ import '../helpers/pot_calculator.dart';
 import '../models/street_investments.dart';
 import '../helpers/stack_manager.dart';
 import '../widgets/street_actions_list.dart';
+import '../models/action_entry.dart';
+import '../services/user_preferences_service.dart';
+import 'package:provider/provider.dart';
 
 /// Displays actions for a [TrainingSpot] grouped by street in collapsible sections.
 class TrainingSpotAnalysisScreen extends StatelessWidget {
   final TrainingSpot spot;
 
   const TrainingSpotAnalysisScreen({super.key, required this.spot});
+
+  String _evaluateActionQuality(ActionEntry entry) {
+    switch (entry.action) {
+      case 'raise':
+      case 'bet':
+        return 'Лучшая линия';
+      case 'call':
+      case 'check':
+        return 'Нормальная линия';
+      case 'fold':
+        return 'Ошибка';
+      default:
+        return 'Нормальная линия';
+    }
+  }
 
   List<int> _computePots() {
     final investments = StreetInvestments();
@@ -38,6 +56,7 @@ class TrainingSpotAnalysisScreen extends StatelessWidget {
     final pots = _computePots();
     final stacks = _computeStacks();
     final positions = _posMap();
+    final prefs = context.watch<UserPreferencesService>();
     const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
 
     final tiles = <Widget>[];
@@ -65,6 +84,8 @@ class TrainingSpotAnalysisScreen extends StatelessWidget {
                 onEdit: (_, __) {},
                 onDelete: (_) {},
                 visibleCount: spot.actions.length,
+                evaluateActionQuality:
+                    prefs.coachMode ? _evaluateActionQuality : null,
               ),
             ),
           ],
