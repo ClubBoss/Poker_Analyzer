@@ -1,122 +1,106 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Simple screen showing mock training spots.
-class TrainingPacksScreen extends StatelessWidget {
-  TrainingPacksScreen({super.key});
+import '../models/training_pack.dart';
+import '../services/training_pack_storage_service.dart';
+import 'training_pack_screen.dart';
 
-  final List<Map<String, dynamic>> _spots = [
-    {
-      'title': 'AA против KK',
-      'description': 'Простой префлоп олл-ин',
-      'data': {
-        'heroIndex': 0,
-        'numberOfPlayers': 2,
-        'positions': ['BTN', 'BB'],
-        'playerCards': [
-          [
-            {'rank': 'A', 'suit': 's'},
-            {'rank': 'A', 'suit': 'd'}
-          ],
-          [
-            {'rank': 'K', 'suit': 'h'},
-            {'rank': 'K', 'suit': 'c'}
-          ]
-        ],
-        'boardCards': [],
-        'actions': [
-          {'street': 0, 'playerIndex': 0, 'action': 'push', 'amount': 20},
-          {'street': 0, 'playerIndex': 1, 'action': 'call', 'amount': 20},
-        ],
-      }
-    },
-    {
-      'title': 'Флоп Q72',
-      'description': 'C-бет в 3-бет поте',
-      'data': {
-        'heroIndex': 0,
-        'numberOfPlayers': 2,
-        'positions': ['BTN', 'BB'],
-        'playerCards': [
-          [
-            {'rank': 'A', 'suit': 's'},
-            {'rank': 'K', 'suit': 's'}
-          ],
-          [
-            {'rank': 'Q', 'suit': 'h'},
-            {'rank': 'Q', 'suit': 'd'}
-          ]
-        ],
-        'boardCards': [
-          {'rank': 'Q', 'suit': 's'},
-          {'rank': '7', 'suit': 'h'},
-          {'rank': '2', 'suit': 'd'}
-        ],
-        'actions': [
-          {'street': 0, 'playerIndex': 0, 'action': 'raise', 'amount': 3},
-          {'street': 0, 'playerIndex': 1, 'action': 'call', 'amount': 3},
-          {'street': 1, 'playerIndex': 0, 'action': 'bet', 'amount': 5},
-          {'street': 1, 'playerIndex': 1, 'action': 'fold'},
-        ],
-      }
-    },
-    {
-      'title': 'Лимпованный банк',
-      'description': 'Чек-рейз на флопе',
-      'data': {
-        'heroIndex': 1,
-        'numberOfPlayers': 3,
-        'positions': ['SB', 'BB', 'BTN'],
-        'playerCards': [
-          [
-            {'rank': '7', 'suit': 'c'},
-            {'rank': '8', 'suit': 'c'}
-          ],
-          [
-            {'rank': '9', 'suit': 'd'},
-            {'rank': '9', 'suit': 'h'}
-          ],
-          [
-            {'rank': 'A', 'suit': 's'},
-            {'rank': 'Q', 'suit': 's'}
-          ]
-        ],
-        'boardCards': [
-          {'rank': '7', 'suit': 'd'},
-          {'rank': '4', 'suit': 'c'},
-          {'rank': '2', 'suit': 'h'}
-        ],
-        'actions': [
-          {'street': 1, 'playerIndex': 0, 'action': 'bet', 'amount': 2},
-          {'street': 1, 'playerIndex': 1, 'action': 'raise', 'amount': 6},
-        ],
-      }
-    },
-  ];
+class TrainingPacksScreen extends StatefulWidget {
+  const TrainingPacksScreen({super.key});
+
+  @override
+  State<TrainingPacksScreen> createState() => _TrainingPacksScreenState();
+}
+
+class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
+  static const _hideKey = 'hide_completed_packs';
+
+  bool _hideCompleted = false;
+  SharedPreferences? _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _prefs = prefs;
+      _hideCompleted = prefs.getBool(_hideKey) ?? false;
+    });
+  }
+
+  Future<void> _toggleHideCompleted(bool value) async {
+    setState(() => _hideCompleted = value);
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    await prefs.setBool(_hideKey, value);
+  }
+
+  bool _isPackCompleted(TrainingPack pack) {
+    final progress = _prefs?.getInt('training_progress_${pack.name}') ?? 0;
+    return progress >= pack.hands.length;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final packs = context.watch<TrainingPackStorageService>().packs;
+
+    if (_prefs == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Тренировочные споты'),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final visible = _hideCompleted
+        ? [for (final p in packs) if (!_isPackCompleted(p)) p]
+        : packs;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Тренировочные споты'),
       ),
-      body: ListView.builder(
-        itemCount: _spots.length,
-        itemBuilder: (context, index) {
-          final spot = _spots[index];
-          return Card(
-            margin: const EdgeInsets.all(8),
-            child: ListTile(
-              title: Text(spot['title'] as String),
-              subtitle: Text(spot['description'] as String),
-              trailing: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, spot['data']);
-                },
-                child: const Text('Загрузить'),
-              ),
-            ),
-          );
-        },
+      body: Column(
+        children: [
+          SwitchListTile(
+            title: const Text('Скрыть завершённые'),
+            value: _hideCompleted,
+            onChanged: _toggleHideCompleted,
+            activeColor: Colors.orange,
+          ),
+          Expanded(
+            child: visible.isEmpty
+                ? const Center(child: Text('Нет доступных пакетов'))
+                : ListView.builder(
+                    itemCount: visible.length,
+                    itemBuilder: (context, index) {
+                      final pack = visible[index];
+                      final completed = _isPackCompleted(pack);
+                      return ListTile(
+                        title: Text(pack.name),
+                        subtitle: Text(pack.description),
+                        trailing: completed
+                            ? const Icon(Icons.check, color: Colors.green)
+                            : null,
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TrainingPackScreen(pack: pack),
+                            ),
+                          );
+                          setState(() {});
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
