@@ -1625,6 +1625,127 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
+  Future<void> _setCommentForFiltered(List<TrainingSpot> filtered) async {
+    final count = filtered.length;
+    if (count == 0) return;
+
+    final controller = TextEditingController();
+
+    final String? result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: Text(
+            'Комментарий для \$count спотов',
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: TextField(
+            controller: controller,
+            maxLines: null,
+            minLines: 3,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Комментарий',
+              labelStyle: TextStyle(color: Colors.white),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Сохранить'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == null) return;
+
+    setState(() {
+      for (final spot in filtered) {
+        final index = widget.spots.indexOf(spot);
+        if (index != -1) {
+          widget.spots[index] =
+              spot.copyWith(userComment: result.isEmpty ? null : result);
+        }
+      }
+    });
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Комментарий обновлен у \$count спотов')),
+    );
+  }
+
+  Future<void> _setActionHistoryForFiltered(List<TrainingSpot> filtered) async {
+    final count = filtered.length;
+    if (count == 0) return;
+
+    final controller = TextEditingController();
+
+    final String? result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: Text(
+            'История действий для \$count спотов',
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: TextField(
+                controller: controller,
+                maxLines: null,
+                minLines: 5,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'История действий',
+                  labelStyle: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Сохранить'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == null) return;
+
+    setState(() {
+      for (final spot in filtered) {
+        final index = widget.spots.indexOf(spot);
+        if (index != -1) {
+          widget.spots[index] =
+              spot.copyWith(actionHistory: result.isEmpty ? null : result);
+        }
+      }
+    });
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('История действий обновлена у \$count спотов')),
+    );
+  }
+
   Widget _buildRatingStars(TrainingSpot spot) {
     return Row(
       children: [
@@ -1914,6 +2035,26 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   disabled: !_hasActiveFilters || filtered.isEmpty,
                   onApply: () => _applyActiveFiltersToFiltered(filtered),
                   onDelete: () => _deleteFiltered(filtered),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: filtered.isEmpty
+                        ? null
+                        : () => _setCommentForFiltered(filtered),
+                    child: const Text('Редактировать комментарий для всех'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: filtered.isEmpty
+                        ? null
+                        : () => _setActionHistoryForFiltered(filtered),
+                    child: const Text('Редактировать действия для всех'),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Align(
