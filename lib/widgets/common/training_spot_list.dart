@@ -167,6 +167,15 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     return summary;
   }
 
+  bool get _hasActiveFilters {
+    return _searchController.text.trim().isNotEmpty ||
+        _selectedTags.isNotEmpty ||
+        _difficultyFilter != null ||
+        _ratingFilter != null ||
+        _icmOnly ||
+        _ratedOnly;
+  }
+
   Future<void> _loadPresets() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await _restoreOrderFromPrefs(prefs);
@@ -1185,8 +1194,18 @@ class TrainingSpotListState extends State<TrainingSpotList> {
           setState(() => _tagFiltersExpanded = !_tagFiltersExpanded);
           _savePresets();
         },
-        child: Text(
-          _tagFiltersExpanded ? 'Скрыть фильтры' : 'Показать фильтры',
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _tagFiltersExpanded ? 'Скрыть фильтры' : 'Показать фильтры',
+            ),
+            if (_hasActiveFilters)
+              const Padding(
+                padding: EdgeInsets.only(left: 4.0),
+                child: Icon(Icons.circle, size: 8, color: Colors.red),
+              ),
+          ],
         ),
       ),
     );
