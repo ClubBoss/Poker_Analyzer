@@ -1580,24 +1580,39 @@ class TrainingSpotListState extends State<TrainingSpotList>
             child: const Text('Импортировать пакет'),
           ),
         ),
-      ],
-          ),
-          if (_hasActiveFilters)
-            Positioned(
-              right: 16,
-              bottom: 16,
-              child: FloatingActionButton(
-                heroTag: 'clearFiltersFab',
-                onPressed: clearFilters,
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                elevation: 2,
-                tooltip: 'Сбросить фильтры',
-                child: const Icon(Icons.filter_alt_off),
-              ),
+        ],
             ),
+          SliverToBoxAdapter(
+            child: SizedBox(height: _hasActiveFilters ? 72 : 0),
+          ),
         ],
       ),
+      Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: AnimatedSlide(
+            offset: _hasActiveFilters ? Offset.zero : const Offset(0, 1),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: SafeArea(
+              top: false,
+              child: Container(
+                width: double.infinity,
+                color: AppColors.cardBackground,
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton(
+                  onPressed: clearFilters,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Сбросить фильтры'),
+                ),
+              ),
+            ),
+          ),
+        ),
     );
   }
 
