@@ -2,6 +2,7 @@
 
 import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:math';
 
 /// Checks if [address] is a valid Ethereum address in 0x-prefixed
 /// hexadecimal form.
@@ -27,6 +28,13 @@ String toChecksumAddress(String address) {
     buffer.write(hexDigit >= 8 ? char.toUpperCase() : char);
   }
   return buffer.toString();
+}
+
+/// Generates a random 20-byte Ethereum address in hex form.
+String generateRandomAddress() {
+  final rnd = Random.secure();
+  final bytes = List<int>.generate(20, (_) => rnd.nextInt(256));
+  return '0x${_bytesToHex(Uint8List.fromList(bytes))}';
 }
 
 String _bytesToHex(Uint8List bytes) {
