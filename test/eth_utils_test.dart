@@ -20,4 +20,12 @@ void main() {
       expect(toChecksumAddress(addr), '0xae2A9c9Ea2434a9b9B27D7522514129c218D09e8');
     });
   });
+
+  group('generateRandomAddress', () {
+    test('produces valid random address', () {
+      final addr = generateRandomAddress();
+      expect(isValidAddress(addr), isTrue);
+      expect(addr.length, 42);
+    });
+  });
 }
