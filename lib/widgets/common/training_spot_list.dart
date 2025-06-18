@@ -1852,6 +1852,47 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
+  Future<void> _createPackFromFiltered(List<TrainingSpot> filtered) async {
+    final count = filtered.length;
+    if (count == 0) return;
+
+    final controller = TextEditingController();
+    final String? name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        title: const Text(
+          'Название пакета',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Название',
+            labelStyle: TextStyle(color: Colors.white),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Создать'),
+          ),
+        ],
+      ),
+    );
+
+    if (name == null || name.isEmpty) return;
+
+    await _exportNamedPack(filtered, name);
+  }
+
   Widget _buildRatingStars(TrainingSpot spot) {
     return Row(
       children: [
@@ -2136,6 +2177,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   },
                 ),
                 _buildFilterSummary(),
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: filtered.isEmpty
+                        ? null
+                        : () => _createPackFromFiltered(filtered),
+                    child: const Text('Создать пакет из отфильтрованных'),
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -3799,6 +3850,22 @@ class TrainingSpotListState extends State<TrainingSpotList>
         '${dir.path}/training_spots_${DateTime.now().millisecondsSinceEpoch}.json');
     await file.writeAsString(jsonStr);
     await Share.shareXFiles([XFile(file.path)], text: 'training_spots.json');
+  }
+
+  Future<void> _exportNamedPack(List<TrainingSpot> spots, String name) async {
+    if (spots.isEmpty) return;
+    final encoder = JsonEncoder.withIndent('  ');
+    final jsonStr = encoder.convert([for (final s in spots) s.toJson()]);
+    final dir = await getTemporaryDirectory();
+    final safe = name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final file = File('${dir.path}/$safe.json');
+    await file.writeAsString(jsonStr);
+    await Share.shareXFiles([XFile(file.path)], text: '$safe.json');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Пакет "$name" создан, спотов: ${spots.length}')),
+      );
+    }
   }
 
   Future<void> _exportPackSummary(List<TrainingSpot> spots) async {
