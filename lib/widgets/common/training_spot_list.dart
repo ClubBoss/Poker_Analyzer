@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:csv/csv.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
@@ -1513,10 +1516,20 @@ class TrainingSpotListState extends State<TrainingSpotList>
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: ElevatedButton(
-                    onPressed:
-                        filtered.isEmpty ? null : () => _exportPack(filtered),
-                    child: const Text('Экспортировать пакет'),
+                  child: Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed:
+                            filtered.isEmpty ? null : () => _exportPack(filtered),
+                        child: const Text('Экспортировать пакет'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed:
+                            filtered.isEmpty ? null : () => _exportCsv(filtered),
+                        child: const Text('Скачать CSV'),
+                      ),
+                    ],
                   ),
                 ),
                 if (kDebugMode) ...[
@@ -1810,10 +1823,20 @@ class TrainingSpotListState extends State<TrainingSpotList>
         const SizedBox(height: 8),
         Align(
           alignment: Alignment.centerLeft,
-          child: ElevatedButton(
-            onPressed:
-                filtered.isEmpty ? null : () => _exportPack(filtered),
-            child: const Text('Экспортировать пакет'),
+          child: Row(
+            children: [
+              ElevatedButton(
+                onPressed:
+                    filtered.isEmpty ? null : () => _exportPack(filtered),
+                child: const Text('Экспортировать пакет'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed:
+                    filtered.isEmpty ? null : () => _exportCsv(filtered),
+                child: const Text('Скачать CSV'),
+              ),
+            ],
           ),
         ),
         if (kDebugMode) ...[
@@ -2354,6 +2377,49 @@ class TrainingSpotListState extends State<TrainingSpotList>
         '${dir.path}/spot_summary_${DateTime.now().millisecondsSinceEpoch}.txt');
     await file.writeAsString(buffer.toString());
     await Share.shareXFiles([XFile(file.path)], text: 'spot_summary.txt');
+  }
+
+  Future<void> _exportCsv(List<TrainingSpot> spots) async {
+    if (spots.isEmpty) return;
+
+    final rows = <List<dynamic>>[];
+    rows.add(['ID', 'Difficulty', 'Rating', 'Tags', 'Buy-in', 'ICM', 'Date']);
+    final today = DateTime.now();
+    final dateStr =
+        '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    for (final s in spots) {
+      rows.add([
+        s.tournamentId ?? '',
+        s.difficulty,
+        s.rating,
+        s.tags.join(';'),
+        s.buyIn ?? '',
+        s.tags.contains('ICM') ? '1' : '0',
+        dateStr,
+      ]);
+    }
+
+    final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
+    final bytes = Uint8List.fromList(utf8.encode(csvStr));
+    final name = 'training_spots_${DateTime.now().millisecondsSinceEpoch}';
+    try {
+      await FileSaver.instance.saveAs(
+        name: name,
+        bytes: bytes,
+        ext: 'csv',
+        mimeType: MimeType.csv,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Экспортировано ${spots.length} спотов в CSV')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
+      }
+    }
   }
 
   Future<void> _importFromFile(String path) async {
