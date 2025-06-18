@@ -1220,7 +1220,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   Widget _buildVisibleSummary(List<TrainingSpot> filtered) {
     return Text(
       'Показано: ${filtered.length} спотов из ${widget.spots.length}',
-      style: const TextStyle(color: Colors.white60),
+      style: const TextStyle(color: Colors.grey),
     );
   }
 
