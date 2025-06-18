@@ -943,6 +943,113 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
+  Future<void> _addTagsToFiltered(List<TrainingSpot> filtered) async {
+    final count = filtered.length;
+    if (count == 0) return;
+
+    final suggestions = <String>{
+      ...TrainingSpotListState._availableTags,
+      for (final list in TrainingSpotListState._tagPresets.values) ...list,
+      for (final list in _customTagPresets.values) ...list,
+      for (final s in widget.spots) ...s.tags,
+    }..removeWhere((e) => e.isEmpty);
+
+    final addTags = <String>{};
+    final controller = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          return AlertDialog(
+            backgroundColor: AppColors.cardBackground,
+            title: Text(
+              'Метки для $count спотов',
+              style: const TextStyle(color: Colors.white),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: controller,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Тег',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                    onSubmitted: (value) {
+                      final tag = value.trim();
+                      if (tag.isEmpty) return;
+                      setStateDialog(() {
+                        addTags.add(tag);
+                      });
+                      controller.clear();
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: [
+                      for (final tag in (suggestions.toList()..sort()))
+                        InputChip(
+                          label: Text(tag),
+                          onPressed: () {
+                            setStateDialog(() {
+                              addTags.add(tag);
+                            });
+                          },
+                        ),
+                      for (final tag in addTags.toList()..sort())
+                        Chip(
+                          label: Text(tag),
+                          onDeleted: () {
+                            setStateDialog(() {
+                              addTags.remove(tag);
+                            });
+                          },
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Отмена'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Добавить'),
+              ),
+            ],
+          );
+        });
+      },
+    );
+
+    if (confirmed != true || addTags.isEmpty) return;
+
+    setState(() {
+      for (final spot in filtered) {
+        final index = widget.spots.indexOf(spot);
+        if (index == -1) continue;
+        final tags = <String>{...spot.tags}..addAll(addTags);
+        final sorted = tags.toList()..sort();
+        widget.spots[index] = spot.copyWith(tags: sorted);
+      }
+    });
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Добавлено ${addTags.length} тегов к $count спотам')),
+    );
+  }
+
   Widget _buildRatingStars(TrainingSpot spot) {
     return Row(
       children: [
@@ -1232,6 +1339,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
                   disabled: !_hasActiveFilters || filtered.isEmpty,
                   onApply: () => _applyActiveFiltersToFiltered(filtered),
                   onDelete: () => _deleteFiltered(filtered),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: filtered.isEmpty
+                        ? null
+                        : () => _addTagsToFiltered(filtered),
+                    child: const Text('Добавить тег ко всем'),
+                  ),
                 ),
                 _buildIcmSwitch(),
                 _buildRatedSwitch(),
