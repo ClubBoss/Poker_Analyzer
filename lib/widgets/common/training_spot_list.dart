@@ -962,6 +962,15 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
+  Future<void> _exportSelected() async {
+    final spots = _selectedSpots.toList();
+    if (spots.isEmpty) return;
+    await _exportCsv(
+      spots,
+      successMessage: 'Экспортировано ${spots.length} выбранных спотов в CSV',
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1059,6 +1068,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     onSelectAll: _selectAllVisible,
                     onClearSelection: _clearSelection,
                     onDeleteSelected: _deleteSelected,
+                    onExportSelected: _exportSelected,
                     onEditTags: _editTagsForSelected,
                   ),
                   const SizedBox(height: 8),
@@ -2379,7 +2389,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     await Share.shareXFiles([XFile(file.path)], text: 'spot_summary.txt');
   }
 
-  Future<void> _exportCsv(List<TrainingSpot> spots) async {
+  Future<void> _exportCsv(List<TrainingSpot> spots,
+      {String? successMessage}) async {
     if (spots.isEmpty) return;
 
     final rows = <List<dynamic>>[];
@@ -2410,8 +2421,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
         mimeType: MimeType.csv,
       );
       if (mounted) {
+        final msg = successMessage ??
+            'Экспортировано ${spots.length} спотов в CSV';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Экспортировано ${spots.length} спотов в CSV')),
+          SnackBar(content: Text(msg)),
         );
       }
     } catch (_) {
@@ -3034,6 +3047,7 @@ class _SelectionActions extends StatelessWidget {
   final void Function(List<TrainingSpot> spots) onSelectAll;
   final VoidCallback onClearSelection;
   final VoidCallback onDeleteSelected;
+  final VoidCallback onExportSelected;
   final VoidCallback onEditTags;
 
   const _SelectionActions({
@@ -3042,6 +3056,7 @@ class _SelectionActions extends StatelessWidget {
     required this.onSelectAll,
     required this.onClearSelection,
     required this.onDeleteSelected,
+    required this.onExportSelected,
     required this.onEditTags,
   });
 
@@ -3089,6 +3104,11 @@ class _SelectionActions extends StatelessWidget {
                   ),
                 ),
             ],
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: selectedCount == 0 ? null : onExportSelected,
+            child: const Text('Экспортировать выбранные'),
           ),
           const SizedBox(width: 8),
           ElevatedButton.icon(
