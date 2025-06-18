@@ -1109,6 +1109,66 @@ class TrainingSpotListState extends State<TrainingSpotList>
     );
   }
 
+  Future<void> _setRatingForFiltered(List<TrainingSpot> filtered) async {
+    final count = filtered.length;
+    if (count == 0) return;
+
+    int selected = 3;
+    final int? result = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          return AlertDialog(
+            backgroundColor: AppColors.cardBackground,
+            title: Text(
+              'Рейтинг для \$count спотов',
+              style: const TextStyle(color: Colors.white),
+            ),
+            content: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (int i = 1; i <= 5; i++)
+                  IconButton(
+                    icon: Icon(
+                      i <= selected ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                    ),
+                    onPressed: () => setStateDialog(() => selected = i),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Отмена'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, selected),
+                child: const Text('Применить'),
+              ),
+            ],
+          );
+        });
+      },
+    );
+
+    if (result == null) return;
+
+    setState(() {
+      for (final spot in filtered) {
+        final index = widget.spots.indexOf(spot);
+        if (index != -1) {
+          widget.spots[index] = spot.copyWith(rating: result);
+        }
+      }
+    });
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Рейтинг \$result поставлен для \$count спотов')),
+    );
+  }
+
   Widget _buildRatingStars(TrainingSpot spot) {
     return Row(
       children: [
@@ -1417,6 +1477,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
                         ? null
                         : () => _setDifficultyForFiltered(filtered),
                     child: const Text('Выставить сложность'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: filtered.isEmpty
+                        ? null
+                        : () => _setRatingForFiltered(filtered),
+                    child: const Text('Поставить рейтинг'),
                   ),
                 ),
                 _buildIcmSwitch(),
