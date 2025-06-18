@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/eth_utils.dart';
-import '../screens/qr_code_scanner_screen.dart';
+import 'ethereum_address_qr_scanner.dart';
 
 /// Widget allowing input and validation of an Ethereum address.
 class EthereumAddressInput extends StatefulWidget {
@@ -19,7 +19,7 @@ class _EthereumAddressInputState extends State<EthereumAddressInput> {
 
   Future<void> _scanQr() async {
     final result = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => const QRCodeScannerScreen()),
+      MaterialPageRoute(builder: (_) => const EthereumAddressQRScanner()),
     );
     if (result != null) {
       final text = result.trim();
