@@ -82,6 +82,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   static const String _prefsSortKey = 'training_preset_sort';
   static const String _prefsIcmOnlyKey = 'training_preset_icm_only';
   static const String _prefsRatedOnlyKey = 'training_preset_rated_only';
+  static const String _prefsHideCompletedKey = 'training_hide_completed';
   static const String _prefsOrderKey = 'training_spots_order';
   static const String _prefsListVisibleKey = 'training_spot_list_visible';
   static const String _prefsDifficultyKey = 'training_preset_difficulties';
@@ -137,6 +138,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   List<TrainingSpot>? _originalOrder;
   bool _icmOnly = false;
   bool _ratedOnly = false;
+  bool _hideCompleted = false;
   bool _manualOrder = true;
   bool _listVisible = true;
   final Set<int> _difficultyFilters = {};
@@ -428,13 +430,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
       final matchesRating =
           _ratingFilters.isEmpty || _ratingFilters.contains(spot.rating);
       final matchesRated = !_ratedOnly || spot.userAction != null;
+      final matchesCompleted =
+          !_hideCompleted || spot.userAction == null || spot.correct == null;
       return
           matchesQuery &&
           matchesTags &&
           matchesIcm &&
           matchesDifficulty &&
           matchesRating &&
-          matchesRated;
+          matchesRated &&
+          matchesCompleted;
     }).toList();
   }
 
@@ -514,6 +519,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final String? listSortName = prefs.getString(_prefsListSortKey);
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
     final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
+    final bool hideCompleted = prefs.getBool(_prefsHideCompletedKey) ?? false;
     final List<String>? diffs = prefs.getStringList(_prefsDifficultyKey);
     final List<String>? ratings = prefs.getStringList(_prefsRatingsKey);
     final String? customJson = prefs.getString(_prefsCustomPresetsKey);
@@ -547,6 +553,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _listVisible = listVisible;
     _icmOnly = icmOnly;
     _ratedOnly = ratedOnly;
+    _hideCompleted = hideCompleted;
     _difficultyFilters
       ..clear()
       ..addAll(diffs == null
@@ -633,6 +640,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     await prefs.setBool(_prefsExpandedKey, _tagFiltersExpanded);
     await prefs.setBool(_prefsIcmOnlyKey, _icmOnly);
     await prefs.setBool(_prefsRatedOnlyKey, _ratedOnly);
+    await prefs.setBool(_prefsHideCompletedKey, _hideCompleted);
     await prefs.setBool(_prefsListVisibleKey, _listVisible);
     if (_difficultyFilters.isNotEmpty) {
       await prefs.setStringList(_prefsDifficultyKey,
@@ -2517,6 +2525,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 ),
                 const SizedBox(height: 8),
                 _buildVisibleSummary(filtered),
+                _buildHideCompletedSwitch(),
                 const SizedBox(height: 8),
                 _ApplyDifficultyDropdown(
                   onChanged: (value) {
@@ -3012,6 +3021,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
         ),
         const SizedBox(height: 8),
         _buildVisibleSummary(filtered),
+        _buildHideCompletedSwitch(),
         const SizedBox(height: 8),
         _ApplyDifficultyDropdown(
           onChanged: (value) {
@@ -3460,6 +3470,20 @@ class TrainingSpotListState extends State<TrainingSpotList>
       },
       title: const Text('Только с оценкой',
           style: TextStyle(color: Colors.white)),
+      activeColor: Colors.orange,
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
+  Widget _buildHideCompletedSwitch() {
+    return SwitchListTile(
+      value: _hideCompleted,
+      onChanged: (v) {
+        setState(() => _hideCompleted = v);
+        _savePresets();
+      },
+      title:
+          const Text('Скрыть завершённые', style: TextStyle(color: Colors.white)),
       activeColor: Colors.orange,
       contentPadding: EdgeInsets.zero,
     );
