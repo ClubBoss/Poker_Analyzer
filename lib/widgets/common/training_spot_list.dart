@@ -667,6 +667,72 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _saveOrderToPrefs();
   }
 
+  Future<void> _editTagsForSpot(TrainingSpot spot) async {
+    final Set<String> localTags = Set<String>.from(spot.tags);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: AppColors.cardBackground,
+              title: const Text(
+                'Редактировать теги',
+                style: TextStyle(color: Colors.white),
+              ),
+              content: SizedBox(
+                width: 300,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final tag in _availableTags)
+                      CheckboxListTile(
+                        value: localTags.contains(tag),
+                        title:
+                            Text(tag, style: const TextStyle(color: Colors.white)),
+                        onChanged: (v) {
+                          setStateDialog(() {
+                            if (v ?? false) {
+                              localTags.add(tag);
+                            } else {
+                              localTags.remove(tag);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Отмена'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Сохранить'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final index = widget.spots.indexOf(spot);
+    if (index == -1) return;
+    setState(() {
+      final sorted = localTags.toList()..sort();
+      widget.spots[index] = spot.copyWith(tags: sorted);
+    });
+    widget.onChanged?.call();
+    _saveOrderToPrefs();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Теги обновлены')));
+  }
+
   void _updateDifficulty(TrainingSpot spot, int value) {
     final index = widget.spots.indexOf(spot);
     if (index == -1) return;
@@ -1431,6 +1497,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                                 ),
                                               ),
                                               _buildRatingStars(spot),
+                                              IconButton(
+                                                icon: const Icon(Icons.label_outline,
+                                                    color: Colors.white70),
+                                                tooltip: 'Редактировать теги',
+                                                onPressed: () => _editTagsForSpot(spot),
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -1550,6 +1622,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                               ),
                                             ),
                                             _buildRatingStars(spot),
+                                            IconButton(
+                                              icon: const Icon(Icons.label_outline,
+                                                  color: Colors.white70),
+                                              tooltip: 'Редактировать теги',
+                                              onPressed: () => _editTagsForSpot(spot),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -1766,6 +1844,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
                               ),
                             ),
                             _buildRatingStars(spot),
+                            IconButton(
+                              icon: const Icon(Icons.label_outline,
+                                  color: Colors.white70),
+                              tooltip: 'Редактировать теги',
+                              onPressed: () => _editTagsForSpot(spot),
+                            ),
                           ],
                         ),
                       ),
@@ -1866,6 +1950,12 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                     ),
                                   ),
                                   _buildRatingStars(spot),
+                                  IconButton(
+                                    icon: const Icon(Icons.label_outline,
+                                        color: Colors.white70),
+                                    tooltip: 'Редактировать теги',
+                                    onPressed: () => _editTagsForSpot(spot),
+                                  ),
                                 ],
                               ),
                             ),
