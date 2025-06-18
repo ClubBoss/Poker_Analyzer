@@ -18,6 +18,7 @@ class TrainingSpot {
   final int? numberOfEntrants;
   final String? gameType;
   final List<String> tags;
+  final int difficulty;
 
   TrainingSpot({
     required this.playerCards,
@@ -34,6 +35,7 @@ class TrainingSpot {
     this.numberOfEntrants,
     this.gameType,
     List<String>? tags,
+    this.difficulty = 3,
   }) : tags = tags ?? [];
 
   factory TrainingSpot.fromSavedHand(SavedHand hand) {
@@ -63,6 +65,7 @@ class TrainingSpot {
       numberOfEntrants: hand.numberOfEntrants,
       gameType: hand.gameType,
       tags: List<String>.from(hand.tags),
+      difficulty: 3,
     );
   }
 
@@ -94,6 +97,7 @@ class TrainingSpot {
         if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
         if (gameType != null) 'gameType': gameType,
         if (tags.isNotEmpty) 'tags': tags,
+        'difficulty': difficulty,
       };
 
   factory TrainingSpot.fromJson(Map<String, dynamic> json) {
@@ -172,6 +176,27 @@ class TrainingSpot {
       numberOfEntrants: (json['numberOfEntrants'] as num?)?.toInt(),
       gameType: json['gameType'] as String?,
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
+      difficulty: (json['difficulty'] as num?)?.toInt() ?? 3,
+    );
+  }
+
+  TrainingSpot copyWith({int? difficulty, List<String>? tags}) {
+    return TrainingSpot(
+      playerCards: [for (final list in playerCards) List<CardModel>.from(list)],
+      boardCards: List<CardModel>.from(boardCards),
+      actions: List<ActionEntry>.from(actions),
+      heroIndex: heroIndex,
+      numberOfPlayers: numberOfPlayers,
+      playerTypes: List<PlayerType>.from(playerTypes),
+      positions: List<String>.from(positions),
+      stacks: List<int>.from(stacks),
+      tournamentId: tournamentId,
+      buyIn: buyIn,
+      totalPrizePool: totalPrizePool,
+      numberOfEntrants: numberOfEntrants,
+      gameType: gameType,
+      tags: tags ?? List<String>.from(this.tags),
+      difficulty: difficulty ?? this.difficulty,
     );
   }
 

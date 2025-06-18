@@ -64,6 +64,7 @@ class TrainingImportExportService {
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
       tags: const [],
+      difficulty: 3,
     );
   }
 
@@ -286,6 +287,7 @@ class TrainingImportExportService {
             totalPrizePool: intOrNull(map['totalPrizePool']),
             numberOfEntrants: intOrNull(map['numberOfEntrants']),
             gameType: strOrNull(map['gameType']),
+            difficulty: 3,
           ),
         );
       } catch (_) {
@@ -332,6 +334,7 @@ class TrainingImportExportService {
         totalPrizePool: intOrNull(map['totalPrizePool']),
         numberOfEntrants: intOrNull(map['numberOfEntrants']),
         gameType: strOrNull(map['gameType']),
+        difficulty: 3,
       );
     } catch (_) {
       return null;

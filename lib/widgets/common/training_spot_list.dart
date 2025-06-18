@@ -330,6 +330,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                         gameType: gameTypeController.text.trim().isEmpty
                             ? null
                             : gameTypeController.text.trim(),
+                        difficulty: spot.difficulty,
                         tags: localTags.toList(),
                       ),
                     );
@@ -429,6 +430,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                         totalPrizePool: spot.totalPrizePool,
                         numberOfEntrants: spot.numberOfEntrants,
                         gameType: spot.gameType,
+                        difficulty: spot.difficulty,
                         tags: localTags.toList(),
                       ),
                     );
@@ -489,6 +491,33 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     });
     widget.onChanged?.call();
     _saveOrderToPrefs();
+  }
+
+  void _updateDifficulty(TrainingSpot spot, int value) {
+    final index = widget.spots.indexOf(spot);
+    if (index == -1) return;
+    setState(() {
+      widget.spots[index] = spot.copyWith(difficulty: value);
+    });
+    widget.onChanged?.call();
+  }
+
+  Widget _buildRatingStars(TrainingSpot spot) {
+    return Row(
+      children: [
+        for (int i = 1; i <= 5; i++)
+          IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: Icon(
+              i <= spot.difficulty ? Icons.star : Icons.star_border,
+              color: Colors.amber,
+              size: 20,
+            ),
+            onPressed: () => _updateDifficulty(spot, i),
+          ),
+      ],
+    );
   }
 
   Future<void> _deleteSelected() async {
@@ -743,6 +772,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                                 ],
                               ),
                             ),
+                            _buildRatingStars(spot),
                           ],
                         ),
                       ),
@@ -832,6 +862,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                                       ],
                                     ),
                                   ),
+                                  _buildRatingStars(spot),
                                 ],
                               ),
                             ),
