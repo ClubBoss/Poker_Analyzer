@@ -1208,6 +1208,7 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
 
+  /// Reset all active filters and sorting options.
   void clearFilters() {
     setState(() {
       _searchController.clear();
