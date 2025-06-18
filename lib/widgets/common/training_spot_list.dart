@@ -2053,6 +2053,16 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 ),
                 _buildFilterSummary(),
                 const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: filtered.isEmpty
+                        ? null
+                        : () => _setDifficultyForFiltered(filtered),
+                    child: const Text('Выставить сложность'),
+                  ),
+                ),
+                const SizedBox(height: 4),
                 _BatchFilterActions(
                   disabled: !_hasActiveFilters || filtered.isEmpty,
                   onApply: () => _applyActiveFiltersToFiltered(filtered),
@@ -2086,16 +2096,6 @@ class TrainingSpotListState extends State<TrainingSpotList>
                         ? null
                         : () => _addTagsToFiltered(filtered),
                     child: const Text('Добавить тег ко всем'),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: ElevatedButton(
-                    onPressed: filtered.isEmpty
-                        ? null
-                        : () => _setDifficultyForFiltered(filtered),
-                    child: const Text('Выставить сложность'),
                   ),
                 ),
                 const SizedBox(height: 8),
