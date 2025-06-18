@@ -7,7 +7,6 @@ import 'all_sessions_screen.dart';
 import 'training_history_screen.dart';
 import 'player_zone_demo_screen.dart';
 import 'settings_screen.dart';
-import 'ethereum_tools_screen.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
@@ -94,13 +93,6 @@ class MainMenuScreen extends StatelessWidget {
                 );
               },
               child: const Text('⚙️ Settings'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, EthereumToolsScreen.routeName);
-              },
-              child: const Text('✨ Ethereum'),
             ),
           ],
         ),
