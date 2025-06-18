@@ -740,21 +740,20 @@ class TrainingSpotListState extends State<TrainingSpotList> {
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final spot = filtered[index];
-                      return Container(
+                      return ReorderableDelayedDragStartListener(
                         key: ValueKey(spot),
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.cardBackground,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ReorderableDragStartListener(
-                              index: index,
-                              child: const Icon(Icons.drag_handle, color: Colors.white70),
-                            ),
+                        index: index,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardBackground,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.drag_handle, color: Colors.white70),
                               const SizedBox(width: 8),
                               Checkbox(
                                 value: _selectedSpots.contains(spot),
