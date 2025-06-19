@@ -8,12 +8,14 @@ class TrainingDetailScreen extends StatelessWidget {
   final TrainingResult result;
   final Future<void> Function() onDelete;
   final Future<void> Function(BuildContext) onEditTags;
+  final Future<void> Function(BuildContext) onEditAccuracy;
 
   const TrainingDetailScreen({
     super.key,
     required this.result,
     required this.onDelete,
     required this.onEditTags,
+    required this.onEditAccuracy,
   });
 
   Future<void> _confirmDelete(BuildContext context) async {
@@ -111,6 +113,15 @@ class TrainingDetailScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () async {
+                await onEditAccuracy(context);
+                // ignore: use_build_context_synchronously
+                Navigator.pop(context);
+              },
+              child: const Text('Edit Accuracy'),
             ),
           ],
         ),

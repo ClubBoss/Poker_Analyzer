@@ -14,6 +14,7 @@ import 'training_detail_screen.dart';
 
 import '../models/training_result.dart';
 import '../helpers/date_utils.dart';
+import '../helpers/accuracy_utils.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
   const TrainingHistoryScreen({super.key});
@@ -338,6 +339,86 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _editSessionAccuracy(
+      BuildContext ctx, TrainingResult session) async {
+    final correctController =
+        TextEditingController(text: session.correct.toString());
+    final totalController =
+        TextEditingController(text: session.total.toString());
+    List<int>? updated = await showDialog<List<int>>(
+      context: ctx,
+      builder: (context) {
+        int? correct = session.correct;
+        int? total = session.total;
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text(
+            'Edit Accuracy',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: correctController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Correct'),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (v) {
+                      setStateDialog(() => correct = int.tryParse(v));
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: totalController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Total'),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (v) {
+                      setStateDialog(() => total = int.tryParse(v));
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: correct != null && total != null && total! > 0
+                  ? () => Navigator.pop(context, [correct!, total!])
+                  : null,
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (updated != null) {
+      final index = _history.indexOf(session);
+      if (index != -1) {
+        final correct = updated[0];
+        final total = updated[1];
+        final newAccuracy = calculateAccuracy(correct, total);
+        setState(() {
+          _history[index] = TrainingResult(
+            date: session.date,
+            total: total,
+            correct: correct,
+            accuracy: newAccuracy,
+            tags: session.tags,
+          );
+        });
+        await _saveHistory();
+      }
+    }
+  }
+
   Future<void> _deleteSession(TrainingResult session) async {
     setState(() {
       _history.remove(session);
@@ -356,6 +437,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           },
           onEditTags: (ctx) async {
             await _editSessionTags(ctx, session);
+          },
+          onEditAccuracy: (ctx) async {
+            await _editSessionAccuracy(ctx, session);
           },
         ),
       ),
