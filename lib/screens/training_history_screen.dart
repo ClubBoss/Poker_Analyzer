@@ -10,6 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
 import '../widgets/common/history_list_item.dart';
+import 'training_detail_screen.dart';
 
 import '../models/training_result.dart';
 import '../helpers/date_utils.dart';
@@ -268,11 +269,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
-  Future<void> _editSessionTags(TrainingResult session) async {
+  Future<void> _editSessionTags(BuildContext ctx, TrainingResult session) async {
     final tags = {for (final r in _history) ...r.tags};
     final local = Set<String>.from(session.tags);
     final updated = await showDialog<Set<String>>(
-      context: context,
+      context: ctx,
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.cardBackground,
@@ -342,6 +343,23 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _history.remove(session);
     });
     await _saveHistory();
+  }
+
+  void _openSessionDetail(TrainingResult session) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingDetailScreen(
+          result: session,
+          onDelete: () async {
+            await _deleteSession(session);
+          },
+          onEditTags: (ctx) async {
+            await _editSessionTags(ctx, session);
+          },
+        ),
+      ),
+    );
   }
 
 
@@ -570,7 +588,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           onDismissed: (_) => _deleteSession(result),
                           child: HistoryListItem(
                             result: result,
-                            onLongPress: () => _editSessionTags(result),
+                            onLongPress: () => _editSessionTags(context, result),
+                            onTap: () => _openSessionDetail(result),
                           ),
                         );
                       },

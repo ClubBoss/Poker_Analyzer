@@ -6,8 +6,14 @@ import '../../theme/app_colors.dart';
 class HistoryListItem extends StatelessWidget {
   final TrainingResult result;
   final VoidCallback? onLongPress;
+  final VoidCallback? onTap;
 
-  const HistoryListItem({super.key, required this.result, this.onLongPress});
+  const HistoryListItem({
+    super.key,
+    required this.result,
+    this.onLongPress,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +37,7 @@ class HistoryListItem extends StatelessWidget {
           style: const TextStyle(color: Colors.greenAccent),
         ),
         onLongPress: onLongPress,
+        onTap: onTap,
       ),
     );
   }
