@@ -775,6 +775,36 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ],
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Builder(
+                    builder: (context) {
+                      final filtered = _getFilteredHistory();
+                      final totalSessions = filtered.length;
+                      final totalCorrect =
+                          filtered.fold<int>(0, (sum, r) => sum + r.correct);
+                      final avg = _calculateAverageAccuracy(filtered);
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.cardBackground,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text('Сессии: $totalSessions',
+                                style: const TextStyle(color: Colors.white)),
+                            Text('Верно: $totalCorrect',
+                                style: const TextStyle(color: Colors.white)),
+                            Text('Средняя: ${avg.toStringAsFixed(1)}%',
+                                style: const TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 Expanded(
                   child: Builder(builder: (context) {
                     final filtered = _getFilteredHistory();
