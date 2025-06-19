@@ -312,6 +312,47 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _exportJson() async {
+    if (_history.isEmpty) return;
+    final sessions = [
+      for (final r in _history)
+        TrainingSession(
+          date: r.date,
+          total: r.total,
+          correct: r.correct,
+          accuracy: r.accuracy,
+          tags: r.tags,
+          notes: r.notes,
+        )
+    ];
+    final encoder = JsonEncoder.withIndent('  ');
+    final bytes = Uint8List.fromList(
+      utf8.encode(encoder.convert([for (final s in sessions) s.toJson()])),
+    );
+    final name = 'training_history_' +
+        DateTime.now().millisecondsSinceEpoch.toString();
+    try {
+      await FileSaver.instance.saveAs(
+        name: name,
+        bytes: bytes,
+        ext: 'json',
+        mimeType: MimeType.other,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Экспортировано ' +
+              sessions.length.toString() + ' сессий в JSON')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
+                const SnackBar(content: Text('Ошибка экспорта JSON')));
+      }
+    }
+  }
+
   Future<void> _exportChartCsv() async {
     final filtered = _getFilteredHistory();
     final grouped = _groupSessionsForChart(filtered);
@@ -1703,6 +1744,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         onPressed:
                             _getFilteredHistory().isEmpty ? null : _exportHtml,
                         child: const Text('Экспорт в HTML'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _history.isEmpty ? null : _exportJson,
+                        child: const Text('Экспорт JSON'),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
