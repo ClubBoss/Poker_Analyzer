@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
+import 'package:file_saver/file_saver.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
@@ -165,6 +167,43 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.csv');
     await file.writeAsString(csvStr, encoding: utf8);
     await Share.shareXFiles([XFile(file.path)], text: 'training_history.csv');
+  }
+
+  Future<void> _exportMarkdown() async {
+    final sessions = _getFilteredHistory();
+    if (sessions.isEmpty) return;
+    final buffer = StringBuffer();
+    for (final r in sessions) {
+      final tags = r.tags.join(', ');
+      final notes = r.notes ?? '';
+      buffer.writeln('### ${formatDateTime(r.date)}');
+      buffer.writeln('- Accuracy: ${r.accuracy.toStringAsFixed(1)}%');
+      if (tags.isNotEmpty) buffer.writeln('- Tags: $tags');
+      if (notes.isNotEmpty) buffer.writeln('- Notes: $notes');
+      buffer.writeln();
+    }
+    final bytes = Uint8List.fromList(utf8.encode(buffer.toString()));
+    final name = 'training_history_${DateTime.now().millisecondsSinceEpoch}';
+    try {
+      await FileSaver.instance.saveAs(
+        name: name,
+        bytes: bytes,
+        ext: 'md',
+        mimeType: MimeType.other,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Экспортировано ${sessions.length} сессий в MD')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта MD')));
+      }
+    }
   }
 
   Future<void> _exportChartCsv() async {
@@ -387,7 +426,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       final total = sessions.fold<int>(0, (p, e) => p + e.total);
       final correct = sessions.fold<int>(0, (p, e) => p + e.correct);
       final accuracy = total == 0 ? 0.0 : correct * 100 / total;
-      result.add(TrainingResult(date: k, total: total, correct: correct, accuracy: accuracy));
+      result.add(TrainingResult(
+        date: k,
+        total: total,
+        correct: correct,
+        accuracy: accuracy,
+        tags: const [],
+      ));
     }
     return result;
   }
@@ -515,6 +560,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             correct: session.correct,
             accuracy: session.accuracy,
             tags: updated.toList(),
+            notes: session.notes,
           );
         });
         await _saveHistory();
@@ -595,6 +641,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             correct: correct,
             accuracy: newAccuracy,
             tags: session.tags,
+            notes: session.notes,
           );
         });
         await _saveHistory();
@@ -957,13 +1004,22 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed:
-                          _getFilteredHistory().isEmpty ? null : _exportCsv,
-                      child: const Text('Экспорт в CSV'),
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed:
+                            _getFilteredHistory().isEmpty ? null : _exportCsv,
+                        child: const Text('Экспорт в CSV'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _getFilteredHistory().isEmpty
+                            ? null
+                            : _exportMarkdown,
+                        child: const Text('Экспорт в MD'),
+                      ),
+                    ],
                   ),
                 ),
                 Padding(

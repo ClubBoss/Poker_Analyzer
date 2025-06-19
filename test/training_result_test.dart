@@ -9,6 +9,7 @@ void main() {
       correct: 8,
       accuracy: 80,
       tags: const ['tag1', 'tag2'],
+      notes: 'Some notes',
     );
     final json = result.toJson();
     final copy = TrainingResult.fromJson(json);
@@ -17,5 +18,6 @@ void main() {
     expect(copy.correct, result.correct);
     expect(copy.accuracy, result.accuracy);
     expect(copy.tags, result.tags);
+    expect(copy.notes, result.notes);
   });
 }

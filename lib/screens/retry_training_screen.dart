@@ -35,6 +35,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
       correct: _correctCount,
       accuracy: accuracy,
       tags: const [],
+      notes: null,
     );
     final prefs = await SharedPreferences.getInstance();
     final history = prefs.getStringList('training_history') ?? [];
