@@ -7,7 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/action_evaluation_request.dart';
@@ -124,7 +124,7 @@ class BackupManagerService {
             content: Text('Файл сохранён: $fileName'),
             action: SnackBarAction(
               label: 'Открыть',
-              onPressed: () => OpenFile.open(file.path),
+              onPressed: () => OpenFilex.open(file.path),
             ),
           ),
         );

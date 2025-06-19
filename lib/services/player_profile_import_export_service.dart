@@ -5,7 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 
 import 'player_profile_service.dart';
 import '../models/player_model.dart';
@@ -132,7 +132,7 @@ class PlayerProfileImportExportService {
             content: Text('File saved: $displayName'),
             action: SnackBarAction(
               label: 'Open',
-              onPressed: () => OpenFile.open(file.path),
+              onPressed: () => OpenFilex.open(file.path),
             ),
           ),
         );

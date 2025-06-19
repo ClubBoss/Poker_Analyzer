@@ -5,7 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 
 import '../models/action_entry.dart';
 import '../models/player_model.dart';
@@ -473,7 +473,7 @@ class TrainingImportExportService {
             content: Text('Файл сохранён: $displayName'),
             action: SnackBarAction(
               label: 'Открыть',
-              onPressed: () => OpenFile.open(file.path),
+              onPressed: () => OpenFilex.open(file.path),
             ),
           ),
         );

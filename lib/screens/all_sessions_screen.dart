@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -320,7 +320,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
-              OpenFile.open(file.path);
+              OpenFilex.open(file.path);
             },
           ),
         ),
@@ -364,7 +364,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
-              OpenFile.open(file.path);
+              OpenFilex.open(file.path);
             },
           ),
         ),
@@ -603,7 +603,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
-              OpenFile.open(file.path);
+              OpenFilex.open(file.path);
             },
           ),
         ),
