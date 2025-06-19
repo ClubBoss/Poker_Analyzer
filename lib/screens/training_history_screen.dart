@@ -770,6 +770,38 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             ),
         ],
       ),
+      );
+  }
+
+  Widget _buildQuickLengthRow() {
+    const items = {
+      _SessionLengthFilter.any: 'Все',
+      _SessionLengthFilter.oneToFive: '1–5',
+      _SessionLengthFilter.sixToTen: '6–10',
+      _SessionLengthFilter.elevenPlus: '11+',
+    };
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          for (final entry in items.entries)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(entry.value),
+                selected: _lengthFilter == entry.key,
+                onSelected: (selected) async {
+                  if (!selected) return;
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setInt(_lengthKey, entry.key.index);
+                  setState(() => _lengthFilter = entry.key);
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -1622,6 +1654,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           ),
                         );
                 }),
+                _buildQuickLengthRow(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
