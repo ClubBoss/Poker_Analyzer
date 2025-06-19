@@ -256,6 +256,61 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _exportHtml() async {
+    final sessions = _getFilteredHistory();
+    if (sessions.isEmpty) return;
+    const htmlEscape = HtmlEscape();
+    final buffer = StringBuffer();
+    buffer.writeln('<!DOCTYPE html>');
+    buffer.writeln(
+        '<html><head><meta charset="utf-8"><title>Training History</title></head><body>');
+    final filters = _buildExportFilterLines();
+    if (filters.isNotEmpty) {
+      buffer.writeln('<h2>Filters</h2><ul>');
+      for (final line in filters) {
+        buffer.writeln('<li>${htmlEscape.convert(line)}</li>');
+      }
+      buffer.writeln('</ul>');
+    }
+    for (final r in sessions) {
+      final tags = r.tags.join(', ');
+      final notes = r.notes ?? '';
+      buffer.writeln('<h3>${formatDateTime(r.date)}</h3>');
+      buffer.writeln('<ul>');
+      buffer.writeln('<li>Accuracy: ${r.accuracy.toStringAsFixed(1)}%</li>');
+      if (tags.isNotEmpty) {
+        buffer.writeln('<li>Tags: ${htmlEscape.convert(tags)}</li>');
+      }
+      if (notes.isNotEmpty) {
+        buffer.writeln('<li>Notes: ${htmlEscape.convert(notes)}</li>');
+      }
+      buffer.writeln('</ul>');
+    }
+    buffer.writeln('</body></html>');
+    final bytes = Uint8List.fromList(utf8.encode(buffer.toString()));
+    final name = 'training_history_${DateTime.now().millisecondsSinceEpoch}';
+    try {
+      await FileSaver.instance.saveAs(
+        name: name,
+        bytes: bytes,
+        ext: 'html',
+        mimeType: MimeType.other,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Экспортировано ${sessions.length} сессий в HTML')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта HTML')));
+      }
+    }
+  }
+
   Future<void> _exportChartCsv() async {
     final filtered = _getFilteredHistory();
     final grouped = _groupSessionsForChart(filtered);
@@ -1650,6 +1705,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                             ? null
                             : _exportMarkdown,
                         child: const Text('Экспорт в MD'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed:
+                            _getFilteredHistory().isEmpty ? null : _exportHtml,
+                        child: const Text('Экспорт в HTML'),
                       ),
                     ],
                   ),
