@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
@@ -558,6 +559,56 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
 
     await Share.shareXFiles([XFile(file.path)]);
+  }
+
+  Future<void> _openLatestExport() async {
+    if (_lastCsvPath == null && _lastPdfPath == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет экспортированных файлов')),
+        );
+      }
+      return;
+    }
+
+    String? selectedPath;
+    if (_lastCsvPath != null && _lastPdfPath != null) {
+      selectedPath = await showModalBottomSheet<String>(
+        context: context,
+        builder: (context) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.table_chart),
+                title: const Text('Последний CSV'),
+                onTap: () => Navigator.pop(context, _lastCsvPath),
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf),
+                title: const Text('Последний PDF'),
+                onTap: () => Navigator.pop(context, _lastPdfPath),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      selectedPath = _lastCsvPath ?? _lastPdfPath;
+    }
+
+    if (selectedPath == null) return;
+    final file = File(selectedPath);
+    if (!await file.exists()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Файл не найден')),
+        );
+      }
+      return;
+    }
+
+    await OpenFilex.open(file.path);
   }
 
   Future<void> _importJson() async {
@@ -2530,12 +2581,19 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: _shareLatestExport,
-                    child: const Text('Поделиться'),
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _openLatestExport,
+                      child: const Text('Открыть'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _shareLatestExport,
+                      child: const Text('Поделиться'),
+                    ),
+                  ],
                 ),
               ),
               ],
