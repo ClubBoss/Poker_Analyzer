@@ -211,6 +211,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showCenterChip = false;
   Timer? _centerChipTimer;
   late AnimationController _centerChipController;
+  late AnimationController _potGrowthController;
+  late Animation<double> _potGrowthAnimation;
   late TransitionLockService lockService;
   final GlobalKey<_BoardCardsSectionState> _boardKey =
       GlobalKey<_BoardCardsSectionState>();
@@ -376,7 +378,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         amount: entry.amount!,
         color: color,
         scale: scale,
-        onCompleted: () => overlayEntry.remove(),
+        onCompleted: () {
+          overlayEntry.remove();
+          _potGrowthController.forward(from: 0);
+        },
       ),
     );
     overlay.insert(overlayEntry);
@@ -714,6 +719,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       vsync: this,
       duration: _boardRevealDuration,
     );
+    _potGrowthController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _potGrowthAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _potGrowthController, curve: Curves.easeOutCubic),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _potGrowthController.reverse();
+        }
+      });
     _timelineController = ScrollController();
 
     _serviceRegistry.register<PlayerManagerService>(widget.playerManager);
@@ -1867,6 +1883,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _centerChipTimer?.cancel();
     _processingService.cleanup();
     _centerChipController.dispose();
+    _potGrowthController.dispose();
     _timelineController.dispose();
     _handContext.dispose();
     super.dispose();
@@ -1996,6 +2013,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     centerChipAction: _centerChipAction,
                     showCenterChip: _showCenterChip,
                     centerChipController: _centerChipController,
+                    potGrowth: _potGrowthAnimation,
                     actionColor: ActionFormattingHelper.actionColor,
                   ),
                   _ActionHistorySection(
@@ -2924,6 +2942,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
   final ActionEntry? centerChipAction;
   final bool showCenterChip;
   final Animation<double> centerChipController;
+  final Animation<double> potGrowth;
   final Color Function(String) actionColor;
 
   const _PotAndBetsOverlaySection({
@@ -2937,6 +2956,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.centerChipAction,
     required this.showCenterChip,
     required this.centerChipController,
+    required this.potGrowth,
     required this.actionColor,
   });
 
@@ -2964,9 +2984,12 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
               alignment: const Alignment(0, -0.05),
               child: Transform.translate(
                 offset: Offset(0, -12 * scale),
-                child: CentralPotChips(
-                  amount: pot,
-                  scale: scale,
+                child: ScaleTransition(
+                  scale: potGrowth,
+                  child: CentralPotChips(
+                    amount: pot,
+                    scale: scale,
+                  ),
                 ),
               ),
             ),
@@ -2978,9 +3001,12 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
           child: IgnorePointer(
             child: Align(
               alignment: Alignment.center,
-              child: PotDisplayWidget(
-                amount: pot,
-                scale: scale,
+              child: ScaleTransition(
+                scale: potGrowth,
+                child: PotDisplayWidget(
+                  amount: pot,
+                  scale: scale,
+                ),
               ),
             ),
           ),
