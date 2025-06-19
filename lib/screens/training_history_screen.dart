@@ -11,6 +11,7 @@ import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:provider/provider.dart';
 import '../services/tag_service.dart';
+import '../helpers/color_utils.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
@@ -464,8 +465,21 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     for (final tag in tags)
                       CheckboxListTile(
                         value: local.contains(tag),
-                        title: Text(tag,
-                            style: const TextStyle(color: Colors.white)),
+                        title: Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                  color: colorFromHex(
+                                      context.read<TagService>().colorOf(tag)),
+                                  shape: BoxShape.circle),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(tag,
+                                style: const TextStyle(color: Colors.white)),
+                          ],
+                        ),
                         onChanged: (checked) {
                           setStateDialog(() {
                             if (checked ?? false) {
@@ -536,9 +550,23 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                             for (final tag in local)
                               ListTile(
                                 key: ValueKey(tag),
-                                title: Text(tag,
-                                    style:
-                                        const TextStyle(color: Colors.white)),
+                                title: Row(
+                                  children: [
+                                    Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: BoxDecoration(
+                                        color: colorFromHex(context
+                                            .read<TagService>()
+                                            .colorOf(tag)),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(tag,
+                                        style: const TextStyle(color: Colors.white)),
+                                  ],
+                                ),
                               ),
                           ],
                         ),
@@ -550,8 +578,24 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           for (final tag in tags)
                             CheckboxListTile(
                               value: local.contains(tag),
-                              title: Text(tag,
-                                  style: const TextStyle(color: Colors.white)),
+                              title: Row(
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: colorFromHex(context
+                                          .read<TagService>()
+                                          .colorOf(tag)),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(tag,
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                ],
+                              ),
                               onChanged: (checked) {
                                 setStateDialog(() {
                                   if (checked ?? false) {
@@ -972,6 +1016,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                   child: FilterChip(
                                     label: Text(tag),
                                     selected: true,
+                                    backgroundColor: colorFromHex(
+                                        context.read<TagService>().colorOf(tag)),
                                     onSelected: (selected) async {
                                       final prefs = await SharedPreferences
                                           .getInstance();

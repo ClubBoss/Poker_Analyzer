@@ -5,43 +5,92 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../helpers/color_utils.dart';
 
 class TagService extends ChangeNotifier {
   static const _prefsKey = 'global_tags';
+  static const _defaultColor = '#2196F3';
 
   List<String> _tags = [];
+  final Map<String, String> _colors = {};
 
   List<String> get tags => List.unmodifiable(_tags);
+  String colorOf(String tag) => _colors[tag] ?? _defaultColor;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
-    _tags = prefs.getStringList(_prefsKey) ?? [];
+    final stored = prefs.getString(_prefsKey);
+    if (stored != null) {
+      try {
+        final list = jsonDecode(stored) as List;
+        _tags.clear();
+        _colors.clear();
+        for (final item in list) {
+          if (item is Map) {
+            final name = item['name']?.toString();
+            if (name != null) {
+              _tags.add(name);
+              _colors[name] = item['color']?.toString() ?? _defaultColor;
+            }
+          } else {
+            final name = item.toString();
+            _tags.add(name);
+            _colors[name] = _defaultColor;
+          }
+        }
+      } catch (_) {
+        _tags = [];
+        _colors.clear();
+      }
+    } else {
+      _tags = prefs.getStringList(_prefsKey) ?? [];
+      _colors
+        ..clear()
+        ..addEntries(_tags.map((t) => MapEntry(t, _defaultColor)));
+    }
     notifyListeners();
   }
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_prefsKey, _tags);
+    final data = [
+      for (final name in _tags)
+        {'name': name, 'color': _colors[name] ?? _defaultColor}
+    ];
+    await prefs.setString(_prefsKey, jsonEncode(data));
   }
 
-  Future<void> addTag(String tag) async {
+  Future<void> addTag(String tag, {String color = _defaultColor}) async {
     if (_tags.contains(tag)) return;
     _tags.add(tag);
+    _colors[tag] = color;
     await _save();
     notifyListeners();
   }
 
-  Future<void> renameTag(int index, String newTag) async {
+  Future<void> renameTag(int index, String newTag,
+      {String? color}) async {
     if (index < 0 || index >= _tags.length) return;
-    if (_tags.contains(newTag)) return;
+    final old = _tags[index];
+    if (newTag != old && _tags.contains(newTag)) return;
     _tags[index] = newTag;
+    final oldColor = _colors.remove(old) ?? _defaultColor;
+    _colors[newTag] = color ?? oldColor;
     await _save();
     notifyListeners();
   }
 
   Future<void> deleteTag(int index) async {
     if (index < 0 || index >= _tags.length) return;
-    _tags.removeAt(index);
+    final removed = _tags.removeAt(index);
+    _colors.remove(removed);
+    await _save();
+    notifyListeners();
+  }
+
+  Future<void> setColor(String tag, String color) async {
+    if (!_colors.containsKey(tag)) return;
+    _colors[tag] = color;
     await _save();
     notifyListeners();
   }
@@ -57,7 +106,11 @@ class TagService extends ChangeNotifier {
   Future<void> exportToFile(BuildContext context) async {
     try {
       final encoder = JsonEncoder.withIndent('  ');
-      final jsonStr = encoder.convert(_tags);
+      final data = [
+        for (final name in _tags)
+          {'name': name, 'color': _colors[name] ?? _defaultColor}
+      ];
+      final jsonStr = encoder.convert(data);
       final fileName =
           'tags_${DateTime.now().millisecondsSinceEpoch}.json';
       final savePath = await FilePicker.platform.saveFile(
@@ -114,7 +167,21 @@ class TagService extends ChangeNotifier {
         ),
       );
       if (confirm != true) return;
-      _tags = decoded.map((e) => e.toString()).toSet().toList();
+      _tags.clear();
+      _colors.clear();
+      for (final item in decoded) {
+        if (item is Map) {
+          final name = item['name']?.toString();
+          if (name != null) {
+            _tags.add(name);
+            _colors[name] = item['color']?.toString() ?? _defaultColor;
+          }
+        } else {
+          final name = item.toString();
+          _tags.add(name);
+          _colors[name] = _defaultColor;
+        }
+      }
       await _save();
       notifyListeners();
       if (context.mounted) {

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../models/training_result.dart';
 import '../../helpers/date_utils.dart';
 import '../../theme/app_colors.dart';
+import '../../services/tag_service.dart';
+import '../../helpers/color_utils.dart';
+import 'package:provider/provider.dart';
 
 class HistoryListItem extends StatelessWidget {
   final TrainingResult result;
@@ -44,7 +47,16 @@ class HistoryListItem extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 4),
                 child: Wrap(
                   spacing: 4,
-                  children: [for (final t in tags) Chip(label: Text(t))],
+                  children: [
+                    for (final t in tags)
+                      Consumer<TagService>(
+                        builder: (context, service, _) => Chip(
+                          label: Text(t),
+                          backgroundColor:
+                              colorFromHex(service.colorOf(t)),
+                        ),
+                      )
+                  ],
                 ),
               ),
             if (notes != null && notes.isNotEmpty)
