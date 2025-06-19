@@ -16,6 +16,7 @@ import '../helpers/color_utils.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
 import '../widgets/common/average_accuracy_chart.dart';
+import '../widgets/common/accuracy_trend_chart.dart';
 import '../widgets/common/history_list_item.dart';
 import '../widgets/common/session_accuracy_bar_chart.dart';
 import '../widgets/common/accuracy_distribution_chart.dart';
@@ -54,6 +55,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _showChartsKey = 'training_history_show_charts';
   static const _showAvgChartKey = 'training_history_show_chart';
   static const _showDistributionKey = 'training_history_show_distribution';
+  static const _showTrendChartKey = 'training_history_show_trend_chart';
   static const _dateFromKey = 'training_history_date_from';
   static const _dateToKey = 'training_history_date_to';
   static const _chartModeKey = 'training_history_chart_mode';
@@ -74,6 +76,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   bool _showCharts = true;
   bool _showAvgChart = true;
   bool _showDistribution = true;
+  bool _showTrendChart = true;
   bool _hideEmptyTags = false;
   bool _sortByTag = false;
   _ChartMode _chartMode = _ChartMode.daily;
@@ -100,6 +103,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final showCharts = prefs.getBool(_showChartsKey);
     final showAvgChart = prefs.getBool(_showAvgChartKey);
     final showDistribution = prefs.getBool(_showDistributionKey);
+    final showTrendChart = prefs.getBool(_showTrendChartKey);
     final hideEmptyTags = prefs.getBool(_hideEmptyTagsKey) ?? false;
     final sortByTag = prefs.getBool(_sortByTagKey) ?? false;
     final chartModeIndex = prefs.getInt(_chartModeKey) ?? 0;
@@ -117,6 +121,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _showCharts = showCharts ?? true;
       _showAvgChart = showAvgChart ?? true;
       _showDistribution = showDistribution ?? true;
+      _showTrendChart = showTrendChart ?? true;
       _hideEmptyTags = hideEmptyTags;
       _sortByTag = sortByTag;
       _chartMode = _ChartMode.values[chartModeIndex];
@@ -993,6 +998,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_showDistributionKey, _showDistribution);
   }
 
+  Future<void> _setTrendChartVisible(bool value) async {
+    setState(() => _showTrendChart = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showTrendChartKey, _showTrendChart);
+  }
+
   Future<void> _setHideEmptyTags(bool value) async {
     setState(() => _hideEmptyTags = value);
     final prefs = await SharedPreferences.getInstance();
@@ -1765,10 +1776,35 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         return AccuracyDistributionChart(sessions: grouped);
                       },
                     ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        const Text('Показать тренд точности',
+                            style: TextStyle(color: Colors.white)),
+                        const Spacer(),
+                        Switch(
+                          value: _showTrendChart,
+                          onChanged: _setTrendChartVisible,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_showTrendChart)
+                    Builder(
+                      builder: (context) {
+                        final filtered = _getFilteredHistory();
+                        final grouped = _groupSessionsForChart(filtered);
+                        return AccuracyTrendChart(
+                          sessions: grouped,
+                          mode: ChartMode.values[_chartMode.index],
+                        );
+                      },
+                    ),
                 ],
-                ],
-                Expanded(
-                  child: Builder(builder: (context) {
+              ],
+              Expanded(
+                child: Builder(builder: (context) {
                     final filtered = _getFilteredHistory();
                     return ListView.separated(
                       padding: const EdgeInsets.all(16),
