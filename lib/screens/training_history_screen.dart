@@ -73,6 +73,16 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     });
   }
 
+  Future<void> _resetFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_sortKey, _SortOption.newest.index);
+    await prefs.setInt(_ratingKey, _RatingFilter.all.index);
+    setState(() {
+      _sort = _SortOption.newest;
+      _ratingFilter = _RatingFilter.all;
+    });
+  }
+
   List<TrainingResult> _getFilteredHistory() {
     final cutoff = DateTime.now().subtract(Duration(days: _filterDays));
     final list = _history
@@ -199,13 +209,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           setState(() => _ratingFilter = value);
                         },
                       ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
+                      const SizedBox(width: 16),
                       const Text('Сортировка',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
@@ -231,6 +235,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           await prefs.setInt(_sortKey, value.index);
                           setState(() => _sort = value);
                         },
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: _resetFilters,
+                        child: const Text('Сбросить фильтры'),
                       ),
                     ],
                   ),
