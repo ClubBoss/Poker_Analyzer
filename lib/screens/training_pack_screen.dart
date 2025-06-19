@@ -18,6 +18,7 @@ import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/action_sync_service.dart';
+import '../services/all_in_players_service.dart';
 import '../services/pot_sync_service.dart';
 import '../services/pot_history_service.dart';
 import '../services/board_manager_service.dart';
@@ -766,6 +767,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                                     actionSync: context.read<ActionSyncService>(),
                                     foldedPlayersService:
                                         context.read<FoldedPlayersService>(),
+                                    allInPlayersService:
+                                        context.read<AllInPlayersService>(),
                                     handContext: CurrentHandContextService(),
                                   playbackManager:
                                       context.read<PlaybackManagerService>(),

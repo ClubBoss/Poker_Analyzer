@@ -8,6 +8,7 @@ import 'board_reveal_service.dart';
 import 'pot_sync_service.dart';
 import 'playback_manager_service.dart';
 import 'action_tag_service.dart';
+import 'all_in_players_service.dart';
 import 'action_history_service.dart';
 import 'current_hand_context_service.dart';
 import 'folded_players_service.dart';
@@ -25,6 +26,7 @@ class UndoRedoService {
   final ActionTagService actionTagService;
   final ActionHistoryService actionHistory;
   final FoldedPlayersService foldedPlayers;
+  final AllInPlayersService allInPlayers;
   final BoardRevealService boardReveal;
   final PotSyncService potSync;
   final TransitionLockService lockService;
@@ -39,6 +41,7 @@ class UndoRedoService {
     required this.actionTagService,
     required this.actionHistory,
     required this.foldedPlayers,
+    required this.allInPlayers,
     required this.boardReveal,
     required this.potSync,
     required this.lockService,
@@ -83,6 +86,7 @@ class UndoRedoService {
       tagsCursor: handContext.tagsCursor,
       collapsedHistoryStreets: actionHistory.collapsedStreets(),
       foldedPlayers: foldedPlayers.toNullableList(),
+      allInPlayers: allInPlayers.toNullableList(),
       actionTags: actionTagService.toNullableMap(),
       effectiveStacksPerStreet: potSync.toNullableJson(),
       showFullBoard: reveal['showFullBoard'] as bool,
@@ -121,6 +125,7 @@ class UndoRedoService {
     potSync.restoreFromHand(snap);
     actionTagService.restoreFromHand(snap);
     foldedPlayers.restoreFromHand(snap);
+    allInPlayers.restoreFromHand(snap);
     actionHistory.restoreFromCollapsed(snap.collapsedHistoryStreets);
     actionHistory.updateHistory(actionSync.analyzerActions,
         visibleCount: playbackManager.playbackIndex);

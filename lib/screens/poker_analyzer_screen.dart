@@ -78,6 +78,7 @@ import '../services/undo_redo_service.dart';
 import '../services/action_editing_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/transition_history_service.dart';
+import '../services/all_in_players_service.dart';
 import '../services/current_hand_context_service.dart';
 import '../services/folded_players_service.dart';
 import '../services/action_history_service.dart';
@@ -101,6 +102,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final HandRestoreService? handRestoreService;
   final CurrentHandContextService? handContext;
   final FoldedPlayersService? foldedPlayersService;
+  final AllInPlayersService? allInPlayersService;
   final BackupManagerService? backupManagerService;
   final PlaybackManagerService playbackManager;
   final StackManagerService stackService;
@@ -130,6 +132,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     this.handRestoreService,
     this.handContext,
     this.foldedPlayersService,
+    this.allInPlayersService,
     this.backupManagerService,
     required this.playbackManager,
     required this.stackService,
@@ -194,6 +197,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int? activePlayerIndex;
   Timer? _activeTimer;
   late FoldedPlayersService _foldedPlayers;
+  late AllInPlayersService _allInPlayers;
   late ActionSyncService _actionSync;
   late UndoRedoService _undoRedoService;
   late TransitionHistoryService _transitionHistory;
@@ -580,6 +584,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         widget.foldedPlayersService ?? FoldedPlayersService());
     _foldedPlayers = _serviceRegistry.get<FoldedPlayersService>();
 
+    _serviceRegistry.register<AllInPlayersService>(
+        widget.allInPlayersService ?? AllInPlayersService());
+    _allInPlayers = _serviceRegistry.get<AllInPlayersService>();
+
     _debugPrefs = widget.debugPrefsService ?? DebugPanelPreferences();
     _serviceRegistry.register<DebugPanelPreferences>(_debugPrefs);
 
@@ -718,6 +726,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionTagService: _actionTagService,
       actionHistory: _actionHistory,
       foldedPlayers: _foldedPlayers,
+      allInPlayers: _allInPlayers,
       boardReveal: _boardReveal,
       potSync: _potSync,
       lockService: lockService,
@@ -731,6 +740,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionTag: _actionTagService,
       playbackManager: _playbackManager,
       foldedPlayers: _foldedPlayers,
+      allInPlayers: _allInPlayers,
       boardManager: _boardManager,
       boardSync: _boardSync,
       actionHistory: _actionHistory,
@@ -1366,6 +1376,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playerManager.reset();
         _undoRedoService.resetHistory();
         _foldedPlayers.reset();
+        _allInPlayers.reset();
         _boardManager.clearBoard();
         _actionTagService.clear();
         _stackService.reset(
@@ -1555,6 +1566,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       potSync: _potSync,
       actionHistory: _actionHistory,
       foldedPlayers: _foldedPlayers,
+      allInPlayers: _allInPlayers,
       actionTags: _actionTagService,
       queueService: _queueService,
       playbackManager: _playbackManager,
@@ -2182,6 +2194,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final String tag = _actionTagService.getTag(index) ?? '';
     final bool isActive = activePlayerIndex == index;
     final bool isFolded = _foldedPlayers.isPlayerFolded(index);
+    final bool isAllIn = _allInPlayers.isPlayerAllIn(index);
     final int pot = _potSync.pots[currentStreet];
     final double? playerSpr = pot > 0 ? stack / pot.toDouble() : null;
 
@@ -2388,6 +2401,42 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 color: Colors.white,
                 fontSize: 10 * scale,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      if (isAllIn)
+        Positioned(
+          left: centerX + dx - 24 * scale,
+          top: centerY + dy + bias - 54 * scale,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(scale: animation, child: child),
+            ),
+            child: Container(
+              key: const ValueKey('allin'),
+              padding: EdgeInsets.symmetric(
+                  horizontal: 6 * scale, vertical: 2 * scale),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(6),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.purpleAccent.withOpacity(0.8),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  )
+                ],
+              ),
+              child: Text(
+                'ALL-IN',
+                style: TextStyle(
+                  color: Colors.purpleAccent,
+                  fontSize: 10 * scale,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

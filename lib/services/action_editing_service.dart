@@ -7,6 +7,7 @@ import 'undo_redo_service.dart';
 import 'action_tag_service.dart';
 import 'playback_manager_service.dart';
 import 'folded_players_service.dart';
+import 'all_in_players_service.dart';
 import 'board_manager_service.dart';
 import 'board_sync_service.dart';
 import 'action_history_service.dart';
@@ -20,6 +21,7 @@ class ActionEditingService {
   final ActionTagService actionTag;
   final PlaybackManagerService playbackManager;
   final FoldedPlayersService foldedPlayers;
+  final AllInPlayersService allInPlayers;
   final BoardManagerService boardManager;
   final BoardSyncService boardSync;
   final ActionHistoryService actionHistory;
@@ -33,6 +35,7 @@ class ActionEditingService {
     required this.actionTag,
     required this.playbackManager,
     required this.foldedPlayers,
+    required this.allInPlayers,
     required this.boardManager,
     required this.boardSync,
     required this.actionHistory,
@@ -72,6 +75,7 @@ class ActionEditingService {
           newEntry: entry, prevStreet: prevStreet, newStreet: currentStreet));
     }
     actionSync.foldedPlayers?.addFromAction(entry);
+    actionSync.allInPlayers?.addFromAction(entry);
     actionSync.syncStacks();
     actionSync.notifyListeners();
     actionHistory.addStreet(entry.street);
@@ -115,6 +119,7 @@ class ActionEditingService {
           newStreet: currentStreet));
     }
     actionSync.foldedPlayers?.editAction(previous, entry, actionSync.analyzerActions);
+    actionSync.allInPlayers?.editAction(previous, entry, actionSync.analyzerActions);
     actionSync.syncStacks();
     actionSync.notifyListeners();
     actionTag.updateForAction(entry);
@@ -152,6 +157,7 @@ class ActionEditingService {
           newStreet: currentStreet));
     }
     actionSync.foldedPlayers?.removeFromAction(removed, actionSync.analyzerActions);
+    actionSync.allInPlayers?.removeFromAction(removed, actionSync.analyzerActions);
     actionSync.syncStacks();
     actionSync.notifyListeners();
     if (playbackManager.playbackIndex > actions.length) {
@@ -228,6 +234,7 @@ class ActionEditingService {
       final removed = actions[idx];
       actionSync.analyzerActions.removeAt(idx);
       actionSync.foldedPlayers?.removeFromAction(removed, actionSync.analyzerActions);
+      actionSync.allInPlayers?.removeFromAction(removed, actionSync.analyzerActions);
     }
     actionSync.syncStacks();
     actionSync.notifyListeners();
