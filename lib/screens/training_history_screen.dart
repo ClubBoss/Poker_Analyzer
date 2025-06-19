@@ -13,6 +13,7 @@ import '../widgets/common/accuracy_chart.dart';
 import '../widgets/common/average_accuracy_chart.dart';
 import '../widgets/common/history_list_item.dart';
 import '../widgets/common/session_accuracy_bar_chart.dart';
+import '../widgets/common/accuracy_distribution_chart.dart';
 import 'training_detail_screen.dart';
 
 import '../models/training_result.dart';
@@ -830,13 +831,20 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ],
                   ),
                 ),
-                if (_showAvgChart)
+                if (_showAvgChart) ...[
                   Builder(
                     builder: (context) {
                       final filtered = _getFilteredHistory();
                       return AverageAccuracyChart(sessions: filtered);
                     },
                   ),
+                  Builder(
+                    builder: (context) {
+                      final filtered = _getFilteredHistory();
+                      return AccuracyDistributionChart(sessions: filtered);
+                    },
+                  ),
+                ],
                 Expanded(
                   child: Builder(builder: (context) {
                     final filtered = _getFilteredHistory();
