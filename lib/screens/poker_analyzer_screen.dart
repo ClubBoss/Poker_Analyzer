@@ -1940,23 +1940,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       child: AbsorbPointer(
         absorbing: lockService.isLocked,
         child: Column(
-          children: List.generate(
-            4,
-            (i) => CollapsibleStreetSection(
-              street: i,
-              actions: savedActions,
-              pots: _potSync.pots,
-              stackSizes: _stackService.currentStacks,
-              playerPositions: playerPositions,
-              onEdit: _editAction,
-              onDelete: _deleteAction,
-              onInsert: _insertAction,
-              onDuplicate: _duplicateAction,
-              onReorder: _reorderAction,
-              visibleCount: _playbackManager.playbackIndex,
-              evaluateActionQuality: _evaluateActionQuality,
+          children: [
+            _TotalPotHeader(totalPot: _potSync.pots.last),
+            ...List.generate(
+              4,
+              (i) => CollapsibleStreetSection(
+                street: i,
+                actions: savedActions,
+                pots: _potSync.pots,
+                stackSizes: _stackService.currentStacks,
+                playerPositions: playerPositions,
+                onEdit: _editAction,
+                onDelete: _deleteAction,
+                onInsert: _insertAction,
+                onDuplicate: _duplicateAction,
+                onReorder: _reorderAction,
+                visibleCount: _playbackManager.playbackIndex,
+                evaluateActionQuality: _evaluateActionQuality,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     ),
@@ -4065,6 +4068,27 @@ class _RevealAllCardsButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onToggle,
           child: const Text('Показать все карты'),
+        ),
+      ),
+    );
+  }
+}
+
+class _TotalPotHeader extends StatelessWidget {
+  final int totalPot;
+
+  const _TotalPotHeader({required this.totalPot});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Text(
+        'Общий пот: ${ActionFormattingHelper.formatAmount(totalPot)}',
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
         ),
       ),
     );
