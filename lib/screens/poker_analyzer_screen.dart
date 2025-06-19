@@ -46,6 +46,7 @@ import '../widgets/pot_display_widget.dart';
 import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
+import '../widgets/player_stack_label.dart';
 import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
@@ -659,6 +660,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     _serviceRegistry.register<StackManagerService>(widget.stackService);
     _stackService = _serviceRegistry.get<StackManagerService>();
+    _stackService.addListener(_onStackServiceChanged);
 
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
@@ -979,6 +981,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onPlayerManagerChanged() {
+    if (mounted) lockService.safeSetState(this, () {});
+  }
+
+  void _onStackServiceChanged() {
     if (mounted) lockService.safeSetState(this, () {});
   }
 
@@ -1762,6 +1768,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _activeTimer?.cancel();
     _playerManager.removeListener(_onPlayerManagerChanged);
     _playbackManager.removeListener(_onPlaybackManagerChanged);
+    _stackService.removeListener(_onStackServiceChanged);
     _centerChipTimer?.cancel();
     _processingService.cleanup();
     _centerChipController.dispose();
@@ -2352,14 +2359,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Positioned(
         left: centerX + dx - 20 * scale,
         top: centerY + dy + bias + 84 * scale,
-        child: Text(
-          '$stack BB',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 12 * scale,
-            shadows: const [Shadow(color: Colors.black54, offset: Offset(1, 1), blurRadius: 2)],
-          ),
-        ),
+        child: PlayerStackLabel(stack: stack, scale: scale * 0.9),
       ),
       Positioned(
         left: centerX + dx + (cos(angle) < 0 ? -45 * scale : 30 * scale),
