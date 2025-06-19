@@ -358,6 +358,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
     final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
     final end = Offset(centerX, centerY);
+    final control = Offset(
+      (start.dx + end.dx) / 2,
+      (start.dy + end.dy) / 2 - (40 + ChipMovingWidget.activeCount * 8) * scale,
+    );
     final color = entry.action == 'raise'
         ? Colors.green
         : entry.action == 'call'
@@ -368,6 +372,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       builder: (_) => ChipMovingWidget(
         start: start,
         end: end,
+        control: control,
         amount: entry.amount!,
         color: color,
         scale: scale,

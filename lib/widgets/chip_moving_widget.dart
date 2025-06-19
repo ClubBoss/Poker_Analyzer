@@ -19,6 +19,9 @@ class ChipMovingWidget extends StatefulWidget {
   /// Scale factor for sizing.
   final double scale;
 
+  /// Optional control point for a curved flight path.
+  final Offset? control;
+
   /// Callback fired when the animation completes.
   final VoidCallback? onCompleted;
 
@@ -29,6 +32,7 @@ class ChipMovingWidget extends StatefulWidget {
     required this.amount,
     required this.color,
     this.scale = 1.0,
+    this.control,
     this.onCompleted,
   }) : super(key: key);
 
@@ -76,7 +80,21 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final pos = Offset.lerp(widget.start, widget.end, _controller.value)!;
+        Offset bezier(Offset p0, Offset p1, Offset p2, double t) {
+          final u = 1 - t;
+          return Offset(
+            u * u * p0.dx + 2 * u * t * p1.dx + t * t * p2.dx,
+            u * u * p0.dy + 2 * u * t * p1.dy + t * t * p2.dy,
+          );
+        }
+        final control = widget.control ??
+            Offset(
+              (widget.start.dx + widget.end.dx) / 2,
+              (widget.start.dy + widget.end.dy) / 2 -
+                  (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
+            );
+        final pos = bezier(
+            widget.start, control, widget.end, _controller.value);
         final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
           left: pos.dx - 12 * sizeFactor,
