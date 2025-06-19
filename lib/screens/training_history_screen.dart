@@ -40,6 +40,8 @@ enum _AccuracyRange { all, lt50, pct50to70, pct70to90, pct90to100 }
 
 enum _ChartMode { daily, weekly, monthly }
 
+enum _TagCountFilter { any, one, twoPlus, threePlus }
+
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _sortKey = 'training_history_sort';
   static const _ratingKey = 'training_history_rating';
@@ -54,6 +56,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _hideEmptyTagsKey = 'hide_empty_tags';
   static const _sortByTagKey = 'training_history_sort_by_tag';
   static const _accuracyRangeKey = 'training_history_accuracy_range';
+  static const _tagCountKey = 'training_history_tag_count';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
@@ -68,6 +71,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   bool _hideEmptyTags = false;
   bool _sortByTag = false;
   _ChartMode _chartMode = _ChartMode.daily;
+  _TagCountFilter _tagCountFilter = _TagCountFilter.any;
 
   DateTime? _dateFrom;
   DateTime? _dateTo;
@@ -91,6 +95,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final hideEmptyTags = prefs.getBool(_hideEmptyTagsKey) ?? false;
     final sortByTag = prefs.getBool(_sortByTagKey) ?? false;
     final chartModeIndex = prefs.getInt(_chartModeKey) ?? 0;
+    final tagCountIndex = prefs.getInt(_tagCountKey) ?? 0;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
@@ -105,6 +110,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _hideEmptyTags = hideEmptyTags;
       _sortByTag = sortByTag;
       _chartMode = _ChartMode.values[chartModeIndex];
+      _tagCountFilter = _TagCountFilter.values[tagCountIndex];
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -324,6 +330,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setInt(_sortKey, _SortOption.newest.index);
     await prefs.setInt(_ratingKey, _RatingFilter.all.index);
     await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
+    await prefs.setInt(_tagCountKey, _TagCountFilter.any.index);
     await prefs.setBool(_sortByTagKey, false);
     await prefs.remove(_tagKey);
     await prefs.remove(_tagColorKey);
@@ -333,6 +340,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _sort = _SortOption.newest;
       _ratingFilter = _RatingFilter.all;
       _accuracyRange = _AccuracyRange.all;
+      _tagCountFilter = _TagCountFilter.any;
       _selectedTags.clear();
       _selectedTagColors.clear();
       _sortByTag = false;
@@ -401,6 +409,18 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
               return r.accuracy >= 70 && r.accuracy < 90;
             case _AccuracyRange.pct90to100:
               return r.accuracy >= 90 && r.accuracy <= 100;
+          }
+        })
+        .where((r) {
+          switch (_tagCountFilter) {
+            case _TagCountFilter.any:
+              return true;
+            case _TagCountFilter.one:
+              return r.tags.length == 1;
+            case _TagCountFilter.twoPlus:
+              return r.tags.length >= 2;
+            case _TagCountFilter.threePlus:
+              return r.tags.length >= 3;
           }
         })
         .where((r) {
@@ -1298,6 +1318,37 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       TextButton(
                         onPressed: _resetFilters,
                         child: const Text('Сбросить фильтры'),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('Кол-во тегов',
+                          style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 8),
+                      DropdownButton<_TagCountFilter>(
+                        value: _tagCountFilter,
+                        dropdownColor: AppColors.cardBackground,
+                        style: const TextStyle(color: Colors.white),
+                        items: const [
+                          DropdownMenuItem(
+                              value: _TagCountFilter.any, child: Text('Любое')),
+                          DropdownMenuItem(
+                              value: _TagCountFilter.one, child: Text('1 тег')),
+                          DropdownMenuItem(
+                              value: _TagCountFilter.twoPlus, child: Text('2+')),
+                          DropdownMenuItem(
+                              value: _TagCountFilter.threePlus, child: Text('3+')),
+                        ],
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setInt(_tagCountKey, value.index);
+                          setState(() => _tagCountFilter = value);
+                        },
                       ),
                     ],
                   ),
