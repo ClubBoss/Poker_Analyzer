@@ -16,7 +16,7 @@ class PlayerStackLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (stack == null || stack! <= 0) return const SizedBox.shrink();
+    if (stack == null) return const SizedBox.shrink();
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDark ? Colors.white : Colors.black;
     final Color backgroundColor = isDark ? Colors.white24 : Colors.black26;
@@ -38,7 +38,7 @@ class PlayerStackLabel extends StatelessWidget {
           borderRadius: BorderRadius.circular(8 * scale),
         ),
         child: Text(
-          'Stack: $stack',
+          'Стек: $stack',
           style: TextStyle(
             color: textColor,
             fontSize: 12 * scale,

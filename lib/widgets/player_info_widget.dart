@@ -344,7 +344,7 @@ class PlayerInfoWidget extends StatelessWidget {
               }
             },
           child: Text(
-              'Stack: \$stack',
+              'Стек: \$stack',
               style: stackStyle,
             ),
           ),
