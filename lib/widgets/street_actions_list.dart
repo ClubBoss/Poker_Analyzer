@@ -18,7 +18,7 @@ class StreetActionsList extends StatelessWidget {
   final void Function(int) onDelete;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
-  final void Function(ActionEntry, String)? onManualEvaluationChanged;
+  final void Function(ActionEntry, String?)? onManualEvaluationChanged;
 
   const StreetActionsList({
     super.key,
@@ -174,20 +174,39 @@ class StreetActionsList extends StatelessWidget {
                           onManualEvaluationChanged!(a, result);
                         }
                       },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: qualityColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    qualityLabel!,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: qualityColor,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        qualityLabel!,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (a.manualEvaluation != null &&
+                        onManualEvaluationChanged != null)
+                      GestureDetector(
+                        onTap: () =>
+                            onManualEvaluationChanged!(a, null),
+                        child: const Padding(
+                          padding: EdgeInsets.only(left: 4.0),
+                          child: Icon(
+                            Icons.close,
+                            size: 12,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
