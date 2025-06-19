@@ -611,6 +611,73 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await OpenFilex.open(file.path);
   }
 
+  Future<void> _deleteLatestExports() async {
+    if (_lastCsvPath == null && _lastPdfPath == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет экспортированных файлов')),
+        );
+      }
+      return;
+    }
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Удалить файлы?'),
+          content:
+              const Text('Удалить последние экспортированные файлы?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Удалить'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
+    bool deleted = false;
+
+    if (_lastCsvPath != null) {
+      final file = File(_lastCsvPath!);
+      if (await file.exists()) {
+        await file.delete();
+        deleted = true;
+      }
+    }
+
+    if (_lastPdfPath != null) {
+      final file = File(_lastPdfPath!);
+      if (await file.exists()) {
+        await file.delete();
+        deleted = true;
+      }
+    }
+
+    setState(() {
+      _lastCsvPath = null;
+      _lastPdfPath = null;
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(deleted
+              ? 'Файлы удалены'
+              : 'Файлы не найдены'),
+        ),
+      );
+    }
+  }
+
   Future<void> _importJson() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -2592,6 +2659,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ElevatedButton(
                       onPressed: _shareLatestExport,
                       child: const Text('Поделиться'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _deleteLatestExports,
+                      child: const Text('Удалить'),
                     ),
                   ],
                 ),
