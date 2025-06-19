@@ -4,6 +4,9 @@ import '../helpers/date_utils.dart';
 import '../models/training_result.dart';
 import '../theme/app_colors.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 class TrainingDetailScreen extends StatelessWidget {
   final TrainingResult result;
@@ -44,6 +47,76 @@ class TrainingDetailScreen extends StatelessWidget {
       // ignore: use_build_context_synchronously
       Navigator.pop(context);
     }
+  }
+
+  Future<void> _exportPdf() async {
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final incorrect = result.total - result.correct;
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('Date: ${formatDateTime(result.date)}',
+                  style: pw.TextStyle(font: regularFont)),
+              pw.SizedBox(height: 16),
+              if (result.total > 0)
+                pw.Chart(
+                  grid: pw.PieGrid(),
+                  datasets: [
+                    pw.PieDataSet(
+                      value: result.correct.toDouble(),
+                      color: PdfColors.green,
+                      legend: 'Correct',
+                    ),
+                    pw.PieDataSet(
+                      value: incorrect.toDouble(),
+                      color: PdfColors.red,
+                      legend: 'Incorrect',
+                    ),
+                  ],
+                ),
+              pw.SizedBox(height: 16),
+              pw.Text('Total hands: ${result.total}',
+                  style: pw.TextStyle(font: regularFont)),
+              pw.Text('Correct answers: ${result.correct}',
+                  style: pw.TextStyle(font: regularFont)),
+              pw.Text('Accuracy: ${result.accuracy.toStringAsFixed(1)}%',
+                  style: pw.TextStyle(font: boldFont)),
+              if (result.tags.isNotEmpty) pw.SizedBox(height: 16),
+              if (result.tags.isNotEmpty)
+                pw.Wrap(
+                  spacing: 4,
+                  children: [
+                    for (final tag in result.tags)
+                      pw.Container(
+                        padding: const pw.EdgeInsets.all(2),
+                        decoration: pw.BoxDecoration(
+                          border: pw.Border.all(),
+                          borderRadius: pw.BorderRadius.circular(4),
+                        ),
+                        child: pw.Text(tag, style: pw.TextStyle(font: regularFont)),
+                      ),
+                  ],
+                ),
+            ],
+          );
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+
+    await Printing.sharePdf(
+      bytes: bytes,
+      filename: 'session_${result.date.millisecondsSinceEpoch}.pdf',
+    );
   }
 
   @override
@@ -144,6 +217,11 @@ class TrainingDetailScreen extends StatelessWidget {
                 Navigator.pop(context);
               },
               child: const Text('Edit Accuracy'),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _exportPdf,
+              child: const Text('Export to PDF'),
             ),
           ],
         ),
