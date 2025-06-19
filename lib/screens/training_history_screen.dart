@@ -493,8 +493,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await _saveHistory();
   }
 
-  Future<void> _toggleCharts() async {
-    setState(() => _showCharts = !_showCharts);
+  Future<void> _setChartsVisible(bool value) async {
+    setState(() => _showCharts = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_showChartsKey, _showCharts);
   }
@@ -625,18 +625,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     );
                   })
                 ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: _toggleCharts,
-                  child: Text(
-                    _showCharts ? 'Скрыть графики' : 'Показать графики',
-                  ),
-                ),
               ),
             ),
             if (_showCharts)
@@ -834,17 +822,32 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      const Text('Показать график',
+                      const Text('Показать графики',
                           style: TextStyle(color: Colors.white)),
                       const Spacer(),
                       Switch(
-                        value: _showAvgChart,
-                        onChanged: _setAvgChartVisible,
+                        value: _showCharts,
+                        onChanged: _setChartsVisible,
                       ),
                     ],
                   ),
                 ),
-                if (_showAvgChart) ...[
+                if (_showCharts) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        const Text('Показать график',
+                            style: TextStyle(color: Colors.white)),
+                        const Spacer(),
+                        Switch(
+                          value: _showAvgChart,
+                          onChanged: _setAvgChartVisible,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_showAvgChart) ...[
                   Builder(
                     builder: (context) {
                       final filtered = _getFilteredHistory();
@@ -872,6 +875,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         return AccuracyDistributionChart(sessions: filtered);
                       },
                     ),
+                ],
                 ],
                 Expanded(
                   child: Builder(builder: (context) {
