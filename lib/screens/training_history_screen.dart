@@ -500,9 +500,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _editSessionTags(BuildContext ctx, TrainingResult session) async {
-    final tags = {for (final r in _history) ...r.tags};
-    final local = Set<String>.from(session.tags);
-    final updated = await showDialog<Set<String>>(
+    final tags = {for (final r in _history) ...r.tags}.toList()..sort();
+    final local = List<String>.from(session.tags);
+    final updated = await showDialog<List<String>>(
       context: ctx,
       builder: (context) {
         return AlertDialog(
@@ -515,24 +515,54 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             builder: (context, setStateDialog) {
               return SizedBox(
                 width: 300,
-                child: ListView(
-                  shrinkWrap: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (final tag in tags)
-                      CheckboxListTile(
-                        value: local.contains(tag),
-                        title: Text(tag,
-                            style: const TextStyle(color: Colors.white)),
-                        onChanged: (checked) {
-                          setStateDialog(() {
-                            if (checked ?? false) {
-                              local.add(tag);
-                            } else {
-                              local.remove(tag);
-                            }
-                          });
-                        },
+                    if (local.isNotEmpty)
+                      SizedBox(
+                        height: 150,
+                        child: ReorderableListView(
+                          shrinkWrap: true,
+                          onReorder: (oldIndex, newIndex) {
+                            setStateDialog(() {
+                              if (newIndex > oldIndex) newIndex -= 1;
+                              final item = local.removeAt(oldIndex);
+                              local.insert(newIndex, item);
+                            });
+                          },
+                          children: [
+                            for (final tag in local)
+                              ListTile(
+                                key: ValueKey(tag),
+                                title: Text(tag,
+                                    style:
+                                        const TextStyle(color: Colors.white)),
+                              ),
+                          ],
+                        ),
                       ),
+                    Expanded(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          for (final tag in tags)
+                            CheckboxListTile(
+                              value: local.contains(tag),
+                              title: Text(tag,
+                                  style: const TextStyle(color: Colors.white)),
+                              onChanged: (checked) {
+                                setStateDialog(() {
+                                  if (checked ?? false) {
+                                    if (!local.contains(tag)) local.add(tag);
+                                  } else {
+                                    local.remove(tag);
+                                  }
+                                });
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -560,7 +590,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             total: session.total,
             correct: session.correct,
             accuracy: session.accuracy,
-            tags: updated.toList(),
+            tags: updated,
             notes: session.notes,
           );
         });
