@@ -362,9 +362,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
     final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
     final end = Offset(centerX, centerY);
+    final midX = (start.dx + end.dx) / 2;
+    final midY = (start.dy + end.dy) / 2;
+    final perp = Offset(-sin(angle), cos(angle));
     final control = Offset(
-      (start.dx + end.dx) / 2,
-      (start.dy + end.dy) / 2 - (40 + ChipMovingWidget.activeCount * 8) * scale,
+      midX + perp.dx * 20 * scale,
+      midY - (40 + ChipMovingWidget.activeCount * 8) * scale,
     );
     final color = entry.action == 'raise' ? Colors.green : Colors.amber;
     late OverlayEntry overlayEntry;
@@ -410,9 +413,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
     final start = Offset(centerX, centerY);
     final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final midX = (start.dx + end.dx) / 2;
+    final midY = (start.dy + end.dy) / 2;
+    final perp = Offset(-sin(angle), cos(angle));
     final control = Offset(
-      (start.dx + end.dx) / 2,
-      (start.dy + end.dy) / 2 - (40 + ChipMovingWidget.activeCount * 8) * scale,
+      midX + perp.dx * 20 * scale,
+      midY - (40 + ChipMovingWidget.activeCount * 8) * scale,
     );
     final color = entry.action == 'raise'
         ? Colors.green
