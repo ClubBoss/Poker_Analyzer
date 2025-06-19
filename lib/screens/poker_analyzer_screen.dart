@@ -3603,6 +3603,7 @@ class _StreetActionsSection extends StatelessWidget {
         pots: pots,
         stackSizes: stackSizes,
         playerPositions: playerPositions,
+        numberOfPlayers: playerPositions.length,
         onEdit: onEdit,
         onDelete: onDelete,
         visibleCount: visibleCount,
