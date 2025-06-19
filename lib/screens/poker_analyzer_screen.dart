@@ -387,6 +387,55 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
+  void _playReturnChipAnimation(ActionEntry entry) {
+    if (!['bet', 'raise', 'call'].contains(entry.action) ||
+        entry.amount == null ||
+        entry.generated) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX, centerY);
+    final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final control = Offset(
+      (start.dx + end.dx) / 2,
+      (start.dy + end.dy) / 2 - (40 + ChipMovingWidget.activeCount * 8) * scale,
+    );
+    final color = entry.action == 'raise'
+        ? Colors.green
+        : entry.action == 'call'
+            ? Colors.blue
+            : Colors.amber;
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (_) => ChipMovingWidget(
+        start: start,
+        end: end,
+        control: control,
+        amount: entry.amount!,
+        color: color,
+        scale: scale,
+        onCompleted: () => overlayEntry.remove(),
+      ),
+    );
+    overlay.insert(overlayEntry);
+  }
+
   void _triggerBetDisplay(ActionEntry entry) {
     if ((entry.action == 'bet' || entry.action == 'raise') && entry.amount != null) {
       final color = ActionFormattingHelper.actionColor(entry.action);
@@ -1358,11 +1407,40 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _undoAction() {
+    final before = List<ActionEntry>.from(actions);
     lockService.safeSetState(this, () {
       _undoRedoService.undo();
       _animateTimeline = true;
     });
+    final after = actions;
     _debugPanelSetState?.call(() {});
+    ActionEntry? undone;
+    if (before.length > after.length) {
+      for (int i = before.length - 1; i >= after.length; i--) {
+        final a = before[i];
+        if (['bet', 'raise', 'call'].contains(a.action) && a.amount != null) {
+          undone = a;
+          break;
+        }
+      }
+    } else {
+      for (int i = 0; i < before.length && i < after.length; i++) {
+        final b = before[i];
+        final a = after[i];
+        if (b.street != a.street ||
+            b.playerIndex != a.playerIndex ||
+            b.action != a.action ||
+            b.amount != a.amount) {
+          if (['bet', 'raise', 'call'].contains(b.action) && b.amount != null) {
+            undone = b;
+          }
+          break;
+        }
+      }
+    }
+    if (undone != null) {
+      _playReturnChipAnimation(undone);
+    }
   }
 
   void _redoAction() {
