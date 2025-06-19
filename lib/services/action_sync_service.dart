@@ -4,13 +4,15 @@ import '../models/action_entry.dart';
 import '../models/player_zone_action_entry.dart' as pz;
 import '../models/card_model.dart';
 import 'folded_players_service.dart';
+import 'all_in_players_service.dart';
 import 'playback_manager_service.dart';
 import 'stack_manager_service.dart';
 
 class ActionSyncService extends ChangeNotifier {
-  ActionSyncService({this.foldedPlayers});
+  ActionSyncService({this.foldedPlayers, this.allInPlayers});
 
   final FoldedPlayersService? foldedPlayers;
+  final AllInPlayersService? allInPlayers;
   PlaybackManagerService? playbackManager;
   StackManagerService? stackManager;
 
@@ -147,6 +149,7 @@ class ActionSyncService extends ChangeNotifier {
     _undoSnapshots.clear();
     _redoSnapshots.clear();
     foldedPlayers?.recompute(entries);
+    allInPlayers?.recompute(entries);
     _syncStacks();
     notifyListeners();
   }
@@ -158,6 +161,7 @@ class ActionSyncService extends ChangeNotifier {
     _undoSnapshots.clear();
     _redoSnapshots.clear();
     foldedPlayers?.reset();
+    allInPlayers?.reset();
     _syncStacks();
     notifyListeners();
   }
@@ -193,14 +197,17 @@ class ActionSyncService extends ChangeNotifier {
       case ActionChangeType.add:
         analyzerActions.removeAt(op.index);
         foldedPlayers?.removeFromAction(op.newEntry!, analyzerActions);
+        allInPlayers?.removeFromAction(op.newEntry!, analyzerActions);
         break;
       case ActionChangeType.edit:
         analyzerActions[op.index] = op.oldEntry!;
         foldedPlayers?.editAction(op.newEntry!, op.oldEntry!, analyzerActions);
+        allInPlayers?.editAction(op.newEntry!, op.oldEntry!, analyzerActions);
         break;
       case ActionChangeType.delete:
         analyzerActions.insert(op.index, op.oldEntry!);
         foldedPlayers?.addFromAction(op.oldEntry!);
+        allInPlayers?.addFromAction(op.oldEntry!);
         break;
     }
     _redoStack.add(op);
@@ -228,14 +235,17 @@ class ActionSyncService extends ChangeNotifier {
       case ActionChangeType.add:
         analyzerActions.insert(op.index, op.newEntry!);
         foldedPlayers?.addFromAction(op.newEntry!);
+        allInPlayers?.addFromAction(op.newEntry!);
         break;
       case ActionChangeType.edit:
         analyzerActions[op.index] = op.newEntry!;
         foldedPlayers?.editAction(op.oldEntry!, op.newEntry!, analyzerActions);
+        allInPlayers?.editAction(op.oldEntry!, op.newEntry!, analyzerActions);
         break;
       case ActionChangeType.delete:
         analyzerActions.removeAt(op.index);
         foldedPlayers?.removeFromAction(op.oldEntry!, analyzerActions);
+        allInPlayers?.removeFromAction(op.oldEntry!, analyzerActions);
         break;
     }
     _undoStack.add(op);

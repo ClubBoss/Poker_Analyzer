@@ -52,6 +52,7 @@ class SavedHand {
   final List<int>? collapsedHistoryStreets;
   final List<int>? firstActionTaken;
   final List<int>? foldedPlayers;
+  final List<int>? allInPlayers;
   final Map<int, String?>? actionTags;
   /// Descriptions shown at showdown for each player.
   final Map<int, String>? showdownDescriptions;
@@ -103,6 +104,7 @@ class SavedHand {
     this.collapsedHistoryStreets,
     this.firstActionTaken,
     this.foldedPlayers,
+    this.allInPlayers,
     this.actionTags,
     this.showdownDescriptions,
     this.eliminatedPositions,
@@ -153,6 +155,7 @@ class SavedHand {
     List<int>? collapsedHistoryStreets,
     List<int>? firstActionTaken,
     List<int>? foldedPlayers,
+    List<int>? allInPlayers,
     Map<int, String?>? actionTags,
     Map<int, String>? showdownDescriptions,
     Map<int, int>? eliminatedPositions,
@@ -209,6 +212,10 @@ class SavedHand {
           (this.foldedPlayers == null
               ? null
               : List<int>.from(this.foldedPlayers!)),
+      allInPlayers: allInPlayers ??
+          (this.allInPlayers == null
+              ? null
+              : List<int>.from(this.allInPlayers!)),
       actionTags: actionTags ??
           (this.actionTags == null
               ? null
@@ -308,6 +315,7 @@ class SavedHand {
         if (firstActionTaken != null)
           'firstActionTaken': firstActionTaken,
         if (foldedPlayers != null) 'foldedPlayers': foldedPlayers,
+        if (allInPlayers != null) 'allInPlayers': allInPlayers,
         if (actionTags != null)
           'actionTags':
               actionTags!.map((k, v) => MapEntry(k.toString(), v)),
@@ -417,6 +425,10 @@ class SavedHand {
     if (json['foldedPlayers'] != null) {
       folded = [for (final i in (json['foldedPlayers'] as List)) i as int];
     }
+    List<int>? allIn;
+    if (json['allInPlayers'] != null) {
+      allIn = [for (final i in (json['allInPlayers'] as List)) i as int];
+    }
     Map<int, String?>? aTags;
     if (json['actionTags'] != null) {
       aTags = <int, String?>{};
@@ -502,6 +514,7 @@ class SavedHand {
       collapsedHistoryStreets: collapsed,
       firstActionTaken: firsts,
       foldedPlayers: folded,
+      allInPlayers: allIn,
       actionTags: aTags,
       showdownDescriptions: showDesc,
       eliminatedPositions: elimPos,

@@ -25,6 +25,7 @@ import 'evaluation_queue_service.dart';
 import 'current_hand_context_service.dart';
 import 'playback_manager_service.dart';
 import 'folded_players_service.dart';
+import 'all_in_players_service.dart';
 import 'action_tag_service.dart';
 
 class SavedHandImportExportService {
@@ -54,6 +55,7 @@ class SavedHandImportExportService {
     required PotSyncService potSync,
     required ActionHistoryService actionHistory,
     required FoldedPlayersService foldedPlayers,
+    required AllInPlayersService allInPlayers,
     required ActionTagService actionTags,
     required EvaluationQueueService queueService,
     required PlaybackManagerService playbackManager,
@@ -105,6 +107,7 @@ class SavedHandImportExportService {
       effectiveStacksPerStreet: potSync.toNullableJson(),
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
       foldedPlayers: foldedPlayers.toNullableList(),
+      allInPlayers: allInPlayers.toNullableList(),
       actionTags: actionTags.toNullableMap(),
       pendingEvaluations:
           queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(queueService.pending),

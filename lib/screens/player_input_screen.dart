@@ -18,6 +18,7 @@ import '../services/board_editing_service.dart';
 import '../services/player_editing_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/board_reveal_service.dart';
+import '../services/all_in_players_service.dart';
 import '../services/folded_players_service.dart';
 
 class PlayerInputScreen extends StatefulWidget {
@@ -186,6 +187,8 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                           context.read<ActionSyncService>(),
                                       foldedPlayersService:
                                           context.read<FoldedPlayersService>(),
+                                      allInPlayersService:
+                                          context.read<AllInPlayersService>(),
                                       handContext: CurrentHandContextService(),
                                       playbackManager:
                                           context.read<PlaybackManagerService>(),
@@ -306,6 +309,10 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
                                     builder: (context) => PokerAnalyzerScreen(
                                       actionSync:
                                           context.read<ActionSyncService>(),
+                                      foldedPlayersService:
+                                          context.read<FoldedPlayersService>(),
+                                      allInPlayersService:
+                                          context.read<AllInPlayersService>(),
                                       handContext: CurrentHandContextService(),
                                       playbackManager:
                                           context.read<PlaybackManagerService>(),

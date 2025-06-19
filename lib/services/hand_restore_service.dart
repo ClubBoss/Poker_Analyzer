@@ -18,6 +18,7 @@ import 'pot_sync_service.dart';
 import 'action_history_service.dart';
 
 import 'folded_players_service.dart';
+import 'all_in_players_service.dart';
 import 'board_manager_service.dart';
 import 'board_sync_service.dart';
 import 'action_tag_service.dart';
@@ -49,6 +50,7 @@ class HandRestoreService {
     required this.boardReveal,
   }) {
     foldedPlayers.attach(actionSync);
+    allInPlayers.attach(actionSync);
   }
 
   final PlayerManagerService playerManager;
@@ -62,6 +64,7 @@ class HandRestoreService {
   final TransitionLockService lockService;
   final CurrentHandContextService handContext;
   final FoldedPlayersService foldedPlayers;
+  final AllInPlayersService allInPlayers;
   final ActionTagService actionTags;
   final void Function(int?) setActivePlayerIndex;
   final PotSyncService potSync;
@@ -91,6 +94,7 @@ class HandRestoreService {
     actionTags.restoreFromHand(hand);
     unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
     foldedPlayers.restoreFromHand(hand);
+    allInPlayers.restoreFromHand(hand);
     actionHistory.restoreFromCollapsed(hand.collapsedHistoryStreets);
     _autoCollapseStreets();
     actionHistory.updateHistory(actionSync.analyzerActions,
