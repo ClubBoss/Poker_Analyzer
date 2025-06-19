@@ -100,6 +100,8 @@ class TrainingSpot {
               'playerIndex': a.playerIndex,
               'action': a.action,
               if (a.amount != null) 'amount': a.amount,
+              if (a.manualEvaluation != null)
+                'manualEvaluation': a.manualEvaluation,
             }
         ],
         'heroIndex': heroIndex,
@@ -150,6 +152,7 @@ class TrainingSpot {
           a['playerIndex'] as int,
           a['action'] as String,
           amount: (a['amount'] as num?)?.toInt(),
+          manualEvaluation: a['manualEvaluation'] as String?,
         ));
       }
     }

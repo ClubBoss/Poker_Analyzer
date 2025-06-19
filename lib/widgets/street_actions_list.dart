@@ -18,6 +18,7 @@ class StreetActionsList extends StatelessWidget {
   final void Function(int) onDelete;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
+  final void Function(ActionEntry, String)? onManualEvaluationChanged;
 
   const StreetActionsList({
     super.key,
@@ -30,6 +31,7 @@ class StreetActionsList extends StatelessWidget {
     required this.onDelete,
     this.visibleCount,
     this.evaluateActionQuality,
+    this.onManualEvaluationChanged,
   });
 
   Widget _buildTile(BuildContext context, ActionEntry a, int globalIndex) {
@@ -58,7 +60,7 @@ class StreetActionsList extends StatelessWidget {
     Color? qualityColor;
     String? qualityLabel;
     if (evaluateActionQuality != null && visibleCount != null) {
-      final q = evaluateActionQuality!(a);
+      final q = a.manualEvaluation ?? evaluateActionQuality!(a);
       switch (q) {
         case 'Лучшая линия':
           qualityColor = Colors.green;
@@ -142,17 +144,49 @@ class StreetActionsList extends StatelessWidget {
           if (qualityLabel != null)
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: qualityColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  qualityLabel!,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
+              child: GestureDetector(
+                onLongPress: onManualEvaluationChanged == null
+                    ? null
+                    : () async {
+                        final result = await showDialog<String>(
+                          context: context,
+                          builder: (ctx) => SimpleDialog(
+                            title: const Text('Оценить действие'),
+                            children: [
+                              SimpleDialogOption(
+                                onPressed: () =>
+                                    Navigator.pop(ctx, 'Лучшая линия'),
+                                child: const Text('Лучшая линия'),
+                              ),
+                              SimpleDialogOption(
+                                onPressed: () =>
+                                    Navigator.pop(ctx, 'Нормальная линия'),
+                                child: const Text('Нормальная линия'),
+                              ),
+                              SimpleDialogOption(
+                                onPressed: () => Navigator.pop(ctx, 'Ошибка'),
+                                child: const Text('Ошибка'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (result != null) {
+                          onManualEvaluationChanged!(a, result);
+                        }
+                      },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: qualityColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    qualityLabel!,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ),
