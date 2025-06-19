@@ -715,6 +715,26 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     );
   }
 
+  Widget _buildAverageAccuracySummary() {
+    final avg = _calculateAverageAccuracy(_getFilteredHistory());
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          'Средняя точность: ${avg.toStringAsFixed(1)}%',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
   bool _hasResultsForTag(String tag) {
     return _getFilteredHistory(tags: {tag}).isNotEmpty;
   }
@@ -2079,6 +2099,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ),
                 ],
               ],
+              _buildAverageAccuracySummary(),
               _buildFilterSummary(),
               Expanded(
                 child: Builder(builder: (context) {
