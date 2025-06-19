@@ -125,10 +125,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportCsv() async {
-    if (_history.isEmpty) return;
+    final sessions = _getFilteredHistory();
+    if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
     rows.add(['Date', 'Total', 'Correct', 'Accuracy', 'Tags']);
-    for (final r in _history) {
+    for (final r in sessions) {
       rows.add([
         formatDateTime(r.date),
         r.total,
@@ -137,11 +138,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         r.tags.join(';'),
       ]);
     }
-    final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
+    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
+        .convert(rows, eol: '\r\n');
     final dir = await getTemporaryDirectory();
     final file = File(
         '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.csv');
-    await file.writeAsString(csvStr);
+    await file.writeAsString(csvStr, encoding: utf8);
     await Share.shareXFiles([XFile(file.path)], text: 'training_history.csv');
   }
 
@@ -758,7 +760,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
-                      onPressed: _history.isEmpty ? null : _exportCsv,
+                      onPressed:
+                          _getFilteredHistory().isEmpty ? null : _exportCsv,
                       child: const Text('Экспорт в CSV'),
                     ),
                   ),
