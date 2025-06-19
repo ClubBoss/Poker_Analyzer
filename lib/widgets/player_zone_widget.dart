@@ -11,6 +11,7 @@ import '../user_preferences.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
 import 'current_bet_label.dart';
+import 'bet_size_label.dart';
 import 'player_stack_label.dart';
 import 'stack_bar_widget.dart';
 import 'chip_moving_widget.dart';
@@ -97,6 +98,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Color _lastActionColor = Colors.black87;
   double _lastActionOpacity = 0.0;
   Timer? _lastActionTimer;
+  int? _stackBetAmount;
+  Color _stackBetColor = Colors.amber;
+  Timer? _stackBetTimer;
 
   @override
   void initState() {
@@ -187,7 +191,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
-  void setLastAction(String text, Color color, [int? amount]) {
+  void setLastAction(String text, Color color, String action, [int? amount]) {
     _lastActionTimer?.cancel();
     setState(() {
       _lastActionText = text;
@@ -201,6 +205,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
     if (amount != null) {
       showBetOverlay(amount, color);
+      if (action == 'bet' || action == 'raise') {
+        _showStackBetDisplay(amount, color);
+      }
     }
   }
 
@@ -260,6 +267,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
     overlay.insert(entry);
     _betOverlayEntry = entry;
+  }
+
+  void _showStackBetDisplay(int amount, Color color) {
+    _stackBetTimer?.cancel();
+    setState(() {
+      _stackBetAmount = amount;
+      _stackBetColor = color;
+    });
+    _stackBetTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _stackBetAmount = null);
+      }
+    });
   }
 
   Future<void> _editStack() async {
@@ -367,6 +387,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _playerZoneRegistry.remove(widget.playerName);
     _highlightTimer?.cancel();
     _lastActionTimer?.cancel();
+    _stackBetTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
     _controller.dispose();
@@ -605,6 +626,24 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         GestureDetector(
           onLongPress: _editStack,
           child: PlayerStackLabel(stack: stack, scale: widget.scale),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          ),
+          child: _stackBetAmount != null
+              ? Padding(
+                  padding: EdgeInsets.only(top: 4 * widget.scale),
+                  child: BetSizeLabel(
+                    key: ValueKey(_stackBetAmount),
+                    amount: _stackBetAmount!,
+                    color: _stackBetColor,
+                    scale: widget.scale,
+                  ),
+                )
+              : SizedBox(height: 4 * widget.scale),
         ),
         if (widget.showPlayerTypeLabel)
           AnimatedOpacity(
@@ -1286,9 +1325,9 @@ void revealOpponentCards(String playerName, List<CardModel> cards) {
 
 /// Sets and displays the last action label for the given player.
 void setPlayerLastAction(
-    String playerName, String text, Color color, [int? amount]) {
+    String playerName, String text, Color color, String action, [int? amount]) {
   final state = _playerZoneRegistry[playerName];
-  state?.setLastAction(text, color, amount);
+  state?.setLastAction(text, color, action, amount);
 }
 
 /// Reveals cards for multiple opponents at once. Typically called after

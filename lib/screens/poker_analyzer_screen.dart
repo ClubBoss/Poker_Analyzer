@@ -53,6 +53,7 @@ import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/mini_stack_widget.dart';
+import '../widgets/bet_size_label.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 import '../models/player_model.dart';
@@ -212,6 +213,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _animateTimeline = false;
   bool isPerspectiveSwitched = false;
 
+  final Map<int, _BetDisplayInfo> _recentBets = {};
+  final Map<int, Timer> _betTimers = {};
+
 
 
   /// Handles evaluation queue state and processing.
@@ -365,6 +369,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     overlay.insert(overlayEntry);
+  }
+
+  void _triggerBetDisplay(ActionEntry entry) {
+    if ((entry.action == 'bet' || entry.action == 'raise') && entry.amount != null) {
+      final color = ActionFormattingHelper.actionColor(entry.action);
+      final index = entry.playerIndex;
+      _betTimers[index]?.cancel();
+      setState(() {
+        _recentBets[index] = _BetDisplayInfo(entry.amount!, color);
+      });
+      _betTimers[index] = Timer(const Duration(seconds: 2), () {
+        if (!mounted) return;
+        setState(() {
+          _recentBets.remove(index);
+        });
+      });
+    }
   }
 
 
@@ -1158,6 +1179,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final insertIndex = index ?? actions.length;
     _actionEditing.insertAction(insertIndex, entry,
         recordHistory: recordHistory);
+    _triggerBetDisplay(entry);
   }
 
   void _insertAction(int index, ActionEntry entry) {
@@ -1182,6 +1204,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
       _actionEditing.editAction(index, entry);
+      _triggerBetDisplay(entry);
     });
   }
 
@@ -2399,6 +2422,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             PlayerTotalInvestedLabel(total: totalInvested, scale: scale * 0.8),
       ),
       Positioned(
+        left: centerX + dx - 20 * scale,
+        top: centerY + dy + bias + 120 * scale,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          ),
+          child: _recentBets[index] != null
+              ? BetSizeLabel(
+                  key: ValueKey(_recentBets[index]!.amount),
+                  amount: _recentBets[index]!.amount,
+                  color: _recentBets[index]!.color,
+                  scale: scale * 0.9,
+                )
+              : SizedBox(height: 0, width: 0),
+        ),
+      ),
+      Positioned(
         left: centerX + dx + (cos(angle) < 0 ? -45 * scale : 30 * scale),
         top: centerY + dy + bias + 50 * scale,
         child: MiniStackWidget(
@@ -2584,6 +2626,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       )
     ];
   }
+}
+
+class _BetDisplayInfo {
+  final int amount;
+  final Color color;
+  _BetDisplayInfo(this.amount, this.color);
 }
 
 class _ActivePlayerHighlight extends StatelessWidget {
