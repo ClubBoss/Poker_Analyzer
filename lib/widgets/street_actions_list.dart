@@ -17,6 +17,7 @@ class StreetActionsList extends StatelessWidget {
   final int numberOfPlayers;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
+  final void Function(int)? onDuplicate;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
   final void Function(ActionEntry, String?)? onManualEvaluationChanged;
@@ -32,6 +33,7 @@ class StreetActionsList extends StatelessWidget {
     required this.numberOfPlayers,
     required this.onEdit,
     required this.onDelete,
+    this.onDuplicate,
     this.visibleCount,
     this.evaluateActionQuality,
     this.onManualEvaluationChanged,
@@ -126,6 +128,25 @@ class StreetActionsList extends StatelessWidget {
           onEdit(globalIndex, edited);
         }
       },
+      onLongPress: onDuplicate == null
+          ? null
+          : () async {
+              final dup = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => SimpleDialog(
+                  title: const Text('Выберите действие'),
+                  children: [
+                    SimpleDialogOption(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Дублировать'),
+                    ),
+                  ],
+                ),
+              );
+              if (dup == true) {
+                onDuplicate!(globalIndex);
+              }
+            },
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,

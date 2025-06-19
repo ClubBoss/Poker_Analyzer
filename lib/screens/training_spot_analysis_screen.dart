@@ -101,6 +101,7 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
                 numberOfPlayers: positions.length,
                 onEdit: (_, __) {},
                 onDelete: (_) {},
+                onDuplicate: (_) {},
                 visibleCount: widget.spot.actions.length,
                 evaluateActionQuality:
                     prefs.coachMode ? _overrideQuality : null,

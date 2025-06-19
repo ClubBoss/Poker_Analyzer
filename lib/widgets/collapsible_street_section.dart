@@ -11,6 +11,7 @@ class CollapsibleStreetSection extends StatefulWidget {
   final Map<int, String> playerPositions;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
+  final void Function(int) onDuplicate;
   final void Function(int, int)? onReorder;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
@@ -24,6 +25,7 @@ class CollapsibleStreetSection extends StatefulWidget {
     required this.playerPositions,
     required this.onEdit,
     required this.onDelete,
+    required this.onDuplicate,
     this.onReorder,
     this.visibleCount,
     this.evaluateActionQuality,
@@ -152,6 +154,7 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
                   numberOfPlayers: widget.playerPositions.length,
                   onEdit: widget.onEdit,
                   onDelete: widget.onDelete,
+                  onDuplicate: widget.onDuplicate,
                   onReorder: widget.onReorder,
                   visibleCount: widget.visibleCount,
                   evaluateActionQuality: widget.evaluateActionQuality,
