@@ -1798,6 +1798,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final currentStreetEffectiveStack = _potSync
         .calculateEffectiveStackForStreet(currentStreet, visibleActions, numberOfPlayers);
     final pot = _potSync.pots[currentStreet];
+    final totalPot = _potSync.pots.reduce(max);
     final double? sprValue =
         pot > 0 ? effectiveStack / pot : null;
 
@@ -1932,6 +1933,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   },
                 )
               ],
+        ),
+      ),
+    ),
+    Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Text(
+        "Общий пот: $totalPot",
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
         ),
       ),
     ),
