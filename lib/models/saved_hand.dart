@@ -271,6 +271,8 @@ class SavedHand {
               'amount': a.amount,
               'generated': a.generated,
               'timestamp': a.timestamp.toIso8601String(),
+              if (a.manualEvaluation != null)
+                'manualEvaluation': a.manualEvaluation,
             }
         ],
         'stackSizes': stackSizes.map((k, v) => MapEntry(k.toString(), v)),
@@ -354,6 +356,7 @@ class SavedHand {
           generated: a['generated'] as bool? ?? false,
           timestamp:
               DateTime.tryParse(a['timestamp'] as String? ?? '') ?? DateTime.now(),
+          manualEvaluation: a['manualEvaluation'] as String?,
         )
     ];
     final stack = <int, int>{};

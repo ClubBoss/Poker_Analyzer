@@ -62,7 +62,7 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
     return entry.manualEvaluation ?? _evaluateActionQuality(entry);
   }
 
-  void _setManualEvaluation(ActionEntry entry, String value) {
+  void _setManualEvaluation(ActionEntry entry, String? value) {
     setState(() {
       entry.manualEvaluation = value;
     });
