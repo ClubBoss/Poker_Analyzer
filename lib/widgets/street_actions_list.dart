@@ -327,14 +327,25 @@ class StreetActionsList extends StatelessWidget {
                 final entry = streetActions[index];
                 final showDivider = index > 0 &&
                     (entry.action == 'bet' || entry.action == 'raise');
-                return Column(
+                return Dismissible(
                   key: ValueKey(entry),
-                  children: [
-                    if (showDivider)
-                      const Divider(height: 4, color: Colors.white24),
-                    _buildTile(
-                        context, entry, actions.indexOf(entry), index),
-                  ],
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    color: Colors.red,
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (_) =>
+                      onDelete(actions.indexOf(entry)),
+                  child: Column(
+                    children: [
+                      if (showDivider)
+                        const Divider(height: 4, color: Colors.white24),
+                      _buildTile(
+                          context, entry, actions.indexOf(entry), index),
+                    ],
+                  ),
                 );
               },
             ),
