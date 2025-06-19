@@ -38,7 +38,7 @@ enum _SortOption { newest, oldest, rating }
 
 enum _RatingFilter { all, pct40, pct60, pct80 }
 
-enum _AccuracyRange { all, lt50, pct50to70, pct70to90, pct90to100 }
+enum _AccuracyRange { all, lt50, pct50to75, gt75 }
 
 enum _ChartMode { daily, weekly, monthly }
 
@@ -116,7 +116,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     setState(() {
       _sort = _SortOption.values[sortIndex];
       _ratingFilter = _RatingFilter.values[ratingIndex];
-      _accuracyRange = _AccuracyRange.values[accuracyRangeIndex];
+      _accuracyRange = accuracyRangeIndex < _AccuracyRange.values.length
+          ? _AccuracyRange.values[accuracyRangeIndex]
+          : _AccuracyRange.all;
       _selectedTags = tags.toSet();
       _selectedTagColors = colors.toSet();
       _showCharts = showCharts ?? true;
@@ -527,12 +529,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
               return true;
             case _AccuracyRange.lt50:
               return r.accuracy < 50;
-            case _AccuracyRange.pct50to70:
-              return r.accuracy >= 50 && r.accuracy < 70;
-            case _AccuracyRange.pct70to90:
-              return r.accuracy >= 70 && r.accuracy < 90;
-            case _AccuracyRange.pct90to100:
-              return r.accuracy >= 90 && r.accuracy <= 100;
+            case _AccuracyRange.pct50to75:
+              return r.accuracy >= 50 && r.accuracy <= 75;
+            case _AccuracyRange.gt75:
+              return r.accuracy > 75;
           }
         })
         .where((r) {
@@ -684,9 +684,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (_accuracyRange != _AccuracyRange.all) {
       final label = switch (_accuracyRange) {
         _AccuracyRange.lt50 => '<50%',
-        _AccuracyRange.pct50to70 => '50–70%',
-        _AccuracyRange.pct70to90 => '70–90%',
-        _AccuracyRange.pct90to100 => '90–100%',
+        _AccuracyRange.pct50to75 => '50–75%',
+        _AccuracyRange.gt75 => '>75%',
         _ => '',
       };
       if (label.isNotEmpty) parts.add('точность: $label');
@@ -805,6 +804,38 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     );
   }
 
+  Widget _buildQuickAccuracyRow() {
+    const items = {
+      _AccuracyRange.lt50: '<50%',
+      _AccuracyRange.pct50to75: '50–75%',
+      _AccuracyRange.gt75: '>75%',
+      _AccuracyRange.all: 'Все',
+    };
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          for (final entry in items.entries)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(entry.value),
+                selected: _accuracyRange == entry.key,
+                onSelected: (selected) async {
+                  if (!selected) return;
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setInt(_accuracyRangeKey, entry.key.index);
+                  setState(() => _accuracyRange = entry.key);
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   bool _hasResultsForTag(String tag) {
     return _getFilteredHistory(tags: {tag}).isNotEmpty;
   }
@@ -830,9 +861,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (_accuracyRange != _AccuracyRange.all) {
       final label = switch (_accuracyRange) {
         _AccuracyRange.lt50 => '<50%',
-        _AccuracyRange.pct50to70 => '50-70%',
-        _AccuracyRange.pct70to90 => '70-90%',
-        _AccuracyRange.pct90to100 => '90-100%',
+        _AccuracyRange.pct50to75 => '50-75%',
+        _AccuracyRange.gt75 => '>75%',
         _ => '',
       };
       if (label.isNotEmpty) lines.add('Accuracy: $label');
@@ -1655,6 +1685,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         );
                 }),
                 _buildQuickLengthRow(),
+                _buildQuickAccuracyRow(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -1855,14 +1886,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           DropdownMenuItem(
                               value: _AccuracyRange.lt50, child: Text('<50%')),
                           DropdownMenuItem(
-                              value: _AccuracyRange.pct50to70,
-                              child: Text('50–70%')),
+                              value: _AccuracyRange.pct50to75,
+                              child: Text('50–75%')),
                           DropdownMenuItem(
-                              value: _AccuracyRange.pct70to90,
-                              child: Text('70–90%')),
-                          DropdownMenuItem(
-                              value: _AccuracyRange.pct90to100,
-                              child: Text('90–100%')),
+                              value: _AccuracyRange.gt75, child: Text('>75%')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
