@@ -11,6 +11,7 @@ class HistoryListItem extends StatelessWidget {
   final VoidCallback? onLongPress;
   final VoidCallback? onTap;
   final VoidCallback? onTagTap;
+  final VoidCallback? onDelete;
 
   const HistoryListItem({
     super.key,
@@ -18,6 +19,7 @@ class HistoryListItem extends StatelessWidget {
     this.onLongPress,
     this.onTap,
     this.onTagTap,
+    this.onDelete,
   });
 
   @override
@@ -81,6 +83,11 @@ class HistoryListItem extends StatelessWidget {
               icon: const Icon(Icons.label_outline, color: Colors.white70),
               tooltip: 'Edit Tags',
               onPressed: onTagTap,
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.white70),
+              tooltip: 'Delete Session',
+              onPressed: onDelete,
             ),
           ],
         ),

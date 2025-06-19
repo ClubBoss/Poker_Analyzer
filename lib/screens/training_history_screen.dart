@@ -1179,6 +1179,31 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await _saveHistory();
   }
 
+  Future<void> _confirmDelete(TrainingResult session) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Session?'),
+          content: const Text('Are you sure you want to delete this session?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirm ?? false) {
+      await _deleteSession(session);
+    }
+  }
+
   Future<void> _setChartsVisible(bool value) async {
     setState(() => _showCharts = value);
     final prefs = await SharedPreferences.getInstance();
@@ -2063,6 +2088,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                             onLongPress: () => _editSessionTags(context, result),
                             onTap: () => _editSessionNotes(context, result),
                             onTagTap: () => _editSessionTags(context, result),
+                            onDelete: () => _confirmDelete(result),
                           ),
                         );
                       },
