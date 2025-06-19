@@ -1173,6 +1173,41 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _editSessionDate(TrainingResult session) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: session.date,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      final index = _history.indexOf(session);
+      if (index != -1) {
+        final newDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          session.date.hour,
+          session.date.minute,
+          session.date.second,
+          session.date.millisecond,
+          session.date.microsecond,
+        );
+        setState(() {
+          _history[index] = TrainingResult(
+            date: newDate,
+            total: session.total,
+            correct: session.correct,
+            accuracy: session.accuracy,
+            tags: session.tags,
+            notes: session.notes,
+          );
+        });
+        await _saveHistory();
+      }
+    }
+  }
+
   Future<void> _deleteSession(TrainingResult session) async {
     setState(() {
       _history.remove(session);
@@ -2086,7 +2121,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           onDismissed: (_) => _deleteSession(result),
                           child: HistoryListItem(
                             result: result,
-                            onLongPress: () => _editSessionTags(context, result),
+                            onLongPress: () => _editSessionDate(result),
                             onTap: () => _editSessionNotes(context, result),
                             onTagTap: () => _editSessionTags(context, result),
                             onDelete: () => _confirmDelete(result),
