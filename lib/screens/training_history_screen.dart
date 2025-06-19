@@ -34,12 +34,18 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _ratingKey = 'training_history_rating';
   static const _tagKey = 'training_history_tags';
   static const _showChartsKey = 'training_history_show_charts';
+  static const _dateFromKey = 'training_history_date_from';
+  static const _dateToKey = 'training_history_date_to';
+
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
   _SortOption _sort = _SortOption.newest;
   _RatingFilter _ratingFilter = _RatingFilter.all;
   Set<String> _selectedTags = {};
   bool _showCharts = true;
+
+  DateTime? _dateFrom;
+  DateTime? _dateTo;
 
   @override
   void initState() {
@@ -53,11 +59,17 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
     final tags = prefs.getStringList(_tagKey) ?? [];
     final showCharts = prefs.getBool(_showChartsKey);
+    final fromMillis = prefs.getInt(_dateFromKey);
+    final toMillis = prefs.getInt(_dateToKey);
     setState(() {
       _sort = _SortOption.values[sortIndex];
       _ratingFilter = _RatingFilter.values[ratingIndex];
       _selectedTags = tags.toSet();
       _showCharts = showCharts ?? true;
+      _dateFrom =
+          fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
+      _dateTo =
+          toMillis != null ? DateTime.fromMillisecondsSinceEpoch(toMillis) : null;
     });
     _loadHistory();
   }
@@ -189,10 +201,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setInt(_sortKey, _SortOption.newest.index);
     await prefs.setInt(_ratingKey, _RatingFilter.all.index);
     await prefs.remove(_tagKey);
+    await prefs.remove(_dateFromKey);
+    await prefs.remove(_dateToKey);
     setState(() {
       _sort = _SortOption.newest;
       _ratingFilter = _RatingFilter.all;
       _selectedTags.clear();
+      _dateFrom = null;
+      _dateTo = null;
     });
   }
 
@@ -202,10 +218,22 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     setState(() => _selectedTags.clear());
   }
 
+  Future<void> _clearDateFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_dateFromKey);
+    await prefs.remove(_dateToKey);
+    setState(() {
+      _dateFrom = null;
+      _dateTo = null;
+    });
+  }
+
   List<TrainingResult> _getFilteredHistory() {
     final cutoff = DateTime.now().subtract(Duration(days: _filterDays));
     final list = _history
         .where((r) => r.date.isAfter(cutoff))
+        .where((r) => _dateFrom == null || !r.date.isBefore(_dateFrom!))
+        .where((r) => _dateTo == null || !r.date.isAfter(_dateTo!))
         .where((r) {
           final min = switch (_ratingFilter) {
             _RatingFilter.all => 0,
@@ -459,6 +487,33 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_showChartsKey, _showCharts);
   }
 
+  Future<void> _pickDateRange() async {
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      initialDateRange: _dateFrom != null && _dateTo != null
+          ? DateTimeRange(start: _dateFrom!, end: _dateTo!)
+          : null,
+    );
+    if (range != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_dateFromKey, DateUtils.dateOnly(range.start).millisecondsSinceEpoch);
+      await prefs.setInt(_dateToKey, DateUtils.dateOnly(range.end).millisecondsSinceEpoch);
+      setState(() {
+        _dateFrom = DateUtils.dateOnly(range.start);
+        _dateTo = DateUtils.dateOnly(range.end);
+      });
+    }
+  }
+
+  String _dateRangeLabel() {
+    if (_dateFrom == null && _dateTo == null) return '';
+    final fromStr = _dateFrom != null ? formatDate(_dateFrom!) : '...';
+    final toStr = _dateTo != null ? formatDate(_dateTo!) : '...';
+    return '$fromStr - $toStr';
+  }
+
   void _openSessionDetail(TrainingResult session) {
     Navigator.push(
       context,
@@ -694,6 +749,30 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       onPressed: _history.isEmpty ? null : _exportCsv,
                       child: const Text('Экспорт в CSV'),
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _pickDateRange,
+                        child: const Text('Фильтр по дате'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _dateFrom == null && _dateTo == null
+                            ? null
+                            : _clearDateFilter,
+                        child: const Text('Сбросить дату'),
+                      ),
+                      const SizedBox(width: 8),
+                      if (_dateFrom != null || _dateTo != null)
+                        Text(
+                          _dateRangeLabel(),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                    ],
                   ),
                 ),
                 Expanded(
