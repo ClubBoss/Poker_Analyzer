@@ -44,6 +44,8 @@ enum _TagCountFilter { any, one, twoPlus, threePlus }
 
 enum _WeekdayFilter { all, mon, tue, wed, thu, fri, sat, sun }
 
+enum _SessionLengthFilter { any, oneToFive, sixToTen, elevenPlus }
+
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _sortKey = 'training_history_sort';
   static const _ratingKey = 'training_history_rating';
@@ -60,6 +62,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _accuracyRangeKey = 'training_history_accuracy_range';
   static const _tagCountKey = 'training_history_tag_count';
   static const _weekdayKey = 'training_history_weekday';
+  static const _lengthKey = 'training_history_length';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
@@ -76,6 +79,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   _ChartMode _chartMode = _ChartMode.daily;
   _TagCountFilter _tagCountFilter = _TagCountFilter.any;
   _WeekdayFilter _weekdayFilter = _WeekdayFilter.all;
+  _SessionLengthFilter _lengthFilter = _SessionLengthFilter.any;
 
   DateTime? _dateFrom;
   DateTime? _dateTo;
@@ -101,6 +105,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final chartModeIndex = prefs.getInt(_chartModeKey) ?? 0;
     final tagCountIndex = prefs.getInt(_tagCountKey) ?? 0;
     final weekdayIndex = prefs.getInt(_weekdayKey) ?? 0;
+    final lengthIndex = prefs.getInt(_lengthKey) ?? 0;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
@@ -117,6 +122,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _chartMode = _ChartMode.values[chartModeIndex];
       _tagCountFilter = _TagCountFilter.values[tagCountIndex];
       _weekdayFilter = _WeekdayFilter.values[weekdayIndex];
+      _lengthFilter = _SessionLengthFilter.values[lengthIndex];
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -338,6 +344,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
     await prefs.setInt(_tagCountKey, _TagCountFilter.any.index);
     await prefs.setInt(_weekdayKey, _WeekdayFilter.all.index);
+    await prefs.setInt(_lengthKey, _SessionLengthFilter.any.index);
     await prefs.setBool(_sortByTagKey, false);
     await prefs.remove(_tagKey);
     await prefs.remove(_tagColorKey);
@@ -349,6 +356,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _accuracyRange = _AccuracyRange.all;
       _tagCountFilter = _TagCountFilter.any;
       _weekdayFilter = _WeekdayFilter.all;
+      _lengthFilter = _SessionLengthFilter.any;
       _selectedTags.clear();
       _selectedTagColors.clear();
       _sortByTag = false;
@@ -449,6 +457,18 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
               return r.date.weekday == DateTime.saturday;
             case _WeekdayFilter.sun:
               return r.date.weekday == DateTime.sunday;
+          }
+        })
+        .where((r) {
+          switch (_lengthFilter) {
+            case _SessionLengthFilter.any:
+              return true;
+            case _SessionLengthFilter.oneToFive:
+              return r.total >= 1 && r.total <= 5;
+            case _SessionLengthFilter.sixToTen:
+              return r.total >= 6 && r.total <= 10;
+            case _SessionLengthFilter.elevenPlus:
+              return r.total >= 11;
           }
         })
         .where((r) {
@@ -1415,6 +1435,41 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           final prefs = await SharedPreferences.getInstance();
                           await prefs.setInt(_weekdayKey, value.index);
                           setState(() => _weekdayFilter = value);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('Длина сессии',
+                          style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 8),
+                      DropdownButton<_SessionLengthFilter>(
+                        value: _lengthFilter,
+                        dropdownColor: AppColors.cardBackground,
+                        style: const TextStyle(color: Colors.white),
+                        items: const [
+                          DropdownMenuItem(
+                              value: _SessionLengthFilter.any,
+                              child: Text('Любая')),
+                          DropdownMenuItem(
+                              value: _SessionLengthFilter.oneToFive,
+                              child: Text('1–5')),
+                          DropdownMenuItem(
+                              value: _SessionLengthFilter.sixToTen,
+                              child: Text('6–10')),
+                          DropdownMenuItem(
+                              value: _SessionLengthFilter.elevenPlus,
+                              child: Text('11+')),
+                        ],
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setInt(_lengthKey, value.index);
+                          setState(() => _lengthFilter = value);
                         },
                       ),
                     ],
