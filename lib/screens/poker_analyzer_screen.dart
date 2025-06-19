@@ -1184,6 +1184,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _reorderAction(int oldIndex, int newIndex) {
+    if (lockService.isLocked) return;
+    lockService.safeSetState(this, () {
+      _actionEditing.reorderAction(oldIndex, newIndex);
+    });
+  }
+
   Future<void> _removeLastPlayerAction(int playerIndex) async {
     final actionIndex = actions.lastIndexWhere(
         (a) => a.playerIndex == playerIndex && a.street == currentStreet);
@@ -1919,6 +1926,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               playerPositions: playerPositions,
               onEdit: _editAction,
               onDelete: _deleteAction,
+              onReorder: _reorderAction,
               visibleCount: _playbackManager.playbackIndex,
               evaluateActionQuality: _evaluateActionQuality,
             ),
@@ -1935,6 +1943,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         stackSizes: _stackService.currentStacks,
         onEdit: _editAction,
       onDelete: _deleteAction,
+      onReorder: _reorderAction,
       visibleCount: _playbackManager.playbackIndex,
       evaluateActionQuality: _evaluateActionQuality,
     ),
@@ -3577,6 +3586,7 @@ class _StreetActionsSection extends StatelessWidget {
   final Map<int, String> playerPositions;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
+  final void Function(int, int) onReorder;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
 
@@ -3588,6 +3598,7 @@ class _StreetActionsSection extends StatelessWidget {
     required this.playerPositions,
     required this.onEdit,
     required this.onDelete,
+    required this.onReorder,
     this.visibleCount,
     this.evaluateActionQuality,
   });
@@ -3606,6 +3617,7 @@ class _StreetActionsSection extends StatelessWidget {
         numberOfPlayers: playerPositions.length,
         onEdit: onEdit,
         onDelete: onDelete,
+        onReorder: onReorder,
         visibleCount: visibleCount,
         evaluateActionQuality: evaluateActionQuality,
       ),
@@ -3984,6 +3996,7 @@ class _HandEditorSection extends StatelessWidget {
                   playerPositions: playerPositions,
                   onEdit: onEdit,
                   onDelete: onDelete,
+                  onReorder: _reorderAction,
                   visibleCount: visibleCount,
                   evaluateActionQuality: evaluateActionQuality,
                 ),

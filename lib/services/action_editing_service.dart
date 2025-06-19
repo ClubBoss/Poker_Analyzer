@@ -164,6 +164,23 @@ class ActionEditingService {
     playbackManager.updatePlaybackState();
   }
 
+  /// Move an action from [oldIndex] to [newIndex].
+  void reorderAction(int oldIndex, int newIndex) {
+    if (oldIndex < 0 || oldIndex >= actions.length) return;
+    if (newIndex > oldIndex) newIndex -= 1;
+    if (newIndex < 0 || newIndex >= actions.length) newIndex = actions.length - 1;
+    undoRedo.recordSnapshot();
+    final entry = actionSync.analyzerActions.removeAt(oldIndex);
+    actionSync.analyzerActions.insert(newIndex, entry);
+    actionTag.recompute(actionSync.analyzerActions);
+    actionSync.syncStacks();
+    actionSync.notifyListeners();
+    playbackManager.updatePlaybackState();
+    actionHistory.updateHistory(actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex);
+    actionHistory.autoCollapseStreets(actions);
+  }
+
   /// Remove all future actions for [playerIndex] starting from [fromIndex]
   /// on [street]. This is typically called after a fold or when auto-folds
   /// are inserted.
