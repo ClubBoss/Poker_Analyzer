@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:file_picker/file_picker.dart';
 import '../helpers/date_utils.dart';
@@ -290,7 +290,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
           action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
-              OpenFile.open(file.path);
+              OpenFilex.open(file.path);
             },
           ),
         ),
@@ -342,7 +342,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
           action: SnackBarAction(
             label: 'Открыть',
             onPressed: () {
-              OpenFile.open(file.path);
+              OpenFilex.open(file.path);
             },
           ),
         ),
