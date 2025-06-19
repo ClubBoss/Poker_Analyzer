@@ -420,6 +420,36 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _exportVisibleCsv() async {
+    final sessions = _getFilteredHistory();
+    if (sessions.isEmpty) return;
+    final rows = <List<dynamic>>[];
+    rows.add(['Date', 'Accuracy', 'Total', 'Correct', 'Tags', 'Notes']);
+    for (final r in sessions) {
+      rows.add([
+        formatDateTime(r.date),
+        r.accuracy.toStringAsFixed(1),
+        r.total,
+        r.correct,
+        r.tags.join(';'),
+        r.notes ?? '',
+      ]);
+    }
+    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
+        .convert(rows, eol: '\r\n');
+    final dir = await getApplicationDocumentsDirectory();
+    final fileName =
+        'visible_${DateTime.now().millisecondsSinceEpoch}.csv';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsString(csvStr, encoding: utf8);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: $fileName')),
+      );
+    }
+  }
+
   Future<void> _importJson() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -2363,11 +2393,22 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ElevatedButton(
-                  onPressed: _getFilteredHistory().isEmpty
-                      ? null
-                      : _copyVisibleResults,
-                  child: const Text('Копировать результаты'),
+                child: Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: _getFilteredHistory().isEmpty
+                          ? null
+                          : _copyVisibleResults,
+                      child: const Text('Копировать результаты'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _getFilteredHistory().isEmpty
+                          ? null
+                          : _exportVisibleCsv,
+                      child: const Text('Экспорт CSV'),
+                    ),
+                  ],
                 ),
               ),
               ],
