@@ -43,6 +43,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _dateFromKey = 'training_history_date_from';
   static const _dateToKey = 'training_history_date_to';
   static const _chartModeKey = 'training_history_chart_mode';
+  static const _hideEmptyTagsKey = 'hide_empty_tags';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
@@ -52,6 +53,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   bool _showCharts = true;
   bool _showAvgChart = true;
   bool _showDistribution = true;
+  bool _hideEmptyTags = false;
   _ChartMode _chartMode = _ChartMode.daily;
 
   DateTime? _dateFrom;
@@ -71,6 +73,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final showCharts = prefs.getBool(_showChartsKey);
     final showAvgChart = prefs.getBool(_showAvgChartKey);
     final showDistribution = prefs.getBool(_showDistributionKey);
+    final hideEmptyTags = prefs.getBool(_hideEmptyTagsKey) ?? false;
     final chartModeIndex = prefs.getInt(_chartModeKey) ?? 0;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
@@ -81,6 +84,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _showCharts = showCharts ?? true;
       _showAvgChart = showAvgChart ?? true;
       _showDistribution = showDistribution ?? true;
+      _hideEmptyTags = hideEmptyTags;
       _chartMode = _ChartMode.values[chartModeIndex];
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
@@ -290,8 +294,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     });
   }
 
-  List<TrainingResult> _getFilteredHistory() {
+  List<TrainingResult> _getFilteredHistory({Set<String>? tags}) {
     final cutoff = DateTime.now().subtract(Duration(days: _filterDays));
+    final selected = tags ?? _selectedTags;
     final list = _history
         .where((r) => r.date.isAfter(cutoff))
         .where((r) => _dateFrom == null || !r.date.isBefore(_dateFrom!))
@@ -306,8 +311,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           return r.accuracy >= min;
         })
         .where((r) {
-          if (_selectedTags.isEmpty) return true;
-          return r.tags.any(_selectedTags.contains);
+          if (selected.isEmpty) return true;
+          return r.tags.any(selected.contains);
         })
         .toList();
     switch (_sort) {
@@ -363,6 +368,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       result.add(TrainingResult(date: k, total: total, correct: correct, accuracy: accuracy));
     }
     return result;
+  }
+
+  bool _hasResultsForTag(String tag) {
+    return _getFilteredHistory(tags: {tag}).isNotEmpty;
   }
 
   Future<void> _showTagSelector() async {
@@ -596,6 +605,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_showDistributionKey, _showDistribution);
   }
 
+  Future<void> _setHideEmptyTags(bool value) async {
+    setState(() => _hideEmptyTags = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hideEmptyTagsKey, _hideEmptyTags);
+  }
+
   Future<void> _setChartMode(_ChartMode mode) async {
     setState(() => _chartMode = mode);
     final prefs = await SharedPreferences.getInstance();
@@ -745,11 +760,25 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   ],
                 );
               }),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      const Text('Фильтр по тегам',
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Text('Скрыть пустые теги',
+                      style: TextStyle(color: Colors.white)),
+                  const Spacer(),
+                  Switch(
+                    value: _hideEmptyTags,
+                    onChanged: _setHideEmptyTags,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Text('Фильтр по тегам',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
                       ElevatedButton(
@@ -766,33 +795,43 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ],
                   ),
                 ),
-                if (_selectedTags.isNotEmpty)
-                  SizedBox(
-                    height: 40,
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        for (final tag in _selectedTags)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: FilterChip(
-                              label: Text(tag),
-                              selected: true,
-                              onSelected: (selected) async {
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                setState(() {
-                                  _selectedTags.remove(tag);
-                                });
-                                await prefs.setStringList(
-                                    _tagKey, _selectedTags.toList());
-                              },
-                            ),
+                Builder(builder: (context) {
+                  final visibleTags = _hideEmptyTags
+                      ? [
+                          for (final t in _selectedTags)
+                            if (_hasResultsForTag(t)) t
+                        ]
+                      : _selectedTags.toList();
+                  return visibleTags.isEmpty
+                      ? const SizedBox.shrink()
+                      : SizedBox(
+                          height: 40,
+                          child: ListView(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              for (final tag in visibleTags)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  child: FilterChip(
+                                    label: Text(tag),
+                                    selected: true,
+                                    onSelected: (selected) async {
+                                      final prefs = await SharedPreferences
+                                          .getInstance();
+                                      setState(() {
+                                        _selectedTags.remove(tag);
+                                      });
+                                      await prefs.setStringList(
+                                          _tagKey, _selectedTags.toList());
+                                    },
+                                  ),
+                                ),
+                            ],
                           ),
-                      ],
-                    ),
-                  ),
+                        );
+                }),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
