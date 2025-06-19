@@ -735,6 +735,44 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     );
   }
 
+  Widget _buildQuickTagRow() {
+    final tags = <String>{};
+    for (final r in _history) {
+      tags.addAll(r.tags);
+    }
+    if (tags.isEmpty) return const SizedBox.shrink();
+    final tagService = context.read<TagService>();
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          for (final tag in tags)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(tag),
+                selected: _selectedTags.contains(tag),
+                selectedColor: colorFromHex(tagService.colorOf(tag)),
+                onSelected: (selected) async {
+                  final prefs = await SharedPreferences.getInstance();
+                  setState(() {
+                    if (selected) {
+                      _selectedTags.add(tag);
+                    } else {
+                      _selectedTags.remove(tag);
+                    }
+                  });
+                  await prefs.setStringList(_tagKey, _selectedTags.toList());
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   bool _hasResultsForTag(String tag) {
     return _getFilteredHistory(tags: {tag}).isNotEmpty;
   }
@@ -1445,6 +1483,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   ],
                 );
               }),
+            _buildQuickTagRow(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
