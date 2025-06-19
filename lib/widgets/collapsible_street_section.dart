@@ -147,6 +147,7 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
                   pots: widget.pots,
                   stackSizes: widget.stackSizes,
                   playerPositions: widget.playerPositions,
+                  numberOfPlayers: widget.playerPositions.length,
                   onEdit: widget.onEdit,
                   onDelete: widget.onDelete,
                   visibleCount: widget.visibleCount,

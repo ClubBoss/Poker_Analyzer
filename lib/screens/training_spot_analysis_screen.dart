@@ -98,6 +98,7 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
                 pots: pots,
                 stackSizes: stacks,
                 playerPositions: positions,
+                numberOfPlayers: positions.length,
                 onEdit: (_, __) {},
                 onDelete: (_) {},
                 visibleCount: widget.spot.actions.length,

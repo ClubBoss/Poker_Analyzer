@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
-import 'detailed_action_bottom_sheet.dart';
+import 'edit_action_dialog.dart';
 import 'package:intl/intl.dart';
 
 import 'street_pot_widget.dart';
@@ -14,6 +14,7 @@ class StreetActionsList extends StatelessWidget {
   final List<int> pots;
   final Map<int, int> stackSizes;
   final Map<int, String> playerPositions;
+  final int numberOfPlayers;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
   final int? visibleCount;
@@ -27,6 +28,7 @@ class StreetActionsList extends StatelessWidget {
     required this.pots,
     required this.stackSizes,
     required this.playerPositions,
+    required this.numberOfPlayers,
     required this.onEdit,
     required this.onDelete,
     this.visibleCount,
@@ -111,22 +113,14 @@ class StreetActionsList extends StatelessWidget {
         ],
       ),
       onTap: () async {
-        final result = await showDetailedActionBottomSheet(
+        final edited = await showEditActionDialog(
           context,
-          potSizeBB: pots[a.street],
-          stackSizeBB: stackSizes[a.playerIndex] ?? 0,
-          currentStreet: a.street,
-          initialAction: a.action,
-          initialAmount: a.amount,
+          entry: a,
+          numberOfPlayers: numberOfPlayers,
+          playerPositions: playerPositions,
         );
-        if (result != null) {
-          final entry = ActionEntry(
-            result['street'] as int,
-            a.playerIndex,
-            result['action'] as String,
-            amount: result['amount'] as int?,
-          );
-          onEdit(globalIndex, entry);
+        if (edited != null) {
+          onEdit(globalIndex, edited);
         }
       },
       trailing: Row(
