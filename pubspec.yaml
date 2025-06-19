@@ -16,6 +16,7 @@ dependencies:
   shared_preferences: ^2.2.0
   path_provider: ^2.0.15
   open_file: ^3.5.10
+  open_filex: ^4.7.0
   file_picker: ^5.2.10
   desktop_drop: ^0.6.0
   fl_chart: ^0.64.0
