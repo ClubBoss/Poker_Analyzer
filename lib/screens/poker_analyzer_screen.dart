@@ -299,7 +299,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (isPerspectiveSwitched && opponentIndex != null) {
       return opponentIndex!;
     }
-    return _playerManager.heroIndex;
+    return _debugPrefs.pinHeroPosition ? _playerManager.heroIndex : 0;
   }
 
   int _inferBoardStreet() => _boardSync.inferBoardStreet();
@@ -4711,6 +4711,23 @@ class _SnapshotControls extends StatelessWidget {
     );
   }
 
+  Widget _pinHeroSwitch() {
+    return Row(
+      children: [
+        const Expanded(child: Text('Pin Hero Position')),
+        Switch(
+          value: s._debugPrefs.pinHeroPosition,
+          onChanged: (v) async {
+            await s._debugPrefs.setPinHeroPosition(v);
+            s.lockService.safeSetState(this, () {});
+            s._debugPanelSetState?.call(() {});
+          },
+          activeColor: Colors.orange,
+        ),
+      ],
+    );
+  }
+
 
 class _ProcessingControls extends StatelessWidget {
   const _ProcessingControls({required this.state});
@@ -4842,6 +4859,8 @@ class _QueueDisplaySection extends StatelessWidget {
         ),
         _DebugPanelDialogState._vGap,
         state._sortBySprSwitch(),
+        _DebugPanelDialogState._vGap,
+        state._pinHeroSwitch(),
         _DebugPanelDialogState._vGap,
         TextField(
           controller: state._searchController,
@@ -5143,6 +5162,8 @@ class _InternalStateFlagsSection extends StatelessWidget {
         debugDiag('Perspective Switched', s.isPerspectiveSwitched),
         _DebugPanelDialogState._vGap,
         debugDiag('Show All Revealed Cards', s._debugPrefs.showAllRevealedCards),
+        _DebugPanelDialogState._vGap,
+        debugDiag('Pin Hero Position', s._debugPrefs.pinHeroPosition),
       ],
     );
   }

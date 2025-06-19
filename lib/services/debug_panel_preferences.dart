@@ -14,6 +14,7 @@ class DebugPanelPreferences extends ChangeNotifier {
   static const _debugPanelOpenKey = 'debug_panel_open';
   static const _debugLayoutKey = 'debug_layout_enabled';
   static const _showAllCardsKey = 'show_all_revealed_cards';
+  static const _pinHeroKey = 'pin_hero_position';
 
   bool _snapshotRetentionEnabled = true;
   int _processingDelay = 500;
@@ -25,6 +26,7 @@ class DebugPanelPreferences extends ChangeNotifier {
   bool _isDebugPanelOpen = false;
   bool _debugLayout = false;
   bool _showAllRevealedCards = false;
+  bool _pinHeroPosition = false;
 
   bool get snapshotRetentionEnabled => _snapshotRetentionEnabled;
   int get processingDelay => _processingDelay;
@@ -36,6 +38,7 @@ class DebugPanelPreferences extends ChangeNotifier {
   bool get isDebugPanelOpen => _isDebugPanelOpen;
   bool get debugLayout => _debugLayout;
   bool get showAllRevealedCards => _showAllRevealedCards;
+  bool get pinHeroPosition => _pinHeroPosition;
 
   Future<void> loadSnapshotRetention() async {
     final prefs = await SharedPreferences.getInstance();
@@ -174,6 +177,19 @@ class DebugPanelPreferences extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadPinHeroPosition() async {
+    final prefs = await SharedPreferences.getInstance();
+    _pinHeroPosition = prefs.getBool(_pinHeroKey) ?? false;
+  }
+
+  Future<void> setPinHeroPosition(bool value) async {
+    if (_pinHeroPosition == value) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_pinHeroKey, value);
+    _pinHeroPosition = value;
+    notifyListeners();
+  }
+
   List<T> applyAdvancedFilters<T extends ActionEvaluationRequest>(List<T> list) {
     final filters = _advancedFilters;
     final sort = _sortBySpr;
@@ -260,6 +276,7 @@ class DebugPanelPreferences extends ChangeNotifier {
     await loadDebugPanelOpen();
     await loadDebugLayout();
     await loadShowAllRevealedCards();
+    await loadPinHeroPosition();
     notifyListeners();
   }
 
@@ -274,6 +291,7 @@ class DebugPanelPreferences extends ChangeNotifier {
     await prefs.remove(_debugPanelOpenKey);
     await prefs.remove(_debugLayoutKey);
     await prefs.remove(_showAllCardsKey);
+    await prefs.remove(_pinHeroKey);
     _queueResumed = prefs.getBool(_queueResumedKey) ?? false;
     await loadAllPreferences();
   }
