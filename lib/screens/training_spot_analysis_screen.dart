@@ -54,6 +54,29 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
     return manager.currentStacks;
   }
 
+  int _effectiveStackForStreet(int street) {
+    int? minStack;
+    for (int index = 0; index < widget.spot.numberOfPlayers; index++) {
+      final folded = widget.spot.actions.any((a) =>
+          a.playerIndex == index && a.action == 'fold' && a.street <= street);
+      if (folded) continue;
+
+      int invested = 0;
+      for (final a in widget.spot.actions) {
+        if (a.playerIndex == index && a.street <= street) {
+          if (a.action == 'bet' || a.action == 'raise' || a.action == 'call') {
+            invested += a.amount ?? 0;
+          }
+        }
+      }
+      final remaining = widget.spot.stacks[index] - invested;
+      if (minStack == null || remaining < minStack) {
+        minStack = remaining;
+      }
+    }
+    return minStack ?? 0;
+  }
+
   Map<int, String> _posMap() => {
         for (int i = 0; i < widget.spot.numberOfPlayers; i++) i: widget.spot.positions[i]
       };
@@ -97,6 +120,7 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
                 actions: widget.spot.actions,
                 pots: pots,
                 stackSizes: stacks,
+                effectiveStack: _effectiveStackForStreet(street),
                 playerPositions: positions,
                 numberOfPlayers: positions.length,
                 onEdit: (_, __) {},

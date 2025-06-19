@@ -16,6 +16,7 @@ class StreetActionsList extends StatelessWidget {
   final Map<int, int> stackSizes;
   final Map<int, String> playerPositions;
   final int numberOfPlayers;
+  final int effectiveStack;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
   final void Function(int)? onDuplicate;
@@ -33,6 +34,7 @@ class StreetActionsList extends StatelessWidget {
     required this.stackSizes,
     required this.playerPositions,
     required this.numberOfPlayers,
+    required this.effectiveStack,
     required this.onEdit,
     required this.onDelete,
     this.onInsert,
@@ -380,6 +382,7 @@ class StreetActionsList extends StatelessWidget {
         StreetPotWidget(
           streetIndex: street,
           potSize: pots[street],
+          effectiveStack: effectiveStack,
         ),
       ],
     );

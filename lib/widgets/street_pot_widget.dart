@@ -5,11 +5,13 @@ import 'chip_stack_widget.dart';
 class StreetPotWidget extends StatelessWidget {
   final int streetIndex;
   final int potSize;
+  final int effectiveStack;
 
   const StreetPotWidget({
     super.key,
     required this.streetIndex,
     required this.potSize,
+    required this.effectiveStack,
   });
 
   String get _streetName {
@@ -50,6 +52,16 @@ class StreetPotWidget extends StatelessWidget {
                       fontSize: 12,
                     ),
                   ),
+                  if (value > 0) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      'SPR: ${(effectiveStack / value).toStringAsFixed(1)}',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 4),

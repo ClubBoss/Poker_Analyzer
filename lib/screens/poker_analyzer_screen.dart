@@ -1780,6 +1780,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final visibleActions =
         actions.take(_playbackManager.playbackIndex).toList();
     final savedActions = _currentSavedHand().actions;
+    final effectiveStacks = List.generate(
+        4,
+        (i) => _potSync.calculateEffectiveStackForStreet(
+            i, visibleActions, numberOfPlayers));
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final viewIndex = _viewIndex();
@@ -1959,6 +1963,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               actions: savedActions,
               pots: _potSync.pots,
               stackSizes: _stackService.currentStacks,
+              effectiveStack: effectiveStacks[i],
               playerPositions: playerPositions,
               onEdit: _editAction,
               onDelete: _deleteAction,
@@ -1979,6 +1984,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         playerPositions: playerPositions,
         pots: _potSync.pots,
         stackSizes: _stackService.currentStacks,
+        effectiveStacks: effectiveStacks,
         onEdit: _editAction,
         onDelete: _deleteAction,
         onInsert: _insertAction,
@@ -2067,6 +2073,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   currentStreet: currentStreet,
                   pots: _potSync.pots,
                   stackSizes: _stackService.currentStacks,
+                  effectiveStacks: effectiveStacks,
                   onEdit: _editAction,
                   onDelete: _deleteAction,
                   visibleCount: _playbackManager.playbackIndex,
@@ -3623,6 +3630,7 @@ class _StreetActionsSection extends StatelessWidget {
   final ActionHistoryService actionHistory;
   final List<int> pots;
   final Map<int, int> stackSizes;
+  final int effectiveStack;
   final Map<int, String> playerPositions;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
@@ -3637,6 +3645,7 @@ class _StreetActionsSection extends StatelessWidget {
     required this.actionHistory,
     required this.pots,
     required this.stackSizes,
+    required this.effectiveStack,
     required this.playerPositions,
     required this.onEdit,
     required this.onDelete,
@@ -3657,6 +3666,7 @@ class _StreetActionsSection extends StatelessWidget {
             collapsed: false),
         pots: pots,
         stackSizes: stackSizes,
+        effectiveStack: effectiveStack,
         playerPositions: playerPositions,
         numberOfPlayers: playerPositions.length,
         onEdit: onEdit,
@@ -3984,6 +3994,7 @@ class _HandEditorSection extends StatelessWidget {
   final int currentStreet;
   final List<int> pots;
   final Map<int, int> stackSizes;
+  final List<int> effectiveStacks;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
   final int? visibleCount;
@@ -4004,6 +4015,7 @@ class _HandEditorSection extends StatelessWidget {
     required this.currentStreet,
     required this.pots,
     required this.stackSizes,
+    required this.effectiveStacks,
     required this.onEdit,
     required this.onDelete,
     required this.visibleCount,
@@ -4039,6 +4051,7 @@ class _HandEditorSection extends StatelessWidget {
                   actionHistory: _actionHistory,
                   pots: pots,
                   stackSizes: stackSizes,
+                  effectiveStack: effectiveStacks[currentStreet],
                   playerPositions: playerPositions,
                   onEdit: onEdit,
                   onDelete: onDelete,

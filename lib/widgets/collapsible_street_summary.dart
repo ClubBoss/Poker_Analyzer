@@ -7,6 +7,7 @@ class CollapsibleStreetSummary extends StatefulWidget {
   final Map<int, String> playerPositions;
   final List<int> pots;
   final Map<int, int> stackSizes;
+  final List<int> effectiveStacks;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
   final void Function(int) onDuplicate;
@@ -21,6 +22,7 @@ class CollapsibleStreetSummary extends StatefulWidget {
     required this.playerPositions,
     required this.pots,
     required this.stackSizes,
+    required this.effectiveStacks,
     required this.onEdit,
     required this.onDelete,
     required this.onDuplicate,
@@ -123,6 +125,7 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                         actions: widget.actions,
                         pots: widget.pots,
                         stackSizes: widget.stackSizes,
+                        effectiveStack: widget.effectiveStacks[i],
                         playerPositions: widget.playerPositions,
                         numberOfPlayers: widget.playerPositions.length,
                         onEdit: widget.onEdit,
