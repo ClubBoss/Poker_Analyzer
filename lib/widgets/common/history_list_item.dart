@@ -18,6 +18,7 @@ class HistoryListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accuracy = result.accuracy.toStringAsFixed(1);
+    final notes = result.notes;
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -28,9 +29,19 @@ class HistoryListItem extends StatelessWidget {
           formatDateTime(result.date),
           style: const TextStyle(color: Colors.white),
         ),
-        subtitle: Text(
-          'Correct: ${result.correct} / ${result.total}',
-          style: const TextStyle(color: Colors.white70),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Correct: ${result.correct} / ${result.total}',
+              style: const TextStyle(color: Colors.white70),
+            ),
+            if (notes != null && notes.isNotEmpty)
+              Text(
+                notes,
+                style: const TextStyle(color: Colors.white54),
+              ),
+          ],
         ),
         trailing: Text(
           '$accuracy%',
