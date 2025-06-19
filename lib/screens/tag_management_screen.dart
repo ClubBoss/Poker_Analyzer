@@ -68,6 +68,20 @@ class TagManagementScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Теги'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Экспорт',
+            onPressed: () =>
+                context.read<TagService>().exportToFile(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.upload),
+            tooltip: 'Импорт',
+            onPressed: () =>
+                context.read<TagService>().importFromFile(context),
+          ),
+        ],
       ),
       body: ReorderableListView(
         onReorder: (oldIndex, newIndex) =>

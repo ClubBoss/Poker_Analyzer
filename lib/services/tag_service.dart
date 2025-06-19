@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TagService extends ChangeNotifier {
@@ -47,5 +52,83 @@ class TagService extends ChangeNotifier {
     _tags.insert(newIndex, item);
     await _save();
     notifyListeners();
+  }
+
+  Future<void> exportToFile(BuildContext context) async {
+    try {
+      final encoder = JsonEncoder.withIndent('  ');
+      final jsonStr = encoder.convert(_tags);
+      final fileName =
+          'tags_${DateTime.now().millisecondsSinceEpoch}.json';
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Tags',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      if (savePath == null) return;
+      final file = File(savePath);
+      await file.writeAsString(jsonStr);
+      if (context.mounted) {
+        final name = savePath.split(Platform.pathSeparator).last;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Файл сохранён: $name')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось сохранить файл')),
+        );
+      }
+    }
+  }
+
+  Future<void> importFromFile(BuildContext context) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final decoded = jsonDecode(content);
+      if (decoded is! List) throw const FormatException();
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Заменить текущие теги?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Заменить'),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true) return;
+      _tags = decoded.map((e) => e.toString()).toSet().toList();
+      await _save();
+      notifyListeners();
+      if (context.mounted) {
+        final name = path.split(Platform.pathSeparator).last;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Импортировано из $name')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ошибка импорта файла')),
+        );
+      }
+    }
   }
 }
