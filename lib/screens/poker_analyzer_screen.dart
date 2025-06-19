@@ -3627,6 +3627,8 @@ class _StreetActionsSection extends StatelessWidget {
   final List<int> pots;
   final Map<int, int> stackSizes;
   final Map<int, String> playerPositions;
+  final PotSyncService potSync;
+  final List<ActionEntry> allActions;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
   final void Function(int index, ActionEntry entry) onInsert;
@@ -3641,6 +3643,8 @@ class _StreetActionsSection extends StatelessWidget {
     required this.pots,
     required this.stackSizes,
     required this.playerPositions,
+    required this.potSync,
+    required this.allActions,
     required this.onEdit,
     required this.onDelete,
     required this.onInsert,
@@ -3652,6 +3656,10 @@ class _StreetActionsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pot = pots[street];
+    final effStack = potSync.calculateEffectiveStackForStreet(
+        street, allActions, playerPositions.length);
+    final double? sprValue = pot > 0 ? effStack / pot : null;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: StreetActionsList(
@@ -3669,6 +3677,7 @@ class _StreetActionsSection extends StatelessWidget {
         onReorder: onReorder,
         visibleCount: visibleCount,
         evaluateActionQuality: evaluateActionQuality,
+        sprValue: sprValue,
       ),
     );
   }
@@ -4043,6 +4052,8 @@ class _HandEditorSection extends StatelessWidget {
                   pots: pots,
                   stackSizes: stackSizes,
                   playerPositions: playerPositions,
+                  potSync: _potSync,
+                  allActions: actions,
                   onEdit: onEdit,
                   onDelete: onDelete,
                   onInsert: _insertAction,

@@ -24,6 +24,7 @@ class StreetActionsList extends StatelessWidget {
   final void Function(ActionEntry, String?)? onManualEvaluationChanged;
   final void Function(int oldIndex, int newIndex)? onReorder;
   final void Function(int index, ActionEntry entry)? onInsert;
+  final double? sprValue;
 
   const StreetActionsList({
     super.key,
@@ -41,6 +42,7 @@ class StreetActionsList extends StatelessWidget {
     this.evaluateActionQuality,
     this.onManualEvaluationChanged,
     this.onReorder,
+    this.sprValue,
   });
 
   Widget _buildTile(
@@ -380,6 +382,7 @@ class StreetActionsList extends StatelessWidget {
         StreetPotWidget(
           streetIndex: street,
           potSize: pots[street],
+          sprValue: sprValue,
         ),
       ],
     );
