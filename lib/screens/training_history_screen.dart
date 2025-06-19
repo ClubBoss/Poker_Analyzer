@@ -73,6 +73,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _lengthKey = 'training_history_length';
   static const _pdfIncludeChartKey =
       'training_history_pdf_include_chart';
+  static const _exportThreeTagsKey =
+      'training_history_export_three_tags';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
@@ -88,6 +90,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   bool _hideEmptyTags = false;
   bool _sortByTag = false;
   bool _includeChartInPdf = true;
+  bool _exportThreeTagsOnly = false;
   _ChartMode _chartMode = _ChartMode.daily;
   _TagCountFilter _tagCountFilter = _TagCountFilter.any;
   _WeekdayFilter _weekdayFilter = _WeekdayFilter.all;
@@ -123,6 +126,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final weekdayIndex = prefs.getInt(_weekdayKey) ?? 0;
     final lengthIndex = prefs.getInt(_lengthKey) ?? 0;
     final includeChart = prefs.getBool(_pdfIncludeChartKey) ?? true;
+    final threeTagsOnly = prefs.getBool(_exportThreeTagsKey) ?? false;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
@@ -143,6 +147,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _weekdayFilter = _WeekdayFilter.values[weekdayIndex];
       _lengthFilter = _SessionLengthFilter.values[lengthIndex];
       _includeChartInPdf = includeChart;
+      _exportThreeTagsOnly = threeTagsOnly;
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -196,7 +201,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportCsv() async {
-    final sessions = _getFilteredHistory();
+    final sessions = _getExportSessions();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
     final filters = _buildExportFilterLines();
@@ -435,7 +440,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportVisibleCsv() async {
-    final sessions = _getFilteredHistory();
+    final sessions = _getExportSessions();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
     rows.add(['Date', 'Accuracy', 'Total', 'Correct', 'Tags', 'Notes']);
@@ -467,7 +472,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportVisiblePdf() async {
-    final sessions = _getFilteredHistory();
+    final sessions = _getExportSessions();
     if (sessions.isEmpty) return;
 
     final chartData = _groupSessionsForChart(sessions);
@@ -956,6 +961,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     return sum / list.length;
   }
 
+  List<TrainingResult> _getExportSessions() {
+    final sessions = _getFilteredHistory();
+    return [
+      for (final s in sessions)
+        if (!_exportThreeTagsOnly || s.tags.length >= 3) s
+    ];
+  }
+
   List<TrainingResult> _groupSessionsForChart(List<TrainingResult> list) {
     if (_chartMode == _ChartMode.daily) {
       final sorted = [...list]..sort((a, b) => a.date.compareTo(b.date));
@@ -1284,6 +1297,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         _ => '',
       };
       if (label.isNotEmpty) lines.add('Session length: $label');
+    }
+    if (_exportThreeTagsOnly) {
+      lines.add('Tags \u2265 3');
     }
     if (_dateFrom != null || _dateTo != null) {
       final fromStr = _dateFrom != null ? formatDate(_dateFrom!) : '';
@@ -1797,6 +1813,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     setState(() => _includeChartInPdf = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_pdfIncludeChartKey, _includeChartInPdf);
+  }
+
+  Future<void> _setExportThreeTagsOnly(bool value) async {
+    setState(() => _exportThreeTagsOnly = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_exportThreeTagsKey, _exportThreeTagsOnly);
   }
 
   Future<void> _setHideEmptyTags(bool value) async {
@@ -2313,20 +2335,34 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           final prefs =
                               await SharedPreferences.getInstance();
                           await prefs.setInt(_accuracyRangeKey, value.index);
-                          setState(() => _accuracyRange = value);
-                        },
-                      ),
-                    ],
+                      setState(() => _accuracyRange = value);
+                    },
                   ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: CheckboxListTile(
+                value: _exportThreeTagsOnly,
+                onChanged: _setExportThreeTagsOnly,
+                title: const Text(
+                  'Экспортировать только сессии с ≥ 3 тегами',
+                  style: TextStyle(color: Colors.white),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+                activeColor: Colors.blueGrey,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
                       ElevatedButton(
                         onPressed:
-                            _getFilteredHistory().isEmpty ? null : _exportCsv,
+                            _getExportSessions().isEmpty ? null : _exportCsv,
                         child: const Text('Экспорт в CSV'),
                       ),
                       const SizedBox(width: 8),
@@ -2689,21 +2725,21 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 child: Row(
                   children: [
                     ElevatedButton(
-                      onPressed: _getFilteredHistory().isEmpty
+                      onPressed: _getExportSessions().isEmpty
                           ? null
                           : _copyVisibleResults,
                       child: const Text('Копировать результаты'),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: _getFilteredHistory().isEmpty
+                      onPressed: _getExportSessions().isEmpty
                           ? null
                           : _exportVisibleCsv,
                       child: const Text('Экспорт CSV'),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: _getFilteredHistory().isEmpty
+                      onPressed: _getExportSessions().isEmpty
                           ? null
                           : _exportVisiblePdf,
                       child: const Text('Экспорт PDF'),
