@@ -10,6 +10,7 @@ import 'package:csv/csv.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
+import '../widgets/common/average_accuracy_chart.dart';
 import '../widgets/common/history_list_item.dart';
 import '../widgets/common/session_accuracy_bar_chart.dart';
 import 'training_detail_screen.dart';
@@ -804,6 +805,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       );
                     },
                   ),
+                ),
+                Builder(
+                  builder: (context) {
+                    final filtered = _getFilteredHistory();
+                    return AverageAccuracyChart(sessions: filtered);
+                  },
                 ),
                 Expanded(
                   child: Builder(builder: (context) {
