@@ -37,6 +37,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _tagKey = 'training_history_tags';
   static const _showChartsKey = 'training_history_show_charts';
   static const _showAvgChartKey = 'training_history_show_chart';
+  static const _showDistributionKey = 'training_history_show_distribution';
   static const _dateFromKey = 'training_history_date_from';
   static const _dateToKey = 'training_history_date_to';
 
@@ -47,6 +48,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   Set<String> _selectedTags = {};
   bool _showCharts = true;
   bool _showAvgChart = true;
+  bool _showDistribution = true;
 
   DateTime? _dateFrom;
   DateTime? _dateTo;
@@ -64,6 +66,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final tags = prefs.getStringList(_tagKey) ?? [];
     final showCharts = prefs.getBool(_showChartsKey);
     final showAvgChart = prefs.getBool(_showAvgChartKey);
+    final showDistribution = prefs.getBool(_showDistributionKey);
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
@@ -72,6 +75,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _selectedTags = tags.toSet();
       _showCharts = showCharts ?? true;
       _showAvgChart = showAvgChart ?? true;
+      _showDistribution = showDistribution ?? true;
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -501,6 +505,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_showAvgChartKey, _showAvgChart);
   }
 
+  Future<void> _setDistributionVisible(bool value) async {
+    setState(() => _showDistribution = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showDistributionKey, _showDistribution);
+  }
+
   Future<void> _pickDateRange() async {
     final range = await showDateRangePicker(
       context: context,
@@ -841,12 +851,27 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       return AverageAccuracyChart(sessions: filtered);
                     },
                   ),
-                  Builder(
-                    builder: (context) {
-                      final filtered = _getFilteredHistory();
-                      return AccuracyDistributionChart(sessions: filtered);
-                    },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        const Text('Показать распределение',
+                            style: TextStyle(color: Colors.white)),
+                        const Spacer(),
+                        Switch(
+                          value: _showDistribution,
+                          onChanged: _setDistributionVisible,
+                        ),
+                      ],
+                    ),
                   ),
+                  if (_showDistribution)
+                    Builder(
+                      builder: (context) {
+                        final filtered = _getFilteredHistory();
+                        return AccuracyDistributionChart(sessions: filtered);
+                      },
+                    ),
                 ],
                 Expanded(
                   child: Builder(builder: (context) {
