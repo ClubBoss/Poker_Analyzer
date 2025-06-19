@@ -558,6 +558,60 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     return result;
   }
 
+  String _getActiveFilterSummary() {
+    final parts = <String>[];
+    if (_tagCountFilter != _TagCountFilter.any) {
+      final label = switch (_tagCountFilter) {
+        _TagCountFilter.one => '1 тег',
+        _TagCountFilter.twoPlus => '2+',
+        _TagCountFilter.threePlus => '3+',
+        _ => '',
+      };
+      if (label.isNotEmpty) parts.add('теги: $label');
+    }
+    if (_ratingFilter != _RatingFilter.all) {
+      final label = switch (_ratingFilter) {
+        _RatingFilter.pct40 => '40%+',
+        _RatingFilter.pct60 => '60%+',
+        _RatingFilter.pct80 => '80%+',
+        _ => '',
+      };
+      if (label.isNotEmpty) parts.add('рейтинг: $label');
+    }
+    if (_accuracyRange != _AccuracyRange.all) {
+      final label = switch (_accuracyRange) {
+        _AccuracyRange.lt50 => '<50%',
+        _AccuracyRange.pct50to70 => '50–70%',
+        _AccuracyRange.pct70to90 => '70–90%',
+        _AccuracyRange.pct90to100 => '90–100%',
+        _ => '',
+      };
+      if (label.isNotEmpty) parts.add('точность: $label');
+    }
+    if (_lengthFilter != _SessionLengthFilter.any) {
+      final label = switch (_lengthFilter) {
+        _SessionLengthFilter.oneToFive => '1–5',
+        _SessionLengthFilter.sixToTen => '6–10',
+        _SessionLengthFilter.elevenPlus => '11+',
+        _ => '',
+      };
+      if (label.isNotEmpty) parts.add('длина: $label');
+    }
+    return parts.join(' + ');
+  }
+
+  Widget _buildFilterSummary() {
+    final summary = _getActiveFilterSummary();
+    if (summary.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        summary,
+        style: const TextStyle(color: Colors.white60),
+      ),
+    );
+  }
+
   bool _hasResultsForTag(String tag) {
     return _getFilteredHistory(tags: {tag}).isNotEmpty;
   }
@@ -1803,6 +1857,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ),
                 ],
               ],
+              _buildFilterSummary(),
               Expanded(
                 child: Builder(builder: (context) {
                     final filtered = _getFilteredHistory();
