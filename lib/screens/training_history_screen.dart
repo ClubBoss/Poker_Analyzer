@@ -35,6 +35,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _ratingKey = 'training_history_rating';
   static const _tagKey = 'training_history_tags';
   static const _showChartsKey = 'training_history_show_charts';
+  static const _showAvgChartKey = 'training_history_show_chart';
   static const _dateFromKey = 'training_history_date_from';
   static const _dateToKey = 'training_history_date_to';
 
@@ -44,6 +45,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   _RatingFilter _ratingFilter = _RatingFilter.all;
   Set<String> _selectedTags = {};
   bool _showCharts = true;
+  bool _showAvgChart = true;
 
   DateTime? _dateFrom;
   DateTime? _dateTo;
@@ -60,6 +62,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
     final tags = prefs.getStringList(_tagKey) ?? [];
     final showCharts = prefs.getBool(_showChartsKey);
+    final showAvgChart = prefs.getBool(_showAvgChartKey);
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
@@ -67,6 +70,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _ratingFilter = _RatingFilter.values[ratingIndex];
       _selectedTags = tags.toSet();
       _showCharts = showCharts ?? true;
+      _showAvgChart = showAvgChart ?? true;
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -488,6 +492,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_showChartsKey, _showCharts);
   }
 
+  Future<void> _setAvgChartVisible(bool value) async {
+    setState(() => _showAvgChart = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showAvgChartKey, _showAvgChart);
+  }
+
   Future<void> _pickDateRange() async {
     final range = await showDateRangePicker(
       context: context,
@@ -806,12 +816,27 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     },
                   ),
                 ),
-                Builder(
-                  builder: (context) {
-                    final filtered = _getFilteredHistory();
-                    return AverageAccuracyChart(sessions: filtered);
-                  },
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('Показать график',
+                          style: TextStyle(color: Colors.white)),
+                      const Spacer(),
+                      Switch(
+                        value: _showAvgChart,
+                        onChanged: _setAvgChartVisible,
+                      ),
+                    ],
+                  ),
                 ),
+                if (_showAvgChart)
+                  Builder(
+                    builder: (context) {
+                      final filtered = _getFilteredHistory();
+                      return AverageAccuracyChart(sessions: filtered);
+                    },
+                  ),
                 Expanded(
                   child: Builder(builder: (context) {
                     final filtered = _getFilteredHistory();
