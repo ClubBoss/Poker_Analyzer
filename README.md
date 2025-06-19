@@ -66,3 +66,22 @@ codex/add-activeplayerindex-debug-panel
 ```
 
 Avoid Cyrillic, special characters or other Unicode symbols in branch names.
+
+## Troubleshooting
+
+If Git reports `The head ref may contain hidden characters`, the `.git/HEAD` or
+a ref file might contain invisible control characters. Run the helper script
+below to scan the repository:
+
+```bash
+tools/check_head_refs.sh
+```
+
+If the script finds issues, rewrite the affected file. For example, to reset the
+`HEAD` ref you can run:
+
+```bash
+echo 'ref: refs/heads/main' > .git/HEAD
+```
+
+This removes hidden characters and resolves the error.
