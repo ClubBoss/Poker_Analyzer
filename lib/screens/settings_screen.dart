@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../user_preferences.dart';
+import 'tag_management_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -59,6 +60,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text('Settings'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.label_outline),
+            tooltip: 'Manage Tags',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const TagManagementScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

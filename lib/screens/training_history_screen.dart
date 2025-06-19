@@ -9,6 +9,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:provider/provider.dart';
+import '../services/tag_service.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
@@ -443,7 +445,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _showTagSelector() async {
-    final tags = {for (final r in _history) ...r.tags};
+    final tags = context.read<TagService>().tags.toSet();
     final local = Set<String>.from(_selectedTags);
     final result = await showDialog<Set<String>>(
       context: context,
@@ -500,7 +502,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _editSessionTags(BuildContext ctx, TrainingResult session) async {
-    final tags = {for (final r in _history) ...r.tags}.toList()..sort();
+    final tags = context.read<TagService>().tags;
     final local = List<String>.from(session.tags);
     final updated = await showDialog<List<String>>(
       context: ctx,
