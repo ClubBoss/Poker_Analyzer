@@ -43,6 +43,7 @@ import '../widgets/invested_chip_tokens.dart';
 import '../widgets/central_pot_widget.dart';
 import '../widgets/central_pot_chips.dart';
 import '../widgets/pot_display_widget.dart';
+import '../widgets/side_pot_widget.dart';
 import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
@@ -213,6 +214,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late AnimationController _centerChipController;
   late AnimationController _potGrowthController;
   late Animation<double> _potGrowthAnimation;
+  List<int> _sidePots = [];
   late TransitionLockService lockService;
   final GlobalKey<_BoardCardsSectionState> _boardKey =
       GlobalKey<_BoardCardsSectionState>();
@@ -447,6 +449,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         });
       });
     }
+  }
+
+  void _computeSidePots() {
+    final contributions = <int>[];
+    for (int i = 0; i < numberOfPlayers; i++) {
+      contributions.add(_stackService.getTotalInvested(i));
+    }
+    contributions.sort();
+    final pots = <int>[];
+    int prev = 0;
+    int remaining = contributions.length;
+    for (final c in contributions) {
+      if (c > prev) {
+        pots.add((c - prev) * remaining);
+        prev = c;
+      }
+      remaining--;
+    }
+    _sidePots = pots.length > 1 ? pots.sublist(1) : [];
   }
 
 
@@ -891,6 +912,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _actionEditing = _serviceRegistry.get<ActionEditingService>();
     Future(() => _initializeDebugPreferences());
     Future.microtask(_queueService.loadQueueSnapshot);
+    _computeSidePots();
     // BackupManagerService handles periodic backups and cleanup internally.
   }
 
@@ -1118,6 +1140,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _onPlaybackManagerChanged() {
     if (mounted) {
+      _computeSidePots();
       lockService.safeSetState(this, () {});
       if (_animateTimeline && _timelineController.hasClients) {
         _animateTimeline = false;
@@ -1137,7 +1160,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onStackServiceChanged() {
-    if (mounted) lockService.safeSetState(this, () {});
+    if (mounted) {
+      _computeSidePots();
+      lockService.safeSetState(this, () {});
+    }
   }
 
 
@@ -2083,6 +2109,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     viewIndex: viewIndex,
                     actions: actions,
                     pots: _potSync.pots,
+                    sidePots: _sidePots,
                     playbackManager: _playbackManager,
                     centerChipAction: _centerChipAction,
                     showCenterChip: _showCenterChip,
@@ -3019,6 +3046,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
   final int viewIndex;
   final List<ActionEntry> actions;
   final List<int> pots;
+  final List<int> sidePots;
   final PlaybackManagerService playbackManager;
   final ActionEntry? centerChipAction;
   final bool showCenterChip;
@@ -3033,6 +3061,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.viewIndex,
     required this.actions,
     required this.pots,
+    required this.sidePots,
     required this.playbackManager,
     required this.centerChipAction,
     required this.showCenterChip,
@@ -3087,6 +3116,32 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
                 child: PotDisplayWidget(
                   amount: pot,
                   scale: scale,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    for (int i = 0; i < sidePots.length; i++) {
+      final offsetY = 36 * scale * (i + 1);
+      final amount = sidePots[i];
+      items.add(
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Align(
+              alignment: Alignment.center,
+              child: Transform.translate(
+                offset: Offset(0, offsetY),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: SidePotWidget(
+                    key: ValueKey('side-$i-$amount'),
+                    index: i,
+                    amount: amount,
+                    scale: scale,
+                  ),
                 ),
               ),
             ),
