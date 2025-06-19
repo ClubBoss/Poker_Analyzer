@@ -17,16 +17,28 @@ class TrainingHistoryScreen extends StatefulWidget {
   State<TrainingHistoryScreen> createState() => _TrainingHistoryScreenState();
 }
 
+enum _SortOption { newest, oldest, rating }
+
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
+  static const _sortKey = 'training_history_sort';
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
+  _SortOption _sort = _SortOption.newest;
 
   @override
   void initState() {
     super.initState();
-    _loadHistory();
+    _loadPrefs();
   }
 
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final sortIndex = prefs.getInt(_sortKey) ?? 0;
+    setState(() {
+      _sort = _SortOption.values[sortIndex];
+    });
+    _loadHistory();
+  }
 
   Future<void> _loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
@@ -43,7 +55,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     setState(() {
       _history
         ..clear()
-        ..addAll(loaded.reversed);
+        ..addAll(loaded);
     });
   }
 
@@ -57,7 +69,19 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   List<TrainingResult> _getFilteredHistory() {
     final cutoff = DateTime.now().subtract(Duration(days: _filterDays));
-    return _history.where((r) => r.date.isAfter(cutoff)).toList();
+    final list = _history.where((r) => r.date.isAfter(cutoff)).toList();
+    switch (_sort) {
+      case _SortOption.newest:
+        list.sort((a, b) => b.date.compareTo(a.date));
+        break;
+      case _SortOption.oldest:
+        list.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      case _SortOption.rating:
+        list.sort((a, b) => b.accuracy.compareTo(a.accuracy));
+        break;
+    }
+    return list;
   }
 
   double _calculateAverageAccuracy(List<TrainingResult> list) {
@@ -129,6 +153,39 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   final filtered = _getFilteredHistory();
                   return AccuracyChart(sessions: filtered);
                 }),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Text('Сортировка',
+                          style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 8),
+                      DropdownButton<_SortOption>(
+                        value: _sort,
+                        dropdownColor: AppColors.cardBackground,
+                        style: const TextStyle(color: Colors.white),
+                        items: const [
+                          DropdownMenuItem(
+                              value: _SortOption.newest,
+                              child: Text('Сначала новые')),
+                          DropdownMenuItem(
+                              value: _SortOption.oldest,
+                              child: Text('Сначала старые')),
+                          DropdownMenuItem(
+                              value: _SortOption.rating,
+                              child: Text('По рейтингу')),
+                        ],
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          final prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setInt(_sortKey, value.index);
+                          setState(() => _sort = value);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 Expanded(
                   child: Builder(builder: (context) {
                     final filtered = _getFilteredHistory();
