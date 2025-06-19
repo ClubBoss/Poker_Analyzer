@@ -1354,6 +1354,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                             result: result,
                             onLongPress: () => _editSessionTags(context, result),
                             onTap: () => _editSessionNotes(context, result),
+                            onTagTap: () => _editSessionTags(context, result),
                           ),
                         );
                       },
