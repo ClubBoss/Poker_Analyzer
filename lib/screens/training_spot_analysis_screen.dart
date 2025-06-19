@@ -10,10 +10,17 @@ import '../services/user_preferences_service.dart';
 import 'package:provider/provider.dart';
 
 /// Displays actions for a [TrainingSpot] grouped by street in collapsible sections.
-class TrainingSpotAnalysisScreen extends StatelessWidget {
+class TrainingSpotAnalysisScreen extends StatefulWidget {
   final TrainingSpot spot;
 
   const TrainingSpotAnalysisScreen({super.key, required this.spot});
+
+  @override
+  State<TrainingSpotAnalysisScreen> createState() =>
+      _TrainingSpotAnalysisScreenState();
+}
+
+class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen> {
 
   String _evaluateActionQuality(ActionEntry entry) {
     switch (entry.action) {
@@ -32,24 +39,34 @@ class TrainingSpotAnalysisScreen extends StatelessWidget {
 
   List<int> _computePots() {
     final investments = StreetInvestments();
-    for (final a in spot.actions) {
+    for (final a in widget.spot.actions) {
       investments.addAction(a);
     }
-    return PotCalculator().calculatePots(spot.actions, investments);
+    return PotCalculator().calculatePots(widget.spot.actions, investments);
   }
 
   Map<int, int> _computeStacks() {
     final initial = {
-      for (int i = 0; i < spot.numberOfPlayers; i++) i: spot.stacks[i]
+      for (int i = 0; i < widget.spot.numberOfPlayers; i++) i: widget.spot.stacks[i]
     };
     final manager = StackManager(initial);
-    manager.applyActions(spot.actions);
+    manager.applyActions(widget.spot.actions);
     return manager.currentStacks;
   }
 
   Map<int, String> _posMap() => {
-        for (int i = 0; i < spot.numberOfPlayers; i++) i: spot.positions[i]
+        for (int i = 0; i < widget.spot.numberOfPlayers; i++) i: widget.spot.positions[i]
       };
+
+  String _overrideQuality(ActionEntry entry) {
+    return entry.manualEvaluation ?? _evaluateActionQuality(entry);
+  }
+
+  void _setManualEvaluation(ActionEntry entry, String value) {
+    setState(() {
+      entry.manualEvaluation = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +78,7 @@ class TrainingSpotAnalysisScreen extends StatelessWidget {
 
     final tiles = <Widget>[];
     for (int street = 0; street < 4; street++) {
-      if (!spot.actions.any((a) => a.street == street)) continue;
+      if (!widget.spot.actions.any((a) => a.street == street)) continue;
       tiles.add(
         ExpansionTile(
           title: Text(
@@ -77,15 +94,17 @@ class TrainingSpotAnalysisScreen extends StatelessWidget {
               height: 180,
               child: StreetActionsList(
                 street: street,
-                actions: spot.actions,
+                actions: widget.spot.actions,
                 pots: pots,
                 stackSizes: stacks,
                 playerPositions: positions,
                 onEdit: (_, __) {},
                 onDelete: (_) {},
-                visibleCount: spot.actions.length,
+                visibleCount: widget.spot.actions.length,
                 evaluateActionQuality:
-                    prefs.coachMode ? _evaluateActionQuality : null,
+                    prefs.coachMode ? _overrideQuality : null,
+                onManualEvaluationChanged:
+                    prefs.coachMode ? _setManualEvaluation : null,
               ),
             ),
           ],

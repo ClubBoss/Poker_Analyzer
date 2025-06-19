@@ -14,6 +14,9 @@ class ActionEntry {
   /// Флаг, указывающий, что запись сгенерирована автоматически
   final bool generated;
 
+  /// Пользовательская оценка качества действия, заданная вручную
+  String? manualEvaluation;
+
   /// Время, когда было совершено действие
   final DateTime timestamp;
 
@@ -21,6 +24,9 @@ class ActionEntry {
   /// [amount] заполняется только для действий bet, raise или call.
   /// [generated] помечает автоматически добавленные действия.
   ActionEntry(this.street, this.playerIndex, this.action,
-      {this.amount, this.generated = false, DateTime? timestamp})
+      {this.amount,
+      this.generated = false,
+      this.manualEvaluation,
+      DateTime? timestamp})
       : timestamp = timestamp ?? DateTime.now();
 }
