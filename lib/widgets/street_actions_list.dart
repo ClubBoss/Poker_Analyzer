@@ -55,15 +55,23 @@ class StreetActionsList extends StatelessWidget {
     final baseTitle = '$pos — ${a.action}';
     final title = a.generated ? '$baseTitle (auto)' : baseTitle;
 
-    String? qualityText;
+    Color? qualityColor;
+    String? qualityLabel;
     if (evaluateActionQuality != null && visibleCount != null) {
-      final q = evaluateActionQuality!(a).toLowerCase();
-      if (q.contains('good')) {
-        qualityText = '🟢 GOOD';
-      } else if (q.contains('marginal') || q.contains('ok')) {
-        qualityText = '🟡 MARGINAL';
-      } else if (q.contains('mistake') || q.contains('bad')) {
-        qualityText = '🔴 MISTAKE';
+      final q = evaluateActionQuality!(a);
+      switch (q) {
+        case 'Лучшая линия':
+          qualityColor = Colors.green;
+          qualityLabel = q;
+          break;
+        case 'Нормальная линия':
+          qualityColor = Colors.yellow;
+          qualityLabel = q;
+          break;
+        case 'Ошибка':
+          qualityColor = Colors.red;
+          qualityLabel = q;
+          break;
       }
     }
     final tile = ListTile(
@@ -131,12 +139,22 @@ class StreetActionsList extends StatelessWidget {
                 style: const TextStyle(color: Colors.white54, fontSize: 12),
               ),
             ),
-          if (qualityText != null)
+          if (qualityLabel != null)
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: Text(
-                qualityText!,
-                style: const TextStyle(fontSize: 12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: qualityColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  qualityLabel!,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ),
           IconButton(
@@ -151,7 +169,7 @@ class StreetActionsList extends StatelessWidget {
     if (!prefs.showActionHints || a.generated) return tile;
 
     return Tooltip(
-      message: _buildTooltipMessage(a, globalIndex, qualityText),
+      message: _buildTooltipMessage(a, globalIndex, qualityLabel),
       preferBelow: false,
       child: tile,
     );
@@ -169,7 +187,7 @@ class StreetActionsList extends StatelessWidget {
   }
 
   String _buildTooltipMessage(
-      ActionEntry a, int index, String? qualityText) {
+      ActionEntry a, int index, String? qualityLabel) {
     final buffer = StringBuffer(
         'Время: ${DateFormat('HH:mm:ss').format(a.timestamp)}');
     if (index > 0) {
@@ -180,8 +198,8 @@ class StreetActionsList extends StatelessWidget {
       buffer.writeln(
           '\nС момента прошлого действия: +${diffSec.toStringAsFixed(1)} сек');
     }
-    if (qualityText != null) {
-      buffer.writeln('\nОценка: $qualityText');
+    if (qualityLabel != null) {
+      buffer.writeln('\nОценка: $qualityLabel');
     }
     return buffer.toString();
   }
