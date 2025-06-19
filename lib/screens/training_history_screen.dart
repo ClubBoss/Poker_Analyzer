@@ -24,10 +24,12 @@ enum _RatingFilter { all, pct40, pct60, pct80 }
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _sortKey = 'training_history_sort';
   static const _ratingKey = 'training_history_rating';
+  static const _tagKey = 'training_history_tags';
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
   _SortOption _sort = _SortOption.newest;
   _RatingFilter _ratingFilter = _RatingFilter.all;
+  Set<String> _selectedTags = {};
 
   @override
   void initState() {
@@ -39,9 +41,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final prefs = await SharedPreferences.getInstance();
     final sortIndex = prefs.getInt(_sortKey) ?? 0;
     final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
+    final tags = prefs.getStringList(_tagKey) ?? [];
     setState(() {
       _sort = _SortOption.values[sortIndex];
       _ratingFilter = _RatingFilter.values[ratingIndex];
+      _selectedTags = tags.toSet();
     });
     _loadHistory();
   }
@@ -77,9 +81,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_sortKey, _SortOption.newest.index);
     await prefs.setInt(_ratingKey, _RatingFilter.all.index);
+    await prefs.remove(_tagKey);
     setState(() {
       _sort = _SortOption.newest;
       _ratingFilter = _RatingFilter.all;
+      _selectedTags.clear();
     });
   }
 
@@ -95,6 +101,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             _RatingFilter.pct80 => 80,
           };
           return r.accuracy >= min;
+        })
+        .where((r) {
+          if (_selectedTags.isEmpty) return true;
+          return r.tags.any(_selectedTags.contains);
         })
         .toList();
     switch (_sort) {
@@ -115,6 +125,63 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (list.isEmpty) return 0.0;
     final sum = list.map((e) => e.accuracy).reduce((a, b) => a + b);
     return sum / list.length;
+  }
+
+  Future<void> _showTagSelector() async {
+    final tags = {for (final r in _history) ...r.tags};
+    final local = Set<String>.from(_selectedTags);
+    final result = await showDialog<Set<String>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text('Фильтр по тегам',
+              style: TextStyle(color: Colors.white)),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return SizedBox(
+                width: 300,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final tag in tags)
+                      CheckboxListTile(
+                        value: local.contains(tag),
+                        title: Text(tag,
+                            style: const TextStyle(color: Colors.white)),
+                        onChanged: (checked) {
+                          setStateDialog(() {
+                            if (checked ?? false) {
+                              local.add(tag);
+                            } else {
+                              local.remove(tag);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, local),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (result != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_tagKey, result.toList());
+      setState(() => _selectedTags = result);
+    }
   }
 
 
@@ -180,6 +247,22 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   final filtered = _getFilteredHistory();
                   return AccuracyChart(sessions: filtered);
                 }),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('Фильтр по тегам',
+                          style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _showTagSelector,
+                        child: Text(_selectedTags.isEmpty
+                            ? 'Все'
+                            : 'Выбрано: ${_selectedTags.length}'),
+                      ),
+                    ],
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
