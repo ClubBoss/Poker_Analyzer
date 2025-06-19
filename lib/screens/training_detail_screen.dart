@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../helpers/date_utils.dart';
 import '../models/training_result.dart';
 import '../theme/app_colors.dart';
+import 'package:pie_chart/pie_chart.dart';
 
 class TrainingDetailScreen extends StatelessWidget {
   final TrainingResult result;
@@ -48,6 +49,12 @@ class TrainingDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accuracy = result.accuracy.toStringAsFixed(1);
+    final incorrect = result.total - result.correct;
+    final dataMap = {
+      'Correct': result.correct.toDouble(),
+      'Incorrect': incorrect.toDouble(),
+    };
+    final colorList = [Colors.green, Colors.red];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Session Details'),
@@ -63,7 +70,22 @@ class TrainingDetailScreen extends StatelessWidget {
               'Date: ${formatDateTime(result.date)}',
               style: const TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
+            if (result.total > 0)
+              PieChart(
+                dataMap: dataMap,
+                colorList: colorList,
+                chartType: ChartType.ring,
+                legendOptions: const LegendOptions(
+                  legendTextStyle: TextStyle(color: Colors.white),
+                ),
+                chartValuesOptions: const ChartValuesOptions(
+                  showChartValuesInPercentage: true,
+                  showChartValueBackground: false,
+                  chartValueStyle: TextStyle(color: Colors.white),
+                ),
+              ),
+            const SizedBox(height: 16),
             Text(
               'Total hands: ${result.total}',
               style: const TextStyle(color: Colors.white),
