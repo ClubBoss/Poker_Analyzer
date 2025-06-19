@@ -335,8 +335,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void _playUnifiedChipAnimation(ActionEntry entry) {
-    if (!['bet', 'raise', 'call'].contains(entry.action) ||
+  void _playBetFlyInAnimation(ActionEntry entry) {
+    if (!['bet', 'raise'].contains(entry.action) ||
         entry.amount == null ||
         entry.generated) return;
     final overlay = Overlay.of(context);
@@ -364,11 +364,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       (start.dx + end.dx) / 2,
       (start.dy + end.dy) / 2 - (40 + ChipMovingWidget.activeCount * 8) * scale,
     );
-    final color = entry.action == 'raise'
-        ? Colors.green
-        : entry.action == 'call'
-            ? Colors.blue
-            : Colors.amber;
+    final color = entry.action == 'raise' ? Colors.green : Colors.amber;
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
       builder: (_) => ChipMovingWidget(
@@ -890,7 +886,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionHistory: _actionHistory,
       playerManager: _playerManager,
       triggerCenterChip: _triggerCenterChip,
-      playChipAnimation: _playUnifiedChipAnimation,
+      playChipAnimation: _playBetFlyInAnimation,
     ));
     _actionEditing = _serviceRegistry.get<ActionEditingService>();
     Future(() => _initializeDebugPreferences());
