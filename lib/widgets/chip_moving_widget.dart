@@ -39,6 +39,8 @@ class ChipMovingWidget extends StatefulWidget {
 class _ChipMovingWidgetState extends State<ChipMovingWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<double> _scaleAnim;
 
   @override
   void initState() {
@@ -46,7 +48,13 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
     ChipMovingWidget.activeCount++;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 400),
+    );
+    _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _scaleAnim = Tween<double>(begin: 1.0, end: 0.7).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -69,18 +77,22 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
       animation: _controller,
       builder: (context, child) {
         final pos = Offset.lerp(widget.start, widget.end, _controller.value)!;
+        final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
-          left: pos.dx - 12 * widget.scale,
-          top: pos.dy - 12 * widget.scale,
-          child: Opacity(
-            opacity: 1.0 - _controller.value,
-            child: child,
+          left: pos.dx - 12 * sizeFactor,
+          top: pos.dy - 12 * sizeFactor,
+          child: FadeTransition(
+            opacity: _opacity,
+            child: Transform.scale(
+              scale: sizeFactor,
+              child: child,
+            ),
           ),
         );
       },
       child: Container(
-        width: 24 * widget.scale,
-        height: 24 * widget.scale,
+        width: 24,
+        height: 24,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -97,7 +109,7 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
           '${widget.amount}',
           style: TextStyle(
             color: widget.color,
-            fontSize: 12 * widget.scale,
+            fontSize: 12,
             fontWeight: FontWeight.bold,
           ),
         ),
