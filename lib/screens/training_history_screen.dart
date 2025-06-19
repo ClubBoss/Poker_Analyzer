@@ -167,6 +167,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     });
   }
 
+  Future<void> _clearTagFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tagKey);
+    setState(() => _selectedTags.clear());
+  }
+
   List<TrainingResult> _getFilteredHistory() {
     final cutoff = DateTime.now().subtract(Duration(days: _filterDays));
     final list = _history
@@ -420,13 +426,45 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       const SizedBox(width: 8),
                       ElevatedButton(
                         onPressed: _showTagSelector,
-                        child: Text(_selectedTags.isEmpty
-                            ? 'Все'
-                            : 'Выбрано: ${_selectedTags.length}'),
+                        child: Text(
+                            _selectedTags.isEmpty ? 'Выбрать теги' : 'Изменить'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed:
+                            _selectedTags.isEmpty ? null : _clearTagFilters,
+                        child: const Text('Сбросить теги'),
                       ),
                     ],
                   ),
                 ),
+                if (_selectedTags.isNotEmpty)
+                  SizedBox(
+                    height: 40,
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        for (final tag in _selectedTags)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: FilterChip(
+                              label: Text(tag),
+                              selected: true,
+                              onSelected: (selected) async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                setState(() {
+                                  _selectedTags.remove(tag);
+                                });
+                                await prefs.setStringList(
+                                    _tagKey, _selectedTags.toList());
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
