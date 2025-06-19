@@ -31,6 +31,8 @@ enum _SortOption { newest, oldest, rating }
 
 enum _RatingFilter { all, pct40, pct60, pct80 }
 
+enum _AccuracyRange { all, lt50, pct50to70, pct70to90, pct90to100 }
+
 enum _ChartMode { daily, weekly, monthly }
 
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
@@ -44,11 +46,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _dateToKey = 'training_history_date_to';
   static const _chartModeKey = 'training_history_chart_mode';
   static const _hideEmptyTagsKey = 'hide_empty_tags';
+  static const _accuracyRangeKey = 'training_history_accuracy_range';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
   _SortOption _sort = _SortOption.newest;
   _RatingFilter _ratingFilter = _RatingFilter.all;
+  _AccuracyRange _accuracyRange = _AccuracyRange.all;
   Set<String> _selectedTags = {};
   bool _showCharts = true;
   bool _showAvgChart = true;
@@ -69,6 +73,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final prefs = await SharedPreferences.getInstance();
     final sortIndex = prefs.getInt(_sortKey) ?? 0;
     final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
+    final accuracyRangeIndex = prefs.getInt(_accuracyRangeKey) ?? 0;
     final tags = prefs.getStringList(_tagKey) ?? [];
     final showCharts = prefs.getBool(_showChartsKey);
     final showAvgChart = prefs.getBool(_showAvgChartKey);
@@ -80,6 +85,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     setState(() {
       _sort = _SortOption.values[sortIndex];
       _ratingFilter = _RatingFilter.values[ratingIndex];
+      _accuracyRange = _AccuracyRange.values[accuracyRangeIndex];
       _selectedTags = tags.toSet();
       _showCharts = showCharts ?? true;
       _showAvgChart = showAvgChart ?? true;
@@ -266,12 +272,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_sortKey, _SortOption.newest.index);
     await prefs.setInt(_ratingKey, _RatingFilter.all.index);
+    await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
     await prefs.remove(_tagKey);
     await prefs.remove(_dateFromKey);
     await prefs.remove(_dateToKey);
     setState(() {
       _sort = _SortOption.newest;
       _ratingFilter = _RatingFilter.all;
+      _accuracyRange = _AccuracyRange.all;
       _selectedTags.clear();
       _dateFrom = null;
       _dateTo = null;
@@ -309,6 +317,20 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             _RatingFilter.pct80 => 80,
           };
           return r.accuracy >= min;
+        })
+        .where((r) {
+          switch (_accuracyRange) {
+            case _AccuracyRange.all:
+              return true;
+            case _AccuracyRange.lt50:
+              return r.accuracy < 50;
+            case _AccuracyRange.pct50to70:
+              return r.accuracy >= 50 && r.accuracy < 70;
+            case _AccuracyRange.pct70to90:
+              return r.accuracy >= 70 && r.accuracy < 90;
+            case _AccuracyRange.pct90to100:
+              return r.accuracy >= 90 && r.accuracy <= 100;
+          }
         })
         .where((r) {
           if (selected.isEmpty) return true;
@@ -892,6 +914,43 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       TextButton(
                         onPressed: _resetFilters,
                         child: const Text('Сбросить фильтры'),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('Точность',
+                          style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 8),
+                      DropdownButton<_AccuracyRange>(
+                        value: _accuracyRange,
+                        dropdownColor: AppColors.cardBackground,
+                        style: const TextStyle(color: Colors.white),
+                        items: const [
+                          DropdownMenuItem(
+                              value: _AccuracyRange.all, child: Text('Все')),
+                          DropdownMenuItem(
+                              value: _AccuracyRange.lt50, child: Text('<50%')),
+                          DropdownMenuItem(
+                              value: _AccuracyRange.pct50to70,
+                              child: Text('50–70%')),
+                          DropdownMenuItem(
+                              value: _AccuracyRange.pct70to90,
+                              child: Text('70–90%')),
+                          DropdownMenuItem(
+                              value: _AccuracyRange.pct90to100,
+                              child: Text('90–100%')),
+                        ],
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          final prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setInt(_accuracyRangeKey, value.index);
+                          setState(() => _accuracyRange = value);
+                        },
                       ),
                     ],
                   ),
