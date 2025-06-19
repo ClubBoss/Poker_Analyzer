@@ -2371,6 +2371,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         top: centerY + dy + bias + 96 * scale,
         child: PlayerSprLabel(spr: playerSpr, scale: scale * 0.8),
       ),
+      if (isFolded)
+        Positioned(
+          left: centerX + dx - 24 * scale,
+          top: centerY + dy + bias - 40 * scale,
+          child: Container(
+            padding:
+                EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              'FOLDED',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10 * scale,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
       Positioned(
         left: centerX + dx - 20 * scale,
         top: centerY + dy + bias + 108 * scale,
