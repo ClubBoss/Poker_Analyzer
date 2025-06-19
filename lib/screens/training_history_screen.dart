@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
@@ -95,6 +96,63 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.json');
     await file.writeAsString(jsonStr);
     await Share.shareXFiles([XFile(file.path)], text: 'training_history.json');
+  }
+
+  Future<void> _importHistory() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is! List) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid file format')),
+        );
+        return;
+      }
+      final List<TrainingResult> imported = [];
+      for (final item in data) {
+        if (item is Map<String, dynamic>) {
+          try {
+            imported.add(
+                TrainingResult.fromJson(Map<String, dynamic>.from(item)));
+          } catch (_) {}
+        }
+      }
+      if (imported.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No sessions found')),
+        );
+        return;
+      }
+      final existingDates =
+          _history.map((e) => e.date.toIso8601String()).toSet();
+      final newSessions = [
+        for (final r in imported)
+          if (!existingDates.contains(r.date.toIso8601String())) r
+      ];
+      if (newSessions.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nothing to import')),
+        );
+        return;
+      }
+      setState(() => _history.addAll(newSessions));
+      await _saveHistory();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Imported ${newSessions.length} sessions')),
+      );
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to read file')),
+      );
+    }
   }
 
   Future<void> _resetFilters() async {
@@ -288,6 +346,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         title: const Text('Training History'),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.upload),
+            tooltip: 'Import',
+            onPressed: _importHistory,
+          ),
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Export',
