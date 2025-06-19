@@ -20,6 +20,7 @@ class StreetActionsList extends StatelessWidget {
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
   final void Function(ActionEntry, String?)? onManualEvaluationChanged;
+  final void Function(int oldIndex, int newIndex)? onReorder;
 
   const StreetActionsList({
     super.key,
@@ -34,9 +35,11 @@ class StreetActionsList extends StatelessWidget {
     this.visibleCount,
     this.evaluateActionQuality,
     this.onManualEvaluationChanged,
+    this.onReorder,
   });
 
-  Widget _buildTile(BuildContext context, ActionEntry a, int globalIndex) {
+  Widget _buildTile(
+      BuildContext context, ActionEntry a, int globalIndex, int index) {
     Color color;
     switch (a.action) {
       case 'fold':
@@ -127,6 +130,12 @@ class StreetActionsList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          if (onReorder != null)
+            ReorderableDragStartListener(
+              index: index,
+              child:
+                  const Icon(Icons.drag_handle, color: Colors.white70, size: 20),
+            ),
           if (!a.generated)
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
@@ -274,18 +283,39 @@ class StreetActionsList extends StatelessWidget {
         else
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 120),
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              children: [
-                for (int index = 0; index < streetActions.length; index++) ...[
-                  if (index > 0 &&
-                      (streetActions[index].action == 'bet' ||
-                          streetActions[index].action == 'raise'))
-                    const Divider(height: 4, color: Colors.white24),
-                  _buildTile(context, streetActions[index],
-                      actions.indexOf(streetActions[index])),
-                ]
-              ],
+            child: ReorderableListView.builder(
+              shrinkWrap: true,
+              buildDefaultDragHandles: false,
+              onReorder: (oldIndex, newIndex) {
+                if (onReorder == null) return;
+                final oldGlobal =
+                    actions.indexOf(streetActions[oldIndex]);
+                int newGlobal;
+                if (newIndex >= streetActions.length) {
+                  newGlobal = actions.indexOf(streetActions.last) + 1;
+                } else {
+                  final target =
+                      streetActions[newIndex > oldIndex ? newIndex - 1 : newIndex];
+                  newGlobal = actions.indexOf(target);
+                  if (newIndex > oldIndex) newGlobal += 1;
+                }
+                onReorder!(oldGlobal, newGlobal);
+              },
+              itemCount: streetActions.length,
+              itemBuilder: (context, index) {
+                final entry = streetActions[index];
+                final showDivider = index > 0 &&
+                    (entry.action == 'bet' || entry.action == 'raise');
+                return Column(
+                  key: ValueKey(entry),
+                  children: [
+                    if (showDivider)
+                      const Divider(height: 4, color: Colors.white24),
+                    _buildTile(
+                        context, entry, actions.indexOf(entry), index),
+                  ],
+                );
+              },
             ),
           ),
         StreetPotWidget(

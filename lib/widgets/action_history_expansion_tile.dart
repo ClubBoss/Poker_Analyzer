@@ -11,6 +11,7 @@ class ActionHistoryExpansionTile extends StatefulWidget {
   final Map<int, int> stackSizes;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
+  final void Function(int, int)? onReorder;
   final int visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
 
@@ -22,6 +23,7 @@ class ActionHistoryExpansionTile extends StatefulWidget {
     required this.stackSizes,
     required this.onEdit,
     required this.onDelete,
+    this.onReorder,
     required this.visibleCount,
     this.evaluateActionQuality,
   });
@@ -141,6 +143,7 @@ class _ActionHistoryExpansionTileState
                         numberOfPlayers: widget.playerPositions.length,
                         onEdit: widget.onEdit,
                         onDelete: widget.onDelete,
+                        onReorder: widget.onReorder,
                         visibleCount: widget.visibleCount,
                         evaluateActionQuality: widget.evaluateActionQuality,
                       ),
