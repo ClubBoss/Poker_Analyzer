@@ -73,6 +73,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _lengthKey = 'training_history_length';
   static const _pdfIncludeChartKey =
       'training_history_pdf_include_chart';
+  static const _csvMinAccuracyKey =
+      'training_history_csv_min_accuracy';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
@@ -95,6 +97,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   String? _lastCsvPath;
   String? _lastPdfPath;
+  int _csvMinAccuracy = 0;
 
   DateTime? _dateFrom;
   DateTime? _dateTo;
@@ -125,6 +128,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final includeChart = prefs.getBool(_pdfIncludeChartKey) ?? true;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
+    final csvMin = prefs.getInt(_csvMinAccuracyKey) ?? 0;
     setState(() {
       _sort = _SortOption.values[sortIndex];
       _ratingFilter = _RatingFilter.values[ratingIndex];
@@ -143,6 +147,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _weekdayFilter = _WeekdayFilter.values[weekdayIndex];
       _lengthFilter = _SessionLengthFilter.values[lengthIndex];
       _includeChartInPdf = includeChart;
+      _csvMinAccuracy = csvMin;
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -196,7 +201,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportCsv() async {
-    final sessions = _getFilteredHistory();
+    final sessions = _getFilteredHistory()
+        .where((r) => r.accuracy >= _csvMinAccuracy)
+        .toList();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
     final filters = _buildExportFilterLines();
@@ -435,7 +442,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportVisibleCsv() async {
-    final sessions = _getFilteredHistory();
+    final sessions = _getFilteredHistory()
+        .where((r) => r.accuracy >= _csvMinAccuracy)
+        .toList();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
     rows.add(['Date', 'Accuracy', 'Total', 'Correct', 'Tags', 'Notes']);
@@ -1799,6 +1808,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_pdfIncludeChartKey, _includeChartInPdf);
   }
 
+  Future<void> _setCsvMinAccuracy(double value) async {
+    setState(() => _csvMinAccuracy = value.round());
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_csvMinAccuracyKey, _csvMinAccuracy);
+  }
+
   Future<void> _setHideEmptyTags(bool value) async {
     setState(() => _hideEmptyTags = value);
     final prefs = await SharedPreferences.getInstance();
@@ -2680,6 +2695,24 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     Switch(
                       value: _includeChartInPdf,
                       onChanged: _setIncludeChartInPdf,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Мин. точность для экспорта',
+                        style: TextStyle(color: Colors.white)),
+                    Slider(
+                      value: _csvMinAccuracy.toDouble(),
+                      min: 0,
+                      max: 100,
+                      divisions: 20,
+                      label: '${_csvMinAccuracy}%',
+                      onChanged: _setCsvMinAccuracy,
                     ),
                   ],
                 ),
