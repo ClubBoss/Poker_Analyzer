@@ -629,6 +629,19 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     return '$fromStr - $toStr';
   }
 
+  Future<void> _applyQuickDateFilter(int days) async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateUtils.dateOnly(DateTime.now());
+    final from = DateUtils.dateOnly(now.subtract(Duration(days: days - 1)));
+    await prefs.setInt(_dateFromKey, from.millisecondsSinceEpoch);
+    await prefs.setInt(_dateToKey, now.millisecondsSinceEpoch);
+    setState(() {
+      _dateFrom = from;
+      _dateTo = now;
+    });
+    _loadHistory();
+  }
+
   void _openSessionDetail(TrainingResult session) {
     Navigator.push(
       context,
@@ -876,6 +889,77 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           _dateRangeLabel(),
                           style: const TextStyle(color: Colors.white),
                         ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ToggleButtons(
+                    isSelected: [
+                      _dateFrom != null &&
+                          DateUtils.isSameDay(
+                              _dateFrom!,
+                              DateUtils.dateOnly(DateTime.now()
+                                  .subtract(const Duration(days: 6)))) &&
+                          _dateTo != null &&
+                          DateUtils.isSameDay(
+                              _dateTo!, DateUtils.dateOnly(DateTime.now())),
+                      _dateFrom != null &&
+                          DateUtils.isSameDay(
+                              _dateFrom!,
+                              DateUtils.dateOnly(DateTime.now()
+                                  .subtract(const Duration(days: 29)))) &&
+                          _dateTo != null &&
+                          DateUtils.isSameDay(
+                              _dateTo!, DateUtils.dateOnly(DateTime.now())),
+                      _dateFrom != null &&
+                          DateUtils.isSameDay(
+                              _dateFrom!,
+                              DateUtils.dateOnly(DateTime.now()
+                                  .subtract(const Duration(days: 89)))) &&
+                          _dateTo != null &&
+                          DateUtils.isSameDay(
+                              _dateTo!, DateUtils.dateOnly(DateTime.now())),
+                      _dateFrom == null && _dateTo == null,
+                    ],
+                    onPressed: (index) async {
+                      switch (index) {
+                        case 0:
+                          await _applyQuickDateFilter(7);
+                          break;
+                        case 1:
+                          await _applyQuickDateFilter(30);
+                          break;
+                        case 2:
+                          await _applyQuickDateFilter(90);
+                          break;
+                        case 3:
+                          await _clearDateFilter();
+                          _loadHistory();
+                          break;
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(4),
+                    selectedColor: Colors.white,
+                    fillColor: Colors.blueGrey,
+                    color: Colors.white70,
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text('7 дней'),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text('30 дней'),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text('90 дней'),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text('Все'),
+                      ),
                     ],
                   ),
                 ),
