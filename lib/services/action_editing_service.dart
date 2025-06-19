@@ -86,6 +86,7 @@ class ActionEditingService {
       players[entry.playerIndex].name,
       ActionFormattingHelper.formatLastAction(entry),
       ActionFormattingHelper.actionColor(entry.action),
+      entry.action,
       entry.amount,
     );
     if (recordHistory) {
@@ -127,6 +128,7 @@ class ActionEditingService {
       players[entry.playerIndex].name,
       ActionFormattingHelper.formatLastAction(entry),
       ActionFormattingHelper.actionColor(entry.action),
+      entry.action,
       entry.amount,
     );
     if (recordHistory) {
