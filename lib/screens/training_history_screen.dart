@@ -157,6 +157,50 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await Share.shareXFiles([XFile(file.path)], text: 'training_history.csv');
   }
 
+  Future<void> _exportChartCsv() async {
+    final filtered = _getFilteredHistory();
+    final grouped = _groupSessionsForChart(filtered);
+    if (grouped.isEmpty) return;
+
+    final rows = <List<dynamic>>[];
+    rows.add(['Date', 'Total', 'Correct', 'Accuracy']);
+    for (final r in grouped) {
+      rows.add([
+        formatDate(r.date),
+        r.total,
+        r.correct,
+        r.accuracy.toStringAsFixed(1),
+      ]);
+    }
+
+    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
+        .convert(rows, eol: '\r\n');
+    final dir = await getApplicationDocumentsDirectory();
+
+    String mode;
+    switch (_chartMode) {
+      case _ChartMode.daily:
+        mode = 'daily';
+        break;
+      case _ChartMode.weekly:
+        mode = 'weekly';
+        break;
+      case _ChartMode.monthly:
+        mode = 'monthly';
+        break;
+    }
+
+    final fileName = 'chart_${mode}_${DateTime.now().millisecondsSinceEpoch}.csv';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsString(csvStr, encoding: utf8);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: $fileName')),
+      );
+    }
+  }
+
   Future<void> _importHistory() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -908,19 +952,30 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                               padding: EdgeInsets.symmetric(horizontal: 8),
                               child: Text('Недельный'),
                             ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: Text('Месячный'),
-                            ),
-                          ],
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: Text('Месячный'),
                         ),
                       ],
                     ),
+                  ],
+                ),
+              ),
+              if (_showCharts)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: _exportChartCsv,
+                      child: const Text('Экспортировать график CSV'),
+                    ),
                   ),
-                if (_showCharts) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
+                ),
+              if (_showCharts) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
                       children: [
                         const Text('Показать график',
                             style: TextStyle(color: Colors.white)),
