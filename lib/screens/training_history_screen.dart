@@ -52,6 +52,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _dateToKey = 'training_history_date_to';
   static const _chartModeKey = 'training_history_chart_mode';
   static const _hideEmptyTagsKey = 'hide_empty_tags';
+  static const _sortByTagKey = 'training_history_sort_by_tag';
   static const _accuracyRangeKey = 'training_history_accuracy_range';
 
   final List<TrainingResult> _history = [];
@@ -65,6 +66,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   bool _showAvgChart = true;
   bool _showDistribution = true;
   bool _hideEmptyTags = false;
+  bool _sortByTag = false;
   _ChartMode _chartMode = _ChartMode.daily;
 
   DateTime? _dateFrom;
@@ -87,6 +89,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final showAvgChart = prefs.getBool(_showAvgChartKey);
     final showDistribution = prefs.getBool(_showDistributionKey);
     final hideEmptyTags = prefs.getBool(_hideEmptyTagsKey) ?? false;
+    final sortByTag = prefs.getBool(_sortByTagKey) ?? false;
     final chartModeIndex = prefs.getInt(_chartModeKey) ?? 0;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
@@ -100,6 +103,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _showAvgChart = showAvgChart ?? true;
       _showDistribution = showDistribution ?? true;
       _hideEmptyTags = hideEmptyTags;
+      _sortByTag = sortByTag;
       _chartMode = _ChartMode.values[chartModeIndex];
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
@@ -320,6 +324,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setInt(_sortKey, _SortOption.newest.index);
     await prefs.setInt(_ratingKey, _RatingFilter.all.index);
     await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
+    await prefs.setBool(_sortByTagKey, false);
     await prefs.remove(_tagKey);
     await prefs.remove(_tagColorKey);
     await prefs.remove(_dateFromKey);
@@ -330,6 +335,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _accuracyRange = _AccuracyRange.all;
       _selectedTags.clear();
       _selectedTagColors.clear();
+      _sortByTag = false;
       _dateFrom = null;
       _dateTo = null;
     });
@@ -362,6 +368,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final selected = tags ?? _selectedTags;
     final selectedColors = colors ?? _selectedTagColors;
     final tagService = context.read<TagService>();
+
+    bool matchesTag(TrainingResult r) {
+      final tagMatch = selected.isNotEmpty && r.tags.any(selected.contains);
+      final colorMatch = selectedColors.isNotEmpty &&
+          r.tags.any((t) => selectedColors.contains(tagService.colorOf(t)));
+      return tagMatch || colorMatch;
+    }
+
     final list = _history
         .where((r) => r.date.isAfter(cutoff))
         .where((r) => _dateFrom == null || !r.date.isBefore(_dateFrom!))
@@ -390,25 +404,37 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           }
         })
         .where((r) {
+          if (_sortByTag) return true;
           if (selected.isEmpty) return true;
           return r.tags.any(selected.contains);
         })
         .where((r) {
+          if (_sortByTag) return true;
           if (selectedColors.isEmpty) return true;
           return r.tags.any((t) => selectedColors.contains(tagService.colorOf(t)));
         })
         .toList();
-    switch (_sort) {
-      case _SortOption.newest:
-        list.sort((a, b) => b.date.compareTo(a.date));
-        break;
-      case _SortOption.oldest:
-        list.sort((a, b) => a.date.compareTo(b.date));
-        break;
-      case _SortOption.rating:
-        list.sort((a, b) => b.accuracy.compareTo(a.accuracy));
-        break;
+
+    int compareBase(TrainingResult a, TrainingResult b) {
+      switch (_sort) {
+        case _SortOption.newest:
+          return b.date.compareTo(a.date);
+        case _SortOption.oldest:
+          return a.date.compareTo(b.date);
+        case _SortOption.rating:
+          return b.accuracy.compareTo(a.accuracy);
+      }
     }
+
+    list.sort((a, b) {
+      if (_sortByTag && (selected.isNotEmpty || selectedColors.isNotEmpty)) {
+        final aMatch = matchesTag(a);
+        final bMatch = matchesTag(b);
+        if (aMatch && !bMatch) return -1;
+        if (!aMatch && bMatch) return 1;
+      }
+      return compareBase(a, b);
+    });
     return list;
   }
 
@@ -905,6 +931,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_hideEmptyTagsKey, _hideEmptyTags);
   }
 
+  Future<void> _setSortByTag(bool value) async {
+    setState(() => _sortByTag = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_sortByTagKey, _sortByTag);
+  }
+
   Future<void> _setChartMode(_ChartMode mode) async {
     setState(() => _chartMode = mode);
     final prefs = await SharedPreferences.getInstance();
@@ -1192,6 +1224,20 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           ),
                         );
                 }),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('Сортировать по тегам',
+                          style: TextStyle(color: Colors.white)),
+                      const Spacer(),
+                      Switch(
+                        value: _sortByTag,
+                        onChanged: _setSortByTag,
+                      ),
+                    ],
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
