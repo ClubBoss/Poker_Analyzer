@@ -92,6 +92,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   String? _actionTagText;
   OverlayEntry? _betEntry;
   OverlayEntry? _betOverlayEntry;
+  OverlayEntry? _actionLabelEntry;
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
   String? _lastActionText;
@@ -198,6 +199,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _lastActionColor = color;
       _lastActionOpacity = 1.0;
     });
+    _showActionLabel(text, color);
     _lastActionTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() => _lastActionOpacity = 0.0);
@@ -267,6 +269,29 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
     overlay.insert(entry);
     _betOverlayEntry = entry;
+  }
+
+  void _showActionLabel(String text, Color color) {
+    _actionLabelEntry?.remove();
+    final overlay = Overlay.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final pos = box.localToGlobal(Offset(box.size.width / 2, -32 * widget.scale));
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _ActionLabelOverlay(
+        position: pos,
+        text: text,
+        color: color,
+        scale: widget.scale,
+        onCompleted: () {
+          entry.remove();
+          if (_actionLabelEntry == entry) _actionLabelEntry = null;
+        },
+      ),
+    );
+    overlay.insert(entry);
+    _actionLabelEntry = entry;
   }
 
   void _showStackBetDisplay(int amount, Color color) {
@@ -390,6 +415,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _stackBetTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
+    _actionLabelEntry?.remove();
     _controller.dispose();
     super.dispose();
   }
@@ -1179,6 +1205,98 @@ class _BetAmountOverlay extends StatefulWidget {
 
   @override
   State<_BetAmountOverlay> createState() => _BetAmountOverlayState();
+}
+
+class _ActionLabelOverlay extends StatefulWidget {
+  final Offset position;
+  final String text;
+  final Color color;
+  final double scale;
+  final VoidCallback? onCompleted;
+
+  const _ActionLabelOverlay({
+    Key? key,
+    required this.position,
+    required this.text,
+    required this.color,
+    this.scale = 1.0,
+    this.onCompleted,
+  }) : super(key: key);
+
+  @override
+  State<_ActionLabelOverlay> createState() => _ActionLabelOverlayState();
+}
+
+class _ActionLabelOverlayState extends State<_ActionLabelOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _offset;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _offset = Tween<Offset>(begin: Offset.zero, end: const Offset(0, -0.5)).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.dismissed) {
+        widget.onCompleted?.call();
+      }
+    });
+    _controller.forward();
+    Future.delayed(const Duration(milliseconds: 700), () {
+      if (mounted) {
+        _controller.reverse();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: widget.position.dx,
+      top: widget.position.dy,
+      child: SlideTransition(
+        position: _offset,
+        child: FadeTransition(
+          opacity: _opacity,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 8 * widget.scale,
+              vertical: 4 * widget.scale,
+            ),
+            decoration: BoxDecoration(
+              color: widget.color.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(8 * widget.scale),
+              boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+            ),
+            child: Text(
+              widget.text,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14 * widget.scale,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _BetAmountOverlayState extends State<_BetAmountOverlay>
