@@ -184,6 +184,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final sessions = _getFilteredHistory();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
+    final filters = _buildExportFilterLines();
+    if (filters.isNotEmpty) {
+      for (final line in filters) {
+        rows.add([line]);
+      }
+      rows.add([]);
+    }
     rows.add(['Date', 'Total', 'Correct', 'Accuracy', 'Tags', 'Notes']);
     for (final r in sessions) {
       rows.add([
@@ -208,6 +215,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final sessions = _getFilteredHistory();
     if (sessions.isEmpty) return;
     final buffer = StringBuffer();
+    final filters = _buildExportFilterLines();
+    if (filters.isNotEmpty) {
+      buffer.writeln('## Filters');
+      for (final line in filters) {
+        buffer.writeln('- $line');
+      }
+      buffer.writeln();
+    }
     for (final r in sessions) {
       final tags = r.tags.join(', ');
       final notes = r.notes ?? '';
@@ -618,6 +633,48 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   bool _hasResultsForColor(String color) {
     return _getFilteredHistory(colors: {color}).isNotEmpty;
+  }
+
+  List<String> _buildExportFilterLines() {
+    final lines = <String>[];
+    if (_selectedTags.isNotEmpty) {
+      lines.add('Tags: ${_selectedTags.join(', ')}');
+    }
+    if (_ratingFilter != _RatingFilter.all) {
+      final label = switch (_ratingFilter) {
+        _RatingFilter.pct40 => '40%+',
+        _RatingFilter.pct60 => '60%+',
+        _RatingFilter.pct80 => '80%+',
+        _ => '',
+      };
+      if (label.isNotEmpty) lines.add('Rating: $label');
+    }
+    if (_accuracyRange != _AccuracyRange.all) {
+      final label = switch (_accuracyRange) {
+        _AccuracyRange.lt50 => '<50%',
+        _AccuracyRange.pct50to70 => '50-70%',
+        _AccuracyRange.pct70to90 => '70-90%',
+        _AccuracyRange.pct90to100 => '90-100%',
+        _ => '',
+      };
+      if (label.isNotEmpty) lines.add('Accuracy: $label');
+    }
+    if (_lengthFilter != _SessionLengthFilter.any) {
+      final label = switch (_lengthFilter) {
+        _SessionLengthFilter.oneToFive => '1-5',
+        _SessionLengthFilter.sixToTen => '6-10',
+        _SessionLengthFilter.elevenPlus => '11+',
+        _ => '',
+      };
+      if (label.isNotEmpty) lines.add('Session length: $label');
+    }
+    if (_dateFrom != null || _dateTo != null) {
+      final fromStr = _dateFrom != null ? formatDate(_dateFrom!) : '';
+      final toStr = _dateTo != null ? formatDate(_dateTo!) : '';
+      lines.add('Date range: ${fromStr.isEmpty ? '...' : fromStr} - '
+          '${toStr.isEmpty ? '...' : toStr}');
+    }
+    return lines;
   }
 
   Future<void> _showTagSelector() async {
