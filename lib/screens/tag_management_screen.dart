@@ -2,20 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/tag_service.dart';
+import '../helpers/color_utils.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class TagManagementScreen extends StatelessWidget {
   const TagManagementScreen({super.key});
 
-  Future<void> _addTag(BuildContext context) async {
-    final controller = TextEditingController();
-    final result = await showDialog<String>(
+  Future<MapEntry<String, String>?> _showTagDialog(
+      BuildContext context, String title,
+      {String? initialName, String? initialColor}) {
+    final controller = TextEditingController(text: initialName ?? '');
+    Color pickerColor =
+        initialColor != null ? colorFromHex(initialColor) : Colors.blue;
+    return showDialog<MapEntry<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Новый тег'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Tag'),
+        title: Text(title),
+        content: StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: controller,
+                  autofocus: true,
+                  decoration: const InputDecoration(hintText: 'Tag'),
+                ),
+                const SizedBox(height: 8),
+                BlockPicker(
+                  pickerColor: pickerColor,
+                  onColorChanged: (c) => setStateDialog(() => pickerColor = c),
+                ),
+              ],
+            );
+          },
         ),
         actions: [
           TextButton(
@@ -23,42 +43,35 @@ class TagManagementScreen extends StatelessWidget {
             child: const Text('Отмена'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            onPressed: () => Navigator.pop(
+                context,
+                MapEntry(
+                    controller.text.trim(), colorToHex(pickerColor))),
             child: const Text('OK'),
           ),
         ],
       ),
     );
-    if (result != null && result.isNotEmpty) {
-      await context.read<TagService>().addTag(result);
+  }
+
+  Future<void> _addTag(BuildContext context) async {
+    final result = await _showTagDialog(context, 'Новый тег');
+    if (result != null && result.key.isNotEmpty) {
+      await context
+          .read<TagService>()
+          .addTag(result.key, color: result.value);
     }
   }
 
-  Future<void> _renameTag(BuildContext context, int index, String current) async {
-    final controller = TextEditingController(text: current);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Переименовать тег'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Tag'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    if (result != null && result.isNotEmpty) {
-      await context.read<TagService>().renameTag(index, result);
+  Future<void> _renameTag(
+      BuildContext context, int index, String current) async {
+    final color = context.read<TagService>().colorOf(current);
+    final result = await _showTagDialog(context, 'Переименовать тег',
+        initialName: current, initialColor: color);
+    if (result != null && result.key.isNotEmpty) {
+      await context
+          .read<TagService>()
+          .renameTag(index, result.key, color: result.value);
     }
   }
 
@@ -91,7 +104,22 @@ class TagManagementScreen extends StatelessWidget {
             ListTile(
               key: ValueKey(tags[i]),
               title: Text(tags[i]),
-              leading: const Icon(Icons.drag_handle),
+              leading: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: colorFromHex(
+                          context.read<TagService>().colorOf(tags[i])),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.drag_handle),
+                ],
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
