@@ -19,11 +19,15 @@ class TrainingHistoryScreen extends StatefulWidget {
 
 enum _SortOption { newest, oldest, rating }
 
+enum _RatingFilter { all, pct40, pct60, pct80 }
+
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _sortKey = 'training_history_sort';
+  static const _ratingKey = 'training_history_rating';
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
   _SortOption _sort = _SortOption.newest;
+  _RatingFilter _ratingFilter = _RatingFilter.all;
 
   @override
   void initState() {
@@ -34,8 +38,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final sortIndex = prefs.getInt(_sortKey) ?? 0;
+    final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
     setState(() {
       _sort = _SortOption.values[sortIndex];
+      _ratingFilter = _RatingFilter.values[ratingIndex];
     });
     _loadHistory();
   }
@@ -69,7 +75,18 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   List<TrainingResult> _getFilteredHistory() {
     final cutoff = DateTime.now().subtract(Duration(days: _filterDays));
-    final list = _history.where((r) => r.date.isAfter(cutoff)).toList();
+    final list = _history
+        .where((r) => r.date.isAfter(cutoff))
+        .where((r) {
+          final min = switch (_ratingFilter) {
+            _RatingFilter.all => 0,
+            _RatingFilter.pct40 => 40,
+            _RatingFilter.pct60 => 60,
+            _RatingFilter.pct80 => 80,
+          };
+          return r.accuracy >= min;
+        })
+        .toList();
     switch (_sort) {
       case _SortOption.newest:
         list.sort((a, b) => b.date.compareTo(a.date));
@@ -153,6 +170,38 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   final filtered = _getFilteredHistory();
                   return AccuracyChart(sessions: filtered);
                 }),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Text('Фильтр по рейтингу',
+                          style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 8),
+                      DropdownButton<_RatingFilter>(
+                        value: _ratingFilter,
+                        dropdownColor: AppColors.cardBackground,
+                        style: const TextStyle(color: Colors.white),
+                        items: const [
+                          DropdownMenuItem(
+                              value: _RatingFilter.all, child: Text('Все')),
+                          DropdownMenuItem(
+                              value: _RatingFilter.pct40, child: Text('40%+')),
+                          DropdownMenuItem(
+                              value: _RatingFilter.pct60, child: Text('60%+')),
+                          DropdownMenuItem(
+                              value: _RatingFilter.pct80, child: Text('80%+')),
+                        ],
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          final prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setInt(_ratingKey, value.index);
+                          setState(() => _ratingFilter = value);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
