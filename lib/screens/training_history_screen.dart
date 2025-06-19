@@ -1051,8 +1051,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           ),
           content: TextField(
             controller: controller,
-            maxLines: null,
             autofocus: true,
+            minLines: 3,
+            maxLines: null,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
               hintText: 'Введите заметки',
@@ -1066,7 +1067,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('OK'),
+              child: const Text('Save'),
             ),
           ],
         );
