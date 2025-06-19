@@ -22,6 +22,7 @@ class StreetActionsList extends StatelessWidget {
   final String Function(ActionEntry)? evaluateActionQuality;
   final void Function(ActionEntry, String?)? onManualEvaluationChanged;
   final void Function(int oldIndex, int newIndex)? onReorder;
+  final void Function(int index, ActionEntry entry)? onInsert;
 
   const StreetActionsList({
     super.key,
@@ -33,6 +34,7 @@ class StreetActionsList extends StatelessWidget {
     required this.numberOfPlayers,
     required this.onEdit,
     required this.onDelete,
+    this.onInsert,
     this.onDuplicate,
     this.visibleCount,
     this.evaluateActionQuality,
@@ -328,7 +330,7 @@ class StreetActionsList extends StatelessWidget {
                 final showDivider = index > 0 &&
                     (entry.action == 'bet' || entry.action == 'raise');
                 return Dismissible(
-                  key: ValueKey(entry),
+                  key: ValueKey(entry.timestamp.microsecondsSinceEpoch),
                   direction: DismissDirection.endToStart,
                   background: Container(
                     alignment: Alignment.centerRight,
@@ -336,8 +338,24 @@ class StreetActionsList extends StatelessWidget {
                     color: Colors.red,
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
-                  onDismissed: (_) =>
-                      onDelete(actions.indexOf(entry)),
+                  onDismissed: (_) {
+                    final index = actions.indexOf(entry);
+                    onDelete(index);
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Действие удалено'),
+                        action: SnackBarAction(
+                          label: 'Отмена',
+                          onPressed: () {
+                            if (onInsert != null) {
+                              onInsert!(index, entry);
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
                   child: Column(
                     children: [
                       if (showDivider)

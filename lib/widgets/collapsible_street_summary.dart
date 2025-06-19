@@ -13,6 +13,7 @@ class CollapsibleStreetSummary extends StatefulWidget {
   final void Function(int, int)? onReorder;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
+  final void Function(int index, ActionEntry entry)? onInsert;
 
   const CollapsibleStreetSummary({
     super.key,
@@ -24,6 +25,7 @@ class CollapsibleStreetSummary extends StatefulWidget {
     required this.onDelete,
     required this.onDuplicate,
     this.onReorder,
+    this.onInsert,
     this.visibleCount,
     this.evaluateActionQuality,
   });
@@ -125,6 +127,7 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                         numberOfPlayers: widget.playerPositions.length,
                         onEdit: widget.onEdit,
                         onDelete: widget.onDelete,
+                        onInsert: widget.onInsert,
                         onDuplicate: widget.onDuplicate,
                         onReorder: widget.onReorder,
                         visibleCount: widget.visibleCount,

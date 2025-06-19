@@ -1152,6 +1152,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         recordHistory: recordHistory);
   }
 
+  void _insertAction(int index, ActionEntry entry) {
+    if (lockService.isLocked) return;
+    lockService.safeSetState(this, () {
+      _addAction(entry, index: index);
+    });
+  }
+
   void onActionSelected(ActionEntry entry) {
     lockService.safeSetState(this, () {
       _addAutoFolds(entry);
@@ -1943,6 +1950,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               playerPositions: playerPositions,
               onEdit: _editAction,
               onDelete: _deleteAction,
+              onInsert: _insertAction,
               onDuplicate: _duplicateAction,
               onReorder: _reorderAction,
               visibleCount: _playbackManager.playbackIndex,
@@ -1960,12 +1968,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         pots: _potSync.pots,
         stackSizes: _stackService.currentStacks,
         onEdit: _editAction,
-      onDelete: _deleteAction,
-      onDuplicate: _duplicateAction,
-      onReorder: _reorderAction,
-      visibleCount: _playbackManager.playbackIndex,
-      evaluateActionQuality: _evaluateActionQuality,
-    ),
+        onDelete: _deleteAction,
+        onInsert: _insertAction,
+        onDuplicate: _duplicateAction,
+        onReorder: _reorderAction,
+        visibleCount: _playbackManager.playbackIndex,
+        evaluateActionQuality: _evaluateActionQuality,
+      ),
     StreetActionsWidget(
       currentStreet: currentStreet,
       canGoPrev: _boardManager.canReverseStreet(),
@@ -3605,6 +3614,7 @@ class _StreetActionsSection extends StatelessWidget {
   final Map<int, String> playerPositions;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
+  final void Function(int index, ActionEntry entry) onInsert;
   final void Function(int) onDuplicate;
   final void Function(int, int) onReorder;
   final int? visibleCount;
@@ -3618,6 +3628,7 @@ class _StreetActionsSection extends StatelessWidget {
     required this.playerPositions,
     required this.onEdit,
     required this.onDelete,
+    required this.onInsert,
     required this.onDuplicate,
     required this.onReorder,
     this.visibleCount,
@@ -3638,6 +3649,7 @@ class _StreetActionsSection extends StatelessWidget {
         numberOfPlayers: playerPositions.length,
         onEdit: onEdit,
         onDelete: onDelete,
+        onInsert: onInsert,
         onDuplicate: onDuplicate,
         onReorder: onReorder,
         visibleCount: visibleCount,
@@ -4018,6 +4030,7 @@ class _HandEditorSection extends StatelessWidget {
                   playerPositions: playerPositions,
                   onEdit: onEdit,
                   onDelete: onDelete,
+                  onInsert: _insertAction,
                   onDuplicate: _duplicateAction,
                   onReorder: _reorderAction,
                   visibleCount: visibleCount,
