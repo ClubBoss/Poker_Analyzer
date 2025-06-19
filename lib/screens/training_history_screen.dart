@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
@@ -81,6 +84,17 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final prefs = await SharedPreferences.getInstance();
     final list = [for (final r in _history) jsonEncode(r.toJson())];
     await prefs.setStringList('training_history', list);
+  }
+
+  Future<void> _exportHistory() async {
+    if (_history.isEmpty) return;
+    final encoder = JsonEncoder.withIndent('  ');
+    final jsonStr = encoder.convert([for (final r in _history) r.toJson()]);
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.json');
+    await file.writeAsString(jsonStr);
+    await Share.shareXFiles([XFile(file.path)], text: 'training_history.json');
   }
 
   Future<void> _resetFilters() async {
@@ -274,6 +288,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         title: const Text('Training History'),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Export',
+            onPressed: _history.isEmpty ? null : _exportHistory,
+          ),
           TextButton(
             onPressed: _clearHistory,
             child: const Text('Clear History'),
