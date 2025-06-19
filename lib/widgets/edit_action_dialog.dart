@@ -15,6 +15,7 @@ Future<ActionEntry?> showEditActionDialog(
 
   return showDialog<ActionEntry>(
     context: context,
+    barrierDismissible: false,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) {
         final needAmount =
