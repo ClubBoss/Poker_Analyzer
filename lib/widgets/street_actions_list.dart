@@ -4,6 +4,7 @@ import 'edit_action_dialog.dart';
 import 'package:intl/intl.dart';
 
 import 'street_pot_widget.dart';
+import 'chip_stack_widget.dart';
 import 'package:provider/provider.dart';
 import '../services/user_preferences_service.dart';
 
@@ -89,6 +90,14 @@ class StreetActionsList extends StatelessWidget {
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          if (a.amount != null) ...[
+            ChipStackWidget(
+              amount: a.amount!,
+              scale: 0.7,
+              color: color,
+            ),
+            const SizedBox(width: 6),
+          ],
           if (a.amount != null)
             Container(
               padding:
