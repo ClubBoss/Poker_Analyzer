@@ -219,6 +219,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   final Map<int, _BetDisplayInfo> _recentBets = {};
   final Map<int, Timer> _betTimers = {};
+  final Map<int, String> _playerNotes = {};
 
 
 
@@ -581,6 +582,57 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         },
       ),
     );
+  }
+
+  Future<void> _editPlayerNote(int index) async {
+    if (lockService.isLocked) return;
+    final controller = TextEditingController(text: _playerNotes[index] ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.black.withOpacity(0.8),
+        title: const Text(
+          'Player Notes',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: 3,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white10,
+            hintText: 'Enter notes',
+            hintStyle: const TextStyle(color: Colors.white54),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      lockService.safeSetState(this, () {
+        final text = result.trim();
+        if (text.isEmpty) {
+          _playerNotes.remove(index);
+        } else {
+          _playerNotes[index] = text;
+        }
+      });
+    }
   }
 
   @override
@@ -2552,6 +2604,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             icon: const Text('❌', style: TextStyle(color: Colors.redAccent)),
           ),
         ),
+      Positioned(
+        left: centerX + dx + 40 * scale,
+        top: centerY + dy + bias - 40 * scale,
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          iconSize: 16 * scale,
+          onPressed: () => _editPlayerNote(index),
+          icon: Icon(
+            Icons.sticky_note_2,
+            color: (_playerNotes[index]?.isNotEmpty ?? false)
+                ? Colors.amber
+                : Colors.white70,
+            size: 16 * scale,
+          ),
+        ),
+      ),
     ];
 
     if (invested > 0) {
