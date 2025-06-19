@@ -486,6 +486,18 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     setState(() => _selectedTagColors.clear());
   }
 
+  Future<void> _clearLengthFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_lengthKey, _SessionLengthFilter.any.index);
+    setState(() => _lengthFilter = _SessionLengthFilter.any);
+  }
+
+  Future<void> _clearAccuracyFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
+    setState(() => _accuracyRange = _AccuracyRange.all);
+  }
+
   Future<void> _clearDateFilter() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_dateFromKey);
@@ -740,34 +752,41 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
     if (tags.isEmpty) return const SizedBox.shrink();
     final tagService = context.read<TagService>();
-    return SizedBox(
-      height: 36,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          for (final tag in tags)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: ChoiceChip(
-                label: Text(tag),
-                selected: _selectedTags.contains(tag),
-                selectedColor: colorFromHex(tagService.colorOf(tag)),
-                onSelected: (selected) async {
-                  final prefs = await SharedPreferences.getInstance();
-                  setState(() {
-                    if (selected) {
-                      _selectedTags.add(tag);
-                    } else {
-                      _selectedTags.remove(tag);
-                    }
-                  });
-                  await prefs.setStringList(_tagKey, _selectedTags.toList());
-                },
+      return SizedBox(
+        height: 36,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            for (final tag in tags)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ChoiceChip(
+                  label: Text(tag),
+                  selected: _selectedTags.contains(tag),
+                  selectedColor: colorFromHex(tagService.colorOf(tag)),
+                  onSelected: (selected) async {
+                    final prefs = await SharedPreferences.getInstance();
+                    setState(() {
+                      if (selected) {
+                        _selectedTags.add(tag);
+                      } else {
+                        _selectedTags.remove(tag);
+                      }
+                    });
+                    await prefs.setStringList(_tagKey, _selectedTags.toList());
+                  },
+                ),
               ),
-            ),
-        ],
-      ),
+            if (_selectedTags.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                color: Colors.white70,
+                tooltip: 'Очистить',
+                onPressed: _clearTagFilters,
+              ),
+          ],
+        ),
       );
   }
 
@@ -778,29 +797,36 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _SessionLengthFilter.sixToTen: '6–10',
       _SessionLengthFilter.elevenPlus: '11+',
     };
-    return SizedBox(
-      height: 36,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          for (final entry in items.entries)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: ChoiceChip(
-                label: Text(entry.value),
-                selected: _lengthFilter == entry.key,
-                onSelected: (selected) async {
-                  if (!selected) return;
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setInt(_lengthKey, entry.key.index);
-                  setState(() => _lengthFilter = entry.key);
-                },
+      return SizedBox(
+        height: 36,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            for (final entry in items.entries)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ChoiceChip(
+                  label: Text(entry.value),
+                  selected: _lengthFilter == entry.key,
+                  onSelected: (selected) async {
+                    if (!selected) return;
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setInt(_lengthKey, entry.key.index);
+                    setState(() => _lengthFilter = entry.key);
+                  },
+                ),
               ),
-            ),
-        ],
-      ),
-    );
+            if (_lengthFilter != _SessionLengthFilter.any)
+              IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                color: Colors.white70,
+                tooltip: 'Очистить',
+                onPressed: _clearLengthFilter,
+              ),
+          ],
+        ),
+      );
   }
 
   Widget _buildQuickAccuracyRow() {
@@ -810,29 +836,36 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _AccuracyRange.pct75plus: '>75%',
       _AccuracyRange.all: 'Все',
     };
-    return SizedBox(
-      height: 36,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          for (final entry in items.entries)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: ChoiceChip(
-                label: Text(entry.value),
-                selected: _accuracyRange == entry.key,
-                onSelected: (selected) async {
-                  if (!selected) return;
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setInt(_accuracyRangeKey, entry.key.index);
-                  setState(() => _accuracyRange = entry.key);
-                },
+      return SizedBox(
+        height: 36,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            for (final entry in items.entries)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ChoiceChip(
+                  label: Text(entry.value),
+                  selected: _accuracyRange == entry.key,
+                  onSelected: (selected) async {
+                    if (!selected) return;
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setInt(_accuracyRangeKey, entry.key.index);
+                    setState(() => _accuracyRange = entry.key);
+                  },
+                ),
               ),
-            ),
-        ],
-      ),
-    );
+            if (_accuracyRange != _AccuracyRange.all)
+              IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                color: Colors.white70,
+                tooltip: 'Очистить',
+                onPressed: _clearAccuracyFilter,
+              ),
+          ],
+        ),
+      );
   }
 
   Widget _buildQuickColorRow() {
@@ -848,36 +881,43 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     for (final tag in tagService.tags) {
       colorMap.putIfAbsent(tagService.colorOf(tag), () => []).add(tag);
     }
-    return SizedBox(
-      height: 36,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          for (final color in colors)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: ChoiceChip(
-                label: Text(colorMap[color]?.join(', ') ?? color),
-                selected: _selectedTagColors.contains(color),
-                selectedColor: colorFromHex(color),
-                onSelected: (selected) async {
-                  final prefs = await SharedPreferences.getInstance();
-                  setState(() {
-                    if (selected) {
-                      _selectedTagColors.add(color);
-                    } else {
-                      _selectedTagColors.remove(color);
-                    }
-                  });
-                  await prefs.setStringList(
-                      _tagColorKey, _selectedTagColors.toList());
-                },
+      return SizedBox(
+        height: 36,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          children: [
+            for (final color in colors)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ChoiceChip(
+                  label: Text(colorMap[color]?.join(', ') ?? color),
+                  selected: _selectedTagColors.contains(color),
+                  selectedColor: colorFromHex(color),
+                  onSelected: (selected) async {
+                    final prefs = await SharedPreferences.getInstance();
+                    setState(() {
+                      if (selected) {
+                        _selectedTagColors.add(color);
+                      } else {
+                        _selectedTagColors.remove(color);
+                      }
+                    });
+                    await prefs.setStringList(
+                        _tagColorKey, _selectedTagColors.toList());
+                  },
+                ),
               ),
-            ),
-        ],
-      ),
-    );
+            if (_selectedTagColors.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.close, size: 18),
+                color: Colors.white70,
+                tooltip: 'Очистить',
+                onPressed: _clearColorFilters,
+              ),
+          ],
+        ),
+      );
   }
 
   bool _hasResultsForTag(String tag) {
