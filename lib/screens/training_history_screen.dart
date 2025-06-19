@@ -259,6 +259,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _deleteSession(TrainingResult session) async {
+    setState(() {
+      _history.remove(session);
+    });
+    await _saveHistory();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -409,9 +416,42 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       padding: const EdgeInsets.all(16),
                       itemBuilder: (context, index) {
                         final result = filtered[index];
-                        return HistoryListItem(
-                          result: result,
-                          onLongPress: () => _editSessionTags(result),
+                        return Dismissible(
+                          key: ValueKey(result.date.toIso8601String()),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            color: Colors.red,
+                            child: const Icon(Icons.delete, color: Colors.white),
+                          ),
+                          confirmDismiss: (_) async {
+                            return await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text('Delete Session?'),
+                                      content: const Text('Are you sure you want to delete this session?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, false),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          child: const Text('Delete'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ) ??
+                                false;
+                          },
+                          onDismissed: (_) => _deleteSession(result),
+                          child: HistoryListItem(
+                            result: result,
+                            onLongPress: () => _editSessionTags(result),
+                          ),
                         );
                       },
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
