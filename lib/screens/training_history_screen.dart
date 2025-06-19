@@ -71,6 +71,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _tagCountKey = 'training_history_tag_count';
   static const _weekdayKey = 'training_history_weekday';
   static const _lengthKey = 'training_history_length';
+  static const _pdfIncludeChartKey =
+      'training_history_pdf_include_chart';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
@@ -85,6 +87,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   bool _showTrendChart = true;
   bool _hideEmptyTags = false;
   bool _sortByTag = false;
+  bool _includeChartInPdf = true;
   _ChartMode _chartMode = _ChartMode.daily;
   _TagCountFilter _tagCountFilter = _TagCountFilter.any;
   _WeekdayFilter _weekdayFilter = _WeekdayFilter.all;
@@ -119,6 +122,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final tagCountIndex = prefs.getInt(_tagCountKey) ?? 0;
     final weekdayIndex = prefs.getInt(_weekdayKey) ?? 0;
     final lengthIndex = prefs.getInt(_lengthKey) ?? 0;
+    final includeChart = prefs.getBool(_pdfIncludeChartKey) ?? true;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
@@ -138,6 +142,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _tagCountFilter = _TagCountFilter.values[tagCountIndex];
       _weekdayFilter = _WeekdayFilter.values[weekdayIndex];
       _lengthFilter = _SessionLengthFilter.values[lengthIndex];
+      _includeChartInPdf = includeChart;
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -465,12 +470,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final sessions = _getFilteredHistory();
     if (sessions.isEmpty) return;
 
+    final chartData = _groupSessionsForChart(sessions);
+
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
         build: (context) {
-          return pw.Table.fromTextArray(
+          final table = pw.Table.fromTextArray(
             headers: const [
               'Date',
               'Accuracy',
@@ -489,6 +496,44 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   r.tags.join(';'),
                   r.notes ?? ''
                 ]
+            ],
+          );
+
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              if (_includeChartInPdf)
+                pw.Container(
+                  height: 200,
+                  child: pw.Chart(
+                    grid: pw.CartesianGrid(
+                      xAxis: pw.FixedAxis.fromStrings(
+                        [for (final r in chartData) formatDate(r.date)],
+                        marginStart: 30,
+                      ),
+                      yAxis: pw.FixedAxis(
+                        [0, 20, 40, 60, 80, 100],
+                        divisions: true,
+                        marginStart: 30,
+                      ),
+                    ),
+                    datasets: [
+                      pw.LineDataSet(
+                        drawPoints: false,
+                        isCurved: true,
+                        data: [
+                          for (var i = 0; i < chartData.length; i++)
+                            pw.PointChartValue(
+                              i.toDouble(),
+                              chartData[i].accuracy,
+                            )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              if (_includeChartInPdf) pw.SizedBox(height: 16),
+              table,
             ],
           );
         },
@@ -1748,6 +1793,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_showTrendChartKey, _showTrendChart);
   }
 
+  Future<void> _setIncludeChartInPdf(bool value) async {
+    setState(() => _includeChartInPdf = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_pdfIncludeChartKey, _includeChartInPdf);
+  }
+
   Future<void> _setHideEmptyTags(bool value) async {
     setState(() => _hideEmptyTags = value);
     final prefs = await SharedPreferences.getInstance();
@@ -2619,6 +2670,20 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     );
                   }),
                 ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const Text('Включить график в PDF',
+                        style: TextStyle(color: Colors.white)),
+                    const Spacer(),
+                    Switch(
+                      value: _includeChartInPdf,
+                      onChanged: _setIncludeChartInPdf,
+                    ),
+                  ],
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
