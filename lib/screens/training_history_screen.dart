@@ -32,11 +32,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _sortKey = 'training_history_sort';
   static const _ratingKey = 'training_history_rating';
   static const _tagKey = 'training_history_tags';
+  static const _showChartsKey = 'training_history_show_charts';
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
   _SortOption _sort = _SortOption.newest;
   _RatingFilter _ratingFilter = _RatingFilter.all;
   Set<String> _selectedTags = {};
+  bool _showCharts = true;
 
   @override
   void initState() {
@@ -49,10 +51,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final sortIndex = prefs.getInt(_sortKey) ?? 0;
     final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
     final tags = prefs.getStringList(_tagKey) ?? [];
+    final showCharts = prefs.getBool(_showChartsKey);
     setState(() {
       _sort = _SortOption.values[sortIndex];
       _ratingFilter = _RatingFilter.values[ratingIndex];
       _selectedTags = tags.toSet();
+      _showCharts = showCharts ?? true;
     });
     _loadHistory();
   }
@@ -427,6 +431,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await _saveHistory();
   }
 
+  Future<void> _toggleCharts() async {
+    setState(() => _showCharts = !_showCharts);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_showChartsKey, _showCharts);
+  }
+
   void _openSessionDetail(TrainingResult session) {
     Navigator.push(
       context,
@@ -505,30 +515,43 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         },
                       ),
                       const Spacer(),
-                      Builder(builder: (context) {
-                        final filtered = _getFilteredHistory();
-                        final avg = _calculateAverageAccuracy(filtered);
-                        return Text(
-                          'Average Accuracy: ${avg.toStringAsFixed(1)}%',
-                          style: const TextStyle(color: Colors.white),
-                        );
-                      })
-                    ],
+                  Builder(builder: (context) {
+                    final filtered = _getFilteredHistory();
+                    final avg = _calculateAverageAccuracy(filtered);
+                    return Text(
+                      'Average Accuracy: ${avg.toStringAsFixed(1)}%',
+                      style: const TextStyle(color: Colors.white),
+                    );
+                  })
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: _toggleCharts,
+                  child: Text(
+                    _showCharts ? 'Скрыть графики' : 'Показать графики',
                   ),
                 ),
-                Builder(builder: (context) {
-                  final filtered = _getFilteredHistory();
-                  final last7days = _history
-                      .where((r) =>
-                          r.date.isAfter(DateTime.now().subtract(const Duration(days: 7))))
-                      .toList();
-                  return Column(
-                    children: [
-                      AccuracyChart(sessions: filtered),
-                      SessionAccuracyBarChart(sessions: last7days),
-                    ],
-                  );
-                }),
+              ),
+            ),
+            if (_showCharts)
+              Builder(builder: (context) {
+                final filtered = _getFilteredHistory();
+                final last7days = _history
+                    .where((r) =>
+                        r.date.isAfter(DateTime.now().subtract(const Duration(days: 7))))
+                    .toList();
+                return Column(
+                  children: [
+                    AccuracyChart(sessions: filtered),
+                    SessionAccuracyBarChart(sessions: last7days),
+                  ],
+                );
+              }),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
