@@ -150,7 +150,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final sessions = _getFilteredHistory();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
-    rows.add(['Date', 'Total', 'Correct', 'Accuracy', 'Tags']);
+    rows.add(['Date', 'Total', 'Correct', 'Accuracy', 'Tags', 'Notes']);
     for (final r in sessions) {
       rows.add([
         formatDateTime(r.date),
@@ -158,6 +158,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         r.correct,
         r.accuracy.toStringAsFixed(1),
         r.tags.join(';'),
+        r.notes ?? '',
       ]);
     }
     final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
@@ -561,6 +562,59 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             accuracy: session.accuracy,
             tags: updated.toList(),
             notes: session.notes,
+          );
+        });
+        await _saveHistory();
+      }
+    }
+  }
+
+  Future<void> _editSessionNotes(BuildContext ctx, TrainingResult session) async {
+    final controller = TextEditingController(text: session.notes ?? '');
+    final updated = await showDialog<String>(
+      context: ctx,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text(
+            'Заметки',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: TextField(
+            controller: controller,
+            maxLines: null,
+            autofocus: true,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: 'Введите заметки',
+              hintStyle: TextStyle(color: Colors.white54),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (updated != null) {
+      final index = _history.indexOf(session);
+      if (index != -1) {
+        final text = updated.trim();
+        setState(() {
+          _history[index] = TrainingResult(
+            date: session.date,
+            total: session.total,
+            correct: session.correct,
+            accuracy: session.accuracy,
+            tags: session.tags,
+            notes: text.isEmpty ? null : text,
           );
         });
         await _saveHistory();
@@ -1299,7 +1353,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           child: HistoryListItem(
                             result: result,
                             onLongPress: () => _editSessionTags(context, result),
-                            onTap: () => _openSessionDetail(result),
+                            onTap: () => _editSessionNotes(context, result),
                           ),
                         );
                       },
