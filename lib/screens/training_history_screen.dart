@@ -89,6 +89,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   _WeekdayFilter _weekdayFilter = _WeekdayFilter.all;
   _SessionLengthFilter _lengthFilter = _SessionLengthFilter.any;
 
+  String? _lastCsvPath;
+  String? _lastPdfPath;
+
   DateTime? _dateFrom;
   DateTime? _dateTo;
 
@@ -395,6 +398,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(csvStr, encoding: utf8);
 
+    _lastCsvPath = file.path;
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: $fileName')),
@@ -446,6 +451,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(csvStr, encoding: utf8);
 
+    _lastCsvPath = file.path;
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: $fileName')),
@@ -494,11 +501,63 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final file = File('${dir.path}/$fileName');
     await file.writeAsBytes(bytes);
 
+    _lastPdfPath = file.path;
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: $fileName')),
       );
     }
+  }
+
+  Future<void> _shareLatestExport() async {
+    if (_lastCsvPath == null && _lastPdfPath == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет экспортированных файлов')),
+        );
+      }
+      return;
+    }
+
+    String? selectedPath;
+    if (_lastCsvPath != null && _lastPdfPath != null) {
+      selectedPath = await showModalBottomSheet<String>(
+        context: context,
+        builder: (context) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.table_chart),
+                title: const Text('Последний CSV'),
+                onTap: () => Navigator.pop(context, _lastCsvPath),
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf),
+                title: const Text('Последний PDF'),
+                onTap: () => Navigator.pop(context, _lastPdfPath),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      selectedPath = _lastCsvPath ?? _lastPdfPath;
+    }
+
+    if (selectedPath == null) return;
+    final file = File(selectedPath);
+    if (!await file.exists()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Файл не найден')),
+        );
+      }
+      return;
+    }
+
+    await Share.shareXFiles([XFile(file.path)]);
   }
 
   Future<void> _importJson() async {
@@ -2467,6 +2526,16 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       child: const Text('Экспорт PDF'),
                     ),
                   ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: _shareLatestExport,
+                    child: const Text('Поделиться'),
+                  ),
                 ),
               ),
               ],
