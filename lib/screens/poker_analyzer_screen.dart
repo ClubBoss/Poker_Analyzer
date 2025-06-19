@@ -772,7 +772,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _potGrowthAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+    _potGrowthAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
       CurvedAnimation(parent: _potGrowthController, curve: Curves.easeOutCubic),
     )..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
