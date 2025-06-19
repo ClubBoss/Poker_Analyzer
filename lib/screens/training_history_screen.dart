@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:csv/csv.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
@@ -103,6 +104,27 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.json');
     await file.writeAsString(jsonStr);
     await Share.shareXFiles([XFile(file.path)], text: 'training_history.json');
+  }
+
+  Future<void> _exportCsv() async {
+    if (_history.isEmpty) return;
+    final rows = <List<dynamic>>[];
+    rows.add(['Date', 'Total', 'Correct', 'Accuracy', 'Tags']);
+    for (final r in _history) {
+      rows.add([
+        formatDateTime(r.date),
+        r.total,
+        r.correct,
+        r.accuracy.toStringAsFixed(1),
+        r.tags.join(';'),
+      ]);
+    }
+    final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.csv');
+    await file.writeAsString(csvStr);
+    await Share.shareXFiles([XFile(file.path)], text: 'training_history.csv');
   }
 
   Future<void> _importHistory() async {
@@ -662,6 +684,16 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         child: const Text('Сбросить фильтры'),
                       ),
                     ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: _history.isEmpty ? null : _exportCsv,
+                      child: const Text('Экспорт в CSV'),
+                    ),
                   ),
                 ),
                 Expanded(
