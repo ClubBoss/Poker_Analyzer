@@ -10,6 +10,7 @@ import 'services/daily_hand_service.dart';
 import 'services/action_sync_service.dart';
 import 'services/folded_players_service.dart';
 import 'services/user_preferences_service.dart';
+import 'services/tag_service.dart';
 import 'user_preferences.dart';
 
 void main() {
@@ -35,6 +36,9 @@ void main() {
             service.load();
             return service;
           },
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TagService()..load(),
         ),
       ],
       child: const PokerAIAnalyzerApp(),
