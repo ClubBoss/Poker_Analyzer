@@ -73,6 +73,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _lengthKey = 'training_history_length';
   static const _pdfIncludeChartKey =
       'training_history_pdf_include_chart';
+  static const _exportTags3OnlyKey =
+      'training_history_export_tags_3plus';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
@@ -92,6 +94,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   _TagCountFilter _tagCountFilter = _TagCountFilter.any;
   _WeekdayFilter _weekdayFilter = _WeekdayFilter.all;
   _SessionLengthFilter _lengthFilter = _SessionLengthFilter.any;
+  bool _exportTags3Only = false;
 
   String? _lastCsvPath;
   String? _lastPdfPath;
@@ -123,6 +126,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final weekdayIndex = prefs.getInt(_weekdayKey) ?? 0;
     final lengthIndex = prefs.getInt(_lengthKey) ?? 0;
     final includeChart = prefs.getBool(_pdfIncludeChartKey) ?? true;
+    final tags3Only = prefs.getBool(_exportTags3OnlyKey) ?? false;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
@@ -143,6 +147,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _weekdayFilter = _WeekdayFilter.values[weekdayIndex];
       _lengthFilter = _SessionLengthFilter.values[lengthIndex];
       _includeChartInPdf = includeChart;
+      _exportTags3Only = tags3Only;
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -196,7 +201,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportCsv() async {
-    final sessions = _getFilteredHistory();
+    final sessions =
+        _getFilteredHistory().where((r) => !_exportTags3Only || r.tags.length >= 3).toList();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
     final filters = _buildExportFilterLines();
@@ -227,7 +233,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportMarkdown() async {
-    final sessions = _getFilteredHistory();
+    final sessions =
+        _getFilteredHistory().where((r) => !_exportTags3Only || r.tags.length >= 3).toList();
     if (sessions.isEmpty) return;
     final buffer = StringBuffer();
     final filters = _buildExportFilterLines();
@@ -272,7 +279,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportHtml() async {
-    final sessions = _getFilteredHistory();
+    final sessions =
+        _getFilteredHistory().where((r) => !_exportTags3Only || r.tags.length >= 3).toList();
     if (sessions.isEmpty) return;
     const htmlEscape = HtmlEscape();
     final buffer = StringBuffer();
@@ -435,7 +443,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportVisibleCsv() async {
-    final sessions = _getFilteredHistory();
+    final sessions =
+        _getFilteredHistory().where((r) => !_exportTags3Only || r.tags.length >= 3).toList();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
     rows.add(['Date', 'Accuracy', 'Total', 'Correct', 'Tags', 'Notes']);
@@ -467,7 +476,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _exportVisiblePdf() async {
-    final sessions = _getFilteredHistory();
+    final sessions =
+        _getFilteredHistory().where((r) => !_exportTags3Only || r.tags.length >= 3).toList();
     if (sessions.isEmpty) return;
 
     final chartData = _groupSessionsForChart(sessions);
@@ -1799,6 +1809,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setBool(_pdfIncludeChartKey, _includeChartInPdf);
   }
 
+  Future<void> _setExportTags3Only(bool value) async {
+    setState(() => _exportTags3Only = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_exportTags3OnlyKey, _exportTags3Only);
+  }
+
   Future<void> _setHideEmptyTags(bool value) async {
     setState(() => _hideEmptyTags = value);
     final prefs = await SharedPreferences.getInstance();
@@ -2315,6 +2331,23 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           await prefs.setInt(_accuracyRangeKey, value.index);
                           setState(() => _accuracyRange = value);
                         },
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Экспортировать только сессии с ≥ 3 тегами',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      Checkbox(
+                        value: _exportTags3Only,
+                        onChanged: (v) => _setExportTags3Only(v ?? false),
                       ),
                     ],
                   ),
