@@ -47,6 +47,7 @@ import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
 import '../widgets/player_stack_label.dart';
+import '../widgets/player_spr_label.dart';
 import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
@@ -2180,6 +2181,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final String tag = _actionTagService.getTag(index) ?? '';
     final bool isActive = activePlayerIndex == index;
     final bool isFolded = _foldedPlayers.isPlayerFolded(index);
+    final int pot = _potSync.pots[currentStreet];
+    final double? playerSpr = pot > 0 ? stack / pot.toDouble() : null;
 
     ActionEntry? lastAction;
     for (final a in visibleActions.reversed) {
@@ -2360,6 +2363,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         left: centerX + dx - 20 * scale,
         top: centerY + dy + bias + 84 * scale,
         child: PlayerStackLabel(stack: stack, scale: scale * 0.9),
+      ),
+      Positioned(
+        left: centerX + dx - 20 * scale,
+        top: centerY + dy + bias + 96 * scale,
+        child: PlayerSprLabel(spr: playerSpr, scale: scale * 0.8),
       ),
       Positioned(
         left: centerX + dx + (cos(angle) < 0 ? -45 * scale : 30 * scale),
