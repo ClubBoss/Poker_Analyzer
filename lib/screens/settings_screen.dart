@@ -14,6 +14,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _showCardReveal;
   late bool _showWinnerCelebration;
   late bool _showActionHints;
+  late bool _coachMode;
 
   @override
   void initState() {
@@ -23,6 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _showCardReveal = prefs.showCardReveal;
     _showWinnerCelebration = prefs.showWinnerCelebration;
     _showActionHints = prefs.showActionHints;
+    _coachMode = prefs.coachMode;
   }
 
   Future<void> _togglePotAnimation(bool value) async {
@@ -43,6 +45,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleActionHints(bool value) async {
     setState(() => _showActionHints = value);
     await UserPreferences.instance.setShowActionHints(value);
+  }
+
+  Future<void> _toggleCoachMode(bool value) async {
+    setState(() => _coachMode = value);
+    await UserPreferences.instance.setCoachMode(value);
   }
 
   @override
@@ -78,6 +85,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _showActionHints,
               title: const Text('Показывать подсказки к действиям'),
               onChanged: _toggleActionHints,
+              activeColor: Colors.orange,
+            ),
+            SwitchListTile(
+              value: _coachMode,
+              title: const Text('Режим тренера (Coach Mode)'),
+              onChanged: _toggleCoachMode,
               activeColor: Colors.orange,
             ),
             const SizedBox(height: 20),

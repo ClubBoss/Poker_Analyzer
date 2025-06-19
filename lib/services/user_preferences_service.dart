@@ -6,16 +6,19 @@ class UserPreferencesService extends ChangeNotifier {
   static const _cardRevealKey = 'show_card_reveal';
   static const _winnerCelebrationKey = 'show_winner_celebration';
   static const _actionHintsKey = 'show_action_hints';
+  static const _coachModeKey = 'coach_mode';
 
   bool _showPotAnimation = true;
   bool _showCardReveal = true;
   bool _showWinnerCelebration = true;
   bool _showActionHints = true;
+  bool _coachMode = false;
 
   bool get showPotAnimation => _showPotAnimation;
   bool get showCardReveal => _showCardReveal;
   bool get showWinnerCelebration => _showWinnerCelebration;
   bool get showActionHints => _showActionHints;
+  bool get coachMode => _coachMode;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -23,6 +26,7 @@ class UserPreferencesService extends ChangeNotifier {
     _showCardReveal = prefs.getBool(_cardRevealKey) ?? true;
     _showWinnerCelebration = prefs.getBool(_winnerCelebrationKey) ?? true;
     _showActionHints = prefs.getBool(_actionHintsKey) ?? true;
+    _coachMode = prefs.getBool(_coachModeKey) ?? false;
     notifyListeners();
   }
 
@@ -56,6 +60,13 @@ class UserPreferencesService extends ChangeNotifier {
     if (_showActionHints == value) return;
     _showActionHints = value;
     await _save(_actionHintsKey, value);
+    notifyListeners();
+  }
+
+  Future<void> setCoachMode(bool value) async {
+    if (_coachMode == value) return;
+    _coachMode = value;
+    await _save(_coachModeKey, value);
     notifyListeners();
   }
 }
