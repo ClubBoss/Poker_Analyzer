@@ -1191,6 +1191,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _duplicateAction(int index) {
+    if (lockService.isLocked) return;
+    lockService.safeSetState(this, () {
+      final original = actions[index];
+      final copy = ActionEntry(
+        original.street,
+        original.playerIndex,
+        original.action,
+        amount: original.amount,
+        generated: original.generated,
+        manualEvaluation: original.manualEvaluation,
+        timestamp: original.timestamp,
+      );
+      _actionEditing.insertAction(index + 1, copy);
+    });
+  }
+
   Future<void> _removeLastPlayerAction(int playerIndex) async {
     final actionIndex = actions.lastIndexWhere(
         (a) => a.playerIndex == playerIndex && a.street == currentStreet);
@@ -1926,6 +1943,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               playerPositions: playerPositions,
               onEdit: _editAction,
               onDelete: _deleteAction,
+              onDuplicate: _duplicateAction,
               onReorder: _reorderAction,
               visibleCount: _playbackManager.playbackIndex,
               evaluateActionQuality: _evaluateActionQuality,
@@ -1943,6 +1961,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         stackSizes: _stackService.currentStacks,
         onEdit: _editAction,
       onDelete: _deleteAction,
+      onDuplicate: _duplicateAction,
       onReorder: _reorderAction,
       visibleCount: _playbackManager.playbackIndex,
       evaluateActionQuality: _evaluateActionQuality,
@@ -3586,6 +3605,7 @@ class _StreetActionsSection extends StatelessWidget {
   final Map<int, String> playerPositions;
   final void Function(int, ActionEntry) onEdit;
   final void Function(int) onDelete;
+  final void Function(int) onDuplicate;
   final void Function(int, int) onReorder;
   final int? visibleCount;
   final String Function(ActionEntry)? evaluateActionQuality;
@@ -3598,6 +3618,7 @@ class _StreetActionsSection extends StatelessWidget {
     required this.playerPositions,
     required this.onEdit,
     required this.onDelete,
+    required this.onDuplicate,
     required this.onReorder,
     this.visibleCount,
     this.evaluateActionQuality,
@@ -3617,6 +3638,7 @@ class _StreetActionsSection extends StatelessWidget {
         numberOfPlayers: playerPositions.length,
         onEdit: onEdit,
         onDelete: onDelete,
+        onDuplicate: onDuplicate,
         onReorder: onReorder,
         visibleCount: visibleCount,
         evaluateActionQuality: evaluateActionQuality,
@@ -3996,6 +4018,7 @@ class _HandEditorSection extends StatelessWidget {
                   playerPositions: playerPositions,
                   onEdit: onEdit,
                   onDelete: onDelete,
+                  onDuplicate: _duplicateAction,
                   onReorder: _reorderAction,
                   visibleCount: visibleCount,
                   evaluateActionQuality: evaluateActionQuality,
