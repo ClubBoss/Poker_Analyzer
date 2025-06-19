@@ -233,11 +233,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final start = box.localToGlobal(box.size.center(Offset.zero));
     final media = MediaQuery.of(context).size;
     final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
+    final control = Offset(
+      (start.dx + end.dx) / 2,
+      (start.dy + end.dy) / 2 - (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
+    );
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => ChipMovingWidget(
         start: start,
         end: end,
+        control: control,
         amount: amount,
         color: Colors.amber,
         scale: widget.scale,
