@@ -10,6 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
 import '../widgets/common/history_list_item.dart';
+import '../widgets/common/session_accuracy_bar_chart.dart';
 import 'training_detail_screen.dart';
 
 import '../models/training_result.dart';
@@ -517,7 +518,16 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 ),
                 Builder(builder: (context) {
                   final filtered = _getFilteredHistory();
-                  return AccuracyChart(sessions: filtered);
+                  final last7days = _history
+                      .where((r) =>
+                          r.date.isAfter(DateTime.now().subtract(const Duration(days: 7))))
+                      .toList();
+                  return Column(
+                    children: [
+                      AccuracyChart(sessions: filtered),
+                      SessionAccuracyBarChart(sessions: last7days),
+                    ],
+                  );
                 }),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
