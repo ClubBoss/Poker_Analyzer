@@ -23,6 +23,7 @@ import '../widgets/common/accuracy_distribution_chart.dart';
 import 'training_detail_screen.dart';
 
 import '../models/training_result.dart';
+import '../models/training_session.dart';
 import '../helpers/date_utils.dart';
 import '../helpers/accuracy_utils.dart';
 
@@ -355,7 +356,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
-  Future<void> _importHistory() async {
+  Future<void> _importJson() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
@@ -373,44 +374,35 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         );
         return;
       }
-      final List<TrainingResult> imported = [];
+      final List<TrainingSession> sessions = [];
       for (final item in data) {
         if (item is Map<String, dynamic>) {
           try {
-            imported.add(
-                TrainingResult.fromJson(Map<String, dynamic>.from(item)));
+            sessions.add(
+                TrainingSession.fromJson(Map<String, dynamic>.from(item)));
           } catch (_) {}
         }
       }
-      if (imported.isEmpty) {
+      if (sessions.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No sessions found')),
+          const SnackBar(content: Text('Invalid file format')),
         );
         return;
       }
-      final existingDates =
-          _history.map((e) => e.date.toIso8601String()).toSet();
-      final newSessions = [
-        for (final r in imported)
-          if (!existingDates.contains(r.date.toIso8601String())) r
-      ];
-      if (newSessions.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nothing to import')),
-        );
-        return;
-      }
-      setState(() => _history.addAll(newSessions));
+      setState(() {
+        _history.addAll([for (final s in sessions) s.toTrainingResult()]);
+      });
       await _saveHistory();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported ${newSessions.length} sessions')),
+        SnackBar(content: Text('Imported ${sessions.length} sessions')),
       );
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to read file')),
+        const SnackBar(content: Text('Invalid file format')),
       );
     }
   }
+
 
   Future<void> _resetFilters() async {
     final prefs = await SharedPreferences.getInstance();
@@ -1259,7 +1251,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           IconButton(
             icon: const Icon(Icons.upload),
             tooltip: 'Import',
-            onPressed: _importHistory,
+            onPressed: _importJson,
           ),
           IconButton(
             icon: const Icon(Icons.download),
@@ -1711,6 +1703,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         onPressed:
                             _getFilteredHistory().isEmpty ? null : _exportHtml,
                         child: const Text('Экспорт в HTML'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _importJson,
+                        child: const Text('Импорт JSON'),
                       ),
                     ],
                   ),
