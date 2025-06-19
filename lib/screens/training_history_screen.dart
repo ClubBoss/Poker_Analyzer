@@ -31,6 +31,8 @@ enum _SortOption { newest, oldest, rating }
 
 enum _RatingFilter { all, pct40, pct60, pct80 }
 
+enum _ChartMode { daily, weekly, monthly }
+
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _sortKey = 'training_history_sort';
   static const _ratingKey = 'training_history_rating';
@@ -40,6 +42,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _showDistributionKey = 'training_history_show_distribution';
   static const _dateFromKey = 'training_history_date_from';
   static const _dateToKey = 'training_history_date_to';
+  static const _chartModeKey = 'training_history_chart_mode';
 
   final List<TrainingResult> _history = [];
   int _filterDays = 7;
@@ -49,6 +52,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   bool _showCharts = true;
   bool _showAvgChart = true;
   bool _showDistribution = true;
+  _ChartMode _chartMode = _ChartMode.daily;
 
   DateTime? _dateFrom;
   DateTime? _dateTo;
@@ -67,6 +71,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final showCharts = prefs.getBool(_showChartsKey);
     final showAvgChart = prefs.getBool(_showAvgChartKey);
     final showDistribution = prefs.getBool(_showDistributionKey);
+    final chartModeIndex = prefs.getInt(_chartModeKey) ?? 0;
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
@@ -76,6 +81,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _showCharts = showCharts ?? true;
       _showAvgChart = showAvgChart ?? true;
       _showDistribution = showDistribution ?? true;
+      _chartMode = _ChartMode.values[chartModeIndex];
       _dateFrom =
           fromMillis != null ? DateTime.fromMillisecondsSinceEpoch(fromMillis) : null;
       _dateTo =
@@ -278,6 +284,41 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (list.isEmpty) return 0.0;
     final sum = list.map((e) => e.accuracy).reduce((a, b) => a + b);
     return sum / list.length;
+  }
+
+  List<TrainingResult> _groupSessionsForChart(List<TrainingResult> list) {
+    if (_chartMode == _ChartMode.daily) {
+      final sorted = [...list]..sort((a, b) => a.date.compareTo(b.date));
+      return sorted;
+    }
+
+    final Map<DateTime, List<TrainingResult>> groups = {};
+    for (final r in list) {
+      DateTime key;
+      switch (_chartMode) {
+        case _ChartMode.weekly:
+          final d = DateTime(r.date.year, r.date.month, r.date.day);
+          key = d.subtract(Duration(days: d.weekday - 1));
+          break;
+        case _ChartMode.monthly:
+          key = DateTime(r.date.year, r.date.month);
+          break;
+        case _ChartMode.daily:
+          key = DateTime(r.date.year, r.date.month, r.date.day);
+          break;
+      }
+      groups.putIfAbsent(key, () => []).add(r);
+    }
+    final result = <TrainingResult>[];
+    final keys = groups.keys.toList()..sort();
+    for (final k in keys) {
+      final sessions = groups[k]!;
+      final total = sessions.fold<int>(0, (p, e) => p + e.total);
+      final correct = sessions.fold<int>(0, (p, e) => p + e.correct);
+      final accuracy = total == 0 ? 0.0 : correct * 100 / total;
+      result.add(TrainingResult(date: k, total: total, correct: correct, accuracy: accuracy));
+    }
+    return result;
   }
 
   Future<void> _showTagSelector() async {
@@ -509,6 +550,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     setState(() => _showDistribution = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_showDistributionKey, _showDistribution);
+  }
+
+  Future<void> _setChartMode(_ChartMode mode) async {
+    setState(() => _chartMode = mode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_chartModeKey, mode.index);
   }
 
   Future<void> _pickDateRange() async {
@@ -832,6 +879,44 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ],
                   ),
                 ),
+                if (_showCharts)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        const Text('Тип графика',
+                            style: TextStyle(color: Colors.white)),
+                        const Spacer(),
+                        ToggleButtons(
+                          isSelected: [
+                            _chartMode == _ChartMode.daily,
+                            _chartMode == _ChartMode.weekly,
+                            _chartMode == _ChartMode.monthly,
+                          ],
+                          onPressed: (index) =>
+                              _setChartMode(_ChartMode.values[index]),
+                          borderRadius: BorderRadius.circular(4),
+                          selectedColor: Colors.white,
+                          fillColor: Colors.blueGrey,
+                          color: Colors.white70,
+                          children: const [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              child: Text('Дневной'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              child: Text('Недельный'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              child: Text('Месячный'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 if (_showCharts) ...[
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -851,7 +936,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   Builder(
                     builder: (context) {
                       final filtered = _getFilteredHistory();
-                      return AverageAccuracyChart(sessions: filtered);
+                      final grouped = _groupSessionsForChart(filtered);
+                      return AverageAccuracyChart(sessions: grouped);
                     },
                   ),
                   Padding(
@@ -872,7 +958,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     Builder(
                       builder: (context) {
                         final filtered = _getFilteredHistory();
-                        return AccuracyDistributionChart(sessions: filtered);
+                        final grouped = _groupSessionsForChart(filtered);
+                        return AccuracyDistributionChart(sessions: grouped);
                       },
                     ),
                 ],
