@@ -77,6 +77,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     });
   }
 
+  Future<void> _saveHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = [for (final r in _history) jsonEncode(r.toJson())];
+    await prefs.setStringList('training_history', list);
+  }
+
   Future<void> _resetFilters() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_sortKey, _SortOption.newest.index);
@@ -181,6 +187,75 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_tagKey, result.toList());
       setState(() => _selectedTags = result);
+    }
+  }
+
+  Future<void> _editSessionTags(TrainingResult session) async {
+    final tags = {for (final r in _history) ...r.tags};
+    final local = Set<String>.from(session.tags);
+    final updated = await showDialog<Set<String>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text(
+            'Теги сессии',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return SizedBox(
+                width: 300,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final tag in tags)
+                      CheckboxListTile(
+                        value: local.contains(tag),
+                        title: Text(tag,
+                            style: const TextStyle(color: Colors.white)),
+                        onChanged: (checked) {
+                          setStateDialog(() {
+                            if (checked ?? false) {
+                              local.add(tag);
+                            } else {
+                              local.remove(tag);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, local),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (updated != null) {
+      final index = _history.indexOf(session);
+      if (index != -1) {
+        setState(() {
+          _history[index] = TrainingResult(
+            date: session.date,
+            total: session.total,
+            correct: session.correct,
+            accuracy: session.accuracy,
+            tags: updated.toList(),
+          );
+        });
+        await _saveHistory();
+      }
     }
   }
 
@@ -334,7 +409,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                       padding: const EdgeInsets.all(16),
                       itemBuilder: (context, index) {
                         final result = filtered[index];
-                        return HistoryListItem(result: result);
+                        return HistoryListItem(
+                          result: result,
+                          onLongPress: () => _editSessionTags(result),
+                        );
                       },
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemCount: filtered.length,
