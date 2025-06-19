@@ -44,6 +44,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   static const _sortKey = 'training_history_sort';
   static const _ratingKey = 'training_history_rating';
   static const _tagKey = 'training_history_tags';
+  static const _tagColorKey = 'training_history_tag_colors';
   static const _showChartsKey = 'training_history_show_charts';
   static const _showAvgChartKey = 'training_history_show_chart';
   static const _showDistributionKey = 'training_history_show_distribution';
@@ -59,6 +60,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   _RatingFilter _ratingFilter = _RatingFilter.all;
   _AccuracyRange _accuracyRange = _AccuracyRange.all;
   Set<String> _selectedTags = {};
+  Set<String> _selectedTagColors = {};
   bool _showCharts = true;
   bool _showAvgChart = true;
   bool _showDistribution = true;
@@ -80,6 +82,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final ratingIndex = prefs.getInt(_ratingKey) ?? 0;
     final accuracyRangeIndex = prefs.getInt(_accuracyRangeKey) ?? 0;
     final tags = prefs.getStringList(_tagKey) ?? [];
+    final colors = prefs.getStringList(_tagColorKey) ?? [];
     final showCharts = prefs.getBool(_showChartsKey);
     final showAvgChart = prefs.getBool(_showAvgChartKey);
     final showDistribution = prefs.getBool(_showDistributionKey);
@@ -92,6 +95,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _ratingFilter = _RatingFilter.values[ratingIndex];
       _accuracyRange = _AccuracyRange.values[accuracyRangeIndex];
       _selectedTags = tags.toSet();
+      _selectedTagColors = colors.toSet();
       _showCharts = showCharts ?? true;
       _showAvgChart = showAvgChart ?? true;
       _showDistribution = showDistribution ?? true;
@@ -317,6 +321,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     await prefs.setInt(_ratingKey, _RatingFilter.all.index);
     await prefs.setInt(_accuracyRangeKey, _AccuracyRange.all.index);
     await prefs.remove(_tagKey);
+    await prefs.remove(_tagColorKey);
     await prefs.remove(_dateFromKey);
     await prefs.remove(_dateToKey);
     setState(() {
@@ -324,6 +329,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _ratingFilter = _RatingFilter.all;
       _accuracyRange = _AccuracyRange.all;
       _selectedTags.clear();
+      _selectedTagColors.clear();
       _dateFrom = null;
       _dateTo = null;
     });
@@ -333,6 +339,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tagKey);
     setState(() => _selectedTags.clear());
+  }
+
+  Future<void> _clearColorFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tagColorKey);
+    setState(() => _selectedTagColors.clear());
   }
 
   Future<void> _clearDateFilter() async {
@@ -345,9 +357,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     });
   }
 
-  List<TrainingResult> _getFilteredHistory({Set<String>? tags}) {
+  List<TrainingResult> _getFilteredHistory({Set<String>? tags, Set<String>? colors}) {
     final cutoff = DateTime.now().subtract(Duration(days: _filterDays));
     final selected = tags ?? _selectedTags;
+    final selectedColors = colors ?? _selectedTagColors;
+    final tagService = context.read<TagService>();
     final list = _history
         .where((r) => r.date.isAfter(cutoff))
         .where((r) => _dateFrom == null || !r.date.isBefore(_dateFrom!))
@@ -378,6 +392,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         .where((r) {
           if (selected.isEmpty) return true;
           return r.tags.any(selected.contains);
+        })
+        .where((r) {
+          if (selectedColors.isEmpty) return true;
+          return r.tags.any((t) => selectedColors.contains(tagService.colorOf(t)));
         })
         .toList();
     switch (_sort) {
@@ -443,6 +461,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   bool _hasResultsForTag(String tag) {
     return _getFilteredHistory(tags: {tag}).isNotEmpty;
+  }
+
+  bool _hasResultsForColor(String color) {
+    return _getFilteredHistory(colors: {color}).isNotEmpty;
   }
 
   Future<void> _showTagSelector() async {
@@ -512,6 +534,79 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_tagKey, result.toList());
       setState(() => _selectedTags = result);
+    }
+  }
+
+  Future<void> _showColorSelector() async {
+    final service = context.read<TagService>();
+    final Map<String, List<String>> colorMap = {};
+    for (final tag in service.tags) {
+      colorMap.putIfAbsent(service.colorOf(tag), () => []).add(tag);
+    }
+    final colors = colorMap.keys.toList();
+    final local = Set<String>.from(_selectedTagColors);
+    final result = await showDialog<Set<String>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text('Фильтр по цветам',
+              style: TextStyle(color: Colors.white)),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return SizedBox(
+                width: 300,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final color in colors)
+                      CheckboxListTile(
+                        activeColor: colorFromHex(color),
+                        value: local.contains(color),
+                        title: Text(
+                          colorMap[color]!.join(', '),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        secondary: Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: colorFromHex(color),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        onChanged: (checked) {
+                          setStateDialog(() {
+                            if (checked ?? false) {
+                              local.add(color);
+                            } else {
+                              local.remove(color);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, local),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (result != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_tagColorKey, result.toList());
+      setState(() => _selectedTagColors = result);
     }
   }
 
@@ -1026,6 +1121,70 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                       });
                                       await prefs.setStringList(
                                           _tagKey, _selectedTags.toList());
+                                    },
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                }),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text('Фильтр по цвету',
+                          style: TextStyle(color: Colors.white)),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _showColorSelector,
+                        child: Text(
+                            _selectedTagColors.isEmpty ? 'Выбрать цвета' : 'Изменить'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed:
+                            _selectedTagColors.isEmpty ? null : _clearColorFilters,
+                        child: const Text('Сбросить цвета'),
+                      ),
+                    ],
+                  ),
+                ),
+                Builder(builder: (context) {
+                  final visibleColors = _hideEmptyTags
+                      ? [
+                          for (final c in _selectedTagColors)
+                            if (_hasResultsForColor(c)) c
+                        ]
+                      : _selectedTagColors.toList();
+                  final service = context.read<TagService>();
+                  final Map<String, List<String>> map = {};
+                  for (final tag in service.tags) {
+                    map.putIfAbsent(service.colorOf(tag), () => []).add(tag);
+                  }
+                  return visibleColors.isEmpty
+                      ? const SizedBox.shrink()
+                      : SizedBox(
+                          height: 40,
+                          child: ListView(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              for (final color in visibleColors)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  child: FilterChip(
+                                    label: Text(map[color]!.join(', ')),
+                                    selected: true,
+                                    backgroundColor: colorFromHex(color),
+                                    onSelected: (selected) async {
+                                      final prefs = await SharedPreferences
+                                          .getInstance();
+                                      setState(() {
+                                        _selectedTagColors.remove(color);
+                                      });
+                                      await prefs.setStringList(_tagColorKey,
+                                          _selectedTagColors.toList());
                                     },
                                   ),
                                 ),
