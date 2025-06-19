@@ -53,6 +53,7 @@ import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/mini_stack_widget.dart';
+import '../widgets/player_note_button.dart';
 import '../widgets/bet_size_label.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
@@ -2607,18 +2608,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Positioned(
         left: centerX + dx + 40 * scale,
         top: centerY + dy + bias - 40 * scale,
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-          iconSize: 16 * scale,
+        child: PlayerNoteButton(
+          note: _playerNotes[index],
+          scale: scale,
           onPressed: () => _editPlayerNote(index),
-          icon: Icon(
-            Icons.sticky_note_2,
-            color: (_playerNotes[index]?.isNotEmpty ?? false)
-                ? Colors.amber
-                : Colors.white70,
-            size: 16 * scale,
-          ),
         ),
       ),
     ];
