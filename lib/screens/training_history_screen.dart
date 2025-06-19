@@ -805,6 +805,51 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     );
   }
 
+  Widget _buildQuickColorRow() {
+    final tagService = context.read<TagService>();
+    final colors = <String>{};
+    for (final r in _history) {
+      for (final tag in r.tags) {
+        colors.add(tagService.colorOf(tag));
+      }
+    }
+    if (colors.isEmpty) return const SizedBox.shrink();
+    final Map<String, List<String>> colorMap = {};
+    for (final tag in tagService.tags) {
+      colorMap.putIfAbsent(tagService.colorOf(tag), () => []).add(tag);
+    }
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          for (final color in colors)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(colorMap[color]?.join(', ') ?? color),
+                selected: _selectedTagColors.contains(color),
+                selectedColor: colorFromHex(color),
+                onSelected: (selected) async {
+                  final prefs = await SharedPreferences.getInstance();
+                  setState(() {
+                    if (selected) {
+                      _selectedTagColors.add(color);
+                    } else {
+                      _selectedTagColors.remove(color);
+                    }
+                  });
+                  await prefs.setStringList(
+                      _tagColorKey, _selectedTagColors.toList());
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   bool _hasResultsForTag(String tag) {
     return _getFilteredHistory(tags: {tag}).isNotEmpty;
   }
@@ -1516,6 +1561,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 );
               }),
             _buildQuickTagRow(),
+            _buildQuickColorRow(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
