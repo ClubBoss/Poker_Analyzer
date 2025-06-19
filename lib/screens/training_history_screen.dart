@@ -13,6 +13,9 @@ import 'package:provider/provider.dart';
 import '../services/tag_service.dart';
 import 'package:flutter/services.dart';
 import '../helpers/color_utils.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/common/accuracy_chart.dart';
@@ -442,6 +445,54 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         'visible_${DateTime.now().millisecondsSinceEpoch}.csv';
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(csvStr, encoding: utf8);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: $fileName')),
+      );
+    }
+  }
+
+  Future<void> _exportVisiblePdf() async {
+    final sessions = _getFilteredHistory();
+    if (sessions.isEmpty) return;
+
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          return pw.Table.fromTextArray(
+            headers: const [
+              'Date',
+              'Accuracy',
+              'Total',
+              'Correct',
+              'Tags',
+              'Notes'
+            ],
+            data: [
+              for (final r in sessions)
+                [
+                  formatDateTime(r.date),
+                  r.accuracy.toStringAsFixed(1),
+                  r.total,
+                  r.correct,
+                  r.tags.join(';'),
+                  r.notes ?? ''
+                ]
+            ],
+          );
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir = await getApplicationDocumentsDirectory();
+    final fileName =
+        'visible_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsBytes(bytes);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2407,6 +2458,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           ? null
                           : _exportVisibleCsv,
                       child: const Text('Экспорт CSV'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _getFilteredHistory().isEmpty
+                          ? null
+                          : _exportVisiblePdf,
+                      child: const Text('Экспорт PDF'),
                     ),
                   ],
                 ),
