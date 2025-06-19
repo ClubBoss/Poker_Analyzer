@@ -34,4 +34,13 @@ class TrainingSession {
         tags: tags,
         notes: notes,
       );
+
+  Map<String, dynamic> toJson() => {
+        'date': date.toIso8601String(),
+        'total': total,
+        'correct': correct,
+        'accuracy': accuracy,
+        if (tags.isNotEmpty) 'tags': tags,
+        if (notes != null && notes!.isNotEmpty) 'notes': notes,
+      };
 }
