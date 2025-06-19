@@ -2465,9 +2465,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         top: centerY + dy + bias - 55 * scale * infoScale,
         child: Transform.scale(
           scale: infoScale,
-          child: AbsorbPointer(
-            absorbing: lockService.isLocked,
-            child: PlayerInfoWidget(
+          child: AnimatedScale(
+            scale: isFolded ? 0.9 : 1.0,
+            duration: const Duration(milliseconds: 400),
+            child: AnimatedOpacity(
+              opacity: isFolded ? 0.4 : 1.0,
+              duration: const Duration(milliseconds: 400),
+              child: AbsorbPointer(
+                absorbing: lockService.isLocked,
+                child: PlayerInfoWidget(
             position: position,
             stack: stack,
             tag: tag,
@@ -2523,8 +2529,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   }
                 : null,
             onTimeExpired: () => _onPlayerTimeExpired(index),
+              ),
+            ),
           ),
-        ),
         ),
       ),
       Positioned(
