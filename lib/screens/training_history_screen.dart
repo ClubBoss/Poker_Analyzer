@@ -11,6 +11,7 @@ import 'package:csv/csv.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:provider/provider.dart';
 import '../services/tag_service.dart';
+import 'package:flutter/services.dart';
 import '../helpers/color_utils.dart';
 
 import '../theme/app_colors.dart';
@@ -394,6 +395,27 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: $fileName')),
+      );
+    }
+  }
+
+  Future<void> _copyVisibleResults() async {
+    final sessions = _getFilteredHistory();
+    if (sessions.isEmpty) return;
+    final lines = <String>[];
+    for (final r in sessions) {
+      final tags = r.tags.join(', ');
+      final notes = r.notes ?? '';
+      lines.add(
+          '${formatDateTime(r.date)} - ${r.accuracy.toStringAsFixed(1)}% - '
+          '${r.correct}/${r.total}'
+          '${tags.isNotEmpty ? ' - Tags: $tags' : ''}'
+          '${notes.isNotEmpty ? ' - Notes: $notes' : ''}');
+    }
+    await Clipboard.setData(ClipboardData(text: lines.join('\\n')));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Скопировано ${sessions.length} сессий')),
       );
     }
   }
@@ -2339,6 +2361,15 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     );
                   }),
                 ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ElevatedButton(
+                  onPressed: _getFilteredHistory().isEmpty
+                      ? null
+                      : _copyVisibleResults,
+                  child: const Text('Копировать результаты'),
+                ),
+              ),
               ],
             ),
     );
