@@ -663,14 +663,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => ChipStackMovingWidget(
+      builder: (_) => BetFlyingChips(
         start: start,
         end: end,
         control: control,
         amount: amount,
-        color: Colors.amber,
-        scale: scale,
-        duration: const Duration(milliseconds: 500),
+        color: Colors.orangeAccent,
+        scale: 1.0,
+        fadeStart: 0.3,
         onCompleted: () => overlayEntry.remove(),
       ),
     );
