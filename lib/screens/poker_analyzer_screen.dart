@@ -525,6 +525,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
       });
     }
+    // Trigger pot win animation after all reveal animations finish.
+    final totalDelay = 300 * revealPlayers.length + 400;
+    Future.delayed(Duration(milliseconds: totalDelay), _showPotWinAnimation);
   }
 
   void _clearShowdown() {
@@ -1105,6 +1108,51 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _potAnimationPlayed = true;
 
     // Fade out the central pot after the chips move away.
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
+      final prevPot = _displayedPots[currentStreet];
+      if (prevPot > 0) {
+        _potCountAnimation =
+            IntTween(begin: prevPot, end: 0).animate(_potCountController);
+        _potCountController.forward(from: 0);
+        _displayedPots[currentStreet] = 0;
+      }
+    });
+  }
+
+  /// Plays the pot win animation once showdown reveals have finished.
+  void _showPotWinAnimation() {
+    if (_potAnimationPlayed) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+
+    int delay = 0;
+    final wins = _winnings;
+    if (wins != null && wins.isNotEmpty) {
+      wins.forEach((player, amount) {
+        _showPotWinAnimations(
+          overlay,
+          {player: amount},
+          delay,
+          Colors.orangeAccent,
+          highlight: true,
+        );
+        delay += 150;
+      });
+    } else if (_winnerIndex != null) {
+      _showPotWinAnimations(
+        overlay,
+        {_winnerIndex!: _potSync.pots[currentStreet]},
+        delay,
+        Colors.orangeAccent,
+        highlight: true,
+      );
+    } else {
+      return;
+    }
+
+    _potAnimationPlayed = true;
+
     Future.delayed(const Duration(milliseconds: 600), () {
       if (!mounted) return;
       final prevPot = _displayedPots[currentStreet];
