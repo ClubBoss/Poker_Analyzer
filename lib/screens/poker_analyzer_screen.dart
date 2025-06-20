@@ -67,6 +67,7 @@ import '../widgets/chip_moving_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
 import '../widgets/bet_to_center_animation.dart';
+import '../widgets/pot_win_animation.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/show_card_flip.dart';
@@ -854,29 +855,87 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _showPotWinAnimations(
+    OverlayState overlay,
+    Map<int, int> targets,
+    int startDelay,
+    Color color, {
+    double scale = 1.0,
+  }) {
+    if (targets.isEmpty) return;
+    final double tableScale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, tableScale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * tableScale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * tableScale * radiusMod;
+
+    int delay = startDelay;
+    targets.forEach((playerIndex, amount) {
+      if (amount <= 0) return;
+      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias =
+          TableGeometryHelper.verticalBiasFromAngle(angle) * tableScale;
+      final start = Offset(centerX, centerY);
+      final end =
+          Offset(centerX + dx, centerY + dy + bias + 92 * tableScale);
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 20 * tableScale,
+        midY - (40 + ChipStackMovingWidget.activeCount * 8) * tableScale,
+      );
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (!mounted) return;
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => PotWinAnimation(
+            start: start,
+            end: end,
+            control: control,
+            amount: amount,
+            color: color,
+            scale: scale * tableScale,
+            onCompleted: () => entry.remove(),
+          ),
+        );
+        overlay.insert(entry);
+      });
+      delay += 150;
+    });
+  }
+
 
   void _playPotWinAnimation() {
     if (_potAnimationPlayed) return;
     final wins = _winnings;
     final returns = _returns;
-    if (wins != null && wins.isNotEmpty && returns != null && returns.isNotEmpty) {
-      _distributeChips(wins);
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (!mounted) return;
-        _distributeChips(
-          returns,
-          color: Colors.blueAccent,
-          scale: 0.9,
-        );
-      });
-    } else if (wins == null || wins.isEmpty) {
-      if (_winnerIndex != null) {
-        _distributeChips({
-          _winnerIndex!: _potSync.pots[currentStreet],
-        });
+    final overlay = Overlay.of(context);
+    if (overlay != null) {
+      int delay = 0;
+      Map<int, int>? targets;
+      if (wins != null && wins.isNotEmpty) {
+        targets = wins;
+      } else if (_winnerIndex != null) {
+        targets = { _winnerIndex!: _potSync.pots[currentStreet] };
       }
-    } else {
-      _distributeChips(wins);
+      if (targets != null) {
+        _showPotWinAnimations(overlay, targets, delay, Colors.orangeAccent);
+        delay += 150 * targets.length;
+      }
+      if (returns != null && returns.isNotEmpty) {
+        _showPotWinAnimations(overlay, returns, delay, Colors.blueAccent, scale: 0.9);
+      }
     }
     _potAnimationPlayed = true;
 
