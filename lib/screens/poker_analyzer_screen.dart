@@ -1720,6 +1720,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..addAll(_stackService.currentStacks);
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
+      _startNewHand();
     }
     _serviceRegistry.register<TransitionHistoryService>(TransitionHistoryService(
       lockService: lockService,
@@ -2151,6 +2152,64 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       _prevPlayerCards[p] = List<CardModel>.from(cards);
     }
+  }
+
+  /// Deal two cards to each player with staggered delays at hand start.
+  void _playPreflopDealAnimation() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final center = Offset(centerX, centerY);
+
+    int delay = 0;
+    for (int p = 0; p < numberOfPlayers; p++) {
+      final cards = playerCards[p];
+      if (cards.length < 2) continue;
+      final i = (p - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      for (int idx = 0; idx < 2 && idx < cards.length; idx++) {
+        final card = cards[idx];
+        final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
+        Future.delayed(Duration(milliseconds: delay), () {
+          if (!mounted) return;
+          late OverlayEntry e;
+          e = OverlayEntry(
+            builder: (_) => DealCardAnimation(
+              start: center,
+              end: pos,
+              card: card,
+              scale: scale,
+              onCompleted: () => e.remove(),
+            ),
+          );
+          overlay.insert(e);
+        });
+        delay += 120;
+      }
+      _prevPlayerCards[p] = List<CardModel>.from(cards);
+    }
+  }
+
+  void _startNewHand() {
+    _prevBoardCards = List<CardModel>.from(boardCards);
+    for (int i = 0; i < numberOfPlayers; i++) {
+      _prevPlayerCards[i] = List<CardModel>.from(playerCards[i]);
+    }
+    _playPreflopDealAnimation();
   }
 
   void _onStackServiceChanged() {
@@ -2629,6 +2688,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playbackManager.resetHand();
         _handContext.clear();
       });
+      _startNewHand();
     }
   }
 
@@ -2842,6 +2902,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addAll(_stackService.currentStacks);
     _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     _boardManager.startBoardTransition();
+    _startNewHand();
   }
 
   TrainingSpot _currentTrainingSpot() {
@@ -2882,6 +2943,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
     });
     _boardManager.startBoardTransition();
+    _startNewHand();
   }
 
   Future<void> saveCurrentHand() async {
@@ -2927,6 +2989,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addAll(_stackService.currentStacks);
     _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     _boardManager.startBoardTransition();
+    _startNewHand();
   }
 
   Future<void> loadHandByName() async {
@@ -2941,6 +3004,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ..addAll(_stackService.currentStacks);
         _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
         _boardManager.startBoardTransition();
+        _startNewHand();
       }
   }
 
@@ -2967,6 +3031,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..addAll(_stackService.currentStacks);
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
+      _startNewHand();
     }
   }
 
