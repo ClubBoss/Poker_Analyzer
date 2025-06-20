@@ -3696,7 +3696,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       ),
     ),
-    _TotalPotTracker(potSync: _potSync),
+    _TotalPotTracker(
+      potSync: _potSync,
+      currentStreet: currentStreet,
+      sidePots: _sidePots,
+    ),
     Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: AbsorbPointer(
@@ -6164,18 +6168,30 @@ class _RevealAllCardsButton extends StatelessWidget {
 
 class _TotalPotTracker extends StatelessWidget {
   final PotSyncService potSync;
+  final int currentStreet;
+  final List<int> sidePots;
 
-  const _TotalPotTracker({required this.potSync});
+  const _TotalPotTracker({
+    required this.potSync,
+    required this.currentStreet,
+    required this.sidePots,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final totalPot = potSync.pots.isNotEmpty ? potSync.pots.last : 0;
+    final currentPot =
+        currentStreet < potSync.pots.length ? potSync.pots[currentStreet] : 0;
+    final sideTotal = sidePots.fold<int>(0, (p, e) => p + e);
+    final totalPot = currentPot + sideTotal;
+    if (totalPot <= 0) {
+      return const SizedBox.shrink();
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Text(
-        'Общий пот: ${ActionFormattingHelper.formatAmount(totalPot)}',
+        'Total Pot: ${ActionFormattingHelper.formatAmount(totalPot)}',
         style: const TextStyle(
-          color: Colors.white,
+          color: Colors.orangeAccent,
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),
