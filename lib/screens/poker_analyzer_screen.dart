@@ -240,6 +240,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, _BetDisplayInfo> _recentBetStacks = {};
   final Map<int, Timer> _betTimers = {};
   final Map<int, AnimationController> _foldControllers = {};
+  final Map<int, AnimationController> _stackIncreaseControllers = {};
   Set<int> _prevFoldedPlayers = {};
   int _prevPlaybackIndex = 0;
   final Set<int> _showdownPlayers = {};
@@ -915,11 +916,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             scale: scale * tableScale,
             onCompleted: () {
               entry.remove();
-              _displayedStacks[playerIndex] =
-                  (_displayedStacks[playerIndex] ?? 0) + amount;
+              final startStack =
+                  _displayedStacks[playerIndex] ??
+                      _stackService.getStackForPlayer(playerIndex);
+              final endStack = startStack + amount;
+              _animateStackIncrease(playerIndex, startStack, endStack);
               final name = players[playerIndex].name;
               if (highlight) showWinnerHighlight(context, name);
-              setState(() {});
             },
           ),
         );
@@ -927,6 +930,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       delay += 150;
     });
+  }
+
+  void _animateStackIncrease(int playerIndex, int start, int end) {
+    final controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _stackIncreaseControllers[playerIndex]?.dispose();
+    _stackIncreaseControllers[playerIndex] = controller;
+    final animation = IntTween(begin: start, end: end).animate(
+      CurvedAnimation(parent: controller, curve: Curves.easeOut),
+    )..addListener(() {
+        if (!mounted) return;
+        lockService.safeSetState(this, () {
+          _displayedStacks[playerIndex] = animation.value;
+        });
+      });
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _stackIncreaseControllers.remove(playerIndex);
+        controller.dispose();
+      }
+    });
+    controller.forward();
   }
 
 
@@ -2896,6 +2923,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (final c in _foldControllers.values) {
       c.dispose();
     }
+    for (final c in _stackIncreaseControllers.values) {
+      c.dispose();
+    }
+    _stackIncreaseControllers.clear();
     for (final t in _betTimers.values) {
       t.cancel();
     }
