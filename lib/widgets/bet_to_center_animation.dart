@@ -24,6 +24,12 @@ class BetToCenterAnimation extends StatelessWidget {
   /// Callback when animation completes.
   final VoidCallback? onCompleted;
 
+  /// Fraction of the animation after which fading should begin.
+  final double fadeStart;
+
+  /// Optional style for the amount label.
+  final TextStyle? labelStyle;
+
   const BetToCenterAnimation({
     Key? key,
     required this.start,
@@ -33,6 +39,8 @@ class BetToCenterAnimation extends StatelessWidget {
     this.scale = 1.0,
     this.control,
     this.onCompleted,
+    this.fadeStart = 0.8,
+    this.labelStyle,
   }) : super(key: key);
 
   @override
@@ -44,6 +52,8 @@ class BetToCenterAnimation extends StatelessWidget {
       color: color,
       scale: scale,
       control: control,
+      fadeStart: fadeStart,
+      labelStyle: labelStyle,
       showLabel: true,
       onCompleted: onCompleted,
     );
