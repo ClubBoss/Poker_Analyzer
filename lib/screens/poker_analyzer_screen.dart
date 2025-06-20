@@ -3827,6 +3827,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return 'Раздача от $day.$month.$year';
   }
 
+
   Future<void> _exportEvaluationQueue() async {
     await _importExportService.exportEvaluationQueue(context);
   }
@@ -4544,6 +4545,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 isPlaying: _playbackManager.isPlaying,
                 playbackIndex: _playbackManager.playbackIndex,
                 actionCount: actions.length,
+                elapsedTime: _playbackManager.elapsedTime,
                 onPlay: _play,
                 onPause: _pause,
                 onPlayAll: _playAll,
@@ -6071,6 +6073,7 @@ class _PlaybackControlsSection extends StatelessWidget {
   final bool isPlaying;
   final int playbackIndex;
   final int actionCount;
+  final Duration elapsedTime;
   final VoidCallback onPlay;
   final VoidCallback onPause;
   final VoidCallback onPlayAll;
@@ -6089,6 +6092,7 @@ class _PlaybackControlsSection extends StatelessWidget {
     required this.isPlaying,
     required this.playbackIndex,
     required this.actionCount,
+    required this.elapsedTime,
     required this.onPlay,
     required this.onPause,
     required this.onPlayAll,
@@ -6144,12 +6148,32 @@ class _PlaybackControlsSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            children: [
+              LinearProgressIndicator(
+                value: actionCount > 0 ? playbackIndex / actionCount : 0.0,
+                backgroundColor: Colors.white24,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.secondary),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "Step \$playbackIndex / \$actionCount" +
+                    (isPlaying ? " - " + _formatDuration(elapsedTime) : ""),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
               onPressed: disabled ? null : (isPlaying ? onPause : onPlayAll),
-              child: Text(isPlaying ? 'Pause' : 'Play All'),
+              child: Text(isPlaying ? "Pause" : "Play All"),
             ),
           ],
         ),
@@ -6252,6 +6276,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
   final bool isPlaying;
   final int playbackIndex;
   final int actionCount;
+  final Duration elapsedTime;
   final VoidCallback onPlay;
   final VoidCallback onPause;
   final VoidCallback onPlayAll;
@@ -6277,6 +6302,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
     required this.isPlaying,
     required this.playbackIndex,
     required this.actionCount,
+    required this.elapsedTime,
     required this.onPlay,
     required this.onPause,
     required this.onPlayAll,
@@ -6318,6 +6344,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
           isPlaying: isPlaying,
           playbackIndex: playbackIndex,
           actionCount: actionCount,
+          elapsedTime: elapsedTime,
           onPlay: onPlay,
           onPause: onPause,
           onPlayAll: onPlayAll,
@@ -8302,4 +8329,11 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
       ],
     );
   }
+
+ 
+String _formatDuration(Duration d) {
+  final minutes = d.inMinutes.remainder(60).toString().padLeft(2, "0");
+  final seconds = d.inSeconds.remainder(60).toString().padLeft(2, "0");
+  return "$minutes:$seconds";
+}
 
