@@ -366,6 +366,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return last?.amount ?? 0;
   }
 
+  int _calculateFoldRefund(int playerIndex) {
+    final invested = _stackService.getInvestmentForStreet(playerIndex, currentStreet);
+    if (invested <= 0) return 0;
+    final contributions = <int>[];
+    for (int i = 0; i < numberOfPlayers; i++) {
+      if (i == playerIndex) continue;
+      if (_foldedPlayers.isPlayerFolded(i)) continue;
+      contributions.add(_stackService.getInvestmentForStreet(i, currentStreet));
+    }
+    if (contributions.isEmpty) return 0;
+    contributions.sort();
+    int callAmount = 0;
+    for (final c in contributions) {
+      if (c <= invested) {
+        callAmount = c;
+      } else {
+        break;
+      }
+    }
+    return invested - callAmount;
+  }
+
 
   int _inferBoardStreet() => _boardSync.inferBoardStreet();
 
@@ -2818,9 +2840,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (entry.action == 'fold') {
         _triggerFoldDisplay(entry.playerIndex);
         _playFoldTrashAnimation(entry.playerIndex);
-        final invested = _stackService.getTotalInvested(entry.playerIndex);
-        if (invested > 0) {
-          final refund = (invested * 0.1).round().clamp(1, invested);
+        final refund = _calculateFoldRefund(entry.playerIndex);
+        if (refund > 0) {
           _playFoldRefundAnimation(entry.playerIndex, refund);
         }
         _addAction(entry);
