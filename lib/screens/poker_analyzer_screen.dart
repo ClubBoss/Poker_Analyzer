@@ -65,6 +65,7 @@ import '../widgets/action_timeline_widget.dart';
 import '../services/pot_sync_service.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
+import '../widgets/bet_flying_chips.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -383,7 +384,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             : Colors.yellow;
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => ChipStackMovingWidget(
+      builder: (_) => BetFlyingChips(
         start: start,
         end: end,
         control: control,
@@ -1279,6 +1280,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             IntTween(begin: prevPot, end: newPot).animate(_potCountController);
         _potCountController.forward(from: 0);
         _displayedPots[currentStreet] = newPot;
+        _playBetFlyInAnimation(lastAction);
       } else {
         _displayedPots[currentStreet] = newPot;
         _potCountAnimation = IntTween(begin: newPot, end: newPot)
