@@ -10,6 +10,7 @@ class BetFlyingChips extends StatelessWidget {
   final double scale;
   final Offset? control;
   final VoidCallback? onCompleted;
+  final double fadeStart;
 
   const BetFlyingChips({
     Key? key,
@@ -20,6 +21,7 @@ class BetFlyingChips extends StatelessWidget {
     this.scale = 1.0,
     this.control,
     this.onCompleted,
+    this.fadeStart = 0.0,
   }) : super(key: key);
 
   @override
@@ -32,6 +34,7 @@ class BetFlyingChips extends StatelessWidget {
       color: color,
       scale: scale,
       onCompleted: onCompleted,
+      fadeStart: fadeStart,
     );
   }
 }

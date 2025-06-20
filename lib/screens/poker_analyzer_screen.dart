@@ -66,7 +66,6 @@ import '../services/pot_sync_service.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
-import '../widgets/refund_chip_stack_moving_widget.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -562,17 +561,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final perp = Offset(-sin(angle), cos(angle));
     final control = Offset(
       midX + perp.dx * 20 * scale,
-      midY - (40 + RefundChipStackMovingWidget.activeCount * 8) * scale,
+      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
     );
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => RefundChipStackMovingWidget(
+      builder: (_) => BetFlyingChips(
         start: start,
         end: end,
         control: control,
         amount: amount,
-        color: Colors.grey.shade300,
+        color: Colors.green,
         scale: scale,
+        fadeStart: 0.8,
         onCompleted: () => overlayEntry.remove(),
       ),
     );
