@@ -64,6 +64,7 @@ import '../models/action_evaluation_request.dart';
 import '../widgets/action_timeline_widget.dart';
 import '../services/pot_sync_service.dart';
 import '../widgets/chip_moving_widget.dart';
+import '../widgets/chip_stack_moving_widget.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -339,7 +340,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _playBetFlyInAnimation(ActionEntry entry) {
-    if (!['bet', 'raise'].contains(entry.action) ||
+    if (!['bet', 'raise', 'call'].contains(entry.action) ||
         entry.amount == null ||
         entry.generated) return;
     final overlay = Overlay.of(context);
@@ -368,12 +369,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final perp = Offset(-sin(angle), cos(angle));
     final control = Offset(
       midX + perp.dx * 20 * scale,
-      midY - (40 + ChipMovingWidget.activeCount * 8) * scale,
+      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
     );
-    final color = entry.action == 'raise' ? Colors.green : Colors.amber;
+    final color = entry.action == 'raise'
+        ? Colors.green
+        : entry.action == 'call'
+            ? Colors.blue
+            : Colors.yellow;
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => ChipMovingWidget(
+      builder: (_) => ChipStackMovingWidget(
         start: start,
         end: end,
         control: control,
@@ -425,7 +430,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ? Colors.green
         : entry.action == 'call'
             ? Colors.blue
-            : Colors.amber;
+            : Colors.yellow;
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
       builder: (_) => ChipMovingWidget(
