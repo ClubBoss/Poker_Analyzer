@@ -41,7 +41,6 @@ import '../widgets/chip_trail.dart';
 import '../widgets/bet_chips_on_table.dart';
 import '../widgets/invested_chip_tokens.dart';
 import '../widgets/bet_stack_chips.dart';
-import '../widgets/side_pot_widget.dart';
 import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
@@ -4819,9 +4818,12 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
                 offset: Offset(0, offsetY),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
-                  child: SidePotWidget(
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
+                  ),
+                  child: BetStackChips(
                     key: ValueKey('side-$i-$amount'),
-                    index: i,
                     amount: amount,
                     scale: scale,
                   ),
