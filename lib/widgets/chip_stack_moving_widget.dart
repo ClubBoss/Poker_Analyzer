@@ -30,6 +30,10 @@ class ChipStackMovingWidget extends StatefulWidget {
   /// Callback when the animation completes.
   final VoidCallback? onCompleted;
 
+  /// Fraction of the animation after which fading should begin.
+  /// Ranges from 0.0 (fade from start) to 1.0 (no fade).
+  final double fadeStart;
+
   const ChipStackMovingWidget({
     Key? key,
     required this.start,
@@ -39,6 +43,7 @@ class ChipStackMovingWidget extends StatefulWidget {
     this.scale = 1.0,
     this.control,
     this.onCompleted,
+    this.fadeStart = 0.0,
     this.duration = const Duration(milliseconds: 400),
   }) : super(key: key);
 
@@ -61,7 +66,10 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
       duration: widget.duration,
     );
     _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(widget.fadeStart, 1.0, curve: Curves.easeOut),
+      ),
     );
     _scaleAnim = Tween<double>(begin: 1.0, end: 0.7).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
