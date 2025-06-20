@@ -2248,6 +2248,62 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _playTurnRevealAnimation() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    if (boardCards.length < 4) return;
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final center = Offset(centerX, centerY);
+    final baseY = centerY - 52 * scale;
+
+    final visible = BoardSyncService.stageCardCounts[2];
+    final x = centerX + (3 - (visible - 1) / 2) * 44 * scale;
+    late OverlayEntry e;
+    e = OverlayEntry(
+      builder: (_) => DealCardAnimation(
+        start: center,
+        end: Offset(x, baseY),
+        card: boardCards[3],
+        scale: scale,
+        onCompleted: () => e.remove(),
+      ),
+    );
+    overlay.insert(e);
+  }
+
+  void _playRiverRevealAnimation() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    if (boardCards.length < 5) return;
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final center = Offset(centerX, centerY);
+    final baseY = centerY - 52 * scale;
+
+    final visible = BoardSyncService.stageCardCounts[3];
+    final x = centerX + (4 - (visible - 1) / 2) * 44 * scale;
+    late OverlayEntry e;
+    e = OverlayEntry(
+      builder: (_) => DealCardAnimation(
+        start: center,
+        end: Offset(x, baseY),
+        card: boardCards[4],
+        scale: scale,
+        onCompleted: () => e.remove(),
+      ),
+    );
+    overlay.insert(e);
+  }
+
   void _startNewHand() {
     _prevBoardCards = List<CardModel>.from(boardCards);
     for (int i = 0; i < numberOfPlayers; i++) {
@@ -2259,6 +2315,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _revealBoard() {
     if (currentStreet == 1) {
       _playFlopRevealAnimation();
+    } else if (currentStreet == 2) {
+      _playTurnRevealAnimation();
+    } else if (currentStreet == 3) {
+      _playRiverRevealAnimation();
     }
   }
 
