@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import 'action_timer_ring.dart';
+import 'flip_card.dart';
 
 /// Compact display for a player's position, stack, tag and last action.
 /// Optionally shows a simplified position label as a badge.
@@ -17,6 +18,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final bool isFolded;
   final bool isHero;
   final bool isOpponent;
+  /// Reveal hole cards with a flip animation when true.
+  final bool revealCards;
   final String playerTypeIcon;
   /// Text label describing the player's type.
   final String? playerTypeLabel;
@@ -59,6 +62,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.isFolded = false,
     this.isHero = false,
     this.isOpponent = false,
+    this.revealCards = false,
     this.playerTypeIcon = '',
     this.playerTypeLabel,
     this.positionLabel,
@@ -233,16 +237,25 @@ class PlayerInfoWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     alignment: Alignment.center,
-                    child: card != null
-                        ? Text(
-                            '${card.rank}${card.suit}',
-                            style: TextStyle(
-                              color: isRed ? Colors.red : Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                    child: card == null
+                        ? (isHero
+                            ? const Icon(Icons.add,
+                                size: 14, color: Colors.grey)
+                            : Image.asset('assets/cards/card_back.png'))
+                        : FlipCard(
+                            width: 22,
+                            height: 30,
+                            showFront: isHero || revealCards,
+                            front: Text(
+                              '${card.rank}${card.suit}',
+                              style: TextStyle(
+                                color: isRed ? Colors.red : Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
-                          )
-                        : const Icon(Icons.add, size: 14, color: Colors.grey),
+                            back: Image.asset('assets/cards/card_back.png'),
+                          ),
                   ),
                 );
               }),
