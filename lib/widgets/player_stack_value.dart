@@ -8,10 +8,14 @@ class PlayerStackValue extends StatefulWidget {
   /// Scale factor controlling the size.
   final double scale;
 
+  /// True when the player has pushed all chips and has no stack left.
+  final bool isBust;
+
   const PlayerStackValue({
     Key? key,
     required this.stack,
     this.scale = 1.0,
+    this.isBust = false,
   }) : super(key: key);
 
   @override
@@ -47,7 +51,7 @@ class _PlayerStackValueState extends State<PlayerStackValue>
   @override
   void didUpdateWidget(covariant PlayerStackValue oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.stack != oldWidget.stack) {
+    if (widget.stack != oldWidget.stack || widget.isBust != oldWidget.isBust) {
       _controller.forward(from: 0);
     }
   }
@@ -60,33 +64,38 @@ class _PlayerStackValueState extends State<PlayerStackValue>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.stack <= 0) return const SizedBox.shrink();
+    if (widget.stack <= 0 && !widget.isBust) return const SizedBox.shrink();
     final iconSize = 12.0 * widget.scale;
-    return ScaleTransition(
-      scale: _animation,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 6 * widget.scale,
-          vertical: 2 * widget.scale,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(8 * widget.scale),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.casino, size: iconSize, color: Colors.orangeAccent),
-            SizedBox(width: 4 * widget.scale),
-            Text(
-              _formatStack(widget.stack),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12 * widget.scale,
-                fontWeight: FontWeight.bold,
+    final textColor = widget.isBust ? Colors.grey : Colors.white;
+    return AnimatedOpacity(
+      opacity: widget.isBust ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: ScaleTransition(
+        scale: _animation,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 6 * widget.scale,
+            vertical: 2 * widget.scale,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(8 * widget.scale),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.casino, size: iconSize, color: Colors.orangeAccent),
+              SizedBox(width: 4 * widget.scale),
+              Text(
+                _formatStack(widget.stack),
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 12 * widget.scale,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
