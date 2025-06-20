@@ -1868,6 +1868,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _displayedStacks
       ..clear()
       ..addAll(_stackService.currentStacks);
+    _playerManager.attachStackService(_stackService);
 
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
@@ -1914,6 +1915,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _stackService = _handRestore.restoreHand(widget.initialHand!);
       _actionSync.attachStackManager(_stackService);
       _potSync.stackService = _stackService;
+      _playerManager.attachStackService(_stackService);
       _displayedStacks
         ..clear()
         ..addAll(_stackService.currentStacks);
@@ -3237,6 +3239,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _stackService = _handRestore.restoreHand(hand);
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
+    _playerManager.attachStackService(_stackService);
     _displayedStacks
       ..clear()
       ..addAll(_stackService.currentStacks);
@@ -3324,6 +3327,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _stackService = _handRestore.restoreHand(hand);
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
+    _playerManager.attachStackService(_stackService);
     _displayedStacks
       ..clear()
       ..addAll(_stackService.currentStacks);
@@ -3339,6 +3343,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _stackService = _handRestore.restoreHand(selected);
         _actionSync.attachStackManager(_stackService);
         _potSync.stackService = _stackService;
+        _playerManager.attachStackService(_stackService);
         _displayedStacks
           ..clear()
           ..addAll(_stackService.currentStacks);
@@ -3366,6 +3371,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _stackService = _handRestore.restoreHand(hand);
       _actionSync.attachStackManager(_stackService);
       _potSync.stackService = _stackService;
+      _playerManager.attachStackService(_stackService);
       _displayedStacks
         ..clear()
         ..addAll(_stackService.currentStacks);
@@ -3861,8 +3867,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
 
     final String position = playerPositions[index] ?? '';
-    final int stack = _displayedStacks[index] ??
-        _stackService.getStackForPlayer(index);
+    final int stack = _playerManager.getStack(index);
     final String tag = _actionTagService.getTag(index) ?? '';
     final bool isActive = activePlayerIndex == index;
     final bool isFolded = _foldedPlayers.isPlayerFolded(index);
@@ -4078,6 +4083,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Positioned(
         left: centerX + dx - 20 * scale,
         top: centerY + dy + bias + 96 * scale,
+        child: MiniStackWidget(
+          stack: _playerManager.getStack(index),
+          scale: scale * 0.8,
+        ),
+      ),
+      Positioned(
+        left: centerX + dx - 20 * scale,
+        top: centerY + dy + bias + 108 * scale,
         child: SPRLabel(spr: playerSpr, scale: scale * 0.8),
       ),
       if (isFolded)

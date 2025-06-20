@@ -7,6 +7,7 @@ import '../models/player_model.dart';
 import '../models/saved_hand.dart';
 import 'player_profile_service.dart';
 import 'player_profile_import_export_service.dart';
+import 'stack_manager_service.dart';
 
 class PlayerManagerService extends ChangeNotifier {
   PlayerManagerService(this.profileService)
@@ -49,6 +50,17 @@ class PlayerManagerService extends ChangeNotifier {
   };
 
   final List<bool> showActionHints = List.filled(10, true);
+
+  StackManagerService? _stackService;
+
+  void attachStackService(StackManagerService service) {
+    _stackService = service;
+  }
+
+  int getStack(int playerIndex) {
+    return _stackService?.getStackForPlayer(playerIndex) ??
+        initialStacks[playerIndex] ?? 0;
+  }
 
   List<String> positionsForPlayers(int count) =>
       profileService.positionsForPlayers(count);
