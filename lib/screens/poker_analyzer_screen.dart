@@ -70,6 +70,7 @@ import '../widgets/all_in_chips_animation.dart';
 import '../widgets/win_chips_animation.dart';
 import '../widgets/chip_reward_animation.dart';
 import '../widgets/win_amount_widget.dart';
+import '../widgets/win_text_widget.dart';
 import '../widgets/pot_chip_animation.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
@@ -1432,6 +1433,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 context: context,
                 position: pos,
                 amount: amount,
+                scale: scale * tableScale,
+              );
+              final labelPos = Offset(
+                end.dx - 40 * tableScale,
+                end.dy - 90 * tableScale,
+              );
+              final playerName =
+                  playerIndex == _playerManager.heroIndex ? 'Hero' : name;
+              showWinTextOverlay(
+                context: context,
+                position: labelPos,
+                text: '$playerName wins the pot',
                 scale: scale * tableScale,
               );
               _onResetAnimationComplete();
