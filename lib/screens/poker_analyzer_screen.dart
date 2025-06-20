@@ -68,6 +68,7 @@ import '../widgets/chip_moving_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
 import '../widgets/bet_to_center_animation.dart';
+import '../widgets/all_in_chips_animation.dart';
 import '../widgets/pot_win_animation.dart';
 import '../widgets/win_amount_widget.dart';
 import '../widgets/trash_flying_chips.dart';
@@ -434,6 +435,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       midX + perp.dx * 20 * scale,
       midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
     );
+    final isAllIn = entry.action == 'all-in';
     final color = entry.action == 'raise'
         ? Colors.green
         : entry.action == 'call'
@@ -441,25 +443,37 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             : Colors.yellow;
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => BetToCenterAnimation(
-        start: start,
-        end: end,
-        control: control,
-        amount: entry.amount!,
-        color: color,
-        scale: scale,
-        fadeStart: 0.8,
-        labelStyle: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 14 * scale,
-          shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
-        ),
-        onCompleted: () {
-          overlayEntry.remove();
-          _animatePotGrowth();
-        },
-      ),
+      builder: (_) => isAllIn
+          ? AllInChipsAnimation(
+              start: start,
+              end: end,
+              control: control,
+              amount: entry.amount!,
+              scale: scale,
+              onCompleted: () {
+                overlayEntry.remove();
+                _animatePotGrowth();
+              },
+            )
+          : BetToCenterAnimation(
+              start: start,
+              end: end,
+              control: control,
+              amount: entry.amount!,
+              color: color,
+              scale: scale,
+              fadeStart: 0.8,
+              labelStyle: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 14 * scale,
+                shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
+              ),
+              onCompleted: () {
+                overlayEntry.remove();
+                _animatePotGrowth();
+              },
+            ),
     );
     overlay.insert(overlayEntry);
   }
