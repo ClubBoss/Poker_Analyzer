@@ -53,6 +53,7 @@ import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/mini_stack_widget.dart';
 import '../widgets/bet_stack_indicator.dart';
+import '../widgets/bet_display_widget.dart';
 import '../widgets/player_stack_value.dart';
 import '../widgets/player_note_button.dart';
 import '../widgets/bet_size_label.dart';
@@ -239,7 +240,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool isPerspectiveSwitched = false;
 
   final Map<int, _BetDisplayInfo> _recentBets = {};
-  final Map<int, _BetDisplayInfo> _recentBetStacks = {};
+  final Map<int, _BetDisplayInfo> _betDisplays = {};
   final Map<int, Timer> _betTimers = {};
   final Map<int, AnimationController> _foldControllers = {};
   final Map<int, AnimationController> _stackIncreaseControllers = {};
@@ -537,6 +538,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _showdownActive = false;
     _potAnimationPlayed = false;
     lockService.safeSetState(this, () {});
+  }
+
+  void _clearBetDisplays() {
+    if (_betDisplays.isEmpty) return;
+    setState(() => _betDisplays.clear());
   }
 
   Future<void> _clearTableState() async {
@@ -1194,7 +1200,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       setState(() {
         final info = _BetDisplayInfo(entry.amount!, color);
         _recentBets[index] = info;
-        _recentBetStacks[index] = info;
+        _betDisplays[index] = info;
       });
       final overlay = Overlay.of(context);
       if (overlay != null) {
@@ -2066,6 +2072,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _onPlaybackManagerChanged() {
     if (mounted) {
+      _clearBetDisplays();
       _computeSidePots();
       final newPot = _potSync.pots[currentStreet];
       final prevPot = _displayedPots[currentStreet];
@@ -2154,6 +2161,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _onBoardManagerChanged() {
     if (!mounted) return;
     if (_boardManager.currentStreet != _prevStreet) {
+      _clearBetDisplays();
       _revealBoard();
       _prevStreet = _boardManager.currentStreet;
     }
@@ -2596,6 +2604,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       {int? index, bool recordHistory = true}) {
     if (lockService.isLocked) return;
     final insertIndex = index ?? actions.length;
+    _clearBetDisplays();
     _actionEditing.insertAction(insertIndex, entry,
         recordHistory: recordHistory);
     _triggerBetDisplay(entry);
@@ -2635,6 +2644,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _editAction(int index, ActionEntry entry) {
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
+      _clearBetDisplays();
       _actionEditing.editAction(index, entry);
       _triggerBetDisplay(entry);
       if (['bet', 'raise', 'call'].contains(entry.action) &&
@@ -4007,20 +4017,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               : SizedBox(height: 0, width: 0),
         ),
       ),
-      if (_recentBetStacks[index] != null)
+      if (_betDisplays[index] != null)
         Positioned(
           left: centerX + dx + (cos(angle) < 0 ? -60 * scale : 40 * scale),
           top: centerY + dy + bias + 40 * scale,
-          child: BetStackIndicator(
-            key: ValueKey(_recentBetStacks[index]!.id),
-            amount: _recentBetStacks[index]!.amount,
-            color: _recentBetStacks[index]!.color,
+          child: BetDisplayWidget(
+            key: ValueKey(_betDisplays[index]!.id),
+            amount: _betDisplays[index]!.amount,
+            color: _betDisplays[index]!.color,
             scale: scale * 0.7,
-            onComplete: () {
-              if (mounted) {
-                setState(() => _recentBetStacks.remove(index));
-              }
-            },
           ),
         ),
       Positioned(
