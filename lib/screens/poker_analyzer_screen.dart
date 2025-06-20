@@ -56,6 +56,7 @@ import '../widgets/mini_stack_widget.dart';
 import '../widgets/player_stack_value.dart';
 import '../widgets/player_note_button.dart';
 import '../widgets/bet_size_label.dart';
+import '../widgets/turn_countdown_overlay.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 import '../models/player_model.dart';
@@ -2503,6 +2504,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           position: Offset(centerX + dx, centerY + dy),
           scale: scale * infoScale,
           bias: bias,
+        ),
+      if (isActive)
+        Positioned(
+          left: centerX + dx - 12 * scale,
+          top: centerY + dy + bias - 90 * scale,
+          child: TurnCountdownOverlay(
+            scale: scale,
+            onComplete: () => _onPlayerTimeExpired(index),
+          ),
         ),
       // action arrow behind player widgets
       Positioned(
