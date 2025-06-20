@@ -15,6 +15,7 @@ class PlayerProfileService extends ChangeNotifier {
 
   Map<int, String> playerPositions = {};
   Map<int, PlayerType> playerTypes = {};
+  Map<int, String> playerNotes = {};
   final List<PlayerModel> players =
       List.generate(10, (i) => PlayerModel(name: 'Player ${i + 1}'));
   final ActionTagService actionTagService;
@@ -73,6 +74,26 @@ class PlayerProfileService extends ChangeNotifier {
   void setRevealedCard(int playerIndex, int cardIndex, CardModel card) {
     final list = players[playerIndex].revealedCards;
     list[cardIndex] = card;
+    notifyListeners();
+  }
+
+  void setPlayerType(int index, PlayerType type) {
+    playerTypes[index] = type;
+    notifyListeners();
+  }
+
+  void setPlayerNote(int index, String? note) {
+    if (note == null || note.trim().isEmpty) {
+      playerNotes.remove(index);
+    } else {
+      playerNotes[index] = note.trim();
+    }
+    notifyListeners();
+  }
+
+  void resetPlayerProfile(int index) {
+    playerTypes[index] = PlayerType.unknown;
+    playerNotes.remove(index);
     notifyListeners();
   }
 
@@ -136,6 +157,7 @@ class PlayerProfileService extends ChangeNotifier {
     }
     opponentIndex = null;
     playerTypes.clear();
+    playerNotes.clear();
     actionTagService.clear();
     notifyListeners();
   }
