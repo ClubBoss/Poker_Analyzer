@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/pot_sync_service.dart';
-import '../widgets/pot_display_widget.dart';
+import '../widgets/bet_stack_chips.dart';
 
 /// Displays current pot size above the board cards.
 class PotOverBoardWidget extends StatelessWidget {
@@ -39,7 +39,7 @@ class PotOverBoardWidget extends StatelessWidget {
           alignment: const Alignment(0, -0.05),
           child: Transform.translate(
             offset: Offset(0, -15 * scale),
-            child: PotDisplayWidget(
+            child: BetStackChips(
               amount: potAmount,
               scale: scale,
             ),
