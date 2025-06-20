@@ -416,7 +416,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _playBetFlyInAnimation(ActionEntry entry) {
-    if (!['bet', 'raise', 'call'].contains(entry.action) ||
+    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
         entry.amount! <= 0 ||
         entry.generated) return;
@@ -455,7 +455,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             : Colors.yellow;
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => BetFlyingChips(
+      builder: (_) => BetToCenterAnimation(
         start: start,
         end: end,
         control: control,
@@ -472,7 +472,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _playBetReturnAnimation(ActionEntry entry) {
-    if (!['bet', 'raise', 'call'].contains(entry.action) ||
+    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
         entry.amount! <= 0 ||
         entry.generated) return;
@@ -689,7 +689,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
 
   void _playReturnChipAnimation(ActionEntry entry) {
-    if (!['bet', 'raise', 'call'].contains(entry.action) ||
+    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
         entry.generated) return;
     final overlay = Overlay.of(context);
@@ -1332,7 +1332,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _triggerBetDisplay(ActionEntry entry) {
     if ((entry.action == 'bet' ||
             entry.action == 'raise' ||
-            entry.action == 'call') &&
+            entry.action == 'call' ||
+            entry.action == 'all-in') &&
         entry.amount != null) {
       final Color color = ActionFormattingHelper.actionColor(entry.action);
       final int index = entry.playerIndex;
@@ -2211,7 +2212,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         for (int i = _prevPlaybackIndex - 1; i >= _playbackManager.playbackIndex; i--) {
           if (i < actions.length) {
             final a = actions[i];
-            if ((a.action == 'bet' || a.action == 'raise' || a.action == 'call') &&
+            if ((a.action == 'bet' ||
+                    a.action == 'raise' ||
+                    a.action == 'call' ||
+                    a.action == 'all-in') &&
                 a.amount != null) {
               undone = a;
               break;
@@ -2223,7 +2227,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (lastAction != null &&
           (lastAction.action == 'bet' ||
               lastAction.action == 'raise' ||
-              lastAction.action == 'call') &&
+              lastAction.action == 'call' ||
+              lastAction.action == 'all-in') &&
           newPot > prevPot) {
         _potCountAnimation =
             IntTween(begin: prevPot, end: newPot).animate(_potCountController);
@@ -2734,7 +2739,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _actionEditing.insertAction(insertIndex, entry,
         recordHistory: recordHistory);
     _triggerBetDisplay(entry);
-    if (['bet', 'raise', 'call'].contains(entry.action) &&
+    if (['bet', 'raise', 'call', 'all-in'].contains(entry.action) &&
         (entry.amount ?? 0) > 0) {
       _playBetFlyInAnimation(entry);
     }
@@ -2773,7 +2778,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _clearBetDisplays();
       _actionEditing.editAction(index, entry);
       _triggerBetDisplay(entry);
-      if (['bet', 'raise', 'call'].contains(entry.action) &&
+      if (['bet', 'raise', 'call', 'all-in'].contains(entry.action) &&
           (entry.amount ?? 0) > 0) {
         _playBetFlyInAnimation(entry);
       }
@@ -2858,7 +2863,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (before.length > after.length) {
       for (int i = before.length - 1; i >= after.length; i--) {
         final a = before[i];
-        if (['bet', 'raise', 'call'].contains(a.action) && a.amount != null) {
+        if ((['bet', 'raise', 'call', 'all-in'].contains(a.action)) &&
+            a.amount != null) {
           undone = a;
           break;
         }
@@ -2871,7 +2877,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             b.playerIndex != a.playerIndex ||
             b.action != a.action ||
             b.amount != a.amount) {
-          if (['bet', 'raise', 'call'].contains(b.action) && b.amount != null) {
+          if ((['bet', 'raise', 'call', 'all-in'].contains(b.action)) &&
+              b.amount != null) {
             undone = b;
           }
           break;
@@ -4741,7 +4748,8 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
           actions.where((a) => a.playerIndex == index && a.street == currentStreet).toList();
       if (playerActions.isEmpty) continue;
       final lastAction = playerActions.last;
-      if (['bet', 'raise', 'call'].contains(lastAction.action) && lastAction.amount != null) {
+      if (['bet', 'raise', 'call', 'all-in'].contains(lastAction.action) &&
+          lastAction.amount != null) {
         final angle = 2 * pi * i / numberOfPlayers + pi / 2;
         final dx = radiusX * cos(angle);
         final dy = radiusY * sin(angle);
