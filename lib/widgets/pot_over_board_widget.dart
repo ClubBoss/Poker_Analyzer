@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/pot_sync_service.dart';
-import '../helpers/action_formatting_helper.dart';
+import '../widgets/pot_display_widget.dart';
 
 /// Displays current pot size above the board cards.
 class PotOverBoardWidget extends StatelessWidget {
@@ -13,34 +13,35 @@ class PotOverBoardWidget extends StatelessWidget {
   /// Scale factor to adapt to table size.
   final double scale;
 
+  /// Whether the pot should be displayed.
+  final bool show;
+
   const PotOverBoardWidget({
     Key? key,
     required this.potSync,
     required this.currentStreet,
     this.scale = 1.0,
+    this.show = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (currentStreet < 1) {
+    if (!show || currentStreet < 1) {
       return const SizedBox.shrink();
     }
     final potAmount = potSync.pots[currentStreet];
+    if (potAmount <= 0) {
+      return const SizedBox.shrink();
+    }
     return Positioned.fill(
       child: IgnorePointer(
         child: Align(
           alignment: const Alignment(0, -0.05),
           child: Transform.translate(
             offset: Offset(0, -15 * scale),
-            child: Opacity(
-              opacity: 0.7,
-              child: Text(
-                'Pot: ${ActionFormattingHelper.formatAmount(potAmount)}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14 * scale,
-                ),
-              ),
+            child: PotDisplayWidget(
+              amount: potAmount,
+              scale: scale,
             ),
           ),
         ),
