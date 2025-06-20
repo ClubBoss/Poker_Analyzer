@@ -805,39 +805,33 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return '${card.rank}${suits[card.suit] ?? card.suit}';
   }
 
-  Widget _playerTypeIcon(PlayerType? type) {
+  String _playerTypeEmoji(PlayerType? type) {
     switch (type) {
       case PlayerType.shark:
-        return const Tooltip(
-          message: 'Shark',
-          child: Text('🦈', style: TextStyle(fontSize: 14)),
-        );
+        return '🦈';
       case PlayerType.fish:
-        return const Tooltip(
-          message: 'Fish',
-          child: Text('🐟', style: TextStyle(fontSize: 14)),
-        );
+        return '🐟';
       case PlayerType.nit:
-        return const Tooltip(
-          message: 'Nit',
-          child: Text('🧊', style: TextStyle(fontSize: 14)),
-        );
+        return '🧊';
       case PlayerType.maniac:
-        return const Tooltip(
-          message: 'Maniac',
-          child: Text('🔥', style: TextStyle(fontSize: 14)),
-        );
+        return '🔥';
       case PlayerType.callingStation:
-        return const Tooltip(
-          message: 'Calling Station',
-          child: Text('📞', style: TextStyle(fontSize: 14)),
-        );
+        return '📞';
       default:
-        return const Tooltip(
-          message: 'Standard',
-          child: Icon(Icons.person, size: 14, color: Colors.white70),
-        );
+        return '👤';
     }
+  }
+
+  Widget _playerTypeIcon(PlayerType? type) {
+    final emoji = _playerTypeEmoji(type);
+    final label = _playerTypeLabel(type);
+    return Tooltip(
+      message: label,
+      child: Text(
+        emoji,
+        style: const TextStyle(fontSize: 14),
+      ),
+    );
   }
 
   String _playerTypeLabel(PlayerType? type) {
@@ -3018,7 +3012,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             isHero: index == _playerManager.heroIndex,
             isOpponent: index == opponentIndex,
             revealCards: _showdownPlayers.contains(index),
-            playerTypeIcon: '',
+            playerTypeIcon: _playerTypeEmoji(
+                _playerManager.playerTypes[index]),
             playerTypeLabel: _playerManager.numberOfPlayers > 9
                 ? null
                 : _playerTypeLabel(_playerManager.playerTypes[index]),
@@ -3055,11 +3050,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             ),
           ),
         ),
-      ),
-      Positioned(
-        left: centerX + dx - 8 * scale,
-        top: centerY + dy + bias - 70 * scale,
-        child: _playerTypeIcon(_playerManager.playerTypes[index]),
       ),
       if (lastAmountAction != null)
         Positioned(
