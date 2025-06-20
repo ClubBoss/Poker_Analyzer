@@ -480,19 +480,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
-  void _playShowdownAnimation() {
+
+  void _playShowdownReveal() {
     final active = [
       for (int i = 0; i < numberOfPlayers; i++)
         if (!_foldedPlayers.isPlayerFolded(i)) i
     ];
-    if (active.length != 2) return;
+    if (active.length < 2) return;
     _showdownPlayers
       ..clear()
       ..addAll(active);
     _showdownActive = true;
     lockService.safeSetState(this, () {});
-    for (final i in active) {
-      _playShowCardsAnimation(i);
+    for (int j = 0; j < active.length; j++) {
+      final player = active[j];
+      Future.delayed(Duration(milliseconds: 300 * j), () {
+        if (!mounted) return;
+        _playShowCardsAnimation(player);
+      });
     }
   }
 
@@ -1894,7 +1899,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           active.length == 2 &&
           _playbackManager.playbackIndex == actions.length;
       if (shouldShowdown && !_showdownActive) {
-        _playShowdownAnimation();
+        _playShowdownReveal();
       } else if (!shouldShowdown && _showdownActive) {
         _clearShowdown();
       }
