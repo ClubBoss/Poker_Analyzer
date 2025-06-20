@@ -34,6 +34,7 @@ class PlayerManagerService extends ChangeNotifier {
 
   Map<int, String> get playerPositions => profileService.playerPositions;
   Map<int, PlayerType> get playerTypes => profileService.playerTypes;
+  Map<int, String> get playerNotes => profileService.playerNotes;
   final Map<int, int> initialStacks = {
     0: 120,
     1: 80,
@@ -171,6 +172,21 @@ class PlayerManagerService extends ChangeNotifier {
     _removeFromRevealedCards(card);
     final list = players[playerIndex].revealedCards;
     list[cardIndex] = card;
+    notifyListeners();
+  }
+
+  void setPlayerType(int index, PlayerType type) {
+    profileService.setPlayerType(index, type);
+    notifyListeners();
+  }
+
+  void setPlayerNote(int index, String? note) {
+    profileService.setPlayerNote(index, note);
+    notifyListeners();
+  }
+
+  void resetPlayerProfile(int index) {
+    profileService.resetPlayerProfile(index);
     notifyListeners();
   }
 

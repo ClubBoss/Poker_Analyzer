@@ -31,6 +31,10 @@ class PlayerProfileImportExportService {
             profile.playerTypes[i]?.name ?? PlayerType.unknown.name
         ],
         'playerNames': [for (final p in profile.players) p.name],
+        'playerNotes': [
+          for (int i = 0; i < profile.numberOfPlayers; i++)
+            profile.playerNotes[i] ?? ''
+        ],
       };
 
   /// Load player profile information from a previously serialized map.
@@ -42,6 +46,7 @@ class PlayerProfileImportExportService {
     final posList = (data['playerPositions'] as List?)?.cast<String>() ?? [];
     final typeList = (data['playerTypes'] as List?)?.cast<String>() ?? [];
     final names = (data['playerNames'] as List?)?.cast<String>() ?? [];
+    final notes = (data['playerNotes'] as List?)?.cast<String>() ?? [];
 
     profile.onPlayerCountChanged(count);
     profile.setHeroIndex(heroIndex);
@@ -59,6 +64,13 @@ class PlayerProfileImportExportService {
       final type = PlayerType.values
           .firstWhere((e) => e.name == typeList[i], orElse: () => PlayerType.unknown);
       profile.playerTypes[i] = type;
+    }
+
+    profile.playerNotes.clear();
+    for (int i = 0; i < notes.length && i < profile.numberOfPlayers; i++) {
+      if (notes[i].trim().isNotEmpty) {
+        profile.playerNotes[i] = notes[i].trim();
+      }
     }
 
     for (int i = 0; i < names.length && i < profile.players.length; i++) {

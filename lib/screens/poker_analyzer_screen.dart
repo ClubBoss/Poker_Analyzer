@@ -232,7 +232,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, _BetDisplayInfo> _recentBets = {};
   final Map<int, _BetDisplayInfo> _recentBetStacks = {};
   final Map<int, Timer> _betTimers = {};
-  final Map<int, String> _playerNotes = {};
   final Map<int, AnimationController> _foldControllers = {};
   Set<int> _prevFoldedPlayers = {};
   int _prevPlaybackIndex = 0;
@@ -931,7 +930,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _editPlayerNote(int index) async {
     if (lockService.isLocked) return;
-    final controller = TextEditingController(text: _playerNotes[index] ?? '');
+    final controller = TextEditingController(
+        text: _playerManager.playerNotes[index] ?? '');
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -969,15 +969,97 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
 
     if (result != null) {
-      lockService.safeSetState(this, () {
-        final text = result.trim();
-        if (text.isEmpty) {
-          _playerNotes.remove(index);
-        } else {
-          _playerNotes[index] = text;
-        }
-      });
+      final text = result.trim();
+      lockService.safeSetState(this,
+          () => _playerManager.setPlayerNote(index, text.isEmpty ? null : text));
     }
+  }
+
+  Future<void> _showPlayerProfile(int index) async {
+    if (lockService.isLocked) return;
+    final profile = _playerManager;
+    PlayerType selectedType = profile.playerTypes[index] ?? PlayerType.unknown;
+    final controller =
+        TextEditingController(text: profile.playerNotes[index] ?? '');
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
+        child: StatefulBuilder(
+          builder: (ctx, setModal) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('Player Profile',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<PlayerType>(
+                value: selectedType,
+                dropdownColor: Colors.grey[900],
+                decoration: const InputDecoration(
+                  labelText: 'Type',
+                  labelStyle: TextStyle(color: Colors.white70),
+                ),
+                items: PlayerType.values
+                    .map(
+                      (e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e.name),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) =>
+                    setModal(() => selectedType = v ?? PlayerType.unknown),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                maxLines: 3,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white10,
+                  hintText: 'Enter notes',
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      setModal(() {
+                        selectedType = PlayerType.unknown;
+                        controller.clear();
+                      });
+                    },
+                    child: const Text('Reset'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final text = controller.text.trim();
+                      profile.setPlayerType(index, selectedType);
+                      profile.setPlayerNote(index, text.isEmpty ? null : text);
+                      Navigator.pop(ctx);
+                    },
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -2956,7 +3038,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             onDoubleTap: lockService.isLocked
                 ? null
                 : () => _setHeroIndex(index),
-            onLongPress: lockService.isLocked ? null : () => _editPlayerInfo(index),
+            onLongPress: lockService.isLocked ? null : () => _showPlayerProfile(index),
             onEdit: lockService.isLocked ? null : () => _editPlayerInfo(index),
             onStackTap: lockService.isLocked
                 ? null
@@ -3195,7 +3277,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         left: centerX + dx + 40 * scale,
         top: centerY + dy + bias - 40 * scale,
         child: PlayerNoteButton(
-          note: _playerNotes[index],
+          note: _playerManager.playerNotes[index],
           scale: scale,
           onPressed: () => _editPlayerNote(index),
         ),
