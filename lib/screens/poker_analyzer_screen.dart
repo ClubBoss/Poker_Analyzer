@@ -842,6 +842,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _tableCleanupPlayed = false;
     _potSync.reset();
     _playbackManager.resetHand();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      if (playerCards.any((c) => c.isNotEmpty) || boardCards.isNotEmpty) {
+        _playDealSequence();
+      }
+    });
   }
 
 
@@ -3103,6 +3109,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     overlay.insert(e);
+  }
+
+  /// Plays the full dealing sequence for a newly reset hand.
+  /// Hole cards are dealt first followed by flop, turn and river
+  /// with small delays between stages.
+  void _playDealSequence() {
+    _playPreflopDealAnimation();
+    int delay = numberOfPlayers * 2 * 120 + 300;
+    if (boardCards.length >= 3) {
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (mounted) _playFlopRevealAnimation();
+      });
+      delay += 400;
+    }
+    if (boardCards.length >= 4) {
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (mounted) _playTurnRevealAnimation();
+      });
+      delay += 400;
+    }
+    if (boardCards.length >= 5) {
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (mounted) _playRiverRevealAnimation();
+      });
+    }
   }
 
   void _startNewHand() {
