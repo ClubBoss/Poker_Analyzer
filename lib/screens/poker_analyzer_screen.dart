@@ -2944,7 +2944,7 @@ class _BetDisplayInfo {
   _BetDisplayInfo(this.amount, this.color);
 }
 
-class _ActivePlayerHighlight extends StatelessWidget {
+class _ActivePlayerHighlight extends StatefulWidget {
   final Offset position;
   final double scale;
   final double bias;
@@ -2956,29 +2956,65 @@ class _ActivePlayerHighlight extends StatelessWidget {
   });
 
   @override
+  State<_ActivePlayerHighlight> createState() => _ActivePlayerHighlightState();
+}
+
+class _ActivePlayerHighlightState extends State<_ActivePlayerHighlight>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+    _pulse = Tween<double>(begin: 1.0, end: 1.15)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final double avatarRadius = 55 * scale;
-    final double highlightRadius = avatarRadius + 6 * scale;
+    final double avatarRadius = 55 * widget.scale;
+    final double highlightRadius = avatarRadius + 6 * widget.scale;
+    final Color color = Theme.of(context).colorScheme.primary;
     return Positioned(
-      left: position.dx - highlightRadius,
-      top: position.dy + bias - highlightRadius,
+      left: widget.position.dx - highlightRadius,
+      top: widget.position.dy + widget.bias - highlightRadius,
       child: IgnorePointer(
-        child: Container(
-          width: highlightRadius * 2,
-          height: highlightRadius * 2,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.green.withOpacity(0.6),
-              width: 4 * scale,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.green.withOpacity(0.4),
-                blurRadius: 12 * scale,
-                spreadRadius: 4 * scale,
+        child: AnimatedBuilder(
+          animation: _pulse,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _pulse.value,
+              child: child,
+            );
+          },
+          child: Container(
+            width: highlightRadius * 2,
+            height: highlightRadius * 2,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: color.withOpacity(0.6),
+                width: 4 * widget.scale,
               ),
-            ],
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.4),
+                  blurRadius: 12 * widget.scale,
+                  spreadRadius: 4 * widget.scale,
+                ),
+              ],
+            ),
           ),
         ),
       ),
