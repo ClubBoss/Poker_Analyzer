@@ -463,6 +463,63 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _potGrowthController.forward(from: 0);
   }
 
+  void _triggerFoldChipReturn(ActionEntry entry) {
+    if (entry.amount == null || entry.amount! <= 0) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX, centerY);
+    final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+
+    late final OverlayEntry overlayEntry;
+    final controller =
+        AnimationController(vsync: this, duration: _boardRevealDuration);
+    overlayEntry = OverlayEntry(
+      builder: (_) => AnimatedBuilder(
+        animation: controller,
+        builder: (_, child) {
+          final pos = Offset.lerp(start, end, controller.value)!;
+          final f = 1 - controller.value;
+          return Positioned(
+            left: pos.dx - 12 * scale * f,
+            top: pos.dy - 12 * scale * f,
+            child: Transform.scale(scale: scale * f, child: child),
+          );
+        },
+        child: ChipAmountWidget(
+          amount: entry.amount!.toDouble(),
+          color: ActionFormattingHelper.actionColor(entry.action),
+          scale: 1.0,
+        ),
+      ),
+    );
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        overlayEntry.remove();
+        controller.dispose();
+      }
+    });
+    overlay.insert(overlayEntry);
+    controller.forward();
+  }
+
   void _playBetFlyInAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
@@ -2913,12 +2970,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _displayedPots[currentStreet] = newPot;
         _triggerCenterChip(lastAction);
         _handleBetAction(lastAction, potIndex: potIndex);
+      } else if (lastAction != null && lastAction.action == 'fold') {
+        final refund = _calculateFoldRefund(lastAction.playerIndex);
+        if (refund > 0) {
+          _triggerFoldChipReturn(ActionEntry(
+              lastAction.street, lastAction.playerIndex, 'fold',
+              amount: refund));
+        }
       } else if (undone != null) {
         _potCountAnimation =
             IntTween(begin: prevPot, end: newPot).animate(_potCountController);
         _potCountController.forward(from: 0);
         _displayedPots[currentStreet] = newPot;
         _playBetReturnAnimation(undone);
+        _triggerFoldChipReturn(undone);
       } else {
         _displayedPots[currentStreet] = newPot;
         _potCountAnimation = IntTween(begin: newPot, end: newPot)
@@ -3687,8 +3752,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       if (foldUndone != null) {
         _playFoldAnimation(foldUndone.playerIndex);
+        final refund = _calculateFoldRefund(foldUndone.playerIndex);
+        if (refund > 0) {
+          _triggerFoldChipReturn(ActionEntry(
+              foldUndone.street, foldUndone.playerIndex, 'fold',
+              amount: refund));
+        }
       } else if (undone != null) {
         _playBetReturnAnimation(undone);
+        _triggerFoldChipReturn(undone);
       }
     }
     _clearActiveHighlight();
