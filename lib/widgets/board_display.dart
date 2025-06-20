@@ -17,6 +17,7 @@ class BoardDisplay extends StatelessWidget {
   final double scale;
   final List<Animation<double>>? revealAnimations;
   final bool editingDisabled;
+  final bool showPot;
 
   const BoardDisplay({
     Key? key,
@@ -31,6 +32,7 @@ class BoardDisplay extends StatelessWidget {
     this.scale = 1.0,
     this.revealAnimations,
     this.editingDisabled = false,
+    this.showPot = true,
   }) : super(key: key);
 
   @override
@@ -52,6 +54,7 @@ class BoardDisplay extends StatelessWidget {
           potSync: potSync,
           currentStreet: currentStreet,
           scale: scale,
+          show: showPot,
         ),
       ],
     );

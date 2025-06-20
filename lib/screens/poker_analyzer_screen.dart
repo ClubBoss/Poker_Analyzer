@@ -3545,6 +3545,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       editingDisabled: lockService.isLocked,
                       potSync: _potSync,
                       boardReveal: widget.boardReveal,
+                      showPot: !_showdownActive,
                     ),
                   ),
                   _PlayerZonesSection(
@@ -4937,6 +4938,7 @@ class _BoardCardsSection extends StatefulWidget {
   final Set<String> usedCards;
   final bool editingDisabled;
   final BoardRevealService boardReveal;
+  final bool showPot;
 
   const _BoardCardsSection({
     Key? key,
@@ -4951,6 +4953,7 @@ class _BoardCardsSection extends StatefulWidget {
     this.canEditBoard,
     this.usedCards = const {},
     this.editingDisabled = false,
+    this.showPot = true,
   }) : super(key: key);
 
   @override
@@ -5018,6 +5021,7 @@ class _BoardCardsSectionState extends State<_BoardCardsSection>
         usedCards: widget.usedCards,
         editingDisabled: widget.editingDisabled,
         potSync: widget.potSync,
+        showPot: widget.showPot,
       ),
     );
   }
