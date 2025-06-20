@@ -47,7 +47,7 @@ import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
 import '../widgets/player_spr_label.dart';
-import '../widgets/player_total_invested_label.dart';
+import '../widgets/total_invested_label.dart';
 import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
@@ -3123,7 +3123,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         left: centerX + dx - 20 * scale,
         top: centerY + dy + bias + 108 * scale,
         child:
-            PlayerTotalInvestedLabel(total: totalInvested, scale: scale * 0.8),
+            TotalInvestedLabel(total: totalInvested, scale: scale * 0.8),
       ),
       Positioned(
         left: centerX + dx - 20 * scale,
