@@ -1864,6 +1864,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     _serviceRegistry.register<StackManagerService>(widget.stackService);
     _stackService = _serviceRegistry.get<StackManagerService>();
+    _playerManager.attachStackManager(_stackService);
     _stackService.addListener(_onStackServiceChanged);
     _displayedStacks
       ..clear()
@@ -1912,6 +1913,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         visibleCount: _playbackManager.playbackIndex);
     if (widget.initialHand != null) {
       _stackService = _handRestore.restoreHand(widget.initialHand!);
+      _playerManager.attachStackManager(_stackService);
       _actionSync.attachStackManager(_stackService);
       _potSync.stackService = _stackService;
       _displayedStacks
@@ -3235,6 +3237,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void loadHand(String jsonStr) {
     final hand = _handImportExportService.deserializeHand(jsonStr);
     _stackService = _handRestore.restoreHand(hand);
+    _playerManager.attachStackManager(_stackService);
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
     _displayedStacks
@@ -3322,6 +3325,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final hand = _handManager.lastHand;
     if (hand == null) return;
     _stackService = _handRestore.restoreHand(hand);
+    _playerManager.attachStackManager(_stackService);
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
     _displayedStacks
@@ -3337,6 +3341,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final selected = await _handManager.selectHand(context);
     if (selected != null) {
         _stackService = _handRestore.restoreHand(selected);
+        _playerManager.attachStackManager(_stackService);
         _actionSync.attachStackManager(_stackService);
         _potSync.stackService = _stackService;
         _displayedStacks
@@ -3364,6 +3369,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final hand = await _handImportExportService.importHandFromClipboard(context);
     if (hand != null) {
       _stackService = _handRestore.restoreHand(hand);
+      _playerManager.attachStackManager(_stackService);
       _actionSync.attachStackManager(_stackService);
       _potSync.stackService = _stackService;
       _displayedStacks
@@ -4077,7 +4083,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
       Positioned(
         left: centerX + dx - 20 * scale,
-        top: centerY + dy + bias + 96 * scale,
+        top: centerY + dy + bias + 90 * scale,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+          decoration: BoxDecoration(
+            color: Colors.black87,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            '${_playerManager.getStack(index)} BB',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 10 * scale,
+            ),
+          ),
+        ),
+      ),
+      Positioned(
+        left: centerX + dx - 20 * scale,
+        top: centerY + dy + bias + 102 * scale,
         child: SPRLabel(spr: playerSpr, scale: scale * 0.8),
       ),
       if (isFolded)
