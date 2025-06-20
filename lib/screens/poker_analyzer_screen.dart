@@ -2052,6 +2052,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
+  void _playAll() {
+    if (lockService.isLocked) return;
+    _playbackManager.seek(0);
+    _playbackManager.updatePlaybackState();
+    _playbackManager.startPlayback(
+      stepDelay: const Duration(milliseconds: 1500),
+      canAdvance: () => !lockService.isLocked && _resetAnimationCount == 0,
+    );
+  }
+
   void _pause() {
     if (lockService.isLocked) return;
     _playbackManager.pausePlayback();
@@ -4536,6 +4546,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 actionCount: actions.length,
                 onPlay: _play,
                 onPause: _pause,
+                onPlayAll: _playAll,
                 onStepBackward: _stepBackwardPlayback,
                 onStepForward: _stepForwardPlayback,
                 onPlaybackReset: _resetPlayback,
@@ -6062,6 +6073,7 @@ class _PlaybackControlsSection extends StatelessWidget {
   final int actionCount;
   final VoidCallback onPlay;
   final VoidCallback onPause;
+  final VoidCallback onPlayAll;
   final VoidCallback onStepBackward;
   final VoidCallback onStepForward;
   final VoidCallback onPlaybackReset;
@@ -6079,6 +6091,7 @@ class _PlaybackControlsSection extends StatelessWidget {
     required this.actionCount,
     required this.onPlay,
     required this.onPause,
+    required this.onPlayAll,
     required this.onStepBackward,
     required this.onStepForward,
     required this.onPlaybackReset,
@@ -6127,6 +6140,16 @@ class _PlaybackControlsSection extends StatelessWidget {
                 onChanged: disabled ? null : onSeek,
                 inactiveColor: Colors.grey,
               ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: disabled ? null : (isPlaying ? onPause : onPlayAll),
+              child: Text(isPlaying ? 'Pause' : 'Play All'),
             ),
           ],
         ),
@@ -6231,6 +6254,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
   final int actionCount;
   final VoidCallback onPlay;
   final VoidCallback onPause;
+  final VoidCallback onPlayAll;
   final VoidCallback onStepBackward;
   final VoidCallback onStepForward;
   final VoidCallback onPlaybackReset;
@@ -6255,6 +6279,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
     required this.actionCount,
     required this.onPlay,
     required this.onPause,
+    required this.onPlayAll,
     required this.onStepBackward,
     required this.onStepForward,
     required this.onPlaybackReset,
@@ -6295,6 +6320,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
           actionCount: actionCount,
           onPlay: onPlay,
           onPause: onPause,
+          onPlayAll: onPlayAll,
           onStepBackward: onStepBackward,
           onStepForward: onStepForward,
           onPlaybackReset: onPlaybackReset,
