@@ -272,6 +272,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final List<List<CardModel>> _prevPlayerCards =
       List.generate(10, (_) => <CardModel>[]);
 
+  String? _playbackNarration;
+
 
 
   /// Handles evaluation queue state and processing.
@@ -816,9 +818,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _winnerIndex = null;
       _returns = null;
       for (int i = 0; i < _displayedPots.length; i++) {
-        _displayedPots[i] = 0;
+      _displayedPots[i] = 0;
       }
       _sidePots.clear();
+      _playbackNarration = null;
     });
     _potSync.reset();
     _playbackManager.resetHand();
@@ -1903,6 +1906,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return '${card.rank}${suits[card.suit] ?? card.suit}';
   }
 
+  String _actionNarration(ActionEntry entry) {
+    final pos = _positionLabelForIndex(entry.playerIndex);
+    final verbs = {
+      'fold': 'folds',
+      'call': 'calls',
+      'raise': 'raises to',
+      'bet': 'bets',
+      'check': 'checks',
+      'all-in': 'shoves',
+    };
+    final verb = verbs[entry.action] ?? entry.action;
+    final amount = entry.amount != null ? ' ${entry.amount}' : '';
+    return '$pos $verb$amount';
+  }
+
   String _playerTypeEmoji(PlayerType? type) {
     switch (type) {
       case PlayerType.shark:
@@ -2687,7 +2705,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             .animate(_potCountController);
         _potCountController.value = 1.0;
       }
-      lockService.safeSetState(this, () {});
+      lockService.safeSetState(this, () {
+        if (_playbackManager.playbackIndex > 0 &&
+            _playbackManager.playbackIndex <= actions.length) {
+          _playbackNarration =
+              _actionNarration(actions[_playbackManager.playbackIndex - 1]);
+        } else {
+          _playbackNarration = null;
+        }
+      });
       if (_animateTimeline && _timelineController.hasClients) {
         _animateTimeline = false;
         _timelineController.animateTo(
@@ -2969,15 +2995,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _bustedPlayers.clear();
     _playPreflopDealAnimation();
+    _playbackNarration = null;
   }
 
   void _revealBoard() {
     if (currentStreet == 1) {
       _playFlopRevealAnimation();
+      if (boardCards.length >= 3) {
+        final cards = boardCards.take(3).map(_cardToDebugString).join(' ');
+        _playbackNarration = 'Flop revealed: $cards';
+      }
     } else if (currentStreet == 2) {
       _playTurnRevealAnimation();
+      if (boardCards.length >= 4) {
+        _playbackNarration =
+            'Turn revealed: ${_cardToDebugString(boardCards[3])}';
+      }
     } else if (currentStreet == 3) {
       _playRiverRevealAnimation();
+      if (boardCards.length >= 5) {
+        _playbackNarration =
+            'River revealed: ${_cardToDebugString(boardCards[4])}';
+      }
     }
   }
 
@@ -4113,9 +4152,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                   _PerspectiveSwitchButton(
                     isPerspectiveSwitched: isPerspectiveSwitched,
-                    onToggle: () => lockService.safeSetState(this, 
+                    onToggle: () => lockService.safeSetState(this,
                         () => isPerspectiveSwitched = !isPerspectiveSwitched),
                   ),
+                  _PlaybackNarrationOverlay(text: _playbackNarration),
                   _HudOverlaySection(
                     streetName:
                         ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
@@ -4942,6 +4982,32 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       )
     ];
+  }
+}
+
+class _PlaybackNarrationOverlay extends StatelessWidget {
+  final String? text;
+
+  const _PlaybackNarrationOverlay({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    if (text == null || text!.isEmpty) return const SizedBox.shrink();
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          text!,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
   }
 }
 
