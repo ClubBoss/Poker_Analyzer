@@ -47,8 +47,12 @@ class PlaybackManagerService extends ChangeNotifier {
     return false;
   }
 
-  void startPlayback() =>
-      _playbackService.startPlayback(actionSync.analyzerActions.length);
+  void startPlayback({Duration? stepDelay, bool Function()? canAdvance}) =>
+      _playbackService.startPlayback(
+        actionSync.analyzerActions.length,
+        delay: stepDelay,
+        canAdvance: canAdvance,
+      );
 
   void pausePlayback() => _playbackService.pausePlayback();
 
