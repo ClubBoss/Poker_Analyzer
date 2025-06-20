@@ -72,6 +72,7 @@ import '../widgets/win_amount_widget.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
+import '../widgets/undo_refund_animation.dart';
 import '../widgets/refund_amount_widget.dart';
 import '../widgets/reveal_card_animation.dart';
 import '../widgets/clear_table_cards.dart';
@@ -797,6 +798,77 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
+  void _playUndoRefundAnimations(Map<int, int> refunds) {
+    if (refunds.isEmpty) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    int delay = 0;
+    refunds.forEach((playerIndex, amount) {
+      if (amount <= 0) return;
+      final i =
+          (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX, centerY);
+      final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 20 * scale,
+        midY - (40 + RefundChipStackMovingWidget.activeCount * 8) * scale,
+      );
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (!mounted) return;
+        late OverlayEntry overlayEntry;
+        overlayEntry = OverlayEntry(
+          builder: (_) => UndoRefundAnimation(
+            start: start,
+            end: end,
+            control: control,
+            amount: amount,
+            scale: scale,
+            color: Colors.lightGreenAccent,
+            onCompleted: () {
+              overlayEntry.remove();
+              final startStack =
+                  _displayedStacks[playerIndex] ??
+                      _stackService.getStackForPlayer(playerIndex);
+              final endStack = startStack + amount;
+              _animateStackIncrease(playerIndex, startStack, endStack);
+              final pos = Offset(
+                end.dx - 20 * scale,
+                end.dy - 60 * scale,
+              );
+              showRefundAmountOverlay(
+                context: context,
+                position: pos,
+                amount: amount,
+                scale: scale,
+              );
+            },
+          ),
+        );
+        overlay.insert(overlayEntry);
+      });
+      delay += 150;
+    });
+  }
+
   void _playFoldTrashAnimation(int playerIndex) {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -1496,9 +1568,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _reverseStreet() {
     if (lockService.isLocked || !_boardManager.canReverseStreet()) return;
+    final beforeStacks = {
+      for (int i = 0; i < numberOfPlayers; i++) i: _stackService.getStackForPlayer(i)
+    };
     _undoRedoService.recordSnapshot();
     _actionTagService.clear();
     _boardManager.reverseStreet();
+    final afterStacks = {
+      for (int i = 0; i < numberOfPlayers; i++) i: _stackService.getStackForPlayer(i)
+    };
+    final refunds = <int, int>{};
+    for (final i in beforeStacks.keys) {
+      final diff = afterStacks[i]! - beforeStacks[i]!;
+      if (diff > 0) refunds[i] = diff;
+    }
+    if (refunds.isNotEmpty) _playUndoRefundAnimations(refunds);
   }
 
   bool _canAdvanceStreet() => _boardManager.canAdvanceStreet();
@@ -2967,41 +3051,56 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _undoAction() {
-    final before = List<ActionEntry>.from(actions);
+    final beforeActions = List<ActionEntry>.from(actions);
+    final beforeStacks = {
+      for (int i = 0; i < numberOfPlayers; i++) i: _stackService.getStackForPlayer(i)
+    };
     lockService.safeSetState(this, () {
       _undoRedoService.undo();
       _animateTimeline = true;
     });
-    final after = actions;
+    final afterActions = actions;
+    final afterStacks = {
+      for (int i = 0; i < numberOfPlayers; i++) i: _stackService.getStackForPlayer(i)
+    };
     _debugPanelSetState?.call(() {});
-    ActionEntry? undone;
-    if (before.length > after.length) {
-      for (int i = before.length - 1; i >= after.length; i--) {
-        final a = before[i];
-        if ((['bet', 'raise', 'call', 'all-in'].contains(a.action)) &&
-            a.amount != null) {
-          undone = a;
-          break;
-        }
-      }
-    } else {
-      for (int i = 0; i < before.length && i < after.length; i++) {
-        final b = before[i];
-        final a = after[i];
-        if (b.street != a.street ||
-            b.playerIndex != a.playerIndex ||
-            b.action != a.action ||
-            b.amount != a.amount) {
-          if ((['bet', 'raise', 'call', 'all-in'].contains(b.action)) &&
-              b.amount != null) {
-            undone = b;
-          }
-          break;
-        }
-      }
+    final refunds = <int, int>{};
+    for (final i in beforeStacks.keys) {
+      final diff = afterStacks[i]! - beforeStacks[i]!;
+      if (diff > 0) refunds[i] = diff;
     }
-    if (undone != null) {
-      _playBetReturnAnimation(undone);
+    if (refunds.isNotEmpty) {
+      _playUndoRefundAnimations(refunds);
+    } else {
+      ActionEntry? undone;
+      if (beforeActions.length > afterActions.length) {
+        for (int i = beforeActions.length - 1; i >= afterActions.length; i--) {
+          final a = beforeActions[i];
+          if ((['bet', 'raise', 'call', 'all-in'].contains(a.action)) &&
+              a.amount != null) {
+            undone = a;
+            break;
+          }
+        }
+      } else {
+        for (int i = 0; i < beforeActions.length && i < afterActions.length; i++) {
+          final b = beforeActions[i];
+          final a = afterActions[i];
+          if (b.street != a.street ||
+              b.playerIndex != a.playerIndex ||
+              b.action != a.action ||
+              b.amount != a.amount) {
+            if ((['bet', 'raise', 'call', 'all-in'].contains(b.action)) &&
+                b.amount != null) {
+              undone = b;
+            }
+            break;
+          }
+        }
+      }
+      if (undone != null) {
+        _playBetReturnAnimation(undone);
+      }
     }
     _clearActiveHighlight();
   }
