@@ -2692,6 +2692,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             IntTween(begin: prevPot, end: newPot).animate(_potCountController);
         _potCountController.forward(from: 0);
         _displayedPots[currentStreet] = newPot;
+        _triggerCenterChip(lastAction);
         _handleBetAction(lastAction, potIndex: potIndex);
       } else if (undone != null) {
         _potCountAnimation =
