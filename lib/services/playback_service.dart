@@ -5,7 +5,7 @@ class PlaybackService extends ChangeNotifier {
   int _playbackIndex = 0;
   bool _isPlaying = false;
   Timer? _playbackTimer;
-  final Duration stepDuration;
+  Duration stepDuration;
 
   PlaybackService({this.stepDuration = const Duration(seconds: 1)});
 
@@ -25,15 +25,23 @@ class PlaybackService extends ChangeNotifier {
     }
   }
 
-  void startPlayback(int actionCount) {
+  void startPlayback(
+    int actionCount, {
+    Duration? delay,
+    bool Function()? canAdvance,
+  }) {
     pausePlayback();
     _isPlaying = true;
     if (_playbackIndex == actionCount) {
       _playbackIndex = 0;
     }
     updatePlaybackState();
-    _playbackTimer =
-        Timer.periodic(stepDuration, (_) => _playStepForward(actionCount));
+    final d = delay ?? stepDuration;
+    _playbackTimer = Timer.periodic(d, (_) {
+      if (canAdvance == null || canAdvance()) {
+        _playStepForward(actionCount);
+      }
+    });
   }
 
   void pausePlayback() {

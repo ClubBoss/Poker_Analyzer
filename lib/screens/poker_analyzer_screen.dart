@@ -1867,7 +1867,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _play() {
     if (lockService.isLocked) return;
-    _playbackManager.startPlayback();
+    _playbackManager.startPlayback(
+      stepDelay: const Duration(milliseconds: 1200),
+      canAdvance: () => !lockService.isLocked && _resetAnimationCount == 0,
+    );
   }
 
   void _pause() {
