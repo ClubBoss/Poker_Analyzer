@@ -50,7 +50,6 @@ import '../widgets/spr_label.dart';
 import '../widgets/total_invested_label.dart';
 import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
-import '../widgets/bet_chips_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/mini_stack_widget.dart';
 import '../widgets/bet_stack_indicator.dart';
@@ -362,20 +361,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return last?.amount ?? 0;
   }
 
-  Color _currentBetColor(int playerIndex) {
-    final streetActions = _actionHistory.actionsForStreet(currentStreet);
-    for (final a in streetActions.reversed) {
-      if (a.playerIndex != playerIndex) continue;
-      if (a.amount != null &&
-          (a.action == 'bet' ||
-              a.action == 'raise' ||
-              a.action == 'call' ||
-              a.action == 'all-in')) {
-        return ActionFormattingHelper.actionColor(a.action);
-      }
-    }
-    return ActionFormattingHelper.actionColor('bet');
-  }
 
   int _inferBoardStreet() => _boardSync.inferBoardStreet();
 
@@ -4013,16 +3998,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             scale: scale,
           ),
         ),
-      if (_currentStreetBet(index) > 0)
-        Positioned(
-          left: centerX + dx - 8 * scale,
-          top: centerY + dy + bias + 50 * scale,
-          child: BetChipsWidget(
-            amount: _currentStreetBet(index),
-            color: _currentBetColor(index),
-            scale: scale * 0.8,
+      Positioned(
+        left: centerX + dx - 8 * scale,
+        top: centerY + dy + bias + 50 * scale,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
           ),
+          child: _currentStreetBet(index) > 0
+              ? BetStackChips(
+                  key: ValueKey(_currentStreetBet(index)),
+                  amount: _currentStreetBet(index),
+                  scale: scale * 0.9,
+                )
+              : SizedBox(key: const ValueKey('empty'), height: 16 * scale),
         ),
+      ),
       Positioned(
         left: centerX + dx - 12 * scale,
         top: centerY + dy + bias + 70 * scale,
