@@ -73,6 +73,7 @@ import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
 import '../widgets/show_card_flip.dart';
 import "../widgets/clear_table_cards.dart";
+import '../widgets/table_fade_overlay.dart';
 import '../widgets/deal_card_animation.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
@@ -600,6 +601,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (final e in entries) {
       e.remove();
     }
+
+    // Fade out remaining table elements before state reset.
+    late OverlayEntry fadeEntry;
+    final completer = Completer<void>();
+    fadeEntry = OverlayEntry(
+      builder: (_) => TableFadeOverlay(
+        onCompleted: () {
+          fadeEntry.remove();
+          completer.complete();
+        },
+      ),
+    );
+    overlay.insert(fadeEntry);
+    await completer.future;
   }
 
 
