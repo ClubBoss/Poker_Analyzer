@@ -244,6 +244,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late final ScrollController _timelineController;
   bool _animateTimeline = false;
   bool isPerspectiveSwitched = false;
+  bool _focusOnHero = false;
 
   final Map<int, _BetDisplayInfo> _recentBets = {};
   final Map<int, _BetDisplayInfo> _betDisplays = {};
@@ -4292,6 +4293,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   });
                 },
                 playerPositions: playerPositions,
+                focusPlayerIndex: _focusOnHero ? heroIndex : null,
                 controller: _timelineController,
                 scale: scale,
               ),
@@ -4317,6 +4319,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onImportAll: importAllHandsFromClipboard,
                 onReset: _resetHand,
                 onBack: _cancelHandAnalysis,
+                focusOnHero: _focusOnHero,
+                onFocusChanged: (v) => setState(() => _focusOnHero = v),
                 backDisabled: _showdownActive,
                 disabled: _transitionHistory.isLocked,
               ),
@@ -4550,7 +4554,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             scale: isFolded ? 0.9 : 1.0,
             duration: const Duration(milliseconds: 400),
             child: AnimatedOpacity(
-              opacity: isFolded ? 0.4 : 1.0,
+              opacity: isFolded
+                  ? 0.4
+                  : (_focusOnHero && index != _playerManager.heroIndex
+                      ? 0.3
+                      : 1.0),
               duration: const Duration(milliseconds: 400),
               child: AbsorbPointer(
                 absorbing: lockService.isLocked,
@@ -5830,6 +5838,8 @@ class _PlaybackControlsSection extends StatelessWidget {
   final ValueChanged<double> onSeek;
   final VoidCallback onReset;
   final VoidCallback onBack;
+  final bool focusOnHero;
+  final ValueChanged<bool> onFocusChanged;
   final bool backDisabled;
   final bool disabled;
 
@@ -5845,6 +5855,8 @@ class _PlaybackControlsSection extends StatelessWidget {
     required this.onSeek,
     required this.onReset,
     required this.onBack,
+    required this.focusOnHero,
+    required this.onFocusChanged,
     this.backDisabled = false,
     this.disabled = false,
   });
@@ -5912,6 +5924,12 @@ class _PlaybackControlsSection extends StatelessWidget {
         TextButton(
           onPressed: onReset,
           child: const Text('Сбросить раздачу'),
+        ),
+        SwitchListTile(
+          title: const Text('Focus on Hero', style: TextStyle(color: Colors.white)),
+          value: focusOnHero,
+          onChanged: disabled ? null : onFocusChanged,
+          activeColor: Colors.deepPurple,
         ),
       ],
     );
@@ -5996,6 +6014,8 @@ class _PlaybackAndHandControls extends StatelessWidget {
   final VoidCallback onImportAll;
   final VoidCallback onReset;
   final VoidCallback onBack;
+  final bool focusOnHero;
+  final ValueChanged<bool> onFocusChanged;
   final bool backDisabled;
   final bool disabled;
 
@@ -6018,6 +6038,8 @@ class _PlaybackAndHandControls extends StatelessWidget {
     required this.onImportAll,
     required this.onReset,
     required this.onBack,
+    required this.focusOnHero,
+    required this.onFocusChanged,
     this.backDisabled = false,
     this.disabled = false,
   });
@@ -6049,6 +6071,8 @@ class _PlaybackAndHandControls extends StatelessWidget {
           onSeek: onSeek,
           onReset: onReset,
           onBack: onBack,
+          focusOnHero: focusOnHero,
+          onFocusChanged: onFocusChanged,
           backDisabled: backDisabled,
           disabled: disabled,
         ),
