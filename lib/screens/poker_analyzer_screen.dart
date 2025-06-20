@@ -351,6 +351,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _animatePotGrowth() {
+    if (_potGrowthController.isAnimating) {
+      _potGrowthController.stop();
+    }
+    _potGrowthController.forward(from: 0);
+  }
+
   void _playBetFlyInAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call'].contains(entry.action) ||
         entry.amount == null ||
@@ -400,7 +407,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         scale: scale,
         onCompleted: () {
           overlayEntry.remove();
-          _potGrowthController.forward(from: 0);
+          _animatePotGrowth();
         },
       ),
     );
