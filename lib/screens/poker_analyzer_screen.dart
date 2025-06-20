@@ -75,6 +75,7 @@ import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
 import '../widgets/reveal_card_animation.dart';
 import "../widgets/clear_table_cards.dart";
+import '../widgets/fold_reveal_animation.dart';
 import '../widgets/table_fade_overlay.dart';
 import '../widgets/deal_card_animation.dart';
 import '../services/stack_manager_service.dart';
@@ -910,6 +911,76 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _foldLosingHands() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    if (_showdownPlayers.isEmpty) return;
+
+    final winners = <int>{
+      if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
+      if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
+        _winnerIndex!,
+    };
+    final losers = _showdownPlayers.difference(winners);
+    if (losers.isEmpty) return;
+
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    int delay = 0;
+    for (final playerIndex in losers) {
+      final cards = players[playerIndex]
+          .revealedCards
+          .whereType<CardModel>()
+          .toList();
+      if (cards.isEmpty) continue;
+
+      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final end = Offset(screen.width + 40 * scale, -40 * scale);
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 40 * scale,
+        midY - 80 * scale,
+      );
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (!mounted) return;
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => FoldRevealAnimation(
+            start: start,
+            end: end,
+            control: control,
+            cards: cards,
+            scale: scale,
+            fadeStart: 0.4,
+            onCompleted: () {
+              entry.remove();
+              _showdownPlayers.remove(playerIndex);
+              if (mounted) lockService.safeSetState(this, () {});
+            },
+          ),
+        );
+        overlay.insert(entry);
+      });
+      delay += 200;
+    }
+  }
+
   /// Animate chips from the pot to one or more players.
   void _distributeChips(
     Map<int, int> targets, {
@@ -1145,6 +1216,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _potSync.sidePots.clear();
         lockService.safeSetState(this, () {});
       }
+      _foldLosingHands();
     });
   }
 
@@ -1207,6 +1279,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _potSync.sidePots.clear();
         lockService.safeSetState(this, () {});
       }
+      _foldLosingHands();
     });
   }
 
