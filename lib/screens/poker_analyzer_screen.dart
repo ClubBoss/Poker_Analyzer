@@ -82,7 +82,7 @@ import '../widgets/refund_amount_widget.dart';
 import '../widgets/reveal_card_animation.dart';
 import '../widgets/clear_table_cards.dart';
 import '../widgets/fold_reveal_animation.dart';
-import '../widgets/table_fade_overlay.dart';
+import '../widgets/table_cleanup_overlay.dart';
 import '../widgets/deal_card_animation.dart';
 import '../widgets/playback_progress_bar.dart';
 import '../widgets/street_indicator.dart';
@@ -270,6 +270,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _potAnimationPlayed = false;
   bool _winnerRevealPlayed = false;
   bool _pendingPotAnimation = false;
+  bool _tableCleanupPlayed = false;
   final Set<int> _bustedPlayers = {};
 
   int _resetAnimationCount = 0;
@@ -802,7 +803,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     late OverlayEntry fadeEntry;
     final completer = Completer<void>();
     fadeEntry = OverlayEntry(
-      builder: (_) => TableFadeOverlay(
+      builder: (_) => TableCleanupOverlay(
         onCompleted: () {
           fadeEntry.remove();
           completer.complete();
@@ -814,6 +815,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Future<void> _autoResetAfterShowdown() async {
+    if (_tableCleanupPlayed) return;
+    _tableCleanupPlayed = true;
     await _clearTableState();
     if (!mounted) return;
     _resetHandState();
@@ -836,6 +839,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _sidePots.clear();
       _playbackNarration = null;
     });
+    _tableCleanupPlayed = false;
     _potSync.reset();
     _playbackManager.resetHand();
   }
@@ -1233,6 +1237,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       delay++;
     }
+
+    final cleanupDelay = 150 * (delay == 0 ? 0 : delay - 1) + 500;
+    Future.delayed(Duration(milliseconds: cleanupDelay), () {
+      if (!mounted) return;
+      _autoResetAfterShowdown();
+    });
   }
 
   void _cleanupWinnerCards() {
