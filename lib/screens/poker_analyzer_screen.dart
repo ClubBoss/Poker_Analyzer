@@ -448,6 +448,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         amount: entry.amount!,
         color: color,
         scale: scale,
+        fadeStart: 0.8,
+        labelStyle: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 14 * scale,
+          shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
+        ),
         onCompleted: () {
           overlayEntry.remove();
           _animatePotGrowth();
@@ -1016,6 +1023,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           amount: amount,
           color: color,
           scale: scale,
+          labelStyle: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 14 * scale,
+            shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
+          ),
           fadeStart: fadeStart,
           onCompleted: () => overlayEntry.remove(),
         ),
@@ -1346,6 +1359,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             amount: entry.amount!,
             color: color,
             scale: tableScale,
+            fadeStart: 0.8,
+            labelStyle: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14 * tableScale,
+              shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
+            ),
             onCompleted: () => overlayEntry.remove(),
           ),
         );
