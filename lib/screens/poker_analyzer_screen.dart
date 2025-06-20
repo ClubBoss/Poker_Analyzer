@@ -66,6 +66,7 @@ import '../widgets/action_timeline_widget.dart';
 import '../services/pot_sync_service.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
+import '../widgets/refund_chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
 import '../widgets/bet_to_center_animation.dart';
 import '../widgets/all_in_chips_animation.dart';
@@ -74,6 +75,7 @@ import '../widgets/win_amount_widget.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
+import '../widgets/refund_amount_widget.dart';
 import '../widgets/reveal_card_animation.dart';
 import '../widgets/clear_table_cards.dart';
 import '../widgets/fold_reveal_animation.dart';
@@ -436,7 +438,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final perp = Offset(-sin(angle), cos(angle));
     final control = Offset(
       midX + perp.dx * 20 * scale,
-      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+      midY - (40 + RefundChipStackMovingWidget.activeCount * 8) * scale,
     );
     final isAllIn = entry.action == 'all-in';
     final color = entry.action == 'raise'
@@ -740,7 +742,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final perp = Offset(-sin(angle), cos(angle));
     final control = Offset(
       midX + perp.dx * 20 * scale,
-      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+      midY - (40 + RefundChipStackMovingWidget.activeCount * 8) * scale,
     );
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
@@ -750,8 +752,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         control: control,
         amount: amount,
         scale: scale,
-        color: Colors.blueAccent,
-        onCompleted: () => overlayEntry.remove(),
+        color: Colors.lightGreenAccent,
+        onCompleted: () {
+          overlayEntry.remove();
+          final startStack =
+              _displayedStacks[playerIndex] ??
+                  _stackService.getStackForPlayer(playerIndex);
+          final endStack = startStack + amount;
+          _animateStackIncrease(playerIndex, startStack, endStack);
+          final pos = Offset(
+            end.dx - 20 * scale,
+            end.dy - 60 * scale,
+          );
+          showRefundAmountOverlay(
+            context: context,
+            position: pos,
+            amount: amount,
+            scale: scale,
+          );
+        },
       ),
     );
     overlay.insert(overlayEntry);
