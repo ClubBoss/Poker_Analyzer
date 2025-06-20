@@ -69,6 +69,7 @@ import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
 import '../widgets/bet_to_center_animation.dart';
 import '../widgets/pot_win_animation.dart';
+import '../widgets/win_amount_widget.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
@@ -1026,6 +1027,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               _animateStackIncrease(playerIndex, startStack, endStack);
               final name = players[playerIndex].name;
               if (highlight) showWinnerHighlight(context, name);
+              final pos = Offset(
+                end.dx - 20 * tableScale,
+                end.dy - 60 * tableScale,
+              );
+              showWinAmountOverlay(
+                context: context,
+                position: pos,
+                amount: amount,
+                scale: scale * tableScale,
+              );
             },
           ),
         );
