@@ -3401,6 +3401,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _clearBetDisplays();
     _actionEditing.insertAction(insertIndex, entry,
         recordHistory: recordHistory);
+    if (entry.action == 'fold') {
+      _playFoldAnimation(entry.playerIndex);
+    }
     _triggerBetDisplay(entry);
     if (['bet', 'raise', 'call', 'all-in'].contains(entry.action) &&
         (entry.amount ?? 0) > 0) {
@@ -3552,9 +3555,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playUndoRefundAnimations(refunds);
     } else {
       ActionEntry? undone;
+      ActionEntry? foldUndone;
       if (beforeActions.length > afterActions.length) {
         for (int i = beforeActions.length - 1; i >= afterActions.length; i--) {
           final a = beforeActions[i];
+          if (a.action == 'fold') {
+            foldUndone = a;
+            break;
+          }
           if ((['bet', 'raise', 'call', 'all-in'].contains(a.action)) &&
               a.amount != null) {
             undone = a;
@@ -3569,7 +3577,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               b.playerIndex != a.playerIndex ||
               b.action != a.action ||
               b.amount != a.amount) {
-            if ((['bet', 'raise', 'call', 'all-in'].contains(b.action)) &&
+            if (b.action == 'fold') {
+              foldUndone = b;
+            } else if ((['bet', 'raise', 'call', 'all-in'].contains(b.action)) &&
                 b.amount != null) {
               undone = b;
             }
@@ -3577,7 +3587,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           }
         }
       }
-      if (undone != null) {
+      if (foldUndone != null) {
+        _playFoldAnimation(foldUndone.playerIndex);
+      } else if (undone != null) {
         _playBetReturnAnimation(undone);
       }
     }
