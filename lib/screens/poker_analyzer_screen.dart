@@ -629,6 +629,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     await completer.future;
   }
 
+  Future<void> _autoResetAfterShowdown() async {
+    await _clearTableState();
+    if (!mounted) return;
+    lockService.safeSetState(this, () {
+      _clearShowdown();
+      _boardManager.clearBoard();
+      _playerManager.reset();
+      _actionSync.clearAnalyzerActions();
+      _actionHistory.clear();
+      _winnings = null;
+      _winnerIndex = null;
+      _returns = null;
+      for (int i = 0; i < _displayedPots.length; i++) {
+        _displayedPots[i] = 0;
+      }
+      _sidePots.clear();
+    });
+    _potSync.reset();
+    _playbackManager.resetHand();
+    lockService.unlock();
+  }
+
 
   void _playReturnChipAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call'].contains(entry.action) ||
@@ -965,6 +987,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _showdownPlayers.remove(p);
       }
       lockService.safeSetState(this, () {});
+      Future.delayed(const Duration(seconds: 2), _autoResetAfterShowdown);
     });
   }
 
