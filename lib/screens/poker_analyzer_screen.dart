@@ -1091,23 +1091,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final dx = radiusX * cos(angle);
     final dy = radiusY * sin(angle);
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-    final start = Offset(centerX + dx, centerY + dy + bias - 30 * scale);
-    final end = Offset(screen.width + 40 * scale, -40 * scale);
-    final midX = (start.dx + end.dx) / 2;
-    final midY = (start.dy + end.dy) / 2;
-    final perp = Offset(-sin(angle), cos(angle));
-    final control = Offset(
-      midX + perp.dx * 40 * scale,
-      midY - 80 * scale,
-    );
+    final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final cardPositions = [
+      base + Offset(-18 * scale, 0),
+      base + Offset(18 * scale, 0),
+    ];
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
       builder: (_) => FoldFlyingCards(
-        start: start,
-        end: end,
-        control: control,
+        playerIndex: playerIndex,
+        cardPositions: cardPositions,
         scale: scale,
-        fadeStart: 0.2,
         onCompleted: () => overlayEntry.remove(),
       ),
     );
@@ -1210,23 +1204,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final dx = radiusX * cos(angle);
       final dy = radiusY * sin(angle);
       final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-      final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-      final end = Offset(screen.width + 40 * scale, -40 * scale);
-      final midX = (start.dx + end.dx) / 2;
-      final midY = (start.dy + end.dy) / 2;
-      final perp = Offset(-sin(angle), cos(angle));
-      final control = Offset(
-        midX + perp.dx * 40 * scale,
-        midY - 80 * scale,
-      );
+      final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final cardPositions = [
+        base + Offset(-18 * scale, 0),
+        base + Offset(18 * scale, 0),
+      ];
       Future.delayed(Duration(milliseconds: delay), () {
         if (!mounted) return;
         late OverlayEntry entry;
         entry = OverlayEntry(
           builder: (_) => FoldFlyingCards(
-            start: start,
-            end: end,
-            control: control,
+            playerIndex: playerIndex,
+            cardPositions: cardPositions,
             scale: scale,
             fadeStart: 0.4,
             onCompleted: () => entry.remove(),
