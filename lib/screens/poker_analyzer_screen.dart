@@ -66,6 +66,7 @@ import '../services/pot_sync_service.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
+import '../widgets/bet_to_center_animation.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/show_card_flip.dart';
@@ -905,6 +906,54 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _recentBets[index] = info;
         _recentBetStacks[index] = info;
       });
+      final overlay = Overlay.of(context);
+      if (overlay != null) {
+        final double tableScale =
+            TableGeometryHelper.tableScale(numberOfPlayers);
+        final screen = MediaQuery.of(context).size;
+        final tableWidth = screen.width * 0.9;
+        final tableHeight = tableWidth * 0.55;
+        final centerX = screen.width / 2 + 10;
+        final centerY = screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, tableScale);
+        final radiusMod =
+            TableGeometryHelper.radiusModifier(numberOfPlayers);
+        final radiusX =
+            (tableWidth / 2 - 60) * tableScale * radiusMod;
+        final radiusY =
+            (tableHeight / 2 + 90) * tableScale * radiusMod;
+        final i =
+            (entry.playerIndex - _viewIndex() + numberOfPlayers) %
+                numberOfPlayers;
+        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+        final dx = radiusX * cos(angle);
+        final dy = radiusY * sin(angle);
+        final bias =
+            TableGeometryHelper.verticalBiasFromAngle(angle) * tableScale;
+        final start =
+            Offset(centerX + dx, centerY + dy + bias + 92 * tableScale);
+        final end = Offset(centerX, centerY);
+        final midX = (start.dx + end.dx) / 2;
+        final midY = (start.dy + end.dy) / 2;
+        final perp = Offset(-sin(angle), cos(angle));
+        final control = Offset(
+          midX + perp.dx * 20 * tableScale,
+          midY - (40 + ChipStackMovingWidget.activeCount * 8) * tableScale,
+        );
+        late OverlayEntry overlayEntry;
+        overlayEntry = OverlayEntry(
+          builder: (_) => BetToCenterAnimation(
+            start: start,
+            end: end,
+            control: control,
+            amount: entry.amount!,
+            color: color,
+            scale: tableScale,
+            onCompleted: () => overlayEntry.remove(),
+          ),
+        );
+        overlay.insert(overlayEntry);
+      }
       _betTimers[index] = Timer(const Duration(seconds: 2), () {
         if (!mounted) return;
         setState(() {
