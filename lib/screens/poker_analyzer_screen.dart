@@ -69,7 +69,7 @@ import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
 import '../widgets/bet_to_center_animation.dart';
 import '../widgets/all_in_chips_animation.dart';
-import '../widgets/pot_win_animation.dart';
+import '../widgets/win_chips_animation.dart';
 import '../widgets/win_amount_widget.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
@@ -1136,7 +1136,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         if (!mounted) return;
         late OverlayEntry entry;
         entry = OverlayEntry(
-          builder: (_) => PotWinAnimation(
+          builder: (_) => WinChipsAnimation(
             start: start,
             end: end,
             control: control,
