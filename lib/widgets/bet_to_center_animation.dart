@@ -44,6 +44,7 @@ class BetToCenterAnimation extends StatelessWidget {
       color: color,
       scale: scale,
       control: control,
+      showLabel: true,
       onCompleted: onCompleted,
     );
   }

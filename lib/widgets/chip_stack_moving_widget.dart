@@ -37,6 +37,12 @@ class ChipStackMovingWidget extends StatefulWidget {
   /// Final rotation applied to the chip stack when the animation completes.
   final double endRotation;
 
+  /// Whether to draw an amount label on the moving chips.
+  final bool showLabel;
+
+  /// Text style for the amount label when [showLabel] is true.
+  final TextStyle? labelStyle;
+
   const ChipStackMovingWidget({
     Key? key,
     required this.start,
@@ -48,6 +54,8 @@ class ChipStackMovingWidget extends StatefulWidget {
     this.onCompleted,
     this.fadeStart = 0.0,
     this.endRotation = 0.0,
+    this.showLabel = false,
+    this.labelStyle,
     this.duration = const Duration(milliseconds: 400),
   }) : super(key: key);
 
@@ -129,10 +137,29 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
           ),
         );
       },
-      child: ChipStackWidget(
-        amount: widget.amount,
-        scale: 0.8 * widget.scale,
-        color: widget.color,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topCenter,
+        children: [
+          ChipStackWidget(
+            amount: widget.amount,
+            scale: 0.8 * widget.scale,
+            color: widget.color,
+          ),
+          if (widget.showLabel)
+            Positioned(
+              top: -16 * widget.scale,
+              child: Text(
+                '${widget.amount}',
+                style: widget.labelStyle ?? TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14 * widget.scale,
+                  shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
