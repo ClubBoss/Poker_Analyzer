@@ -23,6 +23,9 @@ class FoldRefundAnimation extends StatefulWidget {
   /// Called when the animation completes.
   final VoidCallback? onCompleted;
 
+  /// Color of the refunded chips.
+  final Color color;
+
   const FoldRefundAnimation({
     Key? key,
     required this.start,
@@ -31,6 +34,7 @@ class FoldRefundAnimation extends StatefulWidget {
     this.scale = 1.0,
     this.control,
     this.onCompleted,
+    this.color = Colors.grey,
   }) : super(key: key);
 
   @override
@@ -107,7 +111,7 @@ class _FoldRefundAnimationState extends State<FoldRefundAnimation>
       child: ChipStackWidget(
         amount: widget.amount,
         scale: 0.8 * widget.scale,
-        color: Colors.grey,
+        color: widget.color,
       ),
     );
   }
