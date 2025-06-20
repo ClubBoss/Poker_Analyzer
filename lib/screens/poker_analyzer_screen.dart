@@ -1466,6 +1466,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  /// Sets the final [winnings] map and plays the pot win animation.
+  ///
+  /// When the board is fully revealed the chips from the main pot and any
+  /// side pots are animated to the winning player(s) using
+  /// [WinChipsAnimation]. If the board isn't revealed yet, the animation will
+  /// trigger once all cards are shown.
+  void resolveWinner(Map<int, int> winnings) {
+    if (lockService.isLocked) return;
+    _winnings = Map<int, int>.from(winnings);
+    if (winnings.isNotEmpty) {
+      _winnerIndex = winnings.entries
+          .reduce((a, b) => a.value >= b.value ? a : b)
+          .key;
+    } else {
+      _winnerIndex = null;
+    }
+    _computeSidePots();
+    if (_boardReveal.revealedBoardCards.length == 5) {
+      _playPotWinAnimation();
+    } else {
+      _pendingPotAnimation = true;
+    }
+    lockService.safeSetState(this, () {});
+  }
+
 
   bool _canReverseStreet() => _boardManager.canReverseStreet();
 
