@@ -84,6 +84,7 @@ import '../widgets/table_fade_overlay.dart';
 import '../widgets/deal_card_animation.dart';
 import '../widgets/playback_progress_bar.dart';
 import '../widgets/street_indicator.dart';
+import '../widgets/street_transition_overlay.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -2795,6 +2796,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_boardManager.currentStreet != _prevStreet) {
       _clearBetDisplays();
       _revealBoard();
+      _playStreetTransition(_boardManager.currentStreet);
       _prevStreet = _boardManager.currentStreet;
     }
     if (_pendingPotAnimation &&
@@ -3047,6 +3049,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             'River revealed: ${_cardToDebugString(boardCards[4])}';
       }
     }
+  }
+
+  void _playStreetTransition(int street) {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    const names = ['Preflop', 'Flop', 'Turn', 'River'];
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => StreetTransitionOverlay(
+        streetName: names[street.clamp(0, names.length - 1)],
+        onComplete: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
   }
 
   void _onStackServiceChanged() {
