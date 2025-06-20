@@ -81,6 +81,7 @@ import '../widgets/clear_table_cards.dart';
 import '../widgets/fold_reveal_animation.dart';
 import '../widgets/table_fade_overlay.dart';
 import '../widgets/deal_card_animation.dart';
+import '../widgets/playback_progress_bar.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -4190,6 +4191,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       potSync: _potSync,
       currentStreet: currentStreet,
       sidePots: _sidePots,
+    ),
+    AbsorbPointer(
+      absorbing: lockService.isLocked,
+      child: PlaybackProgressBar(
+        playbackIndex: _playbackManager.playbackIndex,
+        actionCount: actions.length,
+        onSeek: (index) {
+          lockService.safeSetState(this, () {
+            _playbackManager.seek(index);
+            _playbackManager.updatePlaybackState();
+          });
+        },
+      ),
     ),
     Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
