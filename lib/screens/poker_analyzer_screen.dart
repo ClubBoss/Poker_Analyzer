@@ -666,8 +666,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final totalDelay = 300 * revealPlayers.length + 400;
     Future.delayed(
         Duration(milliseconds: totalDelay), _playWinnerRevealAnimation);
-    Future.delayed(
-        Duration(milliseconds: totalDelay + 600), _playShowdownRewardAnimation);
+    Future.delayed(Duration(milliseconds: totalDelay + 600), () {
+      if (_boardReveal.revealedBoardCards.length == 5) {
+        _playPotWinAnimation();
+      } else {
+        _pendingPotAnimation = true;
+      }
+    });
   }
 
   void _clearShowdown() {
@@ -1156,9 +1161,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final totalDelay = 300 * winners.length + 400;
     Future.delayed(Duration(milliseconds: totalDelay), () {
-      if (_boardReveal.revealedBoardCards.length == 5) {
-        _playPotWinAnimation();
-      } else {
+      if (_boardReveal.revealedBoardCards.length < 5) {
         _pendingPotAnimation = true;
       }
     });
@@ -1372,9 +1375,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusX = (tableWidth / 2 - 60) * tableScale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * tableScale * radiusMod;
 
+    final totalAmount = targets.values.fold<int>(0, (t, a) => t + (a > 0 ? a : 0));
     int delay = startDelay;
     targets.forEach((playerIndex, amount) {
       if (amount <= 0) return;
+      final ratio = totalAmount > 0 ? amount / totalAmount : 0.0;
+      final itemScale = scale * (0.8 + 0.4 * ratio);
+      final step = (300 * ratio).clamp(150, 300).round();
       final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
       final angle = 2 * pi * i / numberOfPlayers + pi / 2;
       final dx = radiusX * cos(angle);
@@ -1401,7 +1408,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             control: control,
             amount: amount,
             color: color,
-            scale: scale * tableScale,
+            scale: itemScale * tableScale,
             fadeStart: fadeStart,
             onCompleted: () {
               entry.remove();
@@ -1429,7 +1436,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _registerResetAnimation();
         overlay.insert(entry);
       });
-      delay += 150;
+      delay += step;
     });
   }
 
