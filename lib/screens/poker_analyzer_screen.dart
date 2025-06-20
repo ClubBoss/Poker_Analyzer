@@ -506,6 +506,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _clearShowdown() {
     if (_showdownPlayers.isEmpty) return;
+    _cleanupWinnerCards();
     _showdownPlayers.clear();
     _showdownActive = false;
     _potAnimationPlayed = false;
@@ -802,6 +803,62 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Future.delayed(Duration(milliseconds: 150 * idx), () {
         overlay.insert(entry);
       });
+    }
+  }
+
+  void _cleanupWinnerCards() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final winners = <int>{
+      if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
+      if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
+        _winnerIndex!,
+    };
+    if (winners.isEmpty) return;
+
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    int delay = 0;
+    for (final playerIndex in winners) {
+      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final end = Offset(screen.width + 40 * scale, -40 * scale);
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 40 * scale,
+        midY - 80 * scale,
+      );
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (!mounted) return;
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => FoldFlyingCards(
+            start: start,
+            end: end,
+            control: control,
+            scale: scale,
+            fadeStart: 0.4,
+            onCompleted: () => entry.remove(),
+          ),
+        );
+        overlay.insert(entry);
+      });
+      delay += 200;
     }
   }
 
