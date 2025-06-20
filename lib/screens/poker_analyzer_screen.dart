@@ -355,6 +355,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _playBetFlyInAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call'].contains(entry.action) ||
         entry.amount == null ||
+        entry.amount! <= 0 ||
         entry.generated) return;
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -410,6 +411,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _playBetReturnAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call'].contains(entry.action) ||
         entry.amount == null ||
+        entry.amount! <= 0 ||
         entry.generated) return;
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -1270,7 +1272,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionHistory: _actionHistory,
       playerManager: _playerManager,
       triggerCenterChip: _triggerCenterChip,
-      playChipAnimation: _playBetFlyInAnimation,
     ));
     _actionEditing = _serviceRegistry.get<ActionEditingService>();
     Future(() => _initializeDebugPreferences());
@@ -1800,6 +1801,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _actionEditing.insertAction(insertIndex, entry,
         recordHistory: recordHistory);
     _triggerBetDisplay(entry);
+    if (['bet', 'raise', 'call'].contains(entry.action) &&
+        (entry.amount ?? 0) > 0) {
+      _playBetFlyInAnimation(entry);
+    }
   }
 
   void _insertAction(int index, ActionEntry entry) {
@@ -1833,6 +1838,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lockService.safeSetState(this, () {
       _actionEditing.editAction(index, entry);
       _triggerBetDisplay(entry);
+      if (['bet', 'raise', 'call'].contains(entry.action) &&
+          (entry.amount ?? 0) > 0) {
+        _playBetFlyInAnimation(entry);
+      }
     });
   }
 
