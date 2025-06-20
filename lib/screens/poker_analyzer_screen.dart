@@ -46,7 +46,7 @@ import '../widgets/side_pot_widget.dart';
 import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
-import '../widgets/player_spr_label.dart';
+import '../widgets/spr_label.dart';
 import '../widgets/total_invested_label.dart';
 import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
@@ -3038,7 +3038,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Positioned(
         left: centerX + dx - 20 * scale,
         top: centerY + dy + bias + 96 * scale,
-        child: PlayerSprLabel(spr: playerSpr, scale: scale * 0.8),
+        child: SPRLabel(spr: playerSpr, scale: scale * 0.8),
       ),
       if (isFolded)
         Positioned(
