@@ -233,6 +233,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, String> _playerNotes = {};
   final Map<int, AnimationController> _foldControllers = {};
   Set<int> _prevFoldedPlayers = {};
+  int _prevPlaybackIndex = 0;
 
 
 
@@ -395,6 +396,58 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           overlayEntry.remove();
           _potGrowthController.forward(from: 0);
         },
+      ),
+    );
+    overlay.insert(overlayEntry);
+  }
+
+  void _playBetReturnAnimation(ActionEntry entry) {
+    if (!['bet', 'raise', 'call'].contains(entry.action) ||
+        entry.amount == null ||
+        entry.generated) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX, centerY);
+    final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final midX = (start.dx + end.dx) / 2;
+    final midY = (start.dy + end.dy) / 2;
+    final perp = Offset(-sin(angle), cos(angle));
+    final control = Offset(
+      midX + perp.dx * 20 * scale,
+      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+    );
+    final color = entry.action == 'raise'
+        ? Colors.green
+        : entry.action == 'call'
+            ? Colors.blue
+            : Colors.yellow;
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (_) => BetFlyingChips(
+        start: start,
+        end: end,
+        control: control,
+        amount: entry.amount!,
+        color: color,
+        scale: scale,
+        onCompleted: () => overlayEntry.remove(),
       ),
     );
     overlay.insert(overlayEntry);
@@ -980,6 +1033,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _handRestore = _serviceRegistry.get<HandRestoreService>();
     _playerManager.updatePositions();
     _playbackManager.updatePlaybackState();
+    _prevPlaybackIndex = _playbackManager.playbackIndex;
     for (int i = 0; i < _displayedPots.length; i++) {
       _displayedPots[i] = _potSync.pots[i];
     }
@@ -1271,6 +1325,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final lastIndex = _playbackManager.playbackIndex - 1;
       final lastAction =
           lastIndex >= 0 && lastIndex < actions.length ? actions[lastIndex] : null;
+
+      ActionEntry? undone;
+      if (newPot < prevPot && _playbackManager.playbackIndex < _prevPlaybackIndex) {
+        for (int i = _prevPlaybackIndex - 1; i >= _playbackManager.playbackIndex; i--) {
+          if (i < actions.length) {
+            final a = actions[i];
+            if ((a.action == 'bet' || a.action == 'raise' || a.action == 'call') &&
+                a.amount != null) {
+              undone = a;
+              break;
+            }
+          }
+        }
+      }
+
       if (lastAction != null &&
           (lastAction.action == 'bet' ||
               lastAction.action == 'raise' ||
@@ -1281,6 +1350,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _potCountController.forward(from: 0);
         _displayedPots[currentStreet] = newPot;
         _playBetFlyInAnimation(lastAction);
+      } else if (undone != null) {
+        _potCountAnimation =
+            IntTween(begin: prevPot, end: newPot).animate(_potCountController);
+        _potCountController.forward(from: 0);
+        _displayedPots[currentStreet] = newPot;
+        _playBetReturnAnimation(undone);
       } else {
         _displayedPots[currentStreet] = newPot;
         _potCountAnimation = IntTween(begin: newPot, end: newPot)
@@ -1298,6 +1373,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       _actionHistory.updateHistory(actions,
           visibleCount: _playbackManager.playbackIndex);
+      _prevPlaybackIndex = _playbackManager.playbackIndex;
     }
   }
 
@@ -1646,7 +1722,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
     if (undone != null) {
-      _playReturnChipAnimation(undone);
+      _playBetReturnAnimation(undone);
     }
   }
 
