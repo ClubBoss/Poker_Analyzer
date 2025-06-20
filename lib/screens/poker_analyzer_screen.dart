@@ -247,6 +247,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, _BetDisplayInfo> _recentBets = {};
   final Map<int, _BetDisplayInfo> _betDisplays = {};
   final Map<int, _BetDisplayInfo> _centerBetStacks = {};
+  final Map<int, int> _actionBetStacks = {};
   final Map<int, Timer> _betTimers = {};
   final Map<int, AnimationController> _foldControllers = {};
   final Map<int, AnimationController> _stackIncreaseControllers = {};
@@ -550,10 +551,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _clearBetDisplays() {
-    if (_betDisplays.isEmpty && _centerBetStacks.isEmpty) return;
+    if (_betDisplays.isEmpty && _centerBetStacks.isEmpty && _actionBetStacks.isEmpty) return;
     setState(() {
       _betDisplays.clear();
       _centerBetStacks.clear();
+      _actionBetStacks.clear();
     });
   }
 
@@ -1352,6 +1354,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _recentBets[index] = info;
         _betDisplays[index] = info;
         _centerBetStacks[index] = info;
+        _actionBetStacks[index] = entry.amount!;
       });
       final overlay = Overlay.of(context);
       if (overlay != null) {
@@ -3654,6 +3657,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     scale: scale,
                     state: this,
                   ),
+                  _ActionBetStackOverlaySection(
+                    scale: scale,
+                    state: this,
+                  ),
                   _InvestedChipsOverlaySection(
                     scale: scale,
                     state: this,
@@ -4990,6 +4997,62 @@ class _BetStacksOverlaySection extends StatelessWidget {
         ));
       }
     }
+    return Stack(children: chips);
+  }
+}
+
+class _ActionBetStackOverlaySection extends StatelessWidget {
+  final double scale;
+  final _PokerAnalyzerScreenState state;
+
+  const _ActionBetStackOverlaySection({
+    required this.scale,
+    required this.state,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(state.context).size;
+    final tableWidth = screenSize.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screenSize.width / 2 + 10;
+    final centerY = screenSize.height / 2 -
+        TableGeometryHelper.centerYOffset(state.numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(state.numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    final chips = <Widget>[];
+    for (int i = 0; i < state.numberOfPlayers; i++) {
+      final index = (i + state._viewIndex()) % state.numberOfPlayers;
+      final amount = state._actionBetStacks[index];
+      final angle = 2 * pi * i / state.numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final pos = Offset.lerp(start, Offset(centerX, centerY), 0.15)!;
+      final chipScale = scale * 0.8;
+      chips.add(Positioned(
+        left: pos.dx - 8 * chipScale,
+        top: pos.dy - 8 * chipScale,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          ),
+          child: amount != null
+              ? BetStackChips(
+                  key: ValueKey(amount),
+                  amount: amount,
+                  scale: chipScale,
+                )
+              : SizedBox(key: const ValueKey('empty'), height: 16 * chipScale),
+        ),
+      ));
+    }
+
     return Stack(children: chips);
   }
 }
