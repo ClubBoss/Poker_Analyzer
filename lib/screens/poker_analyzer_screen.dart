@@ -234,6 +234,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   ActionEntry? _centerChipAction;
   bool _showCenterChip = false;
+  Offset? _centerChipOrigin;
   Timer? _centerChipTimer;
   late AnimationController _centerChipController;
   late AnimationController _potGrowthController;
@@ -422,6 +423,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       return;
     }
     _centerChipTimer?.cancel();
+    final scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    _centerChipOrigin = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
     _centerChipController.forward(from: 0);
     lockService.safeSetState(this, () {
       _centerChipAction = entry;
@@ -433,6 +451,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       lockService.safeSetState(this, () {
         _showCenterChip = false;
         _centerChipAction = null;
+        _centerChipOrigin = null;
       });
     });
   }
@@ -3801,6 +3820,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _clearActiveHighlight();
     _activeTimer?.cancel();
     _centerChipTimer?.cancel();
+    _centerChipOrigin = null;
     for (final t in _betTimers.values) {
       t.cancel();
     }
@@ -4389,6 +4409,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     playbackManager: _playbackManager,
                     centerChipAction: _centerChipAction,
                     showCenterChip: _showCenterChip,
+                    centerChipOrigin: _centerChipOrigin,
                     centerChipController: _centerChipController,
                     potGrowth: _potGrowthAnimation,
                     potCount: _potCountAnimation,
@@ -5508,6 +5529,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
   final PlaybackManagerService playbackManager;
   final ActionEntry? centerChipAction;
   final bool showCenterChip;
+  final Offset? centerChipOrigin;
   final Animation<double> centerChipController;
   final Animation<double> potGrowth;
   final Animation<int> potCount;
@@ -5525,6 +5547,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.playbackManager,
     required this.centerChipAction,
     required this.showCenterChip,
+    required this.centerChipOrigin,
     required this.centerChipController,
     required this.potGrowth,
     required this.potCount,
@@ -5606,18 +5629,30 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
       items.add(
         Positioned.fill(
           child: IgnorePointer(
-            child: Align(
-              alignment: Alignment.center,
-              child: AnimatedOpacity(
-                opacity: showCenterChip ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 300),
-                child: ScaleTransition(
-                  scale: centerChipController,
-                  child: ChipAmountWidget(
-                    amount: centerChipAction!.amount!.toDouble(),
-                    color: actionColor(centerChipAction!.action),
-                    scale: scale,
-                  ),
+            child: AnimatedOpacity(
+              opacity: showCenterChip ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: AnimatedBuilder(
+                animation: centerChipController,
+                builder: (_, child) {
+                  final start = centerChipOrigin ?? Offset(centerX, centerY);
+                  final pos = Offset.lerp(start, Offset(centerX, centerY),
+                      centerChipController.value)!;
+                  return Transform.translate(
+                    offset: Offset(pos.dx - centerX, pos.dy - centerY),
+                    child: Transform.scale(
+                      scale: centerChipController.value,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: child,
+                      ),
+                    ),
+                  );
+                },
+                child: ChipAmountWidget(
+                  amount: centerChipAction!.amount!.toDouble(),
+                  color: actionColor(centerChipAction!.action),
+                  scale: scale,
                 ),
               ),
             ),
