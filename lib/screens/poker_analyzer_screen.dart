@@ -71,7 +71,7 @@ import '../widgets/pot_win_animation.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
-import '../widgets/show_card_flip.dart';
+import '../widgets/reveal_card_animation.dart';
 import "../widgets/clear_table_cards.dart";
 import '../widgets/table_fade_overlay.dart';
 import '../widgets/deal_card_animation.dart';
@@ -830,7 +830,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
       late OverlayEntry entry;
       entry = OverlayEntry(
-        builder: (_) => ShowCardFlip(
+        builder: (_) => RevealCardAnimation(
           position: pos,
           card: card,
           scale: scale,
