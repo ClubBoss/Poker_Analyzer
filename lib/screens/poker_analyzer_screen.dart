@@ -963,16 +963,45 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final overlay = Overlay.of(context);
     if (overlay != null) {
       int delay = 0;
-      Map<int, int>? targets;
       if (wins != null && wins.isNotEmpty) {
-        targets = wins;
+        final potAmounts = <int>[];
+        final totalPot = _potSync.pots[currentStreet];
+        final sideTotal = _sidePots.fold<int>(0, (a, b) => a + b);
+        potAmounts.add(totalPot - sideTotal);
+        potAmounts.addAll(_sidePots);
+
+        if (potAmounts.length == wins.length) {
+          int idx = 0;
+          wins.forEach((player, amount) {
+            final pot = potAmounts[idx++];
+            _showPotWinAnimations(
+              overlay,
+              {player: pot},
+              delay,
+              Colors.orangeAccent,
+              highlight: true,
+            );
+            delay += 150;
+          });
+        } else {
+          _showPotWinAnimations(
+            overlay,
+            wins,
+            delay,
+            Colors.orangeAccent,
+            highlight: true,
+          );
+          delay += 150 * wins.length;
+        }
       } else if (_winnerIndex != null) {
-        targets = { _winnerIndex!: _potSync.pots[currentStreet] };
-      }
-      if (targets != null) {
-        _showPotWinAnimations(overlay, targets, delay, Colors.orangeAccent,
-            highlight: true);
-        delay += 150 * targets.length;
+        _showPotWinAnimations(
+          overlay,
+          {_winnerIndex!: _potSync.pots[currentStreet]},
+          delay,
+          Colors.orangeAccent,
+          highlight: true,
+        );
+        delay += 150;
       }
       if (returns != null && returns.isNotEmpty) {
         _showPotWinAnimations(overlay, returns, delay, Colors.blueAccent,
