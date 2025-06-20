@@ -245,6 +245,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, AnimationController> _stackIncreaseControllers = {};
   Set<int> _prevFoldedPlayers = {};
   int _prevPlaybackIndex = 0;
+  int _prevStreet = 0;
   final Set<int> _showdownPlayers = {};
   bool _showdownActive = false;
   int? _winnerIndex;
@@ -1650,9 +1651,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     _serviceRegistry.register<BoardManagerService>(widget.boardManager);
     _boardManager = _serviceRegistry.get<BoardManagerService>()
-      ..addListener(() {
-        if (mounted) lockService.safeSetState(this, () {});
-      });
+      ..addListener(_onBoardManagerChanged);
+    _prevStreet = _boardManager.currentStreet;
 
     _serviceRegistry.register<BoardSyncService>(widget.boardSync);
     _boardSync = _serviceRegistry.get<BoardSyncService>();
@@ -2085,6 +2085,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lockService.safeSetState(this, () {});
   }
 
+  void _onBoardManagerChanged() {
+    if (!mounted) return;
+    if (_boardManager.currentStreet != _prevStreet) {
+      _revealBoard();
+      _prevStreet = _boardManager.currentStreet;
+    }
+    lockService.safeSetState(this, () {});
+  }
+
   void _playDealAnimations() {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -2204,12 +2213,53 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _playFlopRevealAnimation() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    if (boardCards.length < 3) return;
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final center = Offset(centerX, centerY);
+    final baseY = centerY - 52 * scale;
+
+    int delay = 0;
+    for (int i = 0; i < 3; i++) {
+      final card = boardCards[i];
+      final x = centerX + (i - 1) * 44 * scale;
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (!mounted) return;
+        late OverlayEntry e;
+        e = OverlayEntry(
+          builder: (_) => DealCardAnimation(
+            start: center,
+            end: Offset(x, baseY),
+            card: card,
+            scale: scale,
+            onCompleted: () => e.remove(),
+          ),
+        );
+        overlay.insert(e);
+      });
+      delay += 120;
+    }
+  }
+
   void _startNewHand() {
     _prevBoardCards = List<CardModel>.from(boardCards);
     for (int i = 0; i < numberOfPlayers; i++) {
       _prevPlayerCards[i] = List<CardModel>.from(playerCards[i]);
     }
     _playPreflopDealAnimation();
+  }
+
+  void _revealBoard() {
+    if (currentStreet == 1) {
+      _playFlopRevealAnimation();
+    }
   }
 
   void _onStackServiceChanged() {
