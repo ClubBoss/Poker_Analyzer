@@ -1092,6 +1092,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Color color, {
     double scale = 1.0,
     bool highlight = false,
+    double fadeStart = 0.6,
   }) {
     if (targets.isEmpty) return;
     final double tableScale =
@@ -1137,6 +1138,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             amount: amount,
             color: color,
             scale: scale * tableScale,
+            fadeStart: fadeStart,
             onCompleted: () {
               entry.remove();
               final startStack =
@@ -1198,35 +1200,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (overlay != null) {
       int delay = 0;
       if (wins != null && wins.isNotEmpty) {
-        final potAmounts = <int>[];
-        final totalPot = _potSync.pots[currentStreet];
-        final sideTotal = _sidePots.fold<int>(0, (a, b) => a + b);
-        potAmounts.add(totalPot - sideTotal);
-        potAmounts.addAll(_sidePots);
-
-        if (potAmounts.length == wins.length) {
-          int idx = 0;
-          wins.forEach((player, amount) {
-            final pot = potAmounts[idx++];
-            _showPotWinAnimations(
-              overlay,
-              {player: pot},
-              delay,
-              Colors.orangeAccent,
-              highlight: true,
-            );
-            delay += 150;
-          });
-        } else {
-          _showPotWinAnimations(
-            overlay,
-            wins,
-            delay,
-            Colors.orangeAccent,
-            highlight: true,
-          );
-          delay += 150 * wins.length;
-        }
+        _showPotWinAnimations(
+          overlay,
+          wins,
+          delay,
+          Colors.orangeAccent,
+          highlight: true,
+          fadeStart: 0.6,
+        );
+        delay += 150 * wins.length;
       } else if (_winnerIndex != null) {
         _showPotWinAnimations(
           overlay,
@@ -1234,6 +1216,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           delay,
           Colors.orangeAccent,
           highlight: true,
+          fadeStart: 0.6,
         );
         delay += 150;
       }
@@ -1277,35 +1260,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     int delay = 0;
     final wins = _winnings;
     if (wins != null && wins.isNotEmpty) {
-      final potAmounts = <int>[];
-      final totalPot = _potSync.pots[currentStreet];
-      final sideTotal = _sidePots.fold<int>(0, (a, b) => a + b);
-      potAmounts.add(totalPot - sideTotal);
-      potAmounts.addAll(_sidePots);
-
-      if (potAmounts.length == wins.length) {
-        int idx = 0;
-        wins.forEach((player, _) {
-          final pot = potAmounts[idx++];
-          _showPotWinAnimations(
-            overlay,
-            {player: pot},
-            delay,
-            Colors.orangeAccent,
-            highlight: true,
-          );
-          delay += 150;
-        });
-      } else {
-        _showPotWinAnimations(
-          overlay,
-          wins,
-          delay,
-          Colors.orangeAccent,
-          highlight: true,
-        );
-        delay += 150 * wins.length;
-      }
+      _showPotWinAnimations(
+        overlay,
+        wins,
+        delay,
+        Colors.orangeAccent,
+        highlight: true,
+        fadeStart: 0.6,
+      );
+      delay += 150 * wins.length;
     } else if (_winnerIndex != null) {
       _showPotWinAnimations(
         overlay,
@@ -1313,6 +1276,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         delay,
         Colors.orangeAccent,
         highlight: true,
+        fadeStart: 0.6,
       );
       delay += 150;
     } else {
