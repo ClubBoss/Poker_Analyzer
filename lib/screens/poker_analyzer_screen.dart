@@ -70,6 +70,7 @@ import '../widgets/all_in_chips_animation.dart';
 import '../widgets/win_chips_animation.dart';
 import '../widgets/chip_reward_animation.dart';
 import '../widgets/win_amount_widget.dart';
+import '../widgets/pot_chip_animation.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
@@ -566,6 +567,58 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         entry.amount! <= 0 ||
         entry.generated) return;
     _playFoldRefundAnimation(entry.playerIndex, entry.amount!);
+  }
+
+  void _handleBetAction(ActionEntry entry, {int potIndex = 0}) {
+    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
+        entry.amount == null ||
+        entry.amount! <= 0 ||
+        entry.generated) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final potOffsetY = -12 * scale + 36 * scale * potIndex;
+    final end = Offset(centerX, centerY + potOffsetY);
+    final midX = (start.dx + end.dx) / 2;
+    final midY = (start.dy + end.dy) / 2;
+    final perp = Offset(-sin(angle), cos(angle));
+    final control = Offset(
+      midX + perp.dx * 20 * scale,
+      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+    );
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (_) => PotChipAnimation(
+        start: start,
+        end: end,
+        control: control,
+        amount: entry.amount!,
+        scale: scale,
+        onCompleted: () {
+          overlayEntry.remove();
+          _animatePotGrowth();
+        },
+      ),
+    );
+    overlay.insert(overlayEntry);
   }
 
 
@@ -2318,6 +2371,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       actionHistory: _actionHistory,
       playerManager: _playerManager,
       triggerCenterChip: _triggerCenterChip,
+      playChipAnimation: _handleBetAction,
     ));
     _actionEditing = _serviceRegistry.get<ActionEditingService>();
     Future(() => _initializeDebugPreferences());
@@ -2568,6 +2622,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _onPlaybackManagerChanged() {
     if (mounted) {
       _clearBetDisplays();
+      final prevSides = List<int>.from(_sidePots);
       _computeSidePots();
       final newPot = _potSync.pots[currentStreet];
       final prevPot = _displayedPots[currentStreet];
@@ -2592,21 +2647,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
       }
 
+      int potIndex = 0;
+      final maxLen = max(prevSides.length, _sidePots.length);
+      for (int i = 0; i < maxLen; i++) {
+        final oldVal = i < prevSides.length ? prevSides[i] : 0;
+        final newVal = i < _sidePots.length ? _sidePots[i] : 0;
+        if (newVal > oldVal) potIndex = i + 1;
+      }
+
+      final potGrew = newPot > prevPot || potIndex > 0;
+
       if (lastAction != null &&
           (lastAction.action == 'bet' ||
               lastAction.action == 'raise' ||
               lastAction.action == 'call' ||
               lastAction.action == 'all-in') &&
-          newPot > prevPot) {
+          potGrew) {
         _potCountAnimation =
             IntTween(begin: prevPot, end: newPot).animate(_potCountController);
         _potCountController.forward(from: 0);
         _displayedPots[currentStreet] = newPot;
-        if (lastAction.action == 'all-in') {
-          _playAllInChipsAnimation(lastAction);
-        } else {
-          _playBetFlyInAnimation(lastAction);
-        }
+        _handleBetAction(lastAction, potIndex: potIndex);
       } else if (undone != null) {
         _potCountAnimation =
             IntTween(begin: prevPot, end: newPot).animate(_potCountController);
@@ -3134,9 +3195,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _triggerBetDisplay(entry);
     if (['bet', 'raise', 'call', 'all-in'].contains(entry.action) &&
         (entry.amount ?? 0) > 0) {
-      if (entry.action != 'all-in') {
-        _playBetFlyInAnimation(entry);
-      }
+      // Animation handled via ActionEditingService
     }
     _clearActiveHighlight();
   }
@@ -3171,9 +3230,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   /// Public handler for player actions that also triggers animations.
   void handlePlayerAction(ActionEntry entry) {
-    if (entry.action == 'all-in') {
-      _playAllInChipsAnimation(entry);
-    }
     onActionSelected(entry);
   }
 
@@ -3185,9 +3241,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _triggerBetDisplay(entry);
       if (['bet', 'raise', 'call', 'all-in'].contains(entry.action) &&
           (entry.amount ?? 0) > 0) {
-        if (entry.action != 'all-in') {
-          _playBetFlyInAnimation(entry);
-        }
+        // Animation handled via ActionEditingService
       }
       _clearActiveHighlight();
     });
