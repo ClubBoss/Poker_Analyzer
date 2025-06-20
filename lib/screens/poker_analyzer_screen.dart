@@ -234,6 +234,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, AnimationController> _foldControllers = {};
   Set<int> _prevFoldedPlayers = {};
   int _prevPlaybackIndex = 0;
+  final Set<int> _showdownPlayers = {};
+  bool _showdownActive = false;
 
 
 
@@ -451,6 +453,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     overlay.insert(overlayEntry);
+  }
+
+  void _playShowdownAnimation() {
+    final active = [
+      for (int i = 0; i < numberOfPlayers; i++)
+        if (!_foldedPlayers.isPlayerFolded(i)) i
+    ];
+    if (active.length != 2) return;
+    _showdownPlayers
+      ..clear()
+      ..addAll(active);
+    _showdownActive = true;
+    lockService.safeSetState(this, () {});
+  }
+
+  void _clearShowdown() {
+    if (_showdownPlayers.isEmpty) return;
+    _showdownPlayers.clear();
+    _showdownActive = false;
+    lockService.safeSetState(this, () {});
   }
 
   void _playReturnChipAnimation(ActionEntry entry) {
@@ -1373,6 +1395,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       _actionHistory.updateHistory(actions,
           visibleCount: _playbackManager.playbackIndex);
+      final active = [
+        for (int i = 0; i < numberOfPlayers; i++)
+          if (!_foldedPlayers.isPlayerFolded(i)) i
+      ];
+      final shouldShowdown =
+          currentStreet == 3 &&
+          lastAction != null &&
+          lastAction.action == 'call' &&
+          active.length == 2 &&
+          _playbackManager.playbackIndex == actions.length;
+      if (shouldShowdown && !_showdownActive) {
+        _playShowdownAnimation();
+      } else if (!shouldShowdown && _showdownActive) {
+        _clearShowdown();
+      }
       _prevPlaybackIndex = _playbackManager.playbackIndex;
     }
   }
@@ -2795,6 +2832,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             isFolded: isFolded,
             isHero: index == _playerManager.heroIndex,
             isOpponent: index == opponentIndex,
+            revealCards: _showdownPlayers.contains(index),
             playerTypeIcon: '',
             playerTypeLabel: _playerManager.numberOfPlayers > 9
                 ? null
