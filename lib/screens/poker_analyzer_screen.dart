@@ -227,6 +227,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, _BetDisplayInfo> _recentBets = {};
   final Map<int, Timer> _betTimers = {};
   final Map<int, String> _playerNotes = {};
+  final Map<int, AnimationController> _foldControllers = {};
+  Set<int> _prevFoldedPlayers = {};
 
 
 
@@ -834,6 +836,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _serviceRegistry.register<FoldedPlayersService>(
         widget.foldedPlayersService ?? FoldedPlayersService());
     _foldedPlayers = _serviceRegistry.get<FoldedPlayersService>();
+    _prevFoldedPlayers = Set<int>.from(_foldedPlayers.players);
+    _foldedPlayers.addListener(_onFoldedPlayersChanged);
 
     _serviceRegistry.register<AllInPlayersService>(
         widget.allInPlayersService ?? AllInPlayersService());
@@ -1265,6 +1269,37 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _computeSidePots();
       lockService.safeSetState(this, () {});
     }
+  }
+
+  void _onFoldedPlayersChanged() {
+    if (!mounted) return;
+    final current = Set<int>.from(_foldedPlayers.players);
+    final added = current.difference(_prevFoldedPlayers);
+    final removed = _prevFoldedPlayers.difference(current);
+
+    for (final index in removed) {
+      _foldControllers[index]?.dispose();
+      _foldControllers.remove(index);
+    }
+
+    for (final index in added) {
+      final controller = AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 1),
+      );
+      controller.addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          controller.dispose();
+          _foldControllers.remove(index);
+          if (mounted) lockService.safeSetState(this, () {});
+        }
+      });
+      _foldControllers[index] = controller;
+      controller.forward();
+    }
+
+    _prevFoldedPlayers = current;
+    lockService.safeSetState(this, () {});
   }
 
 
@@ -2089,6 +2124,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playerManager.removeListener(_onPlayerManagerChanged);
     _playbackManager.removeListener(_onPlaybackManagerChanged);
     _stackService.removeListener(_onStackServiceChanged);
+    _foldedPlayers.removeListener(_onFoldedPlayersChanged);
+    for (final c in _foldControllers.values) {
+      c.dispose();
+    }
     _centerChipTimer?.cancel();
     _processingService.cleanup();
     _centerChipController.dispose();
@@ -2726,6 +2765,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 color: Colors.white,
                 fontSize: 10 * scale,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      if (_foldControllers.containsKey(index))
+        Positioned(
+          left: centerX + dx - 15 * scale,
+          top: centerY + dy + bias - 50 * scale,
+          child: FadeTransition(
+            opacity: Tween(begin: 1.0, end: 0.0)
+                .animate(CurvedAnimation(
+                    parent: _foldControllers[index]!, curve: Curves.easeOut)),
+            child: ScaleTransition(
+              scale: Tween(begin: 1.0, end: 0.0)
+                  .animate(CurvedAnimation(
+                      parent: _foldControllers[index]!,
+                      curve: Curves.easeOut)),
+              child: Image.asset(
+                'assets/cards/card_back.png',
+                width: 30 * scale,
+                height: 42 * scale,
+                color: Colors.red.shade900,
               ),
             ),
           ),
