@@ -70,6 +70,7 @@ import '../widgets/bet_to_center_animation.dart';
 import '../widgets/pot_win_animation.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
+import '../widgets/fold_refund_animation.dart';
 import '../widgets/show_card_flip.dart';
 import "../widgets/clear_table_cards.dart";
 import '../widgets/deal_card_animation.dart';
@@ -664,14 +665,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => BetFlyingChips(
+      builder: (_) => FoldRefundAnimation(
         start: start,
         end: end,
         control: control,
         amount: amount,
-        color: Colors.green,
         scale: scale,
-        fadeStart: 0.8,
         onCompleted: () => overlayEntry.remove(),
       ),
     );
