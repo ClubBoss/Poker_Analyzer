@@ -191,4 +191,14 @@ class PotSyncService {
       updateEffectiveStacks(hand.actions, hand.numberOfPlayers);
     }
   }
+
+  /// Reset all stored pot information and history.
+  void reset() {
+    for (int i = 0; i < pots.length; i++) {
+      pots[i] = 0;
+    }
+    sidePots.clear();
+    _effectiveStacks.clear();
+    _history.clear();
+  }
 }
