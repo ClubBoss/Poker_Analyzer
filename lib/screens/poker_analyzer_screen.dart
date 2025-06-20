@@ -244,6 +244,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   final Map<int, _BetDisplayInfo> _recentBets = {};
   final Map<int, _BetDisplayInfo> _betDisplays = {};
+  final Map<int, _BetDisplayInfo> _centerBetStacks = {};
   final Map<int, Timer> _betTimers = {};
   final Map<int, AnimationController> _foldControllers = {};
   final Map<int, AnimationController> _stackIncreaseControllers = {};
@@ -542,12 +543,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _potAnimationPlayed = false;
     _winnerRevealPlayed = false;
     _pendingPotAnimation = false;
+    _centerBetStacks.clear();
     lockService.safeSetState(this, () {});
   }
 
   void _clearBetDisplays() {
-    if (_betDisplays.isEmpty) return;
-    setState(() => _betDisplays.clear());
+    if (_betDisplays.isEmpty && _centerBetStacks.isEmpty) return;
+    setState(() {
+      _betDisplays.clear();
+      _centerBetStacks.clear();
+    });
   }
 
   Future<void> _clearTableState() async {
@@ -1327,6 +1332,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final info = _BetDisplayInfo(entry.amount!, color);
         _recentBets[index] = info;
         _betDisplays[index] = info;
+        _centerBetStacks[index] = info;
       });
       final overlay = Overlay.of(context);
       if (overlay != null) {
@@ -1387,6 +1393,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         if (!mounted) return;
         setState(() {
           _recentBets.remove(index);
+          _centerBetStacks.remove(index);
         });
       });
     }
@@ -3646,6 +3653,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     centerChipController: _centerChipController,
                     potGrowth: _potGrowthAnimation,
                     potCount: _potCountAnimation,
+                    centerBets: _centerBetStacks,
                     actionColor: ActionFormattingHelper.actionColor,
                   ),
                   _ActionHistorySection(
@@ -4702,6 +4710,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
   final Animation<double> potGrowth;
   final Animation<int> potCount;
   final Color Function(String) actionColor;
+  final Map<int, _BetDisplayInfo> centerBets;
 
   const _PotAndBetsOverlaySection({
     required this.scale,
@@ -4717,6 +4726,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.centerChipController,
     required this.potGrowth,
     required this.potCount,
+    required this.centerBets,
     required this.actionColor,
   });
 
@@ -4878,6 +4888,29 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
         );
       }
     }
+
+    centerBets.forEach((player, info) {
+      final i = (player - viewIndex + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final end = Offset(centerX, centerY);
+      final pos = Offset.lerp(start, end, 0.75)!;
+      final chipScale = scale * 0.8;
+      items.add(Positioned(
+        left: pos.dx - 8 * chipScale,
+        top: pos.dy - 8 * chipScale,
+        child: BetStackIndicator(
+          amount: info.amount,
+          color: info.color,
+          scale: chipScale,
+          duration: const Duration(milliseconds: 1700),
+          onComplete: () {},
+        ),
+      ));
+    });
 
     return Stack(children: items);
   }
