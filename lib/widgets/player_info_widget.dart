@@ -82,6 +82,14 @@ class PlayerInfoWidget extends StatelessWidget {
     this.timersDisabled = false,
   });
 
+  String _formatStack(int value) {
+    if (value >= 1000) {
+      final double thousands = value / 1000.0;
+      return '${thousands.toStringAsFixed(thousands >= 10 ? 0 : 1)}K';
+    }
+    return value.toString();
+  }
+
   String _format(int value) => NumberFormat.decimalPattern().format(value);
 
   @override
@@ -197,7 +205,7 @@ class PlayerInfoWidget extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
-                'Осталось: $remainingStack BB',
+                'Осталось: ${_formatStack(remainingStack!)} BB',
                 style: stackStyle,
               ),
             ),
@@ -357,7 +365,7 @@ class PlayerInfoWidget extends StatelessWidget {
               }
             },
           child: Text(
-              'Стек: \$stack',
+              'Стек: ${_formatStack(stack)}',
               style: stackStyle,
             ),
           ),
