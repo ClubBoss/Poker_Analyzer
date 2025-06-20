@@ -1022,6 +1022,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _triggerFoldDisplay(int playerIndex) {
+    _playFoldAnimation(playerIndex);
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
+      if (playerCards[playerIndex].isNotEmpty) {
+        playerCards[playerIndex].clear();
+        _prevPlayerCards[playerIndex].clear();
+        _playerManager.notifyListeners();
+      }
+    });
+  }
+
   void _computeSidePots() {
     final contributions = <int>[];
     for (int i = 0; i < numberOfPlayers; i++) {
@@ -2003,7 +2015,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
       _foldControllers[index] = controller;
       controller.forward();
-      _playFoldAnimation(index);
+      _triggerFoldDisplay(index);
     }
 
     _prevFoldedPlayers = current;
@@ -2196,7 +2208,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lockService.safeSetState(this, () {
       _addAutoFolds(entry);
       if (entry.action == 'fold') {
-        _playFoldAnimation(entry.playerIndex);
+        _triggerFoldDisplay(entry.playerIndex);
         _playFoldTrashAnimation(entry.playerIndex);
         final invested = _stackService.getTotalInvested(entry.playerIndex);
         if (invested > 0) {
