@@ -1140,6 +1140,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           position: pos,
           card: card,
           scale: scale,
+          fade: true,
           onCompleted: () => entry.remove(),
         ),
       );
