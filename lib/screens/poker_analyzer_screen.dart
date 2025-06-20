@@ -263,6 +263,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _pendingPotAnimation = false;
   final Set<int> _bustedPlayers = {};
 
+  int _resetAnimationCount = 0;
+  bool _waitingForAutoReset = false;
+
   // Previous card state used to trigger deal animations.
   List<CardModel> _prevBoardCards = [];
   final List<List<CardModel>> _prevPlayerCards =
@@ -635,6 +638,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _registerResetAnimation() {
+    _resetAnimationCount++;
+  }
+
+  void _onResetAnimationComplete() {
+    if (_resetAnimationCount > 0) _resetAnimationCount--;
+    if (_resetAnimationCount == 0 && _waitingForAutoReset) {
+      _waitingForAutoReset = false;
+      _autoResetAfterShowdown();
+    }
+  }
+
+  void _scheduleAutoReset() {
+    _waitingForAutoReset = true;
+    if (_resetAnimationCount == 0) {
+      _waitingForAutoReset = false;
+      _autoResetAfterShowdown();
+    }
+  }
+
   Future<void> _clearTableState() async {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -720,6 +743,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> _autoResetAfterShowdown() async {
     await _clearTableState();
     if (!mounted) return;
+    _resetHandState();
+    lockService.unlock();
+  }
+
+  void _resetHandState() {
     lockService.safeSetState(this, () {
       _clearShowdown();
       _boardManager.clearBoard();
@@ -736,7 +764,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
     _potSync.reset();
     _playbackManager.resetHand();
-    lockService.unlock();
   }
 
 
@@ -848,9 +875,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             amount: amount,
             scale: scale,
           );
+          _onResetAnimationComplete();
         },
       ),
     );
+    _registerResetAnimation();
     overlay.insert(overlayEntry);
   }
 
@@ -1182,9 +1211,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               card: card,
               scale: scale,
               direction: dir,
-              onCompleted: () => e.remove(),
+              onCompleted: () {
+                e.remove();
+                _onResetAnimationComplete();
+              },
             ),
           );
+          _registerResetAnimation();
           overlay.insert(e);
         });
         delay += 120;
@@ -1197,7 +1230,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _showdownPlayers.remove(p);
       }
       lockService.safeSetState(this, () {});
-      Future.delayed(const Duration(seconds: 2), _autoResetAfterShowdown);
+      _scheduleAutoReset();
     });
   }
 
@@ -1336,9 +1369,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 amount: amount,
                 scale: scale * tableScale,
               );
+              _onResetAnimationComplete();
             },
           ),
         );
+        _registerResetAnimation();
         overlay.insert(entry);
       });
       delay += 150;
@@ -1397,9 +1432,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               final endStack = startStack + amount;
               _animateStackIncrease(playerIndex, startStack, endStack);
               showWinnerHighlight(context, players[playerIndex].name);
+              _onResetAnimationComplete();
             },
           ),
         );
+        _registerResetAnimation();
         overlay.insert(entry);
       });
       delay += 300;
