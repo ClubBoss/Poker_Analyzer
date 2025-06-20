@@ -66,6 +66,7 @@ import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/refund_chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
 import '../widgets/bet_to_center_animation.dart';
+import '../widgets/bet_slide_chips.dart';
 import '../widgets/all_in_chips_animation.dart';
 import '../widgets/win_chips_animation.dart';
 import '../widgets/chip_reward_animation.dart';
@@ -253,6 +254,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final Map<int, _BetDisplayInfo> _betDisplays = {};
   final Map<int, _BetDisplayInfo> _centerBetStacks = {};
   final Map<int, int> _actionBetStacks = {};
+  final Map<int, OverlayEntry> _betSlideOverlays = {};
   final Map<int, Timer> _betTimers = {};
   final Map<int, AnimationController> _foldControllers = {};
   final Map<int, AnimationController> _stackIncreaseControllers = {};
@@ -695,11 +697,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _clearBetDisplays() {
-    if (_betDisplays.isEmpty && _centerBetStacks.isEmpty && _actionBetStacks.isEmpty) return;
+    if (_betDisplays.isEmpty &&
+        _centerBetStacks.isEmpty &&
+        _actionBetStacks.isEmpty &&
+        _betSlideOverlays.isEmpty) return;
     setState(() {
       _betDisplays.clear();
       _centerBetStacks.clear();
       _actionBetStacks.clear();
+      _betSlideOverlays.forEach((_, entry) => entry.remove());
+      _betSlideOverlays.clear();
     });
   }
 
@@ -1781,6 +1788,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
         );
         overlay.insert(overlayEntry);
+
+        // Chips sliding halfway with amount label
+        final mid = Offset.lerp(start, end, 0.5)!;
+        _betSlideOverlays[index]?.remove();
+        late OverlayEntry slideEntry;
+        slideEntry = OverlayEntry(
+          builder: (_) => BetSlideChips(
+            start: start,
+            end: mid,
+            amount: entry.amount!,
+            color: color,
+            scale: tableScale,
+            onCompleted: () {
+              slideEntry.remove();
+              if (_betSlideOverlays[index] == slideEntry) {
+                _betSlideOverlays.remove(index);
+              }
+            },
+          ),
+        );
+        overlay.insert(slideEntry);
+        _betSlideOverlays[index] = slideEntry;
       }
       _betTimers[index] = Timer(const Duration(seconds: 2), () {
         if (!mounted) return;
