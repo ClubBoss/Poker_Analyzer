@@ -4165,11 +4165,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           child: AnimatedOpacity(
             opacity: _bustedPlayers.contains(index) ? 0.3 : 1.0,
             duration: const Duration(milliseconds: 300),
-            child: Text(
-              '${_playerManager.getStack(index)} BB',
-              style: TextStyle(
-                color: _bustedPlayers.contains(index) ? Colors.grey : Colors.white,
-                fontSize: 10 * scale,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(scale: animation, child: child),
+              ),
+              child: Text(
+                '$stack BB',
+                key: ValueKey(stack),
+                style: TextStyle(
+                  color: _bustedPlayers.contains(index) ? Colors.grey : Colors.white,
+                  fontSize: 10 * scale,
+                ),
               ),
             ),
           ),
