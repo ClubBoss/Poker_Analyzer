@@ -256,6 +256,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Map<int, int>? _winnings;
   Map<int, int>? _returns;
   bool _potAnimationPlayed = false;
+  bool _winnerRevealPlayed = false;
+  bool _pendingPotAnimation = false;
   final Set<int> _bustedPlayers = {};
 
   // Previous card state used to trigger deal animations.
@@ -511,6 +513,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..clear()
       ..addAll(revealPlayers);
     _showdownActive = true;
+    _winnerRevealPlayed = false;
     lockService.safeSetState(this, () {});
 
     for (int j = 0; j < revealPlayers.length; j++) {
@@ -526,9 +529,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         }
       });
     }
-    // Trigger pot win animation after all reveal animations finish.
+    // Trigger winner flip animation after all reveals finish.
     final totalDelay = 300 * revealPlayers.length + 400;
-    Future.delayed(Duration(milliseconds: totalDelay), _showPotWinAnimation);
+    Future.delayed(Duration(milliseconds: totalDelay), _playWinnerRevealAnimation);
   }
 
   void _clearShowdown() {
@@ -537,6 +540,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _showdownPlayers.clear();
     _showdownActive = false;
     _potAnimationPlayed = false;
+    _winnerRevealPlayed = false;
+    _pendingPotAnimation = false;
     lockService.safeSetState(this, () {});
   }
 
@@ -873,6 +878,35 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         overlay.insert(entry);
       });
     }
+  }
+
+  void _playWinnerRevealAnimation() {
+    if (_winnerRevealPlayed) return;
+    final winners = <int>{
+      if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
+      if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
+        _winnerIndex!,
+    };
+    if (winners.isEmpty) return;
+
+    _winnerRevealPlayed = true;
+    int delay = 0;
+    for (final player in winners) {
+      Future.delayed(Duration(milliseconds: 300 * delay), () {
+        if (!mounted) return;
+        _playShowCardsAnimation(player);
+      });
+      delay++;
+    }
+
+    final totalDelay = 300 * winners.length + 400;
+    Future.delayed(Duration(milliseconds: totalDelay), () {
+      if (_boardReveal.revealedBoardCards.length == 5) {
+        _playPotWinAnimation();
+      } else {
+        _pendingPotAnimation = true;
+      }
+    });
   }
 
   void _cleanupWinnerCards() {
@@ -2287,9 +2321,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _clearShowdown();
       }
       if (_showdownActive &&
-          !_potAnimationPlayed &&
+          !_winnerRevealPlayed &&
           _boardReveal.revealedBoardCards.length == 5 &&
           _playbackManager.playbackIndex == actions.length) {
+        _playWinnerRevealAnimation();
+      } else if (_showdownActive &&
+          _pendingPotAnimation &&
+          _boardReveal.revealedBoardCards.length == 5 &&
+          _playbackManager.playbackIndex == actions.length) {
+        _pendingPotAnimation = false;
         _playPotWinAnimation();
       }
       _prevPlaybackIndex = _playbackManager.playbackIndex;
@@ -2308,6 +2348,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _clearBetDisplays();
       _revealBoard();
       _prevStreet = _boardManager.currentStreet;
+    }
+    if (_pendingPotAnimation &&
+        _boardReveal.revealedBoardCards.length == 5 &&
+        !_potAnimationPlayed) {
+      _pendingPotAnimation = false;
+      _playPotWinAnimation();
     }
     lockService.safeSetState(this, () {});
   }
