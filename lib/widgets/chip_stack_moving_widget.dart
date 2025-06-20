@@ -21,6 +21,9 @@ class ChipStackMovingWidget extends StatefulWidget {
   /// Scale factor applied to the widget.
   final double scale;
 
+  /// Duration of the animation.
+  final Duration duration;
+
   /// Optional control point for a quadratic bezier path.
   final Offset? control;
 
@@ -36,6 +39,7 @@ class ChipStackMovingWidget extends StatefulWidget {
     this.scale = 1.0,
     this.control,
     this.onCompleted,
+    this.duration = const Duration(milliseconds: 400),
   }) : super(key: key);
 
   @override
@@ -54,7 +58,7 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
     ChipStackMovingWidget.activeCount++;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: widget.duration,
     );
     _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
