@@ -34,6 +34,9 @@ class ChipStackMovingWidget extends StatefulWidget {
   /// Ranges from 0.0 (fade from start) to 1.0 (no fade).
   final double fadeStart;
 
+  /// Final rotation applied to the chip stack when the animation completes.
+  final double endRotation;
+
   const ChipStackMovingWidget({
     Key? key,
     required this.start,
@@ -44,6 +47,7 @@ class ChipStackMovingWidget extends StatefulWidget {
     this.control,
     this.onCompleted,
     this.fadeStart = 0.0,
+    this.endRotation = 0.0,
     this.duration = const Duration(milliseconds: 400),
   }) : super(key: key);
 
@@ -56,6 +60,7 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<double> _scaleAnim;
+  late final Animation<double> _rotation;
 
   @override
   void initState() {
@@ -73,6 +78,9 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
     );
     _scaleAnim = Tween<double>(begin: 1.0, end: 0.7).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+    _rotation = Tween<double>(begin: 0.0, end: widget.endRotation).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -114,7 +122,10 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
           top: pos.dy - 12 * sizeFactor,
           child: FadeTransition(
             opacity: _opacity,
-            child: Transform.scale(scale: sizeFactor, child: child),
+            child: Transform.rotate(
+              angle: _rotation.value,
+              child: Transform.scale(scale: sizeFactor, child: child),
+            ),
           ),
         );
       },

@@ -66,6 +66,7 @@ import '../services/pot_sync_service.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
+import '../widgets/trash_flying_chips.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -607,7 +608,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final dy = radiusY * sin(angle);
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
     final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-    final end = Offset(screen.width + 30 * scale, screen.height + 30 * scale);
+    final end = Offset(-30 * scale, screen.height + 30 * scale);
     final midX = (start.dx + end.dx) / 2;
     final midY = (start.dy + end.dy) / 2;
     final perp = Offset(-sin(angle), cos(angle));
@@ -617,13 +618,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => ChipStackMovingWidget(
+      builder: (_) => TrashFlyingChips(
         start: start,
         end: end,
         control: control,
         amount: 20,
-        color: Colors.grey,
-        scale: scale,
+        scale: 0.8 * scale,
+        fadeStart: 0.2,
         onCompleted: () => overlayEntry.remove(),
       ),
     );
