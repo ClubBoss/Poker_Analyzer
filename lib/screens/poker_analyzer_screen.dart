@@ -70,6 +70,7 @@ import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/show_card_flip.dart';
 import "../widgets/clear_table_cards.dart";
+import '../widgets/deal_card_animation.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -244,6 +245,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Map<int, int>? _winnings;
   Map<int, int>? _returns;
   bool _potAnimationPlayed = false;
+
+  // Previous card state used to trigger deal animations.
+  List<CardModel> _prevBoardCards = [];
+  final List<List<CardModel>> _prevPlayerCards =
+      List.generate(10, (_) => <CardModel>[]);
 
 
 
@@ -1472,6 +1478,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           .key;
       _winnings = Map<int, int>.from(widget.initialHand!.winnings!);
     }
+    _prevBoardCards = List<CardModel>.from(boardCards);
+    for (int i = 0; i < _prevPlayerCards.length; i++) {
+      _prevPlayerCards[i] = List<CardModel>.from(playerCards[i]);
+    }
     // BackupManagerService handles periodic backups and cleanup internally.
   }
 
@@ -1779,7 +1789,78 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _onPlayerManagerChanged() {
-    if (mounted) lockService.safeSetState(this, () {});
+    if (!mounted) return;
+    _playDealAnimations();
+    lockService.safeSetState(this, () {});
+  }
+
+  void _playDealAnimations() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final center = Offset(centerX, centerY);
+
+    final visible = boardCards.length;
+    final baseY = centerY - 52 * scale;
+    for (int i = 0; i < boardCards.length; i++) {
+      final card = boardCards[i];
+      final prev = _prevBoardCards.length > i ? _prevBoardCards[i] : null;
+      if (prev != card) {
+        final x = centerX + (i - (visible - 1) / 2) * 44 * scale;
+        late OverlayEntry e;
+        e = OverlayEntry(
+          builder: (_) => DealCardAnimation(
+            start: center,
+            end: Offset(x, baseY),
+            card: card,
+            scale: scale,
+            onCompleted: () => e.remove(),
+          ),
+        );
+        overlay.insert(e);
+      }
+    }
+    _prevBoardCards = List<CardModel>.from(boardCards);
+
+    for (int p = 0; p < numberOfPlayers; p++) {
+      final cards = playerCards[p];
+      final prevCards = _prevPlayerCards[p];
+      final i = (p - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      for (int idx = 0; idx < cards.length; idx++) {
+        final card = cards[idx];
+        final prev = prevCards.length > idx ? prevCards[idx] : null;
+        if (prev != card) {
+          final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
+          late OverlayEntry e;
+          e = OverlayEntry(
+            builder: (_) => DealCardAnimation(
+              start: center,
+              end: pos,
+              card: card,
+              scale: scale,
+              onCompleted: () => e.remove(),
+            ),
+          );
+          overlay.insert(e);
+        }
+      }
+      _prevPlayerCards[p] = List<CardModel>.from(cards);
+    }
   }
 
   void _onStackServiceChanged() {
