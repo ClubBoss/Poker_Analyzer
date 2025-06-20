@@ -504,6 +504,58 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
+  void _playAllInChipsAnimation(ActionEntry entry) {
+    if (entry.action != 'all-in' || entry.amount == null || entry.amount! <= 0) {
+      return;
+    }
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final end = Offset(centerX, centerY);
+    final midX = (start.dx + end.dx) / 2;
+    final midY = (start.dy + end.dy) / 2;
+    final perp = Offset(-sin(angle), cos(angle));
+    final control = Offset(
+      midX + perp.dx * 40 * scale,
+      midY - (80 + ChipStackMovingWidget.activeCount * 8) * scale,
+    );
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (_) => AllInChipsAnimation(
+        start: start,
+        end: end,
+        control: control,
+        amount: entry.amount!,
+        scale: scale * 1.2,
+        duration: const Duration(milliseconds: 300),
+        glowColor: Colors.redAccent,
+        fadeStart: 0.6,
+        onCompleted: () {
+          overlayEntry.remove();
+          _animatePotGrowth();
+        },
+      ),
+    );
+    overlay.insert(overlayEntry);
+  }
+
   void _playBetReturnAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action) ||
         entry.amount == null ||
@@ -2354,7 +2406,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       amount = _stackService.getStackForPlayer(index);
     }
     final entry = ActionEntry(currentStreet, index, action, amount: amount);
-    onActionSelected(entry);
+    handlePlayerAction(entry);
   }
 
 
@@ -2402,7 +2454,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             IntTween(begin: prevPot, end: newPot).animate(_potCountController);
         _potCountController.forward(from: 0);
         _displayedPots[currentStreet] = newPot;
-        _playBetFlyInAnimation(lastAction);
+        if (lastAction.action == 'all-in') {
+          _playAllInChipsAnimation(lastAction);
+        } else {
+          _playBetFlyInAnimation(lastAction);
+        }
       } else if (undone != null) {
         _potCountAnimation =
             IntTween(begin: prevPot, end: newPot).animate(_potCountController);
@@ -2930,7 +2986,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _triggerBetDisplay(entry);
     if (['bet', 'raise', 'call', 'all-in'].contains(entry.action) &&
         (entry.amount ?? 0) > 0) {
-      _playBetFlyInAnimation(entry);
+      if (entry.action != 'all-in') {
+        _playBetFlyInAnimation(entry);
+      }
     }
     _clearActiveHighlight();
   }
@@ -2963,6 +3021,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  /// Public handler for player actions that also triggers animations.
+  void handlePlayerAction(ActionEntry entry) {
+    if (entry.action == 'all-in') {
+      _playAllInChipsAnimation(entry);
+    }
+    onActionSelected(entry);
+  }
+
   void _editAction(int index, ActionEntry entry) {
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
@@ -2971,7 +3037,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _triggerBetDisplay(entry);
       if (['bet', 'raise', 'call', 'all-in'].contains(entry.action) &&
           (entry.amount ?? 0) > 0) {
-        _playBetFlyInAnimation(entry);
+        if (entry.action != 'all-in') {
+          _playBetFlyInAnimation(entry);
+        }
       }
       _clearActiveHighlight();
     });
@@ -3931,7 +3999,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 numberOfPlayers: numberOfPlayers,
                 playerPositions: playerPositions,
                 actionHistory: _actionHistory,
-                onAdd: onActionSelected,
+                onAdd: handlePlayerAction,
                 onEdit: _editAction,
                 onDelete: _deleteAction,
               ),

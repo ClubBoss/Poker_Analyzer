@@ -43,6 +43,9 @@ class ChipStackMovingWidget extends StatefulWidget {
   /// Text style for the amount label when [showLabel] is true.
   final TextStyle? labelStyle;
 
+  /// Optional glow color applied behind the chips.
+  final Color? glowColor;
+
   const ChipStackMovingWidget({
     Key? key,
     required this.start,
@@ -57,6 +60,7 @@ class ChipStackMovingWidget extends StatefulWidget {
     this.showLabel = false,
     this.labelStyle,
     this.duration = const Duration(milliseconds: 400),
+    this.glowColor,
   }) : super(key: key);
 
   @override
@@ -137,30 +141,50 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
           ),
         );
       },
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.topCenter,
-        children: [
-          ChipStackWidget(
-            amount: widget.amount,
-            scale: 0.8 * widget.scale,
-            color: widget.color,
-          ),
-          if (widget.showLabel)
-            Positioned(
-              top: -16 * widget.scale,
-              child: Text(
-                '${widget.amount}',
-                style: widget.labelStyle ?? TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14 * widget.scale,
-                  shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
-                ),
-              ),
-            ),
-        ],
-      ),
+      child: _buildChild(),
     );
+  }
+
+  Widget _buildChild() {
+    Widget stack = Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.topCenter,
+      children: [
+        ChipStackWidget(
+          amount: widget.amount,
+          scale: 0.8 * widget.scale,
+          color: widget.color,
+        ),
+        if (widget.showLabel)
+          Positioned(
+            top: -16 * widget.scale,
+            child: Text(
+              '${widget.amount}',
+              style: widget.labelStyle ??
+                  TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14 * widget.scale,
+                    shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
+                  ),
+            ),
+          ),
+      ],
+    );
+    if (widget.glowColor != null) {
+      stack = Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: widget.glowColor!.withOpacity(0.8),
+              blurRadius: 12 * widget.scale,
+              spreadRadius: 2 * widget.scale,
+            ),
+          ],
+        ),
+        child: stack,
+      );
+    }
+    return stack;
   }
 }
