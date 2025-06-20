@@ -239,6 +239,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showdownActive = false;
   int? _winnerIndex;
   Map<int, int>? _winnings;
+  Map<int, int>? _returns;
   bool _potAnimationPlayed = false;
 
 
@@ -691,7 +692,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _playPotWinAnimation() {
     if (_potAnimationPlayed) return;
     final wins = _winnings;
-    if (wins == null || wins.isEmpty) {
+    final returns = _returns;
+    if (wins != null && wins.isNotEmpty && returns != null && returns.isNotEmpty) {
+      _distributeChips(wins);
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (!mounted) return;
+        _distributeChips(
+          returns,
+          color: Colors.blueAccent,
+          scale: 0.9,
+        );
+      });
+    } else if (wins == null || wins.isEmpty) {
       if (_winnerIndex != null) {
         _distributeChips({
           _winnerIndex!: _potSync.pots[currentStreet],
