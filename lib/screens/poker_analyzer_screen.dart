@@ -2714,6 +2714,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         } else {
           _playbackNarration = null;
         }
+        activePlayerIndex = _playbackManager.lastActionPlayerIndex;
       });
       if (_animateTimeline && _timelineController.hasClients) {
         _animateTimeline = false;
