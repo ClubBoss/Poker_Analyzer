@@ -1286,11 +1286,34 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
         );
         overlay.insert(entry);
+
+        // Show chips arriving at the winner after the pot leaves center.
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (!mounted) return;
+          late OverlayEntry winEntry;
+          winEntry = OverlayEntry(
+            builder: (_) => WinChipsAnimation(
+              start: start,
+              end: end,
+              control: control,
+              amount: amount,
+              scale: scale,
+              onCompleted: () {
+                winEntry.remove();
+                final startStack = _displayedStacks[playerIndex] ??
+                    _stackService.getStackForPlayer(playerIndex);
+                final endStack = startStack + amount;
+                _animateStackIncrease(playerIndex, startStack, endStack);
+              },
+            ),
+          );
+          overlay.insert(winEntry);
+        });
       });
       delay++;
     }
 
-    final cleanupDelay = 150 * (delay == 0 ? 0 : delay - 1) + 500;
+    final cleanupDelay = 150 * (delay == 0 ? 0 : delay - 1) + 900;
     Future.delayed(Duration(milliseconds: cleanupDelay), () {
       if (!mounted) return;
       _autoResetAfterShowdown();
