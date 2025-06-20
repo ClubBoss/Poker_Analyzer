@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 
 class FoldFlyingCards extends StatefulWidget {
-  final Offset start;
-  final Offset end;
-  final Offset? control;
+  /// Index of the folding player.
+  final int playerIndex;
+
+  /// Starting positions of the player's two cards.
+  final List<Offset> cardPositions;
+
+  /// Scale factor applied to the card images.
   final double scale;
+
+  /// Duration of the full animation.
   final Duration duration;
+
+  /// Fraction of the animation when fading should begin.
   final double fadeStart;
+
+  /// Callback when the animation finishes.
   final VoidCallback? onCompleted;
 
   const FoldFlyingCards({
     Key? key,
-    required this.start,
-    required this.end,
-    this.control,
+    required this.playerIndex,
+    required this.cardPositions,
     this.scale = 1.0,
     this.duration = const Duration(milliseconds: 600),
     this.fadeStart = 0.4,
@@ -69,14 +78,21 @@ class _FoldFlyingCardsState extends State<FoldFlyingCards>
   Widget build(BuildContext context) {
     final width = 36 * widget.scale;
     final height = 52 * widget.scale;
+    final start = widget.cardPositions.length == 2
+        ? Offset(
+            (widget.cardPositions[0].dx + widget.cardPositions[1].dx) / 2,
+            (widget.cardPositions[0].dy + widget.cardPositions[1].dy) / 2,
+          )
+        : widget.cardPositions.first;
+    final screen = MediaQuery.of(context).size;
+    final sign = start.dx > screen.width / 2 ? 1.0 : -1.0;
+    final end = start + Offset(sign * 60 * widget.scale, -120 * widget.scale);
+    final control = start + Offset(sign * 30 * widget.scale, -60 * widget.scale);
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final control = widget.control ?? Offset(
-          (widget.start.dx + widget.end.dx) / 2,
-          (widget.start.dy + widget.end.dy) / 2 - 40 * widget.scale,
-        );
-        final pos = _bezier(widget.start, control, widget.end, _controller.value);
+        final pos = _bezier(start, control, end, _controller.value);
         return Positioned(
           left: pos.dx - (width * 0.7),
           top: pos.dy - height / 2,
