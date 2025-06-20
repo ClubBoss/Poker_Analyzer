@@ -73,6 +73,7 @@ import '../widgets/chip_reward_animation.dart';
 import '../widgets/win_amount_widget.dart';
 import '../widgets/win_text_widget.dart';
 import '../widgets/winner_glow_widget.dart';
+import '../widgets/loss_fade_widget.dart';
 import '../widgets/pot_chip_animation.dart';
 import '../widgets/pot_collection_chips.dart';
 import '../widgets/trash_flying_chips.dart';
@@ -1308,6 +1309,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (!mounted) return;
       _playPotCollectionAnimation(winners);
       _showWinnerGlow(winners);
+      _showLossFadeAnimation(winners);
       if (_boardReveal.revealedBoardCards.length < 5) {
         _pendingPotAnimation = true;
       }
@@ -1426,6 +1428,62 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Future.microtask(() {
         if (!mounted) return;
         showWinnerGlowOverlay(context: context, position: pos, scale: scale);
+      });
+    }
+  }
+
+  void _showLossFadeAnimation(Set<int> winners) {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final losers = [for (final p in _showdownPlayers) if (!winners.contains(p)) p];
+    if (losers.isEmpty) return;
+
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    for (final playerIndex in losers) {
+      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+
+      final cardBase = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final cardPositions = [
+        cardBase + Offset(-18 * scale, 0),
+        cardBase + Offset(18 * scale, 0),
+      ];
+      final stackChipPos = Offset(
+        centerX + dx - 12 * scale,
+        centerY + dy + bias + 70 * scale,
+      );
+      final stackValuePos = Offset(
+        centerX + dx - 20 * scale,
+        centerY + dy + bias + 84 * scale,
+      );
+      final cards = playerCards[playerIndex];
+      final stack = _displayedStacks[playerIndex] ??
+          _stackService.getStackForPlayer(playerIndex);
+
+      Future.microtask(() {
+        if (!mounted) return;
+        showLossFadeOverlay(
+          context: context,
+          cardPositions: cardPositions,
+          stackChipPos: stackChipPos,
+          stackValuePos: stackValuePos,
+          cards: cards,
+          stack: stack,
+          scale: scale,
+        );
       });
     }
   }
