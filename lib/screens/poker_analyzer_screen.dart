@@ -40,8 +40,7 @@ import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
 import '../widgets/bet_chips_on_table.dart';
 import '../widgets/invested_chip_tokens.dart';
-import '../widgets/central_pot_widget.dart';
-import '../widgets/central_pot_chips.dart';
+import '../widgets/central_pot_stack.dart';
 import '../widgets/pot_display_widget.dart';
 import '../widgets/side_pot_widget.dart';
 import '../widgets/card_selector.dart';
@@ -3563,9 +3562,12 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
                 offset: Offset(0, -12 * scale),
                 child: ScaleTransition(
                   scale: potGrowth,
-                  child: CentralPotChips(
-                    amount: pot,
-                    scale: scale,
+                  child: AnimatedBuilder(
+                    animation: potCount,
+                    builder: (_, __) => CentralPotStack(
+                      amount: potCount.value,
+                      scale: scale,
+                    ),
                   ),
                 ),
               ),
