@@ -50,6 +50,8 @@ class PlayerInfoWidget extends StatelessWidget {
   final int? remainingStack;
   /// Disables the active timer when true.
   final bool timersDisabled;
+  /// True when the player has no stack left after an all-in.
+  final bool isBust;
 
   const PlayerInfoWidget({
     super.key,
@@ -80,6 +82,7 @@ class PlayerInfoWidget extends StatelessWidget {
     this.showLastIndicator = false,
     this.remainingStack,
     this.timersDisabled = false,
+    this.isBust = false,
   });
 
   String _formatStack(int value) {
@@ -204,9 +207,15 @@ class PlayerInfoWidget extends StatelessWidget {
           if (remainingStack != null)
             Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                'Осталось: ${_formatStack(remainingStack!)} BB',
-                style: stackStyle,
+              child: AnimatedOpacity(
+                opacity: isBust ? 0.3 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: Text(
+                  'Осталось: ${_formatStack(remainingStack!)} BB',
+                  style: stackStyle.copyWith(
+                    color: isBust ? Colors.grey : stackStyle.color,
+                  ),
+                ),
               ),
             ),
           if (positionLabel != null)
@@ -364,10 +373,16 @@ class PlayerInfoWidget extends StatelessWidget {
                 onStackTap!(result);
               }
             },
-          child: Text(
+          child: AnimatedOpacity(
+            opacity: isBust ? 0.3 : 1.0,
+            duration: const Duration(milliseconds: 300),
+            child: Text(
               'Стек: ${_formatStack(stack)}',
-              style: stackStyle,
+              style: stackStyle.copyWith(
+                color: isBust ? Colors.grey : stackStyle.color,
+              ),
             ),
+          ),
           ),
           if (tag.isNotEmpty) ...[
             const SizedBox(height: 4),

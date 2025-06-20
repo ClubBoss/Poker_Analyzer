@@ -256,6 +256,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Map<int, int>? _winnings;
   Map<int, int>? _returns;
   bool _potAnimationPlayed = false;
+  final Set<int> _bustedPlayers = {};
 
   // Previous card state used to trigger deal animations.
   List<CardModel> _prevBoardCards = [];
@@ -1372,6 +1373,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _sidePots = List<int>.from(_potSync.sidePots);
   }
 
+  void _updateBustedPlayers() {
+    _bustedPlayers.clear();
+    _stackService.currentStacks.forEach((index, stack) {
+      if (stack <= 0 && _allInPlayers.isPlayerAllIn(index)) {
+        _bustedPlayers.add(index);
+      }
+    });
+  }
+
 
   bool _canReverseStreet() => _boardManager.canReverseStreet();
 
@@ -1718,6 +1728,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _serviceRegistry.register<AllInPlayersService>(
         widget.allInPlayersService ?? AllInPlayersService());
     _allInPlayers = _serviceRegistry.get<AllInPlayersService>();
+    _allInPlayers.addListener(_onAllInPlayersChanged);
 
     _debugPrefs = widget.debugPrefsService ?? DebugPanelPreferences();
     _serviceRegistry.register<DebugPanelPreferences>(_debugPrefs);
@@ -1824,6 +1835,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _displayedStacks
       ..clear()
       ..addAll(_stackService.currentStacks);
+    _updateBustedPlayers();
 
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
@@ -2471,6 +2483,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (int i = 0; i < numberOfPlayers; i++) {
       _prevPlayerCards[i] = List<CardModel>.from(playerCards[i]);
     }
+    _bustedPlayers.clear();
     _playPreflopDealAnimation();
   }
 
@@ -2489,6 +2502,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _displayedStacks
         ..clear()
         ..addAll(_stackService.currentStacks);
+      _updateBustedPlayers();
       _computeSidePots();
       lockService.safeSetState(this, () {});
     }
@@ -2523,6 +2537,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     _prevFoldedPlayers = current;
+    lockService.safeSetState(this, () {});
+  }
+
+  void _onAllInPlayersChanged() {
+    if (!mounted) return;
+    _updateBustedPlayers();
     lockService.safeSetState(this, () {});
   }
 
@@ -3407,6 +3427,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.removeListener(_onPlaybackManagerChanged);
     _stackService.removeListener(_onStackServiceChanged);
     _foldedPlayers.removeListener(_onFoldedPlayersChanged);
+    _allInPlayers.removeListener(_onAllInPlayersChanged);
     for (final c in _foldControllers.values) {
       c.dispose();
     }
@@ -3977,6 +3998,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ? _playerManager.playerPositions[index]
                 : null,
             timersDisabled: lockService.isLocked,
+            isBust: _bustedPlayers.contains(index),
             onCardTap: lockService.isLocked
                 ? null
                 : (cardIndex) => _onPlayerCardTap(index, cardIndex),
@@ -4029,12 +4051,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         child: PlayerStackChips(
           stack: stack,
           scale: scale * 0.9,
+          isBust: _bustedPlayers.contains(index),
         ),
       ),
       Positioned(
         left: centerX + dx - 20 * scale,
         top: centerY + dy + bias + 84 * scale,
-        child: PlayerStackValue(stack: stack, scale: scale * 0.9),
+        child: PlayerStackValue(
+          stack: stack,
+          scale: scale * 0.9,
+          isBust: _bustedPlayers.contains(index),
+        ),
       ),
       Positioned(
         left: centerX + dx - 20 * scale,
@@ -4045,11 +4072,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             color: Colors.black87,
             borderRadius: BorderRadius.circular(6),
           ),
-          child: Text(
-            '${_playerManager.getStack(index)} BB',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 10 * scale,
+          child: AnimatedOpacity(
+            opacity: _bustedPlayers.contains(index) ? 0.3 : 1.0,
+            duration: const Duration(milliseconds: 300),
+            child: Text(
+              '${_playerManager.getStack(index)} BB',
+              style: TextStyle(
+                color: _bustedPlayers.contains(index) ? Colors.grey : Colors.white,
+                fontSize: 10 * scale,
+              ),
             ),
           ),
         ),
