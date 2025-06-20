@@ -19,6 +19,9 @@ class RevealCardAnimation extends StatefulWidget {
   /// Callback invoked when the animation finishes.
   final VoidCallback? onCompleted;
 
+  /// Whether to cross-fade between the back and front during the flip.
+  final bool fade;
+
   const RevealCardAnimation({
     Key? key,
     required this.position,
@@ -26,6 +29,7 @@ class RevealCardAnimation extends StatefulWidget {
     this.scale = 1.0,
     this.duration = const Duration(milliseconds: 400),
     this.onCompleted,
+    this.fade = false,
   }) : super(key: key);
 
   @override
@@ -68,32 +72,67 @@ class _RevealCardAnimationState extends State<RevealCardAnimation>
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            double value = _controller.value;
+            final value = _controller.value;
             double angle = value * pi;
+
+            final back = Image.asset(
+              'assets/cards/card_back.png',
+              width: width,
+              height: height,
+            );
+
+            final front = Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '${widget.card.rank}${widget.card.suit}',
+                style: TextStyle(
+                  color: isRed ? Colors.red : Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18 * widget.scale,
+                ),
+              ),
+            );
+
+            if (widget.fade) {
+              final backOpacity = value <= 0.5 ? 1 - value * 2 : 0.0;
+              final frontOpacity = value <= 0.5 ? 0.0 : (value - 0.5) * 2;
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Opacity(
+                    opacity: backOpacity,
+                    child: Transform(
+                      transform: Matrix4.identity()
+                        ..setEntry(3, 2, 0.001)
+                        ..rotateY(angle),
+                      alignment: Alignment.center,
+                      child: back,
+                    ),
+                  ),
+                  Opacity(
+                    opacity: frontOpacity,
+                    child: Transform(
+                      transform: Matrix4.identity()
+                        ..setEntry(3, 2, 0.001)
+                        ..rotateY(angle - pi),
+                      alignment: Alignment.center,
+                      child: front,
+                    ),
+                  ),
+                ],
+              );
+            }
+
             Widget display;
             if (value <= 0.5) {
-              display = Image.asset(
-                'assets/cards/card_back.png',
-                width: width,
-                height: height,
-              );
+              display = back;
             } else {
               angle -= pi;
-              display = Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  '${widget.card.rank}${widget.card.suit}',
-                  style: TextStyle(
-                    color: isRed ? Colors.red : Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18 * widget.scale,
-                  ),
-                ),
-              );
+              display = front;
             }
             return Transform(
               transform: Matrix4.identity()
