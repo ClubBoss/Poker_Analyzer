@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import 'action_timer_ring.dart';
 import 'flip_card.dart';
+import 'player_stack_value.dart';
 
 /// Compact display for a player's position, stack, tag and last action.
 /// Optionally shows a simplified position label as a badge.
@@ -373,15 +374,10 @@ class PlayerInfoWidget extends StatelessWidget {
                 onStackTap!(result);
               }
             },
-          child: AnimatedOpacity(
-            opacity: isBust ? 0.3 : 1.0,
-            duration: const Duration(milliseconds: 300),
-            child: Text(
-              'Стек: ${_formatStack(stack)}',
-              style: stackStyle.copyWith(
-                color: isBust ? Colors.grey : stackStyle.color,
-              ),
-            ),
+          child: PlayerStackValue(
+            stack: stack,
+            scale: 0.8,
+            isBust: isBust,
           ),
           ),
           if (tag.isNotEmpty) ...[

@@ -12,7 +12,7 @@ import 'card_selector.dart';
 import 'chip_widget.dart';
 import 'current_bet_label.dart';
 import 'bet_size_label.dart';
-import 'player_stack_label.dart';
+import 'player_stack_value.dart';
 import 'stack_bar_widget.dart';
 import 'chip_moving_widget.dart';
 import 'move_pot_animation.dart';
@@ -656,7 +656,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ),
         GestureDetector(
           onLongPress: _editStack,
-          child: PlayerStackLabel(stack: stack, scale: widget.scale),
+          child: PlayerStackValue(
+            stack: stack ?? 0,
+            scale: widget.scale,
+            isBust: remaining != null && remaining <= 0,
+          ),
         ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
