@@ -69,6 +69,7 @@ import '../widgets/bet_flying_chips.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/show_card_flip.dart';
+import "../widgets/clear_table_cards.dart";
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -494,6 +495,75 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _potAnimationPlayed = false;
     lockService.safeSetState(this, () {});
   }
+
+  Future<void> _clearTableState() async {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final entries = <OverlayEntry>[];
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 -
+            TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    // Board cards
+    final visible = boardCards.length;
+    final baseY = centerY - 52 * scale;
+    for (int i = 0; i < visible; i++) {
+      final card = boardCards[i];
+      final x = centerX + (i - (visible - 1) / 2) * 44 * scale;
+      late OverlayEntry e;
+      e = OverlayEntry(
+        builder: (_) => ClearTableCards(
+          start: Offset(x, baseY),
+          card: card,
+          scale: scale,
+          onCompleted: () => e.remove(),
+        ),
+      );
+      overlay.insert(e);
+      entries.add(e);
+    }
+
+    // Player cards
+    for (int p = 0; p < numberOfPlayers; p++) {
+      final cards = playerCards[p];
+      if (cards.isEmpty) continue;
+      final i = (p - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      for (int idx = 0; idx < cards.length; idx++) {
+        final card = cards[idx];
+        final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
+        late OverlayEntry e;
+        e = OverlayEntry(
+          builder: (_) => ClearTableCards(
+            start: pos,
+            card: card,
+            scale: scale,
+            onCompleted: () => e.remove(),
+          ),
+        );
+        overlay.insert(e);
+        entries.add(e);
+      }
+    }
+
+    await Future.delayed(const Duration(milliseconds: 600));
+    for (final e in entries) {
+      e.remove();
+    }
+  }
+
 
   void _playReturnChipAnimation(ActionEntry entry) {
     if (!['bet', 'raise', 'call'].contains(entry.action) ||
@@ -2024,6 +2094,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     if (confirm == true) {
+      await _clearTableState();
       lockService.safeSetState(this, () {
         _deleteAction(actionIndex, withSetState: false);
       });
@@ -2171,6 +2242,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     if (confirm == true) {
+      await _clearTableState();
       lockService.safeSetState(this, () {
         _playerManager.reset();
         _undoRedoService.resetHistory();
