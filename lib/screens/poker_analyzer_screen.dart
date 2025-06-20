@@ -476,52 +476,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         entry.amount == null ||
         entry.amount! <= 0 ||
         entry.generated) return;
-    final overlay = Overlay.of(context);
-    if (overlay == null) return;
-    final double scale =
-        TableGeometryHelper.tableScale(numberOfPlayers);
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-    final i =
-        (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-    final dx = radiusX * cos(angle);
-    final dy = radiusY * sin(angle);
-    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-    final start = Offset(centerX, centerY);
-    final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-    final midX = (start.dx + end.dx) / 2;
-    final midY = (start.dy + end.dy) / 2;
-    final perp = Offset(-sin(angle), cos(angle));
-    final control = Offset(
-      midX + perp.dx * 20 * scale,
-      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
-    );
-    final color = entry.action == 'raise'
-        ? Colors.green
-        : entry.action == 'call'
-            ? Colors.blue
-            : Colors.yellow;
-    late OverlayEntry overlayEntry;
-    overlayEntry = OverlayEntry(
-      builder: (_) => BetFlyingChips(
-        start: start,
-        end: end,
-        control: control,
-        amount: entry.amount!,
-        color: color,
-        scale: scale,
-        onCompleted: () => overlayEntry.remove(),
-      ),
-    );
-    overlay.insert(overlayEntry);
+    _playFoldRefundAnimation(entry.playerIndex, entry.amount!);
   }
 
 
