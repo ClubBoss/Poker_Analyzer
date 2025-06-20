@@ -1160,6 +1160,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
+    int delay = 0;
     for (final playerIndex in losers) {
       final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
       final angle = 2 * pi * i / numberOfPlayers + pi / 2;
@@ -1172,21 +1173,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       for (int idx = 0; idx < cards.length; idx++) {
         final card = cards[idx];
         final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
-        late OverlayEntry e;
-        e = OverlayEntry(
-          builder: (_) => FoldRevealAnimation(
-            start: pos,
-            card: card,
-            scale: scale,
-            direction: dir,
-            onCompleted: () => e.remove(),
-          ),
-        );
-        overlay.insert(e);
+        Future.delayed(Duration(milliseconds: delay), () {
+          if (!mounted) return;
+          late OverlayEntry e;
+          e = OverlayEntry(
+            builder: (_) => FoldRevealAnimation(
+              start: pos,
+              card: card,
+              scale: scale,
+              direction: dir,
+              onCompleted: () => e.remove(),
+            ),
+          );
+          overlay.insert(e);
+        });
+        delay += 120;
       }
     }
 
-    Future.delayed(const Duration(milliseconds: 1000), () {
+    Future.delayed(Duration(milliseconds: delay + 700), () {
       if (!mounted) return;
       for (final p in losers) {
         _showdownPlayers.remove(p);
@@ -1467,7 +1472,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _potAnimationPlayed = true;
 
     // Fade out the central pot after the chips move away.
-    Future.delayed(const Duration(milliseconds: 600), () {
+    final winCount = wins?.length ?? 1;
+    final totalDelay = 300 * winCount + 500;
+    Future.delayed(Duration(milliseconds: totalDelay), () {
       if (!mounted) return;
       final prevPot = _displayedPots[currentStreet];
       if (prevPot > 0) {
@@ -1530,7 +1537,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     _potAnimationPlayed = true;
 
-    Future.delayed(const Duration(milliseconds: 600), () {
+    final winCount = wins?.length ?? 1;
+    final totalDelay = 300 * winCount + 500;
+    Future.delayed(Duration(milliseconds: totalDelay), () {
       if (!mounted) return;
       final prevPot = _displayedPots[currentStreet];
       if (prevPot > 0) {
@@ -1565,7 +1574,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     _potAnimationPlayed = true;
 
-    Future.delayed(const Duration(milliseconds: 600), () {
+    final winCount = wins?.length ?? 1;
+    final totalDelay = 300 * winCount + 500;
+    Future.delayed(Duration(milliseconds: totalDelay), () {
       if (!mounted) return;
       final prevPot = _displayedPots[currentStreet];
       if (prevPot > 0) {
