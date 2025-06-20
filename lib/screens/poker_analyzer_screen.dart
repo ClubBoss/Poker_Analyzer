@@ -5788,6 +5788,21 @@ class _PlaybackControlsSection extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: disabled ? null : onStepBackward,
+              child: const Text('Step Back'),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: disabled ? null : onStepForward,
+              child: const Text('Step Forward'),
+            ),
+          ],
+        ),
         const SizedBox(height: 10),
         TextButton(
           onPressed: backDisabled ? null : onBack,
