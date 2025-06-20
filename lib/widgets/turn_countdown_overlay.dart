@@ -6,12 +6,14 @@ class TurnCountdownOverlay extends StatefulWidget {
   final Duration duration;
   final VoidCallback? onComplete;
   final double scale;
+  final bool showSeconds;
 
   const TurnCountdownOverlay({
     Key? key,
     this.duration = const Duration(seconds: 3),
     this.onComplete,
     this.scale = 1.0,
+    this.showSeconds = false,
   }) : super(key: key);
 
   @override
@@ -47,16 +49,32 @@ class _TurnCountdownOverlayState extends State<TurnCountdownOverlay>
       animation: _controller,
       builder: (context, child) {
         final progress = 1.0 - _controller.value;
+        final ring = CustomPaint(
+          size: Size(24 * widget.scale, 24 * widget.scale),
+          painter: _RingPainter(
+            progress: progress,
+            color: color,
+            thickness: 3 * widget.scale,
+          ),
+        );
         return Transform.scale(
           scale: progress,
-          child: CustomPaint(
-            size: Size(24 * widget.scale, 24 * widget.scale),
-            painter: _RingPainter(
-              progress: progress,
-              color: color,
-              thickness: 3 * widget.scale,
-            ),
-          ),
+          child: widget.showSeconds
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    ring,
+                    Text(
+                      '${(widget.duration.inSeconds * progress).ceil()}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10 * widget.scale,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                )
+              : ring,
         );
       },
     );

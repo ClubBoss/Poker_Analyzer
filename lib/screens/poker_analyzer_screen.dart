@@ -3945,13 +3945,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           scale: scale * infoScale,
           bias: bias,
         ),
-      if (isActive)
+      if (isActive && !lockService.isLocked)
         Positioned(
           left: centerX + dx - 12 * scale,
           top: centerY + dy + bias - 90 * scale,
           child: TurnCountdownOverlay(
             scale: scale,
             onComplete: () => _onPlayerTimeExpired(index),
+            showSeconds: true,
           ),
         ),
       // action arrow behind player widgets
