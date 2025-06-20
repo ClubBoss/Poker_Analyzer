@@ -68,6 +68,7 @@ import '../widgets/chip_stack_moving_widget.dart';
 import '../widgets/bet_flying_chips.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
+import '../widgets/show_card_flip.dart';
 import '../services/stack_manager_service.dart';
 import '../services/player_manager_service.dart';
 import '../services/player_profile_service.dart';
@@ -481,6 +482,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addAll(active);
     _showdownActive = true;
     lockService.safeSetState(this, () {});
+    for (final i in active) {
+      _playShowCardsAnimation(i);
+    }
   }
 
   void _clearShowdown() {
@@ -674,6 +678,47 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ),
     );
     overlay.insert(overlayEntry);
+  }
+
+  void _playShowCardsAnimation(int playerIndex) {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final cards = playerCards[playerIndex];
+
+    for (int idx = 0; idx < cards.length; idx++) {
+      final card = cards[idx];
+      final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
+      late OverlayEntry entry;
+      entry = OverlayEntry(
+        builder: (_) => ShowCardFlip(
+          position: pos,
+          card: card,
+          scale: scale,
+          onCompleted: () => entry.remove(),
+        ),
+      );
+      Future.delayed(Duration(milliseconds: 150 * idx), () {
+        overlay.insert(entry);
+      });
+    }
   }
 
   /// Animate chips from the pot to one or more players.
