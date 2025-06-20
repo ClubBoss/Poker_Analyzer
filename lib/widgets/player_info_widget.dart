@@ -461,12 +461,15 @@ class PlayerInfoWidget extends StatelessWidget {
       final children = <Widget>[clickable];
       if (playerTypeIcon.isNotEmpty) {
         children.add(Positioned(
-          top: -6,
+          bottom: -6,
           right: -6,
           child: IgnorePointer(
             child: Text(
               playerTypeIcon,
-              style: const TextStyle(fontSize: 12),
+              style: const TextStyle(
+                fontSize: 12,
+                shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+              ),
             ),
           ),
         ));
@@ -494,7 +497,7 @@ class PlayerInfoWidget extends StatelessWidget {
       if (showLastIndicator) {
         children.add(Positioned(
           bottom: -6,
-          right: -6,
+          left: -6,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             decoration: BoxDecoration(
