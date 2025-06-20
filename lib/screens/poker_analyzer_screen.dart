@@ -40,15 +40,13 @@ import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
 import '../widgets/bet_chips_on_table.dart';
 import '../widgets/invested_chip_tokens.dart';
-import '../widgets/pot_chips_widget.dart';
-import '../widgets/pot_display_widget.dart';
+import '../widgets/bet_stack_chips.dart';
 import '../widgets/side_pot_widget.dart';
 import '../widgets/card_selector.dart';
 import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
 import '../widgets/spr_label.dart';
 import '../widgets/total_invested_label.dart';
-import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/mini_stack_widget.dart';
@@ -4794,25 +4792,12 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
                 offset: Offset(0, -12 * scale),
                 child: ScaleTransition(
                   scale: potGrowth,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AnimatedBuilder(
-                        animation: potCount,
-                        builder: (_, __) => PotDisplayWidget(
-                          amount: potCount.value,
-                          scale: scale,
-                        ),
-                      ),
-                      SizedBox(height: 4 * scale),
-                      AnimatedBuilder(
-                        animation: potCount,
-                        builder: (_, __) => PotChipsWidget(
-                          amount: potCount.value,
-                          scale: scale,
-                        ),
-                      ),
-                    ],
+                  child: AnimatedBuilder(
+                    animation: potCount,
+                    builder: (_, __) => BetStackChips(
+                      amount: potCount.value,
+                      scale: scale,
+                    ),
                   ),
                 ),
               ),
