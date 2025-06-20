@@ -50,6 +50,7 @@ import '../widgets/spr_label.dart';
 import '../widgets/total_invested_label.dart';
 import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
+import '../widgets/bet_chips_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/mini_stack_widget.dart';
 import '../widgets/bet_stack_indicator.dart';
@@ -339,6 +340,41 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       return opponentIndex!;
     }
     return _debugPrefs.pinHeroPosition ? _playerManager.heroIndex : 0;
+  }
+
+  int _currentStreetBet(int playerIndex) {
+    final streetActions = _actionHistory.actionsForStreet(currentStreet);
+    ActionEntry? last;
+    for (final a in streetActions.reversed) {
+      if (a.playerIndex != playerIndex) continue;
+      if (a.amount != null &&
+          (a.action == 'bet' ||
+              a.action == 'raise' ||
+              a.action == 'call' ||
+              a.action == 'all-in')) {
+        last = a;
+        break;
+      }
+      if (a.action == 'fold' || a.action == 'check') {
+        break;
+      }
+    }
+    return last?.amount ?? 0;
+  }
+
+  Color _currentBetColor(int playerIndex) {
+    final streetActions = _actionHistory.actionsForStreet(currentStreet);
+    for (final a in streetActions.reversed) {
+      if (a.playerIndex != playerIndex) continue;
+      if (a.amount != null &&
+          (a.action == 'bet' ||
+              a.action == 'raise' ||
+              a.action == 'call' ||
+              a.action == 'all-in')) {
+        return ActionFormattingHelper.actionColor(a.action);
+      }
+    }
+    return ActionFormattingHelper.actionColor('bet');
   }
 
   int _inferBoardStreet() => _boardSync.inferBoardStreet();
@@ -4006,6 +4042,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             color: ActionFormattingHelper.actionColor(
                 lastAmountAction!.action),
             scale: scale,
+          ),
+        ),
+      if (_currentStreetBet(index) > 0)
+        Positioned(
+          left: centerX + dx - 8 * scale,
+          top: centerY + dy + bias + 50 * scale,
+          child: BetChipsWidget(
+            amount: _currentStreetBet(index),
+            color: _currentBetColor(index),
+            scale: scale * 0.8,
           ),
         ),
       Positioned(
