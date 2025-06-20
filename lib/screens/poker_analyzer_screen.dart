@@ -73,6 +73,7 @@ import '../widgets/chip_reward_animation.dart';
 import '../widgets/win_amount_widget.dart';
 import '../widgets/win_text_widget.dart';
 import '../widgets/pot_chip_animation.dart';
+import '../widgets/pot_collection_chips.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
@@ -1171,10 +1172,67 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final totalDelay = 300 * winners.length + 400;
     Future.delayed(Duration(milliseconds: totalDelay), () {
+      if (!mounted) return;
+      _playPotCollectionAnimation(winners);
       if (_boardReveal.revealedBoardCards.length < 5) {
         _pendingPotAnimation = true;
       }
     });
+  }
+
+  void _playPotCollectionAnimation(Set<int> winners) {
+    final overlay = Overlay.of(context);
+    if (overlay == null || winners.isEmpty) return;
+
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    final wins = _winnings;
+    int delay = 0;
+    for (final playerIndex in winners) {
+      final amount = wins != null && wins.isNotEmpty
+          ? wins[playerIndex] ?? 0
+          : (_winnerIndex == playerIndex ? _potSync.pots[currentStreet] : 0);
+      if (amount <= 0) continue;
+      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX, centerY);
+      final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 20 * scale,
+        midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+      );
+      Future.delayed(Duration(milliseconds: 150 * delay), () {
+        if (!mounted) return;
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => PotCollectionChips(
+            start: start,
+            end: end,
+            control: control,
+            amount: amount,
+            scale: scale,
+            onCompleted: () => entry.remove(),
+          ),
+        );
+        overlay.insert(entry);
+      });
+      delay++;
+    }
   }
 
   void _cleanupWinnerCards() {
