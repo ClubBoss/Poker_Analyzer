@@ -1216,16 +1216,35 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     int delay = 0;
     final wins = _winnings;
     if (wins != null && wins.isNotEmpty) {
-      wins.forEach((player, amount) {
+      final potAmounts = <int>[];
+      final totalPot = _potSync.pots[currentStreet];
+      final sideTotal = _sidePots.fold<int>(0, (a, b) => a + b);
+      potAmounts.add(totalPot - sideTotal);
+      potAmounts.addAll(_sidePots);
+
+      if (potAmounts.length == wins.length) {
+        int idx = 0;
+        wins.forEach((player, _) {
+          final pot = potAmounts[idx++];
+          _showPotWinAnimations(
+            overlay,
+            {player: pot},
+            delay,
+            Colors.orangeAccent,
+            highlight: true,
+          );
+          delay += 150;
+        });
+      } else {
         _showPotWinAnimations(
           overlay,
-          {player: amount},
+          wins,
           delay,
           Colors.orangeAccent,
           highlight: true,
         );
-        delay += 150;
-      });
+        delay += 150 * wins.length;
+      }
     } else if (_winnerIndex != null) {
       _showPotWinAnimations(
         overlay,
