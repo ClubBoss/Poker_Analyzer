@@ -631,85 +631,44 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
-  void _playWinPotAnimation(int playerIndex, int amount) {
-    if (amount <= 0) return;
+  /// Animate chips from the pot to one or more players.
+  void _distributeChips(
+    Map<int, int> targets, {
+    Color color = Colors.orangeAccent,
+    double scale = 1.0,
+    double fadeStart = 0.3,
+  }) {
+    if (targets.isEmpty) return;
     final overlay = Overlay.of(context);
     if (overlay == null) return;
-    final double scale =
+    final double tableScale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
     final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, tableScale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-    final i =
-        (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-    final dx = radiusX * cos(angle);
-    final dy = radiusY * sin(angle);
-    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-    final start = Offset(centerX, centerY);
-    final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-    final midX = (start.dx + end.dx) / 2;
-    final midY = (start.dy + end.dy) / 2;
-    final perp = Offset(-sin(angle), cos(angle));
-    final control = Offset(
-      midX + perp.dx * 20 * scale,
-      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
-    );
-    late OverlayEntry overlayEntry;
-    overlayEntry = OverlayEntry(
-      builder: (_) => BetFlyingChips(
-        start: start,
-        end: end,
-        control: control,
-        amount: amount,
-        color: Colors.orangeAccent,
-        scale: 1.0,
-        fadeStart: 0.3,
-        onCompleted: () => overlayEntry.remove(),
-      ),
-    );
-    overlay.insert(overlayEntry);
-  }
+    final radiusX = (tableWidth / 2 - 60) * tableScale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * tableScale * radiusMod;
 
-  /// Animate chips returning from the pot to players.
-  void _playChipReturnAnimation(Map<int, int> returns) {
-    if (returns.isEmpty) return;
-    final overlay = Overlay.of(context);
-    if (overlay == null) return;
-    final double scale =
-        TableGeometryHelper.tableScale(numberOfPlayers);
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    returns.forEach((playerIndex, amount) {
+    targets.forEach((playerIndex, amount) {
       if (amount <= 0) return;
       final i =
           (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
       final angle = 2 * pi * i / numberOfPlayers + pi / 2;
       final dx = radiusX * cos(angle);
       final dy = radiusY * sin(angle);
-      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * tableScale;
       final start = Offset(centerX, centerY);
-      final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final end = Offset(centerX + dx, centerY + dy + bias + 92 * tableScale);
       final midX = (start.dx + end.dx) / 2;
       final midY = (start.dy + end.dy) / 2;
       final perp = Offset(-sin(angle), cos(angle));
       final control = Offset(
-        midX + perp.dx * 20 * scale,
-        midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+        midX + perp.dx * 20 * tableScale,
+        midY - (40 + ChipStackMovingWidget.activeCount * 8) * tableScale,
       );
       late OverlayEntry overlayEntry;
       overlayEntry = OverlayEntry(
@@ -718,9 +677,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           end: end,
           control: control,
           amount: amount,
-          color: Colors.blueAccent,
-          scale: 0.9,
-          fadeStart: 0.2,
+          color: color,
+          scale: scale,
+          fadeStart: fadeStart,
           onCompleted: () => overlayEntry.remove(),
         ),
       );
@@ -734,13 +693,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final wins = _winnings;
     if (wins == null || wins.isEmpty) {
       if (_winnerIndex != null) {
-        _playWinPotAnimation(
-            _winnerIndex!, _potSync.pots[currentStreet]);
+        _distributeChips({
+          _winnerIndex!: _potSync.pots[currentStreet],
+        });
       }
     } else {
-      wins.forEach((index, amount) {
-        _playWinPotAnimation(index, amount);
-      });
+      _distributeChips(wins);
     }
     _potAnimationPlayed = true;
 
