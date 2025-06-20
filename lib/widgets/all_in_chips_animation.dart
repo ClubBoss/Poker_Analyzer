@@ -24,6 +24,12 @@ class AllInChipsAnimation extends StatelessWidget {
   /// Fraction of the animation after which fading should start.
   final double fadeStart;
 
+  /// Duration of the animation.
+  final Duration duration;
+
+  /// Color used for a glow effect behind the stack.
+  final Color glowColor;
+
   const AllInChipsAnimation({
     Key? key,
     required this.start,
@@ -33,6 +39,8 @@ class AllInChipsAnimation extends StatelessWidget {
     this.control,
     this.onCompleted,
     this.fadeStart = 0.7,
+    this.duration = const Duration(milliseconds: 300),
+    this.glowColor = Colors.redAccent,
   }) : super(key: key);
 
   @override
@@ -45,6 +53,8 @@ class AllInChipsAnimation extends StatelessWidget {
       scale: scale,
       control: control,
       fadeStart: fadeStart,
+      duration: duration,
+      glowColor: glowColor,
       labelStyle: TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
