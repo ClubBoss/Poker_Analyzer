@@ -216,6 +216,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late AnimationController _centerChipController;
   late AnimationController _potGrowthController;
   late Animation<double> _potGrowthAnimation;
+  late AnimationController _potCountController;
+  late Animation<int> _potCountAnimation;
+  final List<int> _displayedPots = List.filled(4, 0);
   List<int> _sidePots = [];
   late TransitionLockService lockService;
   final GlobalKey<_BoardCardsSectionState> _boardKey =
@@ -901,6 +904,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           _potGrowthController.reverse();
         }
       });
+    _potCountController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _potCountAnimation = IntTween(begin: 0, end: 0).animate(_potCountController)
+      ..addListener(() {
+        if (mounted) setState(() {});
+      });
     _timelineController = ScrollController();
 
     _serviceRegistry.register<PlayerManagerService>(widget.playerManager);
@@ -968,6 +979,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _handRestore = _serviceRegistry.get<HandRestoreService>();
     _playerManager.updatePositions();
     _playbackManager.updatePlaybackState();
+    for (int i = 0; i < _displayedPots.length; i++) {
+      _displayedPots[i] = _potSync.pots[i];
+    }
+    _potCountAnimation = IntTween(
+      begin: _potSync.pots[currentStreet],
+      end: _potSync.pots[currentStreet],
+    ).animate(_potCountController);
+    _potCountController.value = 1.0;
     _actionHistory.updateHistory(actions,
         visibleCount: _playbackManager.playbackIndex);
     if (widget.initialHand != null) {
@@ -1246,6 +1265,26 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _onPlaybackManagerChanged() {
     if (mounted) {
       _computeSidePots();
+      final newPot = _potSync.pots[currentStreet];
+      final prevPot = _displayedPots[currentStreet];
+      final lastIndex = _playbackManager.playbackIndex - 1;
+      final lastAction =
+          lastIndex >= 0 && lastIndex < actions.length ? actions[lastIndex] : null;
+      if (lastAction != null &&
+          (lastAction.action == 'bet' ||
+              lastAction.action == 'raise' ||
+              lastAction.action == 'call') &&
+          newPot > prevPot) {
+        _potCountAnimation =
+            IntTween(begin: prevPot, end: newPot).animate(_potCountController);
+        _potCountController.forward(from: 0);
+        _displayedPots[currentStreet] = newPot;
+      } else {
+        _displayedPots[currentStreet] = newPot;
+        _potCountAnimation = IntTween(begin: newPot, end: newPot)
+            .animate(_potCountController);
+        _potCountController.value = 1.0;
+      }
       lockService.safeSetState(this, () {});
       if (_animateTimeline && _timelineController.hasClients) {
         _animateTimeline = false;
@@ -2132,6 +2171,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _processingService.cleanup();
     _centerChipController.dispose();
     _potGrowthController.dispose();
+    _potCountController.dispose();
     _timelineController.dispose();
     _handContext.dispose();
     super.dispose();
@@ -2263,6 +2303,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     showCenterChip: _showCenterChip,
                     centerChipController: _centerChipController,
                     potGrowth: _potGrowthAnimation,
+                    potCount: _potCountAnimation,
                     actionColor: ActionFormattingHelper.actionColor,
                   ),
                   _ActionHistorySection(
@@ -3267,6 +3308,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
   final bool showCenterChip;
   final Animation<double> centerChipController;
   final Animation<double> potGrowth;
+  final Animation<int> potCount;
   final Color Function(String) actionColor;
 
   const _PotAndBetsOverlaySection({
@@ -3282,6 +3324,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.showCenterChip,
     required this.centerChipController,
     required this.potGrowth,
+    required this.potCount,
     required this.actionColor,
   });
 
@@ -3328,9 +3371,12 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
               alignment: Alignment.center,
               child: ScaleTransition(
                 scale: potGrowth,
-                child: PotDisplayWidget(
-                  amount: pot,
-                  scale: scale,
+                child: AnimatedBuilder(
+                  animation: potCount,
+                  builder: (_, __) => PotDisplayWidget(
+                    amount: potCount.value,
+                    scale: scale,
+                  ),
                 ),
               ),
             ),
