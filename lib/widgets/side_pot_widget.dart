@@ -31,7 +31,7 @@ class SidePotWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12 * scale),
       ),
       child: Text(
-        'Side ${index + 1}: $amount',
+        'Пот ${index + 1}: $amount',
         style: TextStyle(
           color: Colors.white,
           fontSize: 14 * scale,

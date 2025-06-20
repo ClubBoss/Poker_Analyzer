@@ -1140,6 +1140,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _potCountController.forward(from: 0);
         _displayedPots[currentStreet] = 0;
       }
+      if (_sidePots.isNotEmpty) {
+        _sidePots.clear();
+        _potSync.sidePots.clear();
+        lockService.safeSetState(this, () {});
+      }
     });
   }
 
@@ -1196,6 +1201,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             IntTween(begin: prevPot, end: 0).animate(_potCountController);
         _potCountController.forward(from: 0);
         _displayedPots[currentStreet] = 0;
+      }
+      if (_sidePots.isNotEmpty) {
+        _sidePots.clear();
+        _potSync.sidePots.clear();
+        lockService.safeSetState(this, () {});
       }
     });
   }
@@ -1283,22 +1293,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _computeSidePots() {
-    final contributions = <int>[];
-    for (int i = 0; i < numberOfPlayers; i++) {
-      contributions.add(_stackService.getTotalInvested(i));
-    }
-    contributions.sort();
-    final pots = <int>[];
-    int prev = 0;
-    int remaining = contributions.length;
-    for (final c in contributions) {
-      if (c > prev) {
-        pots.add((c - prev) * remaining);
-        prev = c;
-      }
-      remaining--;
-    }
-    _sidePots = pots.length > 1 ? pots.sublist(1) : [];
+    _potSync.updateSidePots();
+    _sidePots = List<int>.from(_potSync.sidePots);
   }
 
 

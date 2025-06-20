@@ -25,6 +25,9 @@ class PotSyncService {
   /// Current pot size for each street.
   final List<int> pots = List.filled(4, 0);
 
+  /// Calculated side pots for the current hand.
+  final List<int> sidePots = [];
+
   /// Effective stack sizes recorded per street.
   Map<String, int> _effectiveStacks = {};
 
@@ -44,12 +47,40 @@ class PotSyncService {
     return _potCalculator.calculatePots(actions, investments);
   }
 
+  /// Calculates side pots based on current player investments.
+  List<int> computeSidePots() {
+    final contributions = <int>[];
+    for (final i in stackService.stackSizes.keys) {
+      contributions.add(stackService.getTotalInvested(i));
+    }
+    contributions.sort();
+    final pots = <int>[];
+    int prev = 0;
+    int remaining = contributions.length;
+    for (final c in contributions) {
+      if (c > prev) {
+        pots.add((c - prev) * remaining);
+        prev = c;
+      }
+      remaining--;
+    }
+    return pots.length > 1 ? pots.sublist(1) : <int>[];
+  }
+
+  /// Recomputes and stores [sidePots].
+  void updateSidePots() {
+    sidePots
+      ..clear()
+      ..addAll(computeSidePots());
+  }
+
   /// Recompute [pots] based on visible [actions] and record history.
   void updatePots(List<ActionEntry> actions) {
     final p = computePots(actions);
     for (int i = 0; i < pots.length; i++) {
       pots[i] = p[i];
     }
+    updateSidePots();
     _history.record(actions.length, pots);
   }
 
@@ -60,6 +91,7 @@ class PotSyncService {
     for (int i = 0; i < pots.length; i++) {
       pots[i] = p[i];
     }
+    updateSidePots();
     _history.record(playbackIndex, pots);
   }
 
