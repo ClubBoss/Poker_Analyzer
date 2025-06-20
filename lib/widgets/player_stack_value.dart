@@ -47,7 +47,7 @@ class _PlayerStackValueState extends State<PlayerStackValue>
   @override
   void didUpdateWidget(covariant PlayerStackValue oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.stack < oldWidget.stack) {
+    if (widget.stack != oldWidget.stack) {
       _controller.forward(from: 0);
     }
   }

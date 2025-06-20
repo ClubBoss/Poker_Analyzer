@@ -227,6 +227,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late AnimationController _potCountController;
   late Animation<int> _potCountAnimation;
   final List<int> _displayedPots = List.filled(4, 0);
+  final Map<int, int> _displayedStacks = {};
   List<int> _sidePots = [];
   late TransitionLockService lockService;
   final GlobalKey<_BoardCardsSectionState> _boardKey =
@@ -866,6 +867,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     int startDelay,
     Color color, {
     double scale = 1.0,
+    bool highlight = false,
   }) {
     if (targets.isEmpty) return;
     final double tableScale =
@@ -911,7 +913,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             amount: amount,
             color: color,
             scale: scale * tableScale,
-            onCompleted: () => entry.remove(),
+            onCompleted: () {
+              entry.remove();
+              _displayedStacks[playerIndex] =
+                  (_displayedStacks[playerIndex] ?? 0) + amount;
+              final name = players[playerIndex].name;
+              if (highlight) showWinnerHighlight(context, name);
+              setState(() {});
+            },
           ),
         );
         overlay.insert(entry);
@@ -935,11 +944,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         targets = { _winnerIndex!: _potSync.pots[currentStreet] };
       }
       if (targets != null) {
-        _showPotWinAnimations(overlay, targets, delay, Colors.orangeAccent);
+        _showPotWinAnimations(overlay, targets, delay, Colors.orangeAccent,
+            highlight: true);
         delay += 150 * targets.length;
       }
       if (returns != null && returns.isNotEmpty) {
-        _showPotWinAnimations(overlay, returns, delay, Colors.blueAccent, scale: 0.9);
+        _showPotWinAnimations(overlay, returns, delay, Colors.blueAccent,
+            scale: 0.9);
       }
     }
     _potAnimationPlayed = true;
@@ -1507,6 +1518,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _serviceRegistry.register<StackManagerService>(widget.stackService);
     _stackService = _serviceRegistry.get<StackManagerService>();
     _stackService.addListener(_onStackServiceChanged);
+    _displayedStacks
+      ..clear()
+      ..addAll(_stackService.currentStacks);
 
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
@@ -1553,6 +1567,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _stackService = _handRestore.restoreHand(widget.initialHand!);
       _actionSync.attachStackManager(_stackService);
       _potSync.stackService = _stackService;
+      _displayedStacks
+        ..clear()
+        ..addAll(_stackService.currentStacks);
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
@@ -1990,6 +2007,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _onStackServiceChanged() {
     if (mounted) {
+      _displayedStacks
+        ..clear()
+        ..addAll(_stackService.currentStacks);
       _computeSidePots();
       lockService.safeSetState(this, () {});
     }
@@ -2669,6 +2689,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _stackService = _handRestore.restoreHand(hand);
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
+    _displayedStacks
+      ..clear()
+      ..addAll(_stackService.currentStacks);
     _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     _boardManager.startBoardTransition();
   }
@@ -2751,6 +2774,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _stackService = _handRestore.restoreHand(hand);
     _actionSync.attachStackManager(_stackService);
     _potSync.stackService = _stackService;
+    _displayedStacks
+      ..clear()
+      ..addAll(_stackService.currentStacks);
     _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
     _boardManager.startBoardTransition();
   }
@@ -2758,10 +2784,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Future<void> loadHandByName() async {
     if (_transitionHistory.isLocked) return;
     final selected = await _handManager.selectHand(context);
-      if (selected != null) {
+    if (selected != null) {
         _stackService = _handRestore.restoreHand(selected);
         _actionSync.attachStackManager(_stackService);
         _potSync.stackService = _stackService;
+        _displayedStacks
+          ..clear()
+          ..addAll(_stackService.currentStacks);
         _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
         _boardManager.startBoardTransition();
       }
@@ -2785,6 +2814,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _stackService = _handRestore.restoreHand(hand);
       _actionSync.attachStackManager(_stackService);
       _potSync.stackService = _stackService;
+      _displayedStacks
+        ..clear()
+        ..addAll(_stackService.currentStacks);
       _actionSync.updatePlaybackIndex(_playbackManager.playbackIndex);
       _boardManager.startBoardTransition();
     }
@@ -3280,7 +3312,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
 
     final String position = playerPositions[index] ?? '';
-    final int stack = _stackService.getStackForPlayer(index);
+    final int stack = _displayedStacks[index] ??
+        _stackService.getStackForPlayer(index);
     final String tag = _actionTagService.getTag(index) ?? '';
     final bool isActive = activePlayerIndex == index;
     final bool isFolded = _foldedPlayers.isPlayerFolded(index);
@@ -3409,7 +3442,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     .whereType<CardModel>()
                     .toList()
                 : playerCards[index],
-            remainingStack: _stackService.getStackForPlayer(index),
+            remainingStack:
+                _displayedStacks[index] ?? _stackService.getStackForPlayer(index),
             streetInvestment: invested,
             currentBet: currentBet,
             lastAction: lastAction?.action,
