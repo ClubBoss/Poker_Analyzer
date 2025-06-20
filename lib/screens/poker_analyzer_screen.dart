@@ -440,6 +440,51 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
+  void _playFoldRefundAnimation(int playerIndex, int amount) {
+    if (amount <= 0) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i =
+        (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX, centerY);
+    final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final midX = (start.dx + end.dx) / 2;
+    final midY = (start.dy + end.dy) / 2;
+    final perp = Offset(-sin(angle), cos(angle));
+    final control = Offset(
+      midX + perp.dx * 20 * scale,
+      midY - (40 + ChipMovingWidget.activeCount * 8) * scale,
+    );
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (_) => ChipMovingWidget(
+        start: start,
+        end: end,
+        control: control,
+        amount: amount,
+        color: Colors.grey.shade300,
+        scale: scale,
+        onCompleted: () => overlayEntry.remove(),
+      ),
+    );
+    overlay.insert(overlayEntry);
+  }
+
   void _triggerBetDisplay(ActionEntry entry) {
     if ((entry.action == 'bet' || entry.action == 'raise') && entry.amount != null) {
       final color = ActionFormattingHelper.actionColor(entry.action);
@@ -1353,10 +1398,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void onActionSelected(ActionEntry entry) {
     lockService.safeSetState(this, () {
       _addAutoFolds(entry);
-      _addAction(entry);
       if (entry.action == 'fold') {
+        final invested = _stackService.getTotalInvested(entry.playerIndex);
+        if (invested > 0) {
+          final refund = (invested * 0.1).round().clamp(1, invested);
+          _playFoldRefundAnimation(entry.playerIndex, refund);
+        }
+        _addAction(entry);
         _actionEditing.removeFutureActionsForPlayer(
             entry.playerIndex, entry.street, actions.length - 1);
+      } else {
+        _addAction(entry);
       }
     });
   }
