@@ -490,16 +490,37 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         if (!_foldedPlayers.isPlayerFolded(i)) i
     ];
     if (active.length < 2) return;
+
+    final winners = <int>{
+      if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
+      if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
+        _winnerIndex!,
+    };
+
+    final revealPlayers = [
+      for (final p in active)
+        if (winners.contains(p) ||
+            players[p].revealedCards.whereType<CardModel>().isNotEmpty)
+          p
+    ];
+
     _showdownPlayers
       ..clear()
-      ..addAll(active);
+      ..addAll(revealPlayers);
     _showdownActive = true;
     lockService.safeSetState(this, () {});
-    for (int j = 0; j < active.length; j++) {
-      final player = active[j];
+
+    for (int j = 0; j < revealPlayers.length; j++) {
+      final player = revealPlayers[j];
       Future.delayed(Duration(milliseconds: 300 * j), () {
         if (!mounted) return;
-        _playShowCardsAnimation(player);
+        final customCards =
+            players[player].revealedCards.whereType<CardModel>().toList();
+        if (customCards.isNotEmpty && !winners.contains(player)) {
+          _playShowCardsAnimation(player, cards: customCards);
+        } else {
+          _playShowCardsAnimation(player);
+        }
       });
     }
   }
@@ -765,7 +786,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
-  void _playShowCardsAnimation(int playerIndex) {
+  void _playShowCardsAnimation(int playerIndex, {List<CardModel>? cards}) {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
     final double scale =
@@ -786,10 +807,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final dy = radiusY * sin(angle);
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
     final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-    final cards = playerCards[playerIndex];
+    final cardList = cards ?? playerCards[playerIndex];
 
-    for (int idx = 0; idx < cards.length; idx++) {
-      final card = cards[idx];
+    for (int idx = 0; idx < cardList.length; idx++) {
+      final card = cardList[idx];
       final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
       late OverlayEntry entry;
       entry = OverlayEntry(
