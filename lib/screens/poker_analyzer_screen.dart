@@ -2005,6 +2005,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _clearActiveHighlight() {
+    if (activePlayerIndex != null) {
+      lockService.safeSetState(this, () => activePlayerIndex = null);
+    }
+  }
+
   Future<void> _onOpponentCardTap(int cardIndex) async {
     if (lockService.isLocked) return;
     if (opponentIndex == null) opponentIndex = activePlayerIndex;
@@ -2503,6 +2509,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _startNewHand() {
+    _clearActiveHighlight();
     _prevBoardCards = List<CardModel>.from(boardCards);
     for (int i = 0; i < numberOfPlayers; i++) {
       _prevPlayerCards[i] = List<CardModel>.from(playerCards[i]);
@@ -2744,12 +2751,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         (entry.amount ?? 0) > 0) {
       _playBetFlyInAnimation(entry);
     }
+    _clearActiveHighlight();
   }
 
   void _insertAction(int index, ActionEntry entry) {
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
       _addAction(entry, index: index);
+      _clearActiveHighlight();
     });
   }
 
@@ -2770,6 +2779,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       } else {
         _addAction(entry);
       }
+      _clearActiveHighlight();
     });
   }
 
@@ -2783,6 +2793,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           (entry.amount ?? 0) > 0) {
         _playBetFlyInAnimation(entry);
       }
+      _clearActiveHighlight();
     });
   }
 
@@ -2794,9 +2805,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     if (withSetState) {
-      lockService.safeSetState(this, perform);
+      lockService.safeSetState(this, () {
+        perform();
+        _clearActiveHighlight();
+      });
     } else {
       perform();
+      _clearActiveHighlight();
     }
   }
 
@@ -2804,6 +2819,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
       _actionEditing.reorderAction(oldIndex, newIndex);
+      _clearActiveHighlight();
     });
   }
 
@@ -2821,6 +2837,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         timestamp: original.timestamp,
       );
       _actionEditing.insertAction(index + 1, copy);
+      _clearActiveHighlight();
     });
   }
 
@@ -2848,6 +2865,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       await _clearTableState();
       lockService.safeSetState(this, () {
         _deleteAction(actionIndex, withSetState: false);
+        _clearActiveHighlight();
       });
     }
   }
@@ -2889,6 +2907,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (undone != null) {
       _playBetReturnAnimation(undone);
     }
+    _clearActiveHighlight();
   }
 
   void _redoAction() {
@@ -2897,6 +2916,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _animateTimeline = true;
     });
     _debugPanelSetState?.call(() {});
+    _clearActiveHighlight();
   }
 
   void _previousStreet() {
@@ -3013,6 +3033,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _cancelHandAnalysis() {
+    _clearActiveHighlight();
     _activeTimer?.cancel();
     _centerChipTimer?.cancel();
     for (final t in _betTimers.values) {
