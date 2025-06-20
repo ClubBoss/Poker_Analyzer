@@ -68,6 +68,7 @@ import '../widgets/bet_flying_chips.dart';
 import '../widgets/bet_to_center_animation.dart';
 import '../widgets/all_in_chips_animation.dart';
 import '../widgets/win_chips_animation.dart';
+import '../widgets/chip_reward_animation.dart';
 import '../widgets/win_amount_widget.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
@@ -607,7 +608,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     // Trigger winner flip animation after all reveals finish.
     final totalDelay = 300 * revealPlayers.length + 400;
-    Future.delayed(Duration(milliseconds: totalDelay), _playWinnerRevealAnimation);
+    Future.delayed(
+        Duration(milliseconds: totalDelay), _playWinnerRevealAnimation);
+    Future.delayed(
+        Duration(milliseconds: totalDelay + 600), _playShowdownRewardAnimation);
   }
 
   void _clearShowdown() {
@@ -1336,6 +1340,67 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _showRewardAnimations(
+    OverlayState overlay,
+    Map<int, int> targets,
+    int startDelay,
+  ) {
+    if (targets.isEmpty) return;
+    final double tableScale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY = screen.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, tableScale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * tableScale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * tableScale * radiusMod;
+
+    int delay = startDelay;
+    targets.forEach((playerIndex, amount) {
+      if (amount <= 0) return;
+      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * tableScale;
+      final start = Offset(centerX, centerY);
+      final end = Offset(centerX + dx, centerY + dy + bias + 92 * tableScale);
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 20 * tableScale,
+        midY - (40 + ChipStackMovingWidget.activeCount * 8) * tableScale,
+      );
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (!mounted) return;
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => ChipRewardAnimation(
+            start: start,
+            end: end,
+            control: control,
+            amount: amount,
+            scale: tableScale,
+            onCompleted: () {
+              entry.remove();
+              final startStack = _displayedStacks[playerIndex] ??
+                  _stackService.getStackForPlayer(playerIndex);
+              final endStack = startStack + amount;
+              _animateStackIncrease(playerIndex, startStack, endStack);
+              showWinnerHighlight(context, players[playerIndex].name);
+            },
+          ),
+        );
+        overlay.insert(entry);
+      });
+      delay += 300;
+    });
+  }
+
   void _animateStackIncrease(int playerIndex, int start, int end) {
     final controller = AnimationController(
       vsync: this,
@@ -1461,6 +1526,41 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         });
         delay += 150;
       });
+    }
+
+    _potAnimationPlayed = true;
+
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
+      final prevPot = _displayedPots[currentStreet];
+      if (prevPot > 0) {
+        _potCountAnimation =
+            IntTween(begin: prevPot, end: 0).animate(_potCountController);
+        _potCountController.forward(from: 0);
+        _displayedPots[currentStreet] = 0;
+      }
+      if (_sidePots.isNotEmpty) {
+        _sidePots.clear();
+        _potSync.sidePots.clear();
+        lockService.safeSetState(this, () {});
+      }
+      _hideLosingHands();
+    });
+  }
+
+  void _playShowdownRewardAnimation() {
+    if (_potAnimationPlayed) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+
+    final wins = _winnings;
+    if (wins != null && wins.isNotEmpty) {
+      _showRewardAnimations(overlay, wins, 0);
+    } else if (_winnerIndex != null) {
+      _showRewardAnimations(
+          overlay, {_winnerIndex!: _potSync.pots[currentStreet]}, 0);
+    } else {
+      return;
     }
 
     _potAnimationPlayed = true;
