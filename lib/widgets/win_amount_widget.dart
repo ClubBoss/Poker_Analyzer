@@ -24,12 +24,14 @@ class _WinAmountWidgetState extends State<WinAmountWidget>
   late final AnimationController _controller;
   late final Animation<double> _opacity;
 
+  String _formatAmount(int value) => value.toString();
+
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2500),
     );
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
@@ -67,23 +69,22 @@ class _WinAmountWidgetState extends State<WinAmountWidget>
       top: widget.position.dy,
       child: FadeTransition(
         opacity: _opacity,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 8 * widget.scale,
-            vertical: 4 * widget.scale,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.amberAccent.withOpacity(0.9),
-            borderRadius: BorderRadius.circular(8 * widget.scale),
-            boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
-          ),
-          child: Text(
-            'Выигрыш: ${widget.amount}',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 14 * widget.scale,
-            ),
+        child: Text(
+          '+${_formatAmount(widget.amount)} BB',
+          style: TextStyle(
+            color: Colors.greenAccent,
+            fontWeight: FontWeight.bold,
+            fontSize: 16 * widget.scale,
+            shadows: [
+              Shadow(
+                color: Colors.black.withOpacity(0.6),
+                blurRadius: 4 * widget.scale,
+              ),
+              Shadow(
+                color: Colors.greenAccent.withOpacity(0.8),
+                blurRadius: 6 * widget.scale,
+              ),
+            ],
           ),
         ),
       ),
