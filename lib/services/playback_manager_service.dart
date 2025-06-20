@@ -36,6 +36,7 @@ class PlaybackManagerService extends ChangeNotifier {
 
   int get playbackIndex => _playbackService.playbackIndex;
   bool get isPlaying => _playbackService.isPlaying;
+  Duration get elapsedTime => _playbackService.elapsedTime;
 
   /// Returns `true` if the [playerIndex] should animate for [street].
   bool shouldAnimatePlayer(int street, int playerIndex) {

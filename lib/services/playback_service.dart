@@ -6,11 +6,18 @@ class PlaybackService extends ChangeNotifier {
   bool _isPlaying = false;
   Timer? _playbackTimer;
   Duration stepDuration;
+  DateTime? _startTime;
+  Duration _elapsed = Duration.zero;
 
   PlaybackService({this.stepDuration = const Duration(seconds: 1)});
 
   int get playbackIndex => _playbackIndex;
   bool get isPlaying => _isPlaying;
+  Duration get elapsedTime =>
+      _elapsed +
+      ((_isPlaying && _startTime != null)
+          ? DateTime.now().difference(_startTime!)
+          : Duration.zero);
 
   void updatePlaybackState() {
     notifyListeners();
@@ -34,7 +41,9 @@ class PlaybackService extends ChangeNotifier {
     _isPlaying = true;
     if (_playbackIndex == actionCount) {
       _playbackIndex = 0;
+      _elapsed = Duration.zero;
     }
+    _startTime = DateTime.now();
     updatePlaybackState();
     final d = delay ?? stepDuration;
     _playbackTimer = Timer.periodic(d, (_) {
@@ -46,6 +55,10 @@ class PlaybackService extends ChangeNotifier {
 
   void pausePlayback() {
     _playbackTimer?.cancel();
+    if (_isPlaying && _startTime != null) {
+      _elapsed += DateTime.now().difference(_startTime!);
+    }
+    _startTime = null;
     _isPlaying = false;
     notifyListeners();
   }
@@ -72,6 +85,8 @@ class PlaybackService extends ChangeNotifier {
   void resetHand() {
     pausePlayback();
     _playbackIndex = 0;
+    _elapsed = Duration.zero;
+    _startTime = null;
     updatePlaybackState();
   }
 
