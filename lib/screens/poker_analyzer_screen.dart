@@ -53,6 +53,7 @@ import '../widgets/bet_stack_chips.dart';
 import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/mini_stack_widget.dart';
+import '../widgets/bet_stack_indicator.dart';
 import '../widgets/player_stack_value.dart';
 import '../widgets/player_note_button.dart';
 import '../widgets/bet_size_label.dart';
@@ -229,6 +230,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool isPerspectiveSwitched = false;
 
   final Map<int, _BetDisplayInfo> _recentBets = {};
+  final Map<int, _BetDisplayInfo> _recentBetStacks = {};
   final Map<int, Timer> _betTimers = {};
   final Map<int, String> _playerNotes = {};
   final Map<int, AnimationController> _foldControllers = {};
@@ -666,12 +668,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _triggerBetDisplay(ActionEntry entry) {
-    if ((entry.action == 'bet' || entry.action == 'raise') && entry.amount != null) {
-      final color = ActionFormattingHelper.actionColor(entry.action);
-      final index = entry.playerIndex;
+    if ((entry.action == 'bet' ||
+            entry.action == 'raise' ||
+            entry.action == 'call') &&
+        entry.amount != null) {
+      final Color color = ActionFormattingHelper.actionColor(entry.action);
+      final int index = entry.playerIndex;
       _betTimers[index]?.cancel();
       setState(() {
-        _recentBets[index] = _BetDisplayInfo(entry.amount!, color);
+        final info = _BetDisplayInfo(entry.amount!, color);
+        _recentBets[index] = info;
+        _recentBetStacks[index] = info;
       });
       _betTimers[index] = Timer(const Duration(seconds: 2), () {
         if (!mounted) return;
@@ -2345,6 +2352,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (final c in _foldControllers.values) {
       c.dispose();
     }
+    for (final t in _betTimers.values) {
+      t.cancel();
+    }
+    _betTimers.clear();
     _centerChipTimer?.cancel();
     _processingService.cleanup();
     _centerChipController.dispose();
@@ -3064,7 +3075,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
           child: _recentBets[index] != null
               ? BetSizeLabel(
-                  key: ValueKey(_recentBets[index]!.amount),
+                  key: ValueKey(_recentBets[index]!.id),
                   amount: _recentBets[index]!.amount,
                   color: _recentBets[index]!.color,
                   scale: scale * 0.9,
@@ -3072,6 +3083,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               : SizedBox(height: 0, width: 0),
         ),
       ),
+      if (_recentBetStacks[index] != null)
+        Positioned(
+          left: centerX + dx + (cos(angle) < 0 ? -60 * scale : 40 * scale),
+          top: centerY + dy + bias + 40 * scale,
+          child: BetStackIndicator(
+            key: ValueKey(_recentBetStacks[index]!.id),
+            amount: _recentBetStacks[index]!.amount,
+            color: _recentBetStacks[index]!.color,
+            scale: scale * 0.7,
+            onComplete: () {
+              if (mounted) {
+                setState(() => _recentBetStacks.remove(index));
+              }
+            },
+          ),
+        ),
       Positioned(
         left: centerX + dx + (cos(angle) < 0 ? -45 * scale : 30 * scale),
         top: centerY + dy + bias + 50 * scale,
@@ -3272,7 +3299,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 class _BetDisplayInfo {
   final int amount;
   final Color color;
-  _BetDisplayInfo(this.amount, this.color);
+  final String id;
+
+  _BetDisplayInfo(this.amount, this.color) : id = const Uuid().v4();
 }
 
 class _ActivePlayerHighlight extends StatefulWidget {
