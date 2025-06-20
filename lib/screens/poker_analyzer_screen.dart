@@ -2968,6 +2968,27 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _cancelHandAnalysis() {
+    _activeTimer?.cancel();
+    _centerChipTimer?.cancel();
+    for (final t in _betTimers.values) {
+      t.cancel();
+    }
+    _betTimers.clear();
+    _boardKey.currentState?.cancelPendingReveals();
+    _boardManager.cancelBoardReveal();
+    _boardReveal.cancelBoardReveal();
+    _clearBetDisplays();
+    _clearShowdown();
+    _potSync.reset();
+    for (int i = 0; i < _displayedPots.length; i++) {
+      _displayedPots[i] = 0;
+    }
+    _sidePots.clear();
+    _playbackManager.resetHand();
+    lockService.safeSetState(this, () {});
+  }
+
   String _defaultHandName() {
     final now = DateTime.now();
     final day = now.day.toString().padLeft(2, '0');
@@ -3675,6 +3696,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onImport: importHandFromClipboard,
                 onImportAll: importAllHandsFromClipboard,
                 onReset: _resetHand,
+                onBack: _cancelHandAnalysis,
+                backDisabled: _showdownActive,
                 disabled: _transitionHistory.isLocked,
               ),
             ),
@@ -5035,6 +5058,8 @@ class _PlaybackControlsSection extends StatelessWidget {
   final VoidCallback onStepForward;
   final ValueChanged<double> onSeek;
   final VoidCallback onReset;
+  final VoidCallback onBack;
+  final bool backDisabled;
   final bool disabled;
 
   const _PlaybackControlsSection({
@@ -5047,6 +5072,8 @@ class _PlaybackControlsSection extends StatelessWidget {
     required this.onStepForward,
     required this.onSeek,
     required this.onReset,
+    required this.onBack,
+    this.backDisabled = false,
     this.disabled = false,
   });
 
@@ -5084,6 +5111,11 @@ class _PlaybackControlsSection extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+          onPressed: backDisabled ? null : onBack,
+          child: const Text('Назад'),
         ),
         const SizedBox(height: 10),
         TextButton(
@@ -5171,6 +5203,8 @@ class _PlaybackAndHandControls extends StatelessWidget {
   final VoidCallback onImport;
   final VoidCallback onImportAll;
   final VoidCallback onReset;
+  final VoidCallback onBack;
+  final bool backDisabled;
   final bool disabled;
 
   const _PlaybackAndHandControls({
@@ -5190,6 +5224,8 @@ class _PlaybackAndHandControls extends StatelessWidget {
     required this.onImport,
     required this.onImportAll,
     required this.onReset,
+    required this.onBack,
+    this.backDisabled = false,
     this.disabled = false,
   });
 
@@ -5218,6 +5254,8 @@ class _PlaybackAndHandControls extends StatelessWidget {
           onStepForward: onStepForward,
           onSeek: onSeek,
           onReset: onReset,
+          onBack: onBack,
+          backDisabled: backDisabled,
           disabled: disabled,
         ),
       ],
