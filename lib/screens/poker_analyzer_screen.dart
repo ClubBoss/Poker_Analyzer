@@ -712,6 +712,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         control: control,
         amount: amount,
         scale: scale,
+        color: Colors.blueAccent,
         onCompleted: () => overlayEntry.remove(),
       ),
     );
@@ -1101,8 +1102,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         delay += 150;
       }
       if (returns != null && returns.isNotEmpty) {
-        _showPotWinAnimations(overlay, returns, delay, Colors.blueAccent,
-            scale: 0.9);
+        returns.forEach((player, amount) {
+          Future.delayed(Duration(milliseconds: delay), () {
+            if (!mounted) return;
+            _playFoldRefundAnimation(player, amount);
+          });
+          delay += 150;
+        });
       }
     }
     _potAnimationPlayed = true;
@@ -1147,8 +1153,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         Colors.orangeAccent,
         highlight: true,
       );
+      delay += 150;
     } else {
       return;
+    }
+
+    final returns = _returns;
+    if (returns != null && returns.isNotEmpty) {
+      returns.forEach((player, amount) {
+        Future.delayed(Duration(milliseconds: delay), () {
+          if (!mounted) return;
+          _playFoldRefundAnimation(player, amount);
+        });
+        delay += 150;
+      });
     }
 
     _potAnimationPlayed = true;
