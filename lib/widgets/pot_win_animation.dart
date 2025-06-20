@@ -22,6 +22,9 @@ class PotWinAnimation extends StatefulWidget {
   /// Optional bezier control point.
   final Offset? control;
 
+  /// Fraction of the animation after which the chip stack begins to fade out.
+  final double fadeStart;
+
   /// Called when animation completes.
   final VoidCallback? onCompleted;
 
@@ -33,6 +36,7 @@ class PotWinAnimation extends StatefulWidget {
     this.color = Colors.orangeAccent,
     this.scale = 1.0,
     this.control,
+    this.fadeStart = 0.6,
     this.onCompleted,
   }) : super(key: key);
 
@@ -76,7 +80,7 @@ class _PotWinAnimationState extends State<PotWinAnimation>
           color: widget.color,
           scale: widget.scale,
           control: widget.control,
-          fadeStart: 0.6,
+          fadeStart: widget.fadeStart,
           onCompleted: _onChipsCompleted,
         ),
         Positioned(
