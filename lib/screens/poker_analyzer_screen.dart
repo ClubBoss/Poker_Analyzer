@@ -74,7 +74,8 @@ import '../widgets/trash_flying_chips.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
 import '../widgets/reveal_card_animation.dart';
-import "../widgets/clear_table_cards.dart";
+import '../widgets/clear_table_cards.dart';
+import '../widgets/fold_reveal_animation.dart';
 import '../widgets/table_fade_overlay.dart';
 import '../widgets/deal_card_animation.dart';
 import '../services/stack_manager_service.dart';
@@ -940,16 +941,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
       final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
       final cards = playerCards[playerIndex];
+      final dir = dx >= 0 ? 1.0 : -1.0;
       for (int idx = 0; idx < cards.length; idx++) {
         final card = cards[idx];
         final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
         late OverlayEntry e;
         e = OverlayEntry(
-          builder: (_) => ClearTableCards(
+          builder: (_) => FoldRevealAnimation(
             start: pos,
             card: card,
             scale: scale,
-            duration: const Duration(milliseconds: 1000),
+            direction: dir,
             onCompleted: () => e.remove(),
           ),
         );
