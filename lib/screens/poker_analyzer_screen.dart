@@ -910,6 +910,62 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _hideLosingHands() {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+    final winners = <int>{
+      if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
+      if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
+        _winnerIndex!,
+    };
+    final losers = [for (final p in _showdownPlayers) if (!winners.contains(p)) p];
+    if (losers.isEmpty) return;
+
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    for (final playerIndex in losers) {
+      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final base = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final cards = playerCards[playerIndex];
+      for (int idx = 0; idx < cards.length; idx++) {
+        final card = cards[idx];
+        final pos = base + Offset((idx == 0 ? -18 : 18) * scale, 0);
+        late OverlayEntry e;
+        e = OverlayEntry(
+          builder: (_) => ClearTableCards(
+            start: pos,
+            card: card,
+            scale: scale,
+            duration: const Duration(milliseconds: 1000),
+            onCompleted: () => e.remove(),
+          ),
+        );
+        overlay.insert(e);
+      }
+    }
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (!mounted) return;
+      for (final p in losers) {
+        _showdownPlayers.remove(p);
+      }
+      lockService.safeSetState(this, () {});
+    });
+  }
+
   /// Animate chips from the pot to one or more players.
   void _distributeChips(
     Map<int, int> targets, {
@@ -1145,6 +1201,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _potSync.sidePots.clear();
         lockService.safeSetState(this, () {});
       }
+      _hideLosingHands();
     });
   }
 
@@ -1207,6 +1264,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _potSync.sidePots.clear();
         lockService.safeSetState(this, () {});
       }
+      _hideLosingHands();
     });
   }
 
