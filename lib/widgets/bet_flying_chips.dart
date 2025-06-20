@@ -35,6 +35,7 @@ class BetFlyingChips extends StatelessWidget {
       scale: scale,
       onCompleted: onCompleted,
       fadeStart: fadeStart,
+      showLabel: true,
     );
   }
 }
