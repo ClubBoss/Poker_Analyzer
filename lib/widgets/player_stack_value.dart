@@ -23,6 +23,14 @@ class _PlayerStackValueState extends State<PlayerStackValue>
   late final AnimationController _controller;
   late final Animation<double> _animation;
 
+  String _formatStack(int value) {
+    if (value >= 1000) {
+      final double thousands = value / 1000.0;
+      return '${thousands.toStringAsFixed(thousands >= 10 ? 0 : 1)}K';
+    }
+    return value.toString();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -71,7 +79,7 @@ class _PlayerStackValueState extends State<PlayerStackValue>
             Icon(Icons.casino, size: iconSize, color: Colors.orangeAccent),
             SizedBox(width: 4 * widget.scale),
             Text(
-              '${widget.stack}',
+              _formatStack(widget.stack),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 12 * widget.scale,
