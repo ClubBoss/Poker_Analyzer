@@ -1895,6 +1895,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _playbackManager.updatePlaybackState();
   }
 
+  void _resetPlayback() {
+    if (lockService.isLocked) return;
+    _cancelHandAnalysis();
+    _stackService.reset(Map<int, int>.from(_playerManager.initialStacks));
+    _boardManager.changeStreet(0);
+    _playbackManager.updatePlaybackState();
+  }
+
   // Formatting helpers moved to [ActionFormattingHelper].
 
   String _actionLabel(ActionEntry entry) {
@@ -4298,6 +4306,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onPause: _pause,
                 onStepBackward: _stepBackwardPlayback,
                 onStepForward: _stepForwardPlayback,
+                onPlaybackReset: _resetPlayback,
                 onSeek: _seekPlayback,
                 onSave: () => saveCurrentHand(),
                 onLoadLast: loadLastSavedHand,
@@ -5817,6 +5826,7 @@ class _PlaybackControlsSection extends StatelessWidget {
   final VoidCallback onPause;
   final VoidCallback onStepBackward;
   final VoidCallback onStepForward;
+  final VoidCallback onPlaybackReset;
   final ValueChanged<double> onSeek;
   final VoidCallback onReset;
   final VoidCallback onBack;
@@ -5831,6 +5841,7 @@ class _PlaybackControlsSection extends StatelessWidget {
     required this.onPause,
     required this.onStepBackward,
     required this.onStepForward,
+    required this.onPlaybackReset,
     required this.onSeek,
     required this.onReset,
     required this.onBack,
@@ -5849,6 +5860,10 @@ class _PlaybackControlsSection extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.skip_previous, color: iconColor),
               onPressed: disabled ? null : onStepBackward,
+            ),
+            IconButton(
+              icon: Icon(Icons.replay, color: iconColor),
+              onPressed: disabled ? null : onPlaybackReset,
             ),
             IconButton(
               icon: Icon(
@@ -5970,6 +5985,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
   final VoidCallback onPause;
   final VoidCallback onStepBackward;
   final VoidCallback onStepForward;
+  final VoidCallback onPlaybackReset;
   final ValueChanged<double> onSeek;
   final VoidCallback onSave;
   final VoidCallback onLoadLast;
@@ -5991,6 +6007,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
     required this.onPause,
     required this.onStepBackward,
     required this.onStepForward,
+    required this.onPlaybackReset,
     required this.onSeek,
     required this.onSave,
     required this.onLoadLast,
@@ -6028,6 +6045,7 @@ class _PlaybackAndHandControls extends StatelessWidget {
           onPause: onPause,
           onStepBackward: onStepBackward,
           onStepForward: onStepForward,
+          onPlaybackReset: onPlaybackReset,
           onSeek: onSeek,
           onReset: onReset,
           onBack: onBack,
