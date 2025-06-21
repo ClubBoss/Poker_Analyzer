@@ -308,6 +308,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardCards.isEmpty &&
       playerCards.every((c) => c.isEmpty);
 
+  bool get _isHandValid =>
+      playerCards.any((cards) => cards.isNotEmpty) &&
+      boardCards.isNotEmpty &&
+      actions.isNotEmpty;
+
+  String? get _validationHint {
+    if (!playerCards.any((cards) => cards.isNotEmpty)) {
+      return 'Добавьте карты игроков';
+    }
+    if (boardCards.isEmpty) return 'Добавьте карты на стол';
+    if (actions.isEmpty) return 'Нет действий';
+    return null;
+  }
+
   int _handProgressStep() {
     if (_showdownActive) return 3;
     if (actions.isNotEmpty) return 2;
@@ -5050,6 +5064,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final double? sprValue =
         pot > 0 ? effectiveStack / pot : null;
 
+    final hint = _validationHint;
+
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: true,
@@ -5075,6 +5091,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               disabled: lockService.isLocked,
             ),
             _HandProgressIndicator(step: _handProgressStep()),
+            if (hint != null) _InfoBanner(message: hint),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Text(
@@ -8201,6 +8218,31 @@ class _TotalPotTracker extends StatelessWidget {
           color: Colors.orangeAccent,
           fontWeight: FontWeight.bold,
           fontSize: 16,
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoBanner extends StatelessWidget {
+  final String message;
+
+  const _InfoBanner({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(AppConstants.radius8),
+        ),
+        child: Text(
+          message,
+          style: const TextStyle(color: Colors.white70),
         ),
       ),
     );
