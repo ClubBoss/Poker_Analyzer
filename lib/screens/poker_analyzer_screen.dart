@@ -295,6 +295,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showNextHandButton = false;
   bool _showReplayDemoButton = false;
 
+  /// Overlay entries for transient win labels and glow effects.
+  final List<OverlayEntry> _messageOverlays = [];
+
   // Previous card state used to trigger deal animations.
   List<CardModel> _prevBoardCards = [];
   final List<List<CardModel>> _prevPlayerCards =
@@ -922,6 +925,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _clearShowdown() {
     if (_showdownPlayers.isEmpty) return;
+    _removeMessageOverlays();
     _cleanupWinnerCards();
     _showdownPlayers.clear();
     _showdownActive = false;
@@ -945,6 +949,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _betSlideOverlays.forEach((_, entry) => entry.remove());
       _betSlideOverlays.clear();
     });
+  }
+
+  void _removeMessageOverlays() {
+    for (final o in _messageOverlays) {
+      o.remove();
+    }
+    _messageOverlays.clear();
   }
 
   void _registerResetAnimation() {
@@ -1633,7 +1644,23 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       );
       Future.microtask(() {
         if (!mounted) return;
-        showWinnerGlowOverlay(context: context, position: pos, scale: scale);
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => WinnerGlowWidget(
+            position: pos,
+            scale: scale,
+            onCompleted: () {
+              entry.remove();
+              _messageOverlays.remove(entry);
+            },
+          ),
+        );
+        overlay.insert(entry);
+        _messageOverlays.add(entry);
+        Future.delayed(const Duration(milliseconds: 1800), () {
+          entry.remove();
+          _messageOverlays.remove(entry);
+        });
       });
     }
   }
@@ -1993,12 +2020,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               );
               final playerName =
                   playerIndex == _playerManager.heroIndex ? 'Hero' : name;
-              showWinTextOverlay(
-                context: context,
-                position: labelPos,
-                text: '$playerName wins the pot',
-                scale: scale * tableScale,
+              late OverlayEntry textEntry;
+              textEntry = OverlayEntry(
+                builder: (_) => WinTextWidget(
+                  position: labelPos,
+                  text: '$playerName wins the pot',
+                  scale: scale * tableScale,
+                  onCompleted: () {
+                    textEntry.remove();
+                    _messageOverlays.remove(textEntry);
+                  },
+                ),
               );
+              overlay.insert(textEntry);
+              _messageOverlays.add(textEntry);
+              Future.delayed(const Duration(milliseconds: 2200), () {
+                textEntry.remove();
+                _messageOverlays.remove(textEntry);
+              });
               _onResetAnimationComplete();
             },
           ),
@@ -4778,6 +4817,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _betTimers.clear();
     _centerChipTimer?.cancel();
+    _removeMessageOverlays();
     _processingService.cleanup();
     _centerChipController.dispose();
     _potGrowthController.dispose();
