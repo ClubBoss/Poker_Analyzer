@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 class TableGeometryHelper {
   static double tableScale(int numberOfPlayers) {
@@ -6,21 +7,32 @@ class TableGeometryHelper {
     return (1.0 - extraPlayers * 0.05).clamp(0.75, 1.0);
   }
 
+  /// Calculates the center offset for the table. The new painted table is
+  /// perfectly centered so no additional offset is required.
   static double centerYOffset(int numberOfPlayers, double scale) {
-    double base;
-    if (numberOfPlayers > 6) {
-      base = 200.0 + (numberOfPlayers - 6) * 10.0;
-    } else {
-      base = 140.0 - (6 - numberOfPlayers) * 10.0;
-    }
-    return base * scale;
+    return 0;
   }
 
+  /// Modifier for the distance of players from the center. With the new table
+  /// rendering we keep players on the ellipse edge so the modifier is 1.
   static double radiusModifier(int numberOfPlayers) {
-    return (1 + (6 - numberOfPlayers) * 0.05).clamp(0.8, 1.2);
+    return 1.0;
   }
 
+  /// Additional vertical bias for each player position. The old PNG based table
+  /// required a bias to visually align widgets. The painted table is symmetric
+  /// so no bias is needed.
   static double verticalBiasFromAngle(double angle) {
-    return 90 + 20 * sin(angle);
+    return 0;
+  }
+
+  /// Returns the position of the player relative to the table center using
+  /// simple elliptical geometry.
+  static Offset positionForPlayer(
+      int index, int numberOfPlayers, double tableWidth, double tableHeight) {
+    final angle = 2 * pi * index / numberOfPlayers + pi / 2;
+    final radiusX = tableWidth / 2;
+    final radiusY = tableHeight / 2;
+    return Offset(radiusX * cos(angle), radiusY * sin(angle));
   }
 }
