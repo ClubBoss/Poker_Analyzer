@@ -838,12 +838,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _winnerIndex!,
     };
 
-    final revealPlayers = [
-      for (final p in active)
-        if (winners.contains(p) ||
-            players[p].revealedCards.whereType<CardModel>().isNotEmpty)
-          p
-    ];
+    // Reveal every active player's cards. Custom revealedCards still apply
+    // for non-winners when provided.
+    final revealPlayers = active;
 
     _showdownPlayers
       ..clear()
@@ -854,7 +851,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     for (int j = 0; j < revealPlayers.length; j++) {
       final player = revealPlayers[j];
-      Future.delayed(Duration(milliseconds: 300 * j), () {
+      Future.delayed(Duration(milliseconds: 400 * j), () {
         if (!mounted) return;
         final customCards =
             players[player].revealedCards.whereType<CardModel>().toList();
@@ -866,7 +863,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       });
     }
     // Trigger winner flip animation after all reveals finish.
-    final totalDelay = 300 * revealPlayers.length + 400;
+    final totalDelay = 400 * revealPlayers.length + 400;
     Future.delayed(
         Duration(milliseconds: totalDelay), _playWinnerRevealAnimation);
     Future.delayed(Duration(milliseconds: totalDelay + 600), () {
