@@ -290,6 +290,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int _resetAnimationCount = 0;
   bool _waitingForAutoReset = false;
   bool _showNextHandButton = false;
+  bool _showReplayDemoButton = false;
 
   // Previous card state used to trigger deal animations.
   List<CardModel> _prevBoardCards = [];
@@ -1092,7 +1093,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     await _clearTableState();
     if (!mounted) return;
     lockService.safeSetState(this, () {
-      _showNextHandButton = true;
+      if (widget.demoMode) {
+        _showReplayDemoButton = true;
+      } else {
+        _showNextHandButton = true;
+      }
     });
     lockService.unlock();
   }
@@ -1113,6 +1118,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _sidePots.clear();
       _playbackNarration = null;
       _showNextHandButton = false;
+      _showReplayDemoButton = false;
     });
     _tableCleanupPlayed = false;
     _potSync.reset();
@@ -2465,6 +2471,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _replayDemo() {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
+
+    lockService.safeSetState(this, () {
+      _showReplayDemoButton = false;
+    });
 
     late OverlayEntry fadeEntry;
     fadeEntry = OverlayEntry(
@@ -4959,6 +4969,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   onPressed: _finishHand,
                   disabled: lockService.isLocked,
                 ),
+                if (widget.demoMode)
+                  _ReplayDemoButtonOverlay(
+                    onPressed: _replayDemo,
+                    visible: _showReplayDemoButton,
+                  ),
                 if (_showNextHandButton)
                   _NextHandButtonOverlay(
                     onPressed: _resetHandState,
@@ -5131,10 +5146,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ? FloatingActionButtonLocation.endTop
           : FloatingActionButtonLocation.endFloat,
       floatingActionButton: widget.demoMode
-          ? FloatingActionButton(
-              heroTag: 'replayDemoFab',
-              onPressed: _replayDemo,
-              child: const Icon(Icons.replay),
+          ? AnimatedOpacity(
+              opacity: _showReplayDemoButton ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 500),
+              child: FloatingActionButton(
+                heroTag: 'replayDemoFab',
+                onPressed: _replayDemo,
+                child: const Icon(Icons.replay),
+              ),
             )
           : Column(
               mainAxisSize: MainAxisSize.min,
@@ -7769,6 +7788,41 @@ class _NextHandButtonOverlay extends StatelessWidget {
             textStyle: const TextStyle(fontSize: 20),
           ),
           child: const Text('Next Hand'),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReplayDemoButtonOverlay extends StatelessWidget {
+  final VoidCallback onPressed;
+  final bool visible;
+
+  const _ReplayDemoButtonOverlay({
+    required this.onPressed,
+    required this.visible,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 40.0),
+        child: AnimatedOpacity(
+          opacity: visible ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 500),
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              textStyle: const TextStyle(fontSize: 20),
+            ),
+            child: const Text('Replay Demo'),
+          ),
         ),
       ),
     );
