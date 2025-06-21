@@ -5370,8 +5370,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 child: ScaleTransition(scale: animation, child: child),
               ),
               child: Text(
-                '$stack BB',
-                key: ValueKey(stack),
+                '${ActionFormattingHelper.formatAmount(_stackService.currentStacks[index] ?? 0)} BB',
+                key: ValueKey(_stackService.currentStacks[index] ?? 0),
                 style: TextStyle(
                   color: _bustedPlayers.contains(index) ? Colors.grey : Colors.white,
                   fontSize: 10 * scale,
@@ -5505,7 +5505,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         left: centerX + dx + (cos(angle) < 0 ? -45 * scale : 30 * scale),
         top: centerY + dy + bias + 50 * scale,
         child: MiniStackWidget(
-          stack: stack,
+          stack: _stackService.currentStacks[index] ?? 0,
           scale: scale * 0.8,
         ),
       ),
