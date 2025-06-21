@@ -495,10 +495,37 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 if (widget.isHero)
                   Padding(
                     padding: EdgeInsets.only(left: 4.0 * widget.scale),
-                    child: Icon(
-                      Icons.star,
-                      color: Colors.orangeAccent,
-                      size: 14 * widget.scale,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 4 * widget.scale, vertical: 2 * widget.scale),
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent,
+                        borderRadius: BorderRadius.circular(6 * widget.scale),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orangeAccent.withOpacity(0.6),
+                            blurRadius: 4 * widget.scale,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.star,
+                            color: Colors.white,
+                            size: 12 * widget.scale,
+                          ),
+                          SizedBox(width: 2 * widget.scale),
+                          Text(
+                            'Hero',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10 * widget.scale,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
               ],
@@ -758,6 +785,33 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 ),
               ),
             ),
+        ),
+        if (widget.isHero)
+          Positioned(
+            top: -8 * widget.scale,
+            left: -8 * widget.scale,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                  horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
+              decoration: BoxDecoration(
+                color: Colors.orangeAccent,
+                borderRadius: BorderRadius.circular(8 * widget.scale),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orangeAccent.withOpacity(0.6),
+                    blurRadius: 6 * widget.scale,
+                  ),
+                ],
+              ),
+              child: Text(
+                'Hero',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10 * widget.scale,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
       ],
     );
@@ -790,6 +844,23 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           : null,
       child: result,
     );
+
+    if (widget.isHero) {
+      result = Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14 * widget.scale),
+          border: Border.all(color: Colors.orangeAccent, width: 2 * widget.scale),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orangeAccent.withOpacity(0.7),
+              blurRadius: 12 * widget.scale,
+              spreadRadius: 2 * widget.scale,
+            ),
+          ],
+        ),
+        child: result,
+      );
+    }
 
     if (_winnerHighlight) {
       result = Container(
