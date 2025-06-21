@@ -93,7 +93,7 @@ class PlayerZoneWidget extends StatefulWidget {
 }
 
 class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _controller;
   late PlayerType _playerType;
   late int _currentBet;
@@ -115,6 +115,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   int? _stackBetAmount;
   Color _stackBetColor = Colors.amber;
   Timer? _stackBetTimer;
+  late final AnimationController _bounceController;
+  late final Animation<double> _bounceAnimation;
 
   @override
   void initState() {
@@ -133,6 +135,22 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     );
+    _bounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _bounceAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 1.1)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.1, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_bounceController);
     if (widget.isActive) {
       _controller.repeat(reverse: true);
     }
@@ -211,6 +229,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _refundGlowTimer = Timer(const Duration(milliseconds: 800), () {
       if (mounted) setState(() => _refundGlow = false);
     });
+  }
+
+  Future<void> playWinnerBounce() async {
+    await _bounceController.forward(from: 0.0);
   }
 
   void setLastAction(String text, Color color, String action, [int? amount]) {
@@ -489,6 +511,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betOverlayEntry?.remove();
     _actionLabelEntry?.remove();
     _controller.dispose();
+    _bounceController.dispose();
     super.dispose();
   }
 
@@ -965,6 +988,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         ),
       );
     }
+
+    result = ScaleTransition(
+      scale: _bounceAnimation,
+      child: result,
+    );
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -1722,6 +1750,7 @@ Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
   state.highlightWinner();
   state.playWinChipsAnimation(potAmount);
   await state.animateStackIncrease(potAmount);
+  await state.playWinnerBounce();
   lock?.unlock();
 }
 
