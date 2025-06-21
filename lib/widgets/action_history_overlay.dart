@@ -29,7 +29,11 @@ class ActionHistoryOverlay extends StatelessWidget {
 
     Widget buildChip(ActionEntry a) {
       final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-      final text = '$pos: ${a.action}${a.amount != null ? ' ${a.amount}' : ''}';
+      String? amountText;
+      if (a.amount != null) {
+        final formatted = ActionFormattingHelper.formatAmount(a.amount!);
+        amountText = a.action == 'raise' ? 'to $formatted' : formatted;
+      }
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
         margin: const EdgeInsets.only(right: 4, bottom: 4),
@@ -37,12 +41,28 @@ class ActionHistoryOverlay extends StatelessWidget {
           color: ActionFormattingHelper.actionColor(a.action).withOpacity(0.8),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: ActionFormattingHelper.actionTextColor(a.action),
-            fontSize: 11 * scale,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              '$pos: ${a.action}',
+              style: TextStyle(
+                color: ActionFormattingHelper.actionTextColor(a.action),
+                fontSize: 11 * scale,
+              ),
+            ),
+            if (amountText != null) ...[
+              const SizedBox(width: 4),
+              Text(
+                amountText,
+                style: TextStyle(
+                  color: ActionFormattingHelper.actionTextColor(a.action),
+                  fontSize: 9 * scale,
+                ),
+              ),
+            ],
+          ],
         ),
       );
     }
