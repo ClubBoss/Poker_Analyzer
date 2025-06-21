@@ -1,9 +1,9 @@
 import 'package:test/test.dart';
-import 'package:poker_ai_analyzer/plugins/plugin_loader.dart';
-import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
+import '../plugins/plugin_loader.dart';
+import '../plugins/plugin_manager.dart';
 import 'package:poker_ai_analyzer/services/service_registry.dart';
-import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
-import 'package:poker_ai_analyzer/plugins/converter_plugin.dart';
+import '../plugins/converter_registry.dart';
+import '../plugins/converter_plugin.dart';
 
 void main() {
   group('Converter validation', () {
