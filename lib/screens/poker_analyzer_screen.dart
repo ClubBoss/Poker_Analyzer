@@ -309,6 +309,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showFinishHandButton = false;
   bool _autoShowdownTriggered = false;
   bool _showHandCompleteIndicator = false;
+  Timer? _autoNextHandTimer;
 
   bool get _isHandEmpty =>
       actions.isEmpty &&
@@ -1264,6 +1265,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lockService.safeSetState(this, () {
       _showHandCompleteIndicator = true;
     });
+    _autoNextHandTimer?.cancel();
+    _autoNextHandTimer = null;
+    _autoNextHandTimer = Timer(const Duration(seconds: 5), () {
+      if (!mounted) return;
+      _resetHandState();
+    });
     Future.delayed(delay, () {
       if (!mounted) return;
       lockService.safeSetState(this, () {
@@ -1283,6 +1290,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _resetHandState() {
+    _autoNextHandTimer?.cancel();
+    _autoNextHandTimer = null;
     lockService.safeSetState(this, () {
       _clearShowdown();
       _boardManager.clearBoard();
@@ -1315,6 +1324,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playDealSequence();
       }
     });
+  }
+
+  void _onNextHandPressed() {
+    _autoNextHandTimer?.cancel();
+    _autoNextHandTimer = null;
+    _resetHandState();
   }
 
   Future<void> _finishHand() async {
@@ -5248,6 +5263,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       t.cancel();
     }
     _betTimers.clear();
+    _autoNextHandTimer?.cancel();
     _demoAnimations.dispose();
     _centerChipTimer?.cancel();
     _removeMessageOverlays();
@@ -5473,7 +5489,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ),
                 if (_showNextHandButton)
                   _NextHandButtonOverlay(
-                    onPressed: _resetHandState,
+                    onPressed: _onNextHandPressed,
                   )
               ],
         ),
