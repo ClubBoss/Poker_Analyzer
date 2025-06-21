@@ -5043,6 +5043,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = 0.0;
 
     final String position = playerPositions[index] ?? '';
+    final int dealerIndex = playerPositions.entries
+        .firstWhere((e) => e.value == 'BTN', orElse: () => const MapEntry(0, ''))
+        .key;
     final int stack = _displayedStacks[index] ??
         _stackService.getStackForPlayer(index);
     final String tag = _actionTagService.getTag(index) ?? '';
@@ -5498,6 +5501,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           onPressed: () => _editPlayerNote(index),
         ),
       ),
+      if (index == dealerIndex)
+        Positioned(
+          left: centerX + dx + (cos(angle) < 0 ? -50 * scale : 40 * scale),
+          top: centerY + dy + bias - 70 * scale,
+          child: _DealerButtonIndicator(scale: scale),
+        ),
     ];
 
     if (invested > 0) {
@@ -5772,6 +5781,60 @@ class _ActivePlayerHighlightState extends State<_ActivePlayerHighlight>
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DealerButtonIndicator extends StatefulWidget {
+  final double scale;
+
+  const _DealerButtonIndicator({Key? key, required this.scale}) : super(key: key);
+
+  @override
+  State<_DealerButtonIndicator> createState() => _DealerButtonIndicatorState();
+}
+
+class _DealerButtonIndicatorState extends State<_DealerButtonIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _controller,
+      child: Container(
+        width: 20 * widget.scale,
+        height: 20 * widget.scale,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 2)],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          'D',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 12 * widget.scale,
           ),
         ),
       ),
