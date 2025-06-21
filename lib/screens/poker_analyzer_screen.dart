@@ -79,6 +79,7 @@ import '../widgets/loss_fade_widget.dart';
 import '../widgets/pot_chip_animation.dart';
 import '../widgets/bet_chip_animation.dart';
 import '../widgets/pot_collection_chips.dart';
+import '../services/demo_animation_manager.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/burn_chips_animation.dart';
 import '../widgets/burn_card_animation.dart';
@@ -305,7 +306,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       List.generate(10, (_) => <CardModel>[]);
 
   String? _playbackNarration;
-  Timer? _narrationTimer;
+  late final DemoAnimationManager _demoAnimations;
 
 
 
@@ -899,7 +900,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         if (!_foldedPlayers.isPlayerFolded(i)) i
     ];
     if (active.length < 2) return;
-    if (widget.demoMode) _showNarration('River showdown');
+    if (widget.demoMode) _demoAnimations.showNarration('River showdown');
 
     final winners = <int>{
       if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
@@ -1605,7 +1606,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (!mounted) return;
       _playPotCollectionAnimation(winners);
       if (!_showdownWinPlayed) {
-        _showWinnerGlow(winners);
+        _demoAnimations.showWinnerGlow(
+          context: context,
+          winners: winners,
+          numberOfPlayers: numberOfPlayers,
+          viewIndex: _viewIndex,
+        );
       }
       _showLossFadeAnimation(winners);
       if (_boardReveal.revealedBoardCards.length < 5) {
@@ -1645,55 +1651,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void _showWinnerGlow(Set<int> winners) {
-    final overlay = Overlay.of(context);
-    if (overlay == null || winners.isEmpty) return;
-
-    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    final orderedWinners = winners.toList();
-    for (int n = 0; n < orderedWinners.length; n++) {
-      final playerIndex = orderedWinners[n];
-      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-      final dx = radiusX * cos(angle);
-      final dy = radiusY * sin(angle);
-      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-      final pos = Offset(
-        centerX + dx - 20 * scale,
-        centerY + dy + bias - 110 * scale,
-      );
-      Future.delayed(Duration(milliseconds: 300 * n), () {
-        if (!mounted) return;
-        late OverlayEntry entry;
-        entry = OverlayEntry(
-          builder: (_) => WinnerGlowWidget(
-            position: pos,
-            scale: scale,
-            onCompleted: () {
-              entry.remove();
-              _messageOverlays.remove(entry);
-            },
-          ),
-        );
-        overlay.insert(entry);
-        _messageOverlays.add(entry);
-        Future.delayed(const Duration(milliseconds: 1800), () {
-          entry.remove();
-          _messageOverlays.remove(entry);
-        });
-      });
-    }
-  }
 
   void _playShowdownWinAnimation(Set<int> winners) {
     if (_showdownWinPlayed) return;
@@ -1707,7 +1664,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (payouts.isNotEmpty) {
       _distributeChips(payouts, color: Colors.orangeAccent, fadeStart: 0.5);
     }
-    _showWinnerGlow(winners);
+    _demoAnimations.showWinnerGlow(
+      context: context,
+      winners: winners,
+      numberOfPlayers: numberOfPlayers,
+      viewIndex: _viewIndex,
+    );
     for (final p in winners) {
       showWinnerHighlight(context, players[p].name);
       if (widget.demoMode) {
@@ -1715,54 +1677,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         final amount = payouts[p] ?? _potSync.pots[currentStreet];
         Future.delayed(const Duration(milliseconds: 600), () {
           if (!mounted) return;
-          _playDemoPotCollection(p, amount);
+          _demoAnimations.playPotCollection(
+            context: context,
+            playerIndex: p,
+            amount: amount,
+            numberOfPlayers: numberOfPlayers,
+            viewIndex: _viewIndex,
+          );
         });
       }
     }
     _showdownWinPlayed = true;
   }
 
-  void _playDemoPotCollection(int playerIndex, int amount) {
-    if (amount <= 0) return;
-    final overlay = Overlay.of(context);
-    if (overlay == null) return;
-
-    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-    final dx = radiusX * cos(angle);
-    final dy = radiusY * sin(angle);
-    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-    final start = Offset(centerX, centerY);
-    final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-    final midX = (start.dx + end.dx) / 2;
-    final midY = (start.dy + end.dy) / 2;
-    final perp = Offset(-sin(angle), cos(angle));
-    final control = Offset(
-      midX + perp.dx * 20 * scale,
-      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
-    );
-
-    showPotCollectionChips(
-      context: context,
-      start: start,
-      end: end,
-      amount: amount,
-      scale: scale,
-      control: control,
-      fadeStart: 0.6,
-    );
-  }
 
   void _showLossFadeAnimation(Set<int> winners) {
     final overlay = Overlay.of(context);
@@ -2658,18 +2585,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return '$pos $verb$amount';
   }
 
-  void _showNarration(String text) {
-    _narrationTimer?.cancel();
-    lockService.safeSetState(this, () {
-      _playbackNarration = text;
-    });
-    _narrationTimer = Timer(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      lockService.safeSetState(this, () {
-        _playbackNarration = null;
-      });
-    });
-  }
 
   String _playerTypeEmoji(PlayerType? type) {
     switch (type) {
@@ -2994,6 +2909,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _processingService = _serviceRegistry.get<EvaluationProcessingService>();
     _serviceRegistry.register<TransitionLockService>(widget.lockService);
     lockService = _serviceRegistry.get<TransitionLockService>();
+    _demoAnimations = DemoAnimationManager();
     _centerChipController = AnimationController(
       vsync: this,
       duration: _boardRevealDuration,
@@ -3714,7 +3630,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final overlay = Overlay.of(context);
     if (overlay == null) return;
     if (boardCards.length < 3) return;
-    if (widget.demoMode) _showNarration('Dealing flop');
+    if (widget.demoMode) _demoAnimations.showNarration('Dealing flop');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final centerX = screen.width / 2 + 10;
@@ -3759,7 +3675,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final overlay = Overlay.of(context);
     if (overlay == null) return;
     if (boardCards.length < 4) return;
-    if (widget.demoMode) _showNarration('Turn revealed');
+    if (widget.demoMode) _demoAnimations.showNarration('Turn revealed');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final centerX = screen.width / 2 + 10;
@@ -3805,7 +3721,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final overlay = Overlay.of(context);
     if (overlay == null) return;
     if (boardCards.length < 5) return;
-    if (widget.demoMode) _showNarration('River revealed');
+    if (widget.demoMode) _demoAnimations.showNarration('River revealed');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final centerX = screen.width / 2 + 10;
@@ -3915,17 +3831,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (currentStreet == 1) {
       _playFlopRevealAnimation();
       if (boardCards.length >= 3) {
-        _showNarration('Dealing flop');
+        _demoAnimations.showNarration('Dealing flop');
       }
     } else if (currentStreet == 2) {
       _playTurnRevealAnimation();
       if (boardCards.length >= 4) {
-        _showNarration('Turn revealed');
+        _demoAnimations.showNarration('Turn revealed');
       }
     } else if (currentStreet == 3) {
       _playRiverRevealAnimation();
       if (boardCards.length >= 5) {
-        _showNarration('River revealed');
+        _demoAnimations.showNarration('River revealed');
       }
     }
   }
@@ -4957,7 +4873,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       t.cancel();
     }
     _betTimers.clear();
-    _narrationTimer?.cancel();
+    _demoAnimations.dispose();
     _centerChipTimer?.cancel();
     _removeMessageOverlays();
     _processingService.cleanup();
@@ -5128,7 +5044,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     onToggle: () => lockService.safeSetState(this,
                         () => isPerspectiveSwitched = !isPerspectiveSwitched),
                   ),
-                  _PlaybackNarrationOverlay(text: _playbackNarration),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: _demoAnimations.narration,
+                    builder: (_, demoText, __) {
+                      final text = demoText ?? _playbackNarration;
+                      return _PlaybackNarrationOverlay(text: text);
+                    },
+                  ),
                   StreetIndicator(street: currentStreet),
                   _HudOverlaySection(
                     streetName:
