@@ -304,6 +304,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       List.generate(10, (_) => <CardModel>[]);
 
   String? _playbackNarration;
+  Timer? _narrationTimer;
 
 
 
@@ -897,6 +898,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         if (!_foldedPlayers.isPlayerFolded(i)) i
     ];
     if (active.length < 2) return;
+    if (widget.demoMode) _showNarration('River showdown');
 
     final winners = <int>{
       if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!.keys,
@@ -2605,6 +2607,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return '$pos $verb$amount';
   }
 
+  void _showNarration(String text) {
+    _narrationTimer?.cancel();
+    lockService.safeSetState(this, () {
+      _playbackNarration = text;
+    });
+    _narrationTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      lockService.safeSetState(this, () {
+        _playbackNarration = null;
+      });
+    });
+  }
+
   String _playerTypeEmoji(PlayerType? type) {
     switch (type) {
       case PlayerType.shark:
@@ -3648,6 +3663,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final overlay = Overlay.of(context);
     if (overlay == null) return;
     if (boardCards.length < 3) return;
+    if (widget.demoMode) _showNarration('Dealing flop');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final centerX = screen.width / 2 + 10;
@@ -3692,6 +3708,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final overlay = Overlay.of(context);
     if (overlay == null) return;
     if (boardCards.length < 4) return;
+    if (widget.demoMode) _showNarration('Turn revealed');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final centerX = screen.width / 2 + 10;
@@ -3737,6 +3754,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final overlay = Overlay.of(context);
     if (overlay == null) return;
     if (boardCards.length < 5) return;
+    if (widget.demoMode) _showNarration('River revealed');
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
     final centerX = screen.width / 2 + 10;
@@ -3846,20 +3864,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (currentStreet == 1) {
       _playFlopRevealAnimation();
       if (boardCards.length >= 3) {
-        final cards = boardCards.take(3).map(_cardToDebugString).join(' ');
-        _playbackNarration = 'Flop revealed: $cards';
+        _showNarration('Dealing flop');
       }
     } else if (currentStreet == 2) {
       _playTurnRevealAnimation();
       if (boardCards.length >= 4) {
-        _playbackNarration =
-            'Turn revealed: ${_cardToDebugString(boardCards[3])}';
+        _showNarration('Turn revealed');
       }
     } else if (currentStreet == 3) {
       _playRiverRevealAnimation();
       if (boardCards.length >= 5) {
-        _playbackNarration =
-            'River revealed: ${_cardToDebugString(boardCards[4])}';
+        _showNarration('River revealed');
       }
     }
   }
@@ -4891,6 +4906,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       t.cancel();
     }
     _betTimers.clear();
+    _narrationTimer?.cancel();
     _centerChipTimer?.cancel();
     _removeMessageOverlays();
     _processingService.cleanup();
@@ -5898,26 +5914,69 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 }
 
-class _PlaybackNarrationOverlay extends StatelessWidget {
+class _PlaybackNarrationOverlay extends StatefulWidget {
   final String? text;
 
   const _PlaybackNarrationOverlay({required this.text});
 
   @override
+  State<_PlaybackNarrationOverlay> createState() => _PlaybackNarrationOverlayState();
+}
+
+class _PlaybackNarrationOverlayState extends State<_PlaybackNarrationOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    if (widget.text != null && widget.text!.isNotEmpty) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _PlaybackNarrationOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.text != oldWidget.text) {
+      if (widget.text != null && widget.text!.isNotEmpty) {
+        _controller.forward(from: 0);
+      } else {
+        _controller.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (text == null || text!.isEmpty) return const SizedBox.shrink();
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        margin: const EdgeInsets.only(top: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          text!,
-          style: const TextStyle(color: Colors.white),
+    if (widget.text == null || widget.text!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return FadeTransition(
+      opacity: _controller,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            widget.text!,
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
       ),
     );
