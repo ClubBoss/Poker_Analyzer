@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/spot_of_the_day_service.dart';
 import '../widgets/board_cards_widget.dart';
+import 'spot_of_the_day_history_screen.dart';
 import '../widgets/poker_table_painter.dart';
 import '../widgets/player_info_widget.dart';
 import '../helpers/table_geometry_helper.dart';
@@ -49,12 +50,42 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
     final spot = service.spot;
     if (spot == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Спот дня'), centerTitle: true),
+        appBar: AppBar(
+          title: const Text('Спот дня'),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const SpotOfTheDayHistoryScreen()),
+                );
+              },
+            )
+          ],
+        ),
         body: const Center(child: Text('Нет данных')),
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Спот дня'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Спот дня'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const SpotOfTheDayHistoryScreen()),
+              );
+            },
+          )
+        ],
+      ),
       backgroundColor: const Color(0xFF121212),
       body: LayoutBuilder(
         builder: (context, constraints) {
