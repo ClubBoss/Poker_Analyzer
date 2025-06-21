@@ -275,6 +275,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   Map<int, int>? _returns;
   bool _potAnimationPlayed = false;
   bool _winnerRevealPlayed = false;
+  bool _showdownWinPlayed = false;
   bool _pendingPotAnimation = false;
   bool _tableCleanupPlayed = false;
   final Set<int> _bustedPlayers = {};
@@ -884,6 +885,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _showdownActive = false;
     _potAnimationPlayed = false;
     _winnerRevealPlayed = false;
+    _showdownWinPlayed = false;
     _pendingPotAnimation = false;
     _centerBetStacks.clear();
     lockService.safeSetState(this, () {});
@@ -1446,6 +1448,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (winners.isEmpty) return;
 
     _winnerRevealPlayed = true;
+    _playShowdownWinAnimation(winners);
     int delay = 0;
     for (final player in winners) {
       Future.delayed(Duration(milliseconds: 300 * delay), () {
@@ -1474,7 +1477,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future.delayed(Duration(milliseconds: totalDelay), () {
       if (!mounted) return;
       _playPotCollectionAnimation(winners);
-      _showWinnerGlow(winners);
+      if (!_showdownWinPlayed) {
+        _showWinnerGlow(winners);
+      }
       _showLossFadeAnimation(winners);
       if (_boardReveal.revealedBoardCards.length < 5) {
         _pendingPotAnimation = true;
@@ -1600,6 +1605,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         showWinnerGlowOverlay(context: context, position: pos, scale: scale);
       });
     }
+  }
+
+  void _playShowdownWinAnimation(Set<int> winners) {
+    if (_showdownWinPlayed) return;
+    if (winners.isEmpty) return;
+    final payouts = <int, int>{};
+    if (_winnings != null && _winnings!.isNotEmpty) {
+      payouts.addAll(_winnings!);
+    } else if (_winnerIndex != null) {
+      payouts[_winnerIndex!] = _potSync.pots[currentStreet];
+    }
+    if (payouts.isNotEmpty) {
+      _distributeChips(payouts, color: Colors.orangeAccent, fadeStart: 0.5);
+    }
+    _showWinnerGlow(winners);
+    for (final p in winners) {
+      showWinnerHighlight(context, players[p].name);
+    }
+    _showdownWinPlayed = true;
   }
 
   void _showLossFadeAnimation(Set<int> winners) {
