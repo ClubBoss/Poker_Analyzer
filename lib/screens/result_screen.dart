@@ -4,6 +4,7 @@ import '../models/action_entry.dart';
 
 class ResultScreen extends StatelessWidget {
   final int winnerIndex;
+  final Map<int, int> winnings;
   final Map<int, int> finalStacks;
   final int potSize;
   final List<ActionEntry> actions;
@@ -11,6 +12,7 @@ class ResultScreen extends StatelessWidget {
   const ResultScreen({
     super.key,
     required this.winnerIndex,
+    required this.winnings,
     required this.finalStacks,
     required this.potSize,
     required this.actions,
@@ -27,8 +29,15 @@ class ResultScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Победитель: Игрок ${winnerIndex + 1}',
-                style: const TextStyle(fontSize: 18, color: Colors.white)),
+            Text(
+              winnings.length > 1
+                  ? 'Победители: ' +
+                      winnings.entries
+                          .map((e) => 'P${e.key + 1} (${e.value})')
+                          .join(', ')
+                  : 'Победитель: Игрок ${winnerIndex + 1}',
+              style: const TextStyle(fontSize: 18, color: Colors.white),
+            ),
             const SizedBox(height: 8),
             Text('Пот: $potSize',
                 style: const TextStyle(fontSize: 16, color: Colors.white70)),
