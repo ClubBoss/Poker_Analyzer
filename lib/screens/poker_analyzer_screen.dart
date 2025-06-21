@@ -85,6 +85,7 @@ import '../widgets/burn_chips_animation.dart';
 import '../widgets/burn_card_animation.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/central_pot_widget.dart';
+import '../widgets/central_spr_widget.dart';
 import '../widgets/fold_refund_animation.dart';
 import '../widgets/undo_refund_animation.dart';
 import '../widgets/refund_amount_widget.dart';
@@ -5185,6 +5186,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     potGrowth: _potGrowthAnimation,
                     potCount: _potCountAnimation,
                     currentPot: _currentPot,
+                    sprValue: sprValue,
                     centerBets: _centerBetStacks,
                     actionColor: ActionFormattingHelper.actionColor,
                   ),
@@ -6476,6 +6478,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
   final Color Function(String) actionColor;
   final Map<int, _BetDisplayInfo> centerBets;
   final int currentPot;
+  final double? sprValue;
 
   const _PotAndBetsOverlaySection({
     required this.scale,
@@ -6495,6 +6498,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.centerBets,
     required this.actionColor,
     required this.currentPot,
+    required this.sprValue,
   });
 
 
@@ -6530,6 +6534,25 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
           ),
         ),
       );
+
+      if (sprValue != null) {
+        items.add(
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Align(
+                alignment: const Alignment(0, -0.05),
+                child: Transform.translate(
+                  offset: Offset(0, 16 * scale),
+                  child: CentralSprWidget(
+                    text: 'SPR: ${sprValue!.toStringAsFixed(2)}',
+                    scale: scale * 0.9,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
     }
 
     for (int i = 0; i < sidePots.length; i++) {
