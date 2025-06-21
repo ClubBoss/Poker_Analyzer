@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../helpers/action_formatting_helper.dart';
 
 /// Small label showing a player's remaining stack in big blinds.
 class MiniStackWidget extends StatelessWidget {
@@ -27,7 +28,7 @@ class MiniStackWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(8 * scale),
       ),
       child: Text(
-        '$stack BB',
+        '${ActionFormattingHelper.formatAmount(stack)} BB',
         style: TextStyle(
           color: Colors.white,
           fontSize: 10 * scale,
