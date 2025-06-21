@@ -11,6 +11,8 @@ class ActionHistoryOverlay extends StatelessWidget {
   final Set<int> expandedStreets;
   final ValueChanged<int>? onToggleStreet;
   final void Function(int index, ActionEntry entry)? onEdit;
+  final void Function(int index)? onDelete;
+  final void Function(int oldIndex, int newIndex)? onReorder;
   final bool isLocked;
 
   const ActionHistoryOverlay({
@@ -20,6 +22,8 @@ class ActionHistoryOverlay extends StatelessWidget {
     required this.expandedStreets,
     this.onToggleStreet,
     this.onEdit,
+    this.onDelete,
+    this.onReorder,
     required this.isLocked,
   }) : super(key: key);
 
@@ -32,18 +36,24 @@ class ActionHistoryOverlay extends StatelessWidget {
     final double scale = screenWidth < 350 ? 0.8 : 1.0;
     const streetNames = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
 
-    Widget buildChip(ActionEntry a) {
+    Widget buildDraggableChip(ActionEntry a, {bool highlight = false}) {
       final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
       String? amountText;
       if (a.amount != null) {
         final formatted = ActionFormattingHelper.formatAmount(a.amount!);
         amountText = a.action == 'raise' ? 'to $formatted' : formatted;
       }
+      Color baseColor =
+          ActionFormattingHelper.actionColor(a.action).withOpacity(0.8);
+      if (highlight) {
+        baseColor = baseColor.withOpacity(1.0);
+      }
+
       final chip = Container(
         padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
         margin: const EdgeInsets.only(right: 4, bottom: 4),
         decoration: BoxDecoration(
-          color: ActionFormattingHelper.actionColor(a.action).withOpacity(0.8),
+          color: baseColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -71,23 +81,82 @@ class ActionHistoryOverlay extends StatelessWidget {
         ),
       );
 
-      if (onEdit == null || isLocked) return chip;
+      Widget content = chip;
+      if (onEdit != null && !isLocked) {
+        content = GestureDetector(
+          onTap: () async {
+            final edited = await showEditActionDialog(
+              context,
+              entry: a,
+              numberOfPlayers: playerPositions.length,
+              playerPositions: playerPositions,
+            );
+            if (edited != null) {
+              final index = actionHistory.indexOf(a);
+              if (index != -1) onEdit!(index, edited);
+            }
+          },
+          onLongPress: onDelete == null
+              ? null
+              : () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Удалить действие?'),
+                      content:
+                          const Text('Вы уверены, что хотите удалить действие?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Нет'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('Да'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    final index = actionHistory.indexOf(a);
+                    if (index != -1) onDelete!(index);
+                  }
+                },
+          child: chip,
+        );
+      }
 
-      return GestureDetector(
-        onTap: () async {
-          final edited = await showEditActionDialog(
-            context,
-            entry: a,
-            numberOfPlayers: playerPositions.length,
-            playerPositions: playerPositions,
-          );
-          if (edited != null) {
-            final index = actionHistory.indexOf(a);
-            if (index != -1) onEdit!(index, edited);
-          }
-        },
-        child: chip,
-      );
+      if (onReorder != null && !isLocked) {
+        final index = actionHistory.indexOf(a);
+        final left = IconButton(
+          icon: const Icon(Icons.arrow_upward, size: 14, color: Colors.white),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          onPressed: () => onReorder!(index, index - 1),
+        );
+        final right = IconButton(
+          icon: const Icon(Icons.arrow_downward, size: 14, color: Colors.white),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          onPressed: () => onReorder!(index, index + 1),
+        );
+        final handle = LongPressDraggable<ActionEntry>(
+          data: a,
+          feedback: Material(
+            type: MaterialType.transparency,
+            child: chip,
+          ),
+          childWhenDragging: Opacity(opacity: 0.3, child: chip),
+          child: const Icon(Icons.drag_handle, color: Colors.white70, size: 14),
+        );
+
+        content = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [handle, left, content, right],
+        );
+      }
+
+      return content;
     }
 
     return Align(
@@ -130,7 +199,38 @@ class ActionHistoryOverlay extends StatelessWidget {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: [for (final a in visibleList) buildChip(a)],
+                          children: [
+                            for (final a in visibleList)
+                              DragTarget<ActionEntry>(
+                                onWillAccept: (data) =>
+                                    onReorder != null && !isLocked && data != a,
+                                onAccept: (data) {
+                                  if (onReorder == null || isLocked) return;
+                                  final oldIndex = actionHistory.indexOf(data);
+                                  final newIndex = actionHistory.indexOf(a);
+                                  if (oldIndex != -1 && newIndex != -1) {
+                                    onReorder!(oldIndex, newIndex);
+                                  }
+                                },
+                                builder: (context, candidate, rejected) =>
+                                    buildDraggableChip(a,
+                                        highlight: candidate.isNotEmpty),
+                              ),
+                            if (onReorder != null && !isLocked)
+                              DragTarget<ActionEntry>(
+                                onWillAccept: (_) => true,
+                                onAccept: (data) {
+                                  final oldIndex = actionHistory.indexOf(data);
+                                  final lastIndex =
+                                      actionHistory.indexOf(visibleList.last);
+                                  if (oldIndex != -1) {
+                                    onReorder!(oldIndex, lastIndex + 1);
+                                  }
+                                },
+                                builder: (context, candidate, rejected) =>
+                                    const SizedBox(width: 4),
+                              ),
+                          ],
                         ),
                       ),
                     ),
