@@ -260,6 +260,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late Animation<int> _potCountAnimation;
   final List<int> _displayedPots = List.filled(4, 0);
   final Map<int, int> _displayedStacks = {};
+  final Map<int, int> _uncalledRefunds = {};
   List<int> _sidePots = [];
   int _currentPot = 0;
   late TransitionLockService lockService;
@@ -414,7 +415,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   int _calculateFoldRefund(int playerIndex) {
-    final invested = _stackService.getInvestmentForStreet(playerIndex, currentStreet);
+    final invested = _stackService.getInvestmentForStreet(playerIndex, currentStreet) -
+        (_uncalledRefunds[playerIndex] ?? 0);
     if (invested <= 0) return 0;
     final contributions = <int>[];
     for (int i = 0; i < numberOfPlayers; i++) {
@@ -445,7 +447,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     ];
     if (activePlayers.length <= 1) return returns;
     for (final p in activePlayers) {
-      final invested = _stackService.getTotalInvested(p);
+      final invested =
+          _stackService.getTotalInvested(p) - (_uncalledRefunds[p] ?? 0);
       if (invested <= 0) continue;
       int maxOther = 0;
       for (final o in activePlayers) {
@@ -458,6 +461,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (refund > 0) returns[p] = refund;
     }
     return returns;
+  }
+
+  void _applyOverbetRefunds() {
+    final returns = _calculateUncalledReturns();
+    returns.forEach((player, amount) {
+      final already = _uncalledRefunds[player] ?? 0;
+      final delta = amount - already;
+      if (delta > 0) {
+        _applyRefund(player, delta);
+      }
+    });
+    _recomputeCurrentPot();
   }
 
 
@@ -1162,6 +1177,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       _sidePots.clear();
       _currentPot = 0;
+      _uncalledRefunds.clear();
       _playbackNarration = null;
       _showNextHandButton = false;
       _showReplayDemoButton = false;
@@ -1330,6 +1346,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     _registerResetAnimation();
     overlay.insert(overlayEntry);
+  }
+
+  void _applyRefund(int playerIndex, int amount, {bool animate = true}) {
+    if (amount <= 0) return;
+    final startStack = _displayedStacks[playerIndex] ??
+        _stackService.getStackForPlayer(playerIndex);
+    final endStack = startStack + amount;
+    lockService.safeSetState(this, () {
+      _uncalledRefunds[playerIndex] =
+          (_uncalledRefunds[playerIndex] ?? 0) + amount;
+      _displayedStacks[playerIndex] = endStack;
+      _currentPot = max(0, _currentPot - amount);
+    });
+    if (animate) {
+      _playFoldRefundAnimation(playerIndex, amount);
+    }
   }
 
   void _playUndoRefundAnimations(Map<int, int> refunds) {
@@ -2177,8 +2209,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         total += a.amount!;
       }
     }
+    final refundTotal =
+        _uncalledRefunds.values.fold<int>(0, (p, e) => p + e);
     lockService.safeSetState(this, () {
-      _currentPot = total;
+      _currentPot = max(0, total - refundTotal);
     });
   }
 
@@ -4116,6 +4150,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     _deductStackAfterAction(entry);
     _updateCurrentPot(entry);
+    _applyOverbetRefunds();
     _clearActiveHighlight();
   }
 
@@ -4135,7 +4170,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playFoldTrashAnimation(entry.playerIndex);
         final refund = _calculateFoldRefund(entry.playerIndex);
         if (refund > 0) {
-          _playFoldRefundAnimation(entry.playerIndex, refund);
+          _applyRefund(entry.playerIndex, refund);
         }
         _addAction(entry);
         _actionEditing.removeFutureActionsForPlayer(
