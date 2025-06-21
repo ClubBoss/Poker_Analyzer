@@ -80,6 +80,7 @@ import '../widgets/trash_flying_chips.dart';
 import '../widgets/burn_chips_animation.dart';
 import '../widgets/burn_card_animation.dart';
 import '../widgets/fold_flying_cards.dart';
+import '../widgets/central_pot_widget.dart';
 import '../widgets/fold_refund_animation.dart';
 import '../widgets/undo_refund_animation.dart';
 import '../widgets/refund_amount_widget.dart';
@@ -4782,7 +4783,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       editingDisabled: lockService.isLocked,
                       potSync: _potSync,
                       boardReveal: widget.boardReveal,
-                      showPot: !_showdownActive,
+                      showPot: false,
                     ),
                   ),
                   _PlayerZonesSection(
@@ -6116,8 +6117,8 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
                   scale: potGrowth,
                   child: AnimatedBuilder(
                     animation: potCount,
-                    builder: (_, __) => BetStackChips(
-                      amount: potCount.value,
+                    builder: (_, __) => CentralPotWidget(
+                      text: ActionFormattingHelper.formatAmount(potCount.value),
                       scale: scale,
                     ),
                   ),
