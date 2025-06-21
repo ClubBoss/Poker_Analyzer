@@ -1138,7 +1138,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     await completer.future;
   }
 
-  Future<void> _autoResetAfterShowdown() async {
+  Future<void> _autoResetAfterShowdown({Duration delay = const Duration(milliseconds: 800)}) async {
     if (_tableCleanupPlayed) return;
     _tableCleanupPlayed = true;
     await _clearTableState();
@@ -1146,14 +1146,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (widget.demoMode) {
       showConfettiOverlay(context);
     }
-    lockService.safeSetState(this, () {
-      if (widget.demoMode) {
-        _showReplayDemoButton = true;
-      } else {
-        _showNextHandButton = true;
-      }
+    Future.delayed(delay, () {
+      if (!mounted) return;
+      _resetHandState();
+      lockService.unlock();
     });
-    lockService.unlock();
   }
 
   /// Clears the table and resets the hand to its initial empty state.
