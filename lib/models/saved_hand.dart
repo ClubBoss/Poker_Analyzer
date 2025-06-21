@@ -28,6 +28,7 @@ class SavedHand {
   /// Game type description such as "Hold'em No Limit".
   final String? gameType;
   final Map<int, int> stackSizes;
+  final Map<int, int>? currentBets;
   final Map<int, int>? remainingStacks;
   /// Winnings collected by each player in chips or big blinds.
   final Map<int, int>? winnings;
@@ -80,6 +81,7 @@ class SavedHand {
     this.activePlayerIndex,
     required this.actions,
     required this.stackSizes,
+    this.currentBets,
     this.remainingStacks,
     this.winnings,
     this.totalPot,
@@ -131,6 +133,7 @@ class SavedHand {
     int? activePlayerIndex,
     List<ActionEntry>? actions,
     Map<int, int>? stackSizes,
+    Map<int, int>? currentBets,
     Map<int, int>? remainingStacks,
     Map<int, int>? winnings,
     int? totalPot,
@@ -179,6 +182,8 @@ class SavedHand {
       activePlayerIndex: activePlayerIndex ?? this.activePlayerIndex,
       actions: actions ?? List<ActionEntry>.from(this.actions),
       stackSizes: stackSizes ?? Map<int, int>.from(this.stackSizes),
+      currentBets: currentBets ??
+          (this.currentBets == null ? null : Map<int, int>.from(this.currentBets!)),
       remainingStacks: remainingStacks ??
           (this.remainingStacks == null
               ? null
@@ -283,6 +288,8 @@ class SavedHand {
             }
         ],
         'stackSizes': stackSizes.map((k, v) => MapEntry(k.toString(), v)),
+        if (currentBets != null)
+          'currentBets': currentBets!.map((k, v) => MapEntry(k.toString(), v)),
         if (remainingStacks != null)
           'remainingStacks':
               remainingStacks!.map((k, v) => MapEntry(k.toString(), v)),
@@ -371,6 +378,13 @@ class SavedHand {
     (json['stackSizes'] as Map? ?? {}).forEach((key, value) {
       stack[int.parse(key as String)] = value as int;
     });
+    Map<int, int>? bets;
+    if (json['currentBets'] != null) {
+      bets = <int, int>{};
+      (json['currentBets'] as Map).forEach((key, value) {
+        bets![int.parse(key as String)] = value as int;
+      });
+    }
     Map<int, int>? remaining;
     if (json['remainingStacks'] != null) {
       remaining = <int, int>{};
@@ -490,6 +504,7 @@ class SavedHand {
       activePlayerIndex: activeIndex,
       actions: acts,
       stackSizes: stack,
+      currentBets: bets,
       remainingStacks: remaining,
       winnings: wins,
       totalPot: totalPot,

@@ -91,6 +91,10 @@ class SavedHandImportExportService {
       activePlayerIndex: activePlayerIndex,
       actions: List<ActionEntry>.from(actions),
       stackSizes: Map<int, int>.from(stackService.initialStacks),
+      currentBets: {
+        for (int i = 0; i < playerManager.numberOfPlayers; i++)
+          i: playerManager.players[i].bet
+      },
       remainingStacks: {
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
           i: stackService.getStackForPlayer(i)

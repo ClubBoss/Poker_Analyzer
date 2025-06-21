@@ -6,6 +6,7 @@ import '../widgets/street_tabs.dart';
 import '../widgets/street_action_list_simple.dart';
 import '../models/card_model.dart';
 import '../services/action_sync_service.dart';
+import '../models/player_model.dart';
 
 class PlayerZoneDemoScreen extends StatefulWidget {
   const PlayerZoneDemoScreen({super.key});
@@ -17,9 +18,12 @@ class PlayerZoneDemoScreen extends StatefulWidget {
 class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
   int _street = 0;
   final List<String> _streetNames = const ['Preflop', 'Flop', 'Turn', 'River'];
-  final List<String> _players = const ['Alice', 'Bob', 'Carol'];
+  final List<PlayerModel> _players = [
+    PlayerModel(name: 'Alice', stack: 100, bet: 0),
+    PlayerModel(name: 'Bob', stack: 75, bet: 0),
+    PlayerModel(name: 'Carol', stack: 200, bet: 0),
+  ];
   final List<List<CardModel>> _cards = [[], [], []];
-  final Map<int, int> _stackSizes = const {0: 100, 1: 75, 2: 200};
 
   @override
   Widget build(BuildContext context) {
@@ -35,18 +39,24 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
             child: ListView.builder(
               itemCount: _players.length,
               itemBuilder: (context, index) {
+                final player = _players[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
                   child: PlayerZoneWidget(
-                    playerName: _players[index],
+                    player: player,
+                    playerName: player.name,
                     street: _streetNames[_street],
                     position: null,
                     cards: _cards[index],
-                    stackSizes: _stackSizes,
+                    currentBet: player.bet,
+                    stackSize: player.stack,
                     playerIndex: index,
-                    remainingStack: _stackSizes[index],
+                    remainingStack: player.stack,
                     isHero: index == 0,
                     isFolded: false,
+                    editMode: true,
+                    onStackChanged: (v) => setState(() => player.stack = v),
+                    onBetChanged: (v) => setState(() => player.bet = v),
                     onCardsSelected: (i, c) {},
                   ),
                 );
