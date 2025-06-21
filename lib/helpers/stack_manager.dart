@@ -24,7 +24,10 @@ class StackManager {
       sw.clear();
     }
     for (final ActionEntry a in actions) {
-      if (a.action == 'call' || a.action == 'bet' || a.action == 'raise') {
+      if (a.action == 'call' ||
+          a.action == 'bet' ||
+          a.action == 'raise' ||
+          a.action == 'all-in') {
         final int? amount = a.amount;
         if (amount != null) {
           _currentStacks[a.playerIndex]?.addInvestment(a.street, amount);

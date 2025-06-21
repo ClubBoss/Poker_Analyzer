@@ -2147,7 +2147,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _deductStackAfterAction(ActionEntry entry) {
     if (entry.amount == null) return;
-    if (!['bet', 'raise', 'all-in'].contains(entry.action)) return;
+    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action)) return;
     final current = _displayedStacks[entry.playerIndex] ??
         _stackService.getStackForPlayer(entry.playerIndex);
     final newValue = (current - entry.amount!).clamp(0, current);
