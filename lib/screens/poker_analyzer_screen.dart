@@ -37,6 +37,7 @@ import '../widgets/chip_widget.dart';
 import '../widgets/player_info_widget.dart';
 import '../widgets/street_actions_list.dart';
 import '../widgets/collapsible_street_section.dart';
+import '../widgets/street_action_history_panel.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
 import '../widgets/bet_chips_on_table.dart';
@@ -4998,26 +4999,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: AbsorbPointer(
         absorbing: lockService.isLocked,
-        child: Column(
-          children: [
-            ...List.generate(
-              4,
-              (i) => CollapsibleStreetSection(
-                street: i,
-                actions: savedActions,
-                pots: _potSync.pots,
-                stackSizes: _stackService.currentStacks,
-                playerPositions: playerPositions,
-                onEdit: _editAction,
-                onDelete: _deleteAction,
-                onInsert: _insertAction,
-                onDuplicate: _duplicateAction,
-                onReorder: _reorderAction,
-                visibleCount: _playbackManager.playbackIndex,
-                evaluateActionQuality: _evaluateActionQuality,
-              ),
-            ),
-          ],
+        child: StreetActionHistoryPanel(
+          actions: savedActions,
+          pots: _potSync.pots,
+          stackSizes: _stackService.currentStacks,
+          playerPositions: playerPositions,
+          onEdit: _editAction,
+          onDelete: _deleteAction,
+          onInsert: _insertAction,
+          onDuplicate: _duplicateAction,
+          onReorder: _reorderAction,
+          visibleCount: _playbackManager.playbackIndex,
+          evaluateActionQuality: _evaluateActionQuality,
         ),
       ),
     ),
