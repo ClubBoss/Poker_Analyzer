@@ -704,9 +704,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _removeChipFlight(Key key) {
+    _ChipFlight? flight;
     lockService.safeSetState(this, () {
-      _chipFlights.removeWhere((f) => f.key == key);
+      final index = _chipFlights.indexWhere((f) => f.key == key);
+      if (index >= 0) {
+        flight = _chipFlights.removeAt(index);
+      }
     });
+    if (flight != null && mounted) {
+      final player = flight!.playerIndex;
+      final startStack =
+          _displayedStacks[player] ?? _stackService.getStackForPlayer(player);
+      final endStack = startStack + flight!.amount;
+      _animateStackIncrease(player, startStack, endStack);
+      final pos = Offset(
+        flight!.end.dx - 20 * flight!.scale,
+        flight!.end.dy - 60 * flight!.scale,
+      );
+      showWinAmountOverlay(
+        context: context,
+        position: pos,
+        amount: flight!.amount,
+        scale: flight!.scale,
+      );
+    }
   }
 
   void _startPotWinFlights(Map<int, int> payouts) {
@@ -738,27 +759,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           start: start,
           end: end,
           amount: amount,
+          playerIndex: player,
           color: Colors.orangeAccent,
           scale: scale,
         ));
-      });
-
-      Future.delayed(const Duration(milliseconds: 450), () {
-        if (!mounted) return;
-        final startStack =
-            _displayedStacks[player] ?? _stackService.getStackForPlayer(player);
-        final endStack = startStack + amount;
-        _animateStackIncrease(player, startStack, endStack);
-        final pos = Offset(
-          end.dx - 20 * scale,
-          end.dy - 60 * scale,
-        );
-        showWinAmountOverlay(
-          context: context,
-          position: pos,
-          amount: amount,
-          scale: scale,
-        );
       });
     });
 
@@ -5733,6 +5737,7 @@ class _ChipFlight {
   final Offset start;
   final Offset end;
   final int amount;
+  final int playerIndex;
   final Color color;
   final double scale;
 
@@ -5741,6 +5746,7 @@ class _ChipFlight {
     required this.start,
     required this.end,
     required this.amount,
+    required this.playerIndex,
     required this.color,
     required this.scale,
   });
