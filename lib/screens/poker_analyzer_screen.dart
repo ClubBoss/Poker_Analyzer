@@ -302,6 +302,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showNextHandButton = false;
   bool _showReplayDemoButton = false;
 
+  bool get _isHandEmpty =>
+      actions.isEmpty &&
+      boardCards.isEmpty &&
+      playerCards.every((c) => c.isEmpty);
+
   /// Overlay entries for transient win labels and glow effects.
   final List<OverlayEntry> _messageOverlays = [];
 
@@ -4516,6 +4521,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lockService.safeSetState(this, () {});
   }
 
+  Future<void> _startNewHandFromFab() async {
+    await resetAll();
+    _handContext.clear();
+    if (_timelineController.hasClients) {
+      _timelineController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   String _defaultHandName() {
     final now = DateTime.now();
     final day = now.day.toString().padLeft(2, '0');
@@ -5334,6 +5351,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, anim) =>
+                      FadeTransition(opacity: anim, child: child),
+                  child: _isHandEmpty
+                      ? FloatingActionButton.extended(
+                          key: const ValueKey('newHandFab'),
+                          heroTag: 'newHandFab',
+                          onPressed: _startNewHandFromFab,
+                          label: const Text('Новая раздача'),
+                          icon: const Icon(Icons.add),
+                        )
+                      : const SizedBox.shrink(key: ValueKey('noNewHandFab')),
+                ),
+                const SizedBox(height: 12),
                 FloatingActionButton(
                   heroTag: 'debugFab',
                   onPressed: _showDebugPanel,
