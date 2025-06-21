@@ -1794,7 +1794,24 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
           ),
           fadeStart: fadeStart,
-          onCompleted: () => overlayEntry.remove(),
+          onCompleted: () {
+            overlayEntry.remove();
+            final startStack =
+                _displayedStacks[playerIndex] ??
+                    _stackService.getStackForPlayer(playerIndex);
+            final endStack = startStack + amount;
+            _animateStackIncrease(playerIndex, startStack, endStack);
+            final pos = Offset(
+              end.dx - 20 * tableScale,
+              end.dy - 60 * tableScale,
+            );
+            showWinAmountOverlay(
+              context: context,
+              position: pos,
+              amount: amount,
+              scale: scale * tableScale,
+            );
+          },
         ),
       );
       overlay.insert(overlayEntry);
