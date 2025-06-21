@@ -305,6 +305,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _waitingForAutoReset = false;
   bool _showNextHandButton = false;
   bool _showReplayDemoButton = false;
+  bool _autoShowdownTriggered = false;
 
   bool get _isHandEmpty =>
       actions.isEmpty &&
@@ -3540,6 +3541,22 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         .any((a) => a.action == 'bet' || a.action == 'raise');
   }
 
+  void _maybeTriggerAutoShowdown(ActionEntry? lastAction, List<int> activePlayers) {
+    if (_autoShowdownTriggered ||
+        _showNextHandButton ||
+        _allInPlayers.isEmpty ||
+        lastAction == null ||
+        lastAction.action != 'fold' ||
+        activePlayers.length != 1 ||
+        _playbackManager.playbackIndex != actions.length) {
+      return;
+    }
+
+    _autoShowdownTriggered = true;
+    _winnerIndex = activePlayers.first;
+    unawaited(_finishHand().whenComplete(() => _autoShowdownTriggered = false));
+  }
+
   void _onPlaybackManagerChanged() {
     if (mounted) {
       _clearBetDisplays();
@@ -3658,6 +3675,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _pendingPotAnimation = false;
         _playPotWinAnimation();
       }
+      _maybeTriggerAutoShowdown(lastAction, active);
       _prevPlaybackIndex = _playbackManager.playbackIndex;
     }
   }
