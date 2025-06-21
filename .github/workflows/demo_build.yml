@@ -20,7 +20,7 @@ jobs:
         run: flutter pub get
 
       - name: Build demo APK
-        run: flutter build apk --target=lib/main_demo.dart
+        run: flutter build apk --target=main_demo.dart
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v3

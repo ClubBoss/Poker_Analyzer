@@ -16,13 +16,13 @@ The project includes a lightweight demo entry point for showcasing the
 analyzer without the full feature set. Run the demo in debug mode with:
 
 ```bash
-flutter run -t lib/main_demo.dart
+flutter run -t main_demo.dart
 ```
 
 To generate a production APK for the demo use:
 
 ```bash
-flutter build apk --target=lib/main_demo.dart
+flutter build apk --target=main_demo.dart
 ```
 
 This build is useful for previews, demonstrations and other scenarios
