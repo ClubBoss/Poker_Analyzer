@@ -19,6 +19,10 @@ import 'services/pot_sync_service.dart';
 import 'services/stack_manager_service.dart';
 import 'services/transition_lock_service.dart';
 import 'services/action_history_service.dart';
+import 'services/training_import_export_service.dart';
+import 'services/demo_playback_controller.dart';
+
+final GlobalKey analyzerKey = GlobalKey();
 
 void main() {
   runApp(const PokerAnalyzerDemoApp());
@@ -66,6 +70,7 @@ class PokerAnalyzerDemoApp extends StatelessWidget {
           ),
         ),
         Provider(create: (_) => ActionHistoryService()),
+        Provider(create: (_) => const TrainingImportExportService()),
       ],
       child: Builder(
         builder: (context) {
@@ -105,8 +110,18 @@ class PokerAnalyzerDemoApp extends StatelessWidget {
                   profile: context.read<PlayerProfileService>(),
                 ),
               ),
+              Provider(
+                create: (_) => DemoPlaybackController(
+                  playbackManager: context.read<PlaybackManagerService>(),
+                  boardManager: context.read<BoardManagerService>(),
+                  importExportService:
+                      context.read<TrainingImportExportService>(),
+                  potSync: context.read<PlaybackManagerService>().potSync,
+                ),
+              ),
             ],
-            child: MaterialApp(
+            child: DemoLauncher(
+              child: MaterialApp(
               title: 'Poker AI Analyzer Demo',
               debugShowCheckedModeBanner: false,
               theme: ThemeData.dark().copyWith(
@@ -139,11 +154,42 @@ class PokerAnalyzerDemoApp extends StatelessWidget {
                 lockService: lockService,
                 actionHistory: context.read<ActionHistoryService>(),
                 demoMode: true,
+                key: analyzerKey,
               ),
             ),
+          ),
           );
         },
       ),
     );
   }
+}
+
+class DemoLauncher extends StatefulWidget {
+  final Widget child;
+  const DemoLauncher({super.key, required this.child});
+
+  @override
+  State<DemoLauncher> createState() => _DemoLauncherState();
+}
+
+class _DemoLauncherState extends State<DemoLauncher> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = context.read<DemoPlaybackController>();
+      final state = analyzerKey.currentState;
+      if (state != null) {
+        controller.startDemo(
+          loadSpot: (spot) => (state as dynamic).loadTrainingSpot(spot),
+          playAll: () => (state as dynamic).playAll(),
+          announceWinner: (w) => (state as dynamic).resolveWinner(w),
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
