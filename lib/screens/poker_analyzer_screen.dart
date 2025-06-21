@@ -86,6 +86,7 @@ import '../widgets/reveal_card_animation.dart';
 import '../widgets/clear_table_cards.dart';
 import '../widgets/fold_reveal_animation.dart';
 import '../widgets/table_cleanup_overlay.dart';
+import '../widgets/poker_table_painter.dart';
 import '../widgets/deal_card_animation.dart';
 import '../widgets/playback_progress_bar.dart';
 import '../widgets/street_indicator.dart';
@@ -5735,11 +5736,12 @@ class _TableBackgroundSection extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
     final tableWidth = screenSize.width * 0.9 * scale;
 
+    final tableHeight = tableWidth * 0.55;
+
     return Center(
-      child: Image.asset(
-        'assets/table.png',
-        width: tableWidth,
-        fit: BoxFit.contain,
+      child: CustomPaint(
+        size: Size(tableWidth, tableHeight),
+        painter: PokerTablePainter(),
       ),
     );
   }
