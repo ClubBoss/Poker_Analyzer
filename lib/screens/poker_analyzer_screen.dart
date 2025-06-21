@@ -97,6 +97,7 @@ import '../widgets/confetti_overlay.dart';
 import '../widgets/poker_table_painter.dart';
 import '../widgets/deal_card_animation.dart';
 import '../widgets/playback_progress_bar.dart';
+import '../widgets/hand_completion_indicator.dart';
 import '../widgets/street_indicator.dart';
 import '../widgets/street_transition_overlay.dart';
 import '../services/stack_manager_service.dart';
@@ -4541,6 +4542,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return 'Раздача от $day.$month.$year';
   }
 
+  double _handFillProgress() {
+    final totalCards = numberOfPlayers * 2 + 5;
+    int filled = boardCards.length;
+    for (final cards in playerCards.take(numberOfPlayers)) {
+      filled += cards.length;
+    }
+    if (totalCards == 0) return 0;
+    return (filled / totalCards).clamp(0.0, 1.0);
+  }
+
 
   Future<void> _exportEvaluationQueue() async {
     await _importExportService.exportEvaluationQueue(context);
@@ -5024,6 +5035,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               playerCount: numberOfPlayers,
               streetName: ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'][currentStreet],
               onEdit: loadHandByName,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: HandCompletionIndicator(progress: _handFillProgress()),
             ),
             _PlayerCountSelector(
               numberOfPlayers: numberOfPlayers,
