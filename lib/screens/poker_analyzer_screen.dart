@@ -108,6 +108,7 @@ import '../services/action_tag_service.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
+import '../user_preferences.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/backup_manager_service.dart';
@@ -1691,6 +1692,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _playShowdownWinAnimation(Set<int> winners) {
     if (_showdownWinPlayed) return;
     if (winners.isEmpty) return;
+    final prefs = UserPreferences.instance;
     final payouts = <int, int>{};
     if (_winnings != null && _winnings!.isNotEmpty) {
       payouts.addAll(_winnings!);
@@ -1708,6 +1710,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     for (final p in winners) {
       showWinnerHighlight(context, players[p].name);
+      if (prefs.showWinnerCelebration) {
+        showWinnerCelebration(context, players[p].name);
+      }
       if (widget.demoMode) {
         _demoAnimations.showWinnerZoneOverlay(context, players[p].name);
         final amount = payouts[p] ?? _potSync.pots[currentStreet];
@@ -1722,6 +1727,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           );
         });
       }
+    }
+    if (prefs.showWinnerCelebration) {
+      showConfettiOverlay(context);
     }
     _showdownWinPlayed = true;
   }
