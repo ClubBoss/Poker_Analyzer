@@ -294,6 +294,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _potAnimationPlayed = false;
   bool _winnerRevealPlayed = false;
   bool _showdownWinPlayed = false;
+  bool _simpleWinPlayed = false;
   bool _pendingPotAnimation = false;
   bool _tableCleanupPlayed = false;
   final Set<int> _bustedPlayers = {};
@@ -1007,6 +1008,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _showdownPlayers.clear();
     _showdownActive = false;
     _potAnimationPlayed = false;
+    _simpleWinPlayed = false;
     _winnerRevealPlayed = false;
     _showdownWinPlayed = false;
     _pendingPotAnimation = false;
@@ -2196,6 +2198,52 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  /// Displays a basic win animation highlighting each winner and
+  /// animating chips from the center pot to their stack.
+  void _playSimpleWinAnimation(Map<int, int> payouts) {
+    if (_simpleWinPlayed || payouts.isEmpty) return;
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    payouts.forEach((playerIndex, amount) {
+      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX, centerY);
+      final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 20 * scale,
+        midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+      );
+      final name = players[playerIndex].name;
+      showWinnerHighlight(context, name);
+      showWinnerZoneOverlay(context, name);
+      showPotCollectionChips(
+        context: context,
+        start: start,
+        end: end,
+        amount: amount,
+        scale: scale,
+        control: control,
+        fadeStart: 0.6,
+      );
+    });
+    _simpleWinPlayed = true;
+  }
+
   void _animateStackIncrease(int playerIndex, int start, int end) {
     final controller = AnimationController(
       vsync: this,
@@ -2270,6 +2318,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     if (payouts.isNotEmpty) {
+      _playSimpleWinAnimation(payouts);
       _startPotWinFlights(payouts);
     }
 
@@ -2291,6 +2340,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_potAnimationPlayed) return;
     final overlay = Overlay.of(context);
     if (overlay == null) return;
+
+    final payouts = <int, int>{
+      if (_winnings != null && _winnings!.isNotEmpty) ..._winnings!,
+      if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
+        _winnerIndex!: _potSync.pots[currentStreet],
+    };
+    _playSimpleWinAnimation(payouts);
 
     int delay = 0;
     final wins = _winnings;
