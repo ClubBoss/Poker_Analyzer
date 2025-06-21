@@ -89,6 +89,7 @@ import '../widgets/clear_table_cards.dart';
 import '../widgets/fold_reveal_animation.dart';
 import '../widgets/table_cleanup_overlay.dart';
 import '../widgets/table_fade_overlay.dart';
+import '../widgets/confetti_overlay.dart';
 import '../widgets/poker_table_painter.dart';
 import '../widgets/deal_card_animation.dart';
 import '../widgets/playback_progress_bar.dart';
@@ -1092,6 +1093,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _tableCleanupPlayed = true;
     await _clearTableState();
     if (!mounted) return;
+    if (widget.demoMode) {
+      showConfettiOverlay(context);
+    }
     lockService.safeSetState(this, () {
       if (widget.demoMode) {
         _showReplayDemoButton = true;
