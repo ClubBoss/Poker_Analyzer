@@ -77,6 +77,7 @@ import '../widgets/loss_fade_widget.dart';
 import '../widgets/pot_chip_animation.dart';
 import '../widgets/pot_collection_chips.dart';
 import '../widgets/trash_flying_chips.dart';
+import '../widgets/burn_chips_animation.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
 import '../widgets/undo_refund_animation.dart';
@@ -875,6 +876,43 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     await Future.delayed(const Duration(milliseconds: 600));
     for (final e in entries) {
       e.remove();
+    }
+
+    // Burn remaining chips on the table.
+    if (_centerBetStacks.isNotEmpty) {
+      final burnEntries = <OverlayEntry>[];
+      int delay = 0;
+      _centerBetStacks.forEach((playerIndex, info) {
+        final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+        final dx = radiusX * cos(angle);
+        final dy = radiusY * sin(angle);
+        final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+        final startBase = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+        final start = Offset.lerp(startBase, Offset(centerX, centerY), 0.15)!;
+        Future.delayed(Duration(milliseconds: delay), () {
+          if (!mounted) return;
+          late OverlayEntry e;
+          e = OverlayEntry(
+            builder: (_) => BurnChipsAnimation(
+              start: start,
+              end: Offset(centerX, centerY),
+              amount: info.amount,
+              color: info.color,
+              scale: scale,
+              onCompleted: () => e.remove(),
+            ),
+          );
+          overlay.insert(e);
+          burnEntries.add(e);
+        });
+        delay += 80;
+      });
+      await Future.delayed(Duration(milliseconds: delay + 500));
+      for (final e in burnEntries) {
+        e.remove();
+      }
+      _clearBetDisplays();
     }
 
     // Fade out remaining table elements before state reset.
