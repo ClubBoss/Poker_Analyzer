@@ -157,6 +157,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final PotSyncService potSyncService;
   final ActionHistoryService actionHistory;
   final TransitionLockService lockService;
+  final DemoAnimationManager? demoAnimationManager;
   final bool demoMode;
 
   const PokerAnalyzerScreen({
@@ -188,6 +189,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
     required this.potSyncService,
     required this.actionHistory,
     required this.lockService,
+    this.demoAnimationManager,
     this.demoMode = false,
   });
 
@@ -1673,7 +1675,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     for (final p in winners) {
       showWinnerHighlight(context, players[p].name);
       if (widget.demoMode) {
-        showWinnerZoneOverlay(context, players[p].name);
+        _demoAnimations.showWinnerZoneOverlay(context, players[p].name);
         final amount = payouts[p] ?? _potSync.pots[currentStreet];
         Future.delayed(const Duration(milliseconds: 600), () {
           if (!mounted) return;
@@ -2909,7 +2911,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _processingService = _serviceRegistry.get<EvaluationProcessingService>();
     _serviceRegistry.register<TransitionLockService>(widget.lockService);
     lockService = _serviceRegistry.get<TransitionLockService>();
-    _demoAnimations = DemoAnimationManager();
+    _demoAnimations = widget.demoAnimationManager ?? DemoAnimationManager();
     _centerChipController = AnimationController(
       vsync: this,
       duration: _boardRevealDuration,
