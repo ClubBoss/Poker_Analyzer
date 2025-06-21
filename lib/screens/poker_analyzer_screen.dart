@@ -5700,6 +5700,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               : SizedBox(key: const ValueKey('empty'), height: 16 * scale),
         ),
       ),
+      if (currentBet > 0 && !isFolded)
+        Positioned(
+          left: centerX + dx - 16 * scale,
+          top: centerY + dy + bias + 60 * scale,
+          child: PlayerBetIndicator(
+            action: lastAmountAction!.action,
+            amount: currentBet,
+            scale: scale * 0.8,
+          ),
+        ),
       Positioned(
         left: centerX + dx - 12 * scale,
         top: centerY + dy + bias + 70 * scale,
