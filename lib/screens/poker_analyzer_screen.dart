@@ -291,6 +291,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   int? _winnerIndex;
   Map<int, int>? _winnings;
   Map<int, int>? _returns;
+  bool _returnsAnimated = false;
   bool _potAnimationPlayed = false;
   bool _winnerRevealPlayed = false;
   bool _showdownWinPlayed = false;
@@ -1283,6 +1284,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _winnings = null;
       _winnerIndex = null;
       _returns = null;
+      _returnsAnimated = false;
       for (int i = 0; i < _displayedPots.length; i++) {
       _displayedPots[i] = 0;
       }
@@ -1312,7 +1314,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final lastAction = visibleActions.isNotEmpty ? visibleActions.last : null;
     final int winner = _winnerIndex ?? lastAction?.playerIndex ?? 0;
     final int pot = _potSync.pots[currentStreet];
-    final returns = _calculateUncalledReturns();
+    final returns = _returns ?? _calculateUncalledReturns();
     final returnTotal = returns.values.fold<int>(0, (p, e) => p + e);
     final payouts = <int, int>{};
     if (_winnings != null && _winnings!.isNotEmpty) {
@@ -1322,7 +1324,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     final resultSidePots = List<int>.from(_sidePots);
     await triggerWinnerAnimation(winner, pot - returnTotal);
-    await triggerRefundAnimations(returns);
+    if (!_returnsAnimated) {
+      await triggerRefundAnimations(returns);
+    }
     await Future.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
     final stacks = <int, int>{};
@@ -2389,11 +2393,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _animateUncalledReturns({int delay = 0}) {
+    if (_returnsAnimated) return;
+    final returns = _returns;
+    if (returns == null || returns.isEmpty) return;
+    int d = delay;
+    returns.forEach((player, amount) {
+      Future.delayed(Duration(milliseconds: d), () {
+        if (!mounted) return;
+        _applyRefund(player, amount);
+      });
+      d += 150;
+    });
+    _returnsAnimated = true;
+  }
+
 
   void _playPotWinAnimation() {
     if (_potAnimationPlayed) return;
     final wins = _winnings;
-    final returns = _returns;
     final payouts = <int, int>{};
     if (wins != null && wins.isNotEmpty) {
       payouts.addAll(wins);
@@ -2410,16 +2428,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
     }
 
-    if (returns != null && returns.isNotEmpty) {
-      int delay = 500;
-      returns.forEach((player, amount) {
-        Future.delayed(Duration(milliseconds: delay), () {
-          if (!mounted) return;
-          _playFoldRefundAnimation(player, amount);
-        });
-        delay += 150;
-      });
-    }
+    _animateUncalledReturns(delay: 600);
     _potAnimationPlayed = true;
   }
 
@@ -2462,16 +2471,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       return;
     }
 
-    final returns = _returns;
-    if (returns != null && returns.isNotEmpty) {
-      returns.forEach((player, amount) {
-        Future.delayed(Duration(milliseconds: delay), () {
-          if (!mounted) return;
-          _playFoldRefundAnimation(player, amount);
-        });
-        delay += 150;
-      });
-    }
+    _animateUncalledReturns(delay: delay + 500);
 
     _potAnimationPlayed = true;
 
