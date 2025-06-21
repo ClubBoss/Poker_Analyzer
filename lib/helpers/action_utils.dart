@@ -13,5 +13,7 @@ bool isOpponentAction(ActionEntry action, int heroIndex) {
 
 /// Filters [actions] to only those taken by opponents of the hero.
 List<ActionEntry> actionsAgainstHero(List<ActionEntry> actions, int heroIndex) {
-  return actions.where((a) => isOpponentAction(a, heroIndex)).toList();
+  return actions
+      .where((ActionEntry a) => isOpponentAction(a, heroIndex))
+      .toList();
 }

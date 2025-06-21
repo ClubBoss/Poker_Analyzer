@@ -3,7 +3,7 @@ import 'dart:ui';
 
 class TableGeometryHelper {
   static double tableScale(int numberOfPlayers) {
-    final extraPlayers = max(0, numberOfPlayers - 6);
+    final int extraPlayers = max(0, numberOfPlayers - 6);
     return (1.0 - extraPlayers * 0.05).clamp(0.75, 1.0);
   }
 
@@ -30,9 +30,9 @@ class TableGeometryHelper {
   /// simple elliptical geometry.
   static Offset positionForPlayer(
       int index, int numberOfPlayers, double tableWidth, double tableHeight) {
-    final angle = 2 * pi * index / numberOfPlayers + pi / 2;
-    final radiusX = tableWidth / 2;
-    final radiusY = tableHeight / 2;
+    final double angle = 2 * pi * index / numberOfPlayers + pi / 2;
+    final double radiusX = tableWidth / 2;
+    final double radiusY = tableHeight / 2;
     return Offset(radiusX * cos(angle), radiusY * sin(angle));
   }
 }
