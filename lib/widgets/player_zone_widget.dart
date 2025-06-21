@@ -52,6 +52,10 @@ class PlayerZoneWidget extends StatefulWidget {
   final int maxStackSize;
   final double scale;
   final Set<String> usedCards;
+  final bool editMode;
+  final PlayerModel player;
+  final ValueChanged<int>? onStackChanged;
+  final ValueChanged<int>? onBetChanged;
   // Stack editing is handled by PlayerInfoWidget
 
   /// Returns the offset of a seat around an elliptical poker table. This is
@@ -65,6 +69,7 @@ class PlayerZoneWidget extends StatefulWidget {
 
   const PlayerZoneWidget({
     Key? key,
+    required this.player,
     required this.playerName,
     required this.street,
     this.position,
@@ -87,6 +92,9 @@ class PlayerZoneWidget extends StatefulWidget {
     this.maxStackSize = 100,
     this.scale = 1.0,
     this.usedCards = const {},
+    this.editMode = false,
+    this.onStackChanged,
+    this.onBetChanged,
   }) : super(key: key);
 
   @override
@@ -118,18 +126,25 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Timer? _stackBetTimer;
   late final AnimationController _bounceController;
   late final Animation<double> _bounceAnimation;
+  late TextEditingController _stackController;
+  late TextEditingController _betController;
 
   @override
   void initState() {
     super.initState();
     _playerType = widget.playerType;
-    _currentBet = widget.currentBet;
+    _currentBet = widget.player.bet;
     _cards = List<CardModel>.from(widget.cards);
     _actionTagText = widget.actionTagText;
-    _stack = widget.stackSize ??
-        (widget.stackSizes != null && widget.playerIndex != null
-            ? widget.stackSizes![widget.playerIndex!]
-            : null);
+    _stack = widget.player.stack;
+    if (widget.stackSize != null) {
+      _stack = widget.stackSize;
+    } else if (widget.stackSizes != null && widget.playerIndex != null) {
+      _stack = widget.stackSizes![widget.playerIndex!];
+    }
+    if (widget.currentBet != 0) {
+      _currentBet = widget.currentBet;
+    }
     _remainingStack = widget.remainingStack;
     _playerZoneRegistry[widget.playerName] = this;
     _controller = AnimationController(
@@ -155,6 +170,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.isActive) {
       _controller.repeat(reverse: true);
     }
+    _stackController = TextEditingController(text: _stack?.toString() ?? '');
+    _betController = TextEditingController(text: '$_currentBet');
   }
 
   @override
@@ -178,11 +195,15 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.cards != oldWidget.cards) {
       _cards = List<CardModel>.from(widget.cards);
     }
-    if (widget.currentBet != oldWidget.currentBet) {
-      _currentBet = widget.currentBet;
-      if (widget.currentBet > 0 && widget.currentBet > oldWidget.currentBet) {
+    if (widget.player.bet != oldWidget.player.bet ||
+        widget.currentBet != oldWidget.currentBet) {
+      _currentBet = widget.player.bet;
+      if (widget.currentBet != oldWidget.currentBet &&
+          widget.currentBet > 0 &&
+          widget.currentBet > oldWidget.currentBet) {
         _playBetAnimation(widget.currentBet);
       }
+      _betController.text = '$_currentBet';
     }
     if (widget.actionTagText != oldWidget.actionTagText) {
       _actionTagText = widget.actionTagText;
@@ -194,9 +215,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final int? newStack = widget.stackSize ??
         (widget.stackSizes != null && widget.playerIndex != null
             ? widget.stackSizes![widget.playerIndex!]
-            : null);
+            : widget.player.stack);
     if (newStack != oldStack) {
       setState(() => _stack = newStack);
+      _stackController.text = _stack?.toString() ?? '';
     }
     if (widget.remainingStack != oldWidget.remainingStack) {
       setState(() => _remainingStack = widget.remainingStack);
@@ -511,6 +533,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betEntry?.remove();
     _betOverlayEntry?.remove();
     _actionLabelEntry?.remove();
+    _stackController.dispose();
+    _betController.dispose();
     _controller.dispose();
     _bounceController.dispose();
     super.dispose();
@@ -772,14 +796,64 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           ),
         ),
       ),
-        GestureDetector(
-          onLongPress: _editStack,
-          child: PlayerStackValue(
-            stack: stack ?? 0,
-            scale: widget.scale,
-            isBust: remaining != null && remaining <= 0,
+        if (widget.editMode)
+          Padding(
+            padding: EdgeInsets.only(top: 4 * widget.scale),
+            child: Column(
+              children: [
+                SizedBox(
+                  width: 60 * widget.scale,
+                  child: TextField(
+                    controller: _stackController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    decoration: const InputDecoration(
+                      hintText: 'Stack',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      isDense: true,
+                    ),
+                    onChanged: (v) {
+                      final val = int.tryParse(v) ?? 0;
+                      widget.player.stack = val;
+                      widget.onStackChanged?.call(val);
+                      setState(() => _stack = val);
+                    },
+                  ),
+                ),
+                SizedBox(height: 4 * widget.scale),
+                SizedBox(
+                  width: 60 * widget.scale,
+                  child: TextField(
+                    controller: _betController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    decoration: const InputDecoration(
+                      hintText: 'Bet',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      isDense: true,
+                    ),
+                    onChanged: (v) {
+                      final val = int.tryParse(v) ?? 0;
+                      widget.player.bet = val;
+                      widget.onBetChanged?.call(val);
+                      setState(() => _currentBet = val);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          GestureDetector(
+            onLongPress: _editStack,
+            child: PlayerStackValue(
+              stack: stack ?? 0,
+              scale: widget.scale,
+              isBust: remaining != null && remaining <= 0,
+            ),
           ),
-        ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           transitionBuilder: (child, animation) => FadeTransition(

@@ -29,10 +29,14 @@ class PlayerModel {
   final List<CardModel?> revealedCards;
   final Map<String, List<PlayerActionModel>> actions;
   PlayerType type;
+  int stack;
+  int bet;
 
   PlayerModel({
     required this.name,
     this.type = PlayerType.unknown,
+    this.stack = 0,
+    this.bet = 0,
     List<CardModel?>? revealedCards,
   })  : cards = [],
         revealedCards =
@@ -48,10 +52,14 @@ class PlayerModel {
     String? name,
     PlayerType? type,
     List<CardModel?>? revealedCards,
+    int? stack,
+    int? bet,
   }) {
     return PlayerModel(
       name: name ?? this.name,
       type: type ?? this.type,
+      stack: stack ?? this.stack,
+      bet: bet ?? this.bet,
       revealedCards: revealedCards ??
           List<CardModel?>.from(this.revealedCards),
     )
@@ -77,6 +85,8 @@ class PlayerModel {
                 }
             ])),
         'type': type.name,
+        'stack': stack,
+        'bet': bet,
       };
 
   factory PlayerModel.fromJson(Map<String, dynamic> json) {
@@ -86,6 +96,8 @@ class PlayerModel {
         (e) => e.name == json['type'],
         orElse: () => PlayerType.unknown,
       ),
+      stack: json['stack'] as int? ?? 0,
+      bet: json['bet'] as int? ?? 0,
       revealedCards: [
         for (final item in (json['revealedCards'] as List? ?? [null, null]))
           item == null
