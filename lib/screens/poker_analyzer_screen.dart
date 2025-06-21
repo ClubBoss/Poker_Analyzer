@@ -1318,7 +1318,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playPotCollectionAnimation(Set<int> winners) {
     final overlay = Overlay.of(context);
-    if (overlay == null || winners.isEmpty) return;
+
+    final Map<int, int> payouts = {};
+    if (_winnings != null && _winnings!.isNotEmpty) {
+      payouts.addAll(_winnings!);
+    } else if (_winnerIndex != null) {
+      payouts[_winnerIndex!] = _potSync.pots[currentStreet];
+    }
+
+    if (overlay == null || payouts.isEmpty) return;
 
     final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1331,13 +1339,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
-    final wins = _winnings;
     int delay = 0;
-    for (final playerIndex in winners) {
-      final amount = wins != null && wins.isNotEmpty
-          ? wins[playerIndex] ?? 0
-          : (_winnerIndex == playerIndex ? _potSync.pots[currentStreet] : 0);
-      if (amount <= 0) continue;
+    payouts.forEach((playerIndex, amount) {
+      if (amount <= 0) return;
       final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
       final angle = 2 * pi * i / numberOfPlayers + pi / 2;
       final dx = radiusX * cos(angle);
@@ -1391,7 +1395,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         });
       });
       delay++;
-    }
+    });
 
     final cleanupDelay = 150 * (delay == 0 ? 0 : delay - 1) + 900;
     Future.delayed(Duration(milliseconds: cleanupDelay), () {
