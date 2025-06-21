@@ -261,6 +261,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   final List<int> _displayedPots = List.filled(4, 0);
   final Map<int, int> _displayedStacks = {};
   List<int> _sidePots = [];
+  int _currentPot = 0;
   late TransitionLockService lockService;
   final GlobalKey<_BoardCardsSectionState> _boardKey =
       GlobalKey<_BoardCardsSectionState>();
@@ -1160,6 +1161,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _displayedPots[i] = 0;
       }
       _sidePots.clear();
+      _currentPot = 0;
       _playbackNarration = null;
       _showNextHandButton = false;
       _showReplayDemoButton = false;
@@ -2153,6 +2155,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final newValue = (current - entry.amount!).clamp(0, current);
     lockService.safeSetState(this, () {
       _displayedStacks[entry.playerIndex] = newValue;
+    });
+  }
+
+  void _updateCurrentPot(ActionEntry entry) {
+    if (entry.amount == null) return;
+    if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action)) return;
+    lockService.safeSetState(this, () {
+      _currentPot += entry.amount!;
+    });
+  }
+
+  void _recomputeCurrentPot() {
+    int total = 0;
+    for (final a in actions) {
+      if ((a.action == 'bet' ||
+              a.action == 'raise' ||
+              a.action == 'call' ||
+              a.action == 'all-in') &&
+          a.amount != null) {
+        total += a.amount!;
+      }
+    }
+    lockService.safeSetState(this, () {
+      _currentPot = total;
     });
   }
 
@@ -4089,6 +4115,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       // Animation handled via ActionEditingService
     }
     _deductStackAfterAction(entry);
+    _updateCurrentPot(entry);
     _clearActiveHighlight();
   }
 
@@ -4151,6 +4178,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         // Animation handled via ActionEditingService
       }
       _deductStackAfterAction(entry);
+      _recomputeCurrentPot();
       _clearActiveHighlight();
     });
   }
@@ -4162,13 +4190,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _actionEditing.deleteAction(index, recordHistory: recordHistory);
     }
 
-    if (withSetState) {
+      if (withSetState) {
       lockService.safeSetState(this, () {
         perform();
+        _recomputeCurrentPot();
         _clearActiveHighlight();
       });
     } else {
       perform();
+      _recomputeCurrentPot();
       _clearActiveHighlight();
     }
   }
@@ -4177,6 +4207,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (lockService.isLocked) return;
     lockService.safeSetState(this, () {
       _actionEditing.reorderAction(oldIndex, newIndex);
+      _recomputeCurrentPot();
       _clearActiveHighlight();
     });
   }
@@ -4195,6 +4226,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         timestamp: original.timestamp,
       );
       _actionEditing.insertAction(index + 1, copy);
+      _recomputeCurrentPot();
       _clearActiveHighlight();
     });
   }
@@ -5020,6 +5052,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     centerChipController: _centerChipController,
                     potGrowth: _potGrowthAnimation,
                     potCount: _potCountAnimation,
+                    currentPot: _currentPot,
                     centerBets: _centerBetStacks,
                     actionColor: ActionFormattingHelper.actionColor,
                   ),
@@ -6285,6 +6318,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
   final Animation<int> potCount;
   final Color Function(String) actionColor;
   final Map<int, _BetDisplayInfo> centerBets;
+  final int currentPot;
 
   const _PotAndBetsOverlaySection({
     required this.scale,
@@ -6303,6 +6337,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     required this.potCount,
     required this.centerBets,
     required this.actionColor,
+    required this.currentPot,
   });
 
 
@@ -6320,7 +6355,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
 
     final List<Widget> items = [];
 
-    final pot = pots[currentStreet];
+    final pot = currentPot;
     if (pot > 0) {
       items.add(
         Positioned.fill(
@@ -6329,15 +6364,9 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
               alignment: const Alignment(0, -0.05),
               child: Transform.translate(
                 offset: Offset(0, -12 * scale),
-                child: ScaleTransition(
-                  scale: potGrowth,
-                  child: AnimatedBuilder(
-                    animation: potCount,
-                    builder: (_, __) => CentralPotWidget(
-                      text: ActionFormattingHelper.formatAmount(potCount.value),
-                      scale: scale,
-                    ),
-                  ),
+                child: CentralPotWidget(
+                  text: ActionFormattingHelper.formatAmount(pot),
+                  scale: scale,
                 ),
               ),
             ),
