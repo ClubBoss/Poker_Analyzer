@@ -8,6 +8,7 @@ import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/player_zone_action_entry.dart' as pz;
 import '../services/action_sync_service.dart';
+import '../services/transition_lock_service.dart';
 import '../user_preferences.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
@@ -320,6 +321,52 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         setState(() => _stackBetAmount = null);
       }
     });
+  }
+
+  /// Animates a stack of chips flying from the center pot to this player.
+  void playWinChipsAnimation(int amount) {
+    final overlay = Overlay.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final media = MediaQuery.of(context).size;
+    final start = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
+    final end = box.localToGlobal(box.size.center(Offset.zero));
+    final control = Offset(
+      (start.dx + end.dx) / 2,
+      (start.dy + end.dy) / 2 -
+          (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
+    );
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => ChipMovingWidget(
+        start: start,
+        end: end,
+        control: control,
+        amount: amount,
+        color: Colors.orangeAccent,
+        scale: widget.scale,
+        onCompleted: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
+  }
+
+  /// Smoothly increases this player's stack by [amount].
+  Future<void> animateStackIncrease(int amount) async {
+    if (_stack == null) return;
+    final controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    final animation = IntTween(begin: _stack!, end: _stack! + amount).animate(
+      CurvedAnimation(parent: controller, curve: Curves.easeOut),
+    )..addListener(() {
+        if (mounted) {
+          setState(() => _stack = animation.value);
+        }
+      });
+    await controller.forward();
+    controller.dispose();
   }
 
   Future<void> _editStack() async {
@@ -1629,5 +1676,25 @@ Future<void> showWinnerSequence(
       showWinnerCelebration(context, name);
     }
   }
+}
+
+/// Highlights the player at [winnerIndex] and animates their stack increasing
+/// by [potAmount] while chips fly from the center pot.
+Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
+  _PlayerZoneWidgetState? state;
+  for (final s in _playerZoneRegistry.values) {
+    if (s.widget.playerIndex == winnerIndex) {
+      state = s;
+      break;
+    }
+  }
+  if (state == null) return;
+  final context = state.context;
+  final lock = Provider.of<TransitionLockService?>(context, listen: false);
+  lock?.lock(const Duration(milliseconds: 1600));
+  state.highlightWinner();
+  state.playWinChipsAnimation(potAmount);
+  await state.animateStackIncrease(potAmount);
+  lock?.unlock();
 }
 
