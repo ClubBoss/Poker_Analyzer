@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import '../helpers/action_formatting_helper.dart';
 import '../services/action_history_service.dart';
+import 'edit_action_dialog.dart';
 
 class ActionHistoryOverlay extends StatelessWidget {
   final ActionHistoryService actionHistory;
   final Map<int, String> playerPositions;
   final Set<int> expandedStreets;
   final ValueChanged<int>? onToggleStreet;
+  final void Function(int index, ActionEntry entry)? onEdit;
+  final bool isLocked;
 
   const ActionHistoryOverlay({
     Key? key,
@@ -16,6 +19,8 @@ class ActionHistoryOverlay extends StatelessWidget {
     required this.playerPositions,
     required this.expandedStreets,
     this.onToggleStreet,
+    this.onEdit,
+    required this.isLocked,
   }) : super(key: key);
 
   // Color helpers moved to [ActionFormattingHelper].
@@ -34,7 +39,7 @@ class ActionHistoryOverlay extends StatelessWidget {
         final formatted = ActionFormattingHelper.formatAmount(a.amount!);
         amountText = a.action == 'raise' ? 'to $formatted' : formatted;
       }
-      return Container(
+      final chip = Container(
         padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
         margin: const EdgeInsets.only(right: 4, bottom: 4),
         decoration: BoxDecoration(
@@ -64,6 +69,24 @@ class ActionHistoryOverlay extends StatelessWidget {
             ],
           ],
         ),
+      );
+
+      if (onEdit == null || isLocked) return chip;
+
+      return GestureDetector(
+        onTap: () async {
+          final edited = await showEditActionDialog(
+            context,
+            entry: a,
+            numberOfPlayers: playerPositions.length,
+            playerPositions: playerPositions,
+          );
+          if (edited != null) {
+            final index = actionHistory.indexOf(a);
+            if (index != -1) onEdit!(index, edited);
+          }
+        },
+        child: chip,
       );
     }
 
