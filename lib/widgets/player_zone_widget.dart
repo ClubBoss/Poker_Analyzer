@@ -16,6 +16,8 @@ import 'current_bet_label.dart';
 import 'bet_size_label.dart';
 import 'player_stack_value.dart';
 import 'stack_bar_widget.dart';
+import 'bet_flying_chips.dart';
+import 'chip_stack_moving_widget.dart';
 import 'chip_moving_widget.dart';
 import 'move_pot_animation.dart';
 import 'winner_zone_highlight.dart';
@@ -200,9 +202,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         widget.currentBet != oldWidget.currentBet) {
       _currentBet = widget.player.bet;
       if (widget.currentBet != oldWidget.currentBet &&
-          widget.currentBet > 0 &&
           widget.currentBet > oldWidget.currentBet) {
-        _playBetAnimation(widget.currentBet);
+        final delta = widget.currentBet - oldWidget.currentBet;
+        if (delta > 0) _playBetAnimation(delta);
       }
       _betController.text = '$_currentBet';
     }
@@ -297,16 +299,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
     if (overlay == null || box == null) return;
-    final start = box.localToGlobal(box.size.center(Offset.zero));
+    final start =
+        box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
     final media = MediaQuery.of(context).size;
     final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
     final control = Offset(
       (start.dx + end.dx) / 2,
-      (start.dy + end.dy) / 2 - (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
+      (start.dy + end.dy) / 2 -
+          (40 + ChipStackMovingWidget.activeCount * 8) * widget.scale,
     );
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => ChipMovingWidget(
+      builder: (_) => BetFlyingChips(
         start: start,
         end: end,
         control: control,
