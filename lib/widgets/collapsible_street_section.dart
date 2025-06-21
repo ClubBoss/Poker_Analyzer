@@ -60,10 +60,10 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
 
   String _buildSummary(List<ActionEntry> actions) {
     if (actions.isEmpty) return 'Нет действий';
-    final last = actions.last;
-    final pos = widget.playerPositions[last.playerIndex] ?? 'P${last.playerIndex + 1}';
-    final actionText = '${_capitalize(last.action)}${last.amount != null ? ' ${last.amount}' : ''}';
-    return '$pos $actionText';
+    return actions
+        .map((a) =>
+            '${_capitalize(a.action)}${a.amount != null ? ' ${a.amount}' : ''}')
+        .join(' – ');
   }
 
   @override
