@@ -70,8 +70,17 @@ class SpotOfTheDayService extends ChangeNotifier {
       if (index >= 0 && index < spots.length) {
         _spot = spots[index];
       }
-      if (_history.indexWhere((e) => _isSameDay(e.date, _date!)) < 0) {
-        _history.add(SpotOfDayHistoryEntry(date: _date!, spotIndex: index));
+      final idx = _history.indexWhere((e) => _isSameDay(e.date, _date!));
+      if (idx < 0) {
+        _history.add(SpotOfDayHistoryEntry(
+            date: _date!,
+            spotIndex: index,
+            recommendedAction: _spot?.recommendedAction));
+        await _saveHistory();
+      } else if (_history[idx].recommendedAction == null &&
+          _spot?.recommendedAction != null) {
+        _history[idx] = _history[idx]
+            .copyWith(recommendedAction: _spot!.recommendedAction);
         await _saveHistory();
       }
     }
@@ -88,7 +97,8 @@ class SpotOfTheDayService extends ChangeNotifier {
     _spot = spots[rnd];
     _date = DateTime.now();
     _result = null;
-    _history.add(SpotOfDayHistoryEntry(date: _date!, spotIndex: rnd));
+    _history.add(SpotOfDayHistoryEntry(
+        date: _date!, spotIndex: rnd, recommendedAction: _spot?.recommendedAction));
     await _saveHistory();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_dateKey, _date!.toIso8601String());
@@ -104,7 +114,10 @@ class SpotOfTheDayService extends ChangeNotifier {
     if (_date != null) {
       final idx = _history.indexWhere((e) => _isSameDay(e.date, _date!));
       if (idx >= 0) {
-        _history[idx] = _history[idx].copyWith(userAction: action);
+        final entry = _history[idx];
+        _history[idx] = entry.copyWith(
+            userAction: action,
+            recommendedAction: entry.recommendedAction ?? _spot?.recommendedAction);
         await _saveHistory();
       }
     }
