@@ -88,6 +88,7 @@ import '../widgets/reveal_card_animation.dart';
 import '../widgets/clear_table_cards.dart';
 import '../widgets/fold_reveal_animation.dart';
 import '../widgets/table_cleanup_overlay.dart';
+import '../widgets/table_fade_overlay.dart';
 import '../widgets/poker_table_painter.dart';
 import '../widgets/deal_card_animation.dart';
 import '../widgets/playback_progress_bar.dart';
@@ -2462,12 +2463,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   /// Restarts the demo sequence when in demo mode.
   void _replayDemo() {
-    final controller = context.read<DemoPlaybackController>();
-    controller.startDemo(
-      loadSpot: loadTrainingSpot,
-      playAll: playAll,
-      announceWinner: resolveWinner,
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+
+    late OverlayEntry fadeEntry;
+    fadeEntry = OverlayEntry(
+      builder: (_) => TableFadeOverlay(
+        onCompleted: () => fadeEntry.remove(),
+      ),
     );
+    overlay.insert(fadeEntry);
+
+    Future.delayed(const Duration(milliseconds: 400), () {
+      final controller = context.read<DemoPlaybackController>();
+      controller.startDemo(
+        loadSpot: loadTrainingSpot,
+        playAll: playAll,
+        announceWinner: resolveWinner,
+      );
+    });
   }
 
 
