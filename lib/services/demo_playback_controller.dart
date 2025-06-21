@@ -26,19 +26,21 @@ class DemoPlaybackController {
     required VoidCallback playAll,
     required void Function(Map<int, int> winnings) announceWinner,
   }) {
-    final spot = TrainingSpot.fromJson(
-        Map<String, dynamic>.from(_demoData));
-    loadSpot(spot);
-    Future.delayed(const Duration(milliseconds: 500), () {
-      playAll();
-      void listener() {
-        if (playbackManager.playbackIndex == spot.actions.length) {
-          playbackManager.removeListener(listener);
-          final pot = potSync.pots[boardManager.boardStreet];
-          announceWinner({spot.heroIndex: pot});
+    final spot =
+        TrainingSpot.fromJson(Map<String, dynamic>.from(_demoData));
+    Future.delayed(const Duration(seconds: 2), () {
+      loadSpot(spot);
+      Future.delayed(const Duration(seconds: 1), () {
+        playAll();
+        void listener() {
+          if (playbackManager.playbackIndex == spot.actions.length) {
+            playbackManager.removeListener(listener);
+            final pot = potSync.pots[boardManager.boardStreet];
+            announceWinner({spot.heroIndex: pot});
+          }
         }
-      }
-      playbackManager.addListener(listener);
+        playbackManager.addListener(listener);
+      });
     });
   }
 
