@@ -1,0 +1,29 @@
+name: Demo APK Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '3.22.2'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build demo APK
+        run: flutter build apk --target=lib/main_demo.dart
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: demo-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
