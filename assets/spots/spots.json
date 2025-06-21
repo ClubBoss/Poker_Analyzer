@@ -1,0 +1,94 @@
+[
+  {
+    "playerCards": [
+      [{"rank": "A", "suit": "♠"}, {"rank": "K", "suit": "♠"}],
+      [{"rank": "Q", "suit": "♦"}, {"rank": "Q", "suit": "♣"}]
+    ],
+    "boardCards": [
+      {"rank": "J", "suit": "♠"},
+      {"rank": "T", "suit": "♠"},
+      {"rank": "2", "suit": "♦"},
+      {"rank": "5", "suit": "♣"},
+      {"rank": "9", "suit": "♥"}
+    ],
+    "actions": [
+      {"street": 0, "playerIndex": 0, "action": "raise", "amount": 3},
+      {"street": 0, "playerIndex": 1, "action": "call", "amount": 3},
+      {"street": 1, "playerIndex": 0, "action": "bet", "amount": 5},
+      {"street": 1, "playerIndex": 1, "action": "call", "amount": 5},
+      {"street": 2, "playerIndex": 0, "action": "bet", "amount": 10},
+      {"street": 2, "playerIndex": 1, "action": "fold"}
+    ],
+    "heroIndex": 0,
+    "numberOfPlayers": 2,
+    "playerTypes": ["unknown", "unknown"],
+    "positions": ["BTN", "BB"],
+    "stacks": [100, 100],
+    "difficulty": 3,
+    "rating": 0,
+    "createdAt": "2023-01-01T00:00:00.000"
+  },
+  {
+    "playerCards": [
+      [{"rank": "T", "suit": "♥"}, {"rank": "T", "suit": "♦"}],
+      [{"rank": "A", "suit": "♣"}, {"rank": "K", "suit": "♣"}]
+    ],
+    "boardCards": [
+      {"rank": "T", "suit": "♠"},
+      {"rank": "5", "suit": "♥"},
+      {"rank": "8", "suit": "♣"},
+      {"rank": "K", "suit": "♦"},
+      {"rank": "3", "suit": "♠"}
+    ],
+    "actions": [
+      {"street": 0, "playerIndex": 1, "action": "raise", "amount": 4},
+      {"street": 0, "playerIndex": 0, "action": "call", "amount": 4},
+      {"street": 1, "playerIndex": 1, "action": "bet", "amount": 6},
+      {"street": 1, "playerIndex": 0, "action": "raise", "amount": 18},
+      {"street": 1, "playerIndex": 1, "action": "call", "amount": 12},
+      {"street": 2, "playerIndex": 0, "action": "bet", "amount": 25},
+      {"street": 2, "playerIndex": 1, "action": "fold"}
+    ],
+    "heroIndex": 0,
+    "numberOfPlayers": 2,
+    "playerTypes": ["unknown", "unknown"],
+    "positions": ["BB", "BTN"],
+    "stacks": [120, 120],
+    "difficulty": 4,
+    "rating": 0,
+    "createdAt": "2023-01-02T00:00:00.000"
+  },
+  {
+    "playerCards": [
+      [{"rank": "Q", "suit": "♠"}, {"rank": "J", "suit": "♠"}],
+      [{"rank": "9", "suit": "♣"}, {"rank": "9", "suit": "♦"}]
+    ],
+    "boardCards": [
+      {"rank": "Q", "suit": "♦"},
+      {"rank": "9", "suit": "♥"},
+      {"rank": "7", "suit": "♠"},
+      {"rank": "2", "suit": "♠"},
+      {"rank": "A", "suit": "♣"}
+    ],
+    "actions": [
+      {"street": 0, "playerIndex": 0, "action": "raise", "amount": 2},
+      {"street": 0, "playerIndex": 1, "action": "call", "amount": 2},
+      {"street": 1, "playerIndex": 0, "action": "check"},
+      {"street": 1, "playerIndex": 1, "action": "bet", "amount": 3},
+      {"street": 1, "playerIndex": 0, "action": "call", "amount": 3},
+      {"street": 2, "playerIndex": 0, "action": "check"},
+      {"street": 2, "playerIndex": 1, "action": "bet", "amount": 7},
+      {"street": 2, "playerIndex": 0, "action": "call", "amount": 7},
+      {"street": 3, "playerIndex": 0, "action": "check"},
+      {"street": 3, "playerIndex": 1, "action": "check"}
+    ],
+    "heroIndex": 0,
+    "numberOfPlayers": 2,
+    "playerTypes": ["unknown", "unknown"],
+    "positions": ["CO", "BB"],
+    "stacks": [80, 80],
+    "difficulty": 2,
+    "rating": 0,
+    "createdAt": "2023-01-03T00:00:00.000"
+  }
+]
