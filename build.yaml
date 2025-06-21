@@ -2,5 +2,5 @@ targets:
   demo:
     sources:
       include:
-        - main_demo.dart
+        - main.dart
         - lib/**
