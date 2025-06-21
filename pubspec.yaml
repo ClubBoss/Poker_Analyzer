@@ -50,3 +50,10 @@ flutter:
 
   assets:
     - assets/cards/card_back.png
+
+# Release build configuration for the demo entry point. Run
+# `flutter build apk --target=lib/main_demo.dart` to compile the demo
+# application with these settings.
+flutter_build:
+  targets:
+    demo: lib/main_demo.dart
