@@ -3557,6 +3557,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     unawaited(_finishHand().whenComplete(() => _autoShowdownTriggered = false));
   }
 
+  void _maybeTriggerSimpleWin(ActionEntry? lastAction, List<int> activePlayers) {
+    if (_showdownActive ||
+        _autoShowdownTriggered ||
+        _showNextHandButton ||
+        _allInPlayers.isNotEmpty ||
+        _potAnimationPlayed ||
+        _simpleWinPlayed ||
+        lastAction == null ||
+        lastAction.action != 'fold' ||
+        activePlayers.length != 1 ||
+        _playbackManager.playbackIndex != actions.length) {
+      return;
+    }
+
+    _winnerIndex = activePlayers.first;
+    _returns = _calculateUncalledReturns();
+    _playPotWinAnimation();
+    Future.delayed(const Duration(milliseconds: 1600), () {
+      if (!mounted) return;
+      lockService.safeSetState(this, () {
+        _showNextHandButton = true;
+      });
+    });
+  }
+
   void _onPlaybackManagerChanged() {
     if (mounted) {
       _clearBetDisplays();
@@ -3676,6 +3701,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playPotWinAnimation();
       }
       _maybeTriggerAutoShowdown(lastAction, active);
+      _maybeTriggerSimpleWin(lastAction, active);
       _prevPlaybackIndex = _playbackManager.playbackIndex;
     }
   }
