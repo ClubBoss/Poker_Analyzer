@@ -1136,6 +1136,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       payouts[winner] = pot - returnTotal;
     }
     await triggerWinnerAnimation(winner, pot - returnTotal);
+    await triggerRefundAnimations(returns);
+    await Future.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
     final stacks = <int, int>{};
     _stackService.currentStacks.forEach((i, stack) {

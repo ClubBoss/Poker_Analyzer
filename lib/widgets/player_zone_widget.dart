@@ -1698,3 +1698,28 @@ Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
   lock?.unlock();
 }
 
+/// Animates refunds flying from the center pot back to each player in [refunds].
+/// Uses the same chip trail as [triggerWinnerAnimation] without highlights.
+Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
+  for (final entry in refunds.entries) {
+    final playerIndex = entry.key;
+    final amount = entry.value;
+    if (amount <= 0) continue;
+    _PlayerZoneWidgetState? state;
+    for (final s in _playerZoneRegistry.values) {
+      if (s.widget.playerIndex == playerIndex) {
+        state = s;
+        break;
+      }
+    }
+    if (state == null) continue;
+    final context = state.context;
+    final lock = Provider.of<TransitionLockService?>(context, listen: false);
+    lock?.lock(const Duration(milliseconds: 800));
+    state.playWinChipsAnimation(amount);
+    await state.animateStackIncrease(amount);
+    lock?.unlock();
+    await Future.delayed(const Duration(milliseconds: 150));
+  }
+}
+
