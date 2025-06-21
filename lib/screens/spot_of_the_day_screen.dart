@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/spot_of_the_day_service.dart';
 import '../widgets/board_cards_widget.dart';
 import 'spot_of_the_day_history_screen.dart';
+import 'spot_of_the_day_retry_screen.dart';
 import '../widgets/poker_table_painter.dart';
 import '../widgets/player_info_widget.dart';
 import '../helpers/table_geometry_helper.dart';
@@ -194,6 +195,20 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
                 onPressed: () => _chooseAction(service),
                 child: Text(service.result == null ? 'Ваше решение' : 'Изменить ответ'),
               ),
+              if (service.history.any((e) => e.correct == false))
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const SpotOfTheDayRetryScreen()),
+                      );
+                    },
+                    child: const Text('Повторить ошибки'),
+                  ),
+                ),
             ],
           )
         ),
