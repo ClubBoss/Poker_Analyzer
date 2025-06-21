@@ -1585,9 +1585,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     if (payouts.isEmpty) return;
 
-    _startPotWinFlights(payouts);
+    final overlay = Overlay.of(context);
+    if (overlay != null) {
+      _showPotWinAnimations(
+        overlay,
+        payouts,
+        0,
+        Colors.orangeAccent,
+        highlight: true,
+        fadeStart: 0.5,
+      );
+    }
 
-    final cleanupDelay = 900 + 150 * (payouts.length - 1);
+    _potAnimationPlayed = true;
+
+    final cleanupDelay = 300 * payouts.length + 500;
     Future.delayed(Duration(milliseconds: cleanupDelay), () {
       if (!mounted) return;
       _autoResetAfterShowdown();
