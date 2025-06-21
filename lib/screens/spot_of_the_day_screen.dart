@@ -168,10 +168,23 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () => _chooseAction(service),
-            child: Text(service.result == null ? 'Ваше решение' : 'Изменить ответ'),
-          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (service.result != null || spot.recommendedAction != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Ваш ответ: ${service.result ?? '-'} • Реком.: ${spot.recommendedAction ?? '-'}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ElevatedButton(
+                onPressed: () => _chooseAction(service),
+                child: Text(service.result == null ? 'Ваше решение' : 'Изменить ответ'),
+              ),
+            ],
+          )
         ),
       ),
     );

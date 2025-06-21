@@ -23,6 +23,7 @@ class TrainingSpot {
   final String? userAction;
   final String? userComment;
   final String? actionHistory;
+  final String? recommendedAction;
   final DateTime createdAt;
 
   TrainingSpot({
@@ -43,6 +44,7 @@ class TrainingSpot {
     this.userAction,
     this.userComment,
     this.actionHistory,
+    this.recommendedAction,
     this.difficulty = 3,
     this.rating = 0,
     DateTime? createdAt,
@@ -120,6 +122,7 @@ class TrainingSpot {
         if (userAction != null) 'userAction': userAction,
         if (userComment != null) 'userComment': userComment,
         if (actionHistory != null) 'actionHistory': actionHistory,
+        if (recommendedAction != null) 'recommendedAction': recommendedAction,
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -205,6 +208,7 @@ class TrainingSpot {
       userAction: json['userAction'] as String?,
       userComment: json['userComment'] as String?,
       actionHistory: json['actionHistory'] as String?,
+      recommendedAction: json['recommendedAction'] as String?,
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
     );
@@ -217,6 +221,7 @@ class TrainingSpot {
     String? userAction,
     String? userComment,
     String? actionHistory,
+    String? recommendedAction,
     DateTime? createdAt,
   }) {
     return TrainingSpot(
@@ -239,6 +244,7 @@ class TrainingSpot {
       userAction: userAction ?? this.userAction,
       userComment: userComment ?? this.userComment,
       actionHistory: actionHistory ?? this.actionHistory,
+      recommendedAction: recommendedAction ?? this.recommendedAction,
       createdAt: createdAt ?? this.createdAt,
     );
   }

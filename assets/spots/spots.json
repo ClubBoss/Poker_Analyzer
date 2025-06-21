@@ -26,6 +26,7 @@
     "stacks": [100, 100],
     "difficulty": 3,
     "rating": 0,
+    "recommendedAction": "fold",
     "createdAt": "2023-01-01T00:00:00.000"
   },
   {
@@ -56,6 +57,7 @@
     "stacks": [120, 120],
     "difficulty": 4,
     "rating": 0,
+    "recommendedAction": "call",
     "createdAt": "2023-01-02T00:00:00.000"
   },
   {
@@ -89,6 +91,7 @@
     "stacks": [80, 80],
     "difficulty": 2,
     "rating": 0,
+    "recommendedAction": "check",
     "createdAt": "2023-01-03T00:00:00.000"
   }
 ]
