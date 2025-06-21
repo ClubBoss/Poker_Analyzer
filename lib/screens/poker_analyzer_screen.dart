@@ -4829,6 +4829,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     },
                     onEdit: _editAction,
                     onDelete: _deleteAction,
+                    onReorder: _reorderAction,
                     isLocked: lockService.isLocked,
                   ),
                   _PerspectiveSwitchButton(
@@ -6434,6 +6435,7 @@ class _ActionHistorySection extends StatelessWidget {
   final ValueChanged<int> onToggleStreet;
   final void Function(int index, ActionEntry entry) onEdit;
   final void Function(int index) onDelete;
+  final void Function(int, int) onReorder;
   final bool isLocked;
 
   const _ActionHistorySection({
@@ -6443,6 +6445,7 @@ class _ActionHistorySection extends StatelessWidget {
     required this.onToggleStreet,
     required this.onEdit,
     required this.onDelete,
+    required this.onReorder,
     required this.isLocked,
   });
 
@@ -6455,6 +6458,7 @@ class _ActionHistorySection extends StatelessWidget {
       onToggleStreet: onToggleStreet,
       onEdit: onEdit,
       onDelete: onDelete,
+      onReorder: onReorder,
       isLocked: isLocked,
     );
   }

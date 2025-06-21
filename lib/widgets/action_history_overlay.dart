@@ -12,6 +12,7 @@ class ActionHistoryOverlay extends StatelessWidget {
   final ValueChanged<int>? onToggleStreet;
   final void Function(int index, ActionEntry entry)? onEdit;
   final void Function(int index)? onDelete;
+  final void Function(int oldIndex, int newIndex)? onReorder;
   final bool isLocked;
 
   const ActionHistoryOverlay({
@@ -22,6 +23,7 @@ class ActionHistoryOverlay extends StatelessWidget {
     this.onToggleStreet,
     this.onEdit,
     this.onDelete,
+    this.onReorder,
     required this.isLocked,
   }) : super(key: key);
 
@@ -34,7 +36,7 @@ class ActionHistoryOverlay extends StatelessWidget {
     final double scale = screenWidth < 350 ? 0.8 : 1.0;
     const streetNames = ['Префлоп', 'Флоп', 'Тёрн', 'Ривер'];
 
-    Widget buildChip(ActionEntry a) {
+    Widget buildChip(ActionEntry a, int index) {
       final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
       String? amountText;
       if (a.amount != null) {
@@ -73,51 +75,73 @@ class ActionHistoryOverlay extends StatelessWidget {
         ),
       );
 
-      if (isLocked || (onEdit == null && onDelete == null)) return chip;
+      Widget interactive = chip;
 
-      return GestureDetector(
-        onTap: onEdit == null
-            ? null
-            : () async {
-                final edited = await showEditActionDialog(
-                  context,
-                  entry: a,
-                  numberOfPlayers: playerPositions.length,
-                  playerPositions: playerPositions,
-                );
-                if (edited != null) {
-                  final index = actionHistory.indexOf(a);
-                  if (index != -1) onEdit!(index, edited);
-                }
-              },
-        onLongPress: onDelete == null
-            ? null
-            : () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Удалить действие?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Отмена'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Удалить'),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm == true) {
-                  final index = actionHistory.indexOf(a);
-                  if (index != -1) {
-                    actionHistory.removeAt(index);
-                    onDelete!(index);
+      if (!isLocked && (onEdit != null || onDelete != null)) {
+        interactive = GestureDetector(
+          onTap: onEdit == null
+              ? null
+              : () async {
+                  final edited = await showEditActionDialog(
+                    context,
+                    entry: a,
+                    numberOfPlayers: playerPositions.length,
+                    playerPositions: playerPositions,
+                  );
+                  if (edited != null) {
+                    final idx = actionHistory.indexOf(a);
+                    if (idx != -1) onEdit!(idx, edited);
                   }
-                }
-              },
-        child: chip,
+                },
+          onLongPress: onDelete == null
+              ? null
+              : () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Удалить действие?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Отмена'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('Удалить'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    final idx = actionHistory.indexOf(a);
+                    if (idx != -1) {
+                      actionHistory.removeAt(idx);
+                      onDelete!(idx);
+                    }
+                  }
+                },
+          child: chip,
+        );
+      }
+
+      if (onReorder != null && !isLocked) {
+        return Row(
+          key: ValueKey(a.timestamp.microsecondsSinceEpoch),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            interactive,
+            ReorderableDragStartListener(
+              index: index,
+              child:
+                  const Icon(Icons.drag_handle, color: Colors.white70, size: 16),
+            ),
+          ],
+        );
+      }
+
+      return Container(
+        key: ValueKey(a.timestamp.microsecondsSinceEpoch),
+        child: interactive,
       );
     }
 
@@ -158,12 +182,39 @@ class ActionHistoryOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [for (final a in visibleList) buildChip(a)],
-                        ),
-                      ),
+                      child: onReorder != null && !isLocked
+                          ? ReorderableListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              buildDefaultDragHandles: false,
+                              itemCount: visibleList.length,
+                              onReorder: (oldIndex, newIndex) {
+                                if (isLocked || onReorder == null) return;
+                                final oldGlobal =
+                                    actionHistory.indexOf(visibleList[oldIndex]);
+                                int newGlobal;
+                                if (newIndex >= visibleList.length) {
+                                  newGlobal =
+                                      actionHistory.indexOf(visibleList.last) + 1;
+                                } else {
+                                  final target = visibleList[
+                                      newIndex > oldIndex ? newIndex - 1 : newIndex];
+                                  newGlobal = actionHistory.indexOf(target);
+                                  if (newIndex > oldIndex) newGlobal += 1;
+                                }
+                                onReorder!(oldGlobal, newGlobal);
+                              },
+                              itemBuilder: (context, i) => buildChip(
+                                  visibleList[i], i),
+                            )
+                          : SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  for (int i = 0; i < visibleList.length; i++)
+                                    buildChip(visibleList[i], i)
+                                ],
+                              ),
+                            ),
                     ),
                   ],
                 ),
