@@ -3048,6 +3048,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bool raiseEnabled = hasBet;
     final TextEditingController controller = TextEditingController();
     String? selected;
+    double sliderValue = 1;
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
@@ -3058,6 +3059,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModal) {
           final bool needAmount = selected == 'bet' || selected == 'raise';
+          final int stack =
+              _stackService.getStackForPlayer(activePlayerIndex ?? 0);
+          final int pot = _potSync.pots[currentStreet];
           return Padding(
             padding: MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
             child: Column(
@@ -3123,6 +3127,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 ),
                 if (needAmount) ...[
                   const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _sizeButton('1/3', (pot / 3).round(), ctx, selected!),
+                      _sizeButton('1/2', (pot / 2).round(), ctx, selected!),
+                      _sizeButton('Pot', pot, ctx, selected!),
+                      _sizeButton('All-In', stack, ctx, selected!),
+                    ],
+                  ),
+                  Slider(
+                    value: sliderValue,
+                    min: 1,
+                    max: stack.toDouble(),
+                    divisions: stack > 0 ? stack : 1,
+                    label: sliderValue.round().toString(),
+                    onChanged: (v) =>
+                        setModal(() => sliderValue = v),
+                    onChangeEnd: (v) => _submitSize(v.round(), ctx, selected!),
+                  ),
                   TextField(
                     controller: controller,
                     keyboardType: TextInputType.number,
@@ -3142,10 +3165,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     onPressed: () {
                       final int? amt = int.tryParse(controller.text);
                       if (amt != null) {
-                        Navigator.pop(ctx, {
-                          'action': selected,
-                          'amount': amt,
-                        });
+                        _submitSize(amt, ctx, selected!);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -3161,6 +3181,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         },
       ),
     ).whenComplete(controller.dispose);
+  }
+
+  Widget _sizeButton(
+      String label, int amount, BuildContext ctx, String action) {
+    return OutlinedButton(
+      onPressed: () => _submitSize(amount, ctx, action),
+      child: Text(label),
+    );
+  }
+
+  void _submitSize(int amount, BuildContext ctx, String action) {
+    Navigator.pop(ctx, {
+      'action': action,
+      'amount': amount.clamp(1, _stackService.getStackForPlayer(activePlayerIndex ?? 0)),
+    });
   }
 
   Future<void> _onPlayerTap(int index) async {
