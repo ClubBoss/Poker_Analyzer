@@ -49,3 +49,30 @@ class PotCollectionChips extends StatelessWidget {
     );
   }
 }
+
+/// Displays a [PotCollectionChips] above the current overlay.
+void showPotCollectionChips({
+  required BuildContext context,
+  required Offset start,
+  required Offset end,
+  required int amount,
+  double scale = 1.0,
+  Offset? control,
+  double fadeStart = 0.7,
+}) {
+  final overlay = Overlay.of(context);
+  if (overlay == null) return;
+  late OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (_) => PotCollectionChips(
+      start: start,
+      end: end,
+      amount: amount,
+      scale: scale,
+      control: control,
+      fadeStart: fadeStart,
+      onCompleted: () => entry.remove(),
+    ),
+  );
+  overlay.insert(entry);
+}

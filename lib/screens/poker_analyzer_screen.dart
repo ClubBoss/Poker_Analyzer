@@ -78,6 +78,7 @@ import '../widgets/winner_glow_widget.dart';
 import '../widgets/loss_fade_widget.dart';
 import '../widgets/pot_chip_animation.dart';
 import '../widgets/bet_chip_animation.dart';
+import '../widgets/pot_collection_chips.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/burn_chips_animation.dart';
 import '../widgets/burn_card_animation.dart';
@@ -1711,9 +1712,56 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       showWinnerHighlight(context, players[p].name);
       if (widget.demoMode) {
         showWinnerZoneOverlay(context, players[p].name);
+        final amount = payouts[p] ?? _potSync.pots[currentStreet];
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (!mounted) return;
+          _playDemoPotCollection(p, amount);
+        });
       }
     }
     _showdownWinPlayed = true;
+  }
+
+  void _playDemoPotCollection(int playerIndex, int amount) {
+    if (amount <= 0) return;
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+
+    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX, centerY);
+    final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final midX = (start.dx + end.dx) / 2;
+    final midY = (start.dy + end.dy) / 2;
+    final perp = Offset(-sin(angle), cos(angle));
+    final control = Offset(
+      midX + perp.dx * 20 * scale,
+      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+    );
+
+    showPotCollectionChips(
+      context: context,
+      start: start,
+      end: end,
+      amount: amount,
+      scale: scale,
+      control: control,
+      fadeStart: 0.6,
+    );
   }
 
   void _showLossFadeAnimation(Set<int> winners) {
