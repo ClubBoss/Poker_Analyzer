@@ -27,7 +27,9 @@ void main() {
 }
 
 class PokerAnalyzerDemoApp extends StatefulWidget {
-  const PokerAnalyzerDemoApp({super.key});
+  const PokerAnalyzerDemoApp({super.key, this.demoMode = true});
+
+  final bool demoMode;
 
   @override
   State<PokerAnalyzerDemoApp> createState() => _PokerAnalyzerDemoAppState();
@@ -160,28 +162,29 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                 return Stack(
                   children: [
                     if (child != null) child,
-                    Positioned(
-                      bottom: MediaQuery.of(context).padding.bottom + 8,
-                      left: 8,
-                      child: FadeTransition(
-                        opacity: _labelController,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            'Demo Mode Active',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 12,
+                    if (widget.demoMode)
+                      Positioned(
+                        bottom: MediaQuery.of(context).padding.bottom + 8,
+                        left: 8,
+                        child: FadeTransition(
+                          opacity: _labelController,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Demo Mode Active',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 );
               },
@@ -205,7 +208,7 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                 boardReveal: boardReveal,
                 lockService: lockService,
                 actionHistory: context.read<ActionHistoryService>(),
-                demoMode: true,
+                demoMode: widget.demoMode,
               ),
               routes: const {},
             ),
