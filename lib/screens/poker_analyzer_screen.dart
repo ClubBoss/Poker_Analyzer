@@ -1217,6 +1217,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _currentPot = 0;
       _uncalledRefunds.clear();
       _playbackNarration = null;
+      // Hide "Next Hand" button when starting a new hand
       _showNextHandButton = false;
       _showReplayDemoButton = false;
     });
