@@ -278,6 +278,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _tableCleanupPlayed = false;
   final Set<int> _bustedPlayers = {};
 
+  final List<_ChipFlight> _chipFlights = [];
+
   int _resetAnimationCount = 0;
   bool _waitingForAutoReset = false;
   bool _showNextHandButton = false;
@@ -659,6 +661,48 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         entry.amount! <= 0 ||
         entry.generated) return;
     _playFoldRefundAnimation(entry.playerIndex, entry.amount!);
+  }
+
+  void _startChipFlight(ActionEntry entry) {
+    if (!['bet', 'raise', 'call'].contains(entry.action) ||
+        entry.amount == null ||
+        entry.generated) return;
+    final scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final i = (entry.playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+    final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+    final dx = radiusX * cos(angle);
+    final dy = radiusY * sin(angle);
+    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+    final end = Offset(centerX, centerY);
+    final color = ActionFormattingHelper.actionColor(entry.action);
+    final key = UniqueKey();
+
+    lockService.safeSetState(this, () {
+      _chipFlights.add(_ChipFlight(
+        key: key,
+        start: start,
+        end: end,
+        amount: entry.amount!,
+        color: color,
+        scale: scale,
+      ));
+    });
+  }
+
+  void _removeChipFlight(Key key) {
+    lockService.safeSetState(this, () {
+      _chipFlights.removeWhere((f) => f.key == key);
+    });
   }
 
   void _handleBetAction(ActionEntry entry, {int potIndex = 0}) {
@@ -3122,6 +3166,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _displayedPots[currentStreet] = newPot;
         _triggerCenterChip(lastAction);
         _handleBetAction(lastAction, potIndex: potIndex);
+        _startChipFlight(lastAction);
       } else if (lastAction != null && lastAction.action == 'fold') {
         final refund = _calculateFoldRefund(lastAction.playerIndex);
         if (refund > 0) {
@@ -4640,6 +4685,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     centerBets: _centerBetStacks,
                     actionColor: ActionFormattingHelper.actionColor,
                   ),
+                  _ChipFlightOverlay(
+                    flights: _chipFlights,
+                    onRemove: _removeChipFlight,
+                  ),
                   _ActionHistorySection(
                     actionHistory: _actionHistory,
                     playerPositions: playerPositions,
@@ -5540,6 +5589,52 @@ class _BetDisplayInfo {
   final String id;
 
   _BetDisplayInfo(this.amount, this.color) : id = const Uuid().v4();
+}
+
+class _ChipFlight {
+  final Key key;
+  final Offset start;
+  final Offset end;
+  final int amount;
+  final Color color;
+  final double scale;
+
+  _ChipFlight({
+    required this.key,
+    required this.start,
+    required this.end,
+    required this.amount,
+    required this.color,
+    required this.scale,
+  });
+}
+
+class _ChipFlightOverlay extends StatelessWidget {
+  final List<_ChipFlight> flights;
+  final ValueChanged<Key> onRemove;
+
+  const _ChipFlightOverlay({required this.flights, required this.onRemove});
+
+  @override
+  Widget build(BuildContext context) {
+    if (flights.isEmpty) return const SizedBox.shrink();
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          for (final f in flights)
+            ChipMovingWidget(
+              key: f.key,
+              start: f.start,
+              end: f.end,
+              amount: f.amount,
+              color: f.color,
+              scale: f.scale,
+              onCompleted: () => onRemove(f.key),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ActivePlayerHighlight extends StatefulWidget {
