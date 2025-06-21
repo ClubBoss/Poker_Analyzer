@@ -1115,6 +1115,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     lockService.unlock();
   }
 
+  /// Clears the table and resets the hand to its initial empty state.
+  Future<void> resetAll() async {
+    await _clearTableState();
+    if (!mounted) return;
+    _resetHandState();
+  }
+
   void _resetHandState() {
     lockService.safeSetState(this, () {
       _clearShowdown();
