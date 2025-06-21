@@ -1186,7 +1186,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     Future.delayed(delay, () {
       if (!mounted) return;
-      _resetHandState();
+      lockService.safeSetState(this, () {
+        _showNextHandButton = true;
+      });
       lockService.unlock();
     });
   }
@@ -1253,7 +1255,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final refund = returns[i] ?? 0;
       stacks[i] = stack + payout + refund;
     });
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ResultScreen(
@@ -1265,6 +1267,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       ),
     );
+    if (!mounted) return;
+    lockService.safeSetState(this, () {
+      _showNextHandButton = true;
+    });
   }
 
 
@@ -8188,16 +8194,27 @@ class _NextHandButtonOverlay extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 40.0),
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            textStyle: const TextStyle(fontSize: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.yellowAccent.withOpacity(0.6),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
           ),
-          child: const Text('Next Hand'),
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              textStyle: const TextStyle(fontSize: 20),
+            ),
+            child: const Text('Next Hand'),
+          ),
         ),
       ),
     );
