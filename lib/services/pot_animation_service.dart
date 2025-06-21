@@ -133,41 +133,44 @@ class PotAnimationService {
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
-    final pots = <int>[
-      potSync.pots[currentStreet] - sidePots.fold<int>(0, (p, e) => p + e),
-      ...sidePots,
-    ];
-    final totalPot = pots.fold<int>(0, (p, e) => p + e);
     final totalWin = payouts.values.fold<int>(0, (p, e) => p + e);
+    final mainPot = totalWin - sidePots.fold<int>(0, (p, e) => p + e);
+    final pots = <int>[mainPot, ...sidePots];
 
+    int delay = 0;
     for (int pIndex = 0; pIndex < pots.length; pIndex++) {
       final potAmount = pots[pIndex];
       if (potAmount <= 0) continue;
       final start = Offset(centerX, centerY + (-12 + 36 * pIndex) * scale);
-      payouts.forEach((player, value) {
-        final amount =
-            (potAmount * (value / (totalWin == 0 ? 1 : totalWin))).round();
-        if (amount <= 0) return;
-        final i = (player - viewIndex() + numberOfPlayers) % numberOfPlayers;
-        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-        final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-        flights.add(ChipFlight(
-          key: UniqueKey(),
-          start: start,
-          end: end,
-          amount: amount,
-          playerIndex: player,
-          color: Colors.orangeAccent,
-          scale: scale,
-        ));
-        registerResetAnimation();
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (!mounted) return;
+        payouts.forEach((player, value) {
+          final amount =
+              (potAmount * (value / (totalWin == 0 ? 1 : totalWin))).round();
+          if (amount <= 0) return;
+          final i = (player - viewIndex() + numberOfPlayers) % numberOfPlayers;
+          final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+          final dx = radiusX * cos(angle);
+          final dy = radiusY * sin(angle);
+          final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+          final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+          flights.add(ChipFlight(
+            key: UniqueKey(),
+            start: start,
+            end: end,
+            amount: amount,
+            playerIndex: player,
+            color: Colors.orangeAccent,
+            scale: scale,
+          ));
+          registerResetAnimation();
+        });
+        refresh();
       });
+      delay += 200;
     }
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(Duration(milliseconds: 500 + delay), () {
       if (!mounted) return;
       for (final p in payouts.keys) {
         showWinnerHighlight(context, players[p].name);
