@@ -77,6 +77,7 @@ import '../widgets/win_text_widget.dart';
 import '../widgets/winner_glow_widget.dart';
 import '../widgets/loss_fade_widget.dart';
 import '../widgets/pot_chip_animation.dart';
+import '../widgets/bet_chip_animation.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/burn_chips_animation.dart';
 import '../widgets/burn_card_animation.dart';
@@ -848,25 +849,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
     final potOffsetY = -12 * scale + 36 * scale * potIndex;
     final end = Offset(centerX, centerY + potOffsetY);
-    final midX = (start.dx + end.dx) / 2;
-    final midY = (start.dy + end.dy) / 2;
-    final perp = Offset(-sin(angle), cos(angle));
-    final control = Offset(
-      midX + perp.dx * 20 * scale,
-      midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
-    );
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (_) => PotChipAnimation(
-        start: start,
-        end: end,
-        control: control,
-        amount: entry.amount!,
-        scale: scale,
-        onCompleted: () {
-          overlayEntry.remove();
-          _animatePotGrowth();
-        },
+      builder: (_) => Stack(
+        children: [
+          BetChipAnimation(
+            start: start,
+            end: end,
+            amount: entry.amount!,
+            scale: scale,
+            onCompleted: () {
+              overlayEntry.remove();
+              _animatePotGrowth();
+            },
+          ),
+        ],
       ),
     );
     overlay.insert(overlayEntry);
