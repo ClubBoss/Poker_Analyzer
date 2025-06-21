@@ -749,6 +749,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             _displayedStacks[player] ?? _stackService.getStackForPlayer(player);
         final endStack = startStack + amount;
         _animateStackIncrease(player, startStack, endStack);
+        final pos = Offset(
+          end.dx - 20 * scale,
+          end.dy - 60 * scale,
+        );
+        showWinAmountOverlay(
+          context: context,
+          position: pos,
+          amount: amount,
+          scale: scale,
+        );
       });
     });
 
