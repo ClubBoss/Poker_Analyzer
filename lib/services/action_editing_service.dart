@@ -218,8 +218,9 @@ class ActionEditingService {
   void _autoAdvanceStreetIfComplete(int street) {
     if (street != currentStreet || street >= 3) return;
     if (!_isStreetComplete(street)) return;
+    if (!boardManager.canAdvanceStreet()) return;
     undoRedo.recordSnapshot();
-    boardManager.changeStreet(street + 1);
+    boardManager.advanceStreet();
   }
 
   void _removeFutureActionsForPlayer(
