@@ -20,7 +20,7 @@ import 'chip_moving_widget.dart';
 import 'move_pot_animation.dart';
 import 'winner_zone_highlight.dart';
 
-final Map<String, _PlayerZoneWidgetState> _playerZoneRegistry = {};
+final Map<String, _PlayerZoneWidgetState> playerZoneRegistry = {};
 
 class PlayerZoneWidget extends StatefulWidget {
   final String playerName;
@@ -147,7 +147,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _currentBet = widget.currentBet;
     }
     _remainingStack = widget.remainingStack;
-    _playerZoneRegistry[widget.playerName] = this;
+    playerZoneRegistry[widget.playerName] = this;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -179,8 +179,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void didUpdateWidget(covariant PlayerZoneWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.playerName != oldWidget.playerName) {
-      _playerZoneRegistry.remove(oldWidget.playerName);
-      _playerZoneRegistry[widget.playerName] = this;
+      playerZoneRegistry.remove(oldWidget.playerName);
+      playerZoneRegistry[widget.playerName] = this;
     }
     if (widget.isActive && !oldWidget.isActive) {
       _controller
@@ -550,7 +550,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   @override
   void dispose() {
-    _playerZoneRegistry.remove(widget.playerName);
+    playerZoneRegistry.remove(widget.playerName);
     _highlightTimer?.cancel();
     _lastActionTimer?.cancel();
     _stackBetTimer?.cancel();
@@ -1814,13 +1814,13 @@ class _CardRevealBackdropState extends State<_CardRevealBackdrop>
 /// This should be called before [showWinPotAnimation] to visually
 /// indicate the winner.
 void showWinnerHighlight(BuildContext context, String playerName) {
-  final state = _playerZoneRegistry[playerName];
+  final state = playerZoneRegistry[playerName];
   state?.highlightWinner();
 }
 
 /// Displays an animated glow overlay around the winning player's zone.
 void showWinnerZoneOverlay(BuildContext context, String playerName) {
-  final state = _playerZoneRegistry[playerName];
+  final state = playerZoneRegistry[playerName];
   final overlay = Overlay.of(context);
   if (overlay == null || state == null) return;
   final box = state.context.findRenderObject() as RenderBox?;
@@ -1836,14 +1836,14 @@ void showWinnerZoneOverlay(BuildContext context, String playerName) {
 /// Updates and reveals cards for the [PlayerZoneWidget] with the given
 /// [playerName].
 void revealOpponentCards(String playerName, List<CardModel> cards) {
-  final state = _playerZoneRegistry[playerName];
+  final state = playerZoneRegistry[playerName];
   state?.updateCards(cards);
 }
 
 /// Sets and displays the last action label for the given player.
 void setPlayerLastAction(
     String playerName, String text, Color color, String action, [int? amount]) {
-  final state = _playerZoneRegistry[playerName];
+  final state = playerZoneRegistry[playerName];
   state?.setLastAction(text, color, action, amount);
 }
 
@@ -1859,7 +1859,7 @@ void showOpponentCards(
 /// Animates the central pot moving to the specified player's zone.
 void movePotToWinner(BuildContext context, String playerName) {
   final overlay = Overlay.of(context);
-  final state = _playerZoneRegistry[playerName];
+  final state = playerZoneRegistry[playerName];
   if (overlay == null || state == null) return;
 
   final box = state.context.findRenderObject() as RenderBox?;
@@ -1884,7 +1884,7 @@ void movePotToWinner(BuildContext context, String playerName) {
 /// Displays a short celebratory overlay over the winning player's zone.
 void showWinnerCelebration(BuildContext context, String playerName) {
   final overlay = Overlay.of(context);
-  final state = _playerZoneRegistry[playerName];
+  final state = playerZoneRegistry[playerName];
   if (overlay == null || state == null) return;
 
   final box = state.context.findRenderObject() as RenderBox?;
@@ -1944,7 +1944,7 @@ Future<void> showWinnerSequence(
 /// by [potAmount] while chips fly from the center pot.
 Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
   _PlayerZoneWidgetState? state;
-  for (final s in _playerZoneRegistry.values) {
+  for (final s in playerZoneRegistry.values) {
     if (s.widget.playerIndex == winnerIndex) {
       state = s;
       break;
@@ -1964,27 +1964,6 @@ Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
 /// Animates refunds flying from the center pot back to each player in [refunds].
 /// Uses the same chip trail as [triggerWinnerAnimation] without highlights.
 Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
-  for (final entry in refunds.entries) {
-    final playerIndex = entry.key;
-    final amount = entry.value;
-    if (amount <= 0) continue;
-    _PlayerZoneWidgetState? state;
-    for (final s in _playerZoneRegistry.values) {
-      if (s.widget.playerIndex == playerIndex) {
-        state = s;
-        break;
-      }
-    }
-    if (state == null) continue;
-    final context = state.context;
-    final lock = Provider.of<TransitionLockService?>(context, listen: false);
-    lock?.lock(const Duration(milliseconds: 800));
-    state.showRefundGlow();
-    state.showRefundMessage(amount);
-    state.playWinChipsAnimation(amount);
-    await state.animateStackIncrease(amount);
-    lock?.unlock();
-    await Future.delayed(const Duration(milliseconds: 150));
-  }
+  await PotAnimationService().triggerRefundAnimations(refunds);
 }
 
