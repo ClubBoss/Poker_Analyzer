@@ -853,22 +853,40 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final potOffsetY = -12 * scale + 36 * scale * potIndex;
     final end = Offset(centerX, centerY + potOffsetY);
     late OverlayEntry overlayEntry;
-    overlayEntry = OverlayEntry(
-      builder: (_) => Stack(
-        children: [
-          BetChipAnimation(
-            start: start,
-            end: end,
-            amount: entry.amount!,
-            scale: scale,
-            onCompleted: () {
-              overlayEntry.remove();
-              _animatePotGrowth();
-            },
-          ),
-        ],
-      ),
-    );
+    Widget child;
+    if (widget.demoMode) {
+      final midX = (start.dx + end.dx) / 2;
+      final midY = (start.dy + end.dy) / 2;
+      final perp = Offset(-sin(angle), cos(angle));
+      final control = Offset(
+        midX + perp.dx * 20 * scale,
+        midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
+      );
+      child = BetFlyingChips(
+        start: start,
+        end: end,
+        control: control,
+        amount: entry.amount!,
+        color: ActionFormattingHelper.actionColor(entry.action),
+        scale: scale,
+        onCompleted: () {
+          overlayEntry.remove();
+          _animatePotGrowth();
+        },
+      );
+    } else {
+      child = BetChipAnimation(
+        start: start,
+        end: end,
+        amount: entry.amount!,
+        scale: scale,
+        onCompleted: () {
+          overlayEntry.remove();
+          _animatePotGrowth();
+        },
+      );
+    }
+    overlayEntry = OverlayEntry(builder: (_) => Stack(children: [child]));
     overlay.insert(overlayEntry);
   }
 
@@ -4088,6 +4106,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Public handler for player actions that also triggers animations.
   void handlePlayerAction(ActionEntry entry) {
     onActionSelected(entry);
+  }
+
+  /// Handler used during demo playback to insert actions with custom
+  /// animations.
+  void handleAnalyzerAction(ActionEntry entry) {
+    if (lockService.isLocked) return;
+    lockService.safeSetState(this, () {
+      _addAction(entry, recordHistory: false);
+      if (widget.demoMode &&
+          (entry.action == 'bet' || entry.action == 'raise') &&
+          entry.amount != null &&
+          entry.amount! > 0) {
+        _handleBetAction(entry);
+      }
+    });
   }
 
   void _editAction(int index, ActionEntry entry) {
