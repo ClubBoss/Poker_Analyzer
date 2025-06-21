@@ -106,6 +106,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   OverlayEntry? _actionLabelEntry;
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
+  bool _refundGlow = false;
+  Timer? _refundGlowTimer;
   String? _lastActionText;
   Color _lastActionColor = Colors.black87;
   double _lastActionOpacity = 0.0;
@@ -200,6 +202,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     setState(() => _winnerHighlight = true);
     _highlightTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) setState(() => _winnerHighlight = false);
+    });
+  }
+
+  void showRefundGlow() {
+    _refundGlowTimer?.cancel();
+    setState(() => _refundGlow = true);
+    _refundGlowTimer = Timer(const Duration(milliseconds: 800), () {
+      if (mounted) setState(() => _refundGlow = false);
     });
   }
 
@@ -908,6 +918,23 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         child: result,
       );
     }
+
+    result = AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: (_refundGlow && !_winnerHighlight)
+          ? BoxDecoration(
+              borderRadius: BorderRadius.circular(12 * widget.scale),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.greenAccent.withOpacity(0.6),
+                  blurRadius: 16,
+                  spreadRadius: 4,
+                ),
+              ],
+            )
+          : null,
+      child: result,
+    );
 
     if (_winnerHighlight) {
       result = Container(
@@ -1716,6 +1743,7 @@ Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
     final context = state.context;
     final lock = Provider.of<TransitionLockService?>(context, listen: false);
     lock?.lock(const Duration(milliseconds: 800));
+    state.showRefundGlow();
     state.playWinChipsAnimation(amount);
     await state.animateStackIncrease(amount);
     lock?.unlock();
