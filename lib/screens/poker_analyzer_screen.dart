@@ -4827,6 +4827,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         _actionHistory.toggleStreet(index);
                       });
                     },
+                    onEdit: _editAction,
+                    isLocked: lockService.isLocked,
                   ),
                   _PerspectiveSwitchButton(
                     isPerspectiveSwitched: isPerspectiveSwitched,
@@ -6429,12 +6431,16 @@ class _ActionHistorySection extends StatelessWidget {
   final Map<int, String> playerPositions;
   final Set<int> expandedStreets;
   final ValueChanged<int> onToggleStreet;
+  final void Function(int index, ActionEntry entry) onEdit;
+  final bool isLocked;
 
   const _ActionHistorySection({
     required this.actionHistory,
     required this.playerPositions,
     required this.expandedStreets,
     required this.onToggleStreet,
+    required this.onEdit,
+    required this.isLocked,
   });
 
   @override
@@ -6444,6 +6450,8 @@ class _ActionHistorySection extends StatelessWidget {
       playerPositions: playerPositions,
       expandedStreets: expandedStreets,
       onToggleStreet: onToggleStreet,
+      onEdit: onEdit,
+      isLocked: isLocked,
     );
   }
 }
