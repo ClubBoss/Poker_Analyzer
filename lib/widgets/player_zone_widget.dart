@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../helpers/table_geometry_helper.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/player_zone_action_entry.dart' as pz;
@@ -50,6 +51,15 @@ class PlayerZoneWidget extends StatefulWidget {
   final double scale;
   final Set<String> usedCards;
   // Stack editing is handled by PlayerInfoWidget
+
+  /// Returns the offset of a seat around an elliptical poker table. This is
+  /// based on the size of the table widget and indexes players so that index 0
+  /// (hero) sits at the bottom center.
+  static Offset seatPosition(
+      int index, int playerCount, Size tableSize) {
+    return TableGeometryHelper.positionForPlayer(
+        index, playerCount, tableSize.width, tableSize.height);
+  }
 
   const PlayerZoneWidget({
     Key? key,

@@ -4905,15 +4905,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   List<Widget> _buildPlayerWidgets(int i, double scale) {
     final screenSize = MediaQuery.of(context).size;
     final double infoScale = numberOfPlayers > 8 ? 0.85 : 1.0;
-    final tableWidth = screenSize.width * 0.9;
+    final tableWidth = screenSize.width * 0.9 * scale;
     final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 -
-        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod =
-        TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final centerX = screenSize.width / 2;
+    final centerY = screenSize.height / 2;
 
     final visibleActions =
         actions.take(_playbackManager.playbackIndex).toList();
@@ -4928,9 +4923,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final index = (i + _viewIndex()) % numberOfPlayers;
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-    final dx = radiusX * cos(angle);
-    final dy = radiusY * sin(angle);
-    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final offset = TableGeometryHelper.positionForPlayer(
+        i, numberOfPlayers, tableWidth, tableHeight);
+    final dx = offset.dx;
+    final dy = offset.dy;
+    final bias = 0.0;
 
     final String position = playerPositions[index] ?? '';
     final int stack = _displayedStacks[index] ??
@@ -5449,23 +5446,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   List<Widget> _buildChipTrail(int i, double scale) {
     final screenSize = MediaQuery.of(context).size;
-    final tableWidth = screenSize.width * 0.9;
+    final tableWidth = screenSize.width * 0.9 * scale;
     final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 -
-        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    final centerX = screenSize.width / 2;
+    final centerY = screenSize.height / 2;
 
     final visibleActions =
         actions.take(_playbackManager.playbackIndex).toList();
 
     final index = (i + _viewIndex()) % numberOfPlayers;
     final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-    final dx = radiusX * cos(angle);
-    final dy = radiusY * sin(angle);
-    final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+    final offset = TableGeometryHelper.positionForPlayer(
+        i, numberOfPlayers, tableWidth, tableHeight);
+    final dx = offset.dx;
+    final dy = offset.dy;
+    final bias = 0.0;
 
     ActionEntry? lastAction;
     for (final a in visibleActions.reversed) {
