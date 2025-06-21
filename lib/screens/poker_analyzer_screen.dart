@@ -305,6 +305,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _waitingForAutoReset = false;
   bool _showNextHandButton = false;
   bool _showReplayDemoButton = false;
+  bool _showFinishHandButton = false;
   bool _autoShowdownTriggered = false;
 
   bool get _isHandEmpty =>
@@ -1189,6 +1190,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if (!mounted) return;
       lockService.safeSetState(this, () {
         _showNextHandButton = true;
+        _showFinishHandButton = false;
       });
       lockService.unlock();
     });
@@ -1221,6 +1223,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       // Hide "Next Hand" button when starting a new hand
       _showNextHandButton = false;
       _showReplayDemoButton = false;
+      _showFinishHandButton = false;
     });
     _tableCleanupPlayed = false;
     _potSync.reset();
@@ -1272,6 +1275,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (!mounted) return;
     lockService.safeSetState(this, () {
       _showNextHandButton = true;
+      _showFinishHandButton = false;
     });
   }
 
@@ -2580,6 +2584,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _updateFinishHandButtonVisibility() {
+    final shouldShow =
+        !_potAnimationPlayed &&
+        _boardReveal.revealedBoardCards.length == 5 &&
+        _playbackManager.playbackIndex == actions.length &&
+        !_showNextHandButton;
+    if (shouldShow != _showFinishHandButton) {
+      lockService.safeSetState(this, () {
+        _showFinishHandButton = shouldShow;
+      });
+    }
+  }
+
   /// Automatically determine showdown winners when cards are revealed.
   Map<int, int> _calculateShowdownWinnings() {
     final active = [
@@ -3703,6 +3720,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _maybeTriggerAutoShowdown(lastAction, active);
       _maybeTriggerSimpleWin(lastAction, active);
       _prevPlaybackIndex = _playbackManager.playbackIndex;
+      _updateFinishHandButtonVisibility();
     }
   }
 
@@ -3727,6 +3745,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playPotWinAnimation();
     }
     lockService.safeSetState(this, () {});
+    _updateFinishHandButtonVisibility();
   }
 
   void _playDealAnimations() {
@@ -5352,6 +5371,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 _FinishHandButtonOverlay(
                   onPressed: _finishHand,
                   disabled: lockService.isLocked,
+                  visible: _showFinishHandButton,
                 ),
                 if (widget.demoMode)
                   _ReplayDemoButtonOverlay(
@@ -8207,10 +8227,12 @@ class _RevealAllCardsButton extends StatelessWidget {
 class _FinishHandButtonOverlay extends StatelessWidget {
   final VoidCallback onPressed;
   final bool disabled;
+  final bool visible;
 
   const _FinishHandButtonOverlay({
     required this.onPressed,
     required this.disabled,
+    required this.visible,
   });
 
   @override
@@ -8218,10 +8240,14 @@ class _FinishHandButtonOverlay extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: ElevatedButton(
-          onPressed: disabled ? null : onPressed,
-          child: const Text('Завершить раздачу'),
+        padding: const EdgeInsets.only(bottom: 100.0),
+        child: AnimatedOpacity(
+          opacity: visible ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 300),
+          child: ElevatedButton(
+            onPressed: disabled ? null : onPressed,
+            child: const Text('Завершить раздачу'),
+          ),
         ),
       ),
     );
