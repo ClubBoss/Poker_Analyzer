@@ -21,6 +21,7 @@ class _WinnerGlowWidgetState extends State<WinnerGlowWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _opacity;
+  late final Animation<double> _scale;
 
   @override
   void initState() {
@@ -32,17 +33,20 @@ class _WinnerGlowWidgetState extends State<WinnerGlowWidget>
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
+          CurveTween(curve: Curves.easeInOut),
         ),
         weight: 50,
       ),
       TweenSequenceItem(
         tween: Tween(begin: 1.0, end: 0.0).chain(
-          CurveTween(curve: Curves.easeOut),
+          CurveTween(curve: Curves.easeInOut),
         ),
         weight: 50,
       ),
     ]).animate(_controller);
+    _scale = Tween<double>(begin: 0.9, end: 1.0)
+        .chain(CurveTween(curve: Curves.easeInOut))
+        .animate(_controller);
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -64,11 +68,13 @@ class _WinnerGlowWidgetState extends State<WinnerGlowWidget>
       top: widget.position.dy,
       child: FadeTransition(
         opacity: _opacity,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 6 * widget.scale,
-            vertical: 2 * widget.scale,
-          ),
+        child: ScaleTransition(
+          scale: _scale,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 6 * widget.scale,
+              vertical: 2 * widget.scale,
+            ),
           decoration: BoxDecoration(
             color: Colors.amberAccent,
             borderRadius: BorderRadius.circular(8 * widget.scale),
@@ -88,6 +94,7 @@ class _WinnerGlowWidgetState extends State<WinnerGlowWidget>
               fontSize: 14 * widget.scale,
             ),
           ),
+        ),
         ),
       ),
     );
