@@ -78,6 +78,21 @@ class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
                     Text(
                         'Ваш ответ: ${entry.userAction ?? '-'} \u2022 Реком.: ${entry.recommendedAction ?? '-'}',
                         style: const TextStyle(color: Colors.white)),
+                    if ((entry.userAction != null && entry.recommendedAction != null) ||
+                        entry.correct != null)
+                      Text(
+                        (entry.correct ??
+                                (entry.userAction == entry.recommendedAction))
+                            ? 'Верно'
+                            : 'Ошибка',
+                        style: TextStyle(
+                          color: (entry.correct ??
+                                  (entry.userAction == entry.recommendedAction))
+                              ? Colors.green
+                              : Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                   ],
                 ),
               );
