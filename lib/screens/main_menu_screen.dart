@@ -13,9 +13,35 @@ import 'edit_pack_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/hand_history_file_service.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../user_preferences.dart';
+import '../main_demo.dart';
 
-class MainMenuScreen extends StatelessWidget {
+class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
+
+  @override
+  State<MainMenuScreen> createState() => _MainMenuScreenState();
+}
+
+class _MainMenuScreenState extends State<MainMenuScreen> {
+  bool _demoMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _demoMode = UserPreferences.instance.demoMode;
+  }
+
+  Future<void> _toggleDemoMode(bool value) async {
+    setState(() => _demoMode = value);
+    await UserPreferences.instance.setDemoMode(value);
+    if (value) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PokerAnalyzerDemoApp()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +159,13 @@ class MainMenuScreen extends StatelessWidget {
                 );
               },
               child: const Text('⚙️ Settings'),
+            ),
+            const SizedBox(height: 16),
+            SwitchListTile(
+              value: _demoMode,
+              title: const Text('Demo Mode'),
+              onChanged: _toggleDemoMode,
+              activeColor: Colors.orange,
             ),
             const SizedBox(height: 32),
             const Text(
