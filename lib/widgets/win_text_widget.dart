@@ -23,6 +23,7 @@ class _WinTextWidgetState extends State<WinTextWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _opacity;
+  late final Animation<double> _scale;
 
   @override
   void initState() {
@@ -34,18 +35,21 @@ class _WinTextWidgetState extends State<WinTextWidget>
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
+          CurveTween(curve: Curves.easeInOut),
         ),
         weight: 20,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
         tween: Tween(begin: 1.0, end: 0.0).chain(
-          CurveTween(curve: Curves.easeOut),
+          CurveTween(curve: Curves.easeInOut),
         ),
         weight: 20,
       ),
     ]).animate(_controller);
+    _scale = Tween<double>(begin: 0.9, end: 1.0)
+        .chain(CurveTween(curve: Curves.easeInOut))
+        .animate(_controller);
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -67,11 +71,13 @@ class _WinTextWidgetState extends State<WinTextWidget>
       top: widget.position.dy,
       child: FadeTransition(
         opacity: _opacity,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 8 * widget.scale,
-            vertical: 4 * widget.scale,
-          ),
+        child: ScaleTransition(
+          scale: _scale,
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 8 * widget.scale,
+              vertical: 4 * widget.scale,
+            ),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.8),
             borderRadius: BorderRadius.circular(8 * widget.scale),
@@ -84,6 +90,7 @@ class _WinTextWidgetState extends State<WinTextWidget>
               fontSize: 14 * widget.scale,
             ),
           ),
+        ),
         ),
       ),
     );

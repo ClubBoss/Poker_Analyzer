@@ -1632,7 +1632,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
 
-    for (final playerIndex in winners) {
+    final orderedWinners = winners.toList();
+    for (int n = 0; n < orderedWinners.length; n++) {
+      final playerIndex = orderedWinners[n];
       final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
       final angle = 2 * pi * i / numberOfPlayers + pi / 2;
       final dx = radiusX * cos(angle);
@@ -1642,7 +1644,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         centerX + dx - 20 * scale,
         centerY + dy + bias - 110 * scale,
       );
-      Future.microtask(() {
+      Future.delayed(Duration(milliseconds: 300 * n), () {
         if (!mounted) return;
         late OverlayEntry entry;
         entry = OverlayEntry(
