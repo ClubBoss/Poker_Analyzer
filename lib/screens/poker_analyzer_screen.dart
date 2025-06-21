@@ -1709,6 +1709,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _showWinnerGlow(winners);
     for (final p in winners) {
       showWinnerHighlight(context, players[p].name);
+      if (widget.demoMode) {
+        showWinnerZoneOverlay(context, players[p].name);
+      }
     }
     _showdownWinPlayed = true;
   }

@@ -18,6 +18,7 @@ import 'player_stack_value.dart';
 import 'stack_bar_widget.dart';
 import 'chip_moving_widget.dart';
 import 'move_pot_animation.dart';
+import 'winner_zone_highlight.dart';
 
 final Map<String, _PlayerZoneWidgetState> _playerZoneRegistry = {};
 
@@ -1624,6 +1625,21 @@ class _CardRevealBackdropState extends State<_CardRevealBackdrop>
 void showWinnerHighlight(BuildContext context, String playerName) {
   final state = _playerZoneRegistry[playerName];
   state?.highlightWinner();
+}
+
+/// Displays an animated glow overlay around the winning player's zone.
+void showWinnerZoneOverlay(BuildContext context, String playerName) {
+  final state = _playerZoneRegistry[playerName];
+  final overlay = Overlay.of(context);
+  if (overlay == null || state == null) return;
+  final box = state.context.findRenderObject() as RenderBox?;
+  if (box == null) return;
+  final rect = box.localToGlobal(Offset.zero) & box.size;
+  showWinnerZoneHighlightOverlay(
+    context: context,
+    rect: rect,
+    scale: state.widget.scale,
+  );
 }
 
 /// Updates and reveals cards for the [PlayerZoneWidget] with the given
