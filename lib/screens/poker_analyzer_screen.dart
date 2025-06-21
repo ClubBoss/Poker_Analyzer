@@ -2172,7 +2172,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         );
         late OverlayEntry overlayEntry;
         overlayEntry = OverlayEntry(
-          builder: (_) => BetToCenterAnimation(
+          builder: (_) => BetFlyingChips(
             start: start,
             end: end,
             control: control,
