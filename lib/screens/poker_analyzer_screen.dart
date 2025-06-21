@@ -308,6 +308,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _showReplayDemoButton = false;
   bool _showFinishHandButton = false;
   bool _autoShowdownTriggered = false;
+  bool _showHandCompleteIndicator = false;
 
   bool get _isHandEmpty =>
       actions.isEmpty &&
@@ -1257,9 +1258,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (widget.demoMode) {
       showConfettiOverlay(context);
     }
+    lockService.safeSetState(this, () {
+      _showHandCompleteIndicator = true;
+    });
     Future.delayed(delay, () {
       if (!mounted) return;
       lockService.safeSetState(this, () {
+        _showHandCompleteIndicator = false;
         _showNextHandButton = true;
         _showFinishHandButton = false;
       });
@@ -1294,6 +1299,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _playbackNarration = null;
       // Hide "Next Hand" button when starting a new hand
       _showNextHandButton = false;
+      _showHandCompleteIndicator = false;
       _showReplayDemoButton = false;
       _showFinishHandButton = false;
     });
@@ -1350,8 +1356,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
     if (!mounted) return;
     lockService.safeSetState(this, () {
-      _showNextHandButton = true;
-      _showFinishHandButton = false;
+      _showHandCompleteIndicator = true;
+    });
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      lockService.safeSetState(this, () {
+        _showHandCompleteIndicator = false;
+        _showNextHandButton = true;
+        _showFinishHandButton = false;
+      });
     });
   }
 
@@ -3673,7 +3686,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future.delayed(const Duration(milliseconds: 1600), () {
       if (!mounted) return;
       lockService.safeSetState(this, () {
-        _showNextHandButton = true;
+        _showHandCompleteIndicator = true;
+      });
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (!mounted) return;
+        lockService.safeSetState(this, () {
+          _showHandCompleteIndicator = false;
+          _showNextHandButton = true;
+        });
       });
     });
   }
@@ -5457,6 +5477,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     onPressed: _replayDemo,
                     visible: _showReplayDemoButton,
                   ),
+                _HandCompleteOverlay(
+                  visible: _showHandCompleteIndicator,
+                ),
                 if (_showNextHandButton)
                   _NextHandButtonOverlay(
                     onPressed: _resetHandState,
@@ -8365,6 +8388,42 @@ class _NextHandButtonOverlay extends StatelessWidget {
               textStyle: const TextStyle(fontSize: 20),
             ),
             child: const Text('Next Hand'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HandCompleteOverlay extends StatelessWidget {
+  final bool visible;
+
+  const _HandCompleteOverlay({required this.visible});
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: AnimatedOpacity(
+        opacity: visible ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 500),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.check_circle, color: Colors.greenAccent, size: 28),
+                SizedBox(width: 8),
+                Text(
+                  'Раздача завершена',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ],
+            ),
           ),
         ),
       ),
