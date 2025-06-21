@@ -110,6 +110,7 @@ import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../helpers/action_formatting_helper.dart';
+import '../helpers/showdown_evaluator.dart';
 import '../services/backup_manager_service.dart';
 import '../services/debug_snapshot_service.dart';
 import '../services/action_sync_service.dart';
@@ -935,6 +936,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       ..addAll(revealPlayers);
     _showdownActive = true;
     _winnerRevealPlayed = false;
+    if (_winnings == null || _winnings!.isEmpty) {
+      final calc = _calculateShowdownWinnings();
+      if (calc.isNotEmpty) resolveWinner(calc);
+    }
     lockService.safeSetState(this, () {});
 
     for (int j = 0; j < revealPlayers.length; j++) {
@@ -2473,6 +2478,33 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _bustedPlayers.add(index);
       }
     });
+  }
+
+  /// Automatically determine showdown winners when cards are revealed.
+  Map<int, int> _calculateShowdownWinnings() {
+    final active = [
+      for (int i = 0; i < numberOfPlayers; i++)
+        if (!_foldedPlayers.isPlayerFolded(i)) i
+    ];
+    if (active.length < 2 || boardCards.length < 5) return {};
+    final holes = <int, List<CardModel>>{};
+    for (final p in active) {
+      final cards = playerCards[p];
+      if (cards.length < 2) continue;
+      holes[p] = List<CardModel>.from(cards);
+    }
+    if (holes.length < 2) return {};
+    final winners = determineWinners(boardCards, holes);
+    if (winners.isEmpty) return {};
+    final pot = _potSync.pots[currentStreet];
+    final split = pot ~/ winners.length;
+    int rem = pot % winners.length;
+    final result = <int, int>{};
+    for (final p in winners) {
+      result[p] = split + (rem > 0 ? 1 : 0);
+      if (rem > 0) rem--;
+    }
+    return result;
   }
 
   /// Sets the final [winnings] map and plays the pot win animation.
