@@ -823,6 +823,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         amount: flight!.amount,
         scale: flight!.scale,
       );
+      _onResetAnimationComplete();
     }
   }
 
@@ -859,6 +860,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           color: Colors.orangeAccent,
           scale: scale,
         ));
+        _registerResetAnimation();
       });
     });
 
@@ -928,6 +930,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             color: Colors.orangeAccent,
             scale: scale,
           ));
+          _registerResetAnimation();
         });
       });
     }
@@ -3683,19 +3686,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     showWinnerZoneOverlay(context, winnerName);
     _returns = _calculateUncalledReturns();
     _playPotWinAnimation();
-    Future.delayed(const Duration(milliseconds: 1600), () {
-      if (!mounted) return;
-      lockService.safeSetState(this, () {
-        _showHandCompleteIndicator = true;
-      });
-      Future.delayed(const Duration(milliseconds: 800), () {
-        if (!mounted) return;
-        lockService.safeSetState(this, () {
-          _showHandCompleteIndicator = false;
-          _showNextHandButton = true;
-        });
-      });
-    });
+    _scheduleAutoReset();
   }
 
   void _onPlaybackManagerChanged() {
