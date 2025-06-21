@@ -8,6 +8,7 @@ import 'training_history_screen.dart';
 import 'player_zone_demo_screen.dart';
 import 'settings_screen.dart';
 import 'daily_hand_screen.dart';
+import 'spot_of_the_day_screen.dart';
 import 'create_pack_screen.dart';
 import 'edit_pack_screen.dart';
 import 'package:provider/provider.dart';
@@ -73,6 +74,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('🃏 Ежедневная раздача'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SpotOfTheDayScreen()),
+                );
+              },
+              child: const Text('🎲 Спот дня'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
