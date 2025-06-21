@@ -22,6 +22,7 @@ import '../services/board_sync_service.dart';
 import '../services/board_editing_service.dart';
 import '../services/board_reveal_service.dart';
 import '../widgets/player_zone_widget.dart';
+import '../screens/result_screen.dart';
 import '../widgets/street_actions_widget.dart';
 import '../widgets/board_display.dart';
 import '../widgets/action_history_overlay.dart';
@@ -1093,6 +1094,28 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         _playDealSequence();
       }
     });
+  }
+
+  Future<void> _finishHand() async {
+    if (lockService.isLocked) return;
+    final visibleActions = actions.take(_playbackManager.playbackIndex).toList();
+    final lastAction = visibleActions.isNotEmpty ? visibleActions.last : null;
+    final int winner = _winnerIndex ?? lastAction?.playerIndex ?? 0;
+    final int pot = _potSync.pots[currentStreet];
+    await triggerWinnerAnimation(winner, pot);
+    if (!mounted) return;
+    final stacks = _stackService.currentStacks;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ResultScreen(
+          winnerIndex: winner,
+          finalStacks: stacks,
+          potSize: pot,
+          actions: visibleActions,
+        ),
+      ),
+    );
   }
 
 
@@ -4850,8 +4873,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         ? 'SPR: ${sprValue.toStringAsFixed(1)}'
                         : null,
                   ),
-                  if (lockService.isLocked)
-                    const _BoardTransitionBusyIndicator(),
+                if (lockService.isLocked)
+                  const _BoardTransitionBusyIndicator(),
                 _RevealAllCardsButton(
                   showAllRevealedCards: _debugPrefs.showAllRevealedCards,
                   onToggle: () async {
@@ -4859,6 +4882,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         !_debugPrefs.showAllRevealedCards);
                     lockService.safeSetState(this, () {});
                   },
+                ),
+                _FinishHandButtonOverlay(
+                  onPressed: _finishHand,
+                  disabled: lockService.isLocked,
                 ),
                 if (_showNextHandButton)
                   _NextHandButtonOverlay(
@@ -7652,6 +7679,30 @@ class _RevealAllCardsButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onToggle,
           child: const Text('Показать все карты'),
+        ),
+      ),
+    );
+  }
+}
+
+class _FinishHandButtonOverlay extends StatelessWidget {
+  final VoidCallback onPressed;
+  final bool disabled;
+
+  const _FinishHandButtonOverlay({
+    required this.onPressed,
+    required this.disabled,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: ElevatedButton(
+          onPressed: disabled ? null : onPressed,
+          child: const Text('Завершить раздачу'),
         ),
       ),
     );
