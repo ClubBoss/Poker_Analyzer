@@ -4,7 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../helpers/table_geometry_helper.dart';
-import '../widgets/pot_collection_chips.dart';
+import '../widgets/pot_collection_chips.dart' as chips;
+import '../widgets/player_zone_widget.dart' as pzw;
 import '../widgets/winner_glow_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
 
@@ -24,6 +25,35 @@ class DemoAnimationManager {
     _narrationTimer = Timer(const Duration(seconds: 2), () {
       narration.value = null;
     });
+  }
+
+  /// Wrapper around [showNarration] used during demo playback.
+  void playNarration(String text) => showNarration(text);
+
+  /// Display an overlay glow around the given winner's zone.
+  void showWinnerZoneOverlay(BuildContext context, String playerName) {
+    pzw.showWinnerZoneOverlay(context, playerName);
+  }
+
+  /// Show chips flying from the pot to the winner's stack.
+  void showPotCollectionChips({
+    required BuildContext context,
+    required Offset start,
+    required Offset end,
+    required int amount,
+    double scale = 1.0,
+    Offset? control,
+    double fadeStart = 0.7,
+  }) {
+    chips.showPotCollectionChips(
+      context: context,
+      start: start,
+      end: end,
+      amount: amount,
+      scale: scale,
+      control: control,
+      fadeStart: fadeStart,
+    );
   }
 
   /// Display a glow effect for each winner around their player zone.
@@ -119,7 +149,7 @@ class DemoAnimationManager {
       midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
     );
 
-    showPotCollectionChips(
+    chips.showPotCollectionChips(
       context: context,
       start: start,
       end: end,
