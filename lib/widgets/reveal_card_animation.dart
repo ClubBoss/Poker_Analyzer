@@ -22,6 +22,9 @@ class RevealCardAnimation extends StatefulWidget {
   /// Whether to cross-fade between the back and front during the flip.
   final bool fade;
 
+  /// Whether to desaturate the front of the card when revealed.
+  final bool grayscale;
+
   const RevealCardAnimation({
     Key? key,
     required this.position,
@@ -30,6 +33,7 @@ class RevealCardAnimation extends StatefulWidget {
     this.duration = const Duration(milliseconds: 400),
     this.onCompleted,
     this.fade = false,
+    this.grayscale = false,
   }) : super(key: key);
 
   @override
@@ -81,7 +85,7 @@ class _RevealCardAnimationState extends State<RevealCardAnimation>
               height: height,
             );
 
-            final front = Container(
+            Widget front = Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -96,6 +100,14 @@ class _RevealCardAnimationState extends State<RevealCardAnimation>
                 ),
               ),
             );
+
+            if (widget.grayscale) {
+              front = ColorFiltered(
+                colorFilter:
+                    const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                child: front,
+              );
+            }
 
             if (widget.fade) {
               final backOpacity = value <= 0.5 ? 1 - value * 2 : 0.0;

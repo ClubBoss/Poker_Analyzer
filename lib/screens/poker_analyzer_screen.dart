@@ -1197,7 +1197,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     overlay.insert(overlayEntry);
   }
 
-  void _playShowCardsAnimation(int playerIndex, {List<CardModel>? cards}) {
+  void _playShowCardsAnimation(int playerIndex,
+      {List<CardModel>? cards, bool grayscale = false}) {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
     final double scale =
@@ -1230,6 +1231,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           card: card,
           scale: scale,
           fade: true,
+          grayscale: grayscale,
           onCompleted: () => entry.remove(),
         ),
       );
@@ -1304,7 +1306,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       delay++;
     }
 
-    final totalDelay = 300 * winners.length + 400;
+    final revealEnd = 300 * winners.length + 400;
+
+    final losers = [for (final p in _showdownPlayers) if (!winners.contains(p)) p];
+    for (int i = 0; i < losers.length; i++) {
+      final player = losers[i];
+      Future.delayed(Duration(milliseconds: revealEnd + 300 * i), () {
+        if (!mounted) return;
+        _playShowCardsAnimation(player, grayscale: true);
+      });
+    }
+
+    final totalDelay = revealEnd + 300 * losers.length + 400;
     Future.delayed(Duration(milliseconds: totalDelay), () {
       if (!mounted) return;
       _playPotCollectionAnimation(winners);
