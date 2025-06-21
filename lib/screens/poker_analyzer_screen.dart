@@ -119,6 +119,7 @@ import '../services/service_registry.dart';
 import '../../plugins/plugin_manager.dart';
 import '../../plugins/plugin_loader.dart';
 import '../../plugins/plugin.dart';
+import '../services/demo_playback_controller.dart';
 
 
 
@@ -2457,6 +2458,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _stackService.reset(Map<int, int>.from(_playerManager.initialStacks));
     _boardManager.changeStreet(0);
     _playbackManager.updatePlaybackState();
+  }
+
+  /// Restarts the demo sequence when in demo mode.
+  void _replayDemo() {
+    final controller = context.read<DemoPlaybackController>();
+    controller.startDemo(
+      loadSpot: loadTrainingSpot,
+      playAll: playAll,
+      announceWinner: resolveWinner,
+    );
   }
 
 
@@ -5102,9 +5113,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: widget.demoMode
+          ? FloatingActionButtonLocation.endTop
+          : FloatingActionButtonLocation.endFloat,
       floatingActionButton: widget.demoMode
-          ? null
+          ? FloatingActionButton(
+              heroTag: 'replayDemoFab',
+              onPressed: _replayDemo,
+              child: const Icon(Icons.replay),
+            )
           : Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
