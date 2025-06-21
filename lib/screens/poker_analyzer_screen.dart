@@ -2049,6 +2049,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     controller.forward();
   }
 
+  void _deductStackAfterAction(ActionEntry entry) {
+    if (entry.amount == null) return;
+    if (!['bet', 'raise', 'all-in'].contains(entry.action)) return;
+    final current = _displayedStacks[entry.playerIndex] ??
+        _stackService.getStackForPlayer(entry.playerIndex);
+    final newValue = (current - entry.amount!).clamp(0, current);
+    lockService.safeSetState(this, () {
+      _displayedStacks[entry.playerIndex] = newValue;
+    });
+  }
+
 
   void _playPotWinAnimation() {
     if (_potAnimationPlayed) return;
@@ -3904,6 +3915,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         (entry.amount ?? 0) > 0) {
       // Animation handled via ActionEditingService
     }
+    _deductStackAfterAction(entry);
     _clearActiveHighlight();
   }
 
@@ -3950,6 +3962,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           (entry.amount ?? 0) > 0) {
         // Animation handled via ActionEditingService
       }
+      _deductStackAfterAction(entry);
       _clearActiveHighlight();
     });
   }
