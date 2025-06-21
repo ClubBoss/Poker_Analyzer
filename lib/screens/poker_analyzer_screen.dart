@@ -2954,13 +2954,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   void _onPlayerTimeExpired(int index) {
     if (lockService.isLocked) return;
     if (activePlayerIndex == index) {
-      lockService.safeSetState(this, () => activePlayerIndex = null);
+      _setActivePlayer(null);
+    }
+  }
+
+  void _setActivePlayer(int? index, {Duration duration = const Duration(seconds: 3)}) {
+    _activeTimer?.cancel();
+    lockService.safeSetState(this, () => activePlayerIndex = index);
+    if (index != null) {
+      _activeTimer = Timer(duration, () {
+        if (mounted && activePlayerIndex == index) {
+          lockService.safeSetState(this, () => activePlayerIndex = null);
+        }
+      });
     }
   }
 
   void _clearActiveHighlight() {
     if (activePlayerIndex != null) {
-      lockService.safeSetState(this, () => activePlayerIndex = null);
+      _setActivePlayer(null);
     }
   }
 
@@ -3129,7 +3141,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _onPlayerTap(int index) async {
     if (lockService.isLocked) return;
-    lockService.safeSetState(this, () => activePlayerIndex = index);
+    _setActivePlayer(index);
     final result = await _showActionPicker();
     if (result == null) return;
     String action = result['action'] as String;
@@ -3228,8 +3240,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         } else {
           _playbackNarration = null;
         }
-        activePlayerIndex = _playbackManager.lastActionPlayerIndex;
       });
+      _setActivePlayer(_playbackManager.lastActionPlayerIndex);
       if (_animateTimeline && _timelineController.hasClients) {
         _animateTimeline = false;
         _timelineController.animateTo(
@@ -5097,12 +5109,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         : 0.0;
 
     final widgets = <Widget>[
-      if (isActive)
-        _ActivePlayerHighlight(
+      AnimatedOpacity(
+        opacity: isActive ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 300),
+        child: _ActivePlayerHighlight(
           position: Offset(centerX + dx, centerY + dy),
           scale: scale * infoScale,
           bias: bias,
         ),
+      ),
       if (isActive && !lockService.isLocked)
         Positioned(
           left: centerX + dx - 12 * scale,
@@ -5751,7 +5766,7 @@ class _ActivePlayerHighlightState extends State<_ActivePlayerHighlight>
   Widget build(BuildContext context) {
     final double avatarRadius = 55 * widget.scale;
     final double highlightRadius = avatarRadius + 6 * widget.scale;
-    final Color color = Theme.of(context).colorScheme.primary;
+    final Color color = Colors.yellowAccent;
     return Positioned(
       left: widget.position.dx - highlightRadius,
       top: widget.position.dy + widget.bias - highlightRadius,
