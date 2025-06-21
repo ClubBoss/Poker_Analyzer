@@ -73,6 +73,7 @@ import '../widgets/all_in_chips_animation.dart';
 import '../widgets/win_chips_animation.dart';
 import '../widgets/chip_reward_animation.dart';
 import '../widgets/win_amount_widget.dart';
+import '../services/pot_animation_service.dart';
 import '../widgets/win_text_widget.dart';
 import '../widgets/winner_glow_widget.dart';
 import '../widgets/loss_fade_widget.dart';
@@ -161,6 +162,7 @@ class PokerAnalyzerScreen extends StatefulWidget {
   final PotSyncService potSyncService;
   final ActionHistoryService actionHistory;
   final TransitionLockService lockService;
+  final PotAnimationService? potAnimationService;
   final DemoAnimationManager? demoAnimationManager;
   final bool demoMode;
 
@@ -300,7 +302,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   bool _tableCleanupPlayed = false;
   final Set<int> _bustedPlayers = {};
 
-  final List<_ChipFlight> _chipFlights = [];
+  final List<ChipFlight> _chipFlights = [];
 
   int _resetAnimationCount = 0;
   bool _waitingForAutoReset = false;
@@ -350,6 +352,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   String? _playbackNarration;
   late final DemoAnimationManager _demoAnimations;
+  late final PotAnimationService _potAnimations;
 
 
 
@@ -789,7 +792,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final key = UniqueKey();
 
     lockService.safeSetState(this, () {
-      _chipFlights.add(_ChipFlight(
+      _chipFlights.add(ChipFlight(
         key: key,
         start: start,
         end: end,
@@ -801,7 +804,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _removeChipFlight(Key key) {
-    _ChipFlight? flight;
+    ChipFlight? flight;
     lockService.safeSetState(this, () {
       final index = _chipFlights.indexWhere((f) => f.key == key);
       if (index >= 0) {
@@ -829,132 +832,45 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _startPotWinFlights(Map<int, int> payouts) {
-    if (payouts.isEmpty) return;
-    final scale = TableGeometryHelper.tableScale(numberOfPlayers);
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
-        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    payouts.forEach((player, amount) {
-      if (amount <= 0) return;
-      final i = (player - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-      final dx = radiusX * cos(angle);
-      final dy = radiusY * sin(angle);
-      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-      final start = Offset(centerX, centerY);
-      final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-      final key = UniqueKey();
-      lockService.safeSetState(this, () {
-        _chipFlights.add(_ChipFlight(
-          key: key,
-          start: start,
-          end: end,
-          amount: amount,
-          playerIndex: player,
-          color: Colors.orangeAccent,
-          scale: scale,
-        ));
-        _registerResetAnimation();
-      });
-    });
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      payouts.keys.forEach((p) {
-        showWinnerHighlight(context, players[p].name);
-      });
-      final prevPot = _displayedPots[currentStreet];
-      if (prevPot > 0) {
-        _potCountAnimation =
-            IntTween(begin: prevPot, end: 0).animate(_potCountController);
-        _potCountController.forward(from: 0);
-        _displayedPots[currentStreet] = 0;
-      }
-      if (_sidePots.isNotEmpty) {
-        _sidePots.clear();
-        _potSync.sidePots.clear();
-        lockService.safeSetState(this, () {});
-      }
-      _hideLosingHands();
-    });
+    _potAnimations.startPotWinFlights(
+      context: context,
+      payouts: payouts,
+      numberOfPlayers: numberOfPlayers,
+      viewIndex: _viewIndex,
+      players: players,
+      flights: _chipFlights,
+      registerResetAnimation: _registerResetAnimation,
+      displayedPots: _displayedPots,
+      currentStreet: currentStreet,
+      potCountController: _potCountController,
+      setPotCountAnimation: (a) => _potCountAnimation = a,
+      sidePots: _sidePots,
+      potSync: _potSync,
+      refresh: () => lockService.safeSetState(this, () {}),
+      mounted: mounted,
+      hideLosingHands: _hideLosingHands,
+    );
   }
 
   void _startSidePotFlights(Map<int, int> payouts) {
-    if (payouts.isEmpty) return;
-    final scale = TableGeometryHelper.tableScale(numberOfPlayers);
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
-        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    final pots = <int>[
-      _potSync.pots[currentStreet] - _sidePots.fold<int>(0, (p, e) => p + e),
-      ..._sidePots,
-    ];
-    final totalPot = pots.fold<int>(0, (p, e) => p + e);
-    final totalWin = payouts.values.fold<int>(0, (p, e) => p + e);
-
-    for (int pIndex = 0; pIndex < pots.length; pIndex++) {
-      final potAmount = pots[pIndex];
-      if (potAmount <= 0) continue;
-      final start = Offset(centerX, centerY + (-12 + 36 * pIndex) * scale);
-      payouts.forEach((player, value) {
-        final amount =
-            (potAmount * (value / (totalWin == 0 ? 1 : totalWin))).round();
-        if (amount <= 0) return;
-        final i = (player - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-        final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-        final key = UniqueKey();
-        lockService.safeSetState(this, () {
-          _chipFlights.add(_ChipFlight(
-            key: key,
-            start: start,
-            end: end,
-            amount: amount,
-            playerIndex: player,
-            color: Colors.orangeAccent,
-            scale: scale,
-          ));
-          _registerResetAnimation();
-        });
-      });
-    }
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      payouts.keys.forEach((p) {
-        showWinnerHighlight(context, players[p].name);
-      });
-      final prevPot = _displayedPots[currentStreet];
-      if (prevPot > 0) {
-        _potCountAnimation =
-            IntTween(begin: prevPot, end: 0).animate(_potCountController);
-        _potCountController.forward(from: 0);
-        _displayedPots[currentStreet] = 0;
-      }
-      if (_sidePots.isNotEmpty) {
-        _sidePots.clear();
-        _potSync.sidePots.clear();
-        lockService.safeSetState(this, () {});
-      }
-      _hideLosingHands();
-    });
+    _potAnimations.startSidePotFlights(
+      context: context,
+      payouts: payouts,
+      numberOfPlayers: numberOfPlayers,
+      viewIndex: _viewIndex,
+      players: players,
+      flights: _chipFlights,
+      registerResetAnimation: _registerResetAnimation,
+      displayedPots: _displayedPots,
+      currentStreet: currentStreet,
+      potCountController: _potCountController,
+      setPotCountAnimation: (a) => _potCountAnimation = a,
+      sidePots: _sidePots,
+      potSync: _potSync,
+      refresh: () => lockService.safeSetState(this, () {}),
+      mounted: mounted,
+      hideLosingHands: _hideLosingHands,
+    );
   }
 
   void _handleBetAction(ActionEntry entry, {int potIndex = 0}) {
@@ -1349,7 +1265,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final resultSidePots = List<int>.from(_sidePots);
     await triggerWinnerAnimation(winner, pot - returnTotal);
     if (!_returnsAnimated) {
-      await triggerRefundAnimations(returns);
+      await _potAnimations.triggerRefundAnimations(returns);
     }
     await Future.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
@@ -3228,6 +3144,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _serviceRegistry.register<TransitionLockService>(widget.lockService);
     lockService = _serviceRegistry.get<TransitionLockService>();
     _demoAnimations = widget.demoAnimationManager ?? DemoAnimationManager();
+    _potAnimations = widget.potAnimationService ?? PotAnimationService();
     _centerChipController = AnimationController(
       vsync: this,
       duration: _boardRevealDuration,
@@ -6394,28 +6311,8 @@ class _BetDisplayInfo {
   _BetDisplayInfo(this.amount, this.color) : id = const Uuid().v4();
 }
 
-class _ChipFlight {
-  final Key key;
-  final Offset start;
-  final Offset end;
-  final int amount;
-  final int playerIndex;
-  final Color color;
-  final double scale;
-
-  _ChipFlight({
-    required this.key,
-    required this.start,
-    required this.end,
-    required this.amount,
-    required this.playerIndex,
-    required this.color,
-    required this.scale,
-  });
-}
-
 class _ChipFlightOverlay extends StatelessWidget {
-  final List<_ChipFlight> flights;
+  final List<ChipFlight> flights;
   final ValueChanged<Key> onRemove;
 
   const _ChipFlightOverlay({required this.flights, required this.onRemove});
