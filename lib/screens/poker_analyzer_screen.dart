@@ -78,6 +78,7 @@ import '../widgets/pot_chip_animation.dart';
 import '../widgets/pot_collection_chips.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/burn_chips_animation.dart';
+import '../widgets/burn_card_animation.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/fold_refund_animation.dart';
 import '../widgets/undo_refund_animation.dart';
@@ -316,6 +317,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   /// Duration for individual board card animations.
   static const Duration _boardRevealDuration =
       BoardRevealService.revealDuration;
+  static const Duration _burnDuration = Duration(milliseconds: 300);
 
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
@@ -3411,6 +3413,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
   }
 
+  void _playBurnCardAnimation(OverlayState overlay, Offset center, double scale) {
+    late OverlayEntry entry;
+    final end = center + Offset(-40 * scale, -80 * scale);
+    entry = OverlayEntry(
+      builder: (_) => BurnCardAnimation(
+        start: center,
+        end: end,
+        scale: scale,
+        duration: _burnDuration,
+        onCompleted: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
+  }
+
   void _playFlopRevealAnimation() {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -3424,7 +3441,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final center = Offset(centerX, centerY);
     final baseY = centerY - 52 * scale;
 
-    int delay = 0;
+    _playBurnCardAnimation(overlay, center, scale);
+
+    int delay = _burnDuration.inMilliseconds;
     for (int i = 0; i < 3; i++) {
       final card = boardCards[i];
       final x = centerX + (i - 1) * 44 * scale;
@@ -3459,6 +3478,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final center = Offset(centerX, centerY);
     final baseY = centerY - 52 * scale;
 
+    _playBurnCardAnimation(overlay, center, scale);
+
+    int delay = _burnDuration.inMilliseconds;
+
     final visible = BoardSyncService.stageCardCounts[2];
     final x = centerX + (3 - (visible - 1) / 2) * 44 * scale;
     late OverlayEntry e;
@@ -3471,7 +3494,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         onCompleted: () => e.remove(),
       ),
     );
-    overlay.insert(e);
+    Future.delayed(Duration(milliseconds: delay), () {
+      if (!mounted) return;
+      overlay.insert(e);
+    });
   }
 
   void _playRiverRevealAnimation() {
@@ -3487,6 +3513,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final center = Offset(centerX, centerY);
     final baseY = centerY - 52 * scale;
 
+    _playBurnCardAnimation(overlay, center, scale);
+
+    int delay = _burnDuration.inMilliseconds;
+
     final visible = BoardSyncService.stageCardCounts[3];
     final x = centerX + (4 - (visible - 1) / 2) * 44 * scale;
     late OverlayEntry e;
@@ -3499,7 +3529,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         onCompleted: () => e.remove(),
       ),
     );
-    overlay.insert(e);
+    Future.delayed(Duration(milliseconds: delay), () {
+      if (!mounted) return;
+      overlay.insert(e);
+    });
   }
 
   /// Plays the full dealing sequence for a newly reset hand.
@@ -3512,13 +3545,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Future.delayed(Duration(milliseconds: delay), () {
         if (mounted) _playFlopRevealAnimation();
       });
-      delay += 400;
+      delay += _burnDuration.inMilliseconds + 360;
     }
     if (boardCards.length >= 4) {
       Future.delayed(Duration(milliseconds: delay), () {
         if (mounted) _playTurnRevealAnimation();
       });
-      delay += 400;
+      delay += _burnDuration.inMilliseconds + 200;
     }
     if (boardCards.length >= 5) {
       Future.delayed(Duration(milliseconds: delay), () {
