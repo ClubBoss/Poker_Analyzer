@@ -28,9 +28,8 @@ class DemoPlaybackController {
   }) {
     final spot =
         TrainingSpot.fromJson(Map<String, dynamic>.from(_demoData));
-    Future.delayed(const Duration(seconds: 2), () {
-      loadSpot(spot);
-      Future.delayed(const Duration(seconds: 1), () {
+    loadSpot(spot);
+    Future.delayed(const Duration(seconds: 1), () {
         playAll();
         void listener() {
           if (playbackManager.playbackIndex == spot.actions.length) {
@@ -40,7 +39,6 @@ class DemoPlaybackController {
           }
         }
         playbackManager.addListener(listener);
-      });
     });
   }
 
