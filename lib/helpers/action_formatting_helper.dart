@@ -6,8 +6,8 @@ import '../models/action_entry.dart';
 class ActionFormattingHelper {
   /// Formats [amount] with spaces as thousand separators.
   static String formatAmount(int amount) {
-    final digits = amount.toString();
-    final buffer = StringBuffer();
+    final String digits = amount.toString();
+    final StringBuffer buffer = StringBuffer();
     for (int i = 0; i < digits.length; i++) {
       if (i > 0 && (digits.length - i) % 3 == 0) {
         buffer.write(' ');
@@ -69,8 +69,8 @@ class ActionFormattingHelper {
 
   /// Formats the last action label for display.
   static String formatLastAction(ActionEntry entry) {
-    final a = entry.action;
-    final cap = a.isNotEmpty ? a[0].toUpperCase() + a.substring(1) : a;
+    final String a = entry.action;
+    final String cap = a.isNotEmpty ? a[0].toUpperCase() + a.substring(1) : a;
     return entry.amount != null ? '$cap ${entry.amount}' : cap;
   }
 }

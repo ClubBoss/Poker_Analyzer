@@ -8,9 +8,9 @@ class StackManager {
 
   StackManager(Map<int, int> initialStacks, {Map<int, int>? remainingStacks})
       : _initialStacks = Map<int, int>.from(initialStacks) {
-    for (final entry in _initialStacks.entries) {
-      final sw = StackWithInvestments(entry.value);
-      final remaining = remainingStacks?[entry.key];
+    for (final MapEntry<int, int> entry in _initialStacks.entries) {
+      final StackWithInvestments sw = StackWithInvestments(entry.value);
+      final int? remaining = remainingStacks?[entry.key];
       if (remaining != null && remaining < entry.value) {
         sw.addInvestment(0, entry.value - remaining);
       }
@@ -20,12 +20,12 @@ class StackManager {
 
   /// Replays [actions] from the beginning and updates current stacks.
   void applyActions(List<ActionEntry> actions) {
-    for (final sw in _currentStacks.values) {
+    for (final StackWithInvestments sw in _currentStacks.values) {
       sw.clear();
     }
-    for (final a in actions) {
+    for (final ActionEntry a in actions) {
       if (a.action == 'call' || a.action == 'bet' || a.action == 'raise') {
-        final amount = a.amount;
+        final int? amount = a.amount;
         if (amount != null) {
           _currentStacks[a.playerIndex]?.addInvestment(a.street, amount);
         }
@@ -47,7 +47,7 @@ class StackManager {
 
   /// Returns total chips invested by [playerIndex] across all streets.
   int getTotalInvested(int playerIndex) {
-    final sw = _currentStacks[playerIndex];
+    final StackWithInvestments? sw = _currentStacks[playerIndex];
     if (sw == null) return 0;
     return sw.initialStack - sw.remainingStack;
   }

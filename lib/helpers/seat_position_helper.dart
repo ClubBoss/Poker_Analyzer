@@ -10,7 +10,7 @@ Offset getSeatPosition(int totalPlayers, int seatIndex, {required Size tableSize
   const double radiusY = 0.43;
 
   // Смещение угла: 0-й игрок ("Вы") будет внизу
-  final double angleOffset = -pi / 2;
+  const double angleOffset = -pi / 2;
 
   // Угол для текущего игрока
   final double angle = (2 * pi * seatIndex / totalPlayers) + angleOffset;

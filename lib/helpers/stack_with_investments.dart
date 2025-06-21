@@ -10,7 +10,7 @@ class StackWithInvestments {
   /// Remaining stack after subtracting all investments.
   int get remainingStack {
     int total = 0;
-    for (final v in _investments.values) {
+    for (final int v in _investments.values) {
       total += v;
     }
     return initialStack - total;

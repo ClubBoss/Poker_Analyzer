@@ -6,7 +6,7 @@ class PotCalculator {
   /// Returns the cumulative pot for each street based on [investments].
   List<int> calculatePots(
       List<ActionEntry> actions, StreetInvestments investments) {
-    final pots = List<int>.filled(4, 0);
+    final List<int> pots = List<int>.filled(4, 0);
     int cumulative = 0;
     for (int s = 0; s < pots.length; s++) {
       cumulative += investments.getTotalInvestedOnStreet(s);

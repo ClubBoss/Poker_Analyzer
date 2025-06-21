@@ -26,7 +26,7 @@ Widget debugQueueSection(
         buildDefaultDragHandles: false,
         itemCount: queue.length,
         itemBuilder: (context, index) {
-          final r = queue[index];
+          final ActionEvaluationRequest r = queue[index];
           return EvaluationRequestTile(
             key: ValueKey(r.id),
             request: r,

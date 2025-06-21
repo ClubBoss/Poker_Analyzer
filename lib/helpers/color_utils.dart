@@ -7,6 +7,6 @@ Color colorFromHex(String hex) {
 }
 
 String colorToHex(Color color) {
-  final hex = color.value.toRadixString(16).padLeft(8, '0');
+  final String hex = color.value.toRadixString(16).padLeft(8, '0');
   return '#${hex.substring(2).toUpperCase()}';
 }

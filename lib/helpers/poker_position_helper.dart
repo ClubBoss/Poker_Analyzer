@@ -7,16 +7,16 @@ List<String> getPositionList(int playerCount) {
     throw ArgumentError('Supported range: 2 to 10 players');
   }
 
-  final Map<int, List<String>> positionsByCount = {
-    2: ['SB', 'BB'],
-    3: ['BTN', 'SB', 'BB'],
-    4: ['CO', 'BTN', 'SB', 'BB'],
-    5: ['MP', 'CO', 'BTN', 'SB', 'BB'],
-    6: ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
-    7: ['UTG', 'MP', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
-    8: ['UTG', 'UTG+1', 'MP', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
-    9: ['UTG', 'UTG+1', 'UTG+2', 'MP', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
-    10: ['UTG', 'UTG+1', 'UTG+2', 'UTG+3', 'MP', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
+  const Map<int, List<String>> positionsByCount = {
+    2: const ['SB', 'BB'],
+    3: const ['BTN', 'SB', 'BB'],
+    4: const ['CO', 'BTN', 'SB', 'BB'],
+    5: const ['MP', 'CO', 'BTN', 'SB', 'BB'],
+    6: const ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
+    7: const ['UTG', 'MP', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
+    8: const ['UTG', 'UTG+1', 'MP', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
+    9: const ['UTG', 'UTG+1', 'UTG+2', 'MP', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
+    10: const ['UTG', 'UTG+1', 'UTG+2', 'UTG+3', 'MP', 'HJ', 'CO', 'BTN', 'SB', 'BB'],
   };
 
   return positionsByCount[playerCount]!;
