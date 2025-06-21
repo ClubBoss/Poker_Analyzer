@@ -418,6 +418,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     return invested - callAmount;
   }
 
+  /// Calculates any uncalled bet amounts that should be returned to players at
+  /// the end of the hand.
+  Map<int, int> _calculateUncalledReturns() {
+    final returns = <int, int>{};
+    final activePlayers = [
+      for (int i = 0; i < numberOfPlayers; i++)
+        if (!_foldedPlayers.isPlayerFolded(i)) i
+    ];
+    if (activePlayers.length <= 1) return returns;
+    for (final p in activePlayers) {
+      final invested = _stackService.getTotalInvested(p);
+      if (invested <= 0) continue;
+      int maxOther = 0;
+      for (final o in activePlayers) {
+        if (o == p) continue;
+        final otherInvest = _stackService.getTotalInvested(o);
+        if (otherInvest > maxOther) maxOther = otherInvest;
+      }
+      final callAmount = invested < maxOther ? invested : maxOther;
+      final refund = invested - callAmount;
+      if (refund > 0) returns[p] = refund;
+    }
+    return returns;
+  }
+
 
   int _inferBoardStreet() => _boardSync.inferBoardStreet();
 
@@ -1102,16 +1127,30 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final lastAction = visibleActions.isNotEmpty ? visibleActions.last : null;
     final int winner = _winnerIndex ?? lastAction?.playerIndex ?? 0;
     final int pot = _potSync.pots[currentStreet];
-    await triggerWinnerAnimation(winner, pot);
+    final returns = _calculateUncalledReturns();
+    final returnTotal = returns.values.fold<int>(0, (p, e) => p + e);
+    final payouts = <int, int>{};
+    if (_winnings != null && _winnings!.isNotEmpty) {
+      payouts.addAll(_winnings!);
+    } else {
+      payouts[winner] = pot - returnTotal;
+    }
+    await triggerWinnerAnimation(winner, pot - returnTotal);
     if (!mounted) return;
-    final stacks = _stackService.currentStacks;
+    final stacks = <int, int>{};
+    _stackService.currentStacks.forEach((i, stack) {
+      final payout = payouts[i] ?? 0;
+      final refund = returns[i] ?? 0;
+      stacks[i] = stack + payout + refund;
+    });
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ResultScreen(
           winnerIndex: winner,
+          winnings: payouts,
           finalStacks: stacks,
-          potSize: pot,
+          potSize: pot - returnTotal,
           actions: visibleActions,
         ),
       ),
