@@ -16,10 +16,12 @@ class UserPreferences {
   bool get showWinnerCelebration => service.showWinnerCelebration;
   bool get showActionHints => service.showActionHints;
   bool get coachMode => service.coachMode;
+  bool get demoMode => service.demoMode;
 
   Future<void> setShowPotAnimation(bool value) => service.setShowPotAnimation(value);
   Future<void> setShowCardReveal(bool value) => service.setShowCardReveal(value);
   Future<void> setShowWinnerCelebration(bool value) => service.setShowWinnerCelebration(value);
   Future<void> setShowActionHints(bool value) => service.setShowActionHints(value);
   Future<void> setCoachMode(bool value) => service.setCoachMode(value);
+  Future<void> setDemoMode(bool value) => service.setDemoMode(value);
 }
