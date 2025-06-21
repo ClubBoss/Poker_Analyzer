@@ -113,6 +113,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   OverlayEntry? _betEntry;
   OverlayEntry? _betOverlayEntry;
   OverlayEntry? _actionLabelEntry;
+  OverlayEntry? _refundMessageEntry;
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
   bool _refundGlow = false;
@@ -342,6 +343,29 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betOverlayEntry = entry;
   }
 
+  void showRefundMessage(int amount) {
+    _refundMessageEntry?.remove();
+    final overlay = Overlay.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final pos =
+        box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _RefundMessageOverlay(
+        position: pos,
+        amount: amount,
+        scale: widget.scale,
+        onCompleted: () {
+          entry.remove();
+          if (_refundMessageEntry == entry) _refundMessageEntry = null;
+        },
+      ),
+    );
+    overlay.insert(entry);
+    _refundMessageEntry = entry;
+  }
+
   void _showActionLabel(String text, Color color) {
     _actionLabelEntry?.remove();
     final overlay = Overlay.of(context);
@@ -533,6 +557,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betEntry?.remove();
     _betOverlayEntry?.remove();
     _actionLabelEntry?.remove();
+    _refundMessageEntry?.remove();
     _stackController.dispose();
     _betController.dispose();
     _controller.dispose();
@@ -1642,6 +1667,98 @@ class _BetAmountOverlayState extends State<_BetAmountOverlay>
   }
 }
 
+class _RefundMessageOverlay extends StatefulWidget {
+  final Offset position;
+  final int amount;
+  final double scale;
+  final VoidCallback? onCompleted;
+
+  const _RefundMessageOverlay({
+    Key? key,
+    required this.position,
+    required this.amount,
+    this.scale = 1.0,
+    this.onCompleted,
+  }) : super(key: key);
+
+  @override
+  State<_RefundMessageOverlay> createState() => _RefundMessageOverlayState();
+}
+
+class _RefundMessageOverlayState extends State<_RefundMessageOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _opacity = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0).chain(
+          CurveTween(curve: Curves.easeIn),
+        ),
+        weight: 25,
+      ),
+      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0).chain(
+          CurveTween(curve: Curves.easeOut),
+        ),
+        weight: 25,
+      ),
+    ]).animate(_controller);
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onCompleted?.call();
+      }
+    });
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: widget.position.dx,
+      top: widget.position.dy,
+      child: FadeTransition(
+        opacity: _opacity,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 8 * widget.scale,
+            vertical: 4 * widget.scale,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.lightGreenAccent.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(8 * widget.scale),
+            boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+          ),
+          child: Text(
+            '+${widget.amount} returned',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 14 * widget.scale,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Dark overlay that fades in and out when revealing opponent cards.
 class _CardRevealBackdrop extends StatefulWidget {
   final VoidCallback? onCompleted;
@@ -1863,6 +1980,7 @@ Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
     final lock = Provider.of<TransitionLockService?>(context, listen: false);
     lock?.lock(const Duration(milliseconds: 800));
     state.showRefundGlow();
+    state.showRefundMessage(amount);
     state.playWinChipsAnimation(amount);
     await state.animateStackIncrease(amount);
     lock?.unlock();
