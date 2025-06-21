@@ -3057,6 +3057,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       _prevPlayerCards[i] = List<CardModel>.from(playerCards[i]);
     }
     // BackupManagerService handles periodic backups and cleanup internally.
+    if (widget.demoMode) {
+      Future.delayed(const Duration(milliseconds: 500), _startDemo);
+    }
   }
 
   @override
@@ -5177,25 +5180,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (widget.demoMode)
-            FloatingActionButton.extended(
-              heroTag: 'demoFab',
-              onPressed: _startDemo,
-              icon: const Icon(Icons.play_arrow),
-              label: const Text('Начать демо'),
+      floatingActionButton: widget.demoMode
+          ? null
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  heroTag: 'debugFab',
+                  onPressed: _showDebugPanel,
+                  child: const Icon(Icons.bug_report),
+                ),
+              ],
             ),
-          if (widget.demoMode) const SizedBox(height: 8),
-          FloatingActionButton(
-            heroTag: 'debugFab',
-            onPressed: _showDebugPanel,
-            child: const Icon(Icons.bug_report),
-          ),
-        ],
-      ),
     );
   }
 
