@@ -308,6 +308,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       boardCards.isEmpty &&
       playerCards.every((c) => c.isEmpty);
 
+  int _handProgressStep() {
+    if (_showdownActive) return 3;
+    if (actions.isNotEmpty) return 2;
+    if (boardCards.isNotEmpty ||
+        playerCards.any((cards) => cards.isNotEmpty)) {
+      return 1;
+    }
+    return 0;
+  }
+
   /// Overlay entries for transient win labels and glow effects.
   final List<OverlayEntry> _messageOverlays = [];
 
@@ -5064,6 +5074,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               onChanged: lockService.isLocked ? null : _onPlayerCountChanged,
               disabled: lockService.isLocked,
             ),
+            _HandProgressIndicator(step: _handProgressStep()),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Text(
@@ -8102,6 +8113,61 @@ class _ReplayDemoButtonOverlay extends StatelessWidget {
             child: const Text('Replay Demo'),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _HandProgressIndicator extends StatelessWidget {
+  final int step;
+
+  const _HandProgressIndicator({required this.step});
+
+  @override
+  Widget build(BuildContext context) {
+    const labels = ['Игроки', 'Карты', 'Действия', 'Шоудаун'];
+    const icons = [
+      Icons.people,
+      Icons.style,
+      Icons.list_alt,
+      Icons.flag,
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(labels.length, (i) {
+          final active = step >= i;
+          return Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: active ? Colors.blueAccent : Colors.white12,
+                  ),
+                  child: Icon(
+                    icons[i],
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  labels[i],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: active ? Colors.white : Colors.white54,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
