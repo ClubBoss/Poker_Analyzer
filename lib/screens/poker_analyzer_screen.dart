@@ -319,6 +319,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   static const Duration _boardRevealDuration =
       BoardRevealService.revealDuration;
   static const Duration _burnDuration = Duration(milliseconds: 300);
+  static const Duration _revealDelay = Duration(milliseconds: 300);
 
 
   Widget _queueSection(String label, List<ActionEvaluationRequest> queue) {
@@ -3471,8 +3472,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         );
         overlay.insert(e);
       });
-      delay += 120;
+      delay += _revealDelay.inMilliseconds;
     }
+    Future.delayed(Duration(milliseconds: delay), () {
+      if (mounted) {
+        _boardReveal.revealStreet(1);
+      }
+    });
   }
 
   void _playTurnRevealAnimation() {
@@ -3494,11 +3500,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final visible = BoardSyncService.stageCardCounts[2];
     final x = centerX + (3 - (visible - 1) / 2) * 44 * scale;
+    final end = Offset(x, baseY);
+    final start = end - Offset(40 * scale, 0);
     late OverlayEntry e;
     e = OverlayEntry(
       builder: (_) => DealCardAnimation(
-        start: center,
-        end: Offset(x, baseY),
+        start: start,
+        end: end,
         card: boardCards[3],
         scale: scale,
         onCompleted: () => e.remove(),
@@ -3507,6 +3515,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future.delayed(Duration(milliseconds: delay), () {
       if (!mounted) return;
       overlay.insert(e);
+    });
+    delay += _revealDelay.inMilliseconds;
+    Future.delayed(Duration(milliseconds: delay), () {
+      if (mounted) {
+        _boardReveal.revealStreet(2);
+      }
     });
   }
 
@@ -3529,11 +3543,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final visible = BoardSyncService.stageCardCounts[3];
     final x = centerX + (4 - (visible - 1) / 2) * 44 * scale;
+    final end = Offset(x, baseY);
+    final start = end + Offset(40 * scale, 0);
     late OverlayEntry e;
     e = OverlayEntry(
       builder: (_) => DealCardAnimation(
-        start: center,
-        end: Offset(x, baseY),
+        start: start,
+        end: end,
         card: boardCards[4],
         scale: scale,
         onCompleted: () => e.remove(),
@@ -3542,6 +3558,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     Future.delayed(Duration(milliseconds: delay), () {
       if (!mounted) return;
       overlay.insert(e);
+    });
+    delay += _revealDelay.inMilliseconds;
+    Future.delayed(Duration(milliseconds: delay), () {
+      if (mounted) {
+        _boardReveal.revealStreet(3);
+      }
     });
   }
 
@@ -3555,13 +3577,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       Future.delayed(Duration(milliseconds: delay), () {
         if (mounted) _playFlopRevealAnimation();
       });
-      delay += _burnDuration.inMilliseconds + 360;
+      delay +=
+          _burnDuration.inMilliseconds + _revealDelay.inMilliseconds * 3 + 400;
     }
     if (boardCards.length >= 4) {
       Future.delayed(Duration(milliseconds: delay), () {
         if (mounted) _playTurnRevealAnimation();
       });
-      delay += _burnDuration.inMilliseconds + 200;
+      delay += _burnDuration.inMilliseconds + _revealDelay.inMilliseconds + 400;
     }
     if (boardCards.length >= 5) {
       Future.delayed(Duration(milliseconds: delay), () {

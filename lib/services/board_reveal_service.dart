@@ -147,6 +147,13 @@ class BoardRevealService {
     updateRevealState();
   }
 
+  /// Reveal board cards up to [street] and animate newly visible cards.
+  void revealStreet(int street) {
+    _revealStreet = street;
+    updateRevealState();
+    updateAnimations();
+  }
+
   /// Returns true if [stage] is currently revealed.
   bool isStageRevealed(int stage) => revealStreet >= stage;
 
