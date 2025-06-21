@@ -3,12 +3,14 @@ class SpotOfDayHistoryEntry {
   final int spotIndex;
   final String? userAction;
   final String? recommendedAction;
+  final bool? correct;
 
   SpotOfDayHistoryEntry({
     required this.date,
     required this.spotIndex,
     this.userAction,
     this.recommendedAction,
+    this.correct,
   });
 
   Map<String, dynamic> toJson() => {
@@ -16,6 +18,7 @@ class SpotOfDayHistoryEntry {
         'spotIndex': spotIndex,
         if (userAction != null) 'userAction': userAction,
         if (recommendedAction != null) 'recommendedAction': recommendedAction,
+        if (correct != null) 'correct': correct,
       };
 
   factory SpotOfDayHistoryEntry.fromJson(Map<String, dynamic> json) =>
@@ -24,13 +27,15 @@ class SpotOfDayHistoryEntry {
         spotIndex: json['spotIndex'] as int? ?? 0,
         userAction: json['userAction'] as String?,
         recommendedAction: json['recommendedAction'] as String?,
+        correct: json['correct'] as bool?,
       );
 
-  SpotOfDayHistoryEntry copyWith({String? userAction, String? recommendedAction}) =>
+  SpotOfDayHistoryEntry copyWith({String? userAction, String? recommendedAction, bool? correct}) =>
       SpotOfDayHistoryEntry(
         date: date,
         spotIndex: spotIndex,
         userAction: userAction ?? this.userAction,
         recommendedAction: recommendedAction ?? this.recommendedAction,
+        correct: correct ?? this.correct,
       );
 }

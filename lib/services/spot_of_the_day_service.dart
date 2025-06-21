@@ -19,6 +19,13 @@ class SpotOfTheDayService extends ChangeNotifier {
   String? _result;
   List<SpotOfDayHistoryEntry> _history = [];
 
+  bool? get correct {
+    if (_spot == null || _result == null || _spot!.recommendedAction == null) {
+      return null;
+    }
+    return _result == _spot!.recommendedAction;
+  }
+
   TrainingSpot? get spot => _spot;
   String? get result => _result;
   List<SpotOfDayHistoryEntry> get history => List.unmodifiable(_history);
@@ -79,8 +86,21 @@ class SpotOfTheDayService extends ChangeNotifier {
         await _saveHistory();
       } else if (_history[idx].recommendedAction == null &&
           _spot?.recommendedAction != null) {
-        _history[idx] = _history[idx]
-            .copyWith(recommendedAction: _spot!.recommendedAction);
+        final entry = _history[idx];
+        _history[idx] = entry.copyWith(
+          recommendedAction: _spot!.recommendedAction,
+          correct: entry.userAction != null
+              ? entry.userAction == _spot!.recommendedAction
+              : null,
+        );
+        await _saveHistory();
+      } else if (_history[idx].correct == null &&
+          _history[idx].userAction != null &&
+          _history[idx].recommendedAction != null) {
+        final entry = _history[idx];
+        _history[idx] = entry.copyWith(
+            correct:
+                entry.userAction == entry.recommendedAction);
         await _saveHistory();
       }
     }
@@ -117,7 +137,10 @@ class SpotOfTheDayService extends ChangeNotifier {
         final entry = _history[idx];
         _history[idx] = entry.copyWith(
             userAction: action,
-            recommendedAction: entry.recommendedAction ?? _spot?.recommendedAction);
+            recommendedAction: entry.recommendedAction ?? _spot?.recommendedAction,
+            correct: _spot?.recommendedAction != null
+                ? action == _spot!.recommendedAction
+                : null);
         await _saveHistory();
       }
     }
