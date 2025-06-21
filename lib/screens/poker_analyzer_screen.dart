@@ -279,6 +279,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   int _resetAnimationCount = 0;
   bool _waitingForAutoReset = false;
+  bool _showNextHandButton = false;
 
   // Previous card state used to trigger deal animations.
   List<CardModel> _prevBoardCards = [];
@@ -935,7 +936,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _tableCleanupPlayed = true;
     await _clearTableState();
     if (!mounted) return;
-    _resetHandState();
+    lockService.safeSetState(this, () {
+      _showNextHandButton = true;
+    });
     lockService.unlock();
   }
 
@@ -954,6 +957,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       }
       _sidePots.clear();
       _playbackNarration = null;
+      _showNextHandButton = false;
     });
     _tableCleanupPlayed = false;
     _potSync.reset();
@@ -4672,7 +4676,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                         !_debugPrefs.showAllRevealedCards);
                     lockService.safeSetState(this, () {});
                   },
-                )
+                ),
+                if (_showNextHandButton)
+                  _NextHandButtonOverlay(
+                    onPressed: _resetHandState,
+                  )
               ],
         ),
       ),
@@ -7338,6 +7346,33 @@ class _RevealAllCardsButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onToggle,
           child: const Text('Показать все карты'),
+        ),
+      ),
+    );
+  }
+}
+
+class _NextHandButtonOverlay extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _NextHandButtonOverlay({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 40.0),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            textStyle: const TextStyle(fontSize: 20),
+          ),
+          child: const Text('Next Hand'),
         ),
       ),
     );
