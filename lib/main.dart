@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/main_menu_screen.dart';
+import 'screens/main_navigation_screen.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
 import 'services/training_pack_storage_service.dart';
@@ -68,7 +68,7 @@ class PokerAIAnalyzerApp extends StatelessWidget {
               displayColor: Colors.white,
             ),
       ),
-      home: const MainMenuScreen(),
+      home: const MainNavigationScreen(),
     );
   }
 }
