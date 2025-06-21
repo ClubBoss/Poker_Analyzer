@@ -146,4 +146,19 @@ class SpotOfTheDayService extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  Future<void> updateHistoryEntry(DateTime date, String action,
+      {String? recommendedAction}) async {
+    final idx = _history.indexWhere((e) => _isSameDay(e.date, date));
+    if (idx < 0) return;
+    final entry = _history[idx];
+    final rec = recommendedAction ?? entry.recommendedAction;
+    _history[idx] = entry.copyWith(
+      userAction: action,
+      recommendedAction: rec,
+      correct: rec != null ? action == rec : null,
+    );
+    await _saveHistory();
+    notifyListeners();
+  }
 }
