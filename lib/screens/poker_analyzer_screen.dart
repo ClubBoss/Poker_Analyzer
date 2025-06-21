@@ -831,8 +831,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final centerY = screen.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
@@ -859,6 +859,76 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ));
       });
     });
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      payouts.keys.forEach((p) {
+        showWinnerHighlight(context, players[p].name);
+      });
+      final prevPot = _displayedPots[currentStreet];
+      if (prevPot > 0) {
+        _potCountAnimation =
+            IntTween(begin: prevPot, end: 0).animate(_potCountController);
+        _potCountController.forward(from: 0);
+        _displayedPots[currentStreet] = 0;
+      }
+      if (_sidePots.isNotEmpty) {
+        _sidePots.clear();
+        _potSync.sidePots.clear();
+        lockService.safeSetState(this, () {});
+      }
+      _hideLosingHands();
+    });
+  }
+
+  void _startSidePotFlights(Map<int, int> payouts) {
+    if (payouts.isEmpty) return;
+    final scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY = screen.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    final pots = <int>[
+      _potSync.pots[currentStreet] - _sidePots.fold<int>(0, (p, e) => p + e),
+      ..._sidePots,
+    ];
+    final totalPot = pots.fold<int>(0, (p, e) => p + e);
+    final totalWin = payouts.values.fold<int>(0, (p, e) => p + e);
+
+    for (int pIndex = 0; pIndex < pots.length; pIndex++) {
+      final potAmount = pots[pIndex];
+      if (potAmount <= 0) continue;
+      final start = Offset(centerX, centerY + (-12 + 36 * pIndex) * scale);
+      payouts.forEach((player, value) {
+        final amount =
+            (potAmount * (value / (totalWin == 0 ? 1 : totalWin))).round();
+        if (amount <= 0) return;
+        final i = (player - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+        final dx = radiusX * cos(angle);
+        final dy = radiusY * sin(angle);
+        final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+        final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+        final key = UniqueKey();
+        lockService.safeSetState(this, () {
+          _chipFlights.add(_ChipFlight(
+            key: key,
+            start: start,
+            end: end,
+            amount: amount,
+            playerIndex: player,
+            color: Colors.orangeAccent,
+            scale: scale,
+          ));
+        });
+      });
+    }
 
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
@@ -2331,7 +2401,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     if (payouts.isNotEmpty) {
       _playSimpleWinAnimation(payouts);
-      _startPotWinFlights(payouts);
+      if (_sidePots.isNotEmpty) {
+        _startSidePotFlights(payouts);
+      } else {
+        _startPotWinFlights(payouts);
+      }
     }
 
     if (returns != null && returns.isNotEmpty) {
@@ -6656,7 +6730,8 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
               child: Transform.translate(
                 offset: Offset(0, -12 * scale),
                 child: CentralPotWidget(
-                  text: ActionFormattingHelper.formatAmount(pot),
+                  text: 'Main Pot: ' +
+                      ActionFormattingHelper.formatAmount(pot),
                   scale: scale,
                 ),
               ),
@@ -6703,7 +6778,7 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
                   ),
                   child: CentralPotWidget(
                     key: ValueKey('side-$i-$amount'),
-                    text: 'Пот ${i + 1}: ' +
+                    text: 'Side Pot ${i + 1}: ' +
                         ActionFormattingHelper.formatAmount(amount),
                     scale: scale * 0.8,
                   ),
