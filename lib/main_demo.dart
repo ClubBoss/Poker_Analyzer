@@ -191,5 +191,36 @@ class _DemoLauncherState extends State<DemoLauncher> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        widget.child,
+        Positioned(
+          top: MediaQuery.of(context).padding.top + 8,
+          right: 8,
+          child: IconButton(
+            icon: const Icon(Icons.refresh),
+            color: Colors.white70,
+            tooltip: 'Reset Demo',
+            onPressed: _resetDemo,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _resetDemo() {
+    final state = analyzerKey.currentState;
+    if (state == null) return;
+    final dynamic dyn = state;
+    Future<void> future = Future.value();
+    try {
+      future = dyn._autoResetAfterShowdown();
+    } catch (_) {}
+    future.whenComplete(() {
+      try {
+        dyn.resetAll();
+      } catch (_) {}
+    });
+  }
 }
