@@ -3589,6 +3589,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
 
     _winnerIndex = activePlayers.first;
+    final winnerName = players[_winnerIndex!].name;
+    showWinnerHighlight(context, winnerName);
+    showWinnerZoneOverlay(context, winnerName);
     _returns = _calculateUncalledReturns();
     _playPotWinAnimation();
     Future.delayed(const Duration(milliseconds: 1600), () {
