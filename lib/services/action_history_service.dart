@@ -51,6 +51,14 @@ class ActionHistoryService {
   /// Returns the index of [entry] in the full action list.
   int indexOf(ActionEntry entry) => _allActions.indexOf(entry);
 
+  /// Removes the action at [index] from history and returns it.
+  ActionEntry? removeAt(int index) {
+    if (index < 0 || index >= _allActions.length) return null;
+    final removed = _allActions.removeAt(index);
+    _actionsByStreet[removed.street]?.remove(removed);
+    return removed;
+  }
+
   /// Toggles expansion state for [street].
   void toggleStreet(int street) {
     if (expandedStreets.contains(street)) {

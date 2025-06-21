@@ -11,6 +11,7 @@ class ActionHistoryOverlay extends StatelessWidget {
   final Set<int> expandedStreets;
   final ValueChanged<int>? onToggleStreet;
   final void Function(int index, ActionEntry entry)? onEdit;
+  final void Function(int index)? onDelete;
   final bool isLocked;
 
   const ActionHistoryOverlay({
@@ -20,6 +21,7 @@ class ActionHistoryOverlay extends StatelessWidget {
     required this.expandedStreets,
     this.onToggleStreet,
     this.onEdit,
+    this.onDelete,
     required this.isLocked,
   }) : super(key: key);
 
@@ -71,21 +73,50 @@ class ActionHistoryOverlay extends StatelessWidget {
         ),
       );
 
-      if (onEdit == null || isLocked) return chip;
+      if (isLocked || (onEdit == null && onDelete == null)) return chip;
 
       return GestureDetector(
-        onTap: () async {
-          final edited = await showEditActionDialog(
-            context,
-            entry: a,
-            numberOfPlayers: playerPositions.length,
-            playerPositions: playerPositions,
-          );
-          if (edited != null) {
-            final index = actionHistory.indexOf(a);
-            if (index != -1) onEdit!(index, edited);
-          }
-        },
+        onTap: onEdit == null
+            ? null
+            : () async {
+                final edited = await showEditActionDialog(
+                  context,
+                  entry: a,
+                  numberOfPlayers: playerPositions.length,
+                  playerPositions: playerPositions,
+                );
+                if (edited != null) {
+                  final index = actionHistory.indexOf(a);
+                  if (index != -1) onEdit!(index, edited);
+                }
+              },
+        onLongPress: onDelete == null
+            ? null
+            : () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Удалить действие?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Отмена'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Удалить'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  final index = actionHistory.indexOf(a);
+                  if (index != -1) {
+                    actionHistory.removeAt(index);
+                    onDelete!(index);
+                  }
+                }
+              },
         child: chip,
       );
     }
