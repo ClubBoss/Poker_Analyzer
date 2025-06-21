@@ -2235,8 +2235,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
-  void _computeSidePots() {
-    _potSync.updateSidePots();
+  void _updateSidePots() {
     _sidePots = List<int>.from(_potSync.sidePots);
   }
 
@@ -2265,7 +2264,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } else {
       _winnerIndex = null;
     }
-    _computeSidePots();
+    _updateSidePots();
     if (_boardReveal.revealedBoardCards.length == 5) {
       _playPotWinAnimation();
     } else {
@@ -2870,7 +2869,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _actionEditing = _serviceRegistry.get<ActionEditingService>();
     Future(() => _initializeDebugPreferences());
     Future.microtask(_queueService.loadQueueSnapshot);
-    _computeSidePots();
+    _updateSidePots();
     if (widget.initialHand?.winnings != null &&
         widget.initialHand!.winnings!.isNotEmpty) {
       _winnerIndex = widget.initialHand!.winnings!.entries
@@ -3164,7 +3163,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (mounted) {
       _clearBetDisplays();
       final prevSides = List<int>.from(_sidePots);
-      _computeSidePots();
+      _updateSidePots();
       final newPot = _potSync.pots[currentStreet];
       final prevPot = _displayedPots[currentStreet];
       final lastIndex = _playbackManager.playbackIndex - 1;
@@ -3646,7 +3645,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         ..clear()
         ..addAll(_stackService.currentStacks);
       _updateBustedPlayers();
-      _computeSidePots();
+      _updateSidePots();
       lockService.safeSetState(this, () {});
     }
   }
@@ -6081,13 +6080,13 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
     }
 
     for (int i = 0; i < sidePots.length; i++) {
-      final offsetY = 36 * scale * (i + 1);
+      final offsetY = (-12 + 36 * (i + 1)) * scale;
       final amount = sidePots[i];
       items.add(
         Positioned.fill(
           child: IgnorePointer(
             child: Align(
-              alignment: Alignment.center,
+              alignment: const Alignment(0, -0.05),
               child: Transform.translate(
                 offset: Offset(0, offsetY),
                 child: AnimatedSwitcher(
@@ -6096,10 +6095,11 @@ class _PotAndBetsOverlaySection extends StatelessWidget {
                     opacity: animation,
                     child: ScaleTransition(scale: animation, child: child),
                   ),
-                  child: BetStackChips(
+                  child: CentralPotWidget(
                     key: ValueKey('side-$i-$amount'),
-                    amount: amount,
-                    scale: scale,
+                    text: 'Пот ${i + 1}: ' +
+                        ActionFormattingHelper.formatAmount(amount),
+                    scale: scale * 0.8,
                   ),
                 ),
               ),
