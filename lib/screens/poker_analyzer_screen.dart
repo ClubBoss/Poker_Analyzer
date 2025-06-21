@@ -75,7 +75,6 @@ import '../widgets/win_text_widget.dart';
 import '../widgets/winner_glow_widget.dart';
 import '../widgets/loss_fade_widget.dart';
 import '../widgets/pot_chip_animation.dart';
-import '../widgets/pot_collection_chips.dart';
 import '../widgets/trash_flying_chips.dart';
 import '../widgets/burn_chips_animation.dart';
 import '../widgets/burn_card_animation.dart';
@@ -1489,8 +1488,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   void _playPotCollectionAnimation(Set<int> winners) {
-    final overlay = Overlay.of(context);
-
     final Map<int, int> payouts = {};
     if (_winnings != null && _winnings!.isNotEmpty) {
       payouts.addAll(_winnings!);
@@ -1498,78 +1495,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       payouts[_winnerIndex!] = _potSync.pots[currentStreet];
     }
 
-    if (overlay == null || payouts.isEmpty) return;
+    if (payouts.isEmpty) return;
 
-    final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
-    final screen = MediaQuery.of(context).size;
-    final tableWidth = screen.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    _startPotWinFlights(payouts);
 
-    int delay = 0;
-    payouts.forEach((playerIndex, amount) {
-      if (amount <= 0) return;
-      final i = (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
-      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-      final dx = radiusX * cos(angle);
-      final dy = radiusY * sin(angle);
-      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-      final start = Offset(centerX, centerY);
-      final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-      final midX = (start.dx + end.dx) / 2;
-      final midY = (start.dy + end.dy) / 2;
-      final perp = Offset(-sin(angle), cos(angle));
-      final control = Offset(
-        midX + perp.dx * 20 * scale,
-        midY - (40 + ChipStackMovingWidget.activeCount * 8) * scale,
-      );
-      Future.delayed(Duration(milliseconds: 150 * delay), () {
-        if (!mounted) return;
-        late OverlayEntry entry;
-        entry = OverlayEntry(
-          builder: (_) => PotCollectionChips(
-            start: start,
-            end: end,
-            control: control,
-            amount: amount,
-            scale: scale,
-            onCompleted: () => entry.remove(),
-          ),
-        );
-        overlay.insert(entry);
-
-        // Show chips arriving at the winner after the pot leaves center.
-        Future.delayed(const Duration(milliseconds: 400), () {
-          if (!mounted) return;
-          late OverlayEntry winEntry;
-          winEntry = OverlayEntry(
-            builder: (_) => WinChipsAnimation(
-              start: start,
-              end: end,
-              control: control,
-              amount: amount,
-              scale: scale,
-              onCompleted: () {
-                winEntry.remove();
-                final startStack = _displayedStacks[playerIndex] ??
-                    _stackService.getStackForPlayer(playerIndex);
-                final endStack = startStack + amount;
-                _animateStackIncrease(playerIndex, startStack, endStack);
-              },
-            ),
-          );
-          overlay.insert(winEntry);
-        });
-      });
-      delay++;
-    });
-
-    final cleanupDelay = 150 * (delay == 0 ? 0 : delay - 1) + 900;
+    final cleanupDelay = 900 + 150 * (payouts.length - 1);
     Future.delayed(Duration(milliseconds: cleanupDelay), () {
       if (!mounted) return;
       _autoResetAfterShowdown();
