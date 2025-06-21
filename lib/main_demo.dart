@@ -28,8 +28,32 @@ void main() {
   runApp(const PokerAnalyzerDemoApp());
 }
 
-class PokerAnalyzerDemoApp extends StatelessWidget {
+class PokerAnalyzerDemoApp extends StatefulWidget {
   const PokerAnalyzerDemoApp({super.key});
+
+  @override
+  State<PokerAnalyzerDemoApp> createState() => _PokerAnalyzerDemoAppState();
+}
+
+class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _labelController;
+
+  @override
+  void initState() {
+    super.initState();
+    _labelController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _labelController.reverse();
+    _labelController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +157,35 @@ class PokerAnalyzerDemoApp extends StatelessWidget {
                       displayColor: Colors.white,
                     ),
               ),
+              builder: (context, child) {
+                return Stack(
+                  children: [
+                    if (child != null) child,
+                    Positioned(
+                      bottom: MediaQuery.of(context).padding.bottom + 8,
+                      left: 8,
+                      child: FadeTransition(
+                        opacity: _labelController,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Demo Mode Active',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
               home: PokerAnalyzerScreen(
                 actionSync: context.read<ActionSyncService>(),
                 foldedPlayersService: context.read<FoldedPlayersService>(),
