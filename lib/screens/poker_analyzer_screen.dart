@@ -3148,6 +3148,15 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, {'action': 'fold'}),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black87,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Fold'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
                   onPressed: () => Navigator.pop(ctx, {'action': 'check'}),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black87,
@@ -3186,33 +3195,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   ),
                   child: const Text('Raise'),
                 ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(ctx, {'action': 'fold'}),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Fold'),
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(ctx, {'action': 'all-in'}),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('All-In'),
-                ),
                 if (needAmount) ...[
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _sizeButton('1/3', (pot / 3).round(), ctx, selected!),
-                      _sizeButton('1/2', (pot / 2).round(), ctx, selected!),
+                      _sizeButton('50%', (pot / 2).round(), ctx, selected!),
+                      _sizeButton('66%', (pot * 2 / 3).round(), ctx, selected!),
                       _sizeButton('Pot', pot, ctx, selected!),
-                      _sizeButton('All-In', stack, ctx, selected!),
                     ],
                   ),
                   Slider(
