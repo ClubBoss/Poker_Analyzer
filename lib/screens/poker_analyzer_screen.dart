@@ -3657,9 +3657,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final center = Offset(centerX, centerY);
     final baseY = centerY - 52 * scale;
 
-    _playBurnCardAnimation(overlay, center, scale);
+    if (widget.demoMode) {
+      _playBurnCardAnimation(overlay, center, scale);
+    }
 
-    int delay = _burnDuration.inMilliseconds;
+    int delay = widget.demoMode ? _burnDuration.inMilliseconds : 0;
     for (int i = 0; i < 3; i++) {
       final card = boardCards[i];
       final x = centerX + (i - 1) * 44 * scale;
@@ -3681,7 +3683,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     }
     Future.delayed(Duration(milliseconds: delay), () {
       if (mounted) {
-        _boardReveal.revealStreet(1);
+        _revealNextBoardCard(1);
       }
     });
   }
@@ -3699,9 +3701,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final center = Offset(centerX, centerY);
     final baseY = centerY - 52 * scale;
 
-    _playBurnCardAnimation(overlay, center, scale);
+    if (widget.demoMode) {
+      _playBurnCardAnimation(overlay, center, scale);
+    }
 
-    int delay = _burnDuration.inMilliseconds;
+    int delay = widget.demoMode ? _burnDuration.inMilliseconds : 0;
 
     final visible = BoardSyncService.stageCardCounts[2];
     final x = centerX + (3 - (visible - 1) / 2) * 44 * scale;
@@ -3724,7 +3728,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     delay += _revealDelay.inMilliseconds;
     Future.delayed(Duration(milliseconds: delay), () {
       if (mounted) {
-        _boardReveal.revealStreet(2);
+        _revealNextBoardCard(2);
       }
     });
   }
@@ -3742,9 +3746,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final center = Offset(centerX, centerY);
     final baseY = centerY - 52 * scale;
 
-    _playBurnCardAnimation(overlay, center, scale);
+    if (widget.demoMode) {
+      _playBurnCardAnimation(overlay, center, scale);
+    }
 
-    int delay = _burnDuration.inMilliseconds;
+    int delay = widget.demoMode ? _burnDuration.inMilliseconds : 0;
 
     final visible = BoardSyncService.stageCardCounts[3];
     final x = centerX + (4 - (visible - 1) / 2) * 44 * scale;
@@ -3767,9 +3773,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     delay += _revealDelay.inMilliseconds;
     Future.delayed(Duration(milliseconds: delay), () {
       if (mounted) {
-        _boardReveal.revealStreet(3);
+        _revealNextBoardCard(3);
       }
     });
+  }
+
+  /// Reveals the board up to [street] with a burn card animation in demo mode.
+  void _revealNextBoardCard(int street) {
+    if (widget.demoMode) {
+      final overlay = Overlay.of(context);
+      if (overlay != null) {
+        final double scale = TableGeometryHelper.tableScale(numberOfPlayers);
+        final screen = MediaQuery.of(context).size;
+        final centerX = screen.width / 2 + 10;
+        final centerY =
+            screen.height / 2 -
+                TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+        final center = Offset(centerX, centerY);
+        _playBurnCardAnimation(overlay, center, scale);
+      }
+      Future.delayed(_burnDuration, () {
+        if (mounted) _boardReveal.revealStreet(street);
+      });
+    } else {
+      _boardReveal.revealStreet(street);
+    }
   }
 
   /// Plays the full dealing sequence for a newly reset hand.
@@ -3783,13 +3811,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         if (mounted) _playFlopRevealAnimation();
       });
       delay +=
-          _burnDuration.inMilliseconds + _revealDelay.inMilliseconds * 3 + 400;
+          (widget.demoMode ? _burnDuration.inMilliseconds : 0) +
+          _revealDelay.inMilliseconds * 3 +
+          400;
     }
     if (boardCards.length >= 4) {
       Future.delayed(Duration(milliseconds: delay), () {
         if (mounted) _playTurnRevealAnimation();
       });
-      delay += _burnDuration.inMilliseconds + _revealDelay.inMilliseconds + 400;
+      delay +=
+          (widget.demoMode ? _burnDuration.inMilliseconds : 0) +
+          _revealDelay.inMilliseconds +
+          400;
     }
     if (boardCards.length >= 5) {
       Future.delayed(Duration(milliseconds: delay), () {
