@@ -708,6 +708,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => _CardRevealBackdrop(
+        revealAnimation: _revealOpacity,
         onCompleted: () => entry.remove(),
       ),
     );
@@ -2851,9 +2852,14 @@ class _RefundMessageOverlayState extends State<_RefundMessageOverlay>
 
 /// Dark overlay that fades in and out when revealing opponent cards.
 class _CardRevealBackdrop extends StatefulWidget {
+  final Animation<double> revealAnimation;
   final VoidCallback? onCompleted;
 
-  const _CardRevealBackdrop({Key? key, this.onCompleted}) : super(key: key);
+  const _CardRevealBackdrop({
+    Key? key,
+    required this.revealAnimation,
+    this.onCompleted,
+  }) : super(key: key);
 
   @override
   State<_CardRevealBackdrop> createState() => _CardRevealBackdropState();
@@ -2861,26 +2867,26 @@ class _CardRevealBackdrop extends StatefulWidget {
 
 class _CardRevealBackdropState extends State<_CardRevealBackdrop>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+  late final AnimationController _fadeOutController;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _fadeOutController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
+      value: 1.0,
     );
-    _controller.forward();
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) {
-        _controller.reverse().whenComplete(() => widget.onCompleted?.call());
+        _fadeOutController.reverse().whenComplete(() => widget.onCompleted?.call());
       }
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _fadeOutController.dispose();
     super.dispose();
   }
 
@@ -2888,11 +2894,12 @@ class _CardRevealBackdropState extends State<_CardRevealBackdrop>
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: IgnorePointer(
-        child: FadeTransition(
-          opacity: CurvedAnimation(
-            parent: _controller,
-            curve: Curves.easeInOut,
-          ),
+        child: AnimatedBuilder(
+          animation: Listenable.merge([widget.revealAnimation, _fadeOutController]),
+          builder: (context, child) {
+            final opacity = widget.revealAnimation.value * _fadeOutController.value;
+            return Opacity(opacity: opacity, child: child);
+          },
           child: Container(color: Colors.black54),
         ),
       ),
