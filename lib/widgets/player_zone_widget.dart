@@ -149,6 +149,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _foldOpacity;
   bool _showCards = true;
   bool _hoverAction = false;
+  String? _showdownLabel;
+  late final AnimationController _showdownLabelController;
+  late final Animation<double> _showdownLabelOpacity;
 
   @override
   void initState() {
@@ -208,6 +211,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.isFolded) {
       _showCards = false;
     }
+    _showdownLabelController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _showdownLabelOpacity =
+        CurvedAnimation(parent: _showdownLabelController, curve: Curves.easeIn);
   }
 
   @override
@@ -405,6 +414,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       if (gainAmount != null && gainAmount > 0) {
         _showGainAmount(gainAmount!);
       }
+    }
+  }
+
+  void showShowdownLabel(String text) {
+    if (widget.isHero) return;
+    setState(() => _showdownLabel = text);
+    _showdownLabelController.forward(from: 0.0);
+  }
+
+  void clearShowdownLabel() {
+    if (_showdownLabel != null) {
+      setState(() => _showdownLabel = null);
+      _showdownLabelController.reset();
     }
   }
 
@@ -825,6 +847,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _controller.dispose();
     _bounceController.dispose();
     _foldController.dispose();
+    _showdownLabelController.dispose();
     super.dispose();
   }
 
@@ -1017,6 +1040,29 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               : SizedBox(height: 4 * widget.scale),
         ),
         SizedBox(height: 4 * widget.scale),
+        if (_showdownLabel != null && !widget.isHero)
+          FadeTransition(
+            opacity: _showdownLabelOpacity,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 4 * widget.scale),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(8 * widget.scale),
+                ),
+                child: Text(
+                  _showdownLabel!,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10 * widget.scale,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
         Opacity(
           opacity: widget.isFolded ? 0.4 : 1.0,
           child: Row(
@@ -2310,6 +2356,18 @@ void setPlayerLastAction(
 void setPlayerLastActionOutcome(String playerName, ActionOutcome outcome) {
   final state = playerZoneRegistry[playerName];
   state?.setLastActionOutcome(outcome);
+}
+
+/// Shows a showdown status label for the given player.
+void setPlayerShowdownStatus(String playerName, String label) {
+  final state = playerZoneRegistry[playerName];
+  state?.showShowdownLabel(label);
+}
+
+/// Clears the showdown status label for the given player.
+void clearPlayerShowdownStatus(String playerName) {
+  final state = playerZoneRegistry[playerName];
+  state?.clearShowdownLabel();
 }
 
 /// Reveals cards for multiple opponents at once. Typically called after
