@@ -1318,21 +1318,30 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       );
     }
 
-    result = AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      padding: EdgeInsets.all(2 * widget.scale),
-      decoration: (widget.isActive || widget.highlightLastAction)
-          ? BoxDecoration(
-              border: Border.all(color: Colors.blueAccent, width: 3),
-              borderRadius: BorderRadius.circular(12 * widget.scale),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.blueAccent.withOpacity(0.6),
-                  blurRadius: 8,
+    result = AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final bool highlight = widget.isActive || widget.highlightLastAction;
+        final double width = widget.isActive ? 2 + _controller.value * 2 : 3;
+        final double blur = widget.isActive ? 8 + _controller.value * 4 : 8;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: EdgeInsets.all(2 * widget.scale),
+          decoration: highlight
+              ? BoxDecoration(
+                  border: Border.all(color: Colors.blueAccent, width: width),
+                  borderRadius: BorderRadius.circular(12 * widget.scale),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueAccent.withOpacity(0.6),
+                      blurRadius: blur,
+                    )
+                  ],
                 )
-              ],
-            )
-          : null,
+              : null,
+          child: child,
+        );
+      },
       child: result,
     );
 
