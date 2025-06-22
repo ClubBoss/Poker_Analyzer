@@ -27,6 +27,8 @@ import 'move_pot_animation.dart';
 import 'winner_zone_highlight.dart';
 import 'loss_amount_widget.dart';
 import 'gain_amount_widget.dart';
+import '../services/pot_sync_service.dart';
+import 'player_effective_stack_label.dart';
 
 final Map<String, _PlayerZoneWidgetState> playerZoneRegistry = {};
 
@@ -1132,6 +1134,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               isBust: remaining != null && remaining <= 0,
             ),
           ),
+        PlayerEffectiveStackLabel(
+          stack: context.watch<PotSyncService>()
+                  .effectiveStacks[widget.street],
+          scale: widget.scale,
+        ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           transitionBuilder: (child, animation) => FadeTransition(
