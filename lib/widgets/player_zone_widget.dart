@@ -154,6 +154,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   String? _showdownLabel;
   late final AnimationController _showdownLabelController;
   late final Animation<double> _showdownLabelOpacity;
+  late final AnimationController _revealController;
+  late final Animation<double> _revealOpacity;
+  late final Animation<double> _revealScale;
 
   @override
   void initState() {
@@ -219,6 +222,15 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
     _showdownLabelOpacity =
         CurvedAnimation(parent: _showdownLabelController, curve: Curves.easeIn);
+    _revealController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      value: 1.0,
+    );
+    _revealOpacity =
+        CurvedAnimation(parent: _revealController, curve: Curves.easeIn);
+    _revealScale = Tween<double>(begin: 0.8, end: 1.0)
+        .animate(CurvedAnimation(parent: _revealController, curve: Curves.easeOut));
   }
 
   @override
@@ -240,7 +252,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _playerType = widget.playerType;
     }
     if (widget.cards != oldWidget.cards) {
+      final shouldAnimate =
+          !widget.isHero && oldWidget.cards.isEmpty && widget.cards.length == 2;
       _cards = List<CardModel>.from(widget.cards);
+      if (shouldAnimate) {
+        _revealController.forward(from: 0.0);
+        _showCardRevealOverlay();
+      }
     }
     if (widget.isFolded && !oldWidget.isFolded) {
       setState(() {
@@ -294,6 +312,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     setState(() => _cards = List<CardModel>.from(cards));
     if (!widget.isHero) {
       _showCardRevealOverlay();
+      _revealController.forward(from: 0.0);
     }
   }
 
@@ -850,6 +869,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _bounceController.dispose();
     _foldController.dispose();
     _showdownLabelController.dispose();
+    _revealController.dispose();
     super.dispose();
   }
 
@@ -1065,18 +1085,20 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               ),
             ),
           ),
-        Opacity(
-          opacity: widget.isFolded ? 0.4 : 1.0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_currentBet > 0 && _isLeftSide(widget.position))
-                _betIndicator(betStyle),
-              ...List.generate(2, (index) {
-                final card = index < _cards.length ? _cards[index] : null;
-                final isRed = card?.suit == '♥' || card?.suit == '♦';
+        Builder(
+          builder: (_) {
+            Widget row = Opacity(
+              opacity: widget.isFolded ? 0.4 : 1.0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (_currentBet > 0 && _isLeftSide(widget.position))
+                    _betIndicator(betStyle),
+                  ...List.generate(2, (index) {
+                  final card = index < _cards.length ? _cards[index] : null;
+                  final isRed = card?.suit == '♥' || card?.suit == '♦';
 
-                Widget cardWidget = GestureDetector(
+                  Widget cardWidget = GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: widget.isHero
                       ? () async {
@@ -1145,10 +1167,22 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   ),
                 );
               }),
-              if (_currentBet > 0 && !_isLeftSide(widget.position))
-                _betIndicator(betStyle),
-            ],
-          ),
+                  if (_currentBet > 0 && !_isLeftSide(widget.position))
+                    _betIndicator(betStyle),
+                ],
+              ),
+            );
+            if (!widget.isHero) {
+              row = FadeTransition(
+                opacity: _revealOpacity,
+                child: ScaleTransition(
+                  scale: _revealScale,
+                  child: row,
+                ),
+              );
+            }
+            return row;
+          },
         ),
       ),
         if (widget.editMode)
