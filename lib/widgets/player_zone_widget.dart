@@ -211,6 +211,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _winnerLabelOpacity;
   late final Animation<double> _winnerLabelScale;
 
+  late final AnimationController _stackBarController;
+  late Animation<double> _stackBarProgressAnimation;
+  late Animation<double> _stackBarGlow;
+  double _stackBarProgress = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -442,6 +447,23 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ),
     ]).animate(_winnerLabelController);
 
+    _stackBarController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _stackBarGlow = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0),
+        weight: 50,
+      ),
+    ]).animate(CurvedAnimation(parent: _stackBarController, curve: Curves.easeOut));
+    _stackBarProgress = (_stack ?? 0) / widget.maxStackSize;
+    _stackBarProgressAnimation = AlwaysStoppedAnimation<double>(_stackBarProgress);
+
     _betStackController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -555,7 +577,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             ? widget.stackSizes![widget.playerIndex!]
             : widget.player.stack);
     if (newStack != oldStack) {
-      setState(() => _stack = newStack);
+      setState(() {
+        _stack = newStack;
+        _stackBarProgress = (_stack ?? 0) / widget.maxStackSize;
+        _stackBarProgressAnimation =
+            AlwaysStoppedAnimation<double>(_stackBarProgress);
+      });
       _stackController.text = _stack?.toString() ?? '';
     }
     if (widget.remainingStack != oldWidget.remainingStack) {
@@ -1110,16 +1137,29 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Future<void> animateStackIncrease(int amount) async {
     if (_stack == null) return;
     _showStackGainLabel(amount);
+    final oldStack = _stack!;
+    final newStack = _stack! + amount;
+
+    _stackBarProgressAnimation = Tween<double>(
+      begin: _stackBarProgress,
+      end: (newStack / widget.maxStackSize).clamp(0.0, 1.0),
+    ).animate(CurvedAnimation(parent: _stackBarController, curve: Curves.easeOut))
+      ..addListener(() {
+        if (mounted) {
+          setState(() => _stackBarProgress = _stackBarProgressAnimation.value);
+        }
+      });
+
+    _stackBarController.forward(from: 0.0);
+
     final controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    final animation = IntTween(begin: _stack!, end: _stack! + amount).animate(
+    final animation = IntTween(begin: oldStack, end: newStack).animate(
       CurvedAnimation(parent: controller, curve: Curves.easeOut),
     )..addListener(() {
-        if (mounted) {
-          setState(() => _stack = animation.value);
-        }
+        if (mounted) setState(() => _stack = animation.value);
       });
     await controller.forward();
     controller.dispose();
@@ -1275,6 +1315,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _winnerHighlightController.dispose();
     _allInWinGlowController.dispose();
     _stackWinController.dispose();
+    _stackBarController.dispose();
     _betStackController.dispose();
     _bustedController.dispose();
     _allInController.dispose();
@@ -1842,6 +1883,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           stack: stack,
           maxStack: widget.maxStackSize,
           scale: widget.scale,
+          progressAnimation: _stackBarProgressAnimation,
+          glowAnimation: _stackBarGlow,
         ),
         CurrentBetLabel(bet: _currentBet, scale: widget.scale),
         if (_actionTagText != null)
