@@ -1187,6 +1187,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _tableCleanupPlayed = true;
     await _clearTableState();
     if (!mounted) return;
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (!mounted) return;
+      for (final i in _bustedPlayers) {
+        fadeOutBustedPlayerZone(players[i].name);
+      }
+    });
     if (widget.demoMode) {
       showConfettiOverlay(context);
     }
