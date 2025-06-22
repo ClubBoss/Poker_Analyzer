@@ -27,6 +27,7 @@ import 'move_pot_animation.dart';
 import 'winner_zone_highlight.dart';
 import 'loss_amount_widget.dart';
 import 'gain_amount_widget.dart';
+import 'stack_delta_label.dart';
 import '../services/pot_sync_service.dart';
 import 'player_effective_stack_label.dart';
 
@@ -146,15 +147,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Color _stackBetColor = Colors.amber;
   Timer? _stackBetTimer;
   int? _gainLabelAmount;
-  Timer? _gainLabelTimer;
-  late final AnimationController _gainLabelController;
-  late final Animation<Offset> _gainLabelOffset;
-  late final Animation<double> _gainLabelOpacity;
   int? _lossLabelAmount;
-  Timer? _lossLabelTimer;
-  late final AnimationController _lossLabelController;
-  late final Animation<Offset> _lossLabelOffset;
-  late final Animation<double> _lossLabelOpacity;
   late final AnimationController _bounceController;
   late final Animation<double> _bounceAnimation;
   late TextEditingController _stackController;
@@ -216,28 +209,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         weight: 50,
       ),
     ]).animate(_bounceController);
-    _gainLabelController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.dismissed && mounted) {
-          setState(() => _gainLabelAmount = null);
-        }
-      });
-    _gainLabelOffset = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _gainLabelController, curve: Curves.easeOut));
-    _gainLabelOpacity = CurvedAnimation(parent: _gainLabelController, curve: Curves.easeIn);
-    _lossLabelController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.dismissed && mounted) {
-          setState(() => _lossLabelAmount = null);
-        }
-      });
-    _lossLabelOffset = Tween<Offset>(begin: const Offset(0, -0.3), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _lossLabelController, curve: Curves.easeOut));
-    _lossLabelOpacity = CurvedAnimation(parent: _lossLabelController, curve: Curves.easeIn);
     if (widget.isActive) {
       _controller.repeat(reverse: true);
     }
@@ -809,26 +780,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void _showStackGainLabel(int amount) {
     if (widget.isHero || amount <= 0) return;
-    _gainLabelTimer?.cancel();
     setState(() => _gainLabelAmount = amount);
-    _gainLabelController.forward(from: 0.0);
-    _gainLabelTimer = Timer(const Duration(milliseconds: 1200), () {
-      if (mounted) {
-        _gainLabelController.reverse();
-      }
-    });
   }
 
   void _showStackLossLabel(int amount) {
     if (widget.isHero || amount <= 0) return;
-    _lossLabelTimer?.cancel();
     setState(() => _lossLabelAmount = amount);
-    _lossLabelController.forward(from: 0.0);
-    _lossLabelTimer = Timer(const Duration(milliseconds: 1200), () {
-      if (mounted) {
-        _lossLabelController.reverse();
-      }
-    });
   }
 
   /// Animates a stack of chips flying from the center pot to this player.
@@ -1012,16 +969,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _refundMessageEntry?.remove();
     _lossAmountEntry?.remove();
     _gainAmountEntry?.remove();
-    _gainLabelTimer?.cancel();
-    _lossLabelTimer?.cancel();
     _stackController.dispose();
     _betController.dispose();
     _controller.dispose();
     _bounceController.dispose();
     _foldController.dispose();
     _showdownLabelController.dispose();
-    _gainLabelController.dispose();
-    _lossLabelController.dispose();
     _revealController.dispose();
     _winnerGlowController.dispose();
     _stackWinController.dispose();
@@ -1410,55 +1363,25 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 if (_gainLabelAmount != null && !widget.isHero)
                   Positioned(
                     top: -14 * widget.scale,
-                    child: SlideTransition(
-                      position: _gainLabelOffset,
-                      child: FadeTransition(
-                        opacity: _gainLabelOpacity,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 4 * widget.scale,
-                              vertical: 2 * widget.scale),
-                          decoration: BoxDecoration(
-                            color: Colors.black87,
-                            borderRadius: BorderRadius.circular(6 * widget.scale),
-                          ),
-                          child: Text(
-                            '+${_gainLabelAmount} BB',
-                            style: TextStyle(
-                              color: Colors.lightGreenAccent,
-                              fontSize: 10 * widget.scale,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: StackDeltaLabel(
+                      deltaAmount: _gainLabelAmount!,
+                      isGain: true,
+                      offsetUp: true,
+                      labelColor: Colors.lightGreenAccent,
+                      scale: widget.scale,
+                      onCompleted: () => setState(() => _gainLabelAmount = null),
                     ),
                   ),
                 if (_lossLabelAmount != null && !widget.isHero)
                   Positioned(
                     bottom: -14 * widget.scale,
-                    child: SlideTransition(
-                      position: _lossLabelOffset,
-                      child: FadeTransition(
-                        opacity: _lossLabelOpacity,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 4 * widget.scale,
-                              vertical: 2 * widget.scale),
-                          decoration: BoxDecoration(
-                            color: Colors.black87,
-                            borderRadius: BorderRadius.circular(6 * widget.scale),
-                          ),
-                          child: Text(
-                            '-${_lossLabelAmount} BB',
-                            style: TextStyle(
-                              color: Colors.redAccent,
-                              fontSize: 10 * widget.scale,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: StackDeltaLabel(
+                      deltaAmount: _lossLabelAmount!,
+                      isGain: false,
+                      offsetUp: false,
+                      labelColor: Colors.redAccent,
+                      scale: widget.scale,
+                      onCompleted: () => setState(() => _lossLabelAmount = null),
                     ),
                   ),
               ],
