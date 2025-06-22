@@ -209,7 +209,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   bool _showWinnerLabel = false;
   late final AnimationController _winnerLabelController;
   late final Animation<double> _winnerLabelOpacity;
-  late final Animation<Offset> _winnerLabelOffset;
+  late final Animation<double> _winnerLabelScale;
 
   @override
   void initState() {
@@ -429,8 +429,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         weight: 20,
       ),
     ]).animate(_winnerLabelController);
-    _winnerLabelOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _winnerLabelController, curve: Curves.easeOut));
+    _winnerLabelScale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.9, end: 1.05)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.05, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_winnerLabelController);
 
     _betStackController = AnimationController(
       vsync: this,
@@ -1722,21 +1732,29 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 if (_showWinnerLabel && !widget.isHero)
                   Positioned(
                     top: -36 * widget.scale,
-                    child: SlideTransition(
-                      position: _winnerLabelOffset,
-                      child: FadeTransition(
-                        opacity: _winnerLabelOpacity,
+                    child: FadeTransition(
+                      opacity: _winnerLabelOpacity,
+                      child: ScaleTransition(
+                        scale: _winnerLabelScale,
                         child: Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 6 * widget.scale,
-                              vertical: 2 * widget.scale),
+                            horizontal: 6 * widget.scale,
+                            vertical: 2 * widget.scale,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.orangeAccent,
                             borderRadius:
                                 BorderRadius.circular(8 * widget.scale),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: Text(
-                            'WINNER',
+                            'Выиграл банк',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 10 * widget.scale,
