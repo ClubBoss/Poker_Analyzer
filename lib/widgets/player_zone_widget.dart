@@ -162,6 +162,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   int? _betStackAmount;
   late final AnimationController _betStackController;
   late final Animation<double> _betStackOpacity;
+  late final AnimationController _betFoldController;
+  late final Animation<Offset> _betFoldOffset;
+  late final Animation<double> _betFoldOpacity;
   final GlobalKey _betStackKey = GlobalKey();
   final GlobalKey _stackKey = GlobalKey();
   late final AnimationController _bounceController;
@@ -478,6 +481,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       duration: const Duration(milliseconds: 300),
     );
     _betStackOpacity = CurvedAnimation(parent: _betStackController, curve: Curves.easeInOut);
+    _betFoldController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _betFoldOffset = Tween<Offset>(begin: Offset.zero, end: const Offset(0, 0.3))
+        .animate(CurvedAnimation(parent: _betFoldController, curve: Curves.easeIn));
+    _betFoldOpacity = Tween<double>(begin: 1.0, end: 0.0)
+        .animate(CurvedAnimation(parent: _betFoldController, curve: Curves.easeIn));
     if (!widget.isHero && _currentBet > 0) {
       _betStackAmount = _currentBet;
       _betStackController.value = 1.0;
@@ -530,6 +541,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       }
       if (!widget.isHero) {
         _stackBarFadeController.reverse();
+        if ((_betStackAmount ?? 0) > 0) {
+          _betFoldController.forward(from: 0.0).whenComplete(() {
+            if (mounted) setState(() => _betStackAmount = null);
+          });
+        }
       }
     } else if (!widget.isFolded && oldWidget.isFolded) {
       // Reset the fold animation when cards are shown again for non-hero players.
@@ -539,6 +555,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       setState(() => _showCards = true);
       if (!widget.isHero) {
         _stackBarFadeController.forward();
+        _betFoldController.reset();
       }
     }
     if (widget.player.bet != oldWidget.player.bet ||
@@ -1332,6 +1349,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _stackWinController.dispose();
     _stackBarController.dispose();
     _stackBarFadeController.dispose();
+    _betFoldController.dispose();
     _betStackController.dispose();
     _bustedController.dispose();
     _allInController.dispose();
@@ -1934,15 +1952,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             top: 12 * widget.scale,
             right: _isLeftSide(widget.position) ? null : -32 * widget.scale,
             left: _isLeftSide(widget.position) ? -32 * widget.scale : null,
-            child: FadeTransition(
-              key: _betStackKey,
-              opacity: _betStackOpacity,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: ChipStackWidget(
-                  key: ValueKey(_betStackAmount),
-                  amount: _betStackAmount!,
-                  scale: widget.scale,
+            child: SlideTransition(
+              position: _betFoldOffset,
+              child: FadeTransition(
+                opacity: _betFoldOpacity,
+                child: FadeTransition(
+                  key: _betStackKey,
+                  opacity: _betStackOpacity,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: ChipStackWidget(
+                      key: ValueKey(_betStackAmount),
+                      amount: _betStackAmount!,
+                      scale: widget.scale,
+                    ),
+                  ),
                 ),
               ),
             ),
