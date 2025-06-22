@@ -4,6 +4,7 @@ import '../models/card_model.dart';
 import '../services/pot_sync_service.dart';
 import 'board_cards_widget.dart';
 import 'pot_over_board_widget.dart';
+import 'package:provider/provider.dart';
 
 class BoardDisplay extends StatelessWidget {
   final int currentStreet;
@@ -37,26 +38,31 @@ class BoardDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        BoardCardsWidget(
-          scale: scale,
-          currentStreet: currentStreet,
-          boardCards: revealedBoardCards,
-          revealAnimations: revealAnimations,
-          onCardSelected: onCardSelected,
-          onCardLongPress: onCardLongPress,
-          canEditBoard: canEditBoard,
-          usedCards: usedCards,
-          editingDisabled: editingDisabled,
-        ),
-        PotOverBoardWidget(
-          potSync: potSync,
-          currentStreet: currentStreet,
-          scale: scale,
-          show: showPot,
-        ),
-      ],
+    return ChangeNotifierProvider.value(
+      value: potSync,
+      child: Stack(
+        children: [
+          BoardCardsWidget(
+            scale: scale,
+            currentStreet: currentStreet,
+            boardCards: revealedBoardCards,
+            revealAnimations: revealAnimations,
+            onCardSelected: onCardSelected,
+            onCardLongPress: onCardLongPress,
+            canEditBoard: canEditBoard,
+            usedCards: usedCards,
+            editingDisabled: editingDisabled,
+          ),
+          Consumer<PotSyncService>(
+            builder: (_, sync, __) => PotOverBoardWidget(
+              potSync: sync,
+              currentStreet: currentStreet,
+              scale: scale,
+              show: showPot,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
