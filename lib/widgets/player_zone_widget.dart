@@ -128,6 +128,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Timer? _highlightTimer;
   bool _refundGlow = false;
   Timer? _refundGlowTimer;
+  bool _actionGlow = false;
+  Color _actionGlowColor = Colors.transparent;
+  Timer? _actionGlowTimer;
   String? _lastActionText;
   Color _lastActionColor = Colors.black87;
   double _lastActionOpacity = 0.0;
@@ -333,11 +336,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _lastActionText = text;
       _lastActionColor = labelColor;
       _lastActionOpacity = 1.0;
+      _actionGlow = true;
+      _actionGlowColor = labelColor;
     });
     _showActionLabel(text, labelColor);
     _lastActionTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() => _lastActionOpacity = 0.0);
+      }
+    });
+    _actionGlowTimer?.cancel();
+    _actionGlowTimer = Timer(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() => _actionGlow = false);
       }
     });
     if (amount != null) {
@@ -787,6 +798,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     playerZoneRegistry.remove(widget.playerName);
     _highlightTimer?.cancel();
     _lastActionTimer?.cancel();
+    _actionGlowTimer?.cancel();
     _stackBetTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
@@ -1316,6 +1328,23 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               boxShadow: [
                 BoxShadow(
                   color: Colors.greenAccent.withOpacity(0.6),
+                  blurRadius: 16,
+                  spreadRadius: 4,
+                ),
+              ],
+            )
+          : null,
+      child: result,
+    );
+
+    result = AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: _actionGlow
+          ? BoxDecoration(
+              borderRadius: BorderRadius.circular(12 * widget.scale),
+              boxShadow: [
+                BoxShadow(
+                  color: _actionGlowColor.withOpacity(0.7),
                   blurRadius: 16,
                   spreadRadius: 4,
                 ),
