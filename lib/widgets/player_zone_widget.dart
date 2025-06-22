@@ -11,6 +11,7 @@ import '../models/action_outcome.dart';
 import '../services/action_sync_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/pot_animation_service.dart';
+import '../services/pot_sync_service.dart';
 import '../user_preferences.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
@@ -701,6 +702,26 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
   }
 
+  Widget _effectiveStackLabel(TextStyle style) {
+    final potSync = context.watch<PotSyncService>();
+    final eff = potSync.effectiveStacks[widget.street];
+    final effText = eff != null ? eff.toDouble().toStringAsFixed(1) : '--';
+    final platform = Theme.of(context).platform;
+    final isMobile =
+        platform == TargetPlatform.android || platform == TargetPlatform.iOS;
+    return Tooltip(
+      triggerMode:
+          isMobile ? TooltipTriggerMode.longPress : TooltipTriggerMode.hover,
+      message:
+          'Эффективный стек — минимальный стек между вами и соперником. Используется при пуш/фолд.',
+      child: Text(
+        'Eff. stack: $effText BB',
+        style: style,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     playerZoneRegistry.remove(widget.playerName);
@@ -843,6 +864,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   textAlign: TextAlign.center,
                 ),
               ),
+            Padding(
+              padding: EdgeInsets.only(top: 2.0 * widget.scale),
+              child: _effectiveStackLabel(stackStyle),
+            ),
           ],
         ),
       ),
