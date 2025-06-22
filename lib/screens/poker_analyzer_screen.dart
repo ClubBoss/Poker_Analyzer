@@ -15,6 +15,7 @@ import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
+import '../models/action_outcome.dart';
 import '../models/training_spot.dart';
 import '../services/playback_manager_service.dart';
 import '../services/board_manager_service.dart';
@@ -1251,6 +1252,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     });
   }
 
+  void _updateLastActionOutcomes() {
+    final wins = _winnings;
+    if (wins == null) return;
+    final winnerSet = wins.entries
+        .where((e) => e.value > 0)
+        .map((e) => e.key)
+        .toSet();
+    for (int i = 0; i < numberOfPlayers; i++) {
+      final name = players[i].name;
+      if (!_actionTagService.tags.containsKey(i)) {
+        setPlayerLastActionOutcome(name, ActionOutcome.neutral);
+      } else if (winnerSet.contains(i)) {
+        setPlayerLastActionOutcome(name, ActionOutcome.win);
+      } else {
+        setPlayerLastActionOutcome(name, ActionOutcome.lose);
+      }
+    }
+  }
+
   void _onNextHandPressed() {
     _autoNextHandTimer?.cancel();
     _autoNextHandTimer = null;
@@ -1259,6 +1279,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<void> _finishHand() async {
     if (lockService.isLocked) return;
+    _updateLastActionOutcomes();
     final visibleActions = actions.take(_playbackManager.playbackIndex).toList();
     final lastAction = visibleActions.isNotEmpty ? visibleActions.last : null;
     final int winner = _winnerIndex ?? lastAction?.playerIndex ?? 0;

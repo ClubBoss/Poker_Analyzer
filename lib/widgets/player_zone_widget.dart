@@ -7,6 +7,7 @@ import '../helpers/table_geometry_helper.dart';
 import '../models/card_model.dart';
 import '../models/player_model.dart';
 import '../models/player_zone_action_entry.dart' as pz;
+import '../models/action_outcome.dart';
 import '../services/action_sync_service.dart';
 import '../services/transition_lock_service.dart';
 import '../services/pot_animation_service.dart';
@@ -318,6 +319,24 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       if (action == 'bet' || action == 'raise') {
         _showStackBetDisplay(amount, color);
       }
+    }
+  }
+
+  void setLastActionOutcome(ActionOutcome outcome) {
+    Color color;
+    switch (outcome) {
+      case ActionOutcome.win:
+        color = Colors.green;
+        break;
+      case ActionOutcome.lose:
+        color = Colors.red;
+        break;
+      case ActionOutcome.neutral:
+      default:
+        color = Colors.white;
+    }
+    if (mounted) {
+      setState(() => _lastActionColor = color);
     }
   }
 
@@ -1929,6 +1948,12 @@ void setPlayerLastAction(
     String playerName, String text, Color color, String action, [int? amount]) {
   final state = playerZoneRegistry[playerName];
   state?.setLastAction(text, color, action, amount);
+}
+
+/// Applies a [outcome] classification to the last action label of [playerName].
+void setPlayerLastActionOutcome(String playerName, ActionOutcome outcome) {
+  final state = playerZoneRegistry[playerName];
+  state?.setLastActionOutcome(outcome);
 }
 
 /// Reveals cards for multiple opponents at once. Typically called after
