@@ -307,14 +307,33 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     await _bounceController.forward(from: 0.0);
   }
 
+  Color _actionLabelColor(String action) {
+    switch (action.toLowerCase()) {
+      case 'push':
+      case 'all-in':
+        return Colors.red;
+      case 'call':
+        return Colors.blue;
+      case 'check':
+        return Colors.grey;
+      case 'raise':
+        return Colors.orange;
+      case 'fold':
+        return Colors.grey.shade800;
+      default:
+        return Colors.black87;
+    }
+  }
+
   void setLastAction(String text, Color color, String action, [int? amount]) {
     _lastActionTimer?.cancel();
+    final labelColor = _actionLabelColor(action);
     setState(() {
       _lastActionText = text;
-      _lastActionColor = color;
+      _lastActionColor = labelColor;
       _lastActionOpacity = 1.0;
     });
-    _showActionLabel(text, color);
+    _showActionLabel(text, labelColor);
     _lastActionTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() => _lastActionOpacity = 0.0);
