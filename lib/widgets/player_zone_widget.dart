@@ -164,6 +164,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _revealController;
   late final Animation<double> _revealOpacity;
   late final Animation<double> _revealScale;
+  late final AnimationController _stackWinController;
+  late final Animation<double> _stackWinScale;
+  late final Animation<double> _stackWinOpacity;
 
   @override
   void initState() {
@@ -238,6 +241,34 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         CurvedAnimation(parent: _revealController, curve: Curves.easeIn);
     _revealScale = Tween<double>(begin: 0.8, end: 1.0)
         .animate(CurvedAnimation(parent: _revealController, curve: Curves.easeOut));
+    _stackWinController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _stackWinScale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 1.2)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.2, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_stackWinController);
+    _stackWinOpacity = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_stackWinController);
     _winnerGlowController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -486,6 +517,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void showShowdownLabel(String text) {
     if (widget.isHero) return;
+    if (text == 'W') {
+      _stackWinController.forward(from: 0.0);
+    }
     _showdownLabelTimer?.cancel();
     setState(() => _showdownLabel = text);
     _showdownLabelController.forward(from: 0.0);
@@ -928,6 +962,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _showdownLabelController.dispose();
     _revealController.dispose();
     _winnerGlowController.dispose();
+    _stackWinController.dispose();
     super.dispose();
   }
 
@@ -1295,10 +1330,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         else
           GestureDetector(
             onLongPress: _editStack,
-            child: PlayerStackValue(
-              stack: stack ?? 0,
-              scale: widget.scale,
-              isBust: remaining != null && remaining <= 0,
+            child: ScaleTransition(
+              scale: _stackWinScale,
+              child: FadeTransition(
+                opacity: _stackWinOpacity,
+                child: PlayerStackValue(
+                  stack: stack ?? 0,
+                  scale: widget.scale,
+                  isBust: remaining != null && remaining <= 0,
+                ),
+              ),
             ),
           ),
         PlayerEffectiveStackLabel(
