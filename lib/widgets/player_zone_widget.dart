@@ -16,6 +16,7 @@ import '../services/pot_sync_service.dart';
 import '../user_preferences.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
+import 'chip_stack_widget.dart';
 import 'current_bet_label.dart';
 import 'bet_size_label.dart';
 import 'player_stack_value.dart';
@@ -155,6 +156,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Timer? _stackBetTimer;
   int? _gainLabelAmount;
   int? _lossLabelAmount;
+  int? _betStackAmount;
+  late final AnimationController _betStackController;
+  late final Animation<double> _betStackOpacity;
   late final AnimationController _bounceController;
   late final Animation<double> _bounceAnimation;
   late TextEditingController _stackController;
@@ -397,6 +401,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _winnerLabelOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
         .animate(CurvedAnimation(parent: _winnerLabelController, curve: Curves.easeOut));
 
+    _betStackController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _betStackOpacity = CurvedAnimation(parent: _betStackController, curve: Curves.easeInOut);
+    if (!widget.isHero && _currentBet > 0) {
+      _betStackAmount = _currentBet;
+      _betStackController.value = 1.0;
+    }
+
     if (!widget.isHero && !widget.isFolded && _remainingStack == 0) {
       _wasAllIn = true;
     }
@@ -462,6 +476,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         }
       }
       _betController.text = '$_currentBet';
+      if (!widget.isHero) {
+        if (_currentBet > 0) {
+          setState(() => _betStackAmount = _currentBet);
+          _betStackController.forward();
+        } else {
+          _betStackController.reverse().whenComplete(() {
+            if (mounted) setState(() => _betStackAmount = null);
+          });
+        }
+      }
     }
     if (widget.actionTagText != oldWidget.actionTagText) {
       _actionTagText = widget.actionTagText;
@@ -922,6 +946,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _finalStackTimer?.cancel();
     setState(() => _finalStackText = 'Final: ${_stack ?? 0} BB');
     _finalStackController.forward(from: 0.0);
+    if (_betStackAmount != null) {
+      _betStackController.reverse().whenComplete(() {
+        if (mounted) setState(() => _betStackAmount = null);
+      });
+    }
     _finalStackTimer = Timer(const Duration(seconds: 2), () {
       if (!mounted) return;
       _finalStackController.reverse().whenComplete(() {
@@ -1162,6 +1191,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _winnerGlowController.dispose();
     _allInWinGlowController.dispose();
     _stackWinController.dispose();
+    _betStackController.dispose();
     _bustedController.dispose();
     _allInController.dispose();
     super.dispose();
@@ -1722,6 +1752,23 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       clipBehavior: Clip.none,
       children: [
         column,
+        if (_betStackAmount != null && !widget.isHero)
+          Positioned(
+            top: 12 * widget.scale,
+            right: _isLeftSide(widget.position) ? null : -32 * widget.scale,
+            left: _isLeftSide(widget.position) ? -32 * widget.scale : null,
+            child: FadeTransition(
+              opacity: _betStackOpacity,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: ChipStackWidget(
+                  key: ValueKey(_betStackAmount),
+                  amount: _betStackAmount!,
+                  scale: widget.scale,
+                ),
+              ),
+            ),
+          ),
         if (_lastActionText != null)
           Positioned(
             top: -8 * widget.scale,
