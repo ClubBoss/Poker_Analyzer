@@ -155,7 +155,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _actionTagOpacity;
   String? _lastActionText;
   Color _lastActionColor = Colors.black87;
-  double _lastActionOpacity = 0.0;
   Timer? _lastActionTimer;
   int? _stackBetAmount;
   Color _stackBetColor = Colors.amber;
@@ -736,7 +735,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _actionLabelEntry = null;
       setState(() {
         _lastActionText = null;
-        _lastActionOpacity = 0.0;
         _actionGlow = false;
         _actionGlowColor = Colors.transparent;
       });
@@ -746,7 +744,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     setState(() {
       _lastActionText = text;
       _lastActionColor = labelColor;
-      _lastActionOpacity = 1.0;
       _actionGlow = true;
       _actionGlowColor = labelColor;
     });
@@ -754,7 +751,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _actionGlowController.forward(from: 0.0);
     _lastActionTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
-        setState(() => _lastActionOpacity = 0.0);
         _actionGlowController.reverse();
       }
     });
@@ -2008,51 +2004,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             top: -20 * widget.scale,
             child: FadeTransition(
               opacity: _actionTagOpacity,
-              child: Opacity(
-                opacity: _lastActionOpacity,
-                child: ActionTagLabel(
-                  text: _lastActionText!,
-                  color: _lastActionColor,
-                  scale: widget.scale,
-                ),
-              ),
-            ),
-          ),
-        if (_lastActionText != null)
-          Positioned(
-            top: -8 * widget.scale,
-            right: 20 * widget.scale,
-            child: AnimatedOpacity(
-              opacity: _lastActionOpacity,
-              duration: const Duration(milliseconds: 300),
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
-                decoration: BoxDecoration(
-                  color: _lastActionColor.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(8 * widget.scale),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _lastActionText!,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12 * widget.scale,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      _streetName(widget.street),
-                      style: TextStyle(
-                        color: Colors.grey[300],
-                        fontSize: 10 * widget.scale,
-                      ),
-                    ),
-                  ],
-                ),
+              child: ActionTagLabel(
+                text: _lastActionText!,
+                color: _lastActionColor,
+                scale: widget.scale,
               ),
             ),
           ),
