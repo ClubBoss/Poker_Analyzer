@@ -148,6 +148,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<Offset> _foldOffset;
   late final Animation<double> _foldOpacity;
   bool _showCards = true;
+  bool _hoverAction = false;
 
   @override
   void initState() {
@@ -819,6 +820,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final platform = Theme.of(context).platform;
+    final bool isMobile =
+        platform == TargetPlatform.android || platform == TargetPlatform.iOS;
     final int? stack = _stack;
     final int? remaining = _remainingStack;
     final nameStyle = TextStyle(
@@ -1278,6 +1282,28 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               ),
             ),
           ),
+        Positioned(
+          top: -8 * widget.scale,
+          right: -8 * widget.scale,
+          child: AnimatedOpacity(
+            opacity: isMobile || _hoverAction ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 200),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(8 * widget.scale),
+              ),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                iconSize: 14 * widget.scale,
+                splashRadius: 16 * widget.scale,
+                icon: const Icon(Icons.add, color: Colors.white),
+                onPressed: _onAddAction,
+              ),
+            ),
+          ),
+        ),
       ],
     );
 
@@ -1396,11 +1422,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       child: result,
     );
 
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onLongPress: _showPlayerTypeDialog,
-      onTap: _handleTap,
-      child: result,
+    return MouseRegion(
+      onEnter: (_) {
+        if (!isMobile) setState(() => _hoverAction = true);
+      },
+      onExit: (_) {
+        if (!isMobile) setState(() => _hoverAction = false);
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onLongPress: _showPlayerTypeDialog,
+        onTap: _handleTap,
+        child: result,
+      ),
     );
   }
 
@@ -1547,6 +1581,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     ));
   }
 
+  Future<void> _onAddAction() async {
+    final result = await _showAddActionDialog();
+    if (result == null) return;
+    final String action = result['action'] as String;
+    final int? amount = result['amount'] as int?;
+    final text = amount != null
+        ? '${_capitalize(action)} $amount'
+        : _capitalize(action);
+    if (amount != null) {
+      setState(() => _currentBet = amount);
+    }
+    final color = _lastActionColorFor(action);
+    setLastAction(text, color, action, amount);
+  }
+
   Future<Map<String, dynamic>?> _showActionSheet() {
     final TextEditingController controller = TextEditingController();
     String? selected;
@@ -1652,7 +1701,57 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         },
       ),
     ).whenComplete(controller.dispose);
-  } 
+  }
+
+  Future<Map<String, dynamic>?> _showAddActionDialog() {
+    final controller = TextEditingController();
+    String action = 'fold';
+    return showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) {
+          final needAmount = action == 'call' || action == 'raise';
+          return AlertDialog(
+            title: const Text('Select Action'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButton<String>(
+                  value: action,
+                  items: const [
+                    DropdownMenuItem(value: 'fold', child: Text('Fold')),
+                    DropdownMenuItem(value: 'call', child: Text('Call')),
+                    DropdownMenuItem(value: 'raise', child: Text('Raise')),
+                    DropdownMenuItem(value: 'push', child: Text('Push')),
+                  ],
+                  onChanged: (v) => setState(() => action = v ?? action),
+                ),
+                if (needAmount)
+                  TextField(
+                    controller: controller,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Amount'),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  final amt = needAmount ? int.tryParse(controller.text) : null;
+                  Navigator.pop(ctx, {'action': action, 'amount': amt});
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      ),
+    ).whenComplete(controller.dispose);
+  }
 
   String _streetName(String street) {
     switch (street) {
