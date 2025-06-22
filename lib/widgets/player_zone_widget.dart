@@ -150,6 +150,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _gainLabelController;
   late final Animation<Offset> _gainLabelOffset;
   late final Animation<double> _gainLabelOpacity;
+  int? _lossLabelAmount;
+  Timer? _lossLabelTimer;
+  late final AnimationController _lossLabelController;
+  late final Animation<Offset> _lossLabelOffset;
+  late final Animation<double> _lossLabelOpacity;
   late final AnimationController _bounceController;
   late final Animation<double> _bounceAnimation;
   late TextEditingController _stackController;
@@ -222,6 +227,17 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _gainLabelOffset = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
         .animate(CurvedAnimation(parent: _gainLabelController, curve: Curves.easeOut));
     _gainLabelOpacity = CurvedAnimation(parent: _gainLabelController, curve: Curves.easeIn);
+    _lossLabelController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.dismissed && mounted) {
+          setState(() => _lossLabelAmount = null);
+        }
+      });
+    _lossLabelOffset = Tween<Offset>(begin: const Offset(0, -0.3), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _lossLabelController, curve: Curves.easeOut));
+    _lossLabelOpacity = CurvedAnimation(parent: _lossLabelController, curve: Curves.easeIn);
     if (widget.isActive) {
       _controller.repeat(reverse: true);
     }
@@ -524,6 +540,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       setState(() => _lastActionColor = color);
       if (lostAmount != null && lostAmount > 0) {
         _showLossAmount(lostAmount!);
+        _showStackLossLabel(lostAmount!);
       }
       if (gainAmount != null && gainAmount > 0) {
         _showGainAmount(gainAmount!);
@@ -802,6 +819,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
+  void _showStackLossLabel(int amount) {
+    if (widget.isHero || amount <= 0) return;
+    _lossLabelTimer?.cancel();
+    setState(() => _lossLabelAmount = amount);
+    _lossLabelController.forward(from: 0.0);
+    _lossLabelTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (mounted) {
+        _lossLabelController.reverse();
+      }
+    });
+  }
+
   /// Animates a stack of chips flying from the center pot to this player.
   void playWinChipsAnimation(int amount) {
     final overlay = Overlay.of(context);
@@ -984,6 +1013,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _lossAmountEntry?.remove();
     _gainAmountEntry?.remove();
     _gainLabelTimer?.cancel();
+    _lossLabelTimer?.cancel();
     _stackController.dispose();
     _betController.dispose();
     _controller.dispose();
@@ -991,6 +1021,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _foldController.dispose();
     _showdownLabelController.dispose();
     _gainLabelController.dispose();
+    _lossLabelController.dispose();
     _revealController.dispose();
     _winnerGlowController.dispose();
     _stackWinController.dispose();
@@ -1395,6 +1426,33 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                             '+${_gainLabelAmount} BB',
                             style: TextStyle(
                               color: Colors.lightGreenAccent,
+                              fontSize: 10 * widget.scale,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (_lossLabelAmount != null && !widget.isHero)
+                  Positioned(
+                    bottom: -14 * widget.scale,
+                    child: SlideTransition(
+                      position: _lossLabelOffset,
+                      child: FadeTransition(
+                        opacity: _lossLabelOpacity,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 4 * widget.scale,
+                              vertical: 2 * widget.scale),
+                          decoration: BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.circular(6 * widget.scale),
+                          ),
+                          child: Text(
+                            '-${_lossLabelAmount} BB',
+                            style: TextStyle(
+                              color: Colors.redAccent,
                               fontSize: 10 * widget.scale,
                               fontWeight: FontWeight.bold,
                             ),
