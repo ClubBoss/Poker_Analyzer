@@ -30,6 +30,7 @@ import 'gain_amount_widget.dart';
 import 'stack_delta_label.dart';
 import '../services/pot_sync_service.dart';
 import 'player_effective_stack_label.dart';
+import 'player_position_label.dart';
 
 final Map<String, _PlayerZoneWidgetState> playerZoneRegistry = {};
 
@@ -1023,11 +1024,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       fontWeight: FontWeight.bold,
       fontSize: 14 * widget.scale,
     );
-    final captionStyle = TextStyle(
-      color: _getPositionColor(widget.position),
-      fontSize: 12 * widget.scale,
-      fontWeight: FontWeight.bold,
-    );
     final stackStyle = TextStyle(
       color: Colors.white70,
       fontSize: 10 * widget.scale,
@@ -1120,10 +1116,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             if (widget.position != null)
               Padding(
                 padding: EdgeInsets.only(top: 2.0 * widget.scale),
-                child: Text(
-                  widget.position!,
-                  style: captionStyle,
-                  textAlign: TextAlign.center,
+                child: PlayerPositionLabel(
+                  position: widget.position,
+                  scale: widget.scale,
+                  isDark: isDark,
                 ),
               ),
             if (stack != null)
@@ -1776,18 +1772,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         child: result,
       ),
     );
-  }
-
-  Color _getPositionColor(String? position) {
-    switch (position) {
-      case 'BTN':
-        return Colors.amber;
-      case 'SB':
-      case 'BB':
-        return Colors.blueAccent;
-      default:
-        return Colors.white70;
-    }
   }
 
   bool _isLeftSide(String? position) {
