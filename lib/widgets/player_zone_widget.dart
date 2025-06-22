@@ -900,7 +900,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void _showBustedLabel() {
     if (widget.isHero || _remainingStack != 0) return;
     _bustedTimer?.cancel();
-    setState(() => _showBusted = true);
+    setState(() {
+      _showBusted = true;
+      _showAllIn = false;
+    });
     _bustedController.forward(from: 0.0);
     _bustedTimer = Timer(const Duration(milliseconds: 2500), () {
       if (!mounted) return;
@@ -1558,60 +1561,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                       onCompleted: () => setState(() => _lossLabelAmount = null),
                     ),
                   ),
-                if (_showAllIn && !widget.isHero)
-                  Positioned(
-                    top: -24 * widget.scale,
-                    child: SlideTransition(
-                      position: _allInOffset,
-                      child: FadeTransition(
-                        opacity: _allInOpacity,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 6 * widget.scale,
-                              vertical: 2 * widget.scale),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius:
-                                BorderRadius.circular(8 * widget.scale),
-                          ),
-                          child: Text(
-                            'ALL-IN',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10 * widget.scale,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                if (_showBusted && !widget.isHero)
-                  Positioned(
-                    bottom: -24 * widget.scale,
-                    child: SlideTransition(
-                      position: _bustedOffset,
-                      child: FadeTransition(
-                        opacity: _bustedOpacity,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 6 * widget.scale,
-                              vertical: 2 * widget.scale),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(8 * widget.scale),
-                          ),
-                          child: Text(
-                            'BUSTED',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10 * widget.scale,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                if ((_showAllIn || _showBusted) && !widget.isHero)
+                  _StackStatusLabel(
+                    text: _showBusted ? 'BUSTED' : 'ALL-IN',
+                    scale: widget.scale,
+                    offset: _showBusted ? _bustedOffset : _allInOffset,
+                    opacity: _showBusted ? _bustedOpacity : _allInOpacity,
+                    above: !_showBusted,
                   ),
               ],
             ),
@@ -2277,6 +2233,52 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   String _capitalize(String s) =>
       s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
+}
+
+class _StackStatusLabel extends StatelessWidget {
+  final String text;
+  final double scale;
+  final Animation<Offset> offset;
+  final Animation<double> opacity;
+  final bool above;
+
+  const _StackStatusLabel({
+    required this.text,
+    required this.scale,
+    required this.offset,
+    required this.opacity,
+    required this.above,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: above ? -24 * scale : null,
+      bottom: above ? null : -24 * scale,
+      child: SlideTransition(
+        position: offset,
+        child: FadeTransition(
+          opacity: opacity,
+          child: Container(
+            padding:
+                EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(8 * scale),
+            ),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10 * scale,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Simple fade-in/out "Winner" label displayed over a player zone.
