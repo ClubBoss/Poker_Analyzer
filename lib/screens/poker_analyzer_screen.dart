@@ -254,6 +254,8 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   late TransitionHistoryService _transitionHistory;
   late ActionEditingService _actionEditing;
 
+  bool get _trainingMode => UserPreferences.instance.coachMode;
+
   Set<int> get _expandedHistoryStreets => _actionHistory.expandedStreets;
 
   ActionEntry? _centerChipAction;
@@ -4947,6 +4949,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _debugPanelSetState?.call(() {});
   }
 
+  void _foldAllOpponents() {
+    const color = Colors.red;
+    for (int i = 0; i < numberOfPlayers; i++) {
+      if (i == heroIndex) continue;
+      setPlayerLastAction(players[i].name, 'Fold', color, 'fold');
+    }
+  }
+
 
   SavedHand _currentSavedHand({
     String? name,
@@ -5443,7 +5453,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 if (_showNextHandButton)
                   _NextHandButtonOverlay(
                     onPressed: _onNextHandPressed,
-                  )
+                  ),
+                if (_trainingMode)
+                  _FoldAllButtonOverlay(
+                    onPressed: _foldAllOpponents,
+                  ),
               ],
         ),
       ),
@@ -8401,6 +8415,26 @@ class _ReplayDemoButtonOverlay extends StatelessWidget {
             child: const Text('Replay Demo'),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _FoldAllButtonOverlay extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _FoldAllButtonOverlay({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 16,
+      right: 16,
+      child: FloatingActionButton.extended(
+        heroTag: 'foldAllFab',
+        backgroundColor: Colors.red,
+        onPressed: onPressed,
+        label: const Text('Fold All'),
       ),
     );
   }
