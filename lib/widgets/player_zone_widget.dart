@@ -9,6 +9,7 @@ import '../models/player_model.dart';
 import '../models/player_zone_action_entry.dart' as pz;
 import '../services/action_sync_service.dart';
 import '../services/transition_lock_service.dart';
+import '../services/pot_animation_service.dart';
 import '../user_preferences.dart';
 import 'card_selector.dart';
 import 'chip_widget.dart';
@@ -250,6 +251,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _highlightTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) setState(() => _winnerHighlight = false);
     });
+  }
+
+  void clearWinnerHighlight() {
+    _highlightTimer?.cancel();
+    if (_winnerHighlight) {
+      setState(() => _winnerHighlight = false);
+    }
   }
 
   void showRefundGlow() {
@@ -1850,8 +1858,7 @@ class _CardRevealBackdropState extends State<_CardRevealBackdrop>
 /// This should be called before [showWinPotAnimation] to visually
 /// indicate the winner.
 void showWinnerHighlight(BuildContext context, String playerName) {
-  final state = playerZoneRegistry[playerName];
-  state?.highlightWinner();
+  PotAnimationService().showWinnerHighlight(context, playerName);
 }
 
 /// Displays an animated glow overlay around the winning player's zone.

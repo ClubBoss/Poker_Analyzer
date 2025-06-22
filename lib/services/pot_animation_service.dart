@@ -31,6 +31,18 @@ class ChipFlight {
 }
 
 class PotAnimationService {
+  String? _highlightedPlayer;
+
+  void showWinnerHighlight(BuildContext context, String playerName) {
+    final state = playerZoneRegistry[playerName];
+    if (state == null) return;
+    if (_highlightedPlayer != null && _highlightedPlayer != playerName) {
+      final prev = playerZoneRegistry[_highlightedPlayer!];
+      prev?.clearWinnerHighlight();
+    }
+    _highlightedPlayer = playerName;
+    state.highlightWinner();
+  }
   void startPotWinFlights({
     required BuildContext context,
     required Map<int, int> payouts,
@@ -85,7 +97,7 @@ class PotAnimationService {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       for (final p in payouts.keys) {
-        showWinnerHighlight(context, players[p].name);
+        this.showWinnerHighlight(context, players[p].name);
       }
       final prevPot = displayedPots[currentStreet];
       if (prevPot > 0) {
@@ -173,7 +185,7 @@ class PotAnimationService {
     Future.delayed(Duration(milliseconds: 500 + delay), () {
       if (!mounted) return;
       for (final p in payouts.keys) {
-        showWinnerHighlight(context, players[p].name);
+        this.showWinnerHighlight(context, players[p].name);
       }
       final prevPot = displayedPots[currentStreet];
       if (prevPot > 0) {
