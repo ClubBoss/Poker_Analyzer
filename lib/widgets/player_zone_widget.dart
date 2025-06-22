@@ -22,6 +22,7 @@ import 'stack_bar_widget.dart';
 import 'bet_flying_chips.dart';
 import 'chip_stack_moving_widget.dart';
 import 'chip_moving_widget.dart';
+import 'bet_to_center_animation.dart';
 import 'move_pot_animation.dart';
 import 'winner_zone_highlight.dart';
 import 'loss_amount_widget.dart';
@@ -321,6 +322,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
     if (amount != null) {
       showBetOverlay(amount, color);
+      if (action == 'bet' || action == 'raise' || action == 'call') {
+        playBetChipsToCenter(amount, color: color);
+      }
       if (action == 'bet' || action == 'raise') {
         _showStackBetDisplay(amount, color);
       }
@@ -428,6 +432,42 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
     overlay.insert(entry);
     _betEntry = entry;
+  }
+
+  /// Animates this player's bet flying toward the center pot.
+  void playBetChipsToCenter(int amount, {Color color = Colors.amber}) {
+    final overlay = Overlay.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final start =
+        box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
+    final media = MediaQuery.of(context).size;
+    final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
+    final control = Offset(
+      (start.dx + end.dx) / 2,
+      (start.dy + end.dy) / 2 -
+          (40 + ChipStackMovingWidget.activeCount * 8) * widget.scale,
+    );
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => BetToCenterAnimation(
+        start: start,
+        end: end,
+        control: control,
+        amount: amount,
+        color: color,
+        scale: widget.scale,
+        fadeStart: 0.8,
+        labelStyle: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 14 * widget.scale,
+          shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
+        ),
+        onCompleted: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
   }
 
   void showBetOverlay(int amount, Color color) {
