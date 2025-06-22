@@ -159,6 +159,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   int? _betStackAmount;
   late final AnimationController _betStackController;
   late final Animation<double> _betStackOpacity;
+  final GlobalKey _betStackKey = GlobalKey();
+  final GlobalKey _stackKey = GlobalKey();
   late final AnimationController _bounceController;
   late final Animation<double> _bounceAnimation;
   late TextEditingController _stackController;
@@ -742,12 +744,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void _playBetRefundAnimation(int amount) {
     final overlay = Overlay.of(context);
-    final box = context.findRenderObject() as RenderBox?;
-    if (overlay == null || box == null) return;
-    final media = MediaQuery.of(context).size;
-    final start = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
-    final end =
-        box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
+    final betBox =
+        _betStackKey.currentContext?.findRenderObject() as RenderBox?;
+    final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+    if (overlay == null || betBox == null || stackBox == null) return;
+    final start = betBox
+        .localToGlobal(Offset(betBox.size.width / 2, betBox.size.height / 2));
+    final end = stackBox.localToGlobal(
+        Offset(stackBox.size.width / 2, stackBox.size.height / 2));
     final control = Offset(
       (start.dx + end.dx) / 2,
       (start.dy + end.dy) / 2 -
@@ -767,6 +771,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
     overlay.insert(entry);
     _betEntry = entry;
+    _betStackController.reverse().whenComplete(() {
+      if (mounted && _betStackAmount != null) {
+        setState(() => _betStackAmount = null);
+      }
+    });
   }
 
   /// Animates this player's bet flying toward the center pot.
@@ -1587,6 +1596,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     child: FadeTransition(
                       opacity: _stackWinOpacity,
                       child: PlayerStackValue(
+                        key: _stackKey,
                         stack: stack ?? 0,
                         scale: widget.scale,
                         isBust: remaining != null && remaining <= 0,
@@ -1758,6 +1768,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             right: _isLeftSide(widget.position) ? null : -32 * widget.scale,
             left: _isLeftSide(widget.position) ? -32 * widget.scale : null,
             child: FadeTransition(
+              key: _betStackKey,
               opacity: _betStackOpacity,
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
