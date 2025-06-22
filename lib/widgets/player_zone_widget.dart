@@ -140,6 +140,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _winnerGlowController;
   late final Animation<double> _winnerGlowOpacity;
   late final Animation<double> _winnerGlowScale;
+  late final AnimationController _winnerHighlightController;
+  late final Animation<double> _winnerHighlightGlow;
   late final AnimationController _allInWinGlowController;
   late final Animation<double> _allInWinGlow;
   bool _refundGlow = false;
@@ -342,6 +344,23 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         weight: 50,
       ),
     ]).animate(_winnerGlowController);
+
+    _winnerHighlightController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _winnerHighlightGlow = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_winnerHighlightController);
 
     _allInWinGlowController = AnimationController(
       vsync: this,
@@ -547,6 +566,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _highlightTimer?.cancel();
     setState(() => _winnerHighlight = true);
     _winnerGlowController.forward(from: 0.0);
+    _winnerHighlightController.forward(from: 0.0);
     _showWinnerLabelAnimated();
     if (_wasAllIn) {
       _allInWinGlowController.forward(from: 0.0);
@@ -560,6 +580,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void clearWinnerHighlight() {
     _highlightTimer?.cancel();
     _winnerGlowController.reset();
+    _winnerHighlightController.reset();
     if (_winnerHighlight) {
       setState(() => _winnerHighlight = false);
     }
@@ -1206,6 +1227,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _revealController.dispose();
     _winnerLabelController.dispose();
     _winnerGlowController.dispose();
+    _winnerHighlightController.dispose();
     _allInWinGlowController.dispose();
     _stackWinController.dispose();
     _betStackController.dispose();
@@ -1507,6 +1529,28 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     _betIndicator(betStyle),
                 ],
               ),
+            );
+            row = AnimatedBuilder(
+              animation: _winnerHighlightController,
+              builder: (_, child) {
+                final glow = _winnerHighlightGlow.value;
+                return Container(
+                  decoration: glow > 0
+                      ? BoxDecoration(
+                          borderRadius: BorderRadius.circular(8 * widget.scale),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.yellowAccent.withOpacity(glow),
+                              blurRadius: 12 * glow * widget.scale,
+                              spreadRadius: 2 * glow * widget.scale,
+                            ),
+                          ],
+                        )
+                      : null,
+                  child: child,
+                );
+              },
+              child: row,
             );
             if (!widget.isHero) {
               row = FadeTransition(
