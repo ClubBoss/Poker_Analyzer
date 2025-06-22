@@ -1341,7 +1341,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               ),
           ),
         ),
-        if (!widget.isHero && !widget.isFolded && widget.onRevealRequest != null)
+        if (!widget.isHero && !widget.isFolded && widget.onRevealRequest != null && widget.cards.length == 2)
           Positioned(
             top: -8 * widget.scale,
             left: 0,
