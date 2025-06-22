@@ -58,6 +58,9 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
                     onStackChanged: (v) => setState(() => player.stack = v),
                     onBetChanged: (v) => setState(() => player.bet = v),
                     onCardsSelected: (i, c) {},
+                    onRevealRequest: (name) {
+                      debugPrint('Reveal requested for ' + name);
+                    },
                   ),
                 );
               },
