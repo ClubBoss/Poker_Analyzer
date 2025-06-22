@@ -32,6 +32,7 @@ import 'loss_amount_widget.dart';
 import 'gain_amount_widget.dart';
 import 'stack_delta_label.dart';
 import 'winner_flying_chip.dart';
+import 'action_tag_label.dart';
 import '../services/pot_sync_service.dart';
 import 'player_effective_stack_label.dart';
 import 'player_position_label.dart';
@@ -150,6 +151,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   bool _actionGlow = false;
   Color _actionGlowColor = Colors.transparent;
   Timer? _actionGlowTimer;
+  late final AnimationController _actionGlowController;
+  late final Animation<double> _actionTagOpacity;
   String? _lastActionText;
   Color _lastActionColor = Colors.black87;
   double _lastActionOpacity = 0.0;
@@ -295,6 +298,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         CurvedAnimation(parent: _finalStackController, curve: Curves.easeIn);
     _finalStackOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
         .animate(CurvedAnimation(parent: _finalStackController, curve: Curves.easeOut));
+    _actionGlowController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _actionTagOpacity = CurvedAnimation(parent: _actionGlowController, curve: Curves.easeIn);
     _revealController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
@@ -720,6 +728,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void setLastAction(String? text, Color color, String action, [int? amount]) {
     _lastActionTimer?.cancel();
     _actionGlowTimer?.cancel();
+    _actionGlowController
+      ..stop()
+      ..value = 0.0;
     if (text == null) {
       _actionLabelEntry?.remove();
       _actionLabelEntry = null;
@@ -740,9 +751,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _actionGlowColor = labelColor;
     });
     _showActionLabel(text, labelColor);
-    _lastActionTimer = Timer(const Duration(seconds: 3), () {
+    _actionGlowController.forward(from: 0.0);
+    _lastActionTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() => _lastActionOpacity = 0.0);
+        _actionGlowController.reverse();
       }
     });
     _actionGlowTimer = Timer(const Duration(seconds: 1), () {
@@ -1365,6 +1378,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _winnerLabelController.dispose();
     _winnerGlowController.dispose();
     _winnerHighlightController.dispose();
+    _actionGlowController.dispose();
     _allInWinGlowController.dispose();
     _stackWinController.dispose();
     _stackBarController.dispose();
@@ -1985,6 +1999,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                       scale: widget.scale,
                     ),
                   ),
+                ),
+              ),
+            ),
+          ),
+        if (_lastActionText != null)
+          Positioned(
+            top: -20 * widget.scale,
+            child: FadeTransition(
+              opacity: _actionTagOpacity,
+              child: Opacity(
+                opacity: _lastActionOpacity,
+                child: ActionTagLabel(
+                  text: _lastActionText!,
+                  color: _lastActionColor,
+                  scale: widget.scale,
                 ),
               ),
             ),
