@@ -88,7 +88,6 @@ import '../widgets/burn_card_animation.dart';
 import '../widgets/fold_flying_cards.dart';
 import '../widgets/central_pot_widget.dart';
 import '../widgets/central_spr_widget.dart';
-import '../widgets/fold_refund_animation.dart';
 import '../widgets/undo_refund_animation.dart';
 import '../widgets/refund_amount_widget.dart';
 import '../widgets/reveal_card_animation.dart';
@@ -1397,8 +1396,6 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   void _playFoldRefundAnimation(int playerIndex, int amount) {
     if (amount <= 0) return;
-    final overlay = Overlay.of(context);
-    if (overlay == null) return;
     final double scale =
         TableGeometryHelper.tableScale(numberOfPlayers);
     final screen = MediaQuery.of(context).size;
@@ -1418,45 +1415,31 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
     final start = Offset(centerX, centerY);
     final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-    final midX = (start.dx + end.dx) / 2;
-    final midY = (start.dy + end.dy) / 2;
-    final perp = Offset(-sin(angle), cos(angle));
-    final control = Offset(
-      midX + perp.dx * 20 * scale,
-      midY - (40 + RefundChipStackMovingWidget.activeCount * 8) * scale,
-    );
-    late OverlayEntry overlayEntry;
-    overlayEntry = OverlayEntry(
-      builder: (_) => FoldRefundAnimation(
-        start: start,
-        end: end,
-        control: control,
-        amount: amount,
-        scale: scale,
-        color: Colors.lightGreenAccent,
-        onCompleted: () {
-          overlayEntry.remove();
-          final startStack =
-              _displayedStacks[playerIndex] ??
-                  _stackService.getStackForPlayer(playerIndex);
-          final endStack = startStack + amount;
-          _animateStackIncrease(playerIndex, startStack, endStack);
-          final pos = Offset(
-            end.dx - 20 * scale,
-            end.dy - 60 * scale,
-          );
-          showRefundAmountOverlay(
-            context: context,
-            position: pos,
-            amount: amount,
-            scale: scale,
-          );
-          _onResetAnimationComplete();
-        },
-      ),
-    );
     _registerResetAnimation();
-    overlay.insert(overlayEntry);
+    playRefundToPlayer(
+      playerIndex,
+      amount,
+      startPosition: start,
+      color: Colors.lightGreenAccent,
+      onCompleted: () {
+        final startStack =
+            _displayedStacks[playerIndex] ??
+                _stackService.getStackForPlayer(playerIndex);
+        final endStack = startStack + amount;
+        _animateStackIncrease(playerIndex, startStack, endStack);
+        final pos = Offset(
+          end.dx - 20 * scale,
+          end.dy - 60 * scale,
+        );
+        showRefundAmountOverlay(
+          context: context,
+          position: pos,
+          amount: amount,
+          scale: scale,
+        );
+        _onResetAnimationComplete();
+      },
+    );
   }
 
   void _applyRefund(int playerIndex, int amount, {bool animate = true}) {
