@@ -176,6 +176,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _stackWinController;
   late final Animation<double> _stackWinScale;
   late final Animation<double> _stackWinOpacity;
+  bool _showBusted = false;
+  Timer? _bustedTimer;
+  late final AnimationController _bustedController;
+  late final Animation<double> _bustedOpacity;
+  late final Animation<Offset> _bustedOffset;
 
   @override
   void initState() {
@@ -315,6 +320,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         weight: 50,
       ),
     ]).animate(_winnerGlowController);
+
+    _bustedController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _bustedOpacity =
+        CurvedAnimation(parent: _bustedController, curve: Curves.easeIn);
+    _bustedOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+        .animate(
+            CurvedAnimation(parent: _bustedController, curve: Curves.easeOut));
   }
 
   @override
@@ -524,6 +539,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (mounted) {
       setState(() => _lastActionColor = color);
       _showFinalStackLabel();
+      _showBustedLabel();
       if (lostAmount != null && lostAmount > 0) {
         _showLossAmount(lostAmount!);
         _showStackLossLabel(lostAmount!);
@@ -816,6 +832,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
+  void _showBustedLabel() {
+    if (widget.isHero || _remainingStack != 0) return;
+    _bustedTimer?.cancel();
+    setState(() => _showBusted = true);
+    _bustedController.forward(from: 0.0);
+    _bustedTimer = Timer(const Duration(milliseconds: 2500), () {
+      if (!mounted) return;
+      _bustedController.reverse().whenComplete(() {
+        if (mounted) setState(() => _showBusted = false);
+      });
+    });
+  }
+
   /// Animates a stack of chips flying from the center pot to this player.
   void playWinChipsAnimation(int amount) {
     final overlay = Overlay.of(context);
@@ -992,6 +1021,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _stackBetTimer?.cancel();
     _showdownLabelTimer?.cancel();
     _finalStackTimer?.cancel();
+    _bustedTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
     _actionLabelEntry?.remove();
@@ -1008,6 +1038,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _revealController.dispose();
     _winnerGlowController.dispose();
     _stackWinController.dispose();
+    _bustedController.dispose();
     super.dispose();
   }
 
@@ -1435,6 +1466,33 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                       labelColor: Colors.redAccent,
                       scale: widget.scale,
                       onCompleted: () => setState(() => _lossLabelAmount = null),
+                    ),
+                  ),
+                if (_showBusted && !widget.isHero)
+                  Positioned(
+                    bottom: -24 * widget.scale,
+                    child: SlideTransition(
+                      position: _bustedOffset,
+                      child: FadeTransition(
+                        opacity: _bustedOpacity,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 6 * widget.scale,
+                              vertical: 2 * widget.scale),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(8 * widget.scale),
+                          ),
+                          child: Text(
+                            'BUSTED',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10 * widget.scale,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
               ],
