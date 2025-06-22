@@ -188,6 +188,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _allInOpacity;
   late final Animation<Offset> _allInOffset;
   bool _wasAllIn = false;
+  bool _showWinnerLabel = false;
+  late final AnimationController _winnerLabelController;
+  late final Animation<double> _winnerLabelOpacity;
+  late final Animation<Offset> _winnerLabelOffset;
 
   @override
   void initState() {
@@ -365,6 +369,30 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         .animate(
             CurvedAnimation(parent: _allInController, curve: Curves.easeOut));
 
+    _winnerLabelController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed && mounted) {
+          setState(() => _showWinnerLabel = false);
+        }
+      });
+    _winnerLabelOpacity = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 20,
+      ),
+      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 20,
+      ),
+    ]).animate(_winnerLabelController);
+    _winnerLabelOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _winnerLabelController, curve: Curves.easeOut));
+
     if (!widget.isHero && !widget.isFolded && _remainingStack == 0) {
       _wasAllIn = true;
     }
@@ -488,6 +516,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _highlightTimer?.cancel();
     setState(() => _winnerHighlight = true);
     _winnerGlowController.forward(from: 0.0);
+    _showWinnerLabelAnimated();
     if (_wasAllIn) {
       _allInWinGlowController.forward(from: 0.0);
       _wasAllIn = false;
@@ -897,6 +926,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
+  void _showWinnerLabelAnimated() {
+    if (widget.isHero) return;
+    setState(() => _showWinnerLabel = true);
+    _winnerLabelController.forward(from: 0.0);
+  }
+
   void _showBustedLabel() {
     if (widget.isHero || _remainingStack != 0) return;
     _bustedTimer?.cancel();
@@ -1104,6 +1139,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _showdownLabelController.dispose();
     _finalStackController.dispose();
     _revealController.dispose();
+    _winnerLabelController.dispose();
     _winnerGlowController.dispose();
     _allInWinGlowController.dispose();
     _stackWinController.dispose();
@@ -1527,6 +1563,34 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                           ),
                           child: Text(
                             _finalStackText!,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10 * widget.scale,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (_showWinnerLabel && !widget.isHero)
+                  Positioned(
+                    top: -36 * widget.scale,
+                    child: SlideTransition(
+                      position: _winnerLabelOffset,
+                      child: FadeTransition(
+                        opacity: _winnerLabelOpacity,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 6 * widget.scale,
+                              vertical: 2 * widget.scale),
+                          decoration: BoxDecoration(
+                            color: Colors.orangeAccent,
+                            borderRadius:
+                                BorderRadius.circular(8 * widget.scale),
+                          ),
+                          child: Text(
+                            'WINNER',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 10 * widget.scale,
