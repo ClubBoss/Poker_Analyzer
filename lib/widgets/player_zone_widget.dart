@@ -181,6 +181,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _bustedController;
   late final Animation<double> _bustedOpacity;
   late final Animation<Offset> _bustedOffset;
+  bool _showAllIn = false;
+  late final AnimationController _allInController;
+  late final Animation<double> _allInOpacity;
+  late final Animation<Offset> _allInOffset;
 
   @override
   void initState() {
@@ -330,6 +334,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _bustedOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
         .animate(
             CurvedAnimation(parent: _bustedController, curve: Curves.easeOut));
+
+    _allInController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _allInOpacity =
+        CurvedAnimation(parent: _allInController, curve: Curves.easeIn);
+    _allInOffset = Tween<Offset>(begin: const Offset(0, -0.2), end: Offset.zero)
+        .animate(
+            CurvedAnimation(parent: _allInController, curve: Curves.easeOut));
+
+    if (!widget.isHero && !widget.isFolded && _remainingStack == 0) {
+      _showAllIn = true;
+      _allInController.value = 1.0;
+    }
   }
 
   @override
@@ -405,6 +424,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     if (widget.remainingStack != oldWidget.remainingStack) {
       setState(() => _remainingStack = widget.remainingStack);
+      if (!widget.isHero && !widget.isFolded) {
+        if ((_remainingStack ?? -1) == 0 && (oldWidget.remainingStack ?? -1) != 0) {
+          _showAllIn = true;
+          _allInController.forward(from: 0.0);
+        } else if ((_remainingStack ?? -1) != 0 && (oldWidget.remainingStack ?? -1) == 0) {
+          _allInController.reverse().whenComplete(() {
+            if (mounted) setState(() => _showAllIn = false);
+          });
+        }
+      }
+    }
+    if (widget.isFolded && !oldWidget.isFolded && _showAllIn) {
+      _allInController.reverse().whenComplete(() {
+        if (mounted) setState(() => _showAllIn = false);
+      });
     }
   }
 
@@ -1039,6 +1073,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _winnerGlowController.dispose();
     _stackWinController.dispose();
     _bustedController.dispose();
+    _allInController.dispose();
     super.dispose();
   }
 
@@ -1466,6 +1501,34 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                       labelColor: Colors.redAccent,
                       scale: widget.scale,
                       onCompleted: () => setState(() => _lossLabelAmount = null),
+                    ),
+                  ),
+                if (_showAllIn && !widget.isHero)
+                  Positioned(
+                    top: -24 * widget.scale,
+                    child: SlideTransition(
+                      position: _allInOffset,
+                      child: FadeTransition(
+                        opacity: _allInOpacity,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 6 * widget.scale,
+                              vertical: 2 * widget.scale),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius:
+                                BorderRadius.circular(8 * widget.scale),
+                          ),
+                          child: Text(
+                            'ALL-IN',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10 * widget.scale,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 if (_showBusted && !widget.isHero)
