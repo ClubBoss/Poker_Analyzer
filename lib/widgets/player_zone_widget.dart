@@ -135,6 +135,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _winnerGlowController;
   late final Animation<double> _winnerGlowOpacity;
   late final Animation<double> _winnerGlowScale;
+  late final AnimationController _allInWinGlowController;
+  late final Animation<double> _allInWinGlow;
   bool _refundGlow = false;
   Timer? _refundGlowTimer;
   bool _actionGlow = false;
@@ -185,6 +187,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _allInController;
   late final Animation<double> _allInOpacity;
   late final Animation<Offset> _allInOffset;
+  bool _wasAllIn = false;
 
   @override
   void initState() {
@@ -325,6 +328,23 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ),
     ]).animate(_winnerGlowController);
 
+    _allInWinGlowController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _allInWinGlow = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_allInWinGlowController);
+
     _bustedController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -344,6 +364,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _allInOffset = Tween<Offset>(begin: const Offset(0, -0.2), end: Offset.zero)
         .animate(
             CurvedAnimation(parent: _allInController, curve: Curves.easeOut));
+
+    if (!widget.isHero && !widget.isFolded && _remainingStack == 0) {
+      _wasAllIn = true;
+    }
 
     if (!widget.isHero && !widget.isFolded && _remainingStack == 0) {
       _showAllIn = true;
@@ -424,6 +448,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     if (widget.remainingStack != oldWidget.remainingStack) {
       setState(() => _remainingStack = widget.remainingStack);
+      if ((_remainingStack ?? -1) == 0) {
+        _wasAllIn = true;
+      }
       if (!widget.isHero && !widget.isFolded) {
         if ((_remainingStack ?? -1) == 0 && (oldWidget.remainingStack ?? -1) != 0) {
           _showAllIn = true;
@@ -461,6 +488,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _highlightTimer?.cancel();
     setState(() => _winnerHighlight = true);
     _winnerGlowController.forward(from: 0.0);
+    if (_wasAllIn) {
+      _allInWinGlowController.forward(from: 0.0);
+      _wasAllIn = false;
+    }
     _highlightTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted) setState(() => _winnerHighlight = false);
     });
@@ -1071,6 +1102,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _finalStackController.dispose();
     _revealController.dispose();
     _winnerGlowController.dispose();
+    _allInWinGlowController.dispose();
     _stackWinController.dispose();
     _bustedController.dispose();
     _allInController.dispose();
@@ -1440,14 +1472,37 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-                ScaleTransition(
-                  scale: _stackWinScale,
-                  child: FadeTransition(
-                    opacity: _stackWinOpacity,
-                    child: PlayerStackValue(
-                      stack: stack ?? 0,
-                      scale: widget.scale,
-                      isBust: remaining != null && remaining <= 0,
+                AnimatedBuilder(
+                  animation: _allInWinGlowController,
+                  builder: (_, child) {
+                    final glow = _allInWinGlow.value;
+                    return Container(
+                      decoration: glow > 0
+                          ? BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.circular(8 * widget.scale),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.lightGreenAccent
+                                      .withOpacity(glow),
+                                  blurRadius: 16 * glow * widget.scale,
+                                  spreadRadius: 4 * glow * widget.scale,
+                                ),
+                              ],
+                            )
+                          : null,
+                      child: child,
+                    );
+                  },
+                  child: ScaleTransition(
+                    scale: _stackWinScale,
+                    child: FadeTransition(
+                      opacity: _stackWinOpacity,
+                      child: PlayerStackValue(
+                        stack: stack ?? 0,
+                        scale: widget.scale,
+                        isBust: remaining != null && remaining <= 0,
+                      ),
                     ),
                   ),
                 ),
