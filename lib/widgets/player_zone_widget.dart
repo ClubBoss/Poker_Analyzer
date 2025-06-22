@@ -66,6 +66,7 @@ class PlayerZoneWidget extends StatefulWidget {
   final PlayerModel player;
   final ValueChanged<int>? onStackChanged;
   final ValueChanged<int>? onBetChanged;
+  final ValueChanged<String>? onRevealRequest;
   // Stack editing is handled by PlayerInfoWidget
 
   /// Returns the offset of a seat around an elliptical poker table. This is
@@ -105,6 +106,7 @@ class PlayerZoneWidget extends StatefulWidget {
     this.editMode = false,
     this.onStackChanged,
     this.onBetChanged,
+    this.onRevealRequest,
   }) : super(key: key);
 
   @override
@@ -1335,6 +1337,31 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   color: Colors.white,
                   fontSize: 10 * widget.scale,
                   fontWeight: FontWeight.bold,
+                ),
+              ),
+          ),
+        ),
+        if (!widget.isHero && !widget.isFolded && widget.onRevealRequest != null)
+          Positioned(
+            top: -8 * widget.scale,
+            left: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              opacity: isMobile || _hoverAction ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(8 * widget.scale),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  iconSize: 14 * widget.scale,
+                  splashRadius: 16 * widget.scale,
+                  icon: const Icon(Icons.remove_red_eye, color: Colors.white),
+                  onPressed: () =>
+                      widget.onRevealRequest?.call(widget.playerName),
                 ),
               ),
             ),
