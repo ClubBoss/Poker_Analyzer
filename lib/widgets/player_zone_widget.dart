@@ -1123,17 +1123,30 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                   color: _lastActionColor.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(8 * widget.scale),
                 ),
-                child: Text(
-                  _lastActionText!,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12 * widget.scale,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _lastActionText!,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12 * widget.scale,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      _streetName(widget.street),
+                      style: TextStyle(
+                        color: Colors.grey[300],
+                        fontSize: 10 * widget.scale,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-        ),
+          ),
         if (widget.isHero)
           Positioned(
             top: -8 * widget.scale,
@@ -1518,6 +1531,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         },
       ),
     ).whenComplete(controller.dispose);
+  } 
+
+  String _streetName(String street) {
+    switch (street) {
+      case 'Preflop':
+        return 'Префлоп';
+      case 'Flop':
+        return 'Флоп';
+      case 'Turn':
+        return 'Тёрн';
+      case 'River':
+        return 'Ривер';
+      default:
+        return street;
+    }
   }
 
   String _capitalize(String s) =>
