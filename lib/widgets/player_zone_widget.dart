@@ -201,10 +201,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.player.bet != oldWidget.player.bet ||
         widget.currentBet != oldWidget.currentBet) {
       _currentBet = widget.player.bet;
-      if (widget.currentBet != oldWidget.currentBet &&
-          widget.currentBet > oldWidget.currentBet) {
+      if (widget.currentBet != oldWidget.currentBet) {
         final delta = widget.currentBet - oldWidget.currentBet;
-        if (delta > 0) _playBetAnimation(delta);
+        if (delta > 0) {
+          _playBetAnimation(delta);
+        } else if (delta < 0) {
+          _playBetRefundAnimation(-delta);
+        }
       }
       _betController.text = '$_currentBet';
     }
@@ -303,6 +306,35 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
     final media = MediaQuery.of(context).size;
     final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
+    final control = Offset(
+      (start.dx + end.dx) / 2,
+      (start.dy + end.dy) / 2 -
+          (40 + ChipStackMovingWidget.activeCount * 8) * widget.scale,
+    );
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => BetFlyingChips(
+        start: start,
+        end: end,
+        control: control,
+        amount: amount,
+        color: Colors.amber,
+        scale: widget.scale,
+        onCompleted: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
+    _betEntry = entry;
+  }
+
+  void _playBetRefundAnimation(int amount) {
+    final overlay = Overlay.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final media = MediaQuery.of(context).size;
+    final start = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
+    final end =
+        box.localToGlobal(Offset(box.size.width / 2, 20 * widget.scale));
     final control = Offset(
       (start.dx + end.dx) / 2,
       (start.dy + end.dy) / 2 -
