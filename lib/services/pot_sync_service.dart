@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../helpers/pot_calculator.dart';
 import '../models/action_entry.dart';
 import '../models/street_investments.dart';
@@ -6,7 +8,7 @@ import 'stack_manager_service.dart';
 import 'pot_history_service.dart';
 
 /// Synchronizes pot sizes and provides effective stack calculations.
-class PotSyncService {
+class PotSyncService extends ChangeNotifier {
   PotSyncService({
     PotCalculator? potCalculator,
     StackManagerService? stackService,
@@ -72,6 +74,7 @@ class PotSyncService {
     sidePots
       ..clear()
       ..addAll(computeSidePots());
+    notifyListeners();
   }
 
   /// Recompute [pots] based on visible [actions] and record history.
@@ -82,6 +85,7 @@ class PotSyncService {
     }
     updateSidePots();
     _history.record(actions.length, pots);
+    notifyListeners();
   }
 
   /// Updates [pots] using only actions up to [playbackIndex].
@@ -93,6 +97,7 @@ class PotSyncService {
     }
     updateSidePots();
     _history.record(playbackIndex, pots);
+    notifyListeners();
   }
 
   /// Returns the recorded pot sizes for [index].
@@ -162,6 +167,7 @@ class PotSyncService {
       List<ActionEntry> actions, int numberOfPlayers) {
     _effectiveStacks =
         calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
+    notifyListeners();
     return effectiveStacks;
   }
 
@@ -176,11 +182,13 @@ class PotSyncService {
   void restoreFromJson(Map<String, dynamic>? json) {
     if (json == null) {
       _effectiveStacks.clear();
+      notifyListeners();
       return;
     }
     _effectiveStacks = {
       for (final entry in json.entries) entry.key: entry.value as int
     };
+    notifyListeners();
   }
 
   /// Restores effective stacks from [hand], computing them when missing.
@@ -200,5 +208,6 @@ class PotSyncService {
     sidePots.clear();
     _effectiveStacks.clear();
     _history.clear();
+    notifyListeners();
   }
 }
