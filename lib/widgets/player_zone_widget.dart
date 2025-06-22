@@ -384,7 +384,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
     _bustedController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 800),
     );
     _bustedOpacity =
         CurvedAnimation(parent: _bustedController, curve: Curves.easeIn);
