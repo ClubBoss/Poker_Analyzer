@@ -23,6 +23,7 @@ import 'chip_stack_moving_widget.dart';
 import 'chip_moving_widget.dart';
 import 'move_pot_animation.dart';
 import 'winner_zone_highlight.dart';
+import 'loss_amount_widget.dart';
 
 final Map<String, _PlayerZoneWidgetState> playerZoneRegistry = {};
 
@@ -118,6 +119,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   OverlayEntry? _betOverlayEntry;
   OverlayEntry? _actionLabelEntry;
   OverlayEntry? _refundMessageEntry;
+  OverlayEntry? _lossAmountEntry;
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
   bool _refundGlow = false;
@@ -324,12 +326,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void setLastActionOutcome(ActionOutcome outcome) {
     Color color;
+    int? lostAmount;
     switch (outcome) {
       case ActionOutcome.win:
         color = Colors.green;
         break;
       case ActionOutcome.lose:
         color = Colors.red;
+        if (_stack != null && widget.maxStackSize > _stack!) {
+          lostAmount = widget.maxStackSize - _stack!;
+        }
         break;
       case ActionOutcome.neutral:
       default:
@@ -337,6 +343,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     if (mounted) {
       setState(() => _lastActionColor = color);
+      if (lostAmount != null && lostAmount > 0) {
+        _showLossAmount(lostAmount!);
+      }
     }
   }
 
@@ -455,6 +464,28 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
     overlay.insert(entry);
     _refundMessageEntry = entry;
+  }
+
+  void _showLossAmount(int amount) {
+    _lossAmountEntry?.remove();
+    final overlay = Overlay.of(context);
+    final box = context.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final pos = box.localToGlobal(Offset(box.size.width / 2, -16 * widget.scale));
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => LossAmountWidget(
+        position: pos,
+        amount: amount,
+        scale: widget.scale,
+        onCompleted: () {
+          entry.remove();
+          if (_lossAmountEntry == entry) _lossAmountEntry = null;
+        },
+      ),
+    );
+    overlay.insert(entry);
+    _lossAmountEntry = entry;
   }
 
   void _showActionLabel(String text, Color color) {
@@ -649,6 +680,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betOverlayEntry?.remove();
     _actionLabelEntry?.remove();
     _refundMessageEntry?.remove();
+    _lossAmountEntry?.remove();
     _stackController.dispose();
     _betController.dispose();
     _controller.dispose();
