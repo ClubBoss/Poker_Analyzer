@@ -130,6 +130,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   OverlayEntry? _gainAmountEntry;
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
+  late final AnimationController _winnerGlowController;
+  late final Animation<double> _winnerGlowOpacity;
+  late final Animation<double> _winnerGlowScale;
   bool _refundGlow = false;
   Timer? _refundGlowTimer;
   bool _actionGlow = false;
@@ -231,6 +234,35 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         CurvedAnimation(parent: _revealController, curve: Curves.easeIn);
     _revealScale = Tween<double>(begin: 0.8, end: 1.0)
         .animate(CurvedAnimation(parent: _revealController, curve: Curves.easeOut));
+    _winnerGlowController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    _winnerGlowOpacity = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 20,
+      ),
+      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 20,
+      ),
+    ]).animate(_winnerGlowController);
+    _winnerGlowScale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 1.05)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.05, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_winnerGlowController);
   }
 
   @override
@@ -317,15 +349,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   }
 
   void highlightWinner() {
+    if (widget.isHero) return;
     _highlightTimer?.cancel();
     setState(() => _winnerHighlight = true);
-    _highlightTimer = Timer(const Duration(seconds: 2), () {
+    _winnerGlowController.forward(from: 0.0);
+    _highlightTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted) setState(() => _winnerHighlight = false);
     });
   }
 
   void clearWinnerHighlight() {
     _highlightTimer?.cancel();
+    _winnerGlowController.reset();
     if (_winnerHighlight) {
       setState(() => _winnerHighlight = false);
     }
@@ -870,6 +905,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _foldController.dispose();
     _showdownLabelController.dispose();
     _revealController.dispose();
+    _winnerGlowController.dispose();
     super.dispose();
   }
 
@@ -1514,21 +1550,33 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       child: result,
     );
 
-    if (_winnerHighlight) {
-      result = Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12 * widget.scale),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.amber.withOpacity(0.8),
-              blurRadius: 20,
-              spreadRadius: 4,
-            ),
-          ],
-        ),
-        child: result,
-      );
-    }
+    result = AnimatedBuilder(
+      animation: _winnerGlowController,
+      builder: (_, child) {
+        final glow = _winnerGlowOpacity.value;
+        final scale = _winnerGlowScale.value;
+        if (!_winnerHighlight && glow == 0.0) return child!;
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            decoration: glow > 0.0
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.circular(12 * widget.scale),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withOpacity(glow),
+                        blurRadius: 24 * glow * widget.scale,
+                        spreadRadius: 4 * glow * widget.scale,
+                      ),
+                    ],
+                  )
+                : null,
+            child: child,
+          ),
+        );
+      },
+      child: result,
+    );
 
     if (widget.isActive) {
       result = FadeTransition(
