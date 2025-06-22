@@ -215,6 +215,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late Animation<double> _stackBarProgressAnimation;
   late Animation<double> _stackBarGlow;
   double _stackBarProgress = 0.0;
+  late final AnimationController _stackBarFadeController;
+  late final Animation<double> _stackBarFade;
 
   @override
   void initState() {
@@ -464,6 +466,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _stackBarProgress = (_stack ?? 0) / widget.maxStackSize;
     _stackBarProgressAnimation = AlwaysStoppedAnimation<double>(_stackBarProgress);
 
+    _stackBarFadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      value: (!widget.isHero && widget.isFolded) ? 0.0 : 1.0,
+    );
+    _stackBarFade = CurvedAnimation(parent: _stackBarFadeController, curve: Curves.easeInOut);
+
     _betStackController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -519,12 +528,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         setState(() => _showCards = true);
         _foldController.forward(from: 0.0);
       }
+      if (!widget.isHero) {
+        _stackBarFadeController.reverse();
+      }
     } else if (!widget.isFolded && oldWidget.isFolded) {
       // Reset the fold animation when cards are shown again for non-hero players.
       if (!widget.isHero) {
         _foldController.reset();
       }
       setState(() => _showCards = true);
+      if (!widget.isHero) {
+        _stackBarFadeController.forward();
+      }
     }
     if (widget.player.bet != oldWidget.player.bet ||
         widget.currentBet != oldWidget.currentBet) {
@@ -1316,6 +1331,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _allInWinGlowController.dispose();
     _stackWinController.dispose();
     _stackBarController.dispose();
+    _stackBarFadeController.dispose();
     _betStackController.dispose();
     _bustedController.dispose();
     _allInController.dispose();
@@ -1879,12 +1895,15 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               ),
             ),
           ),
-        StackBarWidget(
-          stack: stack,
-          maxStack: widget.maxStackSize,
-          scale: widget.scale,
-          progressAnimation: _stackBarProgressAnimation,
-          glowAnimation: _stackBarGlow,
+        FadeTransition(
+          opacity: _stackBarFade,
+          child: StackBarWidget(
+            stack: stack,
+            maxStack: widget.maxStackSize,
+            scale: widget.scale,
+            progressAnimation: _stackBarProgressAnimation,
+            glowAnimation: _stackBarGlow,
+          ),
         ),
         CurrentBetLabel(bet: _currentBet, scale: widget.scale),
         if (_actionTagText != null)
