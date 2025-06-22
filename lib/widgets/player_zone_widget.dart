@@ -212,7 +212,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           if (mounted) setState(() => _showCards = false);
         }
       });
-    _foldOffset = Tween<Offset>(begin: Offset.zero, end: const Offset(-0.6, 0.8))
+    _foldOffset = Tween<Offset>(begin: Offset.zero, end: const Offset(0.0, 0.6))
         .animate(CurvedAnimation(parent: _foldController, curve: Curves.easeIn));
     _foldOpacity = Tween<double>(begin: 1.0, end: 0.0)
         .animate(CurvedAnimation(parent: _foldController, curve: Curves.easeIn));
@@ -293,12 +293,16 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       }
     }
     if (widget.isFolded && !oldWidget.isFolded) {
-      setState(() {
-        _showCards = true;
-      });
-      _foldController.forward(from: 0.0);
+      if (widget.isHero) {
+        setState(() => _showCards = false);
+      } else {
+        setState(() => _showCards = true);
+        _foldController.forward(from: 0.0);
+      }
     } else if (!widget.isFolded && oldWidget.isFolded) {
-      _foldController.reset();
+      if (!widget.isHero) {
+        _foldController.reset();
+      }
       setState(() => _showCards = true);
     }
     if (widget.player.bet != oldWidget.player.bet ||
