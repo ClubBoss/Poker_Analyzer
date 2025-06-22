@@ -132,6 +132,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _bounceAnimation;
   late TextEditingController _stackController;
   late TextEditingController _betController;
+  late final AnimationController _foldController;
+  late final Animation<Offset> _foldOffset;
+  late final Animation<double> _foldOpacity;
+  bool _showCards = true;
 
   @override
   void initState() {
@@ -176,6 +180,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     _stackController = TextEditingController(text: _stack?.toString() ?? '');
     _betController = TextEditingController(text: '$_currentBet');
+    _foldController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          if (mounted) setState(() => _showCards = false);
+        }
+      });
+    _foldOffset = Tween<Offset>(begin: Offset.zero, end: const Offset(-0.6, 0.8))
+        .animate(CurvedAnimation(parent: _foldController, curve: Curves.easeIn));
+    _foldOpacity = Tween<double>(begin: 1.0, end: 0.0)
+        .animate(CurvedAnimation(parent: _foldController, curve: Curves.easeIn));
+    if (widget.isFolded) {
+      _showCards = false;
+    }
   }
 
   @override
@@ -198,6 +217,15 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     if (widget.cards != oldWidget.cards) {
       _cards = List<CardModel>.from(widget.cards);
+    }
+    if (widget.isFolded && !oldWidget.isFolded) {
+      setState(() {
+        _showCards = true;
+      });
+      _foldController.forward(from: 0.0);
+    } else if (!widget.isFolded && oldWidget.isFolded) {
+      _foldController.reset();
+      setState(() => _showCards = true);
     }
     if (widget.player.bet != oldWidget.player.bet ||
         widget.currentBet != oldWidget.currentBet) {
@@ -606,6 +634,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betController.dispose();
     _controller.dispose();
     _bounceController.dispose();
+    _foldController.dispose();
     super.dispose();
   }
 
@@ -802,7 +831,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 final card = index < _cards.length ? _cards[index] : null;
                 final isRed = card?.suit == '♥' || card?.suit == '♦';
 
-                return GestureDetector(
+                Widget cardWidget = GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: widget.isHero
                       ? () async {
@@ -856,6 +885,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                                   fit: BoxFit.cover,
                                 ),
                     ),
+                  ),
+                );
+
+                if (!_showCards && !_foldController.isAnimating) {
+                  return const SizedBox.shrink();
+                }
+
+                return SlideTransition(
+                  position: _foldOffset,
+                  child: FadeTransition(
+                    opacity: _foldOpacity,
+                    child: cardWidget,
                   ),
                 );
               }),
