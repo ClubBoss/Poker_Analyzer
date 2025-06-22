@@ -179,6 +179,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _showdownLabelOpacity;
   String? _finalStackText;
   Timer? _finalStackTimer;
+  Timer? _hideCardsTimer;
   late final AnimationController _finalStackController;
   late final Animation<double> _finalStackOpacity;
   late final Animation<Offset> _finalStackOffset;
@@ -953,6 +954,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void _showFinalStackLabel() {
     if (widget.isHero) return;
     _finalStackTimer?.cancel();
+    _hideCardsTimer?.cancel();
     setState(() => _finalStackText = 'Final: ${_stack ?? 0} BB');
     _finalStackController.forward(from: 0.0);
     if (_betStackAmount != null) {
@@ -965,6 +967,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _finalStackController.reverse().whenComplete(() {
         if (mounted) setState(() => _finalStackText = null);
       });
+    });
+    _hideCardsTimer = Timer(const Duration(milliseconds: 2500), () {
+      if (!mounted) return;
+      setState(() => _showCards = false);
     });
   }
 
@@ -1181,6 +1187,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _stackBetTimer?.cancel();
     _showdownLabelTimer?.cancel();
     _finalStackTimer?.cancel();
+    _hideCardsTimer?.cancel();
     _bustedTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
