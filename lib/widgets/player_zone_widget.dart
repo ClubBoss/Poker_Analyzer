@@ -199,6 +199,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _bustedZoneOpacity;
   late final Animation<Offset> _bustedZoneOffset;
   bool _zoneFaded = false;
+  bool _isBusted = false;
   bool _showAllIn = false;
   late final AnimationController _allInController;
   late final Animation<double> _allInOpacity;
@@ -1028,7 +1029,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void fadeOutZone() {
     if (widget.isHero || _zoneFaded) return;
     _zoneFaded = true;
-    _bustedController.forward();
+    _bustedController.forward().whenComplete(() {
+      if (mounted) setState(() => _isBusted = true);
+    });
   }
 
   /// Animates chips flying from the center pot to this player.
@@ -2104,7 +2107,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ),
     );
 
-    return MouseRegion(
+    final zone = MouseRegion(
       onEnter: (_) {
         if (!isMobile) setState(() => _hoverAction = true);
       },
@@ -2117,6 +2120,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         onTap: _handleTap,
         child: result,
       ),
+    );
+
+    return Offstage(
+      offstage: _isBusted,
+      child: zone,
     );
   }
 
