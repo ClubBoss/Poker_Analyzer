@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 
 /// Animation for dealing a card from the center of the table to a target
-/// position. The card scales up and rotates slightly while moving.
+/// position. The card follows a smooth curved path, scaling up while
+/// rotating slightly. Opacity increases near the end so the card fades in
+/// as it arrives at the destination.
 class DealCardAnimation extends StatefulWidget {
   final Offset start;
   final Offset end;
@@ -33,6 +35,14 @@ class _DealCardAnimationState extends State<DealCardAnimation>
   late final Animation<double> _rotation;
   late final Animation<double> _opacity;
 
+  Offset _bezier(Offset p0, Offset p1, Offset p2, double t) {
+    final u = 1 - t;
+    return Offset(
+      u * u * p0.dx + 2 * u * t * p1.dx + t * t * p2.dx,
+      u * u * p0.dy + 2 * u * t * p1.dy + t * t * p2.dy,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +53,7 @@ class _DealCardAnimationState extends State<DealCardAnimation>
     );
     _rotation = Tween<double>(begin: -0.4, end: 0.0).animate(_progress);
     _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.3)),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.85, 1.0)),
     );
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -64,10 +74,12 @@ class _DealCardAnimationState extends State<DealCardAnimation>
     final width = 36 * widget.scale;
     final height = 52 * widget.scale;
     final isRed = widget.card.suit == '♥' || widget.card.suit == '♦';
+    final control = Offset.lerp(widget.start, widget.end, 0.3)! -
+        Offset(0, 60 * widget.scale);
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final pos = Offset.lerp(widget.start, widget.end, _progress.value)!;
+        final pos = _bezier(widget.start, control, widget.end, _progress.value);
         return Positioned(
           left: pos.dx - width / 2,
           top: pos.dy - height / 2,
