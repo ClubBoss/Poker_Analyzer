@@ -164,6 +164,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Timer? _showdownLabelTimer;
   late final AnimationController _showdownLabelController;
   late final Animation<double> _showdownLabelOpacity;
+  String? _finalStackText;
+  Timer? _finalStackTimer;
+  late final AnimationController _finalStackController;
+  late final Animation<double> _finalStackOpacity;
+  late final Animation<Offset> _finalStackOffset;
   late final AnimationController _revealController;
   late final Animation<double> _revealOpacity;
   late final Animation<double> _revealScale;
@@ -235,6 +240,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
     _showdownLabelOpacity =
         CurvedAnimation(parent: _showdownLabelController, curve: Curves.easeIn);
+    _finalStackController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _finalStackOpacity =
+        CurvedAnimation(parent: _finalStackController, curve: Curves.easeIn);
+    _finalStackOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _finalStackController, curve: Curves.easeOut));
     _revealController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -509,6 +522,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     if (mounted) {
       setState(() => _lastActionColor = color);
+      _showFinalStackLabel();
       if (lostAmount != null && lostAmount > 0) {
         _showLossAmount(lostAmount!);
         _showStackLossLabel(lostAmount!);
@@ -788,6 +802,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     setState(() => _lossLabelAmount = amount);
   }
 
+  void _showFinalStackLabel() {
+    if (widget.isHero) return;
+    _finalStackTimer?.cancel();
+    setState(() => _finalStackText = 'Final: ${_stack ?? 0} BB');
+    _finalStackController.forward(from: 0.0);
+    _finalStackTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      _finalStackController.reverse().whenComplete(() {
+        if (mounted) setState(() => _finalStackText = null);
+      });
+    });
+  }
+
   /// Animates a stack of chips flying from the center pot to this player.
   void playWinChipsAnimation(int amount) {
     final overlay = Overlay.of(context);
@@ -963,6 +990,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _actionGlowTimer?.cancel();
     _stackBetTimer?.cancel();
     _showdownLabelTimer?.cancel();
+    _finalStackTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
     _actionLabelEntry?.remove();
@@ -975,6 +1003,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _bounceController.dispose();
     _foldController.dispose();
     _showdownLabelController.dispose();
+    _finalStackController.dispose();
     _revealController.dispose();
     _winnerGlowController.dispose();
     _stackWinController.dispose();
@@ -1360,6 +1389,34 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     ),
                   ),
                 ),
+                if (_finalStackText != null && !widget.isHero)
+                  Positioned(
+                    top: -24 * widget.scale,
+                    child: SlideTransition(
+                      position: _finalStackOffset,
+                      child: FadeTransition(
+                        opacity: _finalStackOpacity,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 6 * widget.scale,
+                              vertical: 2 * widget.scale),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius:
+                                BorderRadius.circular(8 * widget.scale),
+                          ),
+                          child: Text(
+                            _finalStackText!,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10 * widget.scale,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 if (_gainLabelAmount != null && !widget.isHero)
                   Positioned(
                     top: -14 * widget.scale,
