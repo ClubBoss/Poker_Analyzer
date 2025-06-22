@@ -145,6 +145,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   int? _stackBetAmount;
   Color _stackBetColor = Colors.amber;
   Timer? _stackBetTimer;
+  int? _gainLabelAmount;
+  Timer? _gainLabelTimer;
+  late final AnimationController _gainLabelController;
+  late final Animation<Offset> _gainLabelOffset;
+  late final Animation<double> _gainLabelOpacity;
   late final AnimationController _bounceController;
   late final Animation<double> _bounceAnimation;
   late TextEditingController _stackController;
@@ -206,6 +211,17 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         weight: 50,
       ),
     ]).animate(_bounceController);
+    _gainLabelController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.dismissed && mounted) {
+          setState(() => _gainLabelAmount = null);
+        }
+      });
+    _gainLabelOffset = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _gainLabelController, curve: Curves.easeOut));
+    _gainLabelOpacity = CurvedAnimation(parent: _gainLabelController, curve: Curves.easeIn);
     if (widget.isActive) {
       _controller.repeat(reverse: true);
     }
@@ -774,6 +790,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
+  void _showStackGainLabel(int amount) {
+    if (widget.isHero || amount <= 0) return;
+    _gainLabelTimer?.cancel();
+    setState(() => _gainLabelAmount = amount);
+    _gainLabelController.forward(from: 0.0);
+    _gainLabelTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (mounted) {
+        _gainLabelController.reverse();
+      }
+    });
+  }
+
   /// Animates a stack of chips flying from the center pot to this player.
   void playWinChipsAnimation(int amount) {
     final overlay = Overlay.of(context);
@@ -805,6 +833,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   /// Smoothly increases this player's stack by [amount].
   Future<void> animateStackIncrease(int amount) async {
     if (_stack == null) return;
+    _showStackGainLabel(amount);
     final controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -954,12 +983,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _refundMessageEntry?.remove();
     _lossAmountEntry?.remove();
     _gainAmountEntry?.remove();
+    _gainLabelTimer?.cancel();
     _stackController.dispose();
     _betController.dispose();
     _controller.dispose();
     _bounceController.dispose();
     _foldController.dispose();
     _showdownLabelController.dispose();
+    _gainLabelController.dispose();
     _revealController.dispose();
     _winnerGlowController.dispose();
     _stackWinController.dispose();
@@ -1330,16 +1361,49 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         else
           GestureDetector(
             onLongPress: _editStack,
-            child: ScaleTransition(
-              scale: _stackWinScale,
-              child: FadeTransition(
-                opacity: _stackWinOpacity,
-                child: PlayerStackValue(
-                  stack: stack ?? 0,
-                  scale: widget.scale,
-                  isBust: remaining != null && remaining <= 0,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                ScaleTransition(
+                  scale: _stackWinScale,
+                  child: FadeTransition(
+                    opacity: _stackWinOpacity,
+                    child: PlayerStackValue(
+                      stack: stack ?? 0,
+                      scale: widget.scale,
+                      isBust: remaining != null && remaining <= 0,
+                    ),
+                  ),
                 ),
-              ),
+                if (_gainLabelAmount != null && !widget.isHero)
+                  Positioned(
+                    top: -14 * widget.scale,
+                    child: SlideTransition(
+                      position: _gainLabelOffset,
+                      child: FadeTransition(
+                        opacity: _gainLabelOpacity,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 4 * widget.scale,
+                              vertical: 2 * widget.scale),
+                          decoration: BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.circular(6 * widget.scale),
+                          ),
+                          child: Text(
+                            '+${_gainLabelAmount} BB',
+                            style: TextStyle(
+                              color: Colors.lightGreenAccent,
+                              fontSize: 10 * widget.scale,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         PlayerEffectiveStackLabel(
