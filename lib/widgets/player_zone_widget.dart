@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ import 'winner_zone_highlight.dart';
 import 'loss_amount_widget.dart';
 import 'gain_amount_widget.dart';
 import 'stack_delta_label.dart';
+import 'winner_flying_chip.dart';
 import '../services/pot_sync_service.dart';
 import 'player_effective_stack_label.dart';
 import 'player_position_label.dart';
@@ -130,6 +132,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   OverlayEntry? _refundMessageEntry;
   OverlayEntry? _lossAmountEntry;
   OverlayEntry? _gainAmountEntry;
+  bool _winChipsAnimating = false;
+  final List<OverlayEntry> _winChipEntries = [];
   bool _winnerHighlight = false;
   Timer? _highlightTimer;
   late final AnimationController _winnerGlowController;
@@ -948,32 +952,47 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
-  /// Animates a stack of chips flying from the center pot to this player.
+  /// Animates chips flying from the center pot to this player.
   void playWinChipsAnimation(int amount) {
+    if (_winChipsAnimating) return;
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox?;
     if (overlay == null || box == null) return;
+
+    _winChipsAnimating = true;
     final media = MediaQuery.of(context).size;
     final start = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
     final end = box.localToGlobal(box.size.center(Offset.zero));
-    final control = Offset(
-      (start.dx + end.dx) / 2,
-      (start.dy + end.dy) / 2 -
-          (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
-    );
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => ChipMovingWidget(
-        start: start,
-        end: end,
-        control: control,
-        amount: amount,
-        color: Colors.orangeAccent,
-        scale: widget.scale,
-        onCompleted: () => entry.remove(),
-      ),
-    );
-    overlay.insert(entry);
+    final rnd = Random();
+    final chipCount = 6 + rnd.nextInt(3);
+    for (int i = 0; i < chipCount; i++) {
+      Future.delayed(Duration(milliseconds: 50 * i), () {
+        if (!mounted) return;
+        final control = Offset(
+          (start.dx + end.dx) / 2 + (rnd.nextDouble() * 40 - 20) * widget.scale,
+          (start.dy + end.dy) / 2 -
+              (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
+        );
+        late OverlayEntry entry;
+        entry = OverlayEntry(
+          builder: (_) => WinnerFlyingChip(
+            start: start,
+            end: end,
+            control: control,
+            scale: widget.scale,
+            onCompleted: () {
+              entry.remove();
+              _winChipEntries.remove(entry);
+              if (_winChipEntries.isEmpty) {
+                _winChipsAnimating = false;
+              }
+            },
+          ),
+        );
+        overlay.insert(entry);
+        _winChipEntries.add(entry);
+      });
+    }
   }
 
   /// Smoothly increases this player's stack by [amount].
