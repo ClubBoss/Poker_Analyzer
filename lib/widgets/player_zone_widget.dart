@@ -278,12 +278,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         .animate(CurvedAnimation(parent: _finalStackController, curve: Curves.easeOut));
     _revealController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 250),
       value: 1.0,
     );
     _revealOpacity =
         CurvedAnimation(parent: _revealController, curve: Curves.easeIn);
-    _revealScale = Tween<double>(begin: 0.8, end: 1.0)
+    _revealScale = Tween<double>(begin: 0.9, end: 1.0)
         .animate(CurvedAnimation(parent: _revealController, curve: Curves.easeOut));
     _stackWinController = AnimationController(
       vsync: this,
