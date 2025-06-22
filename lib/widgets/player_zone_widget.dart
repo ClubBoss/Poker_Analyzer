@@ -609,13 +609,17 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             ? widget.stackSizes![widget.playerIndex!]
             : widget.player.stack);
     if (newStack != oldStack) {
-      setState(() {
-        _stack = newStack;
-        _stackBarProgress = (_stack ?? 0) / widget.maxStackSize;
-        _stackBarProgressAnimation =
-            AlwaysStoppedAnimation<double>(_stackBarProgress);
-      });
-      _stackController.text = _stack?.toString() ?? '';
+      if (oldStack != null && newStack != null && newStack > oldStack) {
+        animateStackIncrease(newStack - oldStack);
+      } else {
+        setState(() {
+          _stack = newStack;
+          _stackBarProgress = (_stack ?? 0) / widget.maxStackSize;
+          _stackBarProgressAnimation =
+              AlwaysStoppedAnimation<double>(_stackBarProgress);
+        });
+      }
+      _stackController.text = newStack?.toString() ?? '';
     }
     if (widget.remainingStack != oldWidget.remainingStack) {
       setState(() => _remainingStack = widget.remainingStack);
