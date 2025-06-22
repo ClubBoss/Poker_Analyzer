@@ -57,6 +57,8 @@ where the complete UI and logic are not required.
 - Batch operations in the Training Spot list allow applying the current
   difficulty and rating filters to all visible spots or deleting them in
   one step with confirmation dialogs.
+- Opponent folds animate their cards sliding down with a fade-out. The hero's
+  cards disappear instantly without animation for clarity.
 
 
 ## Converter plug-ins
