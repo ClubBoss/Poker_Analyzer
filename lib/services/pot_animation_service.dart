@@ -191,6 +191,48 @@ class PotAnimationService {
     });
   }
 
+  void startRefundFlights({
+    required BuildContext context,
+    required Map<int, int> refunds,
+    required int numberOfPlayers,
+    required int Function() viewIndex,
+    required List<ChipFlight> flights,
+    required VoidCallback registerResetAnimation,
+  }) {
+    if (refunds.isEmpty) return;
+    final scale = TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+
+    refunds.forEach((player, amount) {
+      if (amount <= 0) return;
+      final i = (player - viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX, centerY);
+      final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      flights.add(ChipFlight(
+        key: UniqueKey(),
+        start: start,
+        end: end,
+        amount: amount,
+        playerIndex: player,
+        color: Colors.lightBlueAccent,
+        scale: scale,
+      ));
+      registerResetAnimation();
+    });
+  }
+
   Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
     for (final entry in refunds.entries) {
       final playerIndex = entry.key;

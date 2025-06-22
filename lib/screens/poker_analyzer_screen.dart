@@ -821,12 +821,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         flight!.end.dx - 20 * flight!.scale,
         flight!.end.dy - 60 * flight!.scale,
       );
-      showWinAmountOverlay(
-        context: context,
-        position: pos,
-        amount: flight!.amount,
-        scale: flight!.scale,
-      );
+      if (flight!.color == Colors.lightBlueAccent) {
+        showRefundAmountOverlay(
+          context: context,
+          position: pos,
+          amount: flight!.amount,
+          scale: flight!.scale,
+        );
+      } else {
+        showWinAmountOverlay(
+          context: context,
+          position: pos,
+          amount: flight!.amount,
+          scale: flight!.scale,
+        );
+      }
       _onResetAnimationComplete();
     }
   }
@@ -2344,13 +2353,19 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (_returnsAnimated) return;
     final returns = _returns;
     if (returns == null || returns.isEmpty) return;
-    int d = delay;
-    returns.forEach((player, amount) {
-      Future.delayed(Duration(milliseconds: d), () {
-        if (!mounted) return;
-        _applyRefund(player, amount);
+    Future.delayed(Duration(milliseconds: delay), () {
+      if (!mounted) return;
+      _potAnimations.startRefundFlights(
+        context: context,
+        refunds: returns,
+        numberOfPlayers: numberOfPlayers,
+        viewIndex: _viewIndex,
+        flights: _chipFlights,
+        registerResetAnimation: _registerResetAnimation,
+      );
+      returns.forEach((player, amount) {
+        _applyRefund(player, amount, animate: false);
       });
-      d += 150;
     });
     _returnsAnimated = true;
   }
