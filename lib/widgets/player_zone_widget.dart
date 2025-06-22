@@ -332,8 +332,20 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
   }
 
-  void setLastAction(String text, Color color, String action, [int? amount]) {
+  void setLastAction(String? text, Color color, String action, [int? amount]) {
     _lastActionTimer?.cancel();
+    _actionGlowTimer?.cancel();
+    if (text == null) {
+      _actionLabelEntry?.remove();
+      _actionLabelEntry = null;
+      setState(() {
+        _lastActionText = null;
+        _lastActionOpacity = 0.0;
+        _actionGlow = false;
+        _actionGlowColor = Colors.transparent;
+      });
+      return;
+    }
     final labelColor = _lastActionColorFor(action);
     setState(() {
       _lastActionText = text;
@@ -348,7 +360,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         setState(() => _lastActionOpacity = 0.0);
       }
     });
-    _actionGlowTimer?.cancel();
     _actionGlowTimer = Timer(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() => _actionGlow = false);
@@ -1750,6 +1761,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               ),
               TextButton(
                 onPressed: () {
+                  setLastAction(null, Colors.transparent, '', null);
+                  Navigator.pop(ctx);
+                },
+                child: const Text('Clear'),
+              ),
+              TextButton(
+                onPressed: () {
                   final amt = needAmount ? int.tryParse(controller.text) : null;
                   Navigator.pop(ctx, {'action': action, 'amount': amt});
                 },
@@ -2283,7 +2301,7 @@ void revealOpponentCards(String playerName, List<CardModel> cards) {
 
 /// Sets and displays the last action label for the given player.
 void setPlayerLastAction(
-    String playerName, String text, Color color, String action, [int? amount]) {
+    String playerName, String? text, Color color, String action, [int? amount]) {
   final state = playerZoneRegistry[playerName];
   state?.setLastAction(text, color, action, amount);
 }
