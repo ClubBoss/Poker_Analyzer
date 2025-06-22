@@ -25,6 +25,7 @@ import 'bet_flying_chips.dart';
 import 'chip_stack_moving_widget.dart';
 import 'chip_moving_widget.dart';
 import 'bet_to_center_animation.dart';
+import 'refund_chip_stack_moving_widget.dart';
 import 'move_pot_animation.dart';
 import 'winner_zone_highlight.dart';
 import 'loss_amount_widget.dart';
@@ -501,7 +502,23 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         if (delta > 0) {
           _playBetAnimation(delta);
         } else if (delta < 0) {
-          _playBetRefundAnimation(-delta);
+          Offset? start;
+          final betBox =
+              _betStackKey.currentContext?.findRenderObject() as RenderBox?;
+          if (betBox != null) {
+            start = betBox.localToGlobal(
+                Offset(betBox.size.width / 2, betBox.size.height / 2));
+          }
+          _playBetRefundAnimation(
+            -delta,
+            startPosition: start,
+            color: Colors.amber,
+          );
+          _betStackController.reverse().whenComplete(() {
+            if (mounted && _betStackAmount != null) {
+              setState(() => _betStackAmount = null);
+            }
+          });
         }
       }
       _betController.text = '$_currentBet';
@@ -773,40 +790,42 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betEntry = entry;
   }
 
-  void _playBetRefundAnimation(int amount) {
+  void _playBetRefundAnimation(
+    int amount, {
+    Offset? startPosition,
+    Color color = Colors.lightGreenAccent,
+    VoidCallback? onCompleted,
+  }) {
     final overlay = Overlay.of(context);
-    final betBox =
-        _betStackKey.currentContext?.findRenderObject() as RenderBox?;
     final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-    if (overlay == null || betBox == null || stackBox == null) return;
-    final start = betBox
-        .localToGlobal(Offset(betBox.size.width / 2, betBox.size.height / 2));
+    if (overlay == null || stackBox == null) return;
+    final media = MediaQuery.of(context).size;
+    final start = startPosition ??
+        Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
     final end = stackBox.localToGlobal(
         Offset(stackBox.size.width / 2, stackBox.size.height / 2));
     final control = Offset(
       (start.dx + end.dx) / 2,
       (start.dy + end.dy) / 2 -
-          (40 + ChipStackMovingWidget.activeCount * 8) * widget.scale,
+          (40 + RefundChipStackMovingWidget.activeCount * 8) * widget.scale,
     );
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => BetFlyingChips(
+      builder: (_) => RefundChipStackMovingWidget(
         start: start,
         end: end,
         control: control,
         amount: amount,
-        color: Colors.amber,
+        color: color,
         scale: widget.scale,
-        onCompleted: () => entry.remove(),
+        onCompleted: () {
+          entry.remove();
+          onCompleted?.call();
+        },
       ),
     );
     overlay.insert(entry);
     _betEntry = entry;
-    _betStackController.reverse().whenComplete(() {
-      if (mounted && _betStackAmount != null) {
-        setState(() => _betStackAmount = null);
-      }
-    });
   }
 
   /// Animates this player's bet flying toward the center pot.
@@ -3158,5 +3177,29 @@ Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
 void fadeOutBustedPlayerZone(String playerName) {
   final state = playerZoneRegistry[playerName];
   state?.fadeOutZone();
+}
+
+/// Plays a refund animation for the given [playerIndex]. Chips fly from
+/// [startPosition] to the player's stack.
+void playRefundToPlayer(
+  int playerIndex,
+  int amount, {
+  Offset? startPosition,
+  Color color = Colors.lightGreenAccent,
+  VoidCallback? onCompleted,
+}) {
+  _PlayerZoneWidgetState? state;
+  for (final s in playerZoneRegistry.values) {
+    if (s.widget.playerIndex == playerIndex) {
+      state = s;
+      break;
+    }
+  }
+  state?._playBetRefundAnimation(
+    amount,
+    startPosition: startPosition,
+    color: color,
+    onCompleted: onCompleted,
+  );
 }
 
