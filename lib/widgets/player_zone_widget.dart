@@ -443,10 +443,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _playerType = widget.playerType;
     }
     if (widget.cards != oldWidget.cards) {
-      final shouldAnimate =
-          !widget.isHero && oldWidget.cards.isEmpty && widget.cards.length == 2;
+      final becameVisible = oldWidget.cards.isEmpty && widget.cards.isNotEmpty;
       _cards = List<CardModel>.from(widget.cards);
-      if (shouldAnimate) {
+      if (!widget.isHero && becameVisible) {
         _revealController.forward(from: 0.0);
         _showCardRevealOverlay();
       }
@@ -535,8 +534,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   /// Updates the player's visible cards.
   void updateCards(List<CardModel> cards) {
+    final wasHidden = _cards.isEmpty;
     setState(() => _cards = List<CardModel>.from(cards));
-    if (!widget.isHero) {
+    if (!widget.isHero && wasHidden && cards.isNotEmpty) {
       _showCardRevealOverlay();
       _revealController.forward(from: 0.0);
     }
