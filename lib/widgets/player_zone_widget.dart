@@ -196,6 +196,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _bustedController;
   late final Animation<double> _bustedOpacity;
   late final Animation<Offset> _bustedOffset;
+  late final Animation<double> _bustedZoneOpacity;
+  late final Animation<Offset> _bustedZoneOffset;
+  bool _zoneFaded = false;
   bool _showAllIn = false;
   late final AnimationController _allInController;
   late final Animation<double> _allInOpacity;
@@ -388,6 +391,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _bustedOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
         .animate(
             CurvedAnimation(parent: _bustedController, curve: Curves.easeOut));
+    _bustedZoneOpacity =
+        Tween<double>(begin: 1.0, end: 0.0).animate(_bustedController);
+    _bustedZoneOffset = Tween<Offset>(begin: Offset.zero, end: const Offset(0, 0.2))
+        .animate(CurvedAnimation(parent: _bustedController, curve: Curves.easeIn));
 
     _allInController = AnimationController(
       vsync: this,
@@ -1016,6 +1023,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         if (mounted) setState(() => _showBusted = false);
       });
     });
+  }
+
+  void fadeOutZone() {
+    if (widget.isHero || _zoneFaded) return;
+    _zoneFaded = true;
+    _bustedController.forward();
   }
 
   /// Animates chips flying from the center pot to this player.
@@ -2083,6 +2096,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       child: result,
     );
 
+    result = SlideTransition(
+      position: _bustedZoneOffset,
+      child: FadeTransition(
+        opacity: _bustedZoneOpacity,
+        child: result,
+      ),
+    );
+
     return MouseRegion(
       onEnter: (_) {
         if (!isMobile) setState(() => _hoverAction = true);
@@ -3123,5 +3144,11 @@ Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
 /// Uses the same chip trail as [triggerWinnerAnimation] without highlights.
 Future<void> triggerRefundAnimations(Map<int, int> refunds) async {
   await PotAnimationService().triggerRefundAnimations(refunds);
+}
+
+/// Fades out the player zone when a player busts from the game.
+void fadeOutBustedPlayerZone(String playerName) {
+  final state = playerZoneRegistry[playerName];
+  state?.fadeOutZone();
 }
 
