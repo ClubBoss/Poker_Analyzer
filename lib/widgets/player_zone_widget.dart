@@ -157,6 +157,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   int? _stackBetAmount;
   Color _stackBetColor = Colors.amber;
   Timer? _stackBetTimer;
+  Timer? _gainLabelTimer;
   int? _gainLabelAmount;
   int? _lossLabelAmount;
   int? _betStackAmount;
@@ -1065,7 +1066,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void _showStackGainLabel(int amount) {
     if (widget.isHero || amount <= 0) return;
+    _gainLabelTimer?.cancel();
     setState(() => _gainLabelAmount = amount);
+    _gainLabelTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (mounted) setState(() => _gainLabelAmount = null);
+    });
   }
 
   void _showStackLossLabel(int amount) {
@@ -1328,6 +1333,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _lastActionTimer?.cancel();
     _actionGlowTimer?.cancel();
     _stackBetTimer?.cancel();
+    _gainLabelTimer?.cancel();
     _showdownLabelTimer?.cancel();
     _finalStackTimer?.cancel();
     _hideCardsTimer?.cancel();
@@ -1853,7 +1859,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                       offsetUp: true,
                       labelColor: Colors.lightGreenAccent,
                       scale: widget.scale,
-                      onCompleted: () => setState(() => _gainLabelAmount = null),
                     ),
                   ),
                 if (_lossLabelAmount != null && !widget.isHero)
