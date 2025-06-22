@@ -149,8 +149,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _bounceAnimation;
   late TextEditingController _stackController;
   late TextEditingController _betController;
+  // Controls the fold animation that hides a player's cards.
   late final AnimationController _foldController;
+  // Offset for sliding cards downward as they fold.
   late final Animation<Offset> _foldOffset;
+  // Opacity animation used to fade cards out when folding.
   late final Animation<double> _foldOpacity;
   bool _showCards = true;
   bool _hoverAction = false;
@@ -293,6 +296,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       }
     }
     if (widget.isFolded && !oldWidget.isFolded) {
+      // When a player folds, slide their cards down and fade them out. Skip
+      // the animation for the hero so the cards disappear immediately.
       if (widget.isHero) {
         setState(() => _showCards = false);
       } else {
@@ -300,6 +305,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         _foldController.forward(from: 0.0);
       }
     } else if (!widget.isFolded && oldWidget.isFolded) {
+      // Reset the fold animation when cards are shown again for non-hero players.
       if (!widget.isHero) {
         _foldController.reset();
       }
