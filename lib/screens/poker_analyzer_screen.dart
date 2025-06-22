@@ -1267,8 +1267,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         setPlayerLastActionOutcome(name, ActionOutcome.neutral);
       } else if (winnerSet.contains(i)) {
         setPlayerLastActionOutcome(name, ActionOutcome.win);
+        setPlayerShowdownStatus(name, 'W');
       } else {
         setPlayerLastActionOutcome(name, ActionOutcome.lose);
+        setPlayerShowdownStatus(name, 'L');
       }
     }
   }

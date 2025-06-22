@@ -158,6 +158,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   bool _showCards = true;
   bool _hoverAction = false;
   String? _showdownLabel;
+  Timer? _showdownLabelTimer;
   late final AnimationController _showdownLabelController;
   late final Animation<double> _showdownLabelOpacity;
   late final AnimationController _revealController;
@@ -485,11 +486,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void showShowdownLabel(String text) {
     if (widget.isHero) return;
+    _showdownLabelTimer?.cancel();
     setState(() => _showdownLabel = text);
     _showdownLabelController.forward(from: 0.0);
+    _showdownLabelTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      _showdownLabelController.reverse().whenComplete(() {
+        if (mounted) {
+          setState(() => _showdownLabel = null);
+        }
+      });
+    });
   }
 
   void clearShowdownLabel() {
+    _showdownLabelTimer?.cancel();
     if (_showdownLabel != null) {
       setState(() => _showdownLabel = null);
       _showdownLabelController.reset();
@@ -902,6 +913,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _lastActionTimer?.cancel();
     _actionGlowTimer?.cancel();
     _stackBetTimer?.cancel();
+    _showdownLabelTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
     _actionLabelEntry?.remove();
