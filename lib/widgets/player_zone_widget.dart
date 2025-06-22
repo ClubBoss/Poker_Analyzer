@@ -307,7 +307,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     await _bounceController.forward(from: 0.0);
   }
 
-  Color _actionLabelColor(String action) {
+  /// Returns the display color for a last action label.
+  Color _lastActionColorFor(String action) {
     switch (action.toLowerCase()) {
       case 'push':
       case 'all-in':
@@ -327,7 +328,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
   void setLastAction(String text, Color color, String action, [int? amount]) {
     _lastActionTimer?.cancel();
-    final labelColor = _actionLabelColor(action);
+    final labelColor = _lastActionColorFor(action);
     setState(() {
       _lastActionText = text;
       _lastActionColor = labelColor;
