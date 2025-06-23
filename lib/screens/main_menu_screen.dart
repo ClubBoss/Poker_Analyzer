@@ -6,6 +6,7 @@ import 'training_packs_screen.dart';
 import 'all_sessions_screen.dart';
 import 'cloud_training_history_screen.dart';
 import 'my_training_history_screen.dart';
+import 'cloud_training_history_service_screen.dart';
 import 'player_zone_demo_screen.dart';
 import 'settings_screen.dart';
 import 'daily_hand_screen.dart';
@@ -288,6 +289,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('🗓️ Training History'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const CloudTrainingHistoryScreen()),
+                );
+              },
+              child: const Text('☁️ Cloud History'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
