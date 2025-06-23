@@ -153,6 +153,12 @@ class TrainingSpotDiagram extends StatelessWidget {
                             '$stack',
                             style: const TextStyle(color: Colors.white70, fontSize: 11),
                           ),
+                          if (!isHero && spot.equities != null &&
+                              i < spot.equities!.length)
+                            Text(
+                              'EQ: ${spot.equities![i].round()}%',
+                              style: const TextStyle(color: Colors.grey, fontSize: 10),
+                            ),
                           if (action.isNotEmpty)
                             Text(
                               action,
