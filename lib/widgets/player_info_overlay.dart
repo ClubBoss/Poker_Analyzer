@@ -5,6 +5,7 @@ class PlayerInfoOverlay extends StatefulWidget {
   final Offset position;
   final int stack;
   final String positionName;
+  final double? equity;
   final String? advice;
   final VoidCallback? onCompleted;
 
@@ -13,6 +14,7 @@ class PlayerInfoOverlay extends StatefulWidget {
     required this.position,
     required this.stack,
     required this.positionName,
+    this.equity,
     this.advice,
     this.onCompleted,
   }) : super(key: key);
@@ -116,6 +118,14 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (widget.equity != null)
+                  Text(
+                    'EQ: ${widget.equity!.round()}%',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                    ),
+                  ),
                 if (advice != null)
                   Text(
                     advice.toUpperCase(),
@@ -140,6 +150,7 @@ void showPlayerInfoOverlay({
   required Offset position,
   required int stack,
   required String positionName,
+  double? equity,
   String? advice,
 }) {
   final overlay = Overlay.of(context);
@@ -150,6 +161,7 @@ void showPlayerInfoOverlay({
       position: position,
       stack: stack,
       positionName: positionName,
+      equity: equity,
       advice: advice,
       onCompleted: () => entry.remove(),
     ),

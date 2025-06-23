@@ -104,11 +104,16 @@ class TrainingSpotDiagram extends StatelessWidget {
                       final positionName = i < spot.positions.length
                           ? spot.positions[i]
                           : '';
+                      double? equity;
+                      if (spot.equities != null && i < spot.equities!.length) {
+                        equity = spot.equities![i].toDouble();
+                      }
                       showPlayerInfoOverlay(
                         context: context,
                         position: pos,
                         stack: stack,
                         positionName: positionName,
+                        equity: equity,
                         advice: advice,
                       );
                     }
