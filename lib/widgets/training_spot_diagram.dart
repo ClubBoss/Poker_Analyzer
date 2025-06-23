@@ -14,6 +14,23 @@ class TrainingSpotDiagram extends StatelessWidget {
 
   const TrainingSpotDiagram({super.key, required this.spot, this.size = 200});
 
+  Color _actionColor(String action) {
+    if (action.isEmpty) return Colors.white;
+    final type = action.split(' ').first.toUpperCase();
+    switch (type) {
+      case 'PUSH':
+        return Colors.green;
+      case 'FOLD':
+        return Colors.red;
+      case 'CALL':
+        return Colors.blue;
+      case 'RAISE':
+        return Colors.yellow;
+      default:
+        return Colors.white;
+    }
+  }
+
   List<String> _lastActions() {
     final actions = List.filled(spot.numberOfPlayers, '');
     for (final a in spot.actions) {
@@ -94,7 +111,7 @@ class TrainingSpotDiagram extends StatelessWidget {
                       if (action.isNotEmpty)
                         Text(
                           action,
-                          style: const TextStyle(color: Colors.blueAccent, fontSize: 10),
+                          style: TextStyle(color: _actionColor(action), fontSize: 10),
                           textAlign: TextAlign.center,
                         ),
                     ],
