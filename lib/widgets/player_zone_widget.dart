@@ -2027,12 +2027,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                     ),
                   ),
                 if (_showBusted && !widget.isHero)
-                  _StackStatusLabel(
-                    text: 'BUSTED',
+                  _BustedLabel(
                     scale: widget.scale,
                     offset: _bustedOffset,
                     opacity: _bustedOpacity,
-                    above: false,
                   ),
                 if (_showAllIn && !widget.isHero)
                   _AllInLabel(
@@ -2746,26 +2744,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 }
 
-class _StackStatusLabel extends StatelessWidget {
-  final String text;
+class _BustedLabel extends StatelessWidget {
   final double scale;
-  final Animation<Offset> offset;
   final Animation<double> opacity;
-  final bool above;
+  final Animation<Offset> offset;
 
-  const _StackStatusLabel({
-    required this.text,
+  const _BustedLabel({
     required this.scale,
-    required this.offset,
     required this.opacity,
-    required this.above,
+    required this.offset,
   });
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: above ? -24 * scale : null,
-      bottom: above ? null : -24 * scale,
+      bottom: -24 * scale,
       child: SlideTransition(
         position: offset,
         child: FadeTransition(
@@ -2778,7 +2771,7 @@ class _StackStatusLabel extends StatelessWidget {
               borderRadius: BorderRadius.circular(8 * scale),
             ),
             child: Text(
-              text,
+              'BUSTED',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10 * scale,
