@@ -1601,6 +1601,59 @@ class TrainingAnalysisScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _exportPdf(BuildContext context) async {
+    final mistakes = results.where((r) => !r.correct).toList();
+    if (mistakes.isEmpty) return;
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (ctx) => [
+          pw.Text('Ошибки сессии',
+              style: pw.TextStyle(font: boldFont, fontSize: 24)),
+          pw.SizedBox(height: 16),
+          for (final m in mistakes)
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(m.name,
+                    style: pw.TextStyle(font: boldFont, fontSize: 16)),
+                pw.Text('Вы: ${m.userAction}',
+                    style: pw.TextStyle(font: regularFont)),
+                pw.Text('Ожидалось: ${m.expected}',
+                    style: pw.TextStyle(font: regularFont)),
+                pw.Text('Результат: ошибка',
+                    style: pw.TextStyle(font: regularFont)),
+                pw.SizedBox(height: 12),
+              ],
+            ),
+        ],
+      ),
+    );
+
+    try {
+      final bytes = await pdf.save();
+      final dir =
+          await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/session_mistakes.pdf');
+      await file.writeAsBytes(bytes);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Файл сохранён: session_mistakes.pdf')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mistakes = results.where((r) => !r.correct).toList();
@@ -1646,20 +1699,29 @@ class TrainingAnalysisScreen extends StatelessWidget {
                 if (index >= mistakes.length) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: PieChart(
-                      dataMap: dataMap,
-                      colorList: [
-                        for (var i = 0; i < dataMap.length; i++)
-                          baseColors[i % baseColors.length],
+                    child: Column(
+                      children: [
+                        PieChart(
+                          dataMap: dataMap,
+                          colorList: [
+                            for (var i = 0; i < dataMap.length; i++)
+                              baseColors[i % baseColors.length],
+                          ],
+                          legendOptions: const LegendOptions(
+                            legendTextStyle: TextStyle(color: Colors.white),
+                          ),
+                          chartValuesOptions: const ChartValuesOptions(
+                            showChartValuesInPercentage: true,
+                            showChartValueBackground: false,
+                            chartValueStyle: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () => _exportPdf(context),
+                          child: const Text('PDF Export'),
+                        ),
                       ],
-                      legendOptions: const LegendOptions(
-                        legendTextStyle: TextStyle(color: Colors.white),
-                      ),
-                      chartValuesOptions: const ChartValuesOptions(
-                        showChartValuesInPercentage: true,
-                        showChartValueBackground: false,
-                        chartValueStyle: TextStyle(color: Colors.white),
-                      ),
                     ),
                   );
                 }
