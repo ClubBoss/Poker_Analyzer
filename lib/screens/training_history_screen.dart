@@ -1123,6 +1123,32 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     return streak;
   }
 
+  int _calculateBestStreak() {
+    if (_history.isEmpty) return 0;
+    final days = _history
+        .map((r) {
+          final d = r.date.toLocal();
+          return DateTime(d.year, d.month, d.day);
+        })
+        .toSet()
+        .toList()
+      ..sort();
+
+    var best = 1;
+    var current = 1;
+    for (var i = 1; i < days.length; i++) {
+      final diff = days[i].difference(days[i - 1]).inDays;
+      if (diff == 1) {
+        current++;
+      } else if (diff > 1) {
+        if (current > best) best = current;
+        current = 1;
+      }
+    }
+    if (current > best) best = current;
+    return best;
+  }
+
   List<TrainingResult> _groupSessionsForChart(List<TrainingResult> list) {
     if (_chartMode == _ChartMode.daily) {
       final sorted = [...list]..sort((a, b) => a.date.compareTo(b.date));
@@ -1238,7 +1264,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Widget _buildStreakSummary() {
-    final streak = _calculateCurrentStreak();
+    if (_history.isEmpty) return const SizedBox.shrink();
+    final current = _calculateCurrentStreak();
+    final best = _calculateBestStreak();
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Container(
@@ -1248,10 +1276,18 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          'Серия: $streak дней',
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white),
+        child: Column(
+          children: [
+            Text(
+              'Текущий стрик: $current дней',
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Лучший стрик: $best дней',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
         ),
       ),
     );
@@ -2774,6 +2810,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     },
                   ),
                 ),
+                _buildStreakSummary(),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -2910,7 +2947,6 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 ],
               ],
               _buildAverageAccuracySummary(),
-              _buildStreakSummary(),
               _buildFilterSummary(),
               Expanded(
                 child: Builder(builder: (context) {
