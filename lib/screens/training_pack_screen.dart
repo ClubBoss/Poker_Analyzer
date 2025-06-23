@@ -488,8 +488,15 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (mistakes.isNotEmpty) {
       buffer.writeln('## Mistakes');
       for (final m in mistakes) {
-        buffer.writeln(
-            '- ${m.name}: expected `${m.expected}`, got `${m.userAction}`');
+        final mark = m.correct ? '✔' : '✘';
+        final hint = m.evaluation.hint;
+        final line =
+            '- $mark ${m.name}: expected `${m.expected}`, got `${m.userAction}`';
+        if (hint != null && hint.isNotEmpty) {
+          buffer.writeln('$line. Hint: $hint');
+        } else {
+          buffer.writeln(line);
+        }
       }
     }
 
