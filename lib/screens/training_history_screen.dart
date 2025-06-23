@@ -981,6 +981,30 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     return sum / list.length;
   }
 
+  int _calculateCurrentStreak() {
+    if (_history.isEmpty) return 0;
+    final days = _history
+        .map((r) {
+          final d = r.date.toLocal();
+          return DateTime(d.year, d.month, d.day);
+        })
+        .toSet()
+        .toList()
+      ..sort();
+    var streak = 1;
+    var prev = days.last;
+    for (var i = days.length - 2; i >= 0; i--) {
+      final current = days[i];
+      if (prev.difference(current).inDays == 1) {
+        streak++;
+        prev = current;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
   List<TrainingResult> _groupSessionsForChart(List<TrainingResult> list) {
     if (_chartMode == _ChartMode.daily) {
       final sorted = [...list]..sort((a, b) => a.date.compareTo(b.date));
@@ -1088,6 +1112,26 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         ),
         child: Text(
           'Средняя точность: ${avg.toStringAsFixed(1)}%',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStreakSummary() {
+    final streak = _calculateCurrentStreak();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          'Серия: $streak дней',
           textAlign: TextAlign.center,
           style: const TextStyle(color: Colors.white),
         ),
@@ -2687,6 +2731,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                 ],
               ],
               _buildAverageAccuracySummary(),
+              _buildStreakSummary(),
               _buildFilterSummary(),
               Expanded(
                 child: Builder(builder: (context) {
