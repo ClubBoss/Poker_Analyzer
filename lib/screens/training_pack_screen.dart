@@ -45,38 +45,11 @@ import '../models/training_spot.dart';
 import '../models/evaluation_result.dart';
 import '../services/evaluation_executor_service.dart';
 import '../widgets/replay_spot_widget.dart';
+import '../models/result_entry.dart';
 import '../widgets/common/training_spot_list.dart';
 import 'markdown_preview_screen.dart';
 import 'package:markdown/markdown.dart' as md;
 
-class _ResultEntry {
-  final String name;
-  final String userAction;
-  final EvaluationResult evaluation;
-
-  _ResultEntry({
-    required this.name,
-    required this.userAction,
-    required this.evaluation,
-  });
-
-  bool get correct => evaluation.correct;
-
-  String get expected => evaluation.expectedAction;
-
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'userAction': userAction,
-        'evaluation': evaluation.toJson(),
-      };
-
-  factory _ResultEntry.fromJson(Map<String, dynamic> json) => _ResultEntry(
-        name: json['name'] as String? ?? '',
-        userAction: json['userAction'] as String? ?? '-',
-        evaluation: EvaluationResult.fromJson(
-            Map<String, dynamic>.from(json['evaluation'] as Map)),
-      );
-}
 
 class _SessionSummary {
   final DateTime date;
@@ -142,8 +115,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   /// Whether we are currently reviewing only the mistaken hands.
   bool _isMistakeReviewMode = false;
 
-  final List<_ResultEntry> _results = [];
-  List<_ResultEntry> _previousResults = [];
+  final List<ResultEntry> _results = [];
+  List<ResultEntry> _previousResults = [];
   List<_SessionSummary> _history = [];
 
   final TrainingImportExportService _importExportService =
@@ -216,7 +189,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
           _previousResults = [
             for (final item in last)
               if (item is Map)
-                _ResultEntry.fromJson(Map<String, dynamic>.from(item))
+                ResultEntry.fromJson(Map<String, dynamic>.from(item))
           ];
         }
         final history = data['history'];
@@ -231,7 +204,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         _previousResults = [
           for (final item in data)
             if (item is Map)
-              _ResultEntry.fromJson(Map<String, dynamic>.from(item))
+              ResultEntry.fromJson(Map<String, dynamic>.from(item))
         ];
       }
     } catch (_) {}
@@ -278,7 +251,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     );
   }
 
-  Future<_ResultEntry> _showFeedback() async {
+  Future<ResultEntry> _showFeedback() async {
     final state = _analyzerKey.currentState as dynamic;
     SavedHand? played;
     if (state != null) {
@@ -442,7 +415,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         ),
       ),
     );
-    return _ResultEntry(
+    return ResultEntry(
       name: original.name,
       userAction: userAct,
       evaluation: evaluation,
@@ -608,6 +581,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (savePath == null) return;
     final file = File(savePath);
     await file.writeAsString(buffer.toString());
+    await context.read<CloudSyncService>().uploadSessionResult(_results);
     if (mounted) {
       final name = savePath.split(Platform.pathSeparator).last;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -688,6 +662,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         'training_pack_${DateTime.now().millisecondsSinceEpoch}.html';
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(htmlContent);
+    await context.read<CloudSyncService>().uploadSessionResult(_results);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: $fileName')),
@@ -803,6 +778,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         'training_pack_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final file = File('${dir.path}/$fileName');
     await file.writeAsBytes(bytes);
+    await context.read<CloudSyncService>().uploadSessionResult(_results);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -901,7 +877,6 @@ body { font-family: sans-serif; padding: 16px; }
 
     final dir = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
     final fileName = 'spots_${DateTime.now().millisecondsSinceEpoch}.pdf';
-    final file = File('${dir.path}/$fileName');
     await file.writeAsBytes(bytes);
     await Printing.sharePdf(bytes: bytes, filename: fileName);
 
@@ -1526,7 +1501,7 @@ body { font-family: sans-serif; padding: 16px; }
 }
 
 class TrainingAnalysisScreen extends StatelessWidget {
-  final List<_ResultEntry> results;
+  final List<ResultEntry> results;
 
   const TrainingAnalysisScreen({super.key, required this.results});
 
