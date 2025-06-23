@@ -209,8 +209,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _bustedController;
   late final Animation<double> _bustedOpacity;
   late final Animation<Offset> _bustedOffset;
-  late final Animation<double> _bustedZoneOpacity;
-  late final Animation<Offset> _bustedZoneOffset;
+  late final AnimationController _zoneFadeController;
+  late final Animation<double> _zoneFadeOpacity;
+  late final Animation<Offset> _zoneFadeOffset;
   bool _zoneFaded = false;
   bool _isBusted = false;
   bool _showAllIn = false;
@@ -429,10 +430,14 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _bustedOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
         .animate(
             CurvedAnimation(parent: _bustedController, curve: Curves.easeOut));
-    _bustedZoneOpacity =
-        Tween<double>(begin: 1.0, end: 0.0).animate(_bustedController);
-    _bustedZoneOffset = Tween<Offset>(begin: Offset.zero, end: const Offset(0, 0.2))
-        .animate(CurvedAnimation(parent: _bustedController, curve: Curves.easeIn));
+    _zoneFadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _zoneFadeOpacity =
+        Tween<double>(begin: 1.0, end: 0.0).animate(_zoneFadeController);
+    _zoneFadeOffset = Tween<Offset>(begin: Offset.zero, end: const Offset(0, 0.2))
+        .animate(CurvedAnimation(parent: _zoneFadeController, curve: Curves.easeIn));
 
     _allInController = AnimationController(
       vsync: this,
@@ -1179,9 +1184,27 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void fadeOutZone() {
     if (widget.isHero || _zoneFaded) return;
     _zoneFaded = true;
-    _bustedController.forward().whenComplete(() {
-      if (mounted) setState(() => _isBusted = true);
-    });
+    void startFade() {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        _zoneFadeController.forward().whenComplete(() {
+          if (mounted) setState(() => _isBusted = true);
+        });
+      });
+    }
+
+    if (_bustedController.status == AnimationStatus.dismissed) {
+      startFade();
+    } else {
+      late final AnimationStatusListener listener;
+      listener = (status) {
+        if (status == AnimationStatus.dismissed) {
+          _bustedController.removeStatusListener(listener);
+          startFade();
+        }
+      };
+      _bustedController.addStatusListener(listener);
+    }
   }
 
   void _showRevealEye() {
@@ -1437,6 +1460,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _betFoldController.dispose();
     _betStackController.dispose();
     _bustedController.dispose();
+    _zoneFadeController.dispose();
     _allInController.dispose();
     super.dispose();
   }
@@ -2292,9 +2316,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     );
 
     result = SlideTransition(
-      position: _bustedZoneOffset,
+      position: _zoneFadeOffset,
       child: FadeTransition(
-        opacity: _bustedZoneOpacity,
+        opacity: _zoneFadeOpacity,
         child: result,
       ),
     );
