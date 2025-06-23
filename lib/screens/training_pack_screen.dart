@@ -76,6 +76,32 @@ class _ResultEntry {
       );
 }
 
+class _SessionSummary {
+  final DateTime date;
+  final int total;
+  final int correct;
+
+  _SessionSummary({
+    required this.date,
+    required this.total,
+    required this.correct,
+  });
+
+  double get accuracy => total == 0 ? 0 : correct * 100 / total;
+
+  Map<String, dynamic> toJson() => {
+        'date': date.toIso8601String(),
+        'total': total,
+        'correct': correct,
+      };
+
+  factory _SessionSummary.fromJson(Map<String, dynamic> json) => _SessionSummary(
+        date: DateTime.parse(json['date'] as String),
+        total: json['total'] as int? ?? 0,
+        correct: json['correct'] as int? ?? 0,
+      );
+}
+
 class TrainingPackScreen extends StatefulWidget {
   final TrainingPack pack;
   final List<SavedHand>? hands;
@@ -116,6 +142,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
 
   final List<_ResultEntry> _results = [];
   List<_ResultEntry> _previousResults = [];
+  List<_SessionSummary> _history = [];
 
   final TrainingImportExportService _importExportService =
       const TrainingImportExportService();
@@ -174,7 +201,24 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (jsonStr == null) return;
     try {
       final data = jsonDecode(jsonStr);
-      if (data is List) {
+      if (data is Map) {
+        final last = data['last'];
+        if (last is List) {
+          _previousResults = [
+            for (final item in last)
+              if (item is Map)
+                _ResultEntry.fromJson(Map<String, dynamic>.from(item))
+          ];
+        }
+        final history = data['history'];
+        if (history is List) {
+          _history = [
+            for (final item in history)
+              if (item is Map<String, dynamic>)
+                _SessionSummary.fromJson(Map<String, dynamic>.from(item))
+          ];
+        }
+      } else if (data is List) {
         _previousResults = [
           for (final item in data)
             if (item is Map)
@@ -189,7 +233,22 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final prefs = await SharedPreferences.getInstance();
     final key = 'results_${_pack.name}';
     final list = [for (final r in _results) r.toJson()];
-    await prefs.setString(key, jsonEncode(list));
+    final correct = _results.where((r) => r.correct).length;
+    _history.insert(
+        0,
+        _SessionSummary(
+          date: DateTime.now(),
+          total: _results.length,
+          correct: correct,
+        ));
+    if (_history.length > 5) {
+      _history = _history.sublist(0, 5);
+    }
+    final data = {
+      'last': list,
+      'history': [for (final h in _history) h.toJson()],
+    };
+    await prefs.setString(key, jsonEncode(data));
     _previousResults = List.from(_results);
   }
 
@@ -651,6 +710,55 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     );
   }
 
+  void _showHistory() {
+    if (_history.isEmpty) return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'История',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            for (final h in _history.take(5))
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        formatDateTime(h.date),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    Text(
+                      '${h.correct}/${h.total}',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${h.accuracy.toStringAsFixed(1)}%',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _repeatMistakes() {
     final mistakes = _results.where((r) => !r.correct).toList();
     if (mistakes.isEmpty) return;
@@ -807,6 +915,13 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ElevatedButton(
                 onPressed: _showSavedResults,
                 child: const Text('Предыдущая сессия'),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (!_isMistakeReviewMode && _history.isNotEmpty) ...[
+              ElevatedButton(
+                onPressed: _showHistory,
+                child: const Text('История'),
               ),
               const SizedBox(height: 12),
             ],
