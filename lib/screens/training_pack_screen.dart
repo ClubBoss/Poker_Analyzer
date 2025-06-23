@@ -541,7 +541,12 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (_results.isEmpty) return;
     final total = _results.length;
     final correct = _results.where((r) => r.correct).length;
-    final mistakes = _results.where((r) => !r.correct).toList();
+    final mistakes = _results.where((r) => !r.correct).toList()
+      ..sort((a, b) {
+        final diffA = a.evaluation.expectedEquity - a.evaluation.userEquity;
+        final diffB = b.evaluation.expectedEquity - b.evaluation.userEquity;
+        return diffB.compareTo(diffA);
+      });
     final accuracy = total > 0 ? (correct * 100 / total).toStringAsFixed(1) : '0';
     final date = DateTime.now();
     final percent = total > 0 ? (correct * 100 / total).toStringAsFixed(2) : '0';
