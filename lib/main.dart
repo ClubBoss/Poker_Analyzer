@@ -14,6 +14,7 @@ import 'services/all_in_players_service.dart';
 import 'services/user_preferences_service.dart';
 import 'services/tag_service.dart';
 import 'services/cloud_sync_service.dart';
+import 'services/cloud_training_history_service.dart';
 import 'services/training_spot_storage_service.dart';
 import 'user_preferences.dart';
 
@@ -22,6 +23,7 @@ void main() {
     MultiProvider(
       providers: [
         Provider(create: (_) => CloudSyncService()),
+        Provider(create: (_) => CloudTrainingHistoryService()),
         ChangeNotifierProvider(create: (_) => SavedHandStorageService()..load()),
         ChangeNotifierProvider(
           create: (context) => SavedHandManagerService(
