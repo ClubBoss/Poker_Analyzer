@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/training_spot.dart';
 import '../theme/app_colors.dart';
+import '../widgets/training_spot_preview.dart';
 
 class TrainingReviewScreen extends StatelessWidget {
   final String title;
@@ -53,7 +54,7 @@ class TrainingReviewScreen extends StatelessWidget {
         centerTitle: true,
       ),
       backgroundColor: AppColors.background,
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,6 +80,7 @@ class TrainingReviewScreen extends StatelessWidget {
               ...tournamentRows,
               const SizedBox(height: 8),
             ],
+            TrainingSpotPreview(spot: spot),
           ],
         ),
       ),
