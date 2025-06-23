@@ -1,0 +1,112 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+
+import '../helpers/table_geometry_helper.dart';
+import '../models/training_spot.dart';
+
+/// Displays players around a circular table with a highlight for the hero.
+///
+/// Each seat shows the player index, stack size and last action.
+class TrainingSpotDiagram extends StatelessWidget {
+  final TrainingSpot spot;
+  final double size;
+
+  const TrainingSpotDiagram({super.key, required this.spot, this.size = 200});
+
+  List<String> _lastActions() {
+    final actions = List.filled(spot.numberOfPlayers, '');
+    for (final a in spot.actions) {
+      if (a.playerIndex >= 0 && a.playerIndex < spot.numberOfPlayers) {
+        final label = a.amount != null ? '${a.action.toUpperCase()} ${a.amount}' : a.action.toUpperCase();
+        actions[a.playerIndex] = label;
+      }
+    }
+    return actions;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final actions = _lastActions();
+    return SizedBox(
+      width: size,
+      height: size,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final tableSize = Size(constraints.maxWidth, constraints.maxHeight);
+          final center = Offset(tableSize.width / 2, tableSize.height / 2);
+          const seatSize = 60.0;
+          final seatWidgets = <Widget>[];
+
+          for (int i = 0; i < spot.numberOfPlayers; i++) {
+            final seatIndex = (i - spot.heroIndex + spot.numberOfPlayers) % spot.numberOfPlayers;
+            final pos = TableGeometryHelper.positionForPlayer(
+              seatIndex,
+              spot.numberOfPlayers,
+              tableSize.width,
+              tableSize.height,
+            );
+            final offset = Offset(center.dx + pos.dx, center.dy + pos.dy);
+            final isHero = i == spot.heroIndex;
+            final stack = i < spot.stacks.length ? spot.stacks[i] : 0;
+            final action = actions[i];
+
+            seatWidgets.add(
+              Positioned(
+                left: offset.dx - seatSize / 2,
+                top: offset.dy - seatSize / 2,
+                child: Container(
+                  width: seatSize,
+                  height: seatSize,
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isHero ? Colors.orangeAccent : Colors.white30,
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isHero
+                            ? Colors.orangeAccent.withOpacity(0.7)
+                            : Colors.black54,
+                        blurRadius: isHero ? 8 : 2,
+                        spreadRadius: isHero ? 2 : 0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'P${i + 1}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        '$stack',
+                        style: const TextStyle(color: Colors.white70, fontSize: 11),
+                      ),
+                      if (action.isNotEmpty)
+                        Text(
+                          action,
+                          style: const TextStyle(color: Colors.blueAccent, fontSize: 10),
+                          textAlign: TextAlign.center,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
+          return Stack(children: seatWidgets);
+        },
+      ),
+    );
+  }
+}
