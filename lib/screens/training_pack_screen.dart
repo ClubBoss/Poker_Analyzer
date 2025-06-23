@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:pie_chart/pie_chart.dart';
 import 'package:file_picker/file_picker.dart';
 import '../helpers/date_utils.dart';
 import '../helpers/action_utils.dart';
@@ -1603,6 +1604,21 @@ class TrainingAnalysisScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mistakes = results.where((r) => !r.correct).toList();
+    final Map<String, int> actionCounts = {};
+    for (final m in mistakes) {
+      actionCounts[m.userAction] = (actionCounts[m.userAction] ?? 0) + 1;
+    }
+    final dataMap = {
+      for (final e in actionCounts.entries) e.key: e.value.toDouble()
+    };
+    final baseColors = [
+      Colors.blue,
+      Colors.red,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Анализ тренировки'),
@@ -1625,8 +1641,28 @@ class TrainingAnalysisScreen extends StatelessWidget {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: mistakes.length,
+              itemCount: mistakes.length + (dataMap.isNotEmpty ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index >= mistakes.length) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: PieChart(
+                      dataMap: dataMap,
+                      colorList: [
+                        for (var i = 0; i < dataMap.length; i++)
+                          baseColors[i % baseColors.length],
+                      ],
+                      legendOptions: const LegendOptions(
+                        legendTextStyle: TextStyle(color: Colors.white),
+                      ),
+                      chartValuesOptions: const ChartValuesOptions(
+                        showChartValuesInPercentage: true,
+                        showChartValueBackground: false,
+                        chartValueStyle: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                }
                 final m = mistakes[index];
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 4),
