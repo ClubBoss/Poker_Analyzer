@@ -360,6 +360,95 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _exportPdf() async {
+    final sessions = _getFilteredHistory()
+        .where((r) => !_exportTags3Only || r.tags.length >= 3)
+        .where((r) => !_exportNotesOnly || (r.notes?.trim().isNotEmpty ?? false))
+        .toList();
+    if (sessions.isEmpty) return;
+
+    final chartData = _groupSessionsForChart(sessions);
+
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          final table = pw.Table.fromTextArray(
+            headers: const [
+              'Date',
+              'Total',
+              'Correct',
+              'Accuracy',
+              'Tags',
+              'Comment',
+              'Notes'
+            ],
+            data: [
+              for (final r in sessions)
+                [
+                  formatDateTime(r.date),
+                  r.total,
+                  r.correct,
+                  r.accuracy.toStringAsFixed(1),
+                  r.tags.join(';'),
+                  r.comment ?? '',
+                  r.notes ?? ''
+                ]
+            ],
+          );
+
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              if (_includeChartInPdf)
+                pw.Container(
+                  height: 200,
+                  child: pw.Chart(
+                    grid: pw.CartesianGrid(
+                      xAxis: pw.FixedAxis.fromStrings(
+                        [for (final r in chartData) formatDate(r.date)],
+                        marginStart: 30,
+                      ),
+                      yAxis: pw.FixedAxis(
+                        [0, 20, 40, 60, 80, 100],
+                        divisions: true,
+                        marginStart: 30,
+                      ),
+                    ),
+                    datasets: [
+                      pw.LineDataSet(
+                        drawPoints: false,
+                        isCurved: true,
+                        data: [
+                          for (var i = 0; i < chartData.length; i++)
+                            pw.PointChartValue(
+                              i.toDouble(),
+                              chartData[i].accuracy,
+                            )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              if (_includeChartInPdf) pw.SizedBox(height: 16),
+              table,
+            ],
+          );
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    await file.writeAsBytes(bytes);
+
+    _lastPdfPath = file.path;
+    await Share.shareXFiles([XFile(file.path)], text: 'training_history.pdf');
+  }
+
   Future<void> _exportJson() async {
     if (_history.isEmpty) return;
     final sessions = [
@@ -2540,6 +2629,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         onPressed:
                             _getFilteredHistory().isEmpty ? null : _exportHtml,
                         child: const Text('Экспорт в HTML'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed:
+                            _getFilteredHistory().isEmpty ? null : _exportPdf,
+                        child: const Text('Экспорт в PDF'),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
