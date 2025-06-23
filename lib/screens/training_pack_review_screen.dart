@@ -1,6 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -202,6 +208,68 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     }
   }
 
+  Future<void> _exportPdf() async {
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        build: (context) {
+          return [
+            pw.Text(widget.pack.name,
+                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 16),
+            for (final hand in widget.pack.hands)
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(hand.name,
+                      style: pw.TextStyle(font: boldFont, fontSize: 18)),
+                  pw.Bullet(
+                      text: 'Rating: ${hand.rating}',
+                      style: pw.TextStyle(font: regularFont)),
+                  if (hand.tags.isNotEmpty)
+                    pw.Bullet(
+                        text: 'Tags: ${hand.tags.join(', ')}',
+                        style: pw.TextStyle(font: regularFont)),
+                  pw.Bullet(
+                      text:
+                          'Mistake: ${widget.mistakenNames.contains(hand.name) ? 'Yes' : 'No'}',
+                      style: pw.TextStyle(font: regularFont)),
+                  pw.SizedBox(height: 8),
+                ],
+              ),
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+
+    final dir =
+        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final safeName = widget.pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final fileName = '${safeName}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsBytes(bytes);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Файл сохранён: $fileName'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () {
+              OpenFilex.open(file.path);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
   Widget _buildHandTile(SavedHand hand) {
     return Card(
       color: AppColors.cardBackground,
@@ -255,6 +323,11 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
         title: Text(widget.pack.name),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Export to PDF',
+            onPressed: _exportPdf,
+          ),
           IconButton(
             icon: const Icon(Icons.copy),
             tooltip: 'Export to Markdown',
