@@ -5,6 +5,7 @@ class TrainingResult {
   final double accuracy;
   final List<String> tags;
   final String? notes;
+  final String? comment;
 
   TrainingResult({
     required this.date,
@@ -13,6 +14,7 @@ class TrainingResult {
     required this.accuracy,
     List<String>? tags,
     this.notes,
+    this.comment,
   }) : tags = tags ?? const [];
 
   Map<String, dynamic> toJson() => {
@@ -22,6 +24,7 @@ class TrainingResult {
         'accuracy': accuracy,
         if (tags.isNotEmpty) 'tags': tags,
         if (notes != null && notes!.isNotEmpty) 'notes': notes,
+        if (comment != null && comment!.isNotEmpty) 'comment': comment,
       };
 
   factory TrainingResult.fromJson(Map<String, dynamic> json) => TrainingResult(
@@ -31,5 +34,6 @@ class TrainingResult {
         accuracy: (json['accuracy'] as num?)?.toDouble() ?? 0.0,
         tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
         notes: json['notes'] as String?,
+        comment: json['comment'] as String?,
       );
 }

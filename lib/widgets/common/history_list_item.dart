@@ -26,6 +26,7 @@ class HistoryListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final accuracy = result.accuracy.toStringAsFixed(1);
     final notes = result.notes;
+    final comment = result.comment;
     final tags = result.tags;
     return Container(
       decoration: BoxDecoration(
@@ -44,6 +45,14 @@ class HistoryListItem extends StatelessWidget {
               'Correct: ${result.correct} / ${result.total}',
               style: const TextStyle(color: Colors.white70),
             ),
+            if (comment != null && comment.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  comment,
+                  style: const TextStyle(color: Colors.white60),
+                ),
+              ),
             if (tags.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
