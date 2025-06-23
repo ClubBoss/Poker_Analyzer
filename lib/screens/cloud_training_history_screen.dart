@@ -17,9 +17,12 @@ class TrainingHistoryScreen extends StatefulWidget {
   State<TrainingHistoryScreen> createState() => _TrainingHistoryScreenState();
 }
 
+enum _SortMode { dateDesc, dateAsc, mistakesDesc, accuracyAsc }
+
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   List<CloudTrainingSession> _sessions = [];
   bool _loading = true;
+  _SortMode _sort = _SortMode.dateDesc;
 
   @override
   void initState() {
@@ -48,7 +51,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   Future<void> _exportMarkdown() async {
     if (_sessions.isEmpty) return;
     final buffer = StringBuffer();
-    for (final s in _sessions) {
+    for (final s in _getSortedSessions()) {
       buffer.writeln(
           '- ${formatDateTime(s.date)}: ${s.accuracy.toStringAsFixed(1)}% — Ошибок: ${s.mistakes}');
     }
@@ -74,6 +77,25 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  List<CloudTrainingSession> _getSortedSessions() {
+    final list = [..._sessions];
+    switch (_sort) {
+      case _SortMode.dateDesc:
+        list.sort((a, b) => b.date.compareTo(a.date));
+        break;
+      case _SortMode.dateAsc:
+        list.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      case _SortMode.mistakesDesc:
+        list.sort((a, b) => b.mistakes.compareTo(a.mistakes));
+        break;
+      case _SortMode.accuracyAsc:
+        list.sort((a, b) => a.accuracy.compareTo(b.accuracy));
+        break;
+    }
+    return list;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,34 +118,79 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   child: Text('История пуста',
                       style: TextStyle(color: Colors.white70)),
                 )
-              : ListView.separated(
-                  itemCount: _sessions.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final s = _sessions[index];
-                    return ListTile(
-                      title: Text(
-                        formatDateTime(s.date),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              : Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
                         children: [
-                          Text(
-                            '${s.accuracy.toStringAsFixed(1)}% • Ошибок: ${s.mistakes}',
-                            style: const TextStyle(color: Colors.white70),
+                          const Text('Сортировка',
+                              style: TextStyle(color: Colors.white)),
+                          const SizedBox(width: 8),
+                          DropdownButton<_SortMode>(
+                            value: _sort,
+                            dropdownColor: const Color(0xFF2A2B2E),
+                            style: const TextStyle(color: Colors.white),
+                            items: const [
+                              DropdownMenuItem(
+                                value: _SortMode.dateDesc,
+                                child: Text('Дата (новые)'),
+                              ),
+                              DropdownMenuItem(
+                                value: _SortMode.dateAsc,
+                                child: Text('Дата (старые)'),
+                              ),
+                              DropdownMenuItem(
+                                value: _SortMode.mistakesDesc,
+                                child: Text('Ошибок (много → мало)'),
+                              ),
+                              DropdownMenuItem(
+                                value: _SortMode.accuracyAsc,
+                                child: Text('Точность (меньше → больше)'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() => _sort = value);
+                              }
+                            },
                           ),
-                          if (s.comment != null && s.comment!.isNotEmpty)
-                            Text(
-                              s.comment!,
-                              style: const TextStyle(color: Colors.white60),
-                            ),
                         ],
                       ),
-                      trailing: const Icon(Icons.chevron_right, color: Colors.white70),
-                      onTap: () => _openSession(s),
-                    );
-                  },
+                    ),
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: _getSortedSessions().length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final s = _getSortedSessions()[index];
+                          return ListTile(
+                            title: Text(
+                              formatDateTime(s.date),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${s.accuracy.toStringAsFixed(1)}% • Ошибок: ${s.mistakes}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                if (s.comment != null && s.comment!.isNotEmpty)
+                                  Text(
+                                    s.comment!,
+                                    style: const TextStyle(color: Colors.white60),
+                                  ),
+                              ],
+                            ),
+                            trailing:
+                                const Icon(Icons.chevron_right, color: Colors.white70),
+                            onTap: () => _openSession(s),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
     );
   }
