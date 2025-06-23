@@ -11,11 +11,15 @@ import 'daily_hand_screen.dart';
 import 'spot_of_the_day_screen.dart';
 import 'create_pack_screen.dart';
 import 'edit_pack_screen.dart';
+import 'training_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/hand_history_file_service.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/training_spot_of_day_service.dart';
+import '../models/training_spot.dart';
 import '../user_preferences.dart';
 import '../main_demo.dart';
+import '../widgets/training_spot_preview.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -26,11 +30,67 @@ class MainMenuScreen extends StatefulWidget {
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
   bool _demoMode = false;
+  TrainingSpot? _spotOfDay;
 
   @override
   void initState() {
     super.initState();
     _demoMode = UserPreferences.instance.demoMode;
+    _loadSpot();
+  }
+
+  Future<void> _loadSpot() async {
+    final service = const TrainingSpotOfDayService();
+    final spot = await service.getSpot();
+    if (mounted) {
+      setState(() => _spotOfDay = spot);
+    }
+  }
+
+  Widget _buildSpotOfDaySection(BuildContext context) {
+    final spot = _spotOfDay;
+    if (spot == null) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Spot of the Day',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Hero stack: ${spot.stacks[spot.heroIndex]}',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          Text(
+            'Positions: ${spot.positions.join(', ')}',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 8),
+          TrainingSpotPreview(spot: spot),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => TrainingScreen(spot: spot)),
+                );
+              },
+              child: const Text('Start'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _toggleDemoMode(bool value) async {
@@ -56,6 +116,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            _buildSpotOfDaySection(context),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
