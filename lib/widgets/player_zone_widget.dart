@@ -196,6 +196,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _revealController;
   late final Animation<double> _revealOpacity;
   late final Animation<double> _revealScale;
+  late final AnimationController _revealEyeController;
+  Timer? _revealEyeTimer;
   late final AnimationController _stackWinController;
   late final Animation<double> _stackWinScale;
   late final Animation<double> _stackWinOpacity;
@@ -314,6 +316,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         CurvedAnimation(parent: _revealController, curve: Curves.easeIn);
     _revealScale = Tween<double>(begin: 0.9, end: 1.0)
         .animate(CurvedAnimation(parent: _revealController, curve: Curves.easeOut));
+    _revealEyeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+      value: 0.0,
+    );
     _stackWinController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -1164,6 +1171,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
   }
 
+  void _showRevealEye() {
+    _revealEyeTimer?.cancel();
+    _revealEyeController.forward();
+  }
+
+  void _scheduleHideRevealEye() {
+    _revealEyeTimer?.cancel();
+    _revealEyeTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (mounted) _revealEyeController.reverse();
+    });
+  }
+
   /// Animates chips flying from the center pot to this player.
   void playWinChipsAnimation(int amount) {
     if (_winChipsAnimating) return;
@@ -1372,6 +1391,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _finalStackTimer?.cancel();
     _hideCardsTimer?.cancel();
     _bustedTimer?.cancel();
+    _revealEyeTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
     _actionLabelEntry?.remove();
@@ -1386,6 +1406,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _showdownLabelController.dispose();
     _finalStackController.dispose();
     _revealController.dispose();
+    _revealEyeController.dispose();
     _heroLabelController.dispose();
     _winnerLabelController.dispose();
     _winnerGlowController.dispose();
@@ -2065,25 +2086,24 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
             top: -8 * widget.scale,
             left: 0,
             right: 0,
-            child: AnimatedOpacity(
-              opacity: isMobile || _hoverAction ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 200),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(8 * widget.scale),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  iconSize: 14 * widget.scale,
-                  splashRadius: 16 * widget.scale,
-                  icon: const Icon(Icons.remove_red_eye, color: Colors.white),
-                  onPressed: () =>
-                      widget.onRevealRequest?.call(widget.playerName),
-                ),
+          child: FadeTransition(
+            opacity: _revealEyeController,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(8 * widget.scale),
+              ),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                iconSize: 14 * widget.scale,
+                splashRadius: 16 * widget.scale,
+                icon: const Icon(Icons.remove_red_eye, color: Colors.white),
+                onPressed: () =>
+                    widget.onRevealRequest?.call(widget.playerName),
               ),
             ),
+          ),
           ),
         Positioned(
           top: -8 * widget.scale,
@@ -2256,15 +2276,27 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
     final zone = MouseRegion(
       onEnter: (_) {
-        if (!isMobile) setState(() => _hoverAction = true);
+        if (!isMobile) {
+          setState(() => _hoverAction = true);
+          _showRevealEye();
+        }
       },
       onExit: (_) {
-        if (!isMobile) setState(() => _hoverAction = false);
+        if (!isMobile) {
+          setState(() => _hoverAction = false);
+          _scheduleHideRevealEye();
+        }
       },
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onLongPress: _showPlayerTypeDialog,
-        onTap: _handleTap,
+        onTap: () {
+          if (isMobile) {
+            _showRevealEye();
+            _scheduleHideRevealEye();
+          }
+          _handleTap();
+        },
         child: result,
       ),
     );
