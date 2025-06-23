@@ -10,6 +10,9 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -460,9 +463,75 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       await _saveSpots();
     }
   }
-
   Future<void> _exportSpotsMarkdown() async {
     await _spotFileService.exportSpotsMarkdown(context, _spots);
+  }
+
+  Future<void> _exportSpotsPdf() async {
+    if (_spots.isEmpty) return;
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        build: (context) {
+          return [
+            pw.Text('Training Spots', style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 16),
+            for (int i = 0; i < _spots.length; i++)
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text('Spot ${i + 1}', style: pw.TextStyle(font: boldFont, fontSize: 18)),
+                  pw.Bullet(
+                    text: 'Hero index: ${_spots[i].heroIndex}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
+                  pw.Bullet(
+                    text: 'Stacks: ${_spots[i].stacks.join(', ')}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
+                  pw.Bullet(
+                    text: 'Actions: ${_spots[i].actions.map((a) => "${a.playerIndex}:${a.action}${a.amount != null ? ' ${a.amount}' : ''}").join(', ')}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
+                  if (_spots[i].strategyAdvice != null && _spots[i].strategyAdvice!.isNotEmpty)
+                    pw.Bullet(
+                      text: 'Advice: ${_spots[i].strategyAdvice!.join(', ')}',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
+                  pw.SizedBox(height: 8),
+                ],
+              ),
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+
+    final dir = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final fileName = 'spots_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsBytes(bytes);
+    await Printing.sharePdf(bytes: bytes, filename: fileName);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Файл сохранён: $fileName'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () {
+              OpenFilex.open(file.path);
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _repeatMistakes() {
@@ -633,6 +702,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ElevatedButton(
                 onPressed: _spots.isEmpty ? null : _exportSpotsMarkdown,
                 child: const Text('Экспортировать в Markdown'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _spots.isEmpty ? null : _exportSpotsPdf,
+                child: const Text('Экспорт в PDF'),
               ),
             ],
             const SizedBox(height: 24),
