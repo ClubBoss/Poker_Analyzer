@@ -7,7 +7,9 @@ import 'package:file_saver/file_saver.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
+import '../models/training_result.dart';
 import '../services/cloud_sync_service.dart';
+import '../widgets/common/accuracy_trend_chart.dart';
 import 'training_pack_screen.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
@@ -19,10 +21,13 @@ class TrainingHistoryScreen extends StatefulWidget {
 
 enum _SortMode { dateDesc, dateAsc, mistakesDesc, accuracyAsc }
 
+enum _ChartMode { daily, weekly, monthly }
+
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   List<CloudTrainingSession> _sessions = [];
   bool _loading = true;
   _SortMode _sort = _SortMode.dateDesc;
+  _ChartMode _chartMode = _ChartMode.daily;
 
   @override
   void initState() {
@@ -96,6 +101,55 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     return list;
   }
 
+  List<TrainingResult> _groupSessionsForChart(List<CloudTrainingSession> list) {
+    if (_chartMode == _ChartMode.daily) {
+      final sorted = [...list]..sort((a, b) => a.date.compareTo(b.date));
+      return [
+        for (final s in sorted)
+          TrainingResult(
+            date: s.date,
+            total: s.total,
+            correct: s.correct,
+            accuracy: s.accuracy,
+          )
+      ];
+    }
+
+    final Map<DateTime, List<CloudTrainingSession>> groups = {};
+    for (final r in list) {
+      DateTime key;
+      switch (_chartMode) {
+        case _ChartMode.weekly:
+          final d = DateTime(r.date.year, r.date.month, r.date.day);
+          key = d.subtract(Duration(days: d.weekday - 1));
+          break;
+        case _ChartMode.monthly:
+          key = DateTime(r.date.year, r.date.month);
+          break;
+        case _ChartMode.daily:
+          key = DateTime(r.date.year, r.date.month, r.date.day);
+          break;
+      }
+      groups.putIfAbsent(key, () => []).add(r);
+    }
+
+    final result = <TrainingResult>[];
+    final keys = groups.keys.toList()..sort();
+    for (final k in keys) {
+      final sessions = groups[k]!;
+      final total = sessions.fold<int>(0, (p, e) => p + e.total);
+      final correct = sessions.fold<int>(0, (p, e) => p + e.correct);
+      final accuracy = total == 0 ? 0.0 : correct * 100 / total;
+      result.add(TrainingResult(
+        date: k,
+        total: total,
+        correct: correct,
+        accuracy: accuracy,
+      ));
+    }
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,6 +211,53 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           ),
                         ],
                       ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          const Text('Период',
+                              style: TextStyle(color: Colors.white)),
+                          const Spacer(),
+                          ToggleButtons(
+                            isSelected: [
+                              _chartMode == _ChartMode.daily,
+                              _chartMode == _ChartMode.weekly,
+                              _chartMode == _ChartMode.monthly,
+                            ],
+                            onPressed: (index) =>
+                                setState(() => _chartMode = _ChartMode.values[index]),
+                            borderRadius: BorderRadius.circular(4),
+                            selectedColor: Colors.white,
+                            fillColor: Colors.blueGrey,
+                            color: Colors.white70,
+                            children: const [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Text('День'),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Text('Неделя'),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Text('Месяц'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Builder(
+                      builder: (_) {
+                        final grouped =
+                            _groupSessionsForChart(_getSortedSessions());
+                        return AccuracyTrendChart(
+                          sessions: grouped,
+                          mode: ChartMode.values[_chartMode.index],
+                        );
+                      },
                     ),
                     Expanded(
                       child: ListView.separated(
