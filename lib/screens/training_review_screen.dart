@@ -48,6 +48,16 @@ class TrainingReviewScreen extends StatelessWidget {
       );
     }
 
+    final stackRows = <Widget>[];
+    for (int i = 0; i < spot.stacks.length; i++) {
+      final stack = spot.stacks[i];
+      final bb = (stack / 12.5).round();
+      stackRows.add(
+        Text('Stack: $stack (${bb} BB)',
+            style: const TextStyle(color: Colors.white70)),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Spot Review'),
@@ -68,6 +78,18 @@ class TrainingReviewScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
+            if (stackRows.isNotEmpty) ...[
+              const Text(
+                'Stacks',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              ...stackRows,
+              const SizedBox(height: 8),
+            ],
             if (tournamentRows.isNotEmpty) ...[
               const Text(
                 'Tournament Info',
