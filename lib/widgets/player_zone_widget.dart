@@ -238,6 +238,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _heroLabelOpacity;
   late final Animation<double> _heroLabelScale;
 
+  bool _showVictory = false;
+  late final AnimationController _victoryController;
+  late final Animation<double> _victoryOpacity;
+
   late final AnimationController _stackBarController;
   late Animation<double> _stackBarProgressAnimation;
   late Animation<double> _stackBarGlow;
@@ -531,6 +535,28 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.isHero) {
       _heroLabelController.forward();
     }
+
+    _victoryController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed && mounted) {
+          setState(() => _showVictory = false);
+        }
+      });
+    _victoryOpacity = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 20,
+      ),
+      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 20,
+      ),
+    ]).animate(_victoryController);
 
     _stackBarController = AnimationController(
       vsync: this,
@@ -1279,6 +1305,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _winnerLabelController.forward(from: 0.0);
   }
 
+  void showVictoryMessage() {
+    setState(() => _showVictory = true);
+    _victoryController.forward(from: 0.0);
+  }
+
   void _showAllInLabel() {
     if (widget.isHero) return;
     _allInTimer?.cancel();
@@ -1597,6 +1628,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _foldChipController.dispose();
     _showdownLossController.dispose();
     _stackWinController.dispose();
+    _victoryController.dispose();
     _stackBarController.dispose();
     _stackBarFadeController.dispose();
     _betFoldController.dispose();
@@ -2109,6 +2141,38 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                               fontSize: 10 * widget.scale,
                               fontWeight: FontWeight.bold,
                             ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (_showVictory)
+                  Positioned(
+                    top: -52 * widget.scale,
+                    child: FadeTransition(
+                      opacity: _victoryOpacity,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6 * widget.scale,
+                          vertical: 2 * widget.scale,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orangeAccent,
+                          borderRadius: BorderRadius.circular(8 * widget.scale),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          '🏆 Победа!',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12 * widget.scale,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -3722,6 +3786,7 @@ Future<void> triggerWinnerAnimation(int winnerIndex, int potAmount) async {
   state.playWinChipsAnimation(potAmount);
   await state.animateStackIncrease(potAmount);
   await state.playWinnerBounce();
+  state.showVictoryMessage();
   lock?.unlock();
 }
 
