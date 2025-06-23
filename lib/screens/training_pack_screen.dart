@@ -236,6 +236,13 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                 style: const TextStyle(color: Colors.white),
               ),
             ],
+            if (evaluation.hint != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                evaluation.hint!,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
             const SizedBox(height: 16),
             StatefulBuilder(builder: (context, setStateDialog) {
               return Column(
