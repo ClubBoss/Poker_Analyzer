@@ -792,6 +792,15 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     });
   }
 
+  void _openAnalysis() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingAnalysisScreen(results: List.from(_results)),
+      ),
+    );
+  }
+
   Future<void> _completeSession() async {
     final total = _results.length;
     final correct = _results.where((r) => r.correct).length;
@@ -904,6 +913,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _openAnalysis,
+              child: const Text('Детальный анализ'),
+            ),
+            const SizedBox(height: 12),
             ElevatedButton(
               onPressed: _restartPack,
               child: const Text('Начать заново'),
@@ -1266,6 +1280,96 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         ),
         body: body,
         backgroundColor: const Color(0xFF1B1C1E),
+      ),
+    );
+  }
+}
+
+class TrainingAnalysisScreen extends StatelessWidget {
+  final List<_ResultEntry> results;
+
+  const TrainingAnalysisScreen({super.key, required this.results});
+
+  @override
+  Widget build(BuildContext context) {
+    final mistakes = results.where((r) => !r.correct).toList();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Анализ тренировки'),
+        centerTitle: true,
+      ),
+      backgroundColor: const Color(0xFF1B1C1E),
+      body: mistakes.isEmpty
+          ? const Center(
+              child: Text(
+                'Ошибок нет',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: mistakes.length,
+              itemBuilder: (context, index) {
+                final m = mistakes[index];
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2B2E),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        m.correct ? Icons.check : Icons.close,
+                        color: m.correct ? Colors.green : Colors.red,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              m.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Вы: ${m.userAction}',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                            Text(
+                              'Ожидалось: ${m.expected}',
+                              style: const TextStyle(color: Colors.green),
+                            ),
+                            if (m.evaluation.hint != null &&
+                                m.evaluation.hint!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                  m.evaluation.hint!,
+                                  style:
+                                      const TextStyle(color: Colors.white70),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(8),
+        child: ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Назад'),
+        ),
       ),
     );
   }
