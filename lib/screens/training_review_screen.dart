@@ -80,6 +80,22 @@ class TrainingReviewScreen extends StatelessWidget {
               ...tournamentRows,
               const SizedBox(height: 8),
             ],
+            if (spot.stacks.isNotEmpty) ...[
+              const Text(
+                'Stacks',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              for (final stack in spot.stacks)
+                Text(
+                  'Stack: $stack (${(stack / 12.5).round()} BB)',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              const SizedBox(height: 8),
+            ],
             TrainingSpotPreview(spot: spot),
           ],
         ),
