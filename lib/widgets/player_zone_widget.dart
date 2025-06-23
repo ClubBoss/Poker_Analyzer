@@ -204,6 +204,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _stackWinController;
   late final Animation<double> _stackWinScale;
   late final Animation<double> _stackWinOpacity;
+  late final Animation<double> _stackWinGlow;
   bool _showBusted = false;
   Timer? _bustedTimer;
   late final AnimationController _bustedController;
@@ -353,6 +354,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ),
       TweenSequenceItem(
         tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_stackWinController);
+    _stackWinGlow = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0)
             .chain(CurveTween(curve: Curves.easeIn)),
         weight: 50,
       ),
@@ -1232,6 +1245,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final box = context.findRenderObject() as RenderBox?;
     if (overlay == null || box == null) return;
 
+    _stackWinController.forward(from: 0.0);
+
     _winChipsAnimating = true;
     final media = MediaQuery.of(context).size;
     final start = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
@@ -1853,9 +1868,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
               alignment: Alignment.center,
               children: [
                 AnimatedBuilder(
-                  animation: _allInWinGlowController,
+                  animation: _stackWinController,
                   builder: (_, child) {
-                    final glow = _allInWinGlow.value;
+                    final glow = _stackWinGlow.value;
                     return Container(
                       decoration: glow > 0
                           ? BoxDecoration(
@@ -1863,8 +1878,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                                   BorderRadius.circular(8 * widget.scale),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.lightGreenAccent
-                                      .withOpacity(glow),
+                                  color:
+                                      Colors.greenAccent.withOpacity(glow),
                                   blurRadius: 16 * glow * widget.scale,
                                   spreadRadius: 4 * glow * widget.scale,
                                 ),
@@ -1874,15 +1889,38 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                       child: child,
                     );
                   },
-                  child: ScaleTransition(
-                    scale: _stackWinScale,
-                    child: FadeTransition(
-                      opacity: _stackWinOpacity,
-                      child: PlayerStackValue(
-                        key: _stackKey,
-                        stack: stack ?? 0,
-                        scale: widget.scale,
-                        isBust: remaining != null && remaining <= 0,
+                  child: AnimatedBuilder(
+                    animation: _allInWinGlowController,
+                    builder: (_, child) {
+                      final glow = _allInWinGlow.value;
+                      return Container(
+                        decoration: glow > 0
+                            ? BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(8 * widget.scale),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.lightGreenAccent
+                                        .withOpacity(glow),
+                                    blurRadius: 16 * glow * widget.scale,
+                                    spreadRadius: 4 * glow * widget.scale,
+                                  ),
+                                ],
+                              )
+                            : null,
+                        child: child,
+                      );
+                    },
+                    child: ScaleTransition(
+                      scale: _stackWinScale,
+                      child: FadeTransition(
+                        opacity: _stackWinOpacity,
+                        child: PlayerStackValue(
+                          key: _stackKey,
+                          stack: stack ?? 0,
+                          scale: widget.scale,
+                          isBust: remaining != null && remaining <= 0,
+                        ),
                       ),
                     ),
                   ),
