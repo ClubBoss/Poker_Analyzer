@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_saver/file_saver.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
@@ -41,12 +45,48 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     );
   }
 
+  Future<void> _exportMarkdown() async {
+    if (_sessions.isEmpty) return;
+    final buffer = StringBuffer();
+    for (final s in _sessions) {
+      buffer.writeln(
+          '- ${formatDateTime(s.date)}: ${s.accuracy.toStringAsFixed(1)}% — Ошибок: ${s.mistakes}');
+    }
+    final bytes = Uint8List.fromList(utf8.encode(buffer.toString()));
+    try {
+      await FileSaver.instance.saveAs(
+        name: 'training_history',
+        bytes: bytes,
+        ext: 'md',
+        mimeType: MimeType.other,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('История сохранена в training_history.md')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('История тренировок'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Экспорт',
+            onPressed: _sessions.isEmpty ? null : _exportMarkdown,
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: _loading
