@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../models/training_spot.dart';
+import '../../models/training_pack.dart';
 import '../../theme/app_colors.dart';
 import '../../screens/training_spot_analysis_screen.dart';
 
@@ -86,6 +87,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   static const String _prefsIcmOnlyKey = 'training_preset_icm_only';
   static const String _prefsRatedOnlyKey = 'training_preset_rated_only';
   static const String _prefsHideCompletedKey = 'training_hide_completed';
+  static const String _prefsMistakesKey = 'training_mistakes_only';
   static const String _prefsOrderKey = 'training_spots_order';
   static const String _prefsListVisibleKey = 'training_spot_list_visible';
   static const String _prefsDifficultyKey = 'training_preset_difficulties';
@@ -147,11 +149,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
   bool _listVisible = true;
   final Set<int> _difficultyFilters = {};
   final Set<int> _ratingFilters = {};
+  final Set<String> _mistakeIds = {};
   RatingSortOrder? _ratingSort;
   SimpleSortField? _simpleSortField;
   SimpleSortOrder _simpleSortOrder = SimpleSortOrder.ascending;
   ListSortOption? _listSort;
   QuickSortOption? _quickSort;
+  bool _mistakesOnly = false;
 
   _FilterState? _lastFilterState;
 
@@ -437,6 +441,9 @@ class TrainingSpotListState extends State<TrainingSpotList>
       final matchesRated = !_ratedOnly || spot.userAction != null;
       final matchesCompleted =
           !_hideCompleted || spot.userAction == null || spot.correct == null;
+      final matchesMistake = !_mistakesOnly ||
+          (spot.tournamentId != null &&
+              _mistakeIds.contains(spot.tournamentId!));
       return
           matchesQuery &&
           matchesTags &&
@@ -444,7 +451,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
           matchesDifficulty &&
           matchesRating &&
           matchesRated &&
-          matchesCompleted;
+          matchesCompleted &&
+          matchesMistake;
     }).toList();
   }
 
@@ -498,6 +506,10 @@ class TrainingSpotListState extends State<TrainingSpotList>
       if (summary.isNotEmpty) summary += ' + ';
       summary += 'только с оценкой';
     }
+    if (_mistakesOnly) {
+      if (summary.isNotEmpty) summary += ' + ';
+      summary += 'ошибки';
+    }
     return summary;
   }
 
@@ -507,7 +519,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
         _difficultyFilters.isNotEmpty ||
         _ratingFilters.isNotEmpty ||
         _icmOnly ||
-        _ratedOnly;
+        _ratedOnly ||
+        _mistakesOnly;
   }
 
   Future<void> _loadPresets() async {
@@ -526,6 +539,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     final bool icmOnly = prefs.getBool(_prefsIcmOnlyKey) ?? widget.icmOnly;
     final bool ratedOnly = prefs.getBool(_prefsRatedOnlyKey) ?? false;
     final bool hideCompleted = prefs.getBool(_prefsHideCompletedKey) ?? false;
+    final bool mistakesOnly = prefs.getBool(_prefsMistakesKey) ?? false;
     final List<String>? diffs = prefs.getStringList(_prefsDifficultyKey);
     final List<String>? ratings = prefs.getStringList(_prefsRatingsKey);
     final String? customJson = prefs.getString(_prefsCustomPresetsKey);
@@ -560,6 +574,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _icmOnly = icmOnly;
     _ratedOnly = ratedOnly;
     _hideCompleted = hideCompleted;
+    _mistakesOnly = mistakesOnly;
     _difficultyFilters
       ..clear()
       ..addAll(diffs == null
@@ -657,6 +672,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
     await prefs.setBool(_prefsIcmOnlyKey, _icmOnly);
     await prefs.setBool(_prefsRatedOnlyKey, _ratedOnly);
     await prefs.setBool(_prefsHideCompletedKey, _hideCompleted);
+    await prefs.setBool(_prefsMistakesKey, _mistakesOnly);
     await prefs.setBool(_prefsListVisibleKey, _listVisible);
     if (_difficultyFilters.isNotEmpty) {
       await prefs.setStringList(_prefsDifficultyKey,
@@ -734,6 +750,29 @@ class TrainingSpotListState extends State<TrainingSpotList>
     _searchHistory.clear();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_prefsSearchHistoryKey);
+  }
+
+  Future<void> _loadMistakeIds() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_packs.json');
+    if (!await file.exists()) return;
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is List) {
+        for (final item in data) {
+          if (item is Map<String, dynamic>) {
+            final pack = TrainingPack.fromJson(Map<String, dynamic>.from(item));
+            for (final r in pack.history) {
+              for (final t in r.tasks) {
+                if (!t.correct) _mistakeIds.add(t.question);
+              }
+            }
+          }
+        }
+      }
+    } catch (_) {}
+    if (mounted) setState(() {});
   }
 
   Future<void> _showSearchHistoryDropdown(BuildContext context) async {
@@ -2151,6 +2190,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
   void initState() {
     super.initState();
     _loadPresets();
+    _loadMistakeIds();
   }
 
   @override
@@ -2289,6 +2329,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 ),
                 _buildIcmSwitch(),
                 _buildRatedSwitch(),
+                _buildMistakeSwitch(),
                 const SizedBox(height: 8),
                 _buildFilterToggleButton(),
                 if (_tagFiltersExpanded) ...[
@@ -2569,6 +2610,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                 const SizedBox(height: 8),
                 _buildVisibleSummary(filtered),
                 _buildHideCompletedSwitch(),
+                _buildMistakeSwitch(),
                 const SizedBox(height: 8),
                 _ApplyDifficultyDropdown(
                   onChanged: (value) {
@@ -3125,6 +3167,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
         const SizedBox(height: 8),
         _buildVisibleSummary(filtered),
         _buildHideCompletedSwitch(),
+        _buildMistakeSwitch(),
         const SizedBox(height: 8),
         _ApplyDifficultyDropdown(
           onChanged: (value) {
@@ -3611,6 +3654,20 @@ class TrainingSpotListState extends State<TrainingSpotList>
       },
       title:
           const Text('Скрыть завершённые', style: TextStyle(color: Colors.white)),
+      activeColor: Colors.orange,
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
+  Widget _buildMistakeSwitch() {
+    return SwitchListTile(
+      value: _mistakesOnly,
+      onChanged: (v) {
+        setState(() => _mistakesOnly = v);
+        _savePresets();
+      },
+      title:
+          const Text('Повторить ошибки', style: TextStyle(color: Colors.white)),
       activeColor: Colors.orange,
       contentPadding: EdgeInsets.zero,
     );
