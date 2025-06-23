@@ -68,54 +68,77 @@ class TrainingSpotDiagram extends StatelessWidget {
             final stack = i < spot.stacks.length ? spot.stacks[i] : 0;
             final action = actions[i];
 
+            String? advice;
+            if (spot.strategyAdvice != null && i < spot.strategyAdvice!.length) {
+              advice = spot.strategyAdvice![i];
+            }
+
             seatWidgets.add(
               Positioned(
                 left: offset.dx - seatSize / 2,
                 top: offset.dy - seatSize / 2,
-                child: Container(
-                  width: seatSize,
-                  height: seatSize,
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isHero ? Colors.orangeAccent : Colors.white30,
-                      width: 2,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: seatSize,
+                      height: seatSize,
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isHero ? Colors.orangeAccent : Colors.white30,
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isHero
+                                ? Colors.orangeAccent.withOpacity(0.7)
+                                : Colors.black54,
+                            blurRadius: isHero ? 8 : 2,
+                            spreadRadius: isHero ? 2 : 0,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'P${i + 1}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            '$stack',
+                            style: const TextStyle(color: Colors.white70, fontSize: 11),
+                          ),
+                          if (action.isNotEmpty)
+                            Text(
+                              action,
+                              style: TextStyle(color: _actionColor(action), fontSize: 10),
+                              textAlign: TextAlign.center,
+                            ),
+                        ],
+                      ),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: isHero
-                            ? Colors.orangeAccent.withOpacity(0.7)
-                            : Colors.black54,
-                        blurRadius: isHero ? 8 : 2,
-                        spreadRadius: isHero ? 2 : 0,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'P${i + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                    if (isHero && advice != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          advice.toUpperCase(),
+                          style: TextStyle(
+                            color: _actionColor(advice),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
-                      Text(
-                        '$stack',
-                        style: const TextStyle(color: Colors.white70, fontSize: 11),
-                      ),
-                      if (action.isNotEmpty)
-                        Text(
-                          action,
-                          style: TextStyle(color: _actionColor(action), fontSize: 10),
-                          textAlign: TextAlign.center,
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             );
