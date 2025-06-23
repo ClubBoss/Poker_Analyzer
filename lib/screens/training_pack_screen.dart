@@ -152,6 +152,20 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     await _spotStorageService.save(_spots);
   }
 
+  void _showQuickFeedback(EvaluationResult evaluation) {
+    final message = evaluation.correct
+        ? 'Верно! Ожидалось: ${evaluation.expectedAction}'
+        : 'Неверно. Правильный ответ: ${evaluation.expectedAction}';
+    final color = evaluation.correct ? Colors.green : Colors.red;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   Future<_ResultEntry> _showFeedback() async {
     final state = _analyzerKey.currentState as dynamic;
     SavedHand? played;
@@ -175,6 +189,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final evaluation = context
         .read<EvaluationExecutorService>()
         .evaluate(TrainingSpot.fromSavedHand(original), userAct);
+    _showQuickFeedback(evaluation);
     final expected = evaluation.expectedAction;
     final matched = evaluation.correct;
     int rating = original.rating;
