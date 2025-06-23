@@ -14,10 +14,11 @@ class TutorialStep {
 
 class TutorialFlow {
   final List<TutorialStep> steps;
+  final VoidCallback? onComplete;
   int _index = 0;
   OverlayEntry? _entry;
 
-  TutorialFlow(this.steps);
+  TutorialFlow(this.steps, {this.onComplete});
 
   void start(BuildContext context) {
     _index = 0;
@@ -31,6 +32,9 @@ class TutorialFlow {
     _index++;
     if (action != null) {
       action(context, this);
+    }
+    if (_index >= steps.length) {
+      onComplete?.call();
     }
   }
 
