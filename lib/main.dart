@@ -13,6 +13,7 @@ import 'services/folded_players_service.dart';
 import 'services/all_in_players_service.dart';
 import 'services/user_preferences_service.dart';
 import 'services/tag_service.dart';
+import 'services/cloud_sync_service.dart';
 import 'user_preferences.dart';
 
 void main() {
@@ -45,6 +46,7 @@ void main() {
         ChangeNotifierProvider(
           create: (_) => TagService()..load(),
         ),
+        Provider(create: (_) => CloudSyncService()),
       ],
       child: const PokerAIAnalyzerApp(),
     ),
