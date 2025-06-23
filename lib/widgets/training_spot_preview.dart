@@ -45,10 +45,24 @@ class TrainingSpotPreview extends StatelessWidget {
 
     final adviceColor = advice != null ? _colorForAdvice(advice) : null;
 
+    double? equity;
+    if (spot.equities != null && entry.playerIndex < spot.equities!.length) {
+      equity = spot.equities![entry.playerIndex].toDouble();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('P${entry.playerIndex + 1}: $label'),
+        Row(
+          children: [
+            Text('P${entry.playerIndex + 1}: $label'),
+            if (equity != null)
+              Text(
+                ' – ${equity.round()}%',
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+          ],
+        ),
         if (advice != null && adviceColor != null)
           Padding(
             padding: const EdgeInsets.only(top: 2),

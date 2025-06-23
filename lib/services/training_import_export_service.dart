@@ -58,6 +58,7 @@ class TrainingImportExportService {
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
           stackManager.getStackForPlayer(i)
       ],
+      equities: null,
       tournamentId: tournamentId,
       buyIn: buyIn,
       totalPrizePool: totalPrizePool,
@@ -283,6 +284,7 @@ class TrainingImportExportService {
             playerTypes: const [],
             positions: const [],
             stacks: const [],
+            equities: null,
             tournamentId: strOrNull(map['tournamentId']),
             buyIn: intOrNull(map['buyIn']),
             totalPrizePool: intOrNull(map['totalPrizePool']),
@@ -330,6 +332,7 @@ class TrainingImportExportService {
         playerTypes: const [],
         positions: const [],
         stacks: const [],
+        equities: null,
         tournamentId: strOrNull(map['tournamentId']),
         buyIn: intOrNull(map['buyIn']),
         totalPrizePool: intOrNull(map['totalPrizePool']),

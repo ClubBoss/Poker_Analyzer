@@ -14,6 +14,8 @@ class TrainingSpot {
   final List<int> stacks;
   /// Optional strategy advice for each player indexed by player position.
   final List<String>? strategyAdvice;
+  /// Optional equity values for each player as percentages.
+  final List<double>? equities;
   final String? tournamentId;
   final int? buyIn;
   final int? totalPrizePool;
@@ -38,6 +40,7 @@ class TrainingSpot {
     required this.positions,
     required this.stacks,
     this.strategyAdvice,
+    this.equities,
     this.tournamentId,
     this.buyIn,
     this.totalPrizePool,
@@ -75,6 +78,7 @@ class TrainingSpot {
         for (int i = 0; i < hand.numberOfPlayers; i++)
           hand.stackSizes[i] ?? 0
       ],
+      equities: null,
       tournamentId: hand.tournamentId,
       buyIn: hand.buyIn,
       totalPrizePool: hand.totalPrizePool,
@@ -114,6 +118,7 @@ class TrainingSpot {
         'playerTypes': [for (final t in playerTypes) t.name],
         'positions': positions,
         'stacks': stacks,
+        if (equities != null) 'equities': equities,
         if (tournamentId != null) 'tournamentId': tournamentId,
         if (buyIn != null) 'buyIn': buyIn,
         if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
@@ -193,6 +198,11 @@ class TrainingSpot {
     }
 
     final adviceData = (json['strategyAdvice'] as List?)?.cast<String>();
+    final equityData = (json['equities'] as List?)?.cast<num>();
+    List<double>? equities;
+    if (equityData != null) {
+      equities = [for (final e in equityData) e.toDouble()];
+    }
 
     return TrainingSpot(
       playerCards: pc,
@@ -204,6 +214,7 @@ class TrainingSpot {
       positions: positions,
       stacks: stacks,
       strategyAdvice: adviceData,
+      equities: equities,
       tournamentId: json['tournamentId'] as String?,
       buyIn: (json['buyIn'] as num?)?.toInt(),
       totalPrizePool: (json['totalPrizePool'] as num?)?.toInt(),
@@ -230,6 +241,7 @@ class TrainingSpot {
     String? actionHistory,
     String? recommendedAction,
     List<String>? strategyAdvice,
+    List<double>? equities,
     DateTime? createdAt,
   }) {
     return TrainingSpot(
@@ -242,6 +254,7 @@ class TrainingSpot {
       positions: List<String>.from(positions),
       stacks: List<int>.from(stacks),
       strategyAdvice: strategyAdvice ?? this.strategyAdvice,
+      equities: equities ?? this.equities,
       tournamentId: tournamentId,
       buyIn: buyIn,
       totalPrizePool: totalPrizePool,
