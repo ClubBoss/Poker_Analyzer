@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../helpers/table_geometry_helper.dart';
 import '../models/training_spot.dart';
+import 'player_info_overlay.dart';
 
 /// Displays players around a circular table with a highlight for the hero.
 ///
@@ -77,11 +78,28 @@ class TrainingSpotDiagram extends StatelessWidget {
               Positioned(
                 left: offset.dx - seatSize / 2,
                 top: offset.dy - seatSize / 2,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
+                child: GestureDetector(
+                  onTapDown: isHero
+                      ? null
+                      : (details) {
+                          final pos =
+                              details.globalPosition + const Offset(0, -30);
+                          final positionName = i < spot.positions.length
+                              ? spot.positions[i]
+                              : '';
+                          showPlayerInfoOverlay(
+                            context: context,
+                            position: pos,
+                            stack: stack,
+                            positionName: positionName,
+                            advice: advice,
+                          );
+                        },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
                       width: seatSize,
                       height: seatSize,
                       padding: const EdgeInsets.all(6),
