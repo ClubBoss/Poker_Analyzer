@@ -135,6 +135,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   OverlayEntry? _refundMessageEntry;
   OverlayEntry? _lossAmountEntry;
   OverlayEntry? _gainAmountEntry;
+  OverlayEntry? _chipWinEntry;
   bool _winChipsAnimating = false;
   final List<OverlayEntry> _winChipEntries = [];
   bool _winnerHighlight = false;
@@ -205,6 +206,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _stackWinScale;
   late final Animation<double> _stackWinOpacity;
   late final Animation<double> _stackWinGlow;
+  late final AnimationController _chipWinController;
   bool _showBusted = false;
   Timer? _bustedTimer;
   late final AnimationController _bustedController;
@@ -335,6 +337,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _stackWinController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
+    );
+    _chipWinController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
     );
     _stackWinScale = TweenSequence<double>([
       TweenSequenceItem(
@@ -722,6 +728,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     setState(() => _winnerHighlight = true);
     _winnerGlowController.forward(from: 0.0);
     _winnerHighlightController.forward(from: 0.0);
+    _startChipWinAnimation();
     _showWinnerLabelAnimated();
     if (_wasAllIn) {
       _allInWinGlowController.forward(from: 0.0);
@@ -729,6 +736,30 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
     _highlightTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted) setState(() => _winnerHighlight = false);
+    });
+  }
+
+  void _startChipWinAnimation() {
+    final overlay = Overlay.of(context);
+    final box = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final media = MediaQuery.of(context).size;
+    final start = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
+    final end = box.localToGlobal(box.size.center(Offset.zero));
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _ChipWinOverlay(
+        animation: _chipWinController,
+        start: start,
+        end: end,
+        scale: widget.scale,
+      ),
+    );
+    overlay.insert(entry);
+    _chipWinEntry = entry;
+    _chipWinController.forward(from: 0.0).whenComplete(() {
+      entry.remove();
+      if (_chipWinEntry == entry) _chipWinEntry = null;
     });
   }
 
@@ -1470,6 +1501,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _refundMessageEntry?.remove();
     _lossAmountEntry?.remove();
     _gainAmountEntry?.remove();
+    _chipWinEntry?.remove();
     _stackController.dispose();
     _betController.dispose();
     _controller.dispose();
@@ -1486,6 +1518,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _actionGlowController.dispose();
     _actionTagController.dispose();
     _allInWinGlowController.dispose();
+    _chipWinController.dispose();
     _stackWinController.dispose();
     _stackBarController.dispose();
     _stackBarFadeController.dispose();
@@ -3297,6 +3330,78 @@ class _CardRevealBackdropState extends State<_CardRevealBackdrop>
             return Opacity(opacity: opacity, child: child);
           },
           child: Container(color: Colors.black54),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChipWinOverlay extends StatelessWidget {
+  final Animation<double> animation;
+  final Offset start;
+  final Offset end;
+  final double scale;
+  final int chipCount;
+
+  const _ChipWinOverlay({
+    required this.animation,
+    required this.start,
+    required this.end,
+    this.scale = 1.0,
+    this.chipCount = 6,
+  });
+
+  Offset _bezier(Offset p0, Offset p1, Offset p2, double t) {
+    final u = 1 - t;
+    return Offset(
+      u * u * p0.dx + 2 * u * t * p1.dx + t * t * p2.dx,
+      u * u * p0.dy + 2 * u * t * p1.dy + t * t * p2.dy,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            final control = Offset(
+              (start.dx + end.dx) / 2,
+              (start.dy + end.dy) / 2 - 40 * scale,
+            );
+            final widgets = <Widget>[];
+            for (int i = 0; i < chipCount; i++) {
+              final t = (animation.value - i * 0.1).clamp(0.0, 1.0);
+              final pos = _bezier(start, control, end, t);
+              widgets.add(Positioned(
+                left: pos.dx - 12 * scale,
+                top: pos.dy - 12 * scale,
+                child: Opacity(
+                  opacity: 1.0 - t,
+                  child: Transform.scale(
+                    scale: scale,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.orangeAccent,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.5),
+                            blurRadius: 4 * scale,
+                            offset: const Offset(1, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ));
+            }
+            return Stack(children: widgets);
+          },
         ),
       ),
     );
