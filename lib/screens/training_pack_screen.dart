@@ -4,6 +4,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import '../helpers/date_utils.dart';
 import '../helpers/action_utils.dart';
 import 'package:provider/provider.dart';
@@ -1654,6 +1655,22 @@ class TrainingAnalysisScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _sharePdf(BuildContext context) async {
+    final dir =
+        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/session_mistakes.pdf');
+    if (!await file.exists()) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Файл не найден')),
+        );
+      }
+      return;
+    }
+
+    await Share.shareXFiles([XFile(file.path)], text: 'session_mistakes.pdf');
+  }
+
   @override
   Widget build(BuildContext context) {
     final mistakes = results.where((r) => !r.correct).toList();
@@ -1720,6 +1737,11 @@ class TrainingAnalysisScreen extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () => _exportPdf(context),
                           child: const Text('PDF Export'),
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () => _sharePdf(context),
+                          child: const Text('Поделиться'),
                         ),
                       ],
                     ),
