@@ -31,16 +31,34 @@ class TrainingPackReviewScreen extends StatefulWidget {
   State<TrainingPackReviewScreen> createState() => _TrainingPackReviewScreenState();
 }
 
+enum _SortOption { name, rating, date }
+
 class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
   bool _onlyMistakes = false;
   final TextEditingController _searchController = TextEditingController();
+  _SortOption _sort = _SortOption.name;
 
   List<SavedHand> get _visibleHands {
-    if (!_onlyMistakes) return widget.pack.hands;
-    return [
-      for (final h in widget.pack.hands)
-        if (widget.mistakenNames.contains(h.name)) h
-    ];
+    final List<SavedHand> list = [];
+    if (!_onlyMistakes) {
+      list.addAll(widget.pack.hands);
+    } else {
+      for (final h in widget.pack.hands) {
+        if (widget.mistakenNames.contains(h.name)) list.add(h);
+      }
+    }
+    switch (_sort) {
+      case _SortOption.name:
+        list.sort((a, b) => a.name.compareTo(b.name));
+        break;
+      case _SortOption.rating:
+        list.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+      case _SortOption.date:
+        list.sort((a, b) => b.date.compareTo(a.date));
+        break;
+    }
+    return list;
   }
 
   Future<void> _savePack() async {
@@ -364,6 +382,33 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                       ),
               ),
               onChanged: (_) => setState(() {}),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const Text('Sort by',
+                    style: TextStyle(color: Colors.white)),
+                const SizedBox(width: 8),
+                DropdownButton<_SortOption>(
+                  value: _sort,
+                  dropdownColor: AppColors.cardBackground,
+                  style: const TextStyle(color: Colors.white),
+                  items: const [
+                    DropdownMenuItem(
+                        value: _SortOption.name, child: Text('Name')),
+                    DropdownMenuItem(
+                        value: _SortOption.rating, child: Text('Rating')),
+                    DropdownMenuItem(
+                        value: _SortOption.date, child: Text('Date')),
+                  ],
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _sort = value);
+                  },
+                ),
+              ],
             ),
           ),
           const Divider(color: Colors.white24, height: 1),
