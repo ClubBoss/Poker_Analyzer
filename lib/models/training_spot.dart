@@ -12,6 +12,8 @@ class TrainingSpot {
   final List<PlayerType> playerTypes;
   final List<String> positions;
   final List<int> stacks;
+  /// Optional strategy advice for each player indexed by player position.
+  final List<String>? strategyAdvice;
   final String? tournamentId;
   final int? buyIn;
   final int? totalPrizePool;
@@ -35,6 +37,7 @@ class TrainingSpot {
     required this.playerTypes,
     required this.positions,
     required this.stacks,
+    this.strategyAdvice,
     this.tournamentId,
     this.buyIn,
     this.totalPrizePool,
@@ -117,6 +120,7 @@ class TrainingSpot {
         if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
         if (gameType != null) 'gameType': gameType,
         if (tags.isNotEmpty) 'tags': tags,
+        if (strategyAdvice != null) 'strategyAdvice': strategyAdvice,
         'difficulty': difficulty,
         'rating': rating,
         if (userAction != null) 'userAction': userAction,
@@ -188,6 +192,8 @@ class TrainingSpot {
       stacks.add(i < stackData.length ? stackData[i].toInt() : 0);
     }
 
+    final adviceData = (json['strategyAdvice'] as List?)?.cast<String>();
+
     return TrainingSpot(
       playerCards: pc,
       boardCards: board,
@@ -197,6 +203,7 @@ class TrainingSpot {
       playerTypes: types,
       positions: positions,
       stacks: stacks,
+      strategyAdvice: adviceData,
       tournamentId: json['tournamentId'] as String?,
       buyIn: (json['buyIn'] as num?)?.toInt(),
       totalPrizePool: (json['totalPrizePool'] as num?)?.toInt(),
@@ -222,6 +229,7 @@ class TrainingSpot {
     String? userComment,
     String? actionHistory,
     String? recommendedAction,
+    List<String>? strategyAdvice,
     DateTime? createdAt,
   }) {
     return TrainingSpot(
@@ -233,6 +241,7 @@ class TrainingSpot {
       playerTypes: List<PlayerType>.from(playerTypes),
       positions: List<String>.from(positions),
       stacks: List<int>.from(stacks),
+      strategyAdvice: strategyAdvice ?? this.strategyAdvice,
       tournamentId: tournamentId,
       buyIn: buyIn,
       totalPrizePool: totalPrizePool,
