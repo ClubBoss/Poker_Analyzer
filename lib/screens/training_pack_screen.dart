@@ -46,6 +46,7 @@ import '../models/evaluation_result.dart';
 import '../services/evaluation_executor_service.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/common/training_spot_list.dart';
+import 'markdown_preview_screen.dart';
 
 class _ResultEntry {
   final String name;
@@ -604,14 +605,12 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (mounted) {
       final name = savePath.split(Platform.pathSeparator).last;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Файл сохранён: $name'),
-          action: SnackBarAction(
-            label: 'Открыть',
-            onPressed: () {
-              OpenFilex.open(file.path);
-            },
-          ),
+        SnackBar(content: Text('Файл сохранён: $name')),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MarkdownPreviewScreen(path: file.path),
         ),
       );
     }

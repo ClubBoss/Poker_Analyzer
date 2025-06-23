@@ -36,6 +36,8 @@ dependencies:
   file_saver: ^0.2.14
   confetti: ^0.7.0
   poker_solver: ^1.0.0
+  webview_flutter: ^4.2.2
+  markdown: ^7.1.1
 
 dev_dependencies:
   flutter_test:
