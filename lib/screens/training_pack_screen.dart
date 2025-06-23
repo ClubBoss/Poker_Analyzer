@@ -61,6 +61,19 @@ class _ResultEntry {
   bool get correct => evaluation.correct;
 
   String get expected => evaluation.expectedAction;
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'userAction': userAction,
+        'evaluation': evaluation.toJson(),
+      };
+
+  factory _ResultEntry.fromJson(Map<String, dynamic> json) => _ResultEntry(
+        name: json['name'] as String? ?? '',
+        userAction: json['userAction'] as String? ?? '-',
+        evaluation: EvaluationResult.fromJson(
+            Map<String, dynamic>.from(json['evaluation'] as Map)),
+      );
 }
 
 class TrainingPackScreen extends StatefulWidget {
@@ -102,6 +115,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   bool _isMistakeReviewMode = false;
 
   final List<_ResultEntry> _results = [];
+  List<_ResultEntry> _previousResults = [];
 
   final TrainingImportExportService _importExportService =
       const TrainingImportExportService();
@@ -121,6 +135,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     _isMistakeReviewMode = widget.mistakeReviewMode;
     _loadProgress();
     _loadSpots();
+    _loadSavedResults();
   }
 
   Future<void> _loadProgress() async {
@@ -150,6 +165,32 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
 
   Future<void> _saveSpots() async {
     await _spotStorageService.save(_spots);
+  }
+
+  Future<void> _loadSavedResults() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'results_${_pack.name}';
+    final jsonStr = prefs.getString(key);
+    if (jsonStr == null) return;
+    try {
+      final data = jsonDecode(jsonStr);
+      if (data is List) {
+        _previousResults = [
+          for (final item in data)
+            if (item is Map)
+              _ResultEntry.fromJson(Map<String, dynamic>.from(item))
+        ];
+      }
+    } catch (_) {}
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _saveCurrentResults() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'results_${_pack.name}';
+    final list = [for (final r in _results) r.toJson()];
+    await prefs.setString(key, jsonEncode(list));
+    _previousResults = List.from(_results);
   }
 
   void _showQuickFeedback(EvaluationResult evaluation) {
@@ -573,6 +614,36 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
   }
 
+  void _showSavedResults() {
+    if (_previousResults.isEmpty) return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Предыдущая сессия',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            for (final r in _previousResults)
+              Text(
+                '${r.name}: ожидалось ${r.expected}, ваше действие ${r.userAction}',
+                style: const TextStyle(color: Colors.white70),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _repeatMistakes() {
     final mistakes = _results.where((r) => !r.correct).toList();
     if (mistakes.isEmpty) return;
@@ -647,6 +718,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       await file.writeAsString(jsonEncode([for (final p in packs) p.toJson()]));
     }
 
+    await _saveCurrentResults();
+
     widget.onComplete?.call(success);
   }
 
@@ -720,6 +793,13 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ElevatedButton(
                 onPressed: _repeatMistakes,
                 child: const Text('Повторить ошибки'),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (!_isMistakeReviewMode && _previousResults.isNotEmpty) ...[
+              ElevatedButton(
+                onPressed: _showSavedResults,
+                child: const Text('Предыдущая сессия'),
               ),
               const SizedBox(height: 12),
             ],
