@@ -393,6 +393,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final total = _results.length;
     final correct = _results.where((r) => r.correct).length;
     final mistakes = _results.where((r) => !r.correct).toList();
+    final accuracy = total > 0 ? (correct * 100 / total).toStringAsFixed(1) : '0';
     final date = DateTime.now();
     final percent = total > 0 ? (correct * 100 / total).toStringAsFixed(2) : '0';
 
@@ -615,6 +616,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final total = _results.length;
     final correct = _results.where((r) => r.correct).length;
     final mistakes = _results.where((r) => !r.correct).toList();
+    final accuracy = total > 0 ? (correct * 100 / total).toStringAsFixed(1) : '0';
 
     return Center(
       child: SingleChildScrollView(
@@ -627,9 +629,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               'Результаты',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            Text('Сыграно рук: $total'),
-            Text('Верные действия: $correct / $total'),
             const SizedBox(height: 16),
             if (mistakes.isNotEmpty) ...[
               const Text('Ошибки:'),
@@ -673,6 +672,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               onPressed: _restartPack,
               child: const Text('Начать заново'),
             ),
+            const SizedBox(height: 12),
+            Text('Сыграно рук: $total'),
+            Text('Верные действия: $correct'),
+            Text('Ошибок: ${total - correct}'),
+            Text('Точность: $accuracy%'),
             const SizedBox(height: 12),
             if (!_isMistakeReviewMode && mistakes.isNotEmpty) ...[
               ElevatedButton(
