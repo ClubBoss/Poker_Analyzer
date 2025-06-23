@@ -51,6 +51,8 @@ import '../models/result_entry.dart';
 import '../widgets/common/training_spot_list.dart';
 import 'markdown_preview_screen.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'dart:async';
+import '../services/cloud_training_history_service.dart';
 
 
 class _SessionSummary {
@@ -1548,10 +1550,23 @@ body { font-family: sans-serif; padding: 16px; }
   }
 }
 
-class TrainingAnalysisScreen extends StatelessWidget {
+class TrainingAnalysisScreen extends StatefulWidget {
   final List<ResultEntry> results;
 
   const TrainingAnalysisScreen({super.key, required this.results});
+
+  @override
+  State<TrainingAnalysisScreen> createState() => _TrainingAnalysisScreenState();
+}
+
+class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
+  @override
+  void dispose() {
+    final history = context.read<CloudTrainingHistoryService>();
+    // Ignore result as this runs during dispose
+    unawaited(history.saveSession(widget.results));
+    super.dispose();
+  }
 
   Widget _buildEquityBar(double value, Color color, String label) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -1577,9 +1592,9 @@ class TrainingAnalysisScreen extends StatelessWidget {
   }
 
   Future<void> _exportMarkdown(BuildContext context) async {
-    if (results.isEmpty) return;
+    if (widget.results.isEmpty) return;
     final buffer = StringBuffer();
-    for (final r in results) {
+    for (final r in widget.results) {
       final status = r.correct ? 'верно' : 'ошибка';
       buffer.writeln(
           '- ${r.name}: вы выбрали `${r.userAction}`, ожидалось `${r.expected}` — $status');
@@ -1603,7 +1618,7 @@ class TrainingAnalysisScreen extends StatelessWidget {
   }
 
   Future<void> _exportPdf(BuildContext context) async {
-    final mistakes = results.where((r) => !r.correct).toList();
+    final mistakes = widget.results.where((r) => !r.correct).toList();
     if (mistakes.isEmpty) return;
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
@@ -1673,7 +1688,7 @@ class TrainingAnalysisScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mistakes = results.where((r) => !r.correct).toList();
+    final mistakes = widget.results.where((r) => !r.correct).toList();
     final Map<String, int> actionCounts = {};
     for (final m in mistakes) {
       actionCounts[m.userAction] = (actionCounts[m.userAction] ?? 0) + 1;
