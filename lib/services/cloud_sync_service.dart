@@ -6,6 +6,7 @@ import "package:shared_preferences/shared_preferences.dart";
 import "package:uuid/uuid.dart";
 import "../models/result_entry.dart";
 
+import "../models/cloud_training_session.dart";
 import '../models/training_spot.dart';
 import '../models/saved_hand.dart';
 
@@ -125,5 +126,44 @@ class CloudSyncService {
     await subdir.create(recursive: true);
     final file = File("${subdir.path}/$timestamp.json");
     await file.writeAsString(jsonEncode([for (final r in results) r.toJson()]), flush: true);
+  }
+
+  /// Load all uploaded training sessions for the current user.
+  Future<List<CloudTrainingSession>> loadTrainingSessions() async {
+    final userId = await _getUserId();
+    final dir = await getApplicationDocumentsDirectory();
+    final subdir = Directory("${dir.path}/training_sessions/$userId");
+    if (!await subdir.exists()) return [];
+    final files = await subdir
+        .list()
+        .where((e) => e is File && e.path.endsWith('.json'))
+        .toList();
+    files.sort((a, b) => b.path.compareTo(a.path));
+    final List<CloudTrainingSession> sessions = [];
+    for (final entity in files) {
+      final file = entity as File;
+      final name = file.path.split('/').last;
+      final tsStr = name.split('.').first;
+      final ts = int.tryParse(tsStr);
+      final date = ts != null
+          ? DateTime.fromMillisecondsSinceEpoch(ts)
+          : DateTime.now();
+      try {
+        final content = await file.readAsString();
+        final data = jsonDecode(content);
+        if (data is List) {
+          final results = <ResultEntry>[];
+          for (final item in data) {
+            if (item is Map<String, dynamic>) {
+              results.add(ResultEntry.fromJson(item));
+            }
+          }
+          sessions.add(
+            CloudTrainingSession(date: date, results: results),
+          );
+        }
+      } catch (_) {}
+    }
+    return sessions;
   }
 }

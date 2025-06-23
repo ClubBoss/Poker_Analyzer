@@ -4,7 +4,7 @@ import 'player_input_screen.dart';
 import 'saved_hands_screen.dart';
 import 'training_packs_screen.dart';
 import 'all_sessions_screen.dart';
-import 'training_history_screen.dart';
+import 'cloud_training_history_screen.dart';
 import 'my_training_history_screen.dart';
 import 'player_zone_demo_screen.dart';
 import 'settings_screen.dart';
