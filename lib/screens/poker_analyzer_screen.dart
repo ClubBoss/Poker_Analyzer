@@ -1442,6 +1442,68 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
+  void _playSplitPotRefunds(Map<int, int> payouts) {
+    if (payouts.isEmpty) return;
+    final double scale =
+        TableGeometryHelper.tableScale(numberOfPlayers);
+    final screen = MediaQuery.of(context).size;
+    final tableWidth = screen.width * 0.9;
+    final tableHeight = tableWidth * 0.55;
+    final centerX = screen.width / 2 + 10;
+    final centerY =
+        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
+    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
+    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
+    int delay = 0;
+    payouts.forEach((playerIndex, amount) {
+      if (amount <= 0) return;
+      final i =
+          (playerIndex - _viewIndex() + numberOfPlayers) % numberOfPlayers;
+      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
+      final dx = radiusX * cos(angle);
+      final dy = radiusY * sin(angle);
+      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
+      final start = Offset(centerX, centerY);
+      final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
+      Future.delayed(Duration(milliseconds: delay), () {
+        if (!mounted) return;
+        _registerResetAnimation();
+        playRefundToPlayer(
+          playerIndex,
+          amount,
+          startPosition: start,
+          color: Colors.lightGreenAccent,
+          onCompleted: () {
+            final startStack =
+                _displayedStacks[playerIndex] ??
+                    _stackService.getStackForPlayer(playerIndex);
+            final endStack = startStack + amount;
+            _animateStackIncrease(playerIndex, startStack, endStack);
+            final pos = Offset(
+              end.dx - 20 * scale,
+              end.dy - 60 * scale,
+            );
+            showRefundAmountOverlay(
+              context: context,
+              position: pos,
+              amount: amount,
+              scale: scale,
+            );
+            _onResetAnimationComplete();
+          },
+        );
+      });
+      delay += 200;
+    });
+  }
+
+  void _notifyShowdownResults() {
+    for (int i = 0; i < numberOfPlayers; i++) {
+      onShowdownResult(players[i].name);
+    }
+  }
+
   void _applyRefund(int playerIndex, int amount, {bool animate = true}) {
     if (amount <= 0) return;
     final startStack = _displayedStacks[playerIndex] ??
@@ -2394,18 +2456,25 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     } else if (_winnerIndex != null) {
       payouts[_winnerIndex!] = _potSync.pots[currentStreet];
     }
+    final splitPot = wins != null && wins.length > 1 &&
+        wins.values.toSet().length == 1;
 
     if (payouts.isNotEmpty) {
-      _playSimpleWinAnimation(payouts);
-      if (_sidePots.isNotEmpty) {
-        _startSidePotFlights(payouts);
+      if (splitPot) {
+        _playSplitPotRefunds(payouts);
       } else {
-        _startPotWinFlights(payouts);
+        _playSimpleWinAnimation(payouts);
+        if (_sidePots.isNotEmpty) {
+          _startSidePotFlights(payouts);
+        } else {
+          _startPotWinFlights(payouts);
+        }
       }
     }
 
-    _animateUncalledReturns(delay: 600);
+    _animateUncalledReturns(delay: splitPot ? 0 : 600);
     _potAnimationPlayed = true;
+    _notifyShowdownResults();
   }
 
   /// Plays the pot win animation once showdown reveals have finished.
@@ -2419,10 +2488,21 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       if ((_winnings == null || _winnings!.isEmpty) && _winnerIndex != null)
         _winnerIndex!: _potSync.pots[currentStreet],
     };
+    final wins = _winnings;
+    final splitPot = wins != null && wins.length > 1 &&
+        wins.values.toSet().length == 1;
+
+    if (splitPot) {
+      _playSplitPotRefunds(payouts);
+      _animateUncalledReturns(delay: 0);
+      _potAnimationPlayed = true;
+      _notifyShowdownResults();
+      return;
+    }
+
     _playSimpleWinAnimation(payouts);
 
     int delay = 0;
-    final wins = _winnings;
     if (wins != null && wins.isNotEmpty) {
       _showPotWinAnimations(
         overlay,
@@ -2450,6 +2530,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _animateUncalledReturns(delay: delay + 500);
 
     _potAnimationPlayed = true;
+    _notifyShowdownResults();
 
     final winCount = wins?.length ?? 1;
     final totalDelay = 300 * winCount + 500;
