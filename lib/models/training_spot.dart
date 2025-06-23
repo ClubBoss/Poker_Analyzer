@@ -93,7 +93,7 @@ class TrainingSpot {
       userComment: hand.comment,
       actionHistory: null,
       difficulty: 3,
-      rating: 0,
+      rating: hand.rating,
       createdAt: hand.date,
     );
   }
