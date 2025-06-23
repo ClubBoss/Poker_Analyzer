@@ -21,6 +21,8 @@ import '../models/training_spot.dart';
 import '../user_preferences.dart';
 import '../main_demo.dart';
 import '../widgets/training_spot_preview.dart';
+import '../tutorial/tutorial_flow.dart';
+import 'training_history_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -32,6 +34,9 @@ class MainMenuScreen extends StatefulWidget {
 class _MainMenuScreenState extends State<MainMenuScreen> {
   bool _demoMode = false;
   TrainingSpot? _spotOfDay;
+  final GlobalKey _trainingButtonKey = GlobalKey();
+  final GlobalKey _newHandButtonKey = GlobalKey();
+  final GlobalKey _historyButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -105,6 +110,40 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     }
   }
 
+  void _startTutorial() {
+    final flow = TutorialFlow([
+      TutorialStep(
+        targetKey: _trainingButtonKey,
+        description: 'Выберите тренировочный пак',
+        onNext: (_, __) {},
+      ),
+      TutorialStep(
+        targetKey: _newHandButtonKey,
+        description: 'Затем решите раздачу',
+        onNext: (_, __) {},
+      ),
+      TutorialStep(
+        targetKey: _historyButtonKey,
+        description: 'Просмотрите статистику ваших сессий',
+        onNext: (ctx, flow) {
+          Navigator.push(
+            ctx,
+            MaterialPageRoute(
+              builder: (_) => TrainingHistoryScreen(tutorial: flow),
+            ),
+          );
+        },
+      ),
+      TutorialStep(
+        targetKey: TrainingHistoryScreen.exportCsvKey,
+        description: 'Экспортируйте результаты для дальнейшего изучения',
+        onNext: (_, __) {},
+      ),
+    ]);
+
+    flow.start(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +151,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       appBar: AppBar(
         title: const Text('Poker AI Analyzer'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: _startTutorial,
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -119,6 +164,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           children: [
             _buildSpotOfDaySection(context),
             ElevatedButton(
+              key: _newHandButtonKey,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -159,6 +205,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
+              key: _trainingButtonKey,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -193,6 +240,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
+              key: _historyButtonKey,
               onPressed: () {
                 Navigator.push(
                   context,

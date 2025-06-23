@@ -31,9 +31,13 @@ import '../models/training_result.dart';
 import '../models/training_session.dart';
 import '../helpers/date_utils.dart';
 import '../helpers/accuracy_utils.dart';
+import '../tutorial/tutorial_flow.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
-  const TrainingHistoryScreen({super.key});
+  final TutorialFlow? tutorial;
+  static final GlobalKey exportCsvKey = GlobalKey();
+
+  const TrainingHistoryScreen({super.key, this.tutorial});
 
   @override
   State<TrainingHistoryScreen> createState() => _TrainingHistoryScreenState();
@@ -109,6 +113,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   void initState() {
     super.initState();
     _loadPrefs();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.tutorial?.showCurrentStep(context);
+    });
   }
 
   Future<void> _loadPrefs() async {
@@ -2649,6 +2656,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
+                        key: TrainingHistoryScreen.exportCsvKey,
                         onPressed:
                             _getFilteredHistory().isEmpty ? null : _exportCsv,
                         child: const Text('Экспорт в CSV'),
