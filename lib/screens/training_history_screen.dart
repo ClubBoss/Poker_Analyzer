@@ -219,7 +219,15 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       }
       rows.add([]);
     }
-    rows.add(['Date', 'Total', 'Correct', 'Accuracy', 'Tags', 'Notes']);
+    rows.add([
+      'Date',
+      'Total',
+      'Correct',
+      'Accuracy',
+      'Tags',
+      'Comment',
+      'Notes'
+    ]);
     for (final r in sessions) {
       rows.add([
         formatDateTime(r.date),
@@ -227,6 +235,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         r.correct,
         r.accuracy.toStringAsFixed(1),
         r.tags.join(';'),
+        r.comment ?? '',
         r.notes ?? '',
       ]);
     }
@@ -257,9 +266,11 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     for (final r in sessions) {
       final tags = r.tags.join(', ');
       final notes = r.notes ?? '';
+      final comment = r.comment ?? '';
       buffer.writeln('### ${formatDateTime(r.date)}');
       buffer.writeln('- Accuracy: ${r.accuracy.toStringAsFixed(1)}%');
       if (tags.isNotEmpty) buffer.writeln('- Tags: $tags');
+      if (comment.isNotEmpty) buffer.writeln('- Comment: $comment');
       if (notes.isNotEmpty) buffer.writeln('- Notes: $notes');
       buffer.writeln();
     }
@@ -309,11 +320,15 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     for (final r in sessions) {
       final tags = r.tags.join(', ');
       final notes = r.notes ?? '';
+      final comment = r.comment ?? '';
       buffer.writeln('<h3>${formatDateTime(r.date)}</h3>');
       buffer.writeln('<ul>');
       buffer.writeln('<li>Accuracy: ${r.accuracy.toStringAsFixed(1)}%</li>');
       if (tags.isNotEmpty) {
         buffer.writeln('<li>Tags: ${htmlEscape.convert(tags)}</li>');
+      }
+      if (comment.isNotEmpty) {
+        buffer.writeln('<li>Comment: ${htmlEscape.convert(comment)}</li>');
       }
       if (notes.isNotEmpty) {
         buffer.writeln('<li>Notes: ${htmlEscape.convert(notes)}</li>');
@@ -356,6 +371,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           accuracy: r.accuracy,
           tags: r.tags,
           notes: r.notes,
+          comment: r.comment,
         )
     ];
     final encoder = JsonEncoder.withIndent('  ');
@@ -439,10 +455,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     for (final r in sessions) {
       final tags = r.tags.join(', ');
       final notes = r.notes ?? '';
+      final comment = r.comment ?? '';
       lines.add(
           '${formatDateTime(r.date)} - ${r.accuracy.toStringAsFixed(1)}% - '
           '${r.correct}/${r.total}'
           '${tags.isNotEmpty ? ' - Tags: $tags' : ''}'
+          '${comment.isNotEmpty ? ' - Comment: $comment' : ''}'
           '${notes.isNotEmpty ? ' - Notes: $notes' : ''}');
     }
     await Clipboard.setData(ClipboardData(text: lines.join('\\n')));
@@ -460,7 +478,15 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         .toList();
     if (sessions.isEmpty) return;
     final rows = <List<dynamic>>[];
-    rows.add(['Date', 'Accuracy', 'Total', 'Correct', 'Tags', 'Notes']);
+    rows.add([
+      'Date',
+      'Accuracy',
+      'Total',
+      'Correct',
+      'Tags',
+      'Comment',
+      'Notes'
+    ]);
     for (final r in sessions) {
       rows.add([
         formatDateTime(r.date),
@@ -468,6 +494,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         r.total,
         r.correct,
         r.tags.join(';'),
+        r.comment ?? '',
         r.notes ?? '',
       ]);
     }
@@ -509,6 +536,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
               'Total',
               'Correct',
               'Tags',
+              'Comment',
               'Notes'
             ],
             data: [
@@ -519,6 +547,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   r.total,
                   r.correct,
                   r.tags.join(';'),
+                  r.comment ?? '',
                   r.notes ?? ''
                 ]
             ],
@@ -1690,6 +1719,61 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _editSessionComment(
+      BuildContext ctx, TrainingResult session) async {
+    final controller = TextEditingController(text: session.comment ?? '');
+    final updated = await showDialog<String>(
+      context: ctx,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text(
+            'Комментарий',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            maxLines: 1,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: 'Введите комментарий',
+              hintStyle: TextStyle(color: Colors.white54),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+    if (updated != null) {
+      final index = _history.indexOf(session);
+      if (index != -1) {
+        final text = updated.trim();
+        setState(() {
+          _history[index] = TrainingResult(
+            date: session.date,
+            total: session.total,
+            correct: session.correct,
+            accuracy: session.accuracy,
+            tags: session.tags,
+            notes: session.notes,
+            comment: text.isEmpty ? null : text,
+          );
+        });
+        await _saveHistory();
+      }
+    }
+  }
+
   Future<void> _editSessionAccuracy(
       BuildContext ctx, TrainingResult session) async {
     final correctController =
@@ -2775,7 +2859,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           child: HistoryListItem(
                             result: result,
                             onLongPress: () => _editSessionDate(result),
-                            onTap: () => _editSessionNotes(context, result),
+                            onTap: () => _editSessionComment(context, result),
                             onTagTap: () => _editSessionTags(context, result),
                             onDelete: () => _confirmDelete(result),
                           ),
