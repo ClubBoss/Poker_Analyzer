@@ -14,16 +14,20 @@ import 'services/all_in_players_service.dart';
 import 'services/user_preferences_service.dart';
 import 'services/tag_service.dart';
 import 'services/cloud_sync_service.dart';
+import 'services/training_spot_storage_service.dart';
 import 'user_preferences.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
+        Provider(create: (_) => CloudSyncService()),
         ChangeNotifierProvider(create: (_) => SavedHandStorageService()..load()),
         ChangeNotifierProvider(
-          create: (context) =>
-              SavedHandManagerService(storage: context.read<SavedHandStorageService>()),
+          create: (context) => SavedHandManagerService(
+            storage: context.read<SavedHandStorageService>(),
+            cloud: context.read<CloudSyncService>(),
+          ),
         ),
         ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
         ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
@@ -53,8 +57,36 @@ void main() {
   );
 }
 
-class PokerAIAnalyzerApp extends StatelessWidget {
+class PokerAIAnalyzerApp extends StatefulWidget {
   const PokerAIAnalyzerApp({super.key});
+
+  @override
+  State<PokerAIAnalyzerApp> createState() => _PokerAIAnalyzerAppState();
+}
+
+class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
+  late final TrainingSpotStorageService _spotStorage;
+
+  @override
+  void initState() {
+    super.initState();
+    _spotStorage = TrainingSpotStorageService(
+      cloud: context.read<CloudSyncService>(),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initialSync());
+  }
+
+  Future<void> _initialSync() async {
+    final cloud = context.read<CloudSyncService>();
+    final handManager = context.read<SavedHandManagerService>();
+    final spots = await _spotStorage.load();
+    for (final spot in spots) {
+      await cloud.uploadSpot(spot);
+    }
+    for (final hand in handManager.hands) {
+      await cloud.uploadHand(hand);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

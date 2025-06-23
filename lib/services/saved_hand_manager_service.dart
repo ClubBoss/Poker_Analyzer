@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 
 import '../models/saved_hand.dart';
 import 'saved_hand_storage_service.dart';
+import 'cloud_sync_service.dart';
 
 class SavedHandManagerService extends ChangeNotifier {
-  SavedHandManagerService({required SavedHandStorageService storage})
-      : _storage = storage;
+  SavedHandManagerService({
+    required SavedHandStorageService storage,
+    CloudSyncService? cloud,
+  })  : _storage = storage,
+        _cloud = cloud;
 
   final SavedHandStorageService _storage;
+  final CloudSyncService? _cloud;
 
   List<SavedHand> get hands => _storage.hands;
 
@@ -18,6 +23,7 @@ class SavedHandManagerService extends ChangeNotifier {
 
   Future<void> add(SavedHand hand) async {
     await _storage.add(hand);
+    await _cloud?.uploadHand(hand);
   }
 
   Future<void> update(int index, SavedHand hand) async {

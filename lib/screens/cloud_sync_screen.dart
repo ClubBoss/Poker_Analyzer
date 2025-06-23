@@ -15,14 +15,16 @@ class CloudSyncScreen extends StatefulWidget {
 }
 
 class _CloudSyncScreenState extends State<CloudSyncScreen> {
-  final TrainingSpotStorageService _spotStorage =
-      const TrainingSpotStorageService();
+  late TrainingSpotStorageService _spotStorage;
   int _cloudSpotCount = 0;
   int _cloudHandCount = 0;
 
   @override
   void initState() {
     super.initState();
+    _spotStorage = TrainingSpotStorageService(
+      cloud: context.read<CloudSyncService>(),
+    );
     _loadCounts();
   }
 
