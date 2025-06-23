@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../user_preferences.dart';
 import 'tag_management_screen.dart';
+import 'cloud_sync_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -61,6 +62,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text('Settings'),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.cloud),
+            tooltip: 'Cloud Sync',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CloudSyncScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.label_outline),
             tooltip: 'Manage Tags',
