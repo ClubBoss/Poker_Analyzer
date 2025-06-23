@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
+import '../models/training_spot.dart';
+import '../widgets/replay_spot_widget.dart';
 import '../theme/app_colors.dart';
 
 /// Displays all spots from [pack] with option to show only mistaken ones.
@@ -51,6 +53,18 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
               ),
           ],
         ),
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.grey[900],
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            builder: (_) =>
+                ReplaySpotWidget(spot: TrainingSpot.fromSavedHand(hand)),
+          );
+        },
       ),
     );
   }
