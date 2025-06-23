@@ -584,7 +584,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       }
       if (!widget.isHero) {
         _stackBarFadeController.reverse();
-        if ((_betStackAmount ?? 0) > 0) {
+        final shouldFoldBet =
+            (_betStackAmount ?? 0) > 0 && widget.cards.isEmpty;
+        if (shouldFoldBet) {
           _betFoldController.forward(from: 0.0).whenComplete(() {
             if (mounted) setState(() => _betStackAmount = null);
           });
