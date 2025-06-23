@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/training_spot.dart';
 import '../widgets/training_spot_diagram.dart';
 import '../widgets/training_spot_preview.dart';
+import '../widgets/replay_spot_widget.dart';
 
 /// Simple screen that shows a single [TrainingSpot].
 class TrainingScreen extends StatefulWidget {
@@ -95,6 +96,24 @@ class _TrainingScreenState extends State<TrainingScreen> {
                 onPressed: _reset,
                 child: const Text('Try Again'),
               ),
+              if (spot.actions.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.grey[900],
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                        ),
+                        builder: (_) => ReplaySpotWidget(spot: spot),
+                      );
+                    },
+                    child: const Text('Replay Hand'),
+                  ),
+                ),
             ],
             const SizedBox(height: 16),
             TrainingSpotPreview(spot: spot),
