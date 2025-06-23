@@ -682,21 +682,15 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
 
     final markdown = buffer.toString();
     final htmlContent = _wrapHtml(md.markdownToHtml(markdown));
+    final dir = await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
     final fileName =
-        'training_${_pack.name}_${date.millisecondsSinceEpoch}.html';
-    final savePath = await FilePicker.platform.saveFile(
-      dialogTitle: 'Save HTML',
-      fileName: fileName,
-      type: FileType.custom,
-      allowedExtensions: ['html'],
-    );
-    if (savePath == null) return;
-    final file = File(savePath);
+        'training_pack_${DateTime.now().millisecondsSinceEpoch}.html';
+    final file = File('${dir.path}/$fileName');
     await file.writeAsString(htmlContent);
     if (mounted) {
-      final name = savePath.split(Platform.pathSeparator).last;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: $name')),
+        SnackBar(content: Text('Файл сохранён: $fileName')),
       );
       Navigator.push(
         context,
