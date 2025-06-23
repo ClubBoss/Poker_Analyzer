@@ -210,6 +210,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _bustedController;
   late final Animation<double> _bustedOpacity;
   late final Animation<Offset> _bustedOffset;
+  Timer? _allInTimer;
   late final AnimationController _zoneFadeController;
   late final Animation<double> _zoneFadeOpacity;
   late final Animation<Offset> _zoneFadeOffset;
@@ -219,6 +220,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _allInController;
   late final Animation<double> _allInOpacity;
   late final Animation<Offset> _allInOffset;
+  late final Animation<double> _allInScale;
   bool _wasAllIn = false;
   bool _showWinnerLabel = false;
   late final AnimationController _winnerLabelController;
@@ -461,6 +463,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _allInOffset = Tween<Offset>(begin: const Offset(0, -0.2), end: Offset.zero)
         .animate(
             CurvedAnimation(parent: _allInController, curve: Curves.easeOut));
+    _allInScale = Tween<double>(begin: 0.8, end: 1.0)
+        .animate(CurvedAnimation(parent: _allInController, curve: Curves.easeOut));
 
     _winnerLabelController = AnimationController(
       vsync: this,
@@ -552,11 +556,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
 
     if (!widget.isHero && !widget.isFolded && _remainingStack == 0) {
       _wasAllIn = true;
-    }
-
-    if (!widget.isHero && !widget.isFolded && _remainingStack == 0) {
-      _showAllIn = true;
-      _allInController.value = 1.0;
+      _showAllInLabel();
     }
   }
 
@@ -686,8 +686,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       }
       if (!widget.isHero && !widget.isFolded) {
         if ((_remainingStack ?? -1) == 0 && (oldWidget.remainingStack ?? -1) != 0) {
-          _showAllIn = true;
-          _allInController.forward(from: 0.0);
+          _showAllInLabel();
         } else if ((_remainingStack ?? -1) != 0 && (oldWidget.remainingStack ?? -1) == 0) {
           _allInController.reverse().whenComplete(() {
             if (mounted) setState(() => _showAllIn = false);
@@ -1182,6 +1181,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _winnerLabelController.forward(from: 0.0);
   }
 
+  void _showAllInLabel() {
+    if (widget.isHero) return;
+    _allInTimer?.cancel();
+    setState(() => _showAllIn = true);
+    _allInController.forward(from: 0.0);
+    _allInTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (!mounted) return;
+      _allInController.reverse().whenComplete(() {
+        if (mounted) setState(() => _showAllIn = false);
+      });
+    });
+  }
+
   void _showBustedLabel() {
     if (widget.isHero || _remainingStack != 0) return;
     _bustedTimer?.cancel();
@@ -1450,6 +1462,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _finalStackTimer?.cancel();
     _hideCardsTimer?.cancel();
     _bustedTimer?.cancel();
+    _allInTimer?.cancel();
     _revealEyeTimer?.cancel();
     _betEntry?.remove();
     _betOverlayEntry?.remove();
@@ -2013,13 +2026,19 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                       scale: widget.scale,
                     ),
                   ),
-                if ((_showAllIn || _showBusted) && !widget.isHero)
+                if (_showBusted && !widget.isHero)
                   _StackStatusLabel(
-                    text: _showBusted ? 'BUSTED' : 'ALL-IN',
+                    text: 'BUSTED',
                     scale: widget.scale,
-                    offset: _showBusted ? _bustedOffset : _allInOffset,
-                    opacity: _showBusted ? _bustedOpacity : _allInOpacity,
-                    above: !_showBusted,
+                    offset: _bustedOffset,
+                    opacity: _bustedOpacity,
+                    above: false,
+                  ),
+                if (_showAllIn && !widget.isHero)
+                  _AllInLabel(
+                    scale: widget.scale,
+                    opacity: _allInOpacity,
+                    labelScale: _allInScale,
                   ),
               ],
             ),
@@ -2760,6 +2779,47 @@ class _StackStatusLabel extends StatelessWidget {
             ),
             child: Text(
               text,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10 * scale,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AllInLabel extends StatelessWidget {
+  final double scale;
+  final Animation<double> opacity;
+  final Animation<double> labelScale;
+
+  const _AllInLabel({
+    required this.scale,
+    required this.opacity,
+    required this.labelScale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: -24 * scale,
+      child: FadeTransition(
+        opacity: opacity,
+        child: ScaleTransition(
+          scale: labelScale,
+          child: Container(
+            padding:
+                EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(8 * scale),
+            ),
+            child: Text(
+              'ALL-IN',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10 * scale,
