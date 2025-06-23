@@ -892,6 +892,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                         playerTypes: spot.playerTypes,
                         positions: spot.positions,
                         stacks: spot.stacks,
+                        equities: spot.equities,
                         tournamentId: idController.text.trim().isEmpty
                             ? null
                             : idController.text.trim(),
@@ -988,6 +989,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
                     playerTypes: spot.playerTypes,
                     positions: spot.positions,
                     stacks: spot.stacks,
+                    equities: spot.equities,
                     tournamentId: titleController.text.trim().isEmpty
                         ? null
                         : titleController.text.trim(),
