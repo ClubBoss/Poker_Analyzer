@@ -124,6 +124,59 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     );
   }
 
+  Future<void> _deleteHand(SavedHand hand) async {
+    setState(() => widget.pack.hands.remove(hand));
+    await _savePack();
+  }
+
+  Future<void> _confirmDeleteHand(SavedHand hand) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Hand?'),
+        content:
+            const Text('Are you sure you want to delete this hand?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await _deleteHand(hand);
+    }
+  }
+
+  Future<void> _showHandOptions(SavedHand hand) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(hand.name),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'edit'),
+            child: const Text('Edit'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'delete'),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (result == 'edit') {
+      await _editHand(hand);
+    } else if (result == 'delete') {
+      await _confirmDeleteHand(hand);
+    }
+  }
+
   Widget _buildHandTile(SavedHand hand) {
     return Card(
       color: AppColors.cardBackground,
@@ -157,7 +210,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                 ReplaySpotWidget(spot: TrainingSpot.fromSavedHand(hand)),
           );
         },
-        onLongPress: () => _editHand(hand),
+        onLongPress: () => _showHandOptions(hand),
       ),
     );
   }
