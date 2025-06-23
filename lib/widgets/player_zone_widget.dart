@@ -46,6 +46,7 @@ class PlayerZoneWidget extends StatefulWidget {
   final List<CardModel> cards;
   final bool isHero;
   final bool isFolded;
+  final bool isShowdownLoser;
   /// Current bet placed by the player.
   final int currentBet;
   /// Current stack size of the player.
@@ -94,6 +95,7 @@ class PlayerZoneWidget extends StatefulWidget {
     required this.cards,
     required this.isHero,
     required this.isFolded,
+    this.isShowdownLoser = false,
     this.currentBet = 0,
     this.stackSize,
     this.stackSizes,
@@ -137,6 +139,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   OverlayEntry? _gainAmountEntry;
   OverlayEntry? _chipWinEntry;
   OverlayEntry? _foldChipEntry;
+  OverlayEntry? _showdownLossEntry;
   bool _winChipsAnimating = false;
   final List<OverlayEntry> _winChipEntries = [];
   bool _winnerHighlight = false;
@@ -209,6 +212,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _stackWinGlow;
   late final AnimationController _chipWinController;
   late final AnimationController _foldChipController;
+  late final AnimationController _showdownLossController;
   bool _showBusted = false;
   Timer? _bustedTimer;
   late final AnimationController _bustedController;
@@ -345,6 +349,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       duration: const Duration(milliseconds: 800),
     );
     _foldChipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _showdownLossController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
@@ -627,6 +635,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         _betFoldController.reset();
       }
     }
+    if (!widget.isHero &&
+        !widget.isFolded &&
+        widget.isShowdownLoser &&
+        !oldWidget.isShowdownLoser) {
+      _startShowdownLossAnimation();
+    }
     if (widget.player.bet != oldWidget.player.bet ||
         widget.currentBet != oldWidget.currentBet) {
       _currentBet = widget.player.bet;
@@ -789,6 +803,30 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _foldChipController.forward(from: 0.0).whenComplete(() {
       entry.remove();
       if (_foldChipEntry == entry) _foldChipEntry = null;
+    });
+  }
+
+  void _startShowdownLossAnimation() {
+    final overlay = Overlay.of(context);
+    final box = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+    if (overlay == null || box == null) return;
+    final media = MediaQuery.of(context).size;
+    final start = box.localToGlobal(box.size.center(Offset.zero));
+    final end = Offset(media.width / 2, media.height / 2 - 60 * widget.scale);
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _FoldChipOverlay(
+        animation: _showdownLossController,
+        start: start,
+        end: end,
+        scale: widget.scale,
+      ),
+    );
+    overlay.insert(entry);
+    _showdownLossEntry = entry;
+    _showdownLossController.forward(from: 0.0).whenComplete(() {
+      entry.remove();
+      if (_showdownLossEntry == entry) _showdownLossEntry = null;
     });
   }
 
@@ -1437,6 +1475,12 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     }
   }
 
+  void onShowdownResult() {
+    if (!widget.isHero && !widget.isFolded && widget.isShowdownLoser == true) {
+      _startShowdownLossAnimation();
+    }
+  }
+
   Widget _betIndicator(TextStyle style) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 4 * widget.scale),
@@ -1532,6 +1576,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _gainAmountEntry?.remove();
     _chipWinEntry?.remove();
     _foldChipEntry?.remove();
+    _showdownLossEntry?.remove();
     _stackController.dispose();
     _betController.dispose();
     _controller.dispose();
@@ -1550,6 +1595,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _allInWinGlowController.dispose();
     _chipWinController.dispose();
     _foldChipController.dispose();
+    _showdownLossController.dispose();
     _stackWinController.dispose();
     _stackBarController.dispose();
     _stackBarFadeController.dispose();
@@ -3713,5 +3759,10 @@ void playRefundToPlayer(
     color: color,
     onCompleted: onCompleted,
   );
+}
+
+void onShowdownResult(String playerName) {
+  final state = playerZoneRegistry[playerName];
+  state?.onShowdownResult();
 }
 
