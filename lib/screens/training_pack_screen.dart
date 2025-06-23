@@ -42,16 +42,25 @@ import '../services/training_spot_file_service.dart';
 import '../services/training_spot_storage_service.dart';
 import '../services/cloud_sync_service.dart';
 import '../models/training_spot.dart';
+import '../models/evaluation_result.dart';
+import '../services/evaluation_executor_service.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/common/training_spot_list.dart';
 
 class _ResultEntry {
   final String name;
-  final String expected;
   final String userAction;
-  final bool correct;
+  final EvaluationResult evaluation;
 
-  _ResultEntry(this.name, this.expected, this.userAction, this.correct);
+  _ResultEntry({
+    required this.name,
+    required this.userAction,
+    required this.evaluation,
+  });
+
+  bool get correct => evaluation.correct;
+
+  String get expected => evaluation.expectedAction;
 }
 
 class TrainingPackScreen extends StatefulWidget {
@@ -163,8 +172,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         }
       }
     }
-    final expected = original.expectedAction ?? '-';
-    final matched = userAct.toLowerCase() == expected.toLowerCase();
+    final evaluation = context
+        .read<EvaluationExecutorService>()
+        .evaluate(TrainingSpot.fromSavedHand(original), userAct);
+    final expected = evaluation.expectedAction;
+    final matched = evaluation.correct;
     int rating = original.rating;
     final Set<String> tags = {...original.tags};
     await showModalBottomSheet<void>(
@@ -296,7 +308,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         ),
       ),
     );
-    return _ResultEntry(original.name, expected, userAct, matched);
+    return _ResultEntry(
+      name: original.name,
+      userAction: userAct,
+      evaluation: evaluation,
+    );
   }
 
   Future<void> _editPack() async {
@@ -864,6 +880,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                   providers: [
                     ChangeNotifierProvider(create: (_) => PlayerProfileService()),
                     ChangeNotifierProvider(create: (_) => PlayerManagerService(context.read<PlayerProfileService>())),
+                    Provider(create: (_) => EvaluationExecutorService()),
                   ],
                   child: Builder(
                     builder: (context) => ChangeNotifierProvider(
