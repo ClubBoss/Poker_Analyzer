@@ -31,6 +31,12 @@ class TrainingSpotPreview extends StatelessWidget {
       label += ' ${entry.amount}';
     }
 
+    if (entry.playerIndex < spot.stacks.length) {
+      final stack = spot.stacks[entry.playerIndex];
+      final bb = (stack / 12.5).round();
+      label += ' $stack (${bb} BB)';
+    }
+
     String? advice;
     if (spot.strategyAdvice != null &&
         entry.playerIndex < spot.strategyAdvice!.length) {
