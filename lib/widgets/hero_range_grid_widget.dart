@@ -30,20 +30,15 @@ class HeroRangeGridWidget extends StatelessWidget {
     return '${r2}${r1}o';
   }
 
-  Color _rangeGradient(double freq) {
-    final clamped = freq.clamp(0.0, 1.0) as double;
-    if (clamped <= 0.5) {
-      final t = clamped * 2;
-      return Color.lerp(Colors.transparent, Colors.red.shade900, t) ??
-          Colors.red.shade900.withOpacity(t);
-    }
-    final t = (clamped - 0.5) * 2;
-    return Color.lerp(Colors.red.shade900, Colors.orangeAccent, t) ??
-        Colors.orangeAccent.withOpacity(t);
-  }
-
   Color _cellColor(double freq) {
-    return _rangeGradient(freq);
+    final clamped = freq.clamp(0.0, 1.0) as double;
+    if (clamped >= 0.5) {
+      return Colors.orangeAccent;
+    }
+    if (clamped >= 0.2) {
+      return Colors.red.shade900;
+    }
+    return Colors.grey.withOpacity(0.3);
   }
 
   @override
