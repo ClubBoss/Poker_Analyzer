@@ -1574,6 +1574,32 @@ class TrainingAnalysisScreen extends StatelessWidget {
     });
   }
 
+  Future<void> _exportMarkdown(BuildContext context) async {
+    if (results.isEmpty) return;
+    final buffer = StringBuffer();
+    for (final r in results) {
+      final status = r.correct ? 'верно' : 'ошибка';
+      buffer.writeln(
+          '- ${r.name}: вы выбрали `${r.userAction}`, ожидалось `${r.expected}` — $status');
+    }
+    try {
+      final dir =
+          await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/session_export.md');
+      await file.writeAsString(buffer.toString());
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Файл сохранён: session_export.md')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mistakes = results.where((r) => !r.correct).toList();
@@ -1581,6 +1607,13 @@ class TrainingAnalysisScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Анализ тренировки'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save_alt),
+            tooltip: 'Экспорт',
+            onPressed: () => _exportMarkdown(context),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: mistakes.isEmpty
