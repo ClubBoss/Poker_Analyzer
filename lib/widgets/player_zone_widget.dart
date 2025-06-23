@@ -152,6 +152,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   Color _actionGlowColor = Colors.transparent;
   Timer? _actionGlowTimer;
   late final AnimationController _actionGlowController;
+  late final AnimationController _actionTagController;
   late final Animation<double> _actionTagOpacity;
   String? _lastActionText;
   Color _lastActionColor = Colors.black87;
@@ -308,7 +309,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _actionTagOpacity = CurvedAnimation(parent: _actionGlowController, curve: Curves.easeIn);
+    _actionTagController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _actionTagOpacity = CurvedAnimation(parent: _actionTagController, curve: Curves.easeIn);
     _revealController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
@@ -754,6 +759,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _actionGlowController
       ..stop()
       ..value = 0.0;
+    _actionTagController
+      ..stop()
+      ..value = 0.0;
     if (text == null) {
       _actionLabelEntry?.remove();
       _actionLabelEntry = null;
@@ -773,10 +781,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     });
     _showActionLabel(text, labelColor);
     _actionGlowController.forward(from: 0.0);
-    _lastActionTimer = Timer(const Duration(seconds: 2), () {
-      if (mounted) {
-        _actionGlowController.reverse();
-      }
+    _actionTagController.forward(from: 0.0);
+    _lastActionTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (!mounted) return;
+      _actionTagController.reverse().whenComplete(() {
+        if (mounted) setState(() => _lastActionText = null);
+      });
+      _actionGlowController.reverse();
     });
     _actionGlowTimer = Timer(const Duration(seconds: 1), () {
       if (mounted) {
@@ -1418,6 +1429,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _winnerGlowController.dispose();
     _winnerHighlightController.dispose();
     _actionGlowController.dispose();
+    _actionTagController.dispose();
     _allInWinGlowController.dispose();
     _stackWinController.dispose();
     _stackBarController.dispose();
