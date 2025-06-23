@@ -76,6 +76,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       GlobalKey<TrainingSpotListState>();
   int _currentIndex = 0;
 
+  static const List<String> _availableTags = ['BVB', 'ICM', 'Trap', 'KO'];
+
   late TrainingPack _pack;
 
   /// Hands that are currently used in the session. By default it contains
@@ -157,6 +159,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
     final expected = original.expectedAction ?? '-';
     final matched = userAct.toLowerCase() == expected.toLowerCase();
+    int rating = original.rating;
+    final Set<String> tags = {...original.tags};
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.grey[900],
@@ -200,31 +204,88 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ),
             ],
             const SizedBox(height: 16),
-            if (original.actions.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.grey[900],
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(16)),
+            StatefulBuilder(builder: (context, setStateDialog) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Оцените спот',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white70)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for (int i = 1; i <= 5; i++)
+                        IconButton(
+                          icon: Icon(
+                            i <= rating ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                          ),
+                          onPressed: () => setStateDialog(() => rating = i),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 4,
+                    children: [
+                      for (final tag in _availableTags)
+                        FilterChip(
+                          label: Text(tag),
+                          selected: tags.contains(tag),
+                          onSelected: (selected) => setStateDialog(() {
+                            if (selected) {
+                              tags.add(tag);
+                            } else {
+                              tags.remove(tag);
+                            }
+                          }),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  if (original.actions.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.grey[900],
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.vertical(top: Radius.circular(16)),
+                            ),
+                            builder: (_) =>
+                                ReplaySpotWidget(spot: TrainingSpot.fromSavedHand(original)),
+                          );
+                        },
+                        child: const Text('Replay Hand'),
                       ),
-                      builder: (_) =>
-                          ReplaySpotWidget(spot: TrainingSpot.fromSavedHand(original)),
-                    );
-                  },
-                  child: const Text('Replay Hand'),
-                ),
-              ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('OK'),
-            )
+                    ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final updated = original.copyWith(
+                        rating: rating,
+                        tags: tags.toList(),
+                      );
+                      final index = _sessionHands.indexOf(original);
+                      if (index != -1) {
+                        _sessionHands[index] = updated;
+                      }
+                      final packIndex = _pack.hands.indexOf(original);
+                      if (packIndex != -1) {
+                        _pack.hands[packIndex] = updated;
+                      }
+                      Navigator.pop(ctx);
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            }),
           ],
         ),
       ),

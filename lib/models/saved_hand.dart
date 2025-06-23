@@ -40,6 +40,8 @@ class SavedHand {
   final Map<int, PlayerType>? playerTypes;
   final String? comment;
   final List<String> tags;
+  /// Rating given to this spot, from 1 to 5. 0 means unrated.
+  final int rating;
   /// Cursor offset within the comment field when the hand was saved.
   final int? commentCursor;
   /// Cursor offset within the tags field when the hand was saved.
@@ -95,6 +97,7 @@ class SavedHand {
     this.playerTypes,
     this.comment,
     List<String>? tags,
+    this.rating = 0,
     this.commentCursor,
     this.tagsCursor,
     this.isFavorite = false,
@@ -147,6 +150,7 @@ class SavedHand {
     Map<int, PlayerType>? playerTypes,
     String? comment,
     List<String>? tags,
+    int? rating,
     int? commentCursor,
     int? tagsCursor,
     bool? isFavorite,
@@ -201,6 +205,7 @@ class SavedHand {
       playerTypes: playerTypes ?? this.playerTypes,
       comment: comment ?? this.comment,
       tags: tags ?? List<String>.from(this.tags),
+      rating: rating ?? this.rating,
       commentCursor: commentCursor ?? this.commentCursor,
       tagsCursor: tagsCursor ?? this.tagsCursor,
       isFavorite: isFavorite ?? this.isFavorite,
@@ -308,6 +313,7 @@ class SavedHand {
               playerTypes!.map((k, v) => MapEntry(k.toString(), v.name)),
         if (comment != null) 'comment': comment,
         'tags': tags,
+        'rating': rating,
         if (commentCursor != null) 'commentCursor': commentCursor,
         if (tagsCursor != null) 'tagsCursor': tagsCursor,
         'isFavorite': isFavorite,
@@ -411,6 +417,7 @@ class SavedHand {
       positions[int.parse(key as String)] = value as String;
     });
     final tags = [for (final t in (json['tags'] as List? ?? [])) t as String];
+    final rating = (json['rating'] as num?)?.toInt() ?? 0;
     final isFavorite = json['isFavorite'] as bool? ?? false;
     final date = DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now();
     Map<String, int>? effStacks;
@@ -518,6 +525,7 @@ class SavedHand {
       playerTypes: types,
       comment: json['comment'] as String?,
       tags: tags,
+      rating: rating,
       commentCursor: commentCursor,
       tagsCursor: tagsCursor,
       isFavorite: isFavorite,
