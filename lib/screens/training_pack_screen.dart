@@ -701,6 +701,116 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
   }
 
+  Future<void> _exportPdf() async {
+    if (_results.isEmpty) return;
+
+    final total = _results.length;
+    final correct = _results.where((r) => r.correct).length;
+    final mistakes = _results.where((r) => !r.correct).toList()
+      ..sort((a, b) {
+        final diffA = a.evaluation.expectedEquity - a.evaluation.userEquity;
+        final diffB = b.evaluation.expectedEquity - b.evaluation.userEquity;
+        return diffB.compareTo(diffA);
+      });
+    final date = DateTime.now();
+    final percent =
+        total > 0 ? (correct * 100 / total).toStringAsFixed(2) : '0';
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    pw.Widget buildBar(double value, PdfColor color, String label) {
+      const barWidth = 200.0;
+      final width = barWidth * value.clamp(0.0, 1.0);
+      return pw.Row(
+        children: [
+          pw.Container(width: width, height: 8, color: color),
+          pw.SizedBox(width: 4),
+          pw.Text('${(value * 100).toStringAsFixed(0)}%',
+              style: pw.TextStyle(font: regularFont, color: color, fontSize: 10)),
+          pw.SizedBox(width: 4),
+          pw.Text(label,
+              style: pw.TextStyle(font: regularFont, fontSize: 10)),
+        ],
+      );
+    }
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          return [
+            pw.Text('Training Session',
+                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 16),
+            pw.Text('Date: ${formatDateTime(date)}',
+                style: pw.TextStyle(font: regularFont)),
+            pw.Text('Total hands: $total',
+                style: pw.TextStyle(font: regularFont)),
+            pw.Text('Correct answers: $correct',
+                style: pw.TextStyle(font: regularFont)),
+            pw.Text('Accuracy: $percent%',
+                style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 16),
+            if (mistakes.isNotEmpty)
+              pw.Text('Mistakes',
+                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+            if (mistakes.isNotEmpty) pw.SizedBox(height: 8),
+            for (final m in mistakes)
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    '${m.name}: expected ${m.expected}, got ${m.userAction}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
+                  if (m.evaluation.hint != null &&
+                      m.evaluation.hint!.isNotEmpty)
+                    pw.Text('Hint: ${m.evaluation.hint}',
+                        style:
+                            pw.TextStyle(font: regularFont, fontSize: 10)),
+                  if (m.evaluation.userEquity != 0 &&
+                      m.evaluation.expectedEquity != 0)
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'Equity: ${(m.evaluation.userEquity * 100).toStringAsFixed(0)}% → ${(m.evaluation.expectedEquity * 100).toStringAsFixed(0)}%',
+                          style: pw.TextStyle(
+                              font: regularFont, fontSize: 10),
+                        ),
+                        pw.SizedBox(height: 2),
+                        buildBar(m.evaluation.userEquity, PdfColors.red,
+                            'Ваше equity'),
+                        buildBar(m.evaluation.expectedEquity, PdfColors.green,
+                            'Оптимальное'),
+                      ],
+                    ),
+                  pw.SizedBox(height: 12),
+                ],
+              ),
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir =
+        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final fileName =
+        'training_pack_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsBytes(bytes);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: $fileName')),
+      );
+    }
+  }
+
   String _wrapHtml(String body) {
     return '''
 <!DOCTYPE html>
@@ -1083,6 +1193,11 @@ body { font-family: sans-serif; padding: 16px; }
               ElevatedButton(
                 onPressed: _exportHtml,
                 child: const Text('Export to HTML'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _exportPdf,
+                child: const Text('Экспорт в PDF'),
               ),
               const SizedBox(height: 12),
               ElevatedButton(
