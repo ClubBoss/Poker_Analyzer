@@ -47,6 +47,7 @@ import '../services/evaluation_executor_service.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/common/training_spot_list.dart';
 import 'markdown_preview_screen.dart';
+import 'package:markdown/markdown.dart' as md;
 
 class _ResultEntry {
   final String name;
@@ -621,6 +622,106 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
   }
 
+  Future<void> _exportHtml() async {
+    if (_results.isEmpty) return;
+    final total = _results.length;
+    final correct = _results.where((r) => r.correct).length;
+    final mistakes = _results.where((r) => !r.correct).toList()
+      ..sort((a, b) {
+        final diffA = a.evaluation.expectedEquity - a.evaluation.userEquity;
+        final diffB = b.evaluation.expectedEquity - b.evaluation.userEquity;
+        return diffB.compareTo(diffA);
+      });
+    final date = DateTime.now();
+    final percent = total > 0 ? (correct * 100 / total).toStringAsFixed(2) : '0';
+
+    final buffer = StringBuffer()
+      ..writeln('# Training Session')
+      ..writeln()
+      ..writeln('- **Date:** ${formatDateTime(date)}')
+      ..writeln('- **Total hands:** $total')
+      ..writeln('- **Correct answers:** $correct')
+      ..writeln('- **Accuracy:** $percent%')
+      ..writeln();
+
+    if (mistakes.isNotEmpty) {
+      buffer.writeln('## Mistakes');
+      for (final m in mistakes) {
+        final mark = m.correct ? '✔' : '✘';
+        final hint = m.evaluation.hint;
+        final line =
+            '- $mark ${m.name}: expected `${m.expected}`, got `${m.userAction}`';
+        buffer.writeln(line);
+        if (hint != null && hint.isNotEmpty) {
+          buffer.writeln('  Hint: $hint');
+        }
+        final userEq = m.evaluation.userEquity;
+        final expectedEq = m.evaluation.expectedEquity;
+        if (userEq != 0 && expectedEq != 0) {
+          buffer.writeln(
+              '  Equity: ${(userEq * 100).toStringAsFixed(0)}% → ${(expectedEq * 100).toStringAsFixed(0)}%');
+          final userPct = (userEq * 100).toStringAsFixed(0);
+          final expectedPct = (expectedEq * 100).toStringAsFixed(0);
+          buffer.writeln('<div style="margin:4px 0;">');
+          buffer.writeln(
+              '<div style="display:flex;align-items:center;">'
+              '<div style="background-color:#f44336;height:8px;width:${userPct}%;"></div>'
+              '<span style="margin-left:4px;font-size:12px;color:#f44336;">${userPct}%</span>'
+              '<span style="margin-left:4px;font-size:12px;">Ваше equity</span>'
+              '</div>');
+          buffer.writeln(
+              '<div style="display:flex;align-items:center;margin-top:2px;">'
+              '<div style="background-color:#4caf50;height:8px;width:${expectedPct}%;"></div>'
+              '<span style="margin-left:4px;font-size:12px;color:#4caf50;">${expectedPct}%</span>'
+              '<span style="margin-left:4px;font-size:12px;">Оптимальное</span>'
+              '</div>');
+          buffer.writeln('</div>');
+        }
+      }
+    }
+
+    final markdown = buffer.toString();
+    final htmlContent = _wrapHtml(md.markdownToHtml(markdown));
+    final fileName =
+        'training_${_pack.name}_${date.millisecondsSinceEpoch}.html';
+    final savePath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save HTML',
+      fileName: fileName,
+      type: FileType.custom,
+      allowedExtensions: ['html'],
+    );
+    if (savePath == null) return;
+    final file = File(savePath);
+    await file.writeAsString(htmlContent);
+    if (mounted) {
+      final name = savePath.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: $name')),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MarkdownPreviewScreen(path: file.path),
+        ),
+      );
+    }
+  }
+
+  String _wrapHtml(String body) {
+    return '''
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: sans-serif; padding: 16px; }
+</style>
+</head>
+<body>$body</body>
+</html>
+''';
+  }
+
   Future<void> _importPackFromFile() async {
     final service =
         Provider.of<TrainingPackStorageService>(context, listen: false);
@@ -983,6 +1084,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ElevatedButton(
                 onPressed: _exportMarkdown,
                 child: const Text('Export to Markdown'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _exportHtml,
+                child: const Text('Export to HTML'),
               ),
               const SizedBox(height: 12),
               ElevatedButton(

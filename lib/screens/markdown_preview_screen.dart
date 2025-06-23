@@ -25,8 +25,13 @@ class _MarkdownPreviewScreenState extends State<MarkdownPreviewScreen> {
 
   Future<void> _loadContent() async {
     final file = File(widget.path);
-    final markdown = await file.readAsString();
-    final html = _wrapHtml(md.markdownToHtml(markdown));
+    final content = await file.readAsString();
+    String html;
+    if (widget.path.toLowerCase().endsWith('.html')) {
+      html = content;
+    } else {
+      html = _wrapHtml(md.markdownToHtml(content));
+    }
     if (mounted) {
       await _controller.loadHtmlString(html);
     }
