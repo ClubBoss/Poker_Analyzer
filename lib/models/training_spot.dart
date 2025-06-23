@@ -16,6 +16,8 @@ class TrainingSpot {
   final List<String>? strategyAdvice;
   /// Optional equity values for each player as percentages.
   final List<double>? equities;
+  /// Optional hero range matrix [13x13] with frequencies 0.0-1.0.
+  final List<List<double>>? rangeMatrix;
   final String? tournamentId;
   final int? buyIn;
   final int? totalPrizePool;
@@ -41,6 +43,7 @@ class TrainingSpot {
     required this.stacks,
     this.strategyAdvice,
     this.equities,
+    this.rangeMatrix,
     this.tournamentId,
     this.buyIn,
     this.totalPrizePool,
@@ -78,6 +81,7 @@ class TrainingSpot {
         for (int i = 0; i < hand.numberOfPlayers; i++)
           hand.stackSizes[i] ?? 0
       ],
+      rangeMatrix: null,
       equities: null,
       tournamentId: hand.tournamentId,
       buyIn: hand.buyIn,
@@ -119,6 +123,7 @@ class TrainingSpot {
         'positions': positions,
         'stacks': stacks,
         if (equities != null) 'equities': equities,
+        if (rangeMatrix != null) 'rangeMatrix': rangeMatrix,
         if (tournamentId != null) 'tournamentId': tournamentId,
         if (buyIn != null) 'buyIn': buyIn,
         if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
@@ -199,9 +204,22 @@ class TrainingSpot {
 
     final adviceData = (json['strategyAdvice'] as List?)?.cast<String>();
     final equityData = (json['equities'] as List?)?.cast<num>();
+    final rangeData = json['rangeMatrix'] as List?;
     List<double>? equities;
     if (equityData != null) {
       equities = [for (final e in equityData) e.toDouble()];
+    }
+    List<List<double>>? rangeMatrix;
+    if (rangeData != null) {
+      rangeMatrix = [];
+      for (final row in rangeData) {
+        if (row is List) {
+          rangeMatrix.add([
+            for (final v in row)
+              (v as num?)?.toDouble() ?? 0.0
+          ]);
+        }
+      }
     }
 
     return TrainingSpot(
@@ -215,6 +233,7 @@ class TrainingSpot {
       stacks: stacks,
       strategyAdvice: adviceData,
       equities: equities,
+      rangeMatrix: rangeMatrix,
       tournamentId: json['tournamentId'] as String?,
       buyIn: (json['buyIn'] as num?)?.toInt(),
       totalPrizePool: (json['totalPrizePool'] as num?)?.toInt(),
@@ -242,6 +261,7 @@ class TrainingSpot {
     String? recommendedAction,
     List<String>? strategyAdvice,
     List<double>? equities,
+    List<List<double>>? rangeMatrix,
     DateTime? createdAt,
   }) {
     return TrainingSpot(
@@ -255,6 +275,7 @@ class TrainingSpot {
       stacks: List<int>.from(stacks),
       strategyAdvice: strategyAdvice ?? this.strategyAdvice,
       equities: equities ?? this.equities,
+      rangeMatrix: rangeMatrix ?? this.rangeMatrix,
       tournamentId: tournamentId,
       buyIn: buyIn,
       totalPrizePool: totalPrizePool,

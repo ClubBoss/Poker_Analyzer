@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../models/training_spot.dart';
 import 'player_info_overlay.dart';
+import 'hero_range_grid_widget.dart';
 
 /// Displays players around a circular table with a highlight for the hero.
 ///
@@ -79,22 +80,39 @@ class TrainingSpotDiagram extends StatelessWidget {
                 left: offset.dx - seatSize / 2,
                 top: offset.dy - seatSize / 2,
                 child: GestureDetector(
-                  onTapDown: isHero
-                      ? null
-                      : (details) {
-                          final pos =
-                              details.globalPosition + const Offset(0, -30);
-                          final positionName = i < spot.positions.length
-                              ? spot.positions[i]
-                              : '';
-                          showPlayerInfoOverlay(
-                            context: context,
-                            position: pos,
-                            stack: stack,
-                            positionName: positionName,
-                            advice: advice,
-                          );
-                        },
+                  onTapDown: (details) {
+                    if (isHero) {
+                      if (spot.rangeMatrix != null) {
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.grey[900],
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(16)),
+                          ),
+                          builder: (_) => Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: HeroRangeGridWidget(
+                              rangeMatrix: spot.rangeMatrix!,
+                            ),
+                          ),
+                        );
+                      }
+                    } else {
+                      final pos =
+                          details.globalPosition + const Offset(0, -30);
+                      final positionName = i < spot.positions.length
+                          ? spot.positions[i]
+                          : '';
+                      showPlayerInfoOverlay(
+                        context: context,
+                        position: pos,
+                        stack: stack,
+                        positionName: positionName,
+                        advice: advice,
+                      );
+                    }
+                  },
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
