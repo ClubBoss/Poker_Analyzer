@@ -22,6 +22,7 @@ import '../user_preferences.dart';
 import '../main_demo.dart';
 import '../widgets/training_spot_preview.dart';
 import '../tutorial/tutorial_flow.dart';
+import '../tutorial/tutorial_completion_screen.dart';
 import 'training_history_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
@@ -37,11 +38,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   final GlobalKey _trainingButtonKey = GlobalKey();
   final GlobalKey _newHandButtonKey = GlobalKey();
   final GlobalKey _historyButtonKey = GlobalKey();
+  bool _tutorialCompleted = false;
 
   @override
   void initState() {
     super.initState();
     _demoMode = UserPreferences.instance.demoMode;
+    _tutorialCompleted = UserPreferences.instance.tutorialCompleted;
     _loadSpot();
   }
 
@@ -139,7 +142,21 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         description: 'Экспортируйте результаты для дальнейшего изучения',
         onNext: (_, __) {},
       ),
-    ]);
+    ], onComplete: () {
+      setState(() => _tutorialCompleted = true);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TutorialCompletionScreen(
+            onRepeat: () {
+              final nav = Navigator.of(context);
+              nav.popUntil((route) => route.isFirst);
+              flow.start(nav.context);
+            },
+          ),
+        ),
+      );
+    });
 
     flow.start(context);
   }
@@ -152,10 +169,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         title: const Text('Poker AI Analyzer'),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: _startTutorial,
-          ),
+          if (!_tutorialCompleted)
+            IconButton(
+              icon: const Icon(Icons.help_outline),
+              onPressed: _startTutorial,
+            ),
         ],
       ),
       body: Center(

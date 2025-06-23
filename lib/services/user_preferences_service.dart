@@ -8,6 +8,7 @@ class UserPreferencesService extends ChangeNotifier {
   static const _actionHintsKey = 'show_action_hints';
   static const _coachModeKey = 'coach_mode';
   static const _demoModeKey = 'demo_mode';
+  static const _tutorialCompletedKey = 'tutorial_completed';
 
   bool _showPotAnimation = true;
   bool _showCardReveal = true;
@@ -15,6 +16,7 @@ class UserPreferencesService extends ChangeNotifier {
   bool _showActionHints = true;
   bool _coachMode = false;
   bool _demoMode = false;
+  bool _tutorialCompleted = false;
 
   bool get showPotAnimation => _showPotAnimation;
   bool get showCardReveal => _showCardReveal;
@@ -22,6 +24,7 @@ class UserPreferencesService extends ChangeNotifier {
   bool get showActionHints => _showActionHints;
   bool get coachMode => _coachMode;
   bool get demoMode => _demoMode;
+  bool get tutorialCompleted => _tutorialCompleted;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -31,6 +34,7 @@ class UserPreferencesService extends ChangeNotifier {
     _showActionHints = prefs.getBool(_actionHintsKey) ?? true;
     _coachMode = prefs.getBool(_coachModeKey) ?? false;
     _demoMode = prefs.getBool(_demoModeKey) ?? false;
+    _tutorialCompleted = prefs.getBool(_tutorialCompletedKey) ?? false;
     notifyListeners();
   }
 
@@ -78,6 +82,13 @@ class UserPreferencesService extends ChangeNotifier {
     if (_demoMode == value) return;
     _demoMode = value;
     await _save(_demoModeKey, value);
+    notifyListeners();
+  }
+
+  Future<void> setTutorialCompleted(bool value) async {
+    if (_tutorialCompleted == value) return;
+    _tutorialCompleted = value;
+    await _save(_tutorialCompletedKey, value);
     notifyListeners();
   }
 }
