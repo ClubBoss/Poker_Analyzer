@@ -37,6 +37,7 @@ import '../services/saved_hand_import_export_service.dart';
 import '../services/training_import_export_service.dart';
 import '../services/training_spot_file_service.dart';
 import '../services/training_spot_storage_service.dart';
+import '../services/cloud_sync_service.dart';
 import '../models/training_spot.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/common/training_spot_list.dart';
@@ -94,13 +95,15 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       const TrainingImportExportService();
   final TrainingSpotFileService _spotFileService =
       const TrainingSpotFileService();
-  final TrainingSpotStorageService _spotStorageService =
-      const TrainingSpotStorageService();
+  late TrainingSpotStorageService _spotStorageService;
   List<TrainingSpot> _spots = [];
 
   @override
   void initState() {
     super.initState();
+    _spotStorageService = TrainingSpotStorageService(
+      cloud: context.read<CloudSyncService>(),
+    );
     _pack = widget.pack;
     _sessionHands = widget.hands ?? _pack.hands;
     _isMistakeReviewMode = widget.mistakeReviewMode;

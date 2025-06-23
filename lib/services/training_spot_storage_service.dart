@@ -4,11 +4,14 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 import '../models/training_spot.dart';
+import 'cloud_sync_service.dart';
 
 class TrainingSpotStorageService {
   static const String _fileName = 'training_spots.json';
 
-  const TrainingSpotStorageService();
+  const TrainingSpotStorageService({this.cloud});
+
+  final CloudSyncService? cloud;
 
   Future<File> _getFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -38,5 +41,10 @@ class TrainingSpotStorageService {
       jsonEncode([for (final s in spots) s.toJson()]),
       flush: true,
     );
+    if (cloud != null) {
+      for (final spot in spots) {
+        await cloud!.uploadSpot(spot);
+      }
+    }
   }
 }
