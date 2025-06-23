@@ -1290,6 +1290,29 @@ class TrainingAnalysisScreen extends StatelessWidget {
 
   const TrainingAnalysisScreen({super.key, required this.results});
 
+  Widget _buildEquityBar(double value, Color color, String label) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final width = constraints.maxWidth * value.clamp(0.0, 1.0);
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: [
+            Container(
+              width: width,
+              height: 8,
+              color: color,
+            ),
+            const SizedBox(width: 4),
+            Text('${(value * 100).toStringAsFixed(0)}%',
+                style: const TextStyle(color: Colors.white70)),
+            const SizedBox(width: 4),
+            Text(label, style: TextStyle(color: color)),
+          ],
+        ),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final mistakes = results.where((r) => !r.correct).toList();
@@ -1356,6 +1379,10 @@ class TrainingAnalysisScreen extends StatelessWidget {
                                       const TextStyle(color: Colors.white70),
                                 ),
                               ),
+                            _buildEquityBar(m.evaluation.userEquity, Colors.red,
+                                'Ваше equity'),
+                            _buildEquityBar(m.evaluation.expectedEquity,
+                                Colors.green, 'Оптимальное'),
                           ],
                         ),
                       ),

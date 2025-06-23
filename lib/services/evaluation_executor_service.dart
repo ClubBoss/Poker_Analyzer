@@ -25,9 +25,18 @@ class EvaluationExecutorService {
   EvaluationResult evaluate(TrainingSpot spot, String userAction) {
     final expectedAction = spot.actions[spot.heroIndex].action;
     final correct = userAction == expectedAction;
+    final expectedEquity =
+        spot.equities != null && spot.equities!.length > spot.heroIndex
+            ? spot.equities![spot.heroIndex].clamp(0.0, 1.0)
+            : 0.5;
+    final userEquity = correct
+        ? expectedEquity
+        : (expectedEquity - 0.1).clamp(0.0, 1.0);
     return EvaluationResult(
       correct: correct,
       expectedAction: expectedAction,
+      userEquity: userEquity,
+      expectedEquity: expectedEquity,
       hint: correct ? null : 'Подумай о диапазоне оппонента',
     );
   }
