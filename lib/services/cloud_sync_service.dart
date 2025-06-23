@@ -118,14 +118,19 @@ class CloudSyncService {
       return null;
     }
   }
-  Future<void> uploadSessionResult(List<ResultEntry> results) async {
+  Future<void> uploadSessionResult(List<ResultEntry> results, {String? comment}) async {
     final userId = await _getUserId();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final dir = await getApplicationDocumentsDirectory();
     final subdir = Directory("${dir.path}/training_sessions/$userId");
     await subdir.create(recursive: true);
     final file = File("${subdir.path}/$timestamp.json");
-    await file.writeAsString(jsonEncode([for (final r in results) r.toJson()]), flush: true);
+    final data = {
+      'results': [for (final r in results) r.toJson()],
+      if (comment != null && comment.isNotEmpty) 'comment': comment,
+      'date': DateTime.now().toIso8601String(),
+    };
+    await file.writeAsString(jsonEncode(data), flush: true);
   }
 
   /// Load all uploaded training sessions for the current user.
@@ -160,6 +165,23 @@ class CloudSyncService {
           }
           sessions.add(
             CloudTrainingSession(date: date, results: results),
+          );
+        } else if (data is Map<String, dynamic>) {
+          final list = data['results'];
+          final results = <ResultEntry>[];
+          if (list is List) {
+            for (final item in list) {
+              if (item is Map<String, dynamic>) {
+                results.add(ResultEntry.fromJson(item));
+              }
+            }
+          }
+          sessions.add(
+            CloudTrainingSession(
+              date: date,
+              results: results,
+              comment: data['comment'] as String?,
+            ),
           );
         }
       } catch (_) {}

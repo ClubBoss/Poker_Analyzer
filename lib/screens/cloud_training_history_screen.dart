@@ -106,9 +106,19 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         formatDateTime(s.date),
                         style: const TextStyle(color: Colors.white),
                       ),
-                      subtitle: Text(
-                        '${s.accuracy.toStringAsFixed(1)}% • Ошибок: ${s.mistakes}',
-                        style: const TextStyle(color: Colors.white70),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${s.accuracy.toStringAsFixed(1)}% • Ошибок: ${s.mistakes}',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          if (s.comment != null && s.comment!.isNotEmpty)
+                            Text(
+                              s.comment!,
+                              style: const TextStyle(color: Colors.white60),
+                            ),
+                        ],
                       ),
                       trailing: const Icon(Icons.chevron_right, color: Colors.white70),
                       onTap: () => _openSession(s),

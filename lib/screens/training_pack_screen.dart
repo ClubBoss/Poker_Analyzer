@@ -118,6 +118,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   final List<ResultEntry> _results = [];
   List<ResultEntry> _previousResults = [];
   List<_SessionSummary> _history = [];
+  String? _sessionComment;
 
   final TrainingImportExportService _importExportService =
       const TrainingImportExportService();
@@ -235,6 +236,36 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final cloud = context.read<CloudSyncService>();
     await cloud.saveResults(_pack.name, jsonData);
     _previousResults = List.from(_results);
+  }
+
+  Future<void> _promptForComment() async {
+    final controller = TextEditingController(text: _sessionComment);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Комментарий к сессии'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Введите заметку'),
+          maxLines: null,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        _sessionComment = result;
+      });
+    }
   }
 
   void _showQuickFeedback(EvaluationResult evaluation) {
@@ -581,7 +612,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     if (savePath == null) return;
     final file = File(savePath);
     await file.writeAsString(buffer.toString());
-    await context.read<CloudSyncService>().uploadSessionResult(_results);
     if (mounted) {
       final name = savePath.split(Platform.pathSeparator).last;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -662,7 +692,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         'training_pack_${DateTime.now().millisecondsSinceEpoch}.html';
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(htmlContent);
-    await context.read<CloudSyncService>().uploadSessionResult(_results);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: $fileName')),
@@ -778,7 +807,6 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         'training_pack_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final file = File('${dir.path}/$fileName');
     await file.writeAsBytes(bytes);
-    await context.read<CloudSyncService>().uploadSessionResult(_results);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1058,6 +1086,10 @@ body { font-family: sans-serif; padding: 16px; }
     }
 
     await _saveCurrentResults();
+    await _promptForComment();
+    await context
+        .read<CloudSyncService>()
+        .uploadSessionResult(_results, comment: _sessionComment);
 
     widget.onComplete?.call(success);
   }
@@ -1132,6 +1164,20 @@ body { font-family: sans-serif; padding: 16px; }
             Text('Верные действия: $correct'),
             Text('Ошибок: ${total - correct}'),
             Text('Точность: $accuracy%'),
+            const SizedBox(height: 12),
+            if (_sessionComment != null && _sessionComment!.isNotEmpty) ...[
+              Text('Комментарий: \$_sessionComment',
+                  style: const TextStyle(color: Colors.white70)),
+              const SizedBox(height: 8),
+            ],
+            ElevatedButton(
+              onPressed: _promptForComment,
+              child: Text(
+                _sessionComment == null || _sessionComment!.isEmpty
+                    ? 'Добавить комментарий'
+                    : 'Изменить комментарий',
+              ),
+            ),
             const SizedBox(height: 12),
             if (!_isMistakeReviewMode && mistakes.isNotEmpty) ...[
               ElevatedButton(
