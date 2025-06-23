@@ -570,6 +570,22 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         if (userEq != 0 && expectedEq != 0) {
           buffer.writeln(
               '  Equity: ${(userEq * 100).toStringAsFixed(0)}% → ${(expectedEq * 100).toStringAsFixed(0)}%');
+          final userPct = (userEq * 100).toStringAsFixed(0);
+          final expectedPct = (expectedEq * 100).toStringAsFixed(0);
+          buffer.writeln('<div style="margin:4px 0;">');
+          buffer.writeln(
+              '<div style="display:flex;align-items:center;">'
+              '<div style="background-color:#f44336;height:8px;width:${userPct}%;"></div>'
+              '<span style="margin-left:4px;font-size:12px;color:#f44336;">${userPct}%</span>'
+              '<span style="margin-left:4px;font-size:12px;">Ваше equity</span>'
+              '</div>');
+          buffer.writeln(
+              '<div style="display:flex;align-items:center;margin-top:2px;">'
+              '<div style="background-color:#4caf50;height:8px;width:${expectedPct}%;"></div>'
+              '<span style="margin-left:4px;font-size:12px;color:#4caf50;">${expectedPct}%</span>'
+              '<span style="margin-left:4px;font-size:12px;">Оптимальное</span>'
+              '</div>');
+          buffer.writeln('</div>');
         }
       }
     }
