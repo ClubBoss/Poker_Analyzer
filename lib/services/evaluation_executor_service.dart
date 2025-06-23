@@ -28,7 +28,7 @@ class EvaluationExecutorService {
     return EvaluationResult(
       correct: correct,
       expectedAction: expectedAction,
-      hint: correct ? null : null,
+      hint: correct ? null : 'Подумай о диапазоне оппонента',
     );
   }
 }
