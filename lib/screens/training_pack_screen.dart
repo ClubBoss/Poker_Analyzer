@@ -38,6 +38,7 @@ import '../services/training_import_export_service.dart';
 import '../services/training_spot_file_service.dart';
 import '../services/training_spot_storage_service.dart';
 import '../models/training_spot.dart';
+import '../widgets/replay_spot_widget.dart';
 import '../widgets/common/training_spot_list.dart';
 
 class _ResultEntry {
@@ -199,6 +200,27 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ),
             ],
             const SizedBox(height: 16),
+            if (original.actions.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.grey[900],
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(16)),
+                      ),
+                      builder: (_) =>
+                          ReplaySpotWidget(spot: TrainingSpot.fromSavedHand(original)),
+                    );
+                  },
+                  child: const Text('Replay Hand'),
+                ),
+              ),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx),
               child: const Text('OK'),
