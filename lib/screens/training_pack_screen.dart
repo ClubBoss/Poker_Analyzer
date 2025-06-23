@@ -561,10 +561,15 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         final hint = m.evaluation.hint;
         final line =
             '- $mark ${m.name}: expected `${m.expected}`, got `${m.userAction}`';
+        buffer.writeln(line);
         if (hint != null && hint.isNotEmpty) {
-          buffer.writeln('$line. Hint: $hint');
-        } else {
-          buffer.writeln(line);
+          buffer.writeln('  Hint: $hint');
+        }
+        final userEq = m.evaluation.userEquity;
+        final expectedEq = m.evaluation.expectedEquity;
+        if (userEq != 0 && expectedEq != 0) {
+          buffer.writeln(
+              '  Equity: ${(userEq * 100).toStringAsFixed(0)}% → ${(expectedEq * 100).toStringAsFixed(0)}%');
         }
       }
     }
