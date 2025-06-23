@@ -5,6 +5,7 @@ import 'saved_hands_screen.dart';
 import 'training_packs_screen.dart';
 import 'all_sessions_screen.dart';
 import 'training_history_screen.dart';
+import 'my_training_history_screen.dart';
 import 'player_zone_demo_screen.dart';
 import 'settings_screen.dart';
 import 'daily_hand_screen.dart';
@@ -199,6 +200,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('📈 История тренировок'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const MyTrainingHistoryScreen()),
+                );
+              },
+              child: const Text('📒 Мои тренировки'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
