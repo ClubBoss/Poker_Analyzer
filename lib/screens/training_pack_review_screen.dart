@@ -26,6 +26,7 @@ class TrainingPackReviewScreen extends StatefulWidget {
 
 class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
   bool _onlyMistakes = false;
+  final TextEditingController _searchController = TextEditingController();
 
   List<SavedHand> get _visibleHands {
     if (!_onlyMistakes) return widget.pack.hands;
@@ -39,6 +40,12 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     final service = context.read<TrainingPackStorageService>();
     await service.removePack(widget.pack);
     await service.addPack(widget.pack);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _editHand(SavedHand hand) async {
@@ -157,7 +164,14 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hands = _visibleHands;
+    final visible = _visibleHands;
+    final query = _searchController.text.toLowerCase();
+    final hands = query.isEmpty
+        ? visible
+        : [
+            for (final h in visible)
+              if (h.name.toLowerCase().contains(query)) h
+          ];
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.pack.name),
@@ -173,6 +187,26 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                 ? null
                 : (v) => setState(() => _onlyMistakes = v),
             activeColor: Colors.orange,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Search',
+                suffixIcon: _searchController.text.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {});
+                        },
+                      ),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
           ),
           const Divider(color: Colors.white24, height: 1),
           Expanded(
