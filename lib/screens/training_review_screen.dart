@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/training_spot.dart';
 import '../theme/app_colors.dart';
-import '../widgets/training_spot_preview.dart';
+import '../widgets/training_spot_diagram.dart';
 import '../models/action_entry.dart';
 
 class TrainingReviewScreen extends StatelessWidget {
@@ -142,6 +142,11 @@ class TrainingReviewScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
+            TrainingSpotDiagram(
+              spot: spot,
+              size: MediaQuery.of(context).size.width - 32,
+            ),
+            const SizedBox(height: 16),
             if (stackRows.isNotEmpty) ...[
               const Text(
                 'Stacks',
