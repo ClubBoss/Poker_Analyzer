@@ -197,7 +197,14 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   Future<void> _loadSavedResults() async {
     final prefs = await SharedPreferences.getInstance();
     final key = 'results_${_pack.name}';
-    final jsonStr = prefs.getString(key);
+    String? jsonStr = prefs.getString(key);
+    if (jsonStr == null) {
+      final cloud = context.read<CloudSyncService>();
+      jsonStr = await cloud.loadResults(_pack.name);
+      if (jsonStr != null) {
+        await prefs.setString(key, jsonStr);
+      }
+    }
     if (jsonStr == null) return;
     try {
       final data = jsonDecode(jsonStr);
@@ -248,7 +255,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       'last': list,
       'history': [for (final h in _history) h.toJson()],
     };
-    await prefs.setString(key, jsonEncode(data));
+    final jsonData = jsonEncode(data);
+    await prefs.setString(key, jsonData);
+    final cloud = context.read<CloudSyncService>();
+    await cloud.saveResults(_pack.name, jsonData);
     _previousResults = List.from(_results);
   }
 

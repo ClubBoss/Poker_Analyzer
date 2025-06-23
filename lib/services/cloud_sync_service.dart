@@ -14,6 +14,7 @@ import '../models/saved_hand.dart';
 class CloudSyncService {
   static const String _spotsFile = 'cloud_spots.json';
   static const String _handsFile = 'cloud_hands.json';
+  static const String _resultsPrefix = 'cloud_results_';
 
   Future<File> _file(String name) async {
     final dir = await getApplicationDocumentsDirectory();
@@ -84,5 +85,22 @@ class CloudSyncService {
       }
     } catch (_) {}
     return [];
+  }
+
+  /// Store session results JSON for [packName].
+  Future<void> saveResults(String packName, String json) async {
+    final file = await _file('$_resultsPrefix$packName.json');
+    await file.writeAsString(json, flush: true);
+  }
+
+  /// Retrieve previously saved session results for [packName].
+  Future<String?> loadResults(String packName) async {
+    final file = await _file('$_resultsPrefix$packName.json');
+    if (!await file.exists()) return null;
+    try {
+      return await file.readAsString();
+    } catch (_) {
+      return null;
+    }
   }
 }
