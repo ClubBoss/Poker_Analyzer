@@ -217,6 +217,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final AnimationController _winnerLabelController;
   late final Animation<double> _winnerLabelOpacity;
   late final Animation<double> _winnerLabelScale;
+  late final AnimationController _heroLabelController;
+  late final Animation<double> _heroLabelOpacity;
+  late final Animation<double> _heroLabelScale;
 
   late final AnimationController _stackBarController;
   late Animation<double> _stackBarProgressAnimation;
@@ -460,6 +463,18 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         weight: 50,
       ),
     ]).animate(_winnerLabelController);
+
+    _heroLabelController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _heroLabelOpacity =
+        CurvedAnimation(parent: _heroLabelController, curve: Curves.easeIn);
+    _heroLabelScale = Tween<double>(begin: 0.8, end: 1.0)
+        .animate(CurvedAnimation(parent: _heroLabelController, curve: Curves.easeOut));
+    if (widget.isHero) {
+      _heroLabelController.forward();
+    }
 
     _stackBarController = AnimationController(
       vsync: this,
@@ -1371,6 +1386,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     _showdownLabelController.dispose();
     _finalStackController.dispose();
     _revealController.dispose();
+    _heroLabelController.dispose();
     _winnerLabelController.dispose();
     _winnerGlowController.dispose();
     _winnerHighlightController.dispose();
@@ -2015,29 +2031,35 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
           Positioned(
             top: -8 * widget.scale,
             left: -8 * widget.scale,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
-              decoration: BoxDecoration(
-                color: Colors.orangeAccent,
-                borderRadius: BorderRadius.circular(8 * widget.scale),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.orangeAccent.withOpacity(0.6),
-                    blurRadius: 6 * widget.scale,
+            child: FadeTransition(
+              opacity: _heroLabelOpacity,
+              child: ScaleTransition(
+                scale: _heroLabelScale,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 6 * widget.scale, vertical: 2 * widget.scale),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent,
+                    borderRadius: BorderRadius.circular(8 * widget.scale),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orangeAccent.withOpacity(0.6),
+                        blurRadius: 6 * widget.scale,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Text(
-                'Hero',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10 * widget.scale,
-                  fontWeight: FontWeight.bold,
+                  child: Text(
+                    'Hero',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10 * widget.scale,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
+            ),
           ),
-        ),
         if (!widget.isHero && !widget.isFolded && widget.onRevealRequest != null && widget.cards.length == 2)
           Positioned(
             top: -8 * widget.scale,
