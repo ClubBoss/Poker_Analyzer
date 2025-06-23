@@ -1151,26 +1151,28 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     if (widget.isHero) return;
     _finalStackTimer?.cancel();
     _hideCardsTimer?.cancel();
-    setState(() => _finalStackText = 'Final: ${_stack ?? 0} BB');
-    _finalStackController.value = 0.0;
+    setFinalStackText('Final: ${_stack ?? 0} BB');
     if (_betStackAmount != null) {
       _betStackController.reverse().whenComplete(() {
         if (mounted) setState(() => _betStackAmount = null);
       });
     }
-    _finalStackTimer = Timer(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      _finalStackController.forward(from: 0.0);
-      _finalStackTimer = Timer(const Duration(seconds: 2), () {
-        if (!mounted) return;
-        _finalStackController.reverse().whenComplete(() {
-          if (mounted) setState(() => _finalStackText = null);
-        });
-      });
-    });
     _hideCardsTimer = Timer(const Duration(milliseconds: 3000), () {
       if (!mounted) return;
       setState(() => _showCards = false);
+    });
+  }
+
+  void setFinalStackText(String text) {
+    if (widget.isHero) return;
+    _finalStackTimer?.cancel();
+    setState(() => _finalStackText = text);
+    _finalStackController.forward(from: 0.0);
+    _finalStackTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (!mounted) return;
+      _finalStackController.reverse().whenComplete(() {
+        if (mounted) setState(() => _finalStackText = null);
+      });
     });
   }
 
