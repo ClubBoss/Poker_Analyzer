@@ -198,6 +198,8 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final Animation<double> _revealScale;
   late final AnimationController _revealEyeController;
   Timer? _revealEyeTimer;
+  final GlobalKey<TooltipState> _revealTooltipKey = GlobalKey<TooltipState>();
+  bool _hasShownRevealHint = false;
   late final AnimationController _stackWinController;
   late final Animation<double> _stackWinScale;
   late final Animation<double> _stackWinOpacity;
@@ -1174,6 +1176,10 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   void _showRevealEye() {
     _revealEyeTimer?.cancel();
     _revealEyeController.forward();
+    if (!_hasShownRevealHint) {
+      _revealTooltipKey.currentState?.ensureTooltipVisible();
+      _hasShownRevealHint = true;
+    }
   }
 
   void _scheduleHideRevealEye() {
@@ -2093,14 +2099,21 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(8 * widget.scale),
               ),
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                iconSize: 14 * widget.scale,
-                splashRadius: 16 * widget.scale,
-                icon: const Icon(Icons.remove_red_eye, color: Colors.white),
-                onPressed: () =>
-                    widget.onRevealRequest?.call(widget.playerName),
+              child: Tooltip(
+                key: _revealTooltipKey,
+                triggerMode: TooltipTriggerMode.manual,
+                showDuration: const Duration(seconds: 2),
+                preferBelow: false,
+                message: 'Нажмите, чтобы раскрыть карты',
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  iconSize: 14 * widget.scale,
+                  splashRadius: 16 * widget.scale,
+                  icon: const Icon(Icons.remove_red_eye, color: Colors.white),
+                  onPressed: () =>
+                      widget.onRevealRequest?.call(widget.playerName),
+                ),
               ),
             ),
           ),
