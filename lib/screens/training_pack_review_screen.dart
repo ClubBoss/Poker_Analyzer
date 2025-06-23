@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
@@ -177,6 +178,30 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     }
   }
 
+  String _generateMarkdown() {
+    final buffer = StringBuffer('# ${widget.pack.name}\n\n');
+    for (final hand in widget.pack.hands) {
+      final mistake = widget.mistakenNames.contains(hand.name);
+      final tags = hand.tags.join(', ');
+      buffer.writeln('### ${hand.name}');
+      buffer.writeln('- Rating: ${hand.rating}');
+      if (tags.isNotEmpty) buffer.writeln('- Tags: $tags');
+      buffer.writeln('- Mistake: ${mistake ? 'Yes' : 'No'}');
+      buffer.writeln();
+    }
+    return buffer.toString().trimRight();
+  }
+
+  Future<void> _exportMarkdown() async {
+    final markdown = _generateMarkdown();
+    await Clipboard.setData(ClipboardData(text: markdown));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Markdown copied to clipboard')),
+      );
+    }
+  }
+
   Widget _buildHandTile(SavedHand hand) {
     return Card(
       color: AppColors.cardBackground,
@@ -229,6 +254,13 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
       appBar: AppBar(
         title: Text(widget.pack.name),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.copy),
+            tooltip: 'Export to Markdown',
+            onPressed: _exportMarkdown,
+          ),
+        ],
       ),
       backgroundColor: AppColors.background,
       body: Column(
