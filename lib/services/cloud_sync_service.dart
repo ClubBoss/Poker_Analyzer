@@ -164,7 +164,11 @@ class CloudSyncService {
             }
           }
           sessions.add(
-            CloudTrainingSession(path: file.path, date: date, results: results),
+            CloudTrainingSession(
+              path: file.path,
+              date: date,
+              results: results,
+            ),
           );
         } else if (data is Map<String, dynamic>) {
           final list = data['results'];
@@ -176,12 +180,22 @@ class CloudSyncService {
               }
             }
           }
+          Map<String, String>? notes;
+          final notesJson = data['handNotes'];
+          if (notesJson is Map) {
+            notes = <String, String>{};
+            notesJson.forEach((key, value) {
+              if (key is String && value is String) notes![key] = value;
+            });
+            if (notes.isEmpty) notes = null;
+          }
           sessions.add(
             CloudTrainingSession(
               path: file.path,
               date: date,
               results: results,
               comment: data['comment'] as String?,
+              handNotes: notes,
             ),
           );
         }
