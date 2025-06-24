@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -24,6 +25,47 @@ class CloudTrainingSessionDetailsScreen extends StatefulWidget {
 class _CloudTrainingSessionDetailsScreenState
     extends State<CloudTrainingSessionDetailsScreen> {
   bool _onlyErrors = false;
+  late TextEditingController _commentController;
+  String _comment = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _comment = widget.session.comment ?? '';
+    _commentController = TextEditingController(text: _comment);
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveComment(String text) async {
+    setState(() => _comment = text);
+    final file = File(widget.session.path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      Map<String, dynamic> map;
+      if (data is Map<String, dynamic>) {
+        map = Map<String, dynamic>.from(data);
+      } else if (data is List) {
+        map = {
+          'results': data,
+          'date': widget.session.date.toIso8601String(),
+        };
+      } else {
+        return;
+      }
+      if (text.trim().isEmpty) {
+        map.remove('comment');
+      } else {
+        map['comment'] = text.trim();
+      }
+      await file.writeAsString(jsonEncode(map), flush: true);
+    } catch (_) {}
+  }
 
   Future<void> _deleteSession(BuildContext context) async {
     final confirm = await showDialog<bool>(
@@ -210,6 +252,21 @@ class _CloudTrainingSessionDetailsScreenState
                         ),
                       );
                     },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextField(
+                    controller: _commentController,
+                    onChanged: _saveComment,
+                    maxLines: null,
+                    minLines: 3,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Комментарий',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
