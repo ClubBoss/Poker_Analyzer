@@ -45,12 +45,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   final GlobalKey _newHandButtonKey = GlobalKey();
   final GlobalKey _historyButtonKey = GlobalKey();
   bool _tutorialCompleted = false;
+  bool _showStreakPopup = false;
 
   @override
   void initState() {
     super.initState();
     _demoMode = UserPreferences.instance.demoMode;
     _tutorialCompleted = UserPreferences.instance.tutorialCompleted;
+    context.read<StreakService>().addListener(_onStreakChanged);
     _loadSpot();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -67,6 +69,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     }
   }
 
+  void _onStreakChanged() {
+    final service = context.read<StreakService>();
+    if (service.consumeIncreaseFlag()) {
+      setState(() => _showStreakPopup = true);
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        if (mounted) setState(() => _showStreakPopup = false);
+      });
+    }
+  }
+
   Widget _buildStreakCard(BuildContext context) {
     final service = context.watch<StreakService>();
     final streak = service.count;
@@ -78,16 +90,19 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     final progress = progressDays / threshold;
     final accent = Theme.of(context).colorScheme.secondary;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: highlight ? Colors.orange[700] : Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: highlight ? Colors.orange[700] : Colors.grey[850],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           Row(
             children: [
               const Icon(Icons.local_fire_department, color: Colors.white),
@@ -131,7 +146,37 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ],
           ),
         ],
-      ),
+          ),
+        ),
+        if (_showStreakPopup)
+          Positioned(
+            top: -10,
+            left: 0,
+            right: 0,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 800),
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: 1 - value,
+                  child: Transform.translate(
+                    offset: Offset(0, -20 * value),
+                    child: child,
+                  ),
+                );
+              },
+              child: const Text(
+                '+1🔥',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -238,6 +283,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     });
 
     flow.start(context);
+  }
+
+  @override
+  void dispose() {
+    context.read<StreakService>().removeListener(_onStreakChanged);
+    super.dispose();
   }
 
   @override
