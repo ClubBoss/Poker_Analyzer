@@ -29,3 +29,17 @@ extension MistakeSeverityText on MistakeSeverity {
     }
   }
 }
+
+extension MistakeSeverityTooltip on MistakeSeverity {
+  String get tooltip {
+    switch (this) {
+      case MistakeSeverity.high:
+        return 'High = серьёзная ошибка';
+      case MistakeSeverity.medium:
+        return 'Medium = ощутимая ошибка';
+      case MistakeSeverity.low:
+      default:
+        return 'Low = лёгкая ошибка';
+    }
+  }
+}

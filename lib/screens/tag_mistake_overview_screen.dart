@@ -223,12 +223,15 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: 10,
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: severity.color,
-                            shape: BoxShape.circle,
+                        Tooltip(
+                          message: severity.tooltip,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: severity.color,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
