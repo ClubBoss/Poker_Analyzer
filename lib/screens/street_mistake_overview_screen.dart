@@ -4,6 +4,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+
+import '../models/summary_result.dart';
 import 'dart:io';
 
 import '../helpers/date_utils.dart';
@@ -25,7 +27,7 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
   const StreetMistakeOverviewScreen({super.key});
 
   Future<void> _exportPdf(
-      BuildContext context, List<MapEntry<String, int>> entries) async {
+      BuildContext context, SummaryResult summary, List<MapEntry<String, int>> entries) async {
     if (entries.isEmpty) return;
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
@@ -33,6 +35,10 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
 
     final pdf = pw.Document();
     final date = formatDateTime(DateTime.now());
+    final mistakes = summary.incorrect;
+    final total = summary.totalHands;
+    final accuracy = summary.accuracy;
+    final mistakePercent = total > 0 ? mistakes / total * 100 : 0.0;
 
     pdf.addPage(
       pw.MultiPage(
@@ -43,6 +49,12 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
           pw.SizedBox(height: 8),
           pw.Text(date, style: pw.TextStyle(font: regularFont)),
           pw.SizedBox(height: 16),
+            pw.Text("Ошибки: $mistakes", style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 4),
+            pw.Text("Средняя точность: ${accuracy.toStringAsFixed(1)}%", style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 4),
+            pw.Text("Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%", style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 16),
           pw.Table.fromTextArray(
             headers: const ['Улица', 'Ошибки'],
             data: [for (final e in entries) [e.key, e.value.toString()]],
@@ -54,10 +66,10 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
     final file = File(
-        '${dir.path}/street_mistakes_${DateTime.now().millisecondsSinceEpoch}.pdf');
+        '${dir.path}/street_summary.pdf');
     await file.writeAsBytes(bytes);
 
-    await Share.shareXFiles([XFile(file.path)], text: 'street_mistakes.pdf');
+    await Share.shareXFiles([XFile(file.path)], text: 'street_summary.pdf');
   }
 
   @override
@@ -79,7 +91,7 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.share),
               tooltip: 'PDF',
-              onPressed: () => _exportPdf(context, entries),
+              onPressed: () => _exportPdf(context, summary, entries),
             ),
           ],
         ),
