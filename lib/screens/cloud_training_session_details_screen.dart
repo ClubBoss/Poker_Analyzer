@@ -25,6 +25,38 @@ class _CloudTrainingSessionDetailsScreenState
     extends State<CloudTrainingSessionDetailsScreen> {
   bool _onlyErrors = false;
 
+  Future<void> _deleteSession(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Session?'),
+          content:
+              const Text('Are you sure you want to delete this session?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirm == true) {
+      final file = File(widget.session.path);
+      if (await file.exists()) {
+        await file.delete();
+      }
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
   Future<void> _exportMarkdown(BuildContext context) async {
     if (widget.session.results.isEmpty) return;
     final buffer = StringBuffer();
@@ -89,6 +121,11 @@ class _CloudTrainingSessionDetailsScreenState
             tooltip: 'Экспорт',
             onPressed:
                 results.isEmpty ? null : () => _exportMarkdown(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Delete',
+            onPressed: () => _deleteSession(context),
           ),
         ],
       ),
