@@ -30,17 +30,27 @@ class _CloudTrainingSessionDetailsScreenState
   bool _onlyErrors = false;
   late TextEditingController _commentController;
   String _comment = '';
+  final Map<String, TextEditingController> _noteControllers = {};
+  Map<String, String> _handNotes = {};
 
   @override
   void initState() {
     super.initState();
     _comment = widget.session.comment ?? '';
     _commentController = TextEditingController(text: _comment);
+    _handNotes = Map<String, String>.from(widget.session.handNotes ?? {});
+    for (final r in widget.session.results) {
+      _noteControllers[r.name] =
+          TextEditingController(text: _handNotes[r.name] ?? '');
+    }
   }
 
   @override
   void dispose() {
     _commentController.dispose();
+    for (final c in _noteControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -65,6 +75,43 @@ class _CloudTrainingSessionDetailsScreenState
         map.remove('comment');
       } else {
         map['comment'] = text.trim();
+      }
+      await file.writeAsString(jsonEncode(map), flush: true);
+    } catch (_) {}
+  }
+
+  Future<void> _saveHandComment(String name, String text) async {
+    _handNotes[name] = text;
+    final file = File(widget.session.path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      Map<String, dynamic> map;
+      if (data is Map<String, dynamic>) {
+        map = Map<String, dynamic>.from(data);
+      } else if (data is List) {
+        map = {
+          'results': data,
+          'date': widget.session.date.toIso8601String(),
+        };
+      } else {
+        return;
+      }
+      Map<String, String> notes = {};
+      if (map['handNotes'] is Map) {
+        (map['handNotes'] as Map).forEach((key, value) {
+          if (key is String && value is String) notes[key] = value;
+        });
+      }
+      if (text.trim().isEmpty) {
+        notes.remove(name);
+      } else {
+        notes[name] = text.trim();
+      }
+      if (notes.isEmpty) {
+        map.remove('handNotes');
+      } else {
+        map['handNotes'] = notes;
       }
       await file.writeAsString(jsonEncode(map), flush: true);
     } catch (_) {}
@@ -349,12 +396,28 @@ class _CloudTrainingSessionDetailsScreenState
                                       const TextStyle(color: Colors.white70)),
                             ],
                           ),
-                          children: const [
-                            Padding(
+                          children: [
+                            const Padding(
                               padding: EdgeInsets.all(12.0),
                               child: Text(
                                 'Тут будет анализ этой раздачи',
                                 style: TextStyle(color: Colors.white70),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: TextField(
+                                controller: _noteControllers[r.name],
+                                onChanged: (t) => _saveHandComment(r.name, t),
+                                maxLines: null,
+                                minLines: 2,
+                                style:
+                                    const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Заметка',
+                                  labelStyle: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                           ],

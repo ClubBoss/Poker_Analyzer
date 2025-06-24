@@ -5,12 +5,14 @@ class CloudTrainingSession {
   final DateTime date;
   final List<ResultEntry> results;
   final String? comment;
+  final Map<String, String>? handNotes;
 
   CloudTrainingSession({
     required this.path,
     required this.date,
     required this.results,
     this.comment,
+    this.handNotes,
   });
 
   factory CloudTrainingSession.fromJson(Map<String, dynamic> json,
@@ -24,11 +26,23 @@ class CloudTrainingSession {
         }
       }
     }
+    Map<String, String>? notes;
+    final notesJson = json['handNotes'];
+    if (notesJson is Map) {
+      notes = <String, String>{};
+      notesJson.forEach((key, value) {
+        if (key is String && value is String) {
+          notes![key] = value;
+        }
+      });
+      if (notes.isEmpty) notes = null;
+    }
     return CloudTrainingSession(
       path: path,
       date: DateTime.parse(json['date'] as String),
       results: results,
       comment: json['comment'] as String?,
+      handNotes: notes,
     );
   }
 
@@ -36,6 +50,7 @@ class CloudTrainingSession {
         'date': date.toIso8601String(),
         'results': [for (final r in results) r.toJson()],
         if (comment != null && comment!.isNotEmpty) 'comment': comment,
+        if (handNotes != null && handNotes!.isNotEmpty) 'handNotes': handNotes,
       };
 
   int get total => results.length;
