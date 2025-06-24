@@ -11,15 +11,24 @@ import '../models/training_pack.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'training_pack_screen.dart';
 
-class CloudTrainingSessionDetailsScreen extends StatelessWidget {
+class CloudTrainingSessionDetailsScreen extends StatefulWidget {
   final CloudTrainingSession session;
 
   const CloudTrainingSessionDetailsScreen({super.key, required this.session});
 
+  @override
+  State<CloudTrainingSessionDetailsScreen> createState() =>
+      _CloudTrainingSessionDetailsScreenState();
+}
+
+class _CloudTrainingSessionDetailsScreenState
+    extends State<CloudTrainingSessionDetailsScreen> {
+  bool _onlyErrors = false;
+
   Future<void> _exportMarkdown(BuildContext context) async {
-    if (session.results.isEmpty) return;
+    if (widget.session.results.isEmpty) return;
     final buffer = StringBuffer();
-    for (final r in session.results) {
+    for (final r in widget.session.results) {
       final result = r.correct ? 'correct' : 'wrong';
       buffer.writeln(
           '- ${r.name}: user `${r.userAction}`, expected `${r.expected}` - $result');
@@ -40,7 +49,7 @@ class CloudTrainingSessionDetailsScreen extends StatelessWidget {
       for (final h in manager.hands) h.name: h
     };
     final List<SavedHand> hands = [];
-    for (final r in session.results) {
+    for (final r in widget.session.results) {
       final hand = map[r.name];
       if (hand != null) hands.add(hand);
     }
@@ -67,21 +76,24 @@ class CloudTrainingSessionDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final results = _onlyErrors
+        ? widget.session.results.where((r) => !r.correct).toList()
+        : widget.session.results;
     return Scaffold(
       appBar: AppBar(
-        title: Text(formatDateTime(session.date)),
+        title: Text(formatDateTime(widget.session.date)),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Экспорт',
             onPressed:
-                session.results.isEmpty ? null : () => _exportMarkdown(context),
+                results.isEmpty ? null : () => _exportMarkdown(context),
           ),
         ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
-      body: session.results.isEmpty
+      body: results.isEmpty
           ? const Center(
               child: Text(
                 'Нет данных',
@@ -98,13 +110,29 @@ class CloudTrainingSessionDetailsScreen extends StatelessWidget {
                     child: const Text('Повторить'),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Только ошибки',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Switch(
+                        value: _onlyErrors,
+                        onChanged: (v) => setState(() => _onlyErrors = v),
+                      ),
+                    ],
+                  ),
+                ),
                 const Divider(color: Colors.white12, height: 1),
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: session.results.length,
+                    itemCount: results.length,
                     itemBuilder: (context, index) {
-                      final r = session.results[index];
+                      final r = results[index];
                       return Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
                         padding: const EdgeInsets.all(12),
