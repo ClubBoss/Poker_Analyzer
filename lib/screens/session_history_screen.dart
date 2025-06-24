@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/session_note_service.dart';
+import '../services/session_pin_service.dart';
 import '../helpers/date_utils.dart';
 import '../theme/constants.dart';
 import 'session_hands_screen.dart';
@@ -207,8 +208,17 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
     final notes = context.watch<SessionNoteService>();
+    final pins = context.watch<SessionPinService>();
     final raw = manager.handsBySession();
     final sessions = _applyFilters(_buildSessions(raw, notes));
+    final ordered = [
+      for (final s in sessions)
+        if (pins.isPinned(s.id)) s
+    ]
+      ..addAll([
+        for (final s in sessions)
+          if (!pins.isPinned(s.id)) s
+      ]);
 
     return Scaffold(
       appBar: AppBar(
@@ -326,10 +336,10 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                     ),
                   )
                 : ListView.separated(
-                    itemCount: sessions.length,
+                    itemCount: ordered.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (context, index) {
-                      final s = sessions[index];
+                      final s = ordered[index];
                       return Dismissible(
                         key: ValueKey(s.id),
                         direction: DismissDirection.endToStart,
@@ -342,6 +352,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                         onDismissed: (_) async {
                           final removed =
                               await manager.removeSession(s.id);
+                          await pins.setPinned(s.id, false);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -356,63 +367,83 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                             );
                           }
                         },
-                        child: ListTile(
-                          title: Text(
-                            formatDateTime(s.end),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Длительность: ${_formatDuration(s.duration)}',
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                            Text(
-                              'Раздач: ${s.hands} • Верно: ${s.correct} • Ошибки: ${s.incorrect}',
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                            if (s.winrate != null) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                'Точность: ${s.winrate!.toStringAsFixed(1)}%',
-                                style: const TextStyle(color: Colors.white70),
+                        child: Container(
+                          decoration: pins.isPinned(s.id)
+                              ? BoxDecoration(
+                                  border: Border.all(color: Colors.white24),
+                                  borderRadius: BorderRadius.circular(4),
+                                )
+                              : null,
+                          child: ListTile(
+                            leading: IconButton(
+                              icon: Icon(
+                                pins.isPinned(s.id)
+                                    ? Icons.push_pin
+                                    : Icons.push_pin_outlined,
+                                color: Colors.white,
                               ),
-                              const SizedBox(height: 2),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: LinearProgressIndicator(
-                                  value: s.winrate! / 100,
-                                  backgroundColor: Colors.white24,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    _accuracyColor(s.winrate!),
+                              onPressed: () =>
+                                  pins.setPinned(s.id, !pins.isPinned(s.id)),
+                            ),
+                            title: Text(
+                              formatDateTime(s.end),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Длительность: ${_formatDuration(s.duration)}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                Text(
+                                  'Раздач: ${s.hands} • Верно: ${s.correct} • Ошибки: ${s.incorrect}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                if (s.winrate != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Точность: ${s.winrate!.toStringAsFixed(1)}%',
+                                    style:
+                                        const TextStyle(color: Colors.white70),
                                   ),
-                                  minHeight: 6,
-                                ),
-                              ),
-                            ],
-                            if (s.note.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Text(
-                                  s.note,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(color: Colors.white54),
-                                ),
-                              ),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  SessionHandsScreen(sessionId: s.id),
+                                  const SizedBox(height: 2),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: LinearProgressIndicator(
+                                      value: s.winrate! / 100,
+                                      backgroundColor: Colors.white24,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        _accuracyColor(s.winrate!),
+                                      ),
+                                      minHeight: 6,
+                                    ),
+                                  ),
+                                ],
+                                if (s.note.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      s.note,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style:
+                                          const TextStyle(color: Colors.white54),
+                                    ),
+                                  ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      SessionHandsScreen(sessionId: s.id),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       );
                     },
                   ),

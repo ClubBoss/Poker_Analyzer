@@ -6,6 +6,7 @@ import 'screens/main_navigation_screen.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
 import 'services/session_note_service.dart';
+import 'services/session_pin_service.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/daily_hand_service.dart';
 import 'services/spot_of_the_day_service.dart';
@@ -34,6 +35,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (_) => SessionNoteService()..load(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SessionPinService()..load(),
         ),
         ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
         ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
