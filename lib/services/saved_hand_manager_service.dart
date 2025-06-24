@@ -46,6 +46,29 @@ class SavedHandManagerService extends ChangeNotifier {
     await _storage.removeAt(index);
   }
 
+  /// Remove all hands belonging to the given session id and return them in
+  /// chronological order. Useful for implementing session deletion with undo.
+  Future<List<SavedHand>> removeSession(int sessionId) async {
+    final removed = <SavedHand>[];
+    for (int i = _storage.hands.length - 1; i >= 0; i--) {
+      final hand = _storage.hands[i];
+      if (hand.sessionId == sessionId) {
+        removed.add(hand);
+        await _storage.removeAt(i);
+      }
+    }
+    notifyListeners();
+    return removed.reversed.toList();
+  }
+
+  /// Restore previously removed session hands.
+  Future<void> restoreSession(List<SavedHand> hands) async {
+    for (final hand in hands) {
+      await _storage.add(hand);
+    }
+    notifyListeners();
+  }
+
   SavedHand? get lastHand => hands.isNotEmpty ? hands.last : null;
 
   /// Export all saved hands to a Markdown file located in the
