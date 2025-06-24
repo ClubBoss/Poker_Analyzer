@@ -24,7 +24,12 @@ import 'hand_history_review_screen.dart';
 /// a filtered [SavedHandListView] showing only the mistaken hands for the chosen
 /// street.
 class StreetMistakeOverviewScreen extends StatelessWidget {
-  const StreetMistakeOverviewScreen({super.key});
+  final String dateFilter;
+  const StreetMistakeOverviewScreen({super.key, required this.dateFilter});
+
+  bool _sameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 
   Future<void> _exportPdf(
       BuildContext context, SummaryResult summary, List<MapEntry<String, int>> entries) async {
@@ -74,7 +79,18 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hands = context.watch<SavedHandManagerService>().hands;
+    final allHands = context.watch<SavedHandManagerService>().hands;
+    final now = DateTime.now();
+    final hands = [
+      for (final h in allHands)
+        if (dateFilter == 'Все' ||
+            (dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+            (dateFilter == '7 дней' &&
+                h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+            (dateFilter == '30 дней' &&
+                h.date.isAfter(now.subtract(const Duration(days: 30)))))
+          h
+    ];
     final summary =
         context.read<EvaluationExecutorService>().summarizeHands(hands);
     final entries = summary.streetBreakdown.entries.toList()
@@ -126,7 +142,10 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => _StreetMistakeHandsScreen(street: e.key),
+                          builder: (_) => _StreetMistakeHandsScreen(
+                            street: e.key,
+                            dateFilter: dateFilter,
+                          ),
                         ),
                       );
                     },
@@ -144,14 +163,28 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
 /// Shows all hands with mistakes on the selected [street].
 class _StreetMistakeHandsScreen extends StatelessWidget {
   final String street;
-  const _StreetMistakeHandsScreen({required this.street});
+  final String dateFilter;
+  const _StreetMistakeHandsScreen({required this.street, required this.dateFilter});
+
+  bool _sameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 
   @override
   Widget build(BuildContext context) {
     final allHands = context.watch<SavedHandManagerService>().hands;
+    final now = DateTime.now();
     final filtered = [
       for (final h in allHands)
-        if (streetName(h.boardStreet) == street) h
+        if (streetName(h.boardStreet) == street &&
+            (dateFilter == 'Все' ||
+                (dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+                (dateFilter == '7 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+                (dateFilter == '30 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 30)))))
+        )
+          h
     ];
 
     return Scaffold(

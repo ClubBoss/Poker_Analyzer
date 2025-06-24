@@ -17,6 +17,7 @@ class MistakeOverviewScreen extends StatefulWidget {
 class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
     with SingleTickerProviderStateMixin {
   late TabController _controller;
+  String _dateFilter = 'Все';
 
   @override
   void initState() {
@@ -71,12 +72,29 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _controller,
-        children: const [
-          TagMistakeOverviewScreen(),
-          PositionMistakeOverviewScreen(),
-          StreetMistakeOverviewScreen(),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: DropdownButton<String>(
+              value: _dateFilter,
+              dropdownColor: const Color(0xFF2A2B2E),
+              onChanged: (v) => setState(() => _dateFilter = v ?? 'Все'),
+              items: const ['Сегодня', '7 дней', '30 дней', 'Все']
+                  .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                  .toList(),
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _controller,
+              children: [
+                TagMistakeOverviewScreen(dateFilter: _dateFilter),
+                PositionMistakeOverviewScreen(dateFilter: _dateFilter),
+                StreetMistakeOverviewScreen(dateFilter: _dateFilter),
+              ],
+            ),
+          ),
         ],
       ),
     );
