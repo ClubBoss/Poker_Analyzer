@@ -171,6 +171,89 @@ class MistakeRepeatScreen extends StatelessWidget {
         .toList()
       ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
+    final body = entries.isEmpty
+        ? const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.emoji_emotions_outlined,
+                  color: Colors.white54,
+                  size: 64,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Пока нет повторяющихся ошибок — так держать!',
+                  style: TextStyle(color: Colors.white70),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          )
+        : ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: entries.length,
+            itemBuilder: (context, index) {
+              final entry = entries[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Theme(
+                  data:
+                      Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    tilePadding: const EdgeInsets.all(12),
+                    iconColor: Colors.white,
+                    collapsedIconColor: Colors.white,
+                    textColor: Colors.white,
+                    collapsedTextColor: Colors.white,
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          entry.key,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${entry.value.length}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                    children: [
+                      for (final hand in entry.value)
+                        SavedHandTile(
+                          hand: hand,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    HandHistoryReviewScreen(hand: hand),
+                              ),
+                            );
+                          },
+                          onFavoriteToggle: () {
+                            final manager =
+                                context.read<SavedHandManagerService>();
+                            final idx = manager.hands.indexOf(hand);
+                            manager.update(idx,
+                                hand.copyWith(isFavorite: !hand.isFavorite));
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Повторы ошибок'),
@@ -183,67 +266,7 @@ class MistakeRepeatScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: entries.length,
-        itemBuilder: (context, index) {
-          final entry = entries[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey[850],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                tilePadding: const EdgeInsets.all(12),
-                iconColor: Colors.white,
-                collapsedIconColor: Colors.white,
-                textColor: Colors.white,
-                collapsedTextColor: Colors.white,
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      entry.key,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '${entry.value.length}',
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  ],
-                ),
-                children: [
-                  for (final hand in entry.value)
-                    SavedHandTile(
-                      hand: hand,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => HandHistoryReviewScreen(hand: hand),
-                          ),
-                        );
-                      },
-                      onFavoriteToggle: () {
-                        final manager =
-                            context.read<SavedHandManagerService>();
-                        final idx = manager.hands.indexOf(hand);
-                        manager.update(idx,
-                            hand.copyWith(isFavorite: !hand.isFavorite));
-                      },
-                    ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+      body: body,
     );
   }
 }
