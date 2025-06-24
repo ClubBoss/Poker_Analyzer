@@ -241,18 +241,33 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_playerAction() != null &&
-                gto != null &&
-                _playerAction()!.trim().toLowerCase() !=
-                    gto.trim().toLowerCase()) ...[
-              _buildMistakeCard(
-                widget.hand.feedbackText ??
-                    'Ваше действие отличается от GTO',
-                advice: _deriveAdvice(),
+          if (_playerAction() != null &&
+              gto != null &&
+              _playerAction()!.trim().toLowerCase() !=
+                  gto.trim().toLowerCase()) ...[
+            _buildMistakeCard(
+              widget.hand.feedbackText ??
+                  'Ваше действие отличается от GTO',
+              advice: _deriveAdvice(),
+            ),
+            const SizedBox(height: 12),
+          ],
+          Row(
+            children: [
+              const Text('Позиция:',
+                  style: TextStyle(color: Colors.white70)),
+              const SizedBox(width: 8),
+              Chip(
+                label: Text(widget.hand.heroPosition),
+                backgroundColor:
+                    Theme.of(context).colorScheme.secondary,
+                labelStyle: const TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 12),
             ],
-            ReplaySpotWidget(spot: spot),
+          ),
+          const SizedBox(height: 12),
+          ReplaySpotWidget(spot: spot),
             const SizedBox(height: 12),
             if ((gto != null && gto.isNotEmpty) ||
                 (group != null && group.isNotEmpty))
