@@ -198,6 +198,38 @@ class _CloudTrainingSessionDetailsScreenState
     );
   }
 
+  Future<void> _repeatErrors(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final Map<String, SavedHand> map = {
+      for (final h in manager.hands) h.name: h
+    };
+    final List<SavedHand> hands = [];
+    for (final r in widget.session.results) {
+      if (r.correct) continue;
+      final hand = map[r.name];
+      if (hand != null) hands.add(hand);
+    }
+    if (hands.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Раздачи не найдены')),
+        );
+      }
+      return;
+    }
+    final pack = TrainingPack(
+      name: 'Повторение ошибок',
+      description: '',
+      hands: hands,
+    );
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackScreen(pack: pack, hands: hands),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final results = _onlyErrors
@@ -254,6 +286,13 @@ class _CloudTrainingSessionDetailsScreenState
                   child: ElevatedButton(
                     onPressed: () => _repeatSession(context),
                     child: const Text('Повторить'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: ElevatedButton(
+                    onPressed: () => _repeatErrors(context),
+                    child: const Text('Повторить ошибки'),
                   ),
                 ),
                 Padding(
