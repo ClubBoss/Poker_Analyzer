@@ -26,6 +26,7 @@ class SessionStatsScreen extends StatefulWidget {
 
 class _SessionStatsScreenState extends State<SessionStatsScreen> {
   static const _streetPrefsKey = 'selectedStreets';
+  static const _activeTagPrefsKey = 'activeTag';
 
   String? _activeTag;
   Set<int> _selectedStreets = {0, 1, 2, 3};
@@ -34,6 +35,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   void initState() {
     super.initState();
     _loadSelectedStreets();
+    _loadActiveTag();
   }
 
   Future<void> _loadSelectedStreets() async {
@@ -57,6 +59,23 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
         _streetPrefsKey, _selectedStreets.map((e) => e.toString()).toList());
+  }
+
+  Future<void> _loadActiveTag() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tag = prefs.getString(_activeTagPrefsKey);
+    if (tag != null && tag.isNotEmpty) {
+      setState(() => _activeTag = tag);
+    }
+  }
+
+  Future<void> _saveActiveTag() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_activeTag == null) {
+      await prefs.remove(_activeTagPrefsKey);
+    } else {
+      await prefs.setString(_activeTagPrefsKey, _activeTag!);
+    }
   }
 
   String _formatDuration(Duration d) {
@@ -129,7 +148,10 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       fontWeight: selected ? FontWeight.bold : FontWeight.normal,
     );
     return InkWell(
-      onTap: () => setState(() => _activeTag = selected ? null : tag),
+      onTap: () {
+        setState(() => _activeTag = selected ? null : tag);
+        _saveActiveTag();
+      },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Row(
@@ -710,7 +732,10 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: ElevatedButton(
-                onPressed: () => setState(() => _activeTag = null),
+                onPressed: () {
+                  setState(() => _activeTag = null);
+                  _saveActiveTag();
+                },
                 child: const Text('Сбросить фильтр'),
               ),
             ),
