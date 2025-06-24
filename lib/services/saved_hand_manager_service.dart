@@ -130,11 +130,15 @@ class SavedHandManagerService extends ChangeNotifier {
   /// Export hands belonging to [sessionId] to a Markdown file. The file
   /// will be named `session_[id].md` and stored in the application documents
   /// directory. Returns the created path or `null` if the session is empty.
-  Future<String?> exportSessionHandsMarkdown(int sessionId) async {
+  Future<String?> exportSessionHandsMarkdown(int sessionId, {String? note}) async {
     final sessionHands =
         hands.where((h) => h.sessionId == sessionId).toList();
     if (sessionHands.isEmpty) return null;
     final buffer = StringBuffer();
+    if (note != null && note.trim().isNotEmpty) {
+      buffer.writeln(note.trim());
+      buffer.writeln();
+    }
     for (final hand in sessionHands) {
       final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
       buffer.writeln('## $title');
@@ -162,7 +166,7 @@ class SavedHandManagerService extends ChangeNotifier {
   /// Export hands belonging to [sessionId] to a PDF file. The file will be
   /// named `session_[id].pdf` and stored in the application documents
   /// directory. Returns the created path or `null` if the session is empty.
-  Future<String?> exportSessionHandsPdf(int sessionId) async {
+  Future<String?> exportSessionHandsPdf(int sessionId, {String? note}) async {
     final sessionHands =
         hands.where((h) => h.sessionId == sessionId).toList();
     if (sessionHands.isEmpty) return null;
@@ -176,6 +180,10 @@ class SavedHandManagerService extends ChangeNotifier {
         pageFormat: PdfPageFormat.a4,
         build: (context) {
           return [
+            if (note != null && note.trim().isNotEmpty) ...[
+              pw.Text(note.trim(), style: pw.TextStyle(font: regularFont)),
+              pw.SizedBox(height: 12),
+            ],
             for (final hand in sessionHands) ...[
               pw.Text(
                 hand.name.isNotEmpty ? hand.name : 'Без названия',
