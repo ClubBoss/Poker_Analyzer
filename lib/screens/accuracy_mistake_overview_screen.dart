@@ -3,15 +3,10 @@ import 'package:provider/provider.dart';
 
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
+import '../helpers/street_name_helper.dart';
 
 class AccuracyMistakeOverviewScreen extends StatelessWidget {
   const AccuracyMistakeOverviewScreen({super.key});
-
-  static const _streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
-
-  String _streetName(int index) {
-    return _streetNames[index.clamp(0, _streetNames.length - 1)];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +16,7 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
 
     final Map<String, int> tagTotals = {};
     final Map<String, int> streetTotals = {
-      for (final s in _streetNames) s: 0
+      for (final s in streetNames) s: 0
     };
     final Map<String, int> positionTotals = {};
 
@@ -29,7 +24,7 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
       for (final t in h.tags) {
         tagTotals[t] = (tagTotals[t] ?? 0) + 1;
       }
-      final street = _streetName(h.boardStreet);
+      final street = streetName(h.boardStreet);
       streetTotals[street] = (streetTotals[street] ?? 0) + 1;
       positionTotals[h.heroPosition] =
           (positionTotals[h.heroPosition] ?? 0) + 1;

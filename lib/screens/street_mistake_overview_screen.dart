@@ -7,6 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'dart:io';
 
 import '../helpers/date_utils.dart';
+import '../helpers/street_name_helper.dart';
 
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
@@ -118,7 +119,7 @@ class _StreetMistakeHandsScreen extends StatelessWidget {
     final allHands = context.watch<SavedHandManagerService>().hands;
     final filtered = [
       for (final h in allHands)
-        if (_streetName(h.boardStreet) == street) h
+        if (streetName(h.boardStreet) == street) h
     ];
 
     return Scaffold(
@@ -143,7 +144,3 @@ class _StreetMistakeHandsScreen extends StatelessWidget {
   }
 }
 
-String _streetName(int index) {
-  const names = ['Preflop', 'Flop', 'Turn', 'River'];
-  return names[index.clamp(0, names.length - 1)];
-}
