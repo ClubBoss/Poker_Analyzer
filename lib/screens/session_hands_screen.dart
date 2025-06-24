@@ -6,6 +6,7 @@ import '../widgets/session_label_overlay.dart';
 
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/session_note_service.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../helpers/date_utils.dart';
 import '../theme/app_colors.dart';
@@ -22,15 +23,27 @@ class SessionHandsScreen extends StatefulWidget {
 }
 
 class _SessionHandsScreenState extends State<SessionHandsScreen> {
+  late TextEditingController _noteController;
 
   @override
   void initState() {
     super.initState();
+    final noteService = context.read<SessionNoteService>();
+    _noteController =
+        TextEditingController(text: noteService.noteFor(widget.sessionId));
+    _noteController.addListener(
+        () => noteService.setNote(widget.sessionId, _noteController.text));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         showSessionLabelOverlay(context, 'Сессия ${widget.sessionId}');
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
   }
 
   String _actionType(SavedHand hand) {
@@ -126,9 +139,35 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
     );
   }
 
+  Widget _buildNoteField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.padding16, vertical: 8),
+      child: Card(
+        color: AppColors.cardBackground,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            controller: _noteController,
+            minLines: 3,
+            maxLines: null,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Заметка о сессии',
+              hintStyle: TextStyle(color: Colors.white54),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _exportMarkdown(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
-    final path = await manager.exportSessionHandsMarkdown(widget.sessionId);
+    final note = context.read<SessionNoteService>().noteFor(widget.sessionId);
+    final path =
+        await manager.exportSessionHandsMarkdown(widget.sessionId, note: note);
     if (path == null) return;
     await Share.shareXFiles([XFile(path)], text: 'session_${widget.sessionId}.md');
     if (context.mounted) {
@@ -140,7 +179,9 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
 
   Future<void> _exportPdf(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
-    final path = await manager.exportSessionHandsPdf(widget.sessionId);
+    final note = context.read<SessionNoteService>().noteFor(widget.sessionId);
+    final path =
+        await manager.exportSessionHandsPdf(widget.sessionId, note: note);
     if (path == null) return;
     await Share.shareXFiles([XFile(path)], text: 'session_${widget.sessionId}.pdf');
     if (context.mounted) {
@@ -266,6 +307,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
                   ),
                 ),
                 _buildSummary(hands),
+                _buildNoteField(),
                 Expanded(child: _buildGroupedList()),
               ],
             ),
