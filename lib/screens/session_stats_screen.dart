@@ -12,6 +12,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/session_note_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/session_accuracy_distribution_chart.dart';
+import 'saved_hands_screen.dart';
 
 class SessionStatsScreen extends StatefulWidget {
   const SessionStatsScreen({super.key});
@@ -68,8 +69,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     ];
   }
 
-  Widget _buildStat(String label, String value) {
-    return Padding(
+  Widget _buildStat(String label, String value, {VoidCallback? onTap}) {
+    final row = Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -79,6 +80,10 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
         ],
       ),
     );
+    if (onTap != null) {
+      return InkWell(onTap: onTap, child: row);
+    }
+    return row;
   }
 
   Widget _buildTag(BuildContext context, String tag, int count) {
@@ -103,15 +108,20 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     );
   }
 
-  Widget _buildPositionRow(String pos, int correct, int total) {
+  Widget _buildPositionRow(String pos, int correct, int total,
+      {VoidCallback? onTap}) {
     final accuracy = total > 0 ? (correct / total * 100).round() : 0;
-    return Padding(
+    final row = Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         '$pos — $accuracy% точность ($correct из $total верно)',
         style: const TextStyle(color: Colors.white),
       ),
     );
+    if (onTap != null) {
+      return InkWell(onTap: onTap, child: row);
+    }
+    return row;
   }
 
   Widget _buildAccuracyProgress(
@@ -705,7 +715,21 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             for (final e in summary.errorTagEntries)
-              _buildStat(e.key, e.value.toString()),
+              _buildStat(
+                e.key,
+                e.value.toString(),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SavedHandsScreen(
+                        initialTag: e.key,
+                        initialAccuracy: 'Только ошибки',
+                      ),
+                    ),
+                  );
+                },
+              ),
           ],
           if (summary.positionTotals.values.any((v) => v > 0)) ...[
             const SizedBox(height: 16),
@@ -714,10 +738,38 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
             const SizedBox(height: 8),
             if (summary.positionTotals['SB']! > 0)
               _buildPositionRow(
-                  'SB', summary.positionCorrect['SB']!, summary.positionTotals['SB']!),
+                'SB',
+                summary.positionCorrect['SB']!,
+                summary.positionTotals['SB']!,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SavedHandsScreen(
+                        initialPosition: 'SB',
+                        initialAccuracy: 'Только ошибки',
+                      ),
+                    ),
+                  );
+                },
+              ),
             if (summary.positionTotals['BB']! > 0)
               _buildPositionRow(
-                  'BB', summary.positionCorrect['BB']!, summary.positionTotals['BB']!),
+                'BB',
+                summary.positionCorrect['BB']!,
+                summary.positionTotals['BB']!,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SavedHandsScreen(
+                        initialPosition: 'BB',
+                        initialAccuracy: 'Только ошибки',
+                      ),
+                    ),
+                  );
+                },
+              ),
           ],
         ],
       ),

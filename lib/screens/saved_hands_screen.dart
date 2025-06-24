@@ -11,7 +11,16 @@ import '../widgets/saved_hand_tile.dart';
 import '../screens/hand_history_review_screen.dart';
 
 class SavedHandsScreen extends StatefulWidget {
-  const SavedHandsScreen({super.key});
+  final String? initialTag;
+  final String? initialPosition;
+  final String? initialAccuracy;
+
+  const SavedHandsScreen({
+    super.key,
+    this.initialTag,
+    this.initialPosition,
+    this.initialAccuracy,
+  });
 
   @override
   State<SavedHandsScreen> createState() => _SavedHandsScreenState();
@@ -28,6 +37,14 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tagFilter = widget.initialTag ?? 'Все';
+    _positionFilter = widget.initialPosition ?? 'Все';
+    _accuracyFilter = widget.initialAccuracy ?? 'Все';
   }
 
   @override
