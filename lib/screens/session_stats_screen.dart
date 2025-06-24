@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -24,8 +25,39 @@ class SessionStatsScreen extends StatefulWidget {
 }
 
 class _SessionStatsScreenState extends State<SessionStatsScreen> {
+  static const _streetPrefsKey = 'selectedStreets';
+
   String? _activeTag;
-  final Set<int> _selectedStreets = {0, 1, 2, 3};
+  Set<int> _selectedStreets = {0, 1, 2, 3};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedStreets();
+  }
+
+  Future<void> _loadSelectedStreets() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_streetPrefsKey);
+    if (list != null && list.isNotEmpty) {
+      final values = <int>[];
+      for (final item in list) {
+        final v = int.tryParse(item);
+        if (v != null) values.add(v);
+      }
+      if (values.isNotEmpty) {
+        setState(() {
+          _selectedStreets = values.toSet();
+        });
+      }
+    }
+  }
+
+  Future<void> _saveSelectedStreets() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+        _streetPrefsKey, _selectedStreets.map((e) => e.toString()).toList());
+  }
 
   String _formatDuration(Duration d) {
     final h = d.inHours;
@@ -222,13 +254,16 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
             FilterChip(
               label: Text(labels[i]),
               selected: _selectedStreets.contains(i),
-              onSelected: (v) => setState(() {
-                if (v) {
-                  _selectedStreets.add(i);
-                } else {
-                  _selectedStreets.remove(i);
-                }
-              }),
+              onSelected: (v) {
+                setState(() {
+                  if (v) {
+                    _selectedStreets.add(i);
+                  } else {
+                    _selectedStreets.remove(i);
+                  }
+                });
+                _saveSelectedStreets();
+              },
             ),
         ],
       ),
