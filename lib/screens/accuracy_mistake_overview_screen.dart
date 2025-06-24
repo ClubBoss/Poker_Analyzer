@@ -4,6 +4,11 @@ import 'package:provider/provider.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 
+/// Shows accuracy percentages grouped by tag, street and hero position.
+///
+/// Information is pulled from [EvaluationExecutorService.summarizeHands]. Lists
+/// are sorted by ascending accuracy so the weakest groups appear first.
+
 class AccuracyMistakeOverviewScreen extends StatelessWidget {
   const AccuracyMistakeOverviewScreen({super.key});
 
