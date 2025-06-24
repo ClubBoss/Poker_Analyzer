@@ -171,6 +171,15 @@ class SessionStatsScreen extends StatelessWidget {
       dotData: FlDotData(show: false),
     );
 
+    final tagCounts = <String, int>{};
+    for (final hand in manager.hands) {
+      for (final tag in hand.tags) {
+        tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+      }
+    }
+    final tagEntries = tagCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Статистика сессий'),
@@ -255,6 +264,14 @@ class SessionStatsScreen extends StatelessWidget {
                 ),
               ),
             ),
+          if (tagEntries.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Text('Использование тегов',
+                style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            for (final e in tagEntries)
+              _buildStat(e.key, e.value.toString()),
+          ],
         ],
       ),
     );
