@@ -19,6 +19,7 @@ import 'services/pot_sync_service.dart';
 import 'services/stack_manager_service.dart';
 import 'services/transition_lock_service.dart';
 import 'services/action_history_service.dart';
+import 'services/ignored_mistake_service.dart';
 import 'services/training_import_export_service.dart';
 import 'services/demo_playback_controller.dart';
 
@@ -96,6 +97,9 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
           ),
         ),
         Provider(create: (_) => ActionHistoryService()),
+        ChangeNotifierProvider(
+          create: (_) => IgnoredMistakeService()..load(),
+        ),
         Provider(create: (_) => const TrainingImportExportService()),
       ],
       child: Builder(
