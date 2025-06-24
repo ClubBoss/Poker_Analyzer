@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'dart:io';
+
+import '../helpers/date_utils.dart';
 
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
@@ -15,6 +22,42 @@ import 'hand_history_review_screen.dart';
 class StreetMistakeOverviewScreen extends StatelessWidget {
   const StreetMistakeOverviewScreen({super.key});
 
+  Future<void> _exportPdf(
+      BuildContext context, List<MapEntry<String, int>> entries) async {
+    if (entries.isEmpty) return;
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+    final date = formatDateTime(DateTime.now());
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (ctx) => [
+          pw.Text('Ошибки по улицам',
+              style: pw.TextStyle(font: boldFont, fontSize: 24)),
+          pw.SizedBox(height: 8),
+          pw.Text(date, style: pw.TextStyle(font: regularFont)),
+          pw.SizedBox(height: 16),
+          pw.Table.fromTextArray(
+            headers: const ['Улица', 'Ошибки'],
+            data: [for (final e in entries) [e.key, e.value.toString()]],
+          ),
+        ],
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/street_mistakes_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    await file.writeAsBytes(bytes);
+
+    await Share.shareXFiles([XFile(file.path)], text: 'street_mistakes.pdf');
+  }
+
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
@@ -26,6 +69,13 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Ошибки по улицам'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            tooltip: 'PDF',
+            onPressed: () => _exportPdf(context, entries),
+          ),
+        ],
       ),
       body: entries.isEmpty
           ? const Center(
