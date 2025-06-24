@@ -8,11 +8,13 @@ import '../services/goals_service.dart';
 
 class Achievement {
   final String title;
+  final String progressText;
   final IconData icon;
   final bool completed;
 
   const Achievement({
     required this.title,
+    required this.progressText,
     required this.icon,
     required this.completed,
   });
@@ -87,16 +89,19 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     return [
       Achievement(
         title: 'Разобрано 5 ошибок',
+        progressText: '${_mistakeCount.clamp(0, 5)}/5 ошибок',
         icon: Icons.bug_report,
         completed: _mistakeCount >= 5,
       ),
       Achievement(
         title: '3 дня подряд',
+        progressText: '${streak.clamp(0, 3)}/3 дня',
         icon: Icons.local_fire_department,
         completed: streak >= 3,
       ),
       Achievement(
         title: 'Цель выполнена',
+        progressText: '${_goalCompleted ? 1 : 0}/1 целей',
         icon: Icons.flag,
         completed: _goalCompleted,
       ),
@@ -125,17 +130,31 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(a.icon, color: color),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    a.title,
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        a.title,
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        a.progressText,
+                        style: TextStyle(
+                          color: color.withOpacity(0.8),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Icon(
