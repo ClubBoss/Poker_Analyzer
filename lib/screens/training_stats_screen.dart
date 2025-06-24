@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
+import 'saved_hands_screen.dart';
 
 class TrainingStatsScreen extends StatefulWidget {
   const TrainingStatsScreen({super.key});
@@ -59,8 +60,8 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
     });
   }
 
-  Widget _buildStat(String label, String value) {
-    return Padding(
+  Widget _buildStat(String label, String value, {VoidCallback? onTap}) {
+    final row = Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -70,17 +71,26 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
         ],
       ),
     );
+    if (onTap != null) {
+      return InkWell(onTap: onTap, child: row);
+    }
+    return row;
   }
 
-  Widget _buildPositionRow(String pos, int correct, int total) {
+  Widget _buildPositionRow(String pos, int correct, int total,
+      {VoidCallback? onTap}) {
     final acc = total > 0 ? (correct * 100 / total).round() : 0;
-    return Padding(
+    final row = Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         '$pos — $acc% точность ($correct из $total верно)',
         style: const TextStyle(color: Colors.white),
       ),
     );
+    if (onTap != null) {
+      return InkWell(onTap: onTap, child: row);
+    }
+    return row;
   }
 
   @override
@@ -112,7 +122,21 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             for (final e in tagEntries.take(5))
-              _buildStat(e.key, e.value.toString()),
+              _buildStat(
+                e.key,
+                e.value.toString(),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SavedHandsScreen(
+                        initialTag: e.key,
+                        initialAccuracy: 'Только ошибки',
+                      ),
+                    ),
+                  );
+                },
+              ),
             const SizedBox(height: 16),
           ],
           if (posEntries.isNotEmpty) ...[
@@ -124,6 +148,17 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
                 e.key,
                 e.value,
                 _positionTotal[e.key] ?? 0,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => SavedHandsScreen(
+                        initialPosition: e.key,
+                        initialAccuracy: 'Только ошибки',
+                      ),
+                    ),
+                  );
+                },
               ),
           ],
         ],
