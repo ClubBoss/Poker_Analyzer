@@ -16,6 +16,7 @@ import '../widgets/common/session_accuracy_distribution_chart.dart';
 import '../widgets/common/mistake_by_street_chart.dart';
 import '../widgets/common/session_volume_accuracy_chart.dart';
 import 'saved_hands_screen.dart';
+import 'tag_mistake_overview_screen.dart';
 
 class SessionStatsScreen extends StatefulWidget {
   const SessionStatsScreen({super.key});
@@ -765,6 +766,20 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           _buildStat('Сессий с заметками', summary.sessionsWithNotes.toString()),
           _buildAccuracyProgress(context, summary.sessionsAbove80, summary.sessionsCount),
           _buildGoalProgress(context, summary.sessionsAbove90),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TagMistakeOverviewScreen(),
+                  ),
+                );
+              },
+              child: const Text('Ошибки по тегам'),
+            ),
+          ),
           _buildStreetFilters(),
           MistakeByStreetChart(counts: summary.mistakesByStreet),
           SessionAccuracyDistributionChart(accuracies: summary.sessionAccuracies),
