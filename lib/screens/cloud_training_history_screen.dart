@@ -10,7 +10,7 @@ import '../models/cloud_training_session.dart';
 import '../models/training_result.dart';
 import '../services/cloud_sync_service.dart';
 import '../widgets/common/accuracy_trend_chart.dart';
-import 'training_pack_screen.dart';
+import 'cloud_training_session_details_screen.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
   const TrainingHistoryScreen({super.key});
@@ -48,7 +48,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingAnalysisScreen(results: session.results),
+        builder: (_) =>
+            CloudTrainingSessionDetailsScreen(session: session),
       ),
     );
   }
