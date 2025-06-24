@@ -580,6 +580,11 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
             tooltip: 'Экспорт',
             onPressed: _showExportOptions,
           ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            tooltip: 'PDF',
+            onPressed: () => _exportPdf(context),
+          ),
         ],
       ),
       body: ListView(
