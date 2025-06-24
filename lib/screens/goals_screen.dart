@@ -18,10 +18,10 @@ class Goal {
   });
 }
 
-class GoalsScreen extends StatelessWidget {
+class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
 
-  static const List<Goal> _goals = [
+  static const List<Goal> _initialGoals = [
     Goal(
       title: 'Разобрать 5 ошибок',
       progress: 2,
@@ -35,6 +35,34 @@ class GoalsScreen extends StatelessWidget {
       icon: Icons.play_circle_fill,
     ),
   ];
+
+  @override
+  State<GoalsScreen> createState() => _GoalsScreenState();
+}
+
+class _GoalsScreenState extends State<GoalsScreen> {
+  late List<Goal> _goals;
+
+  @override
+  void initState() {
+    super.initState();
+    _goals = List<Goal>.from(GoalsScreen._initialGoals);
+  }
+
+  void _resetGoal(int index) {
+    final goal = _goals[index];
+    setState(() {
+      _goals[index] = Goal(
+        title: goal.title,
+        progress: 0,
+        target: goal.target,
+        icon: goal.icon,
+      );
+    });
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(const SnackBar(content: Text('Цель сброшена')));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +102,8 @@ class GoalsScreen extends StatelessWidget {
     final List<Widget> activeGoals = [];
     final List<Widget> completedGoals = [];
 
-    for (final goal in _goals) {
+    for (int index = 0; index < _goals.length; index++) {
+      final goal = _goals[index];
       final adjusted = math.min((goal.progress * multiplier).round(), goal.target);
       final progress = (adjusted / goal.target).clamp(0.0, 1.0);
       final isCompleted = goal.progress >= goal.target;
@@ -104,8 +133,15 @@ class GoalsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (isCompleted)
-                  const Icon(Icons.check_circle, color: Colors.green)
+                if (isCompleted) ...[
+                  const Icon(Icons.check_circle, color: Colors.green),
+                  IconButton(
+                    icon: const Icon(Icons.refresh, size: 18),
+                    tooltip: 'Сбросить цель',
+                    style: IconButton.styleFrom(shape: const CircleBorder()),
+                    onPressed: () => _resetGoal(index),
+                  ),
+                ]
                 else
                   Text('$adjusted/${goal.target}')
               ],
