@@ -282,6 +282,9 @@ class _CloudTrainingSessionDetailsScreenState
     final results = _onlyErrors
         ? widget.session.results.where((r) => !r.correct).toList()
         : widget.session.results;
+    final handMap = {
+      for (final h in context.watch<SavedHandManagerService>().hands) h.name: h
+    };
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -397,11 +400,20 @@ class _CloudTrainingSessionDetailsScreenState
                             ],
                           ),
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.all(12.0),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
                               child: Text(
-                                'Тут будет анализ этой раздачи',
-                                style: TextStyle(color: Colors.white70),
+                                () {
+                                  final hand = handMap[r.name];
+                                  if (hand == null) {
+                                    return 'Раздача не найдена';
+                                  }
+                                  final gto = hand.gtoAction ?? r.expected;
+                                  final group = hand.rangeGroup ?? '-';
+                                  final verdict = r.correct ? 'верное' : 'ошибочное';
+                                  return 'GTO предлагает $gto, ваша рука из группы $group. Это действие $verdict.';
+                                }(),
+                                style: const TextStyle(color: Colors.white70),
                               ),
                             ),
                             Padding(

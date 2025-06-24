@@ -49,6 +49,10 @@ class SavedHand {
   final bool isFavorite;
   final DateTime date;
   final String? expectedAction;
+  /// Recommended action from GTO solver.
+  final String? gtoAction;
+  /// Predefined group label for hero hand range.
+  final String? rangeGroup;
   final String? feedbackText;
   final Map<String, int>? effectiveStacksPerStreet;
   final Map<String, String>? validationNotes;
@@ -103,6 +107,8 @@ class SavedHand {
     this.isFavorite = false,
     DateTime? date,
     this.expectedAction,
+    this.gtoAction,
+    this.rangeGroup,
     this.feedbackText,
     this.effectiveStacksPerStreet,
     this.validationNotes,
@@ -156,6 +162,8 @@ class SavedHand {
     bool? isFavorite,
     DateTime? date,
     String? expectedAction,
+    String? gtoAction,
+    String? rangeGroup,
     String? feedbackText,
     Map<String, int>? effectiveStacksPerStreet,
     Map<String, String>? validationNotes,
@@ -211,6 +219,8 @@ class SavedHand {
       isFavorite: isFavorite ?? this.isFavorite,
       date: date ?? this.date,
       expectedAction: expectedAction ?? this.expectedAction,
+      gtoAction: gtoAction ?? this.gtoAction,
+      rangeGroup: rangeGroup ?? this.rangeGroup,
       feedbackText: feedbackText ?? this.feedbackText,
       effectiveStacksPerStreet:
           effectiveStacksPerStreet ?? this.effectiveStacksPerStreet,
@@ -319,6 +329,8 @@ class SavedHand {
         'isFavorite': isFavorite,
         'date': date.toIso8601String(),
         if (expectedAction != null) 'expectedAction': expectedAction,
+        if (gtoAction != null) 'gtoAction': gtoAction,
+        if (rangeGroup != null) 'rangeGroup': rangeGroup,
         if (feedbackText != null) 'feedbackText': feedbackText,
         if (effectiveStacksPerStreet != null)
           'effectiveStacksPerStreet': effectiveStacksPerStreet,
@@ -531,6 +543,8 @@ class SavedHand {
       isFavorite: isFavorite,
       date: date,
       expectedAction: json['expectedAction'] as String?,
+      gtoAction: json['gtoAction'] as String?,
+      rangeGroup: json['rangeGroup'] as String?,
       feedbackText: json['feedbackText'] as String?,
       effectiveStacksPerStreet: effStacks,
       validationNotes: notes,
