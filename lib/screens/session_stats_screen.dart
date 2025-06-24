@@ -18,6 +18,7 @@ import '../widgets/common/session_volume_accuracy_chart.dart';
 import 'saved_hands_screen.dart';
 import 'tag_mistake_overview_screen.dart';
 import 'street_mistake_overview_screen.dart';
+import 'position_mistake_overview_screen.dart';
 
 class SessionStatsScreen extends StatefulWidget {
   const SessionStatsScreen({super.key});
@@ -793,6 +794,20 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 );
               },
               child: const Text('Ошибки по улицам'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PositionMistakeOverviewScreen(),
+                  ),
+                );
+              },
+              child: const Text('Ошибки по позициям'),
             ),
           ),
           _buildStreetFilters(),

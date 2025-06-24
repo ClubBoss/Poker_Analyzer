@@ -5,6 +5,7 @@ class SummaryResult {
   final double accuracy;
   final Map<String, int> mistakeTagFrequencies;
   final Map<String, int> streetBreakdown;
+  final Map<String, int> positionMistakeFrequencies;
   final Map<int, double> accuracyPerSession;
 
   SummaryResult({
@@ -14,9 +15,11 @@ class SummaryResult {
     required this.accuracy,
     Map<String, int>? mistakeTagFrequencies,
     Map<String, int>? streetBreakdown,
+    Map<String, int>? positionMistakeFrequencies,
     Map<int, double>? accuracyPerSession,
   })  : mistakeTagFrequencies = mistakeTagFrequencies ?? const {},
         streetBreakdown = streetBreakdown ?? const {},
+        positionMistakeFrequencies = positionMistakeFrequencies ?? const {},
         accuracyPerSession = accuracyPerSession ?? const {};
 
   Map<String, dynamic> toJson() => {
@@ -27,6 +30,8 @@ class SummaryResult {
         if (mistakeTagFrequencies.isNotEmpty)
           'mistakeTagFrequencies': mistakeTagFrequencies,
         if (streetBreakdown.isNotEmpty) 'streetBreakdown': streetBreakdown,
+        if (positionMistakeFrequencies.isNotEmpty)
+          'positionMistakeFrequencies': positionMistakeFrequencies,
         if (accuracyPerSession.isNotEmpty)
           'accuracyPerSession':
               accuracyPerSession.map((k, v) => MapEntry(k.toString(), v)),
@@ -41,6 +46,10 @@ class SummaryResult {
     (json['streetBreakdown'] as Map? ?? {}).forEach((key, value) {
       streets[key as String] = value as int;
     });
+    final positions = <String, int>{};
+    (json['positionMistakeFrequencies'] as Map? ?? {}).forEach((key, value) {
+      positions[key as String] = value as int;
+    });
     final sessions = <int, double>{};
     (json['accuracyPerSession'] as Map? ?? {}).forEach((key, value) {
       sessions[int.parse(key as String)] = (value as num).toDouble();
@@ -52,6 +61,7 @@ class SummaryResult {
       accuracy: (json['accuracy'] as num?)?.toDouble() ?? 0.0,
       mistakeTagFrequencies: tagFreq,
       streetBreakdown: streets,
+      positionMistakeFrequencies: positions,
       accuracyPerSession: sessions,
     );
   }
