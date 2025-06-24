@@ -301,7 +301,7 @@ class _TagMistakeHandsScreen extends StatelessWidget {
       body: SavedHandListView(
         hands: hands,
         tags: [tag],
-        accuracy: 'errors',
+        initialAccuracy: 'errors',
         filterKey: tag,
         title: 'Ошибки: $tag',
         onTap: (hand) {

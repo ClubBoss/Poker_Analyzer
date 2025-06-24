@@ -302,7 +302,7 @@ class _PositionMistakeHandsScreen extends StatelessWidget {
       body: SavedHandListView(
         hands: hands,
         positions: [position],
-        accuracy: 'errors',
+        initialAccuracy: 'errors',
         filterKey: position,
         title: 'Ошибки: $position',
         onTap: (hand) {
