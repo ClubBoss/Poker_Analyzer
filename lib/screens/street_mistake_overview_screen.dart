@@ -14,6 +14,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
+import '../widgets/mistake_empty_state.dart';
 import '../helpers/poker_street_helper.dart';
 import 'hand_history_review_screen.dart';
 
@@ -120,12 +121,7 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
         if (entries.isEmpty)
           const SliverFillRemaining(
             hasScrollBody: false,
-            child: Center(
-              child: Text(
-                'Ошибок нет',
-                style: TextStyle(color: Colors.white70),
-              ),
-            ),
+            child: MistakeEmptyState(),
           )
         else
           SliverPadding(
