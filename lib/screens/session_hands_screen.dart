@@ -55,6 +55,11 @@ class SessionHandsScreen extends StatelessWidget {
       }
     }
 
+    final totalDecisions = correct + incorrect;
+    final winrate =
+        totalDecisions > 0 ? (correct / totalDecisions * 100).toStringAsFixed(1) : null;
+    final ev = correct - incorrect;
+
     return Padding(
       padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.padding16, vertical: 8),
@@ -77,6 +82,11 @@ class SessionHandsScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text('Верно: $correct • Ошибки: $incorrect',
                   style: const TextStyle(color: Colors.white)),
+              if (winrate != null) ...[
+                const SizedBox(height: 4),
+                Text('Winrate: $winrate% • EV: ${ev >= 0 ? '+' : ''}$ev',
+                    style: const TextStyle(color: Colors.white)),
+              ],
             ],
           ),
         ),
