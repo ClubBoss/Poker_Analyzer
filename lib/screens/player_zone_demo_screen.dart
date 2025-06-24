@@ -7,6 +7,7 @@ import '../widgets/street_action_list_simple.dart';
 import '../models/card_model.dart';
 import '../services/action_sync_service.dart';
 import '../models/player_model.dart';
+import '../helpers/poker_street_helper.dart';
 
 class PlayerZoneDemoScreen extends StatefulWidget {
   const PlayerZoneDemoScreen({super.key});
@@ -17,7 +18,6 @@ class PlayerZoneDemoScreen extends StatefulWidget {
 
 class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
   int _street = 0;
-  final List<String> _streetNames = const ['Preflop', 'Flop', 'Turn', 'River'];
   final List<PlayerModel> _players = [
     PlayerModel(name: 'Alice', stack: 100, bet: 0),
     PlayerModel(name: 'Bob', stack: 75, bet: 0),
@@ -45,7 +45,7 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
                   child: PlayerZoneWidget(
                     player: player,
                     playerName: player.name,
-                    street: _streetNames[_street],
+                    street: kStreetNames[_street],
                     position: null,
                     cards: _cards[index],
                     currentBet: player.bet,
@@ -72,7 +72,7 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (final s in _streetNames)
+                  for (final s in kStreetNames)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12.0),
                       child: StreetActionListSimple(street: s),

@@ -8,6 +8,7 @@ import '../widgets/street_actions_list.dart';
 import '../models/action_entry.dart';
 import '../services/user_preferences_service.dart';
 import 'package:provider/provider.dart';
+import '../helpers/poker_street_helper.dart';
 
 /// Displays actions for a [TrainingSpot] grouped by street in collapsible sections.
 class TrainingSpotAnalysisScreen extends StatefulWidget {
@@ -74,7 +75,7 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
     final stacks = _computeStacks();
     final positions = _posMap();
     final prefs = context.watch<UserPreferencesService>();
-    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
+    const streetNames = kStreetNames;
 
     final tiles = <Widget>[];
     for (int street = 0; street < 4; street++) {

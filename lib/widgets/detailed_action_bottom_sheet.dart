@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../helpers/poker_street_helper.dart';
 
 Future<Map<String, dynamic>?> showDetailedActionBottomSheet(
   BuildContext context, {
@@ -145,7 +146,7 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
       {'label': 'Bet', 'value': 'bet', 'icon': '💰'},
       {'label': 'Raise', 'value': 'raise', 'icon': '📈'},
     ];
-    const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
+    const streetNames = kStreetNames;
 
     return Padding(
       padding: MediaQuery.of(context).viewInsets + const EdgeInsets.all(16),
