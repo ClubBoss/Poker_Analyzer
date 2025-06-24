@@ -5,12 +5,71 @@ import 'package:share_plus/share_plus.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../widgets/saved_hand_tile.dart';
+import '../helpers/date_utils.dart';
+import '../theme/app_colors.dart';
+import '../theme/constants.dart';
 import 'hand_history_review_screen.dart';
 
 class SessionHandsScreen extends StatelessWidget {
   final int sessionId;
 
   const SessionHandsScreen({super.key, required this.sessionId});
+
+  String _formatDuration(Duration d) {
+    final hours = d.inHours;
+    final minutes = d.inMinutes.remainder(60);
+    final parts = <String>[];
+    if (hours > 0) parts.add('${hours}ч');
+    parts.add('${minutes}м');
+    return parts.join(' ');
+  }
+
+  Widget _buildSummary(List<SavedHand> hands) {
+    final start = hands.last.savedAt;
+    final end = hands.first.savedAt;
+    final duration = end.difference(start);
+    int correct = 0;
+    int incorrect = 0;
+    for (final h in hands) {
+      final expected = h.expectedAction;
+      final gto = h.gtoAction;
+      if (expected != null && gto != null) {
+        if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
+          correct++;
+        } else {
+          incorrect++;
+        }
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.padding16, vertical: 8),
+      child: Card(
+        color: AppColors.cardBackground,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Раздач: ${hands.length}',
+                  style: const TextStyle(color: Colors.white)),
+              const SizedBox(height: 4),
+              Text('Начало: ${formatDateTime(start)}',
+                  style: const TextStyle(color: Colors.white)),
+              Text('Конец: ${formatDateTime(end)}',
+                  style: const TextStyle(color: Colors.white)),
+              Text('Длительность: ${_formatDuration(duration)}',
+                  style: const TextStyle(color: Colors.white)),
+              const SizedBox(height: 4),
+              Text('Верно: $correct • Ошибки: $incorrect',
+                  style: const TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Future<void> _exportMarkdown(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
@@ -78,6 +137,7 @@ class SessionHandsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+                _buildSummary(hands),
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
