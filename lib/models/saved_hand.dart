@@ -47,6 +47,7 @@ class SavedHand {
   /// Cursor offset within the tags field when the hand was saved.
   final int? tagsCursor;
   final bool isFavorite;
+  final int sessionId;
   final DateTime savedAt;
   final DateTime date;
   final String? expectedAction;
@@ -106,6 +107,7 @@ class SavedHand {
     this.commentCursor,
     this.tagsCursor,
     this.isFavorite = false,
+    this.sessionId = 0,
     DateTime? savedAt,
     DateTime? date,
     this.expectedAction,
@@ -182,6 +184,7 @@ class SavedHand {
     int? playbackIndex,
     bool? showFullBoard,
     int? revealStreet,
+    int? sessionId,
   }) {
     return SavedHand(
       name: name ?? this.name,
@@ -221,6 +224,7 @@ class SavedHand {
       commentCursor: commentCursor ?? this.commentCursor,
       tagsCursor: tagsCursor ?? this.tagsCursor,
       isFavorite: isFavorite ?? this.isFavorite,
+      sessionId: sessionId ?? this.sessionId,
       savedAt: savedAt ?? this.savedAt,
       date: date ?? this.date,
       expectedAction: expectedAction ?? this.expectedAction,
@@ -332,6 +336,7 @@ class SavedHand {
         if (commentCursor != null) 'commentCursor': commentCursor,
         if (tagsCursor != null) 'tagsCursor': tagsCursor,
         'isFavorite': isFavorite,
+        'sessionId': sessionId,
         'savedAt': savedAt.toIso8601String(),
         'date': date.toIso8601String(),
         if (expectedAction != null) 'expectedAction': expectedAction,
@@ -437,6 +442,7 @@ class SavedHand {
     final tags = [for (final t in (json['tags'] as List? ?? [])) t as String];
     final rating = (json['rating'] as num?)?.toInt() ?? 0;
     final isFavorite = json['isFavorite'] as bool? ?? false;
+    final sessionId = json['sessionId'] as int? ?? 0;
     final savedAt =
         DateTime.tryParse(json['savedAt'] as String? ?? '') ?? DateTime.now();
     final date = DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now();
@@ -568,6 +574,7 @@ class SavedHand {
       playbackIndex: playbackIndex,
       showFullBoard: showFullBoard,
       revealStreet: revealStreet,
+      sessionId: sessionId,
     );
   }
 }

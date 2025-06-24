@@ -27,8 +27,15 @@ class SavedHandManagerService extends ChangeNotifier {
   Set<String> get allTags => hands.expand((h) => h.tags).toSet();
 
   Future<void> add(SavedHand hand) async {
-    await _storage.add(hand);
-    await _cloud?.uploadHand(hand);
+    int sessionId = 1;
+    final last = lastHand;
+    if (last != null) {
+      final diff = hand.savedAt.difference(last.savedAt).inMinutes;
+      sessionId = diff > 60 ? last.sessionId + 1 : last.sessionId;
+    }
+    final withSession = hand.copyWith(sessionId: sessionId);
+    await _storage.add(withSession);
+    await _cloud?.uploadHand(withSession);
   }
 
   Future<void> update(int index, SavedHand hand) async {
@@ -461,5 +468,14 @@ class SavedHandManagerService extends ChangeNotifier {
       tagFilters = Set.from(localFilters);
     }
     return selected;
+  }
+
+  /// Group saved hands by their session identifier.
+  Map<int, List<SavedHand>> handsBySession() {
+    final Map<int, List<SavedHand>> grouped = {};
+    for (final hand in hands) {
+      grouped.putIfAbsent(hand.sessionId, () => []).add(hand);
+    }
+    return grouped;
   }
 }
