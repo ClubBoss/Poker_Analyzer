@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+import '../helpers/date_utils.dart';
 
 import '../models/saved_hand.dart';
 import 'saved_hand_storage_service.dart';
@@ -207,7 +208,7 @@ class SavedHandManagerService extends ChangeNotifier {
                         return ListTile(
                           dense: true,
                           title: Text(
-                            title,
+                            '$title \u2022 ${formatLongDate(hand.savedAt)}',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: () {

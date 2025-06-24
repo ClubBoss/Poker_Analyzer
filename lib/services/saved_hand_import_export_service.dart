@@ -108,6 +108,7 @@ class SavedHandImportExportService {
       playerTypes: Map<int, PlayerType>.from(playerManager.playerTypes),
       isFavorite: false,
       rating: 0,
+      savedAt: DateTime.now(),
       date: DateTime.now(),
       effectiveStacksPerStreet: potSync.toNullableJson(),
       collapsedHistoryStreets: collapsed.isEmpty ? null : collapsed,
