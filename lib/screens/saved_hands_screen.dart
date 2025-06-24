@@ -6,7 +6,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/saved_hand_import_export_service.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_tile.dart';
-import '../widgets/saved_hand_detail_sheet.dart';
+import '../screens/hand_history_review_screen.dart';
 
 class SavedHandsScreen extends StatefulWidget {
   const SavedHandsScreen({super.key});
@@ -139,22 +139,11 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                           final updated = hand.copyWith(isFavorite: !hand.isFavorite);
                           handManager.update(originalIndex, updated);
                         },
-                        onTap: () async {
-                          await showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            backgroundColor: Colors.grey[900],
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                            ),
-                            builder: (_) => SavedHandDetailSheet(
-                              hand: hand,
-                              onDelete: () {
-                                Navigator.pop(context);
-                                handManager.removeAt(originalIndex);
-                              },
-                              onExportJson: () => _exportJson(hand),
-                              onExportCsv: () => _exportCsv(hand),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HandHistoryReviewScreen(hand: hand),
                             ),
                           );
                         },
