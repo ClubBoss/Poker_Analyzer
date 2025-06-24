@@ -184,6 +184,9 @@ class _CloudTrainingSessionDetailsScreenState
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
+    final hands = context.read<SavedHandManagerService>().hands;
+    final handMap = {for (final h in hands) h.name: h};
+
     final pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
@@ -193,19 +196,31 @@ class _CloudTrainingSessionDetailsScreenState
             pw.Text('Training Session',
                 style: pw.TextStyle(font: boldFont, fontSize: 24)),
             pw.SizedBox(height: 16),
-            for (final r in widget.session.results)
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(r.name, style: pw.TextStyle(font: boldFont)),
-                  pw.Text('User: ${r.userAction}',
-                      style: pw.TextStyle(font: regularFont)),
-                  pw.Text('Expected: ${r.expected}',
-                      style: pw.TextStyle(font: regularFont)),
-                  pw.Text(r.correct ? 'Correct' : 'Wrong',
-                      style: pw.TextStyle(font: regularFont)),
-                  pw.SizedBox(height: 8),
-                ],
+            pw.Text('Incorrect Hands',
+                style: pw.TextStyle(font: boldFont, fontSize: 18)),
+            pw.SizedBox(height: 8),
+            for (final r
+                in widget.session.results.where((element) => !element.correct))
+              pw.Container(
+                margin: const pw.EdgeInsets.only(bottom: 12),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(r.name, style: pw.TextStyle(font: boldFont)),
+                    pw.Text('User: ${r.userAction}',
+                        style: pw.TextStyle(font: regularFont)),
+                    pw.Text('Expected: ${r.expected}',
+                        style: pw.TextStyle(font: regularFont)),
+                    if (handMap[r.name]?.gtoAction != null &&
+                        handMap[r.name]!.gtoAction!.isNotEmpty)
+                      pw.Text('GTO: ${handMap[r.name]!.gtoAction}',
+                          style: pw.TextStyle(font: regularFont)),
+                    if (handMap[r.name]?.rangeGroup != null &&
+                        handMap[r.name]!.rangeGroup!.isNotEmpty)
+                      pw.Text('Range: ${handMap[r.name]!.rangeGroup}',
+                          style: pw.TextStyle(font: regularFont)),
+                  ],
+                ),
               ),
           ];
         },
