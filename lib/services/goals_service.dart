@@ -48,6 +48,9 @@ class Goal {
 
 class GoalsService extends ChangeNotifier {
   static const _prefPrefix = 'goal_progress_';
+  static const _streakKey = 'error_free_streak';
+
+  int _errorFreeStreak = 0;
 
   /// In-memory list of all achievements.
   late List<Achievement> _achievements;
@@ -64,6 +67,8 @@ class GoalsService extends ChangeNotifier {
   List<Goal> get goals => List.unmodifiable(_goals);
 
   List<Achievement> get achievements => List.unmodifiable(_achievements);
+
+  int get errorFreeStreak => _errorFreeStreak;
 
   bool get anyCompleted => _goals.any((g) => g.progress >= g.target);
 
@@ -83,6 +88,7 @@ class GoalsService extends ChangeNotifier {
         icon: Icons.play_circle_fill,
       ),
     ];
+    _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
     _achievements = [
       const Achievement(
         title: 'Разобрать 5 ошибок',
@@ -102,8 +108,19 @@ class GoalsService extends ChangeNotifier {
         progress: 0,
         target: 1,
       ),
+      Achievement(
+        title: 'Без ошибок подряд',
+        icon: Icons.flash_on,
+        progress: _errorFreeStreak,
+        target: 5,
+      ),
     ];
     notifyListeners();
+  }
+
+  Future<void> _saveErrorFreeStreak() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_streakKey, _errorFreeStreak);
   }
 
   Future<void> _saveProgress(int index) async {
@@ -120,6 +137,18 @@ class GoalsService extends ChangeNotifier {
 
   Future<void> resetGoal(int index) async {
     await setProgress(index, 0);
+  }
+
+  /// Updates the "error free" streak and achievement.
+  Future<void> updateErrorFreeStreak(bool correct) async {
+    final next = correct ? _errorFreeStreak + 1 : 0;
+    if (next == _errorFreeStreak) return;
+    _errorFreeStreak = next;
+    if (_achievements.length > 3) {
+      _achievements[3] = _achievements[3].copyWith(progress: _errorFreeStreak);
+    }
+    await _saveErrorFreeStreak();
+    notifyListeners();
   }
 
   /// Refreshes the progress values for all achievements.
