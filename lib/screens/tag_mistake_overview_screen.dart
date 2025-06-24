@@ -6,12 +6,12 @@ import '../services/evaluation_executor_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import 'hand_history_review_screen.dart';
 
-/// Screen showing mistakes grouped by tag.
+/// Displays a list of tags sorted by mistake count.
 ///
-/// The list is populated using [EvaluationExecutorService.summarizeHands]
-/// so that each tag displays how many errors were made. Tapping a tag
-/// navigates to a filtered [SavedHandListView] with only the mistakes for
-/// that tag.
+/// Information is pulled from [EvaluationExecutorService.summarizeHands]. Each
+/// tile shows how many errors were made for that tag. Selecting a tag opens a
+/// filtered [SavedHandListView] showing only the mistaken hands for the chosen
+/// tag.
 class TagMistakeOverviewScreen extends StatelessWidget {
   const TagMistakeOverviewScreen({super.key});
 
@@ -27,25 +27,32 @@ class TagMistakeOverviewScreen extends StatelessWidget {
         title: const Text('Ошибки по тегам'),
         centerTitle: true,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          for (final e in entries)
-            ListTile(
-              title: Text(e.key, style: const TextStyle(color: Colors.white)),
-              trailing:
-                  Text(e.value.toString(), style: const TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => _TagMistakeHandsScreen(tag: e.key),
+      body: entries.isEmpty
+          ? const Center(
+              child: Text(
+                'Ошибок нет',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (final e in entries)
+                  ListTile(
+                    title: Text(e.key, style: const TextStyle(color: Colors.white)),
+                    trailing:
+                        Text(e.value.toString(), style: const TextStyle(color: Colors.white)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => _TagMistakeHandsScreen(tag: e.key),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+              ],
             ),
-        ],
-      ),
     );
   }
 }
