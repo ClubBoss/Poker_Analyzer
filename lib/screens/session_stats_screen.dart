@@ -98,6 +98,17 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     );
   }
 
+  Widget _buildPositionRow(String pos, int correct, int total) {
+    final accuracy = total > 0 ? (correct / total * 100).round() : 0;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        '$pos — $accuracy% точность ($correct из $total верно)',
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
   Widget _buildAccuracyProgress(
       BuildContext context, int good, int total) {
     final progress = total > 0 ? good / total : 0.0;
@@ -257,6 +268,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     }
     final tagCounts = <String, int>{};
     final errorTagCounts = <String, int>{};
+    final positionTotals = <String, int>{'SB': 0, 'BB': 0};
+    final positionCorrect = <String, int>{'SB': 0, 'BB': 0};
     for (final hand in hands) {
       final expected = hand.expectedAction;
       final gto = hand.gtoAction;
@@ -267,6 +280,13 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
         tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
         if (isError) {
           errorTagCounts[tag] = (errorTagCounts[tag] ?? 0) + 1;
+        }
+      }
+      final pos = hand.heroPosition;
+      if (positionTotals.containsKey(pos)) {
+        positionTotals[pos] = positionTotals[pos]! + 1;
+        if (!isError) {
+          positionCorrect[pos] = positionCorrect[pos]! + 1;
         }
       }
     }
@@ -432,6 +452,18 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
             const SizedBox(height: 8),
             for (final e in errorTagEntries)
               _buildStat(e.key, e.value.toString()),
+          ],
+          if (positionTotals.values.any((v) => v > 0)) ...[
+            const SizedBox(height: 16),
+            const Text('Ошибки по позициям',
+                style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            if (positionTotals['SB']! > 0)
+              _buildPositionRow(
+                  'SB', positionCorrect['SB']!, positionTotals['SB']!),
+            if (positionTotals['BB']! > 0)
+              _buildPositionRow(
+                  'BB', positionCorrect['BB']!, positionTotals['BB']!),
           ],
         ],
       ),
