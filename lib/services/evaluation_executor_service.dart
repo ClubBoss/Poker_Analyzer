@@ -7,6 +7,7 @@ import '../models/training_spot.dart';
 import '../models/saved_hand.dart';
 import '../models/summary_result.dart';
 import '../models/mistake_severity.dart';
+import 'goals_service.dart';
 
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
@@ -50,13 +51,25 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final userEquity = correct
         ? expectedEquity
         : (expectedEquity - 0.1).clamp(0.0, 1.0);
-    return EvaluationResult(
+    final result = EvaluationResult(
       correct: correct,
       expectedAction: expectedAction,
       userEquity: userEquity,
       expectedEquity: expectedEquity,
       hint: correct ? null : 'Подумай о диапазоне оппонента',
     );
+
+    final goals = GoalsService.instance;
+    if (goals != null) {
+      if (correct) {
+        final progress = goals.goals.length > 1 ? goals.goals[1].progress + 1 : 1;
+        goals.setProgress(1, progress);
+      } else {
+        goals.setProgress(1, 0);
+      }
+    }
+
+    return result;
   }
 
   /// Generates a summary for a list of saved hands.
