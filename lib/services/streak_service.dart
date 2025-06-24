@@ -9,9 +9,18 @@ class StreakService extends ChangeNotifier {
 
   DateTime? _lastOpen;
   int _count = 0;
+  bool _increased = false;
 
   int get count => _count;
   bool get hasBonus => _count >= bonusThreshold;
+  bool get increased => _increased;
+
+  /// Returns true if the streak increased since the last check.
+  bool consumeIncreaseFlag() {
+    final value = _increased;
+    _increased = false;
+    return value;
+  }
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,9 +43,11 @@ class StreakService extends ChangeNotifier {
   Future<void> updateStreak() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    bool inc = false;
     if (_lastOpen == null) {
       _lastOpen = today;
       _count = 1;
+      inc = true;
     } else {
       final last = DateTime(_lastOpen!.year, _lastOpen!.month, _lastOpen!.day);
       final diff = today.difference(last).inDays;
@@ -45,11 +56,14 @@ class StreakService extends ChangeNotifier {
       } else if (diff == 1) {
         _count += 1;
         _lastOpen = today;
+        inc = true;
       } else if (diff > 1) {
         _count = 1;
         _lastOpen = today;
+        inc = true;
       }
     }
+    _increased = inc;
     await _save();
     notifyListeners();
   }
