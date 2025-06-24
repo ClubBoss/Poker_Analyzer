@@ -20,6 +20,7 @@ import 'services/cloud_sync_service.dart';
 import 'services/cloud_training_history_service.dart';
 import 'services/training_spot_storage_service.dart';
 import 'services/evaluation_executor_service.dart';
+import 'services/streak_service.dart';
 import 'user_preferences.dart';
 
 void main() {
@@ -65,6 +66,7 @@ void main() {
         ChangeNotifierProvider(
           create: (_) => IgnoredMistakeService()..load(),
         ),
+        ChangeNotifierProvider(create: (_) => StreakService()..load()),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
       ],
