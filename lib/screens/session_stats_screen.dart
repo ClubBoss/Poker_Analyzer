@@ -192,6 +192,23 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     );
   }
 
+  Color _diffColor(num diff, bool higherIsBetter) {
+    final improvement = higherIsBetter ? diff > 0 : diff < 0;
+    return improvement ? Colors.green : Colors.red;
+  }
+
+  String _formatAccuracyDiff(double diff) {
+    final arrow = diff >= 0 ? '▲' : '▼';
+    final sign = diff >= 0 ? '+' : '-';
+    return '$arrow $sign${diff.abs().toStringAsFixed(1)}% accuracy vs last session';
+  }
+
+  String _formatMistakeDiff(int diff) {
+    final arrow = diff <= 0 ? '▼' : '▲';
+    final sign = diff > 0 ? '+' : '-';
+    return '$arrow $sign${diff.abs()} mistakes vs last session';
+  }
+
   _StatsSummary _gatherStats(
       SavedHandManagerService manager, SessionNoteService notes) {
     final hands = _activeTag == null
@@ -201,6 +218,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     for (final hand in hands) {
       grouped.putIfAbsent(hand.sessionId, () => []).add(hand);
     }
+
+    final Map<int, _SessionData> sessionStats = {};
 
     int totalHands = hands.length;
     Duration totalDuration = Duration.zero;
@@ -234,6 +253,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           }
         }
       }
+      sessionStats[id] = _SessionData(correct, incorrect);
       totalCorrect += correct;
       totalIncorrect += incorrect;
 
@@ -261,6 +281,18 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
         : null;
 
     final weekly = _weeklyWinrates(grouped);
+
+    double? accuracyDiff;
+    int? mistakeDiff;
+    if (sessionStats.length > 1) {
+      final ids = sessionStats.keys.toList()..sort();
+      final last = sessionStats[ids.last]!;
+      final prev = sessionStats[ids[ids.length - 2]]!;
+      final lastAcc = last.total > 0 ? last.correct / last.total * 100 : 0;
+      final prevAcc = prev.total > 0 ? prev.correct / prev.total * 100 : 0;
+      accuracyDiff = lastAcc - prevAcc;
+      mistakeDiff = last.incorrect - prev.incorrect;
+    }
 
     final tagCountsAll = <String, int>{};
     for (final hand in manager.hands) {
@@ -343,6 +375,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
         'Turn': streetErrors[2] ?? 0,
         'River': streetErrors[3] ?? 0,
       },
+      accuracyDiff: accuracyDiff,
+      mistakeDiff: mistakeDiff,
     );
   }
 
@@ -614,6 +648,25 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           _buildStat('Сред. длительность', _formatDuration(summary.avgDuration)),
           if (summary.overallAccuracy != null)
             _buildStat('Точность', '${summary.overallAccuracy!.toStringAsFixed(1)}%'),
+          if (summary.accuracyDiff != null || summary.mistakeDiff != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (summary.accuracyDiff != null)
+                    Text(
+                      _formatAccuracyDiff(summary.accuracyDiff!),
+                      style: TextStyle(color: _diffColor(summary.accuracyDiff!, true)),
+                    ),
+                  if (summary.mistakeDiff != null)
+                    Text(
+                      _formatMistakeDiff(summary.mistakeDiff!),
+                      style: TextStyle(color: _diffColor(summary.mistakeDiff!, false)),
+                    ),
+                ],
+              ),
+            ),
           _buildStat('Сессий с заметками', summary.sessionsWithNotes.toString()),
           _buildAccuracyProgress(context, summary.sessionsAbove80, summary.sessionsCount),
           _buildGoalProgress(context, summary.sessionsAbove90),
@@ -802,6 +855,15 @@ class _WeekData {
   _WeekData(this.weekStart, this.winrate);
 }
 
+class _SessionData {
+  final int correct;
+  final int incorrect;
+
+  int get total => correct + incorrect;
+
+  _SessionData(this.correct, this.incorrect);
+}
+
 class _StatsSummary {
   final int totalHands;
   final int sessionsCount;
@@ -821,6 +883,8 @@ class _StatsSummary {
   final int mistakeErrors;
   final double mistakeRate;
   final Map<String, int> mistakesByStreet;
+  final double? accuracyDiff;
+  final int? mistakeDiff;
 
   const _StatsSummary({
     required this.totalHands,
@@ -841,6 +905,8 @@ class _StatsSummary {
     required this.mistakeErrors,
     required this.mistakeRate,
     required this.mistakesByStreet,
+    this.accuracyDiff,
+    this.mistakeDiff,
   });
 }
 
