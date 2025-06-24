@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/constants.dart';
+import '../services/ignored_mistake_service.dart';
 
 import 'tag_mistake_overview_screen.dart';
 import 'position_mistake_overview_screen.dart';
@@ -43,6 +44,15 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
       appBar: AppBar(
         title: const Text('Ошибки'),
         centerTitle: true,
+        actions: [
+          if (context.watch<IgnoredMistakeService>().ignored.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.restore),
+              tooltip: 'Сбросить игнор',
+              onPressed: () =>
+                  context.read<IgnoredMistakeService>().reset(),
+            ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Padding(

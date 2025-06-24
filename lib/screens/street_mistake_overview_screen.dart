@@ -13,6 +13,7 @@ import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../models/mistake_severity.dart';
+import '../services/ignored_mistake_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
@@ -121,7 +122,10 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
     ];
     final summary =
         context.read<EvaluationExecutorService>().summarizeHands(hands);
-    final entries = summary.streetBreakdown.entries.toList()
+    final ignored = context.watch<IgnoredMistakeService>().ignored;
+    final entries = summary.streetBreakdown.entries
+        .where((e) => !ignored.contains('street:${e.key}'))
+        .toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return CustomScrollView(
@@ -177,6 +181,14 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(e.value.toString(),
                             style: const TextStyle(color: Colors.white)),
+                        IconButton(
+                          icon: const Icon(Icons.cleaning_services,
+                              size: 20, color: Colors.white54),
+                          tooltip: 'Игнорировать',
+                          onPressed: () => context
+                              .read<IgnoredMistakeService>()
+                              .ignore('street:${e.key}'),
+                        ),
                       ],
                     ),
                     onTap: () {
