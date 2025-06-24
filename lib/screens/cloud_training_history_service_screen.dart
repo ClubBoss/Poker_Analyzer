@@ -5,6 +5,8 @@ import '../helpers/date_utils.dart';
 import '../models/session_summary.dart';
 import '../services/cloud_training_history_service.dart';
 
+enum _SortOption { newest, oldest, accuracyDesc, accuracyAsc }
+
 class CloudTrainingHistoryScreen extends StatefulWidget {
   const CloudTrainingHistoryScreen({super.key});
 
@@ -14,6 +16,7 @@ class CloudTrainingHistoryScreen extends StatefulWidget {
 
 class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen> {
   List<SessionSummary> _sessions = [];
+  _SortOption _sort = _SortOption.newest;
 
   @override
   void initState() {
@@ -24,8 +27,26 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
   Future<void> _load() async {
     final service = context.read<CloudTrainingHistoryService>();
     final sessions = await service.loadSessions();
+    _sortList(sessions);
     if (mounted) {
       setState(() => _sessions = sessions);
+    }
+  }
+
+  void _sortList(List<SessionSummary> list) {
+    switch (_sort) {
+      case _SortOption.newest:
+        list.sort((a, b) => b.date.compareTo(a.date));
+        break;
+      case _SortOption.oldest:
+        list.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      case _SortOption.accuracyDesc:
+        list.sort((a, b) => b.accuracy.compareTo(a.accuracy));
+        break;
+      case _SortOption.accuracyAsc:
+        list.sort((a, b) => a.accuracy.compareTo(b.accuracy));
+        break;
     }
   }
 
@@ -35,6 +56,35 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
       appBar: AppBar(
         title: const Text('Cloud History'),
         centerTitle: true,
+        actions: [
+          PopupMenuButton<_SortOption>(
+            icon: const Icon(Icons.sort),
+            onSelected: (value) {
+              setState(() {
+                _sort = value;
+                _sortList(_sessions);
+              });
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: _SortOption.newest,
+                child: Text('Newest'),
+              ),
+              PopupMenuItem(
+                value: _SortOption.oldest,
+                child: Text('Oldest'),
+              ),
+              PopupMenuItem(
+                value: _SortOption.accuracyDesc,
+                child: Text('Best Accuracy'),
+              ),
+              PopupMenuItem(
+                value: _SortOption.accuracyAsc,
+                child: Text('Worst Accuracy'),
+              ),
+            ],
+          )
+        ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: _sessions.isEmpty
