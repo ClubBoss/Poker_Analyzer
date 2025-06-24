@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
@@ -112,6 +113,7 @@ class _CloudTrainingSessionDetailsScreenState
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/cloud_session.md');
     await file.writeAsString(buffer.toString());
+    await Share.shareXFiles([XFile(file.path)], text: 'cloud_session.md');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Файл сохранён: cloud_session.md')),
