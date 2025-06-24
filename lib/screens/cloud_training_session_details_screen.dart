@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
@@ -117,6 +119,52 @@ class _CloudTrainingSessionDetailsScreenState
     }
   }
 
+  Future<void> _exportPdf(BuildContext context) async {
+    if (widget.session.results.isEmpty) return;
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          return [
+            pw.Text('Training Session',
+                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 16),
+            for (final r in widget.session.results)
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(r.name, style: pw.TextStyle(font: boldFont)),
+                  pw.Text('User: ${r.userAction}',
+                      style: pw.TextStyle(font: regularFont)),
+                  pw.Text('Expected: ${r.expected}',
+                      style: pw.TextStyle(font: regularFont)),
+                  pw.Text(r.correct ? 'Correct' : 'Wrong',
+                      style: pw.TextStyle(font: regularFont)),
+                  pw.SizedBox(height: 8),
+                ],
+              ),
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/cloud_session.pdf');
+    await file.writeAsBytes(bytes);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Файл сохранён: cloud_session.pdf')),
+      );
+    }
+  }
+
   Future<void> _repeatSession(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
     final Map<String, SavedHand> map = {
@@ -175,6 +223,11 @@ class _CloudTrainingSessionDetailsScreenState
             tooltip: 'Экспорт',
             onPressed:
                 results.isEmpty ? null : () => _exportMarkdown(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'PDF',
+            onPressed: results.isEmpty ? null : () => _exportPdf(context),
           ),
           IconButton(
             icon: const Icon(Icons.delete),
