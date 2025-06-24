@@ -28,6 +28,7 @@ import 'training_history_screen.dart';
 import 'session_stats_screen.dart';
 import 'training_stats_screen.dart';
 import '../services/streak_service.dart';
+import 'goals_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -207,6 +208,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildStreakCard(context),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GoalsScreen()),
+                );
+              },
+              child: const Text('🎯 Мои цели'),
+            ),
+            const SizedBox(height: 16),
             _buildSpotOfDaySection(context),
             ElevatedButton(
               key: _newHandButtonKey,
