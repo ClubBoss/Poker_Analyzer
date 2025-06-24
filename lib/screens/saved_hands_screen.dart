@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/saved_hand_import_export_service.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../screens/hand_history_review_screen.dart';
@@ -121,6 +123,19 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed:
+                      handManager.hands.isEmpty ? null : _exportArchive,
+                  child: const Text('Экспорт архива'),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: visible.isEmpty
                 ? const Center(
@@ -162,5 +177,17 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
 
   Future<void> _exportCsv(SavedHand hand) async {
     await _importExport.exportCsvFile(context, hand);
+  }
+
+  Future<void> _exportArchive() async {
+    final manager = context.read<SavedHandManagerService>();
+    final path = await manager.exportSessionsArchive();
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: 'saved_hands_archive.zip');
+    if (context.mounted) {
+      final name = path.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    }
   }
 }

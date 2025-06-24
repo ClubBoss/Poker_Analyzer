@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:archive/archive.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import '../helpers/date_utils.dart';
@@ -624,6 +625,48 @@ class SavedHandManagerService extends ChangeNotifier {
     final file = File('${dir.path}/session_${sessionId}.pdf');
     await file.writeAsBytes(bytes);
     return file.path;
+  }
+
+  /// Export all sessions to a ZIP archive with Markdown or PDF files grouped
+  /// by session. Each session will be saved in a folder named by the session
+  /// date. Returns the archive path or `null` if there are no hands.
+  Future<String?> exportSessionsArchive({bool pdf = false}) async {
+    if (hands.isEmpty) return null;
+
+    String _folder(DateTime d) {
+      final y = d.year.toString().padLeft(4, '0');
+      final m = d.month.toString().padLeft(2, '0');
+      final day = d.day.toString().padLeft(2, '0');
+      return '$y-$m-$day';
+    }
+
+    final archive = Archive();
+    final grouped = handsBySession();
+    for (final entry in grouped.entries) {
+      final id = entry.key;
+      final list = List<SavedHand>.from(entry.value)
+        ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+      if (list.isEmpty) continue;
+      final folder = _folder(list.first.savedAt);
+      final path = pdf
+          ? await exportSessionHandsPdf(id)
+          : await exportSessionHandsMarkdown(id);
+      if (path == null) continue;
+      final file = File(path);
+      final data = await file.readAsBytes();
+      final ext = pdf ? 'pdf' : 'md';
+      final name = '$folder/session_$id.$ext';
+      archive.addFile(ArchiveFile(name, data.length, data));
+      await file.delete();
+    }
+
+    final bytes = ZipEncoder().encode(archive);
+    if (bytes == null) return null;
+    final dir = await getApplicationDocumentsDirectory();
+    final out =
+        File('${dir.path}/saved_hands_archive_${DateTime.now().millisecondsSinceEpoch}.zip');
+    await out.writeAsBytes(bytes);
+    return out.path;
   }
 
   Future<SavedHand?> selectHand(BuildContext context) async {
