@@ -11,6 +11,7 @@ import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../widgets/saved_hand_list_view.dart';
+import '../helpers/poker_street_helper.dart';
 import 'hand_history_review_screen.dart';
 
 /// Displays a list of streets sorted by mistake count.
@@ -109,6 +110,7 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
   }
 }
 
+/// Shows all hands with mistakes on the selected [street].
 class _StreetMistakeHandsScreen extends StatelessWidget {
   final String street;
   const _StreetMistakeHandsScreen({required this.street});
@@ -118,7 +120,7 @@ class _StreetMistakeHandsScreen extends StatelessWidget {
     final allHands = context.watch<SavedHandManagerService>().hands;
     final filtered = [
       for (final h in allHands)
-        if (_streetName(h.boardStreet) == street) h
+        if (streetName(h.boardStreet) == street) h
     ];
 
     return Scaffold(
@@ -143,7 +145,3 @@ class _StreetMistakeHandsScreen extends StatelessWidget {
   }
 }
 
-String _streetName(int index) {
-  const names = ['Preflop', 'Flop', 'Turn', 'River'];
-  return names[index.clamp(0, names.length - 1)];
-}

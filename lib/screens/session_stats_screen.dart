@@ -15,6 +15,7 @@ import '../theme/app_colors.dart';
 import '../widgets/common/session_accuracy_distribution_chart.dart';
 import '../widgets/common/mistake_by_street_chart.dart';
 import '../widgets/common/session_volume_accuracy_chart.dart';
+import '../helpers/poker_street_helper.dart';
 import 'saved_hands_screen.dart';
 import 'tag_mistake_overview_screen.dart';
 import 'street_mistake_overview_screen.dart';
@@ -270,7 +271,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   }
 
   Widget _buildStreetFilters() {
-    const labels = ['Preflop', 'Flop', 'Turn', 'River'];
+    const labels = kStreetNames;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Wrap(
@@ -465,10 +466,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       mistakeErrors: mistakeErrors,
       mistakeRate: highestRate,
       mistakesByStreet: {
-        'Preflop': streetErrors[0] ?? 0,
-        'Flop': streetErrors[1] ?? 0,
-        'Turn': streetErrors[2] ?? 0,
-        'River': streetErrors[3] ?? 0,
+        for (int i = 0; i < kStreetNames.length; i++)
+          kStreetNames[i]: streetErrors[i] ?? 0,
       },
       accuracyDiff: accuracyDiff,
       mistakeDiff: mistakeDiff,
