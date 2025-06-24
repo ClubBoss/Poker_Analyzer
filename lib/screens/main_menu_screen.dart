@@ -68,18 +68,69 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   Widget _buildStreakCard(BuildContext context) {
-    final streak = context.watch<StreakService>().count;
+    final service = context.watch<StreakService>();
+    final streak = service.count;
     if (streak <= 0) return const SizedBox.shrink();
+
+    final threshold = StreakService.bonusThreshold;
+    final highlight = service.hasBonus;
+    final progressDays = streak >= threshold ? threshold : streak;
+    final progress = progressDays / threshold;
+    final accent = Theme.of(context).colorScheme.secondary;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[850],
+        color: highlight ? Colors.orange[700] : Colors.grey[850],
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        'Streak: $streak \u0434\u043d\u0435\u0439 \u043f\u043e\u0434\u0440\u044f\u0434',
-        style: const TextStyle(fontSize: 16, color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.local_fire_department, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                'Стрик: $streak \u0434\u043D\u0435\u0439 \u043F\u043E\u0434\u0440\u044F\u0434',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0, end: progress),
+                  duration: const Duration(milliseconds: 300),
+                  builder: (context, value, _) {
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: value,
+                        backgroundColor: Colors.white24,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(highlight ? Colors.white : accent),
+                        minHeight: 6,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$progressDays/$threshold',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
