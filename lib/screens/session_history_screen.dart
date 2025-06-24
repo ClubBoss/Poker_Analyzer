@@ -124,6 +124,47 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     }).toList();
   }
 
+  bool _filtersApplied() {
+    final minDur = double.tryParse(_minDurationCtrl.text) ?? 0;
+    final maxDur = double.tryParse(_maxDurationCtrl.text) ?? 0;
+    final minHands = int.tryParse(_minHandsCtrl.text) ?? 0;
+    return minDur > 0 || maxDur > 0 || minHands > 0 || _onlyWithNotes;
+  }
+
+  Future<void> _exportFilteredMarkdown(
+      BuildContext context, List<_SessionInfo> sessions) async {
+    if (sessions.isEmpty) return;
+    final manager = context.read<SavedHandManagerService>();
+    final noteService = context.read<SessionNoteService>();
+    final ids = [for (final s in sessions) s.id];
+    final notesMap = {for (final id in ids) id: noteService.noteFor(id)};
+    final path = await manager.exportSessionsMarkdown(ids, notesMap);
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)],
+        text: 'training_summary_filtered.md');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Файл сохранён: training_summary_filtered.md')));
+    }
+  }
+
+  Future<void> _exportFilteredPdf(
+      BuildContext context, List<_SessionInfo> sessions) async {
+    if (sessions.isEmpty) return;
+    final manager = context.read<SavedHandManagerService>();
+    final noteService = context.read<SessionNoteService>();
+    final ids = [for (final s in sessions) s.id];
+    final notesMap = {for (final id in ids) id: noteService.noteFor(id)};
+    final path = await manager.exportSessionsPdf(ids, notesMap);
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)],
+        text: 'training_summary_filtered.pdf');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Файл сохранён: training_summary_filtered.pdf')));
+    }
+  }
+
   Future<void> _exportAllMarkdown(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
     final noteService = context.read<SessionNoteService>();
@@ -245,6 +286,28 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                     ),
                   ],
                 ),
+                if (_filtersApplied()) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () =>
+                              _exportFilteredMarkdown(context, sessions),
+                          child:
+                              const Text('Экспорт отфильтрованных в Markdown'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => _exportFilteredPdf(context, sessions),
+                          child: const Text('Экспорт отфильтрованных в PDF'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
