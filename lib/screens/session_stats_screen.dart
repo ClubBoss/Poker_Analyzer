@@ -25,6 +25,7 @@ class SessionStatsScreen extends StatefulWidget {
 
 class _SessionStatsScreenState extends State<SessionStatsScreen> {
   String? _activeTag;
+  final Set<int> _selectedStreets = {0, 1, 2, 3};
 
   String _formatDuration(Duration d) {
     final h = d.inHours;
@@ -210,11 +211,39 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     return '$arrow $sign${diff.abs()} mistakes vs last session';
   }
 
+  Widget _buildStreetFilters() {
+    const labels = ['Preflop', 'Flop', 'Turn', 'River'];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Wrap(
+        spacing: 8,
+        children: [
+          for (int i = 0; i < labels.length; i++)
+            FilterChip(
+              label: Text(labels[i]),
+              selected: _selectedStreets.contains(i),
+              onSelected: (v) => setState(() {
+                if (v) {
+                  _selectedStreets.add(i);
+                } else {
+                  _selectedStreets.remove(i);
+                }
+              }),
+            ),
+        ],
+      ),
+    );
+  }
+
   _StatsSummary _gatherStats(
-      SavedHandManagerService manager, SessionNoteService notes) {
-    final hands = _activeTag == null
-        ? manager.hands
-        : manager.hands.where((h) => h.tags.contains(_activeTag)).toList();
+      SavedHandManagerService manager,
+      SessionNoteService notes,
+      Set<int> streets) {
+    final hands = (_activeTag == null
+            ? manager.hands
+            : manager.hands.where((h) => h.tags.contains(_activeTag)).toList())
+        .where((h) => streets.contains(h.boardStreet.clamp(0, 3)))
+        .toList();
     final Map<int, List<SavedHand>> grouped = {};
     for (final hand in hands) {
       grouped.putIfAbsent(hand.sessionId, () => []).add(hand);
@@ -299,7 +328,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     }
 
     final tagCountsAll = <String, int>{};
-    for (final hand in manager.hands) {
+    for (final hand in manager.hands.where((h) => streets.contains(h.boardStreet.clamp(0, 3)))) {
       for (final tag in hand.tags) {
         tagCountsAll[tag] = (tagCountsAll[tag] ?? 0) + 1;
       }
@@ -407,7 +436,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   Future<void> _exportMarkdown(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
     final notes = context.read<SessionNoteService>();
-    final summary = _gatherStats(manager, notes);
+    final summary = _gatherStats(manager, notes, _selectedStreets);
 
     final buffer = StringBuffer()
       ..writeln('# Статистика сессий')
@@ -480,7 +509,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   Future<void> _exportPdf(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
     final notes = context.read<SessionNoteService>();
-    final summary = _gatherStats(manager, notes);
+    final summary = _gatherStats(manager, notes, _selectedStreets);
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -604,7 +633,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
     final notes = context.watch<SessionNoteService>();
-    final summary = _gatherStats(manager, notes);
+    final summary = _gatherStats(manager, notes, _selectedStreets);
 
     final weekly = summary.weekly;
     final sessionSeries = summary.sessions;
@@ -676,6 +705,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           _buildStat('Сессий с заметками', summary.sessionsWithNotes.toString()),
           _buildAccuracyProgress(context, summary.sessionsAbove80, summary.sessionsCount),
           _buildGoalProgress(context, summary.sessionsAbove90),
+          _buildStreetFilters(),
           MistakeByStreetChart(counts: summary.mistakesByStreet),
           SessionAccuracyDistributionChart(accuracies: summary.sessionAccuracies),
           SessionVolumeAccuracyChart(sessions: sessionSeries),
