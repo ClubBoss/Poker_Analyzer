@@ -302,6 +302,7 @@ class _TagMistakeHandsScreen extends StatelessWidget {
         hands: hands,
         tags: [tag],
         accuracy: 'errors',
+        filterKey: tag,
         title: 'Ошибки: $tag',
         onTap: (hand) {
           Navigator.push(

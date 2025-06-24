@@ -303,6 +303,7 @@ class _PositionMistakeHandsScreen extends StatelessWidget {
         hands: hands,
         positions: [position],
         accuracy: 'errors',
+        filterKey: position,
         title: 'Ошибки: $position',
         onTap: (hand) {
           Navigator.push(
