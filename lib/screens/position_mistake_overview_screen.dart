@@ -23,7 +23,12 @@ import 'hand_history_review_screen.dart';
 /// hands for the chosen position. A share button exports the table to PDF
 /// for convenient review outside the app.
 class PositionMistakeOverviewScreen extends StatelessWidget {
-  const PositionMistakeOverviewScreen({super.key});
+  final String dateFilter;
+  const PositionMistakeOverviewScreen({super.key, required this.dateFilter});
+
+  bool _sameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 
   Future<void> _exportPdf(
       BuildContext context, SummaryResult summary, List<MapEntry<String, int>> entries) async {
@@ -73,7 +78,18 @@ class PositionMistakeOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hands = context.watch<SavedHandManagerService>().hands;
+    final allHands = context.watch<SavedHandManagerService>().hands;
+    final now = DateTime.now();
+    final hands = [
+      for (final h in allHands)
+        if (dateFilter == 'Все' ||
+            (dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+            (dateFilter == '7 дней' &&
+                h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+            (dateFilter == '30 дней' &&
+                h.date.isAfter(now.subtract(const Duration(days: 30)))))
+          h
+    ];
     final summary =
         context.read<EvaluationExecutorService>().summarizeHands(hands);
     final entries = summary.positionMistakeFrequencies.entries.toList()
@@ -125,7 +141,10 @@ class PositionMistakeOverviewScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => _PositionMistakeHandsScreen(position: e.key),
+                          builder: (_) => _PositionMistakeHandsScreen(
+                            position: e.key,
+                            dateFilter: dateFilter,
+                          ),
                         ),
                       );
                     },
@@ -142,11 +161,27 @@ class PositionMistakeOverviewScreen extends StatelessWidget {
 
 class _PositionMistakeHandsScreen extends StatelessWidget {
   final String position;
-  const _PositionMistakeHandsScreen({required this.position});
+  final String dateFilter;
+  const _PositionMistakeHandsScreen({required this.position, required this.dateFilter});
+
+  bool _sameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final hands = context.watch<SavedHandManagerService>().hands;
+    final allHands = context.watch<SavedHandManagerService>().hands;
+    final now = DateTime.now();
+    final hands = [
+      for (final h in allHands)
+        if (dateFilter == 'Все' ||
+            (dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+            (dateFilter == '7 дней' &&
+                h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+            (dateFilter == '30 дней' &&
+                h.date.isAfter(now.subtract(const Duration(days: 30)))))
+          h
+    ];
 
     return Scaffold(
       appBar: AppBar(
