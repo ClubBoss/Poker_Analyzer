@@ -22,6 +22,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
   String _tagFilter = 'Все';
   String _positionFilter = 'Все';
   String _dateFilter = 'Все';
+  String _accuracyFilter = 'Все';
   bool _onlyFavorites = false;
   late SavedHandImportExportService _importExport;
 
@@ -56,6 +57,22 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
       }
       if (_dateFilter == '30 дней' && hand.date.isBefore(now.subtract(const Duration(days: 30)))) {
         return false;
+      }
+      if (_accuracyFilter == 'Только ошибки') {
+        final expected = hand.expectedAction;
+        final gto = hand.gtoAction;
+        if (expected == null || gto == null) return false;
+        if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
+          return false;
+        }
+      }
+      if (_accuracyFilter == 'Только верные') {
+        final expected = hand.expectedAction;
+        final gto = hand.gtoAction;
+        if (expected == null || gto == null) return false;
+        if (expected.trim().toLowerCase() != gto.trim().toLowerCase()) {
+          return false;
+        }
       }
       final query = _searchController.text.toLowerCase();
       if (query.isNotEmpty) {
@@ -112,6 +129,15 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                   dropdownColor: const Color(0xFF2A2B2E),
                   onChanged: (v) => setState(() => _dateFilter = v ?? 'Все'),
                   items: ['Все', 'Сегодня', '7 дней', '30 дней']
+                      .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                      .toList(),
+                ),
+                const SizedBox(width: 12),
+                DropdownButton<String>(
+                  value: _accuracyFilter,
+                  dropdownColor: const Color(0xFF2A2B2E),
+                  onChanged: (v) => setState(() => _accuracyFilter = v ?? 'Все'),
+                  items: ['Все', 'Только ошибки', 'Только верные']
                       .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                       .toList(),
                 ),
