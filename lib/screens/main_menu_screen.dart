@@ -48,6 +48,42 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   bool _tutorialCompleted = false;
   bool _showStreakPopup = false;
 
+  Widget _buildStreakIndicator(BuildContext context) {
+    final streak = context.watch<StreakService>().count;
+    if (streak <= 0) return const SizedBox.shrink();
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.local_fire_department,
+              color: Colors.orange,
+              size: 18,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'Стрик: $streak дней',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -300,6 +336,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         title: const Text('Poker AI Analyzer'),
         centerTitle: true,
         actions: [
+          _buildStreakIndicator(context),
           if (!_tutorialCompleted)
             IconButton(
               icon: const Icon(Icons.help_outline),
