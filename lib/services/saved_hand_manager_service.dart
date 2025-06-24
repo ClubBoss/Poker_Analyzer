@@ -127,6 +127,88 @@ class SavedHandManagerService extends ChangeNotifier {
     return file.path;
   }
 
+  /// Export hands belonging to [sessionId] to a Markdown file. The file
+  /// will be named `session_[id].md` and stored in the application documents
+  /// directory. Returns the created path or `null` if the session is empty.
+  Future<String?> exportSessionHandsMarkdown(int sessionId) async {
+    final sessionHands =
+        hands.where((h) => h.sessionId == sessionId).toList();
+    if (sessionHands.isEmpty) return null;
+    final buffer = StringBuffer();
+    for (final hand in sessionHands) {
+      final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
+      buffer.writeln('## $title');
+      final userAction = hand.expectedAction;
+      if (userAction != null && userAction.isNotEmpty) {
+        buffer.writeln('- Действие: $userAction');
+      }
+      if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
+        buffer.writeln('- GTO: ${hand.gtoAction}');
+      }
+      if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
+        buffer.writeln('- Группа: ${hand.rangeGroup}');
+      }
+      if (hand.comment != null && hand.comment!.isNotEmpty) {
+        buffer.writeln('- Комментарий: ${hand.comment}');
+      }
+      buffer.writeln();
+    }
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/session_${sessionId}.md');
+    await file.writeAsString(buffer.toString());
+    return file.path;
+  }
+
+  /// Export hands belonging to [sessionId] to a PDF file. The file will be
+  /// named `session_[id].pdf` and stored in the application documents
+  /// directory. Returns the created path or `null` if the session is empty.
+  Future<String?> exportSessionHandsPdf(int sessionId) async {
+    final sessionHands =
+        hands.where((h) => h.sessionId == sessionId).toList();
+    if (sessionHands.isEmpty) return null;
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          return [
+            for (final hand in sessionHands) ...[
+              pw.Text(
+                hand.name.isNotEmpty ? hand.name : 'Без названия',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
+              pw.SizedBox(height: 8),
+              if (hand.expectedAction != null &&
+                  hand.expectedAction!.isNotEmpty)
+                pw.Text('Действие: ${hand.expectedAction}',
+                    style: pw.TextStyle(font: regularFont)),
+              if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
+                pw.Text('GTO: ${hand.gtoAction}',
+                    style: pw.TextStyle(font: regularFont)),
+              if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty)
+                pw.Text('Группа: ${hand.rangeGroup}',
+                    style: pw.TextStyle(font: regularFont)),
+              if (hand.comment != null && hand.comment!.isNotEmpty)
+                pw.Text('Комментарий: ${hand.comment}',
+                    style: pw.TextStyle(font: regularFont)),
+              pw.SizedBox(height: 12),
+            ]
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/session_${sessionId}.pdf');
+    await file.writeAsBytes(bytes);
+    return file.path;
+  }
+
   Future<SavedHand?> selectHand(BuildContext context) async {
     if (hands.isEmpty) return null;
     String filter = '';
