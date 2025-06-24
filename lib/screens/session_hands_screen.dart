@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../widgets/session_label_overlay.dart';
+
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../widgets/saved_hand_tile.dart';
@@ -10,10 +12,26 @@ import '../theme/app_colors.dart';
 import '../theme/constants.dart';
 import 'hand_history_review_screen.dart';
 
-class SessionHandsScreen extends StatelessWidget {
+class SessionHandsScreen extends StatefulWidget {
   final int sessionId;
 
   const SessionHandsScreen({super.key, required this.sessionId});
+
+  @override
+  State<SessionHandsScreen> createState() => _SessionHandsScreenState();
+}
+
+class _SessionHandsScreenState extends State<SessionHandsScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        showSessionLabelOverlay(context, 'Сессия ${widget.sessionId}');
+      }
+    });
+  }
 
   String _actionType(SavedHand hand) {
     final expected = hand.expectedAction?.trim().toLowerCase();
@@ -110,24 +128,24 @@ class SessionHandsScreen extends StatelessWidget {
 
   Future<void> _exportMarkdown(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
-    final path = await manager.exportSessionHandsMarkdown(sessionId);
+    final path = await manager.exportSessionHandsMarkdown(widget.sessionId);
     if (path == null) return;
-    await Share.shareXFiles([XFile(path)], text: 'session_${sessionId}.md');
+    await Share.shareXFiles([XFile(path)], text: 'session_${widget.sessionId}.md');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: session_${sessionId}.md')),
+        SnackBar(content: Text('Файл сохранён: session_${widget.sessionId}.md')),
       );
     }
   }
 
   Future<void> _exportPdf(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
-    final path = await manager.exportSessionHandsPdf(sessionId);
+    final path = await manager.exportSessionHandsPdf(widget.sessionId);
     if (path == null) return;
-    await Share.shareXFiles([XFile(path)], text: 'session_${sessionId}.pdf');
+    await Share.shareXFiles([XFile(path)], text: 'session_${widget.sessionId}.pdf');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: session_${sessionId}.pdf')),
+        SnackBar(content: Text('Файл сохранён: session_${widget.sessionId}.pdf')),
       );
     }
   }
@@ -136,12 +154,12 @@ class SessionHandsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
     final hands = manager.hands
-        .where((h) => h.sessionId == sessionId)
+        .where((h) => h.sessionId == widget.sessionId)
         .toList()
       ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
 
     final sessionIds = manager.handsBySession().keys.toList()..sort();
-    final currentIndex = sessionIds.indexOf(sessionId);
+    final currentIndex = sessionIds.indexOf(widget.sessionId);
     final previousId =
         currentIndex > 0 ? sessionIds[currentIndex - 1] : null;
     final nextId = currentIndex < sessionIds.length - 1
@@ -215,7 +233,7 @@ class SessionHandsScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Сессия $sessionId'),
+          title: Text('Сессия ${widget.sessionId}'),
           centerTitle: true,
         ),
         body: hands.isEmpty
