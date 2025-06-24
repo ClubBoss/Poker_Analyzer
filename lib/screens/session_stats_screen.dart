@@ -234,6 +234,24 @@ class SessionStatsScreen extends StatelessWidget {
     final errorTagEntries = errorTagCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
+    String? mistakeTag;
+    int mistakeTotal = 0;
+    int mistakeErrors = 0;
+    double highestRate = 0;
+    for (final entry in tagCounts.entries) {
+      final total = entry.value;
+      if (total < 20) continue;
+      final errors = errorTagCounts[entry.key] ?? 0;
+      if (errors == 0) continue;
+      final rate = errors / total;
+      if (rate > highestRate) {
+        highestRate = rate;
+        mistakeTag = entry.key;
+        mistakeTotal = total;
+        mistakeErrors = errors;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Статистика сессий'),
@@ -320,6 +338,37 @@ class SessionStatsScreen extends StatelessWidget {
                 ),
               ),
             ),
+          if (mistakeTag != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.redAccent.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.warning, color: Colors.redAccent),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Типичная ошибка',
+                            style: TextStyle(color: Colors.white70)),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$mistakeTag: ${(highestRate * 100).round()}% ошибок ($mistakeErrors из $mistakeTotal)',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           if (tagEntries.isNotEmpty) ...[
             const SizedBox(height: 16),
             const Text('Использование тегов',
