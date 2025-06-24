@@ -172,12 +172,23 @@ class SessionStatsScreen extends StatelessWidget {
     );
 
     final tagCounts = <String, int>{};
+    final errorTagCounts = <String, int>{};
     for (final hand in manager.hands) {
+      final expected = hand.expectedAction;
+      final gto = hand.gtoAction;
+      final isError = expected != null &&
+          gto != null &&
+          expected.trim().toLowerCase() != gto.trim().toLowerCase();
       for (final tag in hand.tags) {
         tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+        if (isError) {
+          errorTagCounts[tag] = (errorTagCounts[tag] ?? 0) + 1;
+        }
       }
     }
     final tagEntries = tagCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final errorTagEntries = errorTagCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return Scaffold(
@@ -270,6 +281,14 @@ class SessionStatsScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             for (final e in tagEntries)
+              _buildStat(e.key, e.value.toString()),
+          ],
+          if (errorTagEntries.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Text('Ошибки по тегам',
+                style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            for (final e in errorTagEntries)
               _buildStat(e.key, e.value.toString()),
           ],
         ],
