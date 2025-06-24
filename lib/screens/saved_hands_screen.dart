@@ -165,11 +165,12 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
               title: 'Раздачи',
               tags: _tagFilter != 'Все' ? [_tagFilter] : null,
               positions: _positionFilter != 'Все' ? [_positionFilter] : null,
-              accuracy: _accuracyFilter == 'Только верные'
+              initialAccuracy: _accuracyFilter == 'Только верные'
                   ? 'correct'
                   : _accuracyFilter == 'Только ошибки'
                       ? 'errors'
                       : null,
+              showAccuracyToggle: false,
               onTap: (hand) {
                 Navigator.push(
                   context,

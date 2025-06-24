@@ -305,7 +305,7 @@ class _StreetMistakeHandsScreen extends StatelessWidget {
       ),
       body: SavedHandListView(
         hands: filtered,
-        accuracy: 'errors',
+        initialAccuracy: 'errors',
         filterKey: street,
         title: 'Ошибки: $street',
         onTap: (hand) {

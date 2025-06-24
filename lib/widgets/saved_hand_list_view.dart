@@ -15,11 +15,15 @@ import '../services/evaluation_executor_service.dart';
 import '../helpers/mistake_advice.dart';
 import 'saved_hand_tile.dart';
 
-class SavedHandListView extends StatelessWidget {
+/// Internal enum for accuracy filter options.
+enum _AccuracyFilter { all, errors, correct }
+
+class SavedHandListView extends StatefulWidget {
   final List<SavedHand> hands;
   final Iterable<String>? tags;
   final Iterable<String>? positions;
-  final String? accuracy; // 'correct' or 'errors'
+  final String? initialAccuracy; // 'correct' or 'errors'
+  final bool showAccuracyToggle;
   final String title;
   final ValueChanged<SavedHand> onTap;
   final ValueChanged<SavedHand>? onFavoriteToggle;
@@ -32,27 +36,61 @@ class SavedHandListView extends StatelessWidget {
     required this.onTap,
     this.tags,
     this.positions,
-    this.accuracy,
+    this.initialAccuracy,
+    this.showAccuracyToggle = true,
     this.onFavoriteToggle,
     this.filterKey,
   });
 
+  @override
+  State<SavedHandListView> createState() => _SavedHandListViewState();
+}
+
+class _SavedHandListViewState extends State<SavedHandListView> {
+  late _AccuracyFilter _accuracy;
+
+  @override
+  void initState() {
+    super.initState();
+    _accuracy = _parseAccuracy(widget.initialAccuracy);
+  }
+
+  @override
+  void didUpdateWidget(covariant SavedHandListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialAccuracy != oldWidget.initialAccuracy) {
+      _accuracy = _parseAccuracy(widget.initialAccuracy);
+    }
+  }
+
+  _AccuracyFilter _parseAccuracy(String? value) {
+    switch (value) {
+      case 'errors':
+        return _AccuracyFilter.errors;
+      case 'correct':
+        return _AccuracyFilter.correct;
+      default:
+        return _AccuracyFilter.all;
+    }
+  }
+
   bool _matchesAccuracy(SavedHand h) {
-    if (accuracy == null) return true;
+    if (_accuracy == _AccuracyFilter.all) return true;
     final expected = h.expectedAction?.trim().toLowerCase();
     final gto = h.gtoAction?.trim().toLowerCase();
     if (expected == null || gto == null) return false;
     final equal = expected == gto;
-    if (accuracy == 'correct') return equal;
-    if (accuracy == 'errors') return !equal;
+    if (_accuracy == _AccuracyFilter.correct) return equal;
+    if (_accuracy == _AccuracyFilter.errors) return !equal;
     return true;
   }
 
   List<SavedHand> _filtered() {
     return [
-      for (final h in hands)
-        if ((tags == null || tags!.any(h.tags.contains)) &&
-            (positions == null || positions!.contains(h.heroPosition)) &&
+      for (final h in widget.hands)
+        if ((widget.tags == null || widget.tags!.any(h.tags.contains)) &&
+            (widget.positions == null ||
+                widget.positions!.contains(h.heroPosition)) &&
             _matchesAccuracy(h))
           h
     ]..sort((a, b) => b.date.compareTo(a.date));
@@ -78,7 +116,8 @@ class SavedHandListView extends StatelessWidget {
   Widget _buildSummaryCard(BuildContext context, int mistakes) {
     final service = context.read<EvaluationExecutorService>();
     final severity = service.classifySeverity(mistakes);
-    final advice = filterKey != null ? kMistakeAdvice[filterKey!] : null;
+    final advice =
+        widget.filterKey != null ? kMistakeAdvice[widget.filterKey!] : null;
 
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -107,12 +146,42 @@ class SavedHandListView extends StatelessWidget {
                 if (advice != null) ...[
                   const SizedBox(height: 4),
                   Text(advice,
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 12)),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 12)),
                 ],
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccuracyToggle() {
+    if (!widget.showAccuracyToggle) return const SizedBox.shrink();
+    const labels = {
+      _AccuracyFilter.all: 'Все',
+      _AccuracyFilter.errors: 'Только ошибки',
+      _AccuracyFilter.correct: 'Только верные',
+    };
+
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding16),
+        children: [
+          for (final entry in labels.entries)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(entry.value),
+                selected: _accuracy == entry.key,
+                onSelected: (selected) {
+                  if (selected) setState(() => _accuracy = entry.key);
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -129,7 +198,7 @@ class SavedHandListView extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(AppConstants.padding16),
           child: Text(
-            title,
+            widget.title,
             style: const TextStyle(
               color: Colors.white,
               fontSize: AppConstants.fontSize20,
@@ -138,15 +207,15 @@ class SavedHandListView extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppConstants.padding16,
-          ),
+          padding:
+              const EdgeInsets.symmetric(horizontal: AppConstants.padding16),
           child: Text(
             'Раздач: ${filtered.length} • Верно: ${counts['correct']} • Ошибки: ${counts['mistakes']}',
             style: const TextStyle(color: Colors.white70),
           ),
         ),
-        if (filterKey != null)
+        _buildAccuracyToggle(),
+        if (widget.filterKey != null)
           _buildSummaryCard(context, counts['mistakes'] ?? 0),
         const SizedBox(height: 8),
         Expanded(
@@ -164,10 +233,10 @@ class SavedHandListView extends StatelessWidget {
                     final hand = filtered[index];
                     return SavedHandTile(
                       hand: hand,
-                      onTap: () => onTap(hand),
-                      onFavoriteToggle: onFavoriteToggle == null
+                      onTap: () => widget.onTap(hand),
+                      onFavoriteToggle: widget.onFavoriteToggle == null
                           ? null
-                          : () => onFavoriteToggle!(hand),
+                          : () => widget.onFavoriteToggle!(hand),
                     );
                   },
                 ),
