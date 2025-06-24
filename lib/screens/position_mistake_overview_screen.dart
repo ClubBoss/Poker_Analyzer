@@ -10,6 +10,7 @@ import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../widgets/saved_hand_list_view.dart';
+import '../widgets/mistake_summary_section.dart';
 import 'hand_history_review_screen.dart';
 
 /// Displays a list of hero positions sorted by mistake count.
@@ -80,6 +81,12 @@ class PositionMistakeOverviewScreen extends StatelessWidget {
               onPressed: () => _exportPdf(context, entries),
             ),
           ],
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverToBoxAdapter(
+            child: MistakeSummarySection(summary: summary),
+          ),
         ),
         if (entries.isEmpty)
           const SliverFillRemaining(
