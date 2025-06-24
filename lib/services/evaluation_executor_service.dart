@@ -6,6 +6,7 @@ import '../models/evaluation_result.dart';
 import '../models/training_spot.dart';
 import '../models/saved_hand.dart';
 import '../models/summary_result.dart';
+import '../models/mistake_severity.dart';
 
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
@@ -132,5 +133,12 @@ class EvaluationExecutorService implements EvaluationExecutor {
       positionMistakeFrequencies: positionErrors,
       accuracyPerSession: sessionAcc,
     );
+  }
+
+  /// Classifies [mistakeCount] into a [MistakeSeverity] level.
+  MistakeSeverity classifySeverity(int mistakeCount) {
+    if (mistakeCount >= 10) return MistakeSeverity.high;
+    if (mistakeCount >= 4) return MistakeSeverity.medium;
+    return MistakeSeverity.low;
   }
 }

@@ -12,6 +12,7 @@ import '../helpers/date_utils.dart';
 
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
+import '../models/mistake_severity.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
@@ -148,10 +149,28 @@ class TagMistakeOverviewScreen extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final e = entries[index];
+                  final severity = context
+                      .read<EvaluationExecutorService>()
+                      .classifySeverity(e.value);
                   return ListTile(
-                    title: Text(e.key, style: const TextStyle(color: Colors.white)),
-                    trailing:
-                        Text(e.value.toString(), style: const TextStyle(color: Colors.white)),
+                    title: Text(e.key,
+                        style: const TextStyle(color: Colors.white)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: severity.color,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(e.value.toString(),
+                            style: const TextStyle(color: Colors.white)),
+                      ],
+                    ),
                     onTap: () {
                       Navigator.push(
                         context,
