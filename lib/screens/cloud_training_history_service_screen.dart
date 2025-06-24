@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/session_summary.dart';
@@ -50,6 +53,26 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
     }
   }
 
+  Future<void> _exportMarkdown() async {
+    if (_sessions.isEmpty) return;
+
+    final buffer = StringBuffer();
+    for (final s in _sessions) {
+      buffer.writeln(
+          '- ${formatDateTime(s.date)}: ${s.correct}/${s.total} (${s.accuracy.toStringAsFixed(1)}%)');
+    }
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/cloud_history.md');
+    await file.writeAsString(buffer.toString());
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('История сохранена в cloud_history.md')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +80,11 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
         title: const Text('Cloud History'),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Export',
+            onPressed: _sessions.isEmpty ? null : _exportMarkdown,
+          ),
           PopupMenuButton<_SortOption>(
             icon: const Icon(Icons.sort),
             onSelected: (value) {
