@@ -127,6 +127,198 @@ class SavedHandManagerService extends ChangeNotifier {
     return file.path;
   }
 
+  /// Export statistics for all training sessions to a Markdown file named
+  /// `training_summary.md` located in the application documents directory.
+  /// [notes] should contain optional session notes keyed by session id.
+  Future<String?> exportAllSessionsMarkdown(Map<int, String> notes) async {
+    if (hands.isEmpty) return null;
+
+    String _durToStr(Duration d) {
+      final h = d.inHours;
+      final m = d.inMinutes.remainder(60);
+      final parts = <String>[];
+      if (h > 0) parts.add('${h}ч');
+      parts.add('${m}м');
+      return parts.join(' ');
+    }
+
+    final grouped = handsBySession().entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    final buffer = StringBuffer();
+
+    for (final entry in grouped) {
+      final id = entry.key;
+      final sessionHands = List<SavedHand>.from(entry.value)
+        ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+      if (sessionHands.isEmpty) continue;
+
+      final start = sessionHands.first.savedAt;
+      final end = sessionHands.last.savedAt;
+      final duration = end.difference(start);
+      int correct = 0;
+      int incorrect = 0;
+      for (final h in sessionHands) {
+        final expected = h.expectedAction;
+        final gto = h.gtoAction;
+        if (expected != null && gto != null) {
+          if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
+            correct++;
+          } else {
+            incorrect++;
+          }
+        }
+      }
+      final total = correct + incorrect;
+      final winrate = total > 0 ? (correct / total * 100) : null;
+      final note = notes[id];
+
+      buffer.writeln('## Сессия $id');
+      buffer.writeln('- Дата: ${formatDateTime(end)}');
+      buffer.writeln('- Длительность: ${_durToStr(duration)}');
+      buffer.writeln('- Раздач: ${sessionHands.length}');
+      buffer.writeln('- Верно: $correct');
+      buffer.writeln('- Ошибки: $incorrect');
+      if (winrate != null) {
+        buffer.writeln('- Winrate: ${winrate.toStringAsFixed(1)}%');
+      }
+      if (note != null && note.trim().isNotEmpty) {
+        buffer.writeln('- Заметка: ${note.trim()}');
+      }
+      buffer.writeln();
+      for (final hand in sessionHands) {
+        final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
+        buffer.writeln('### $title');
+        final userAction = hand.expectedAction;
+        if (userAction != null && userAction.isNotEmpty) {
+          buffer.writeln('- Действие: $userAction');
+        }
+        if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
+          buffer.writeln('- GTO: ${hand.gtoAction}');
+        }
+        if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
+          buffer.writeln('- Группа: ${hand.rangeGroup}');
+        }
+        if (hand.comment != null && hand.comment!.isNotEmpty) {
+          buffer.writeln('- Комментарий: ${hand.comment}');
+        }
+        buffer.writeln();
+      }
+    }
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_summary.md');
+    await file.writeAsString(buffer.toString());
+    return file.path;
+  }
+
+  /// Export statistics for all training sessions to a PDF file named
+  /// `training_summary.pdf` located in the application documents directory.
+  /// [notes] should contain optional session notes keyed by session id.
+  Future<String?> exportAllSessionsPdf(Map<int, String> notes) async {
+    if (hands.isEmpty) return null;
+
+    String _durToStr(Duration d) {
+      final h = d.inHours;
+      final m = d.inMinutes.remainder(60);
+      final parts = <String>[];
+      if (h > 0) parts.add('${h}ч');
+      parts.add('${m}м');
+      return parts.join(' ');
+    }
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final grouped = handsBySession().entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          return [
+            for (final entry in grouped) ...[
+              () {
+                final id = entry.key;
+                final sessionHands = List<SavedHand>.from(entry.value)
+                  ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
+                final start = sessionHands.first.savedAt;
+                final end = sessionHands.last.savedAt;
+                final duration = end.difference(start);
+                int correct = 0;
+                int incorrect = 0;
+                for (final h in sessionHands) {
+                  final expected = h.expectedAction;
+                  final gto = h.gtoAction;
+                  if (expected != null && gto != null) {
+                    if (expected.trim().toLowerCase() ==
+                        gto.trim().toLowerCase()) {
+                      correct++;
+                    } else {
+                      incorrect++;
+                    }
+                  }
+                }
+                final total = correct + incorrect;
+                final winrate =
+                    total > 0 ? (correct / total * 100).toStringAsFixed(1) : null;
+                final note = notes[id];
+
+                return [
+                  pw.Text('Сессия $id',
+                      style: pw.TextStyle(font: boldFont, fontSize: 20)),
+                  pw.SizedBox(height: 4),
+                  pw.Text('Дата: ${formatDateTime(end)}',
+                      style: pw.TextStyle(font: regularFont)),
+                  pw.Text('Длительность: ${_durToStr(duration)}',
+                      style: pw.TextStyle(font: regularFont)),
+                  pw.Text('Раздач: ${sessionHands.length} • Верно: $correct • Ошибки: $incorrect',
+                      style: pw.TextStyle(font: regularFont)),
+                  if (winrate != null)
+                    pw.Text('Winrate: $winrate%',
+                        style: pw.TextStyle(font: regularFont)),
+                  if (note != null && note.trim().isNotEmpty)
+                    pw.Text('Заметка: ${note.trim()}',
+                        style: pw.TextStyle(font: regularFont)),
+                  pw.SizedBox(height: 8),
+                  for (final hand in sessionHands) ...[
+                    pw.Text(
+                      hand.name.isNotEmpty ? hand.name : 'Без названия',
+                      style: pw.TextStyle(font: boldFont, fontSize: 16),
+                    ),
+                    pw.SizedBox(height: 4),
+                    if (hand.expectedAction != null &&
+                        hand.expectedAction!.isNotEmpty)
+                      pw.Text('Действие: ${hand.expectedAction}',
+                          style: pw.TextStyle(font: regularFont)),
+                    if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
+                      pw.Text('GTO: ${hand.gtoAction}',
+                          style: pw.TextStyle(font: regularFont)),
+                    if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty)
+                      pw.Text('Группа: ${hand.rangeGroup}',
+                          style: pw.TextStyle(font: regularFont)),
+                    if (hand.comment != null && hand.comment!.isNotEmpty)
+                      pw.Text('Комментарий: ${hand.comment}',
+                          style: pw.TextStyle(font: regularFont)),
+                    pw.SizedBox(height: 12),
+                  ],
+                  pw.Divider(),
+                ];
+              }(),
+            ],
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/training_summary.pdf');
+    await file.writeAsBytes(bytes);
+    return file.path;
+  }
+
   /// Export hands belonging to [sessionId] to a Markdown file. The file
   /// will be named `session_[id].md` and stored in the application documents
   /// directory. Returns the created path or `null` if the session is empty.
