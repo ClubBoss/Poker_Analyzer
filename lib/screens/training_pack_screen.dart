@@ -1593,21 +1593,21 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
   }
 
   Future<void> _exportMarkdown(BuildContext context) async {
-    if (widget.results.isEmpty) return;
+    final mistakes = widget.results.where((r) => !r.correct).toList();
+    if (mistakes.isEmpty) return;
     final buffer = StringBuffer();
-    for (final r in widget.results) {
-      final status = r.correct ? 'верно' : 'ошибка';
+    for (final r in mistakes) {
       buffer.writeln(
-          '- ${r.name}: вы выбрали `${r.userAction}`, ожидалось `${r.expected}` — $status');
+          '- ${r.name}: вы `${r.userAction}`, ожидалось `${r.expected}`. Пояснение: ...');
     }
     try {
-      final dir =
-          await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/session_export.md');
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/training_analysis.md');
       await file.writeAsString(buffer.toString());
+      await Share.shareXFiles([XFile(file.path)], text: 'training_analysis.md');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Файл сохранён: session_export.md')),
+          const SnackBar(content: Text('Файл сохранён: training_analysis.md')),
         );
       }
     } catch (_) {
