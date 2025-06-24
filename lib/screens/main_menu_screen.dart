@@ -25,6 +25,7 @@ import '../widgets/training_spot_preview.dart';
 import '../tutorial/tutorial_flow.dart';
 import '../tutorial/tutorial_completion_screen.dart';
 import 'training_history_screen.dart';
+import 'session_stats_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -289,6 +290,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('🗓️ Training History'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const SessionStatsScreen()),
+                );
+              },
+              child: const Text('📊 Статистика сессий'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
