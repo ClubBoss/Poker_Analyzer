@@ -46,6 +46,9 @@ class AchievementsCatalogScreen extends StatelessWidget {
               final item = data[index];
               final completed = item.completed;
               final color = completed ? Colors.white : Colors.white54;
+              final highlight =
+                  item.title == 'Без ошибок подряд' &&
+                      goals.errorFreeStreak >= 3;
               Widget icon = Icon(item.icon, size: 40, color: accent);
               if (!completed) {
                 icon = ColorFiltered(
@@ -54,11 +57,23 @@ class AchievementsCatalogScreen extends StatelessWidget {
                   child: icon,
                 );
               }
-              return Container(
+              Widget card = Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.grey[850],
                   borderRadius: BorderRadius.circular(8),
+                  border: highlight
+                      ? Border.all(color: accent, width: 2)
+                      : null,
+                  boxShadow: highlight
+                      ? [
+                          BoxShadow(
+                            color: accent.withOpacity(0.6),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
                 ),
             child: Stack(
               children: [
@@ -80,15 +95,23 @@ class AchievementsCatalogScreen extends StatelessWidget {
                         Expanded(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: completed
-                                  ? 1.0
-                                  : (item.progress / item.target)
-                                      .clamp(0.0, 1.0),
-                              backgroundColor: Colors.white24,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(accent),
-                              minHeight: 6,
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween<double>(
+                                begin: 0,
+                                end: completed
+                                    ? 1.0
+                                    : (item.progress / item.target)
+                                        .clamp(0.0, 1.0),
+                              ),
+                              duration: const Duration(milliseconds: 500),
+                              builder: (context, value, _) =>
+                                  LinearProgressIndicator(
+                                value: value,
+                                backgroundColor: Colors.white24,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(accent),
+                                minHeight: 6,
+                              ),
                             ),
                           ),
                         ),
@@ -110,6 +133,14 @@ class AchievementsCatalogScreen extends StatelessWidget {
               ],
             ),
           );
+              if (highlight) {
+                card = Tooltip(
+                  message: 'Держите темп!',
+                  triggerMode: TooltipTriggerMode.longPress,
+                  child: card,
+                );
+              }
+              return card;
             },
           );
         },
