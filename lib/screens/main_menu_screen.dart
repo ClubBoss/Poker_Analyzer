@@ -27,6 +27,7 @@ import '../tutorial/tutorial_completion_screen.dart';
 import 'training_history_screen.dart';
 import 'session_stats_screen.dart';
 import 'training_stats_screen.dart';
+import 'progress_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_screen.dart';
 import 'mistake_repeat_screen.dart';
@@ -573,6 +574,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('📈 Training Stats'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                );
+              },
+              child: const Text('📊 Прогресс'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
