@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
+import '../theme/constants.dart';
+
 import 'tag_mistake_overview_screen.dart';
 import 'position_mistake_overview_screen.dart';
 import 'street_mistake_overview_screen.dart';
@@ -33,13 +36,39 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
       appBar: AppBar(
         title: const Text('Ошибки'),
         centerTitle: true,
-        bottom: TabBar(
-          controller: _controller,
-          tabs: const [
-            Tab(text: 'По тегам'),
-            Tab(text: 'По позициям'),
-            Tab(text: 'По улицам'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(AppConstants.radius8),
+              ),
+              child: TabBar(
+                controller: _controller,
+                labelColor: Colors.black,
+                unselectedLabelColor: Colors.white70,
+                indicator: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.radius8),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicatorPadding: EdgeInsets.zero,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+                tabs: const [
+                  Tab(text: 'По тегам'),
+                  Tab(text: 'По позициям'),
+                  Tab(text: 'По улицам'),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
       body: TabBarView(
