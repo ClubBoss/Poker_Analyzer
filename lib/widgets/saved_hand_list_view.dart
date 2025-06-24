@@ -1,4 +1,10 @@
-/// Reusable widget for displaying filtered saved hands with summary counts.
+/// Displays a scrollable list of [SavedHand] items with optional filtering and summary counts.
+///
+/// The widget filters [hands] by [tags], [positions] and [accuracy] before
+/// displaying them. [title] is shown above the list, and [onTap] is invoked
+/// when a hand is tapped. If [onFavoriteToggle] is provided, each tile will
+/// show a star button.
+
 import 'package:flutter/material.dart';
 
 import '../models/saved_hand.dart';
