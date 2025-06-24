@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 
 import '../models/saved_hand.dart';
 import 'saved_hand_storage_service.dart';
@@ -65,6 +67,55 @@ class SavedHandManagerService extends ChangeNotifier {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/all_saved_hands.md');
     await file.writeAsString(buffer.toString());
+    return file.path;
+  }
+
+  /// Export all saved hands to a PDF file located in the
+  /// application documents directory. Returns the file path or `null`
+  /// if there are no saved hands.
+  Future<String?> exportAllHandsPdf() async {
+    if (hands.isEmpty) return null;
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (context) {
+          return [
+            for (final hand in hands) ...[
+              pw.Text(
+                hand.name.isNotEmpty ? hand.name : 'Без названия',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
+              pw.SizedBox(height: 8),
+              if (hand.expectedAction != null &&
+                  hand.expectedAction!.isNotEmpty)
+                pw.Text('Действие: ${hand.expectedAction}',
+                    style: pw.TextStyle(font: regularFont)),
+              if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
+                pw.Text('GTO: ${hand.gtoAction}',
+                    style: pw.TextStyle(font: regularFont)),
+              if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty)
+                pw.Text('Группа: ${hand.rangeGroup}',
+                    style: pw.TextStyle(font: regularFont)),
+              if (hand.comment != null && hand.comment!.isNotEmpty)
+                pw.Text('Комментарий: ${hand.comment}',
+                    style: pw.TextStyle(font: regularFont)),
+              pw.SizedBox(height: 12),
+            ]
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/all_saved_hands.pdf');
+    await file.writeAsBytes(bytes);
     return file.path;
   }
 
