@@ -27,6 +27,34 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
   String? _selectedAction;
   late TextEditingController _commentController;
 
+  void _showExportOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.description),
+              title: const Text('Markdown'),
+              onTap: () {
+                Navigator.pop(context);
+                _exportMarkdown();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf),
+              title: const Text('PDF'),
+              onTap: () {
+                Navigator.pop(context);
+                _exportPdf();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -51,16 +79,24 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
   }
 
   Future<void> _exportMarkdown() async {
-    final buffer = StringBuffer();
-    buffer.writeln('## ${widget.hand.name}');
+    final hand = widget.hand;
+    final heroCards = hand.playerCards[hand.heroIndex].join(' ');
+    final board = hand.boardCards.map((c) => c.toString()).join(' ');
+    final stack = hand.stackSizes[hand.heroIndex] ?? 0;
+    final buffer = StringBuffer()
+      ..writeln('## ${hand.name}')
+      ..writeln('- Позиция: ${hand.heroPosition}')
+      ..writeln('- Стек: $stack')
+      ..writeln('- Карты: $heroCards');
+    if (board.isNotEmpty) buffer.writeln('- Борд: $board');
     if (_selectedAction != null) {
-      buffer.writeln('- Выбор пользователя: $_selectedAction');
+      buffer.writeln('- Действие: $_selectedAction');
     }
-    if (widget.hand.gtoAction != null && widget.hand.gtoAction!.isNotEmpty) {
-      buffer.writeln('- GTO: ${widget.hand.gtoAction}');
+    if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
+      buffer.writeln('- GTO: ${hand.gtoAction}');
     }
-    if (widget.hand.rangeGroup != null && widget.hand.rangeGroup!.isNotEmpty) {
-      buffer.writeln('- Группа: ${widget.hand.rangeGroup}');
+    if (hand.tags.isNotEmpty) {
+      buffer.writeln('- Теги: ${hand.tags.join(', ')}');
     }
     final comment = _commentController.text.trim();
     if (comment.isNotEmpty) {
@@ -81,6 +117,11 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
+    final hand = widget.hand;
+    final heroCards = hand.playerCards[hand.heroIndex].join(' ');
+    final board = hand.boardCards.map((c) => c.toString()).join(' ');
+    final stack = hand.stackSizes[hand.heroIndex] ?? 0;
+
     final pdf = pw.Document();
     pdf.addPage(
       pw.Page(
@@ -89,19 +130,26 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(widget.hand.name,
+              pw.Text(hand.name,
                   style: pw.TextStyle(font: boldFont, fontSize: 24)),
               pw.SizedBox(height: 16),
+              pw.Text('Позиция: ${hand.heroPosition}',
+                  style: pw.TextStyle(font: regularFont)),
+              pw.Text('Стек: $stack',
+                  style: pw.TextStyle(font: regularFont)),
+              pw.Text('Карты: $heroCards',
+                  style: pw.TextStyle(font: regularFont)),
+              if (board.isNotEmpty)
+                pw.Text('Борд: $board',
+                    style: pw.TextStyle(font: regularFont)),
               if (_selectedAction != null)
-                pw.Text('Выбор пользователя: $_selectedAction',
+                pw.Text('Действие: $_selectedAction',
                     style: pw.TextStyle(font: regularFont)),
-              if (widget.hand.gtoAction != null &&
-                  widget.hand.gtoAction!.isNotEmpty)
-                pw.Text('GTO: ${widget.hand.gtoAction}',
+              if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
+                pw.Text('GTO: ${hand.gtoAction}',
                     style: pw.TextStyle(font: regularFont)),
-              if (widget.hand.rangeGroup != null &&
-                  widget.hand.rangeGroup!.isNotEmpty)
-                pw.Text('Группа: ${widget.hand.rangeGroup}',
+              if (hand.tags.isNotEmpty)
+                pw.Text('Теги: ${hand.tags.join(', ')}',
                     style: pw.TextStyle(font: regularFont)),
               if (_commentController.text.trim().isNotEmpty)
                 pw.Text('Комментарий: ${_commentController.text.trim()}',
@@ -136,6 +184,12 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
           '${widget.hand.name} \u2022 ${formatLongDate(widget.hand.savedAt)}',
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: _showExportOptions,
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF121212),
       body: SingleChildScrollView(
