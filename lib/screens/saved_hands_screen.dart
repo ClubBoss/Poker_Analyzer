@@ -7,7 +7,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/saved_hand_import_export_service.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/constants.dart';
-import '../widgets/saved_hand_tile.dart';
+import '../widgets/saved_hand_list_view.dart';
 import '../screens/hand_history_review_screen.dart';
 
 class SavedHandsScreen extends StatefulWidget {
@@ -63,10 +63,6 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
 
     List<SavedHand> visible = allHands.where((hand) {
       if (_onlyFavorites && !hand.isFavorite) return false;
-      if (_tagFilter != 'Все' && !hand.tags.contains(_tagFilter)) return false;
-      if (_positionFilter != 'Все' && hand.heroPosition != _positionFilter) {
-        return false;
-      }
       final now = DateTime.now();
       if (_dateFilter == 'Сегодня' && !_sameDay(hand.date, now)) return false;
       if (_dateFilter == '7 дней' && hand.date.isBefore(now.subtract(const Duration(days: 7)))) {
@@ -74,22 +70,6 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
       }
       if (_dateFilter == '30 дней' && hand.date.isBefore(now.subtract(const Duration(days: 30)))) {
         return false;
-      }
-      if (_accuracyFilter == 'Только ошибки') {
-        final expected = hand.expectedAction;
-        final gto = hand.gtoAction;
-        if (expected == null || gto == null) return false;
-        if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
-          return false;
-        }
-      }
-      if (_accuracyFilter == 'Только верные') {
-        final expected = hand.expectedAction;
-        final gto = hand.gtoAction;
-        if (expected == null || gto == null) return false;
-        if (expected.trim().toLowerCase() != gto.trim().toLowerCase()) {
-          return false;
-        }
       }
       final query = _searchController.text.toLowerCase();
       if (query.isNotEmpty) {
@@ -180,34 +160,30 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
             ),
           ),
           Expanded(
-            child: visible.isEmpty
-                ? const Center(
-                    child: Text('Нет сохранённых раздач.',
-                        style: TextStyle(color: Colors.white54)),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(AppConstants.padding16),
-                    itemCount: visible.length,
-                    itemBuilder: (context, index) {
-                      final hand = visible[index];
-                      final originalIndex = allHands.indexOf(hand);
-                      return SavedHandTile(
-                        hand: hand,
-                        onFavoriteToggle: () {
-                          final updated = hand.copyWith(isFavorite: !hand.isFavorite);
-                          handManager.update(originalIndex, updated);
-                        },
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => HandHistoryReviewScreen(hand: hand),
-                            ),
-                          );
-                        },
-                      );
-                    },
+            child: SavedHandListView(
+              hands: visible,
+              title: 'Раздачи',
+              tags: _tagFilter != 'Все' ? [_tagFilter] : null,
+              positions: _positionFilter != 'Все' ? [_positionFilter] : null,
+              accuracy: _accuracyFilter == 'Только верные'
+                  ? 'correct'
+                  : _accuracyFilter == 'Только ошибки'
+                      ? 'errors'
+                      : null,
+              onTap: (hand) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => HandHistoryReviewScreen(hand: hand),
                   ),
+                );
+              },
+              onFavoriteToggle: (hand) {
+                final originalIndex = allHands.indexOf(hand);
+                final updated = hand.copyWith(isFavorite: !hand.isFavorite);
+                handManager.update(originalIndex, updated);
+              },
+            ),
           ),
         ],
       ),
