@@ -63,6 +63,12 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     return parts.join(' ');
   }
 
+  Color _accuracyColor(double accuracy) {
+    if (accuracy < 60) return Colors.redAccent;
+    if (accuracy < 85) return Colors.orangeAccent;
+    return Colors.greenAccent;
+  }
+
   List<_SessionInfo> _buildSessions(
       Map<int, List<SavedHand>> data, SessionNoteService notes) {
     final List<_SessionInfo> sessions = [];
@@ -340,11 +346,25 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                               'Раздач: ${s.hands} • Верно: ${s.correct} • Ошибки: ${s.incorrect}',
                               style: const TextStyle(color: Colors.white70),
                             ),
-                            if (s.winrate != null)
+                            if (s.winrate != null) ...[
+                              const SizedBox(height: 4),
                               Text(
-                                'Winrate: ${s.winrate!.toStringAsFixed(1)}%',
+                                'Точность: ${s.winrate!.toStringAsFixed(1)}%',
                                 style: const TextStyle(color: Colors.white70),
                               ),
+                              const SizedBox(height: 2),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: s.winrate! / 100,
+                                  backgroundColor: Colors.white24,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    _accuracyColor(s.winrate!),
+                                  ),
+                                  minHeight: 6,
+                                ),
+                              ),
+                            ],
                             if (s.note.isNotEmpty)
                               Padding(
                                 padding: const EdgeInsets.only(top: 4),
