@@ -67,32 +67,40 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
     final entries = summary.streetBreakdown.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ошибки по улицам'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            tooltip: 'PDF',
-            onPressed: () => _exportPdf(context, entries),
-          ),
-        ],
-      ),
-      body: entries.isEmpty
-          ? const Center(
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          pinned: true,
+          automaticallyImplyLeading: false,
+          title: const Text('Ошибки по улицам'),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.share),
+              tooltip: 'PDF',
+              onPressed: () => _exportPdf(context, entries),
+            ),
+          ],
+        ),
+        if (entries.isEmpty)
+          const SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
               child: Text(
                 'Ошибок нет',
                 style: TextStyle(color: Colors.white70),
               ),
-            )
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                for (final e in entries)
-                  ListTile(
-                    title:
-                        Text(e.key, style: const TextStyle(color: Colors.white)),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final e = entries[index];
+                  return ListTile(
+                    title: Text(e.key, style: const TextStyle(color: Colors.white)),
                     trailing: Text(e.value.toString(),
                         style: const TextStyle(color: Colors.white)),
                     onTap: () {
@@ -103,9 +111,13 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
                         ),
                       );
                     },
-                  ),
-              ],
+                  );
+                },
+                childCount: entries.length,
+              ),
             ),
+          ),
+      ],
     );
   }
 }
