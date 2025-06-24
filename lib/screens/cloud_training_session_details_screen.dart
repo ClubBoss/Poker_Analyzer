@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
@@ -8,12 +11,38 @@ class CloudTrainingSessionDetailsScreen extends StatelessWidget {
 
   const CloudTrainingSessionDetailsScreen({super.key, required this.session});
 
+  Future<void> _exportMarkdown(BuildContext context) async {
+    if (session.results.isEmpty) return;
+    final buffer = StringBuffer();
+    for (final r in session.results) {
+      final result = r.correct ? 'correct' : 'wrong';
+      buffer.writeln(
+          '- ${r.name}: user `${r.userAction}`, expected `${r.expected}` - $result');
+    }
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/cloud_session.md');
+    await file.writeAsString(buffer.toString());
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Файл сохранён: cloud_session.md')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(formatDateTime(session.date)),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Экспорт',
+            onPressed:
+                session.results.isEmpty ? null : () => _exportMarkdown(context),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: session.results.isEmpty
