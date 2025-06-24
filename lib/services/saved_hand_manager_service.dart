@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/saved_hand.dart';
 import 'saved_hand_storage_service.dart';
@@ -35,6 +37,36 @@ class SavedHandManagerService extends ChangeNotifier {
   }
 
   SavedHand? get lastHand => hands.isNotEmpty ? hands.last : null;
+
+  /// Export all saved hands to a Markdown file located in the
+  /// application documents directory. Returns the file path or `null`
+  /// if there are no saved hands.
+  Future<String?> exportAllHandsMarkdown() async {
+    if (hands.isEmpty) return null;
+    final buffer = StringBuffer();
+    for (final hand in hands) {
+      final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
+      buffer.writeln('## $title');
+      final userAction = hand.expectedAction;
+      if (userAction != null && userAction.isNotEmpty) {
+        buffer.writeln('- Действие: $userAction');
+      }
+      if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
+        buffer.writeln('- GTO: ${hand.gtoAction}');
+      }
+      if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
+        buffer.writeln('- Группа: ${hand.rangeGroup}');
+      }
+      if (hand.comment != null && hand.comment!.isNotEmpty) {
+        buffer.writeln('- Комментарий: ${hand.comment}');
+      }
+      buffer.writeln();
+    }
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/all_saved_hands.md');
+    await file.writeAsString(buffer.toString());
+    return file.path;
+  }
 
   Future<SavedHand?> selectHand(BuildContext context) async {
     if (hands.isEmpty) return null;
