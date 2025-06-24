@@ -155,7 +155,19 @@ class _CloudTrainingSessionDetailsScreenState
         : widget.session.results;
     return Scaffold(
       appBar: AppBar(
-        title: Text(formatDateTime(widget.session.date)),
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${formatDate(widget.session.date)} • ${widget.session.accuracy.toStringAsFixed(1)}%',
+              style: const TextStyle(color: Colors.white),
+            ),
+            Text(
+              'Ошибки: ${widget.session.mistakes} из ${widget.session.total}',
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+          ],
+        ),
         centerTitle: true,
         actions: [
           IconButton(
