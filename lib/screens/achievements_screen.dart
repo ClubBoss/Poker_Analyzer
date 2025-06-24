@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/streak_service.dart';
+import '../services/saved_hand_manager_service.dart';
+import '../services/evaluation_executor_service.dart';
 
 class Achievement {
   final String title;
@@ -24,16 +26,31 @@ class AchievementsScreen extends StatefulWidget {
 
 class _AchievementsScreenState extends State<AchievementsScreen> {
   late final StreakService _streakService;
+  late final SavedHandManagerService _handManager;
+  late final EvaluationExecutorService _evalService;
+  int _mistakeCount = 0;
 
   @override
   void initState() {
     super.initState();
     _streakService = context.read<StreakService>();
+    _handManager = context.read<SavedHandManagerService>();
+    _evalService = context.read<EvaluationExecutorService>();
     _streakService.addListener(_onStreakChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshMistakes());
   }
 
   void _onStreakChanged() {
     if (mounted) setState(() {});
+  }
+
+  void _refreshMistakes() {
+    final summary = _evalService.summarizeHands(_handManager.hands);
+    if (mounted) {
+      setState(() => _mistakeCount = summary.incorrect);
+    } else {
+      _mistakeCount = summary.incorrect;
+    }
   }
 
   @override
@@ -42,13 +59,19 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _refreshMistakes();
+  }
+
   List<Achievement> _buildAchievements() {
     final streak = _streakService.count;
     return [
-      const Achievement(
+      Achievement(
         title: 'Разобрано 5 ошибок',
         icon: Icons.bug_report,
-        completed: false,
+        completed: _mistakeCount >= 5,
       ),
       Achievement(
         title: '3 дня подряд',
