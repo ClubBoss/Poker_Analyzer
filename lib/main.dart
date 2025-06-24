@@ -16,6 +16,7 @@ import 'services/all_in_players_service.dart';
 import 'services/user_preferences_service.dart';
 import 'services/tag_service.dart';
 import 'services/ignored_mistake_service.dart';
+import 'services/goals_service.dart';
 import 'services/cloud_sync_service.dart';
 import 'services/cloud_training_history_service.dart';
 import 'services/training_spot_storage_service.dart';
@@ -66,6 +67,7 @@ void main() {
         ChangeNotifierProvider(
           create: (_) => IgnoredMistakeService()..load(),
         ),
+        ChangeNotifierProvider(create: (_) => GoalsService()..load()),
         ChangeNotifierProvider(create: (_) => StreakService()..load()),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),

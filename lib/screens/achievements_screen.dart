@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/streak_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
+import '../services/goals_service.dart';
 
 class Achievement {
   final String title;
@@ -28,6 +29,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   late final StreakService _streakService;
   late final SavedHandManagerService _handManager;
   late final EvaluationExecutorService _evalService;
+  late final GoalsService _goalsService;
+  bool _goalCompleted = false;
   int _mistakeCount = 0;
 
   @override
@@ -36,12 +39,24 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     _streakService = context.read<StreakService>();
     _handManager = context.read<SavedHandManagerService>();
     _evalService = context.read<EvaluationExecutorService>();
+    _goalsService = context.read<GoalsService>();
+    _goalCompleted = _goalsService.anyCompleted;
     _streakService.addListener(_onStreakChanged);
+    _goalsService.addListener(_onGoalsChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshMistakes());
   }
 
   void _onStreakChanged() {
     if (mounted) setState(() {});
+  }
+
+  void _onGoalsChanged() {
+    final done = _goalsService.anyCompleted;
+    if (mounted) {
+      setState(() => _goalCompleted = done);
+    } else {
+      _goalCompleted = done;
+    }
   }
 
   void _refreshMistakes() {
@@ -56,6 +71,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   @override
   void dispose() {
     _streakService.removeListener(_onStreakChanged);
+    _goalsService.removeListener(_onGoalsChanged);
     super.dispose();
   }
 
@@ -63,6 +79,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _refreshMistakes();
+    _onGoalsChanged();
   }
 
   List<Achievement> _buildAchievements() {
@@ -78,10 +95,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         icon: Icons.local_fire_department,
         completed: streak >= 3,
       ),
-      const Achievement(
+      Achievement(
         title: 'Цель выполнена',
         icon: Icons.flag,
-        completed: false,
+        completed: _goalCompleted,
       ),
     ];
   }
