@@ -170,6 +170,30 @@ class _GoalCardState extends State<GoalCard>
 class _GoalsScreenState extends State<GoalsScreen> {
   late List<Goal> _goals;
 
+  void _showBonusInfo() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          'Бонус за серию',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Получите ×1.5 прогресс целей, если заходите 3 дня подряд. Стрик не должен прерываться.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -200,27 +224,31 @@ class _GoalsScreenState extends State<GoalsScreen> {
     List<Widget> children = [];
     if (bonus) {
       children.add(
-        Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.orange[700],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.local_fire_department, color: Colors.white),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '🔥 Бонус за серию — ускоренный прогресс целей!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+        InkWell(
+          onTap: _showBonusInfo,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.orange[700],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.local_fire_department, color: Colors.white),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '🔥 Бонус за серию — ускоренный прогресс целей!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
