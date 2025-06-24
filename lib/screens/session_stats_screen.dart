@@ -13,6 +13,7 @@ import '../services/session_note_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/session_accuracy_distribution_chart.dart';
 import '../widgets/common/mistake_by_street_chart.dart';
+import '../widgets/common/session_volume_accuracy_chart.dart';
 import 'saved_hands_screen.dart';
 
 class SessionStatsScreen extends StatefulWidget {
@@ -229,6 +230,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     int sessionsAbove80 = 0;
     int sessionsAbove90 = 0;
     final sessionAccuracies = <double>[];
+    final sessionPoints = <SessionVolumeAccuracyPoint>[];
     final streetErrors = <int, int>{0: 0, 1: 0, 2: 0, 3: 0};
 
     for (final entry in grouped.entries) {
@@ -265,7 +267,9 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
         sessionsAbove90++;
       }
       if (total > 0) {
-        sessionAccuracies.add(correct / total * 100.0);
+        final acc = correct / total * 100.0;
+        sessionAccuracies.add(acc);
+        sessionPoints.add(SessionVolumeAccuracyPoint(end, acc, total));
       }
 
       final note = notes.noteFor(id);
@@ -360,6 +364,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       sessionsAbove80: sessionsAbove80,
       sessionsAbove90: sessionsAbove90,
       sessionAccuracies: sessionAccuracies,
+      sessions: sessionPoints,
       weekly: weekly,
       tagEntries: tagEntries,
       errorTagEntries: errorTagEntries,
@@ -602,6 +607,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final summary = _gatherStats(manager, notes);
 
     final weekly = summary.weekly;
+    final sessionSeries = summary.sessions;
     final spots = <FlSpot>[];
     for (var i = 0; i < weekly.length; i++) {
       spots.add(FlSpot(i.toDouble(), weekly[i].winrate));
@@ -672,6 +678,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           _buildGoalProgress(context, summary.sessionsAbove90),
           MistakeByStreetChart(counts: summary.mistakesByStreet),
           SessionAccuracyDistributionChart(accuracies: summary.sessionAccuracies),
+          SessionVolumeAccuracyChart(sessions: sessionSeries),
           const SizedBox(height: 16),
           if (weekly.length > 1)
             Container(
@@ -873,6 +880,7 @@ class _StatsSummary {
   final int sessionsAbove80;
   final int sessionsAbove90;
   final List<double> sessionAccuracies;
+  final List<SessionVolumeAccuracyPoint> sessions;
   final List<_WeekData> weekly;
   final List<MapEntry<String, int>> tagEntries;
   final List<MapEntry<String, int>> errorTagEntries;
@@ -895,6 +903,7 @@ class _StatsSummary {
     required this.sessionsAbove80,
     required this.sessionsAbove90,
     required this.sessionAccuracies,
+    required this.sessions,
     required this.weekly,
     required this.tagEntries,
     required this.errorTagEntries,
