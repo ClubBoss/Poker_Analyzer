@@ -6,6 +6,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/goals_service.dart';
 import '../widgets/achievement_unlocked_overlay.dart';
+import 'achievements_catalog_screen.dart';
 
 class Achievement {
   final String title;
@@ -211,6 +212,19 @@ class _AchievementsScreenState extends State<AchievementsScreen>
       appBar: AppBar(
         title: const Text('Достижения'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list),
+            tooltip: 'Все достижения',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const AchievementsCatalogScreen()),
+              );
+            },
+          )
+        ],
       ),
       body: AnimatedList(
         key: _listKey,
