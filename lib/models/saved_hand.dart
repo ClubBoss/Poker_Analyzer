@@ -47,6 +47,7 @@ class SavedHand {
   /// Cursor offset within the tags field when the hand was saved.
   final int? tagsCursor;
   final bool isFavorite;
+  final DateTime savedAt;
   final DateTime date;
   final String? expectedAction;
   /// Recommended action from GTO solver.
@@ -105,6 +106,7 @@ class SavedHand {
     this.commentCursor,
     this.tagsCursor,
     this.isFavorite = false,
+    DateTime? savedAt,
     DateTime? date,
     this.expectedAction,
     this.gtoAction,
@@ -126,6 +128,7 @@ class SavedHand {
   })  : tags = tags ?? [],
         revealedCards = revealedCards ??
             List.generate(numberOfPlayers, (_) => <CardModel>[]),
+        savedAt = savedAt ?? DateTime.now(),
         date = date ?? DateTime.now(),
         revealStreet = revealStreet ?? boardStreet;
 
@@ -160,6 +163,7 @@ class SavedHand {
     int? commentCursor,
     int? tagsCursor,
     bool? isFavorite,
+    DateTime? savedAt,
     DateTime? date,
     String? expectedAction,
     String? gtoAction,
@@ -217,6 +221,7 @@ class SavedHand {
       commentCursor: commentCursor ?? this.commentCursor,
       tagsCursor: tagsCursor ?? this.tagsCursor,
       isFavorite: isFavorite ?? this.isFavorite,
+      savedAt: savedAt ?? this.savedAt,
       date: date ?? this.date,
       expectedAction: expectedAction ?? this.expectedAction,
       gtoAction: gtoAction ?? this.gtoAction,
@@ -327,6 +332,7 @@ class SavedHand {
         if (commentCursor != null) 'commentCursor': commentCursor,
         if (tagsCursor != null) 'tagsCursor': tagsCursor,
         'isFavorite': isFavorite,
+        'savedAt': savedAt.toIso8601String(),
         'date': date.toIso8601String(),
         if (expectedAction != null) 'expectedAction': expectedAction,
         if (gtoAction != null) 'gtoAction': gtoAction,
@@ -431,6 +437,8 @@ class SavedHand {
     final tags = [for (final t in (json['tags'] as List? ?? [])) t as String];
     final rating = (json['rating'] as num?)?.toInt() ?? 0;
     final isFavorite = json['isFavorite'] as bool? ?? false;
+    final savedAt =
+        DateTime.tryParse(json['savedAt'] as String? ?? '') ?? DateTime.now();
     final date = DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now();
     Map<String, int>? effStacks;
     if (json['effectiveStacksPerStreet'] != null) {
@@ -541,6 +549,7 @@ class SavedHand {
       commentCursor: commentCursor,
       tagsCursor: tagsCursor,
       isFavorite: isFavorite,
+      savedAt: savedAt,
       date: date,
       expectedAction: json['expectedAction'] as String?,
       gtoAction: json['gtoAction'] as String?,

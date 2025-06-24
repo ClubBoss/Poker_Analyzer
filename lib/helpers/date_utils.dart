@@ -7,3 +7,7 @@ String formatDateTime(DateTime date) {
 String formatDate(DateTime date) {
   return DateFormat('dd.MM.yyyy').format(date);
 }
+
+String formatLongDate(DateTime date) {
+  return DateFormat('d MMMM y', 'ru').format(date);
+}
