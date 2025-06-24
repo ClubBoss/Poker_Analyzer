@@ -6,6 +6,12 @@ import '../services/evaluation_executor_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import 'hand_history_review_screen.dart';
 
+/// Screen showing mistakes grouped by tag.
+///
+/// The list is populated using [EvaluationExecutorService.summarizeHands]
+/// so that each tag displays how many errors were made. Tapping a tag
+/// navigates to a filtered [SavedHandListView] with only the mistakes for
+/// that tag.
 class TagMistakeOverviewScreen extends StatelessWidget {
   const TagMistakeOverviewScreen({super.key});
 
