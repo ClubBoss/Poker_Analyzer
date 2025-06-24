@@ -8,8 +8,15 @@ import '../services/session_note_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/session_accuracy_distribution_chart.dart';
 
-class SessionStatsScreen extends StatelessWidget {
+class SessionStatsScreen extends StatefulWidget {
   const SessionStatsScreen({super.key});
+
+  @override
+  State<SessionStatsScreen> createState() => _SessionStatsScreenState();
+}
+
+class _SessionStatsScreenState extends State<SessionStatsScreen> {
+  String? _activeTag;
 
   String _formatDuration(Duration d) {
     final h = d.inHours;
@@ -65,6 +72,28 @@ class SessionStatsScreen extends StatelessWidget {
           Text(label, style: const TextStyle(color: Colors.white70)),
           Text(value, style: const TextStyle(color: Colors.white)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTag(BuildContext context, String tag, int count) {
+    final selected = _activeTag == tag;
+    final accent = Theme.of(context).colorScheme.secondary;
+    final style = TextStyle(
+      color: selected ? accent : Colors.white,
+      fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+    );
+    return InkWell(
+      onTap: () => setState(() => _activeTag = selected ? null : tag),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(tag, style: style),
+            Text(count.toString(), style: style),
+          ],
+        ),
       ),
     );
   }
@@ -140,9 +169,15 @@ class SessionStatsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
     final notes = context.watch<SessionNoteService>();
-    final grouped = manager.handsBySession();
+    final hands = _activeTag == null
+        ? manager.hands
+        : manager.hands.where((h) => h.tags.contains(_activeTag)).toList();
+    final Map<int, List<SavedHand>> grouped = {};
+    for (final hand in hands) {
+      grouped.putIfAbsent(hand.sessionId, () => []).add(hand);
+    }
 
-    int totalHands = manager.hands.length;
+    int totalHands = hands.length;
     Duration totalDuration = Duration.zero;
     int totalCorrect = 0;
     int totalIncorrect = 0;
@@ -214,9 +249,15 @@ class SessionStatsScreen extends StatelessWidget {
       dotData: FlDotData(show: false),
     );
 
+    final tagCountsAll = <String, int>{};
+    for (final hand in manager.hands) {
+      for (final tag in hand.tags) {
+        tagCountsAll[tag] = (tagCountsAll[tag] ?? 0) + 1;
+      }
+    }
     final tagCounts = <String, int>{};
     final errorTagCounts = <String, int>{};
-    for (final hand in manager.hands) {
+    for (final hand in hands) {
       final expected = hand.expectedAction;
       final gto = hand.gtoAction;
       final isError = expected != null &&
@@ -229,7 +270,7 @@ class SessionStatsScreen extends StatelessWidget {
         }
       }
     }
-    final tagEntries = tagCounts.entries.toList()
+    final tagEntries = tagCountsAll.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final errorTagEntries = errorTagCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -260,6 +301,14 @@ class SessionStatsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (_activeTag != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: ElevatedButton(
+                onPressed: () => setState(() => _activeTag = null),
+                child: const Text('Сбросить фильтр'),
+              ),
+            ),
           _buildStat('Всего раздач', totalHands.toString()),
           _buildStat('Сред. длительность', _formatDuration(avgDuration)),
           if (overallAccuracy != null)
@@ -374,8 +423,7 @@ class SessionStatsScreen extends StatelessWidget {
             const Text('Использование тегов',
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            for (final e in tagEntries)
-              _buildStat(e.key, e.value.toString()),
+            for (final e in tagEntries) _buildTag(context, e.key, e.value),
           ],
           if (errorTagEntries.isNotEmpty) ...[
             const SizedBox(height: 16),
