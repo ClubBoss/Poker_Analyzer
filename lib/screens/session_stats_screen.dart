@@ -6,6 +6,7 @@ import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/session_note_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/common/session_accuracy_distribution_chart.dart';
 
 class SessionStatsScreen extends StatelessWidget {
   const SessionStatsScreen({super.key});
@@ -148,6 +149,7 @@ class SessionStatsScreen extends StatelessWidget {
     int sessionsWithNotes = 0;
     int sessionsAbove80 = 0;
     int sessionsAbove90 = 0;
+    final sessionAccuracies = <double>[];
 
     for (final entry in grouped.entries) {
       final id = entry.key;
@@ -180,6 +182,9 @@ class SessionStatsScreen extends StatelessWidget {
       }
       if (total > 0 && (correct / total * 100) >= 90) {
         sessionsAbove90++;
+      }
+      if (total > 0) {
+        sessionAccuracies.add(correct / total * 100.0);
       }
 
       final note = notes.noteFor(id);
@@ -244,6 +249,7 @@ class SessionStatsScreen extends StatelessWidget {
           _buildStat('Сессий с заметками', sessionsWithNotes.toString()),
           _buildAccuracyProgress(context, sessionsAbove80, sessionsCount),
           _buildGoalProgress(context, sessionsAbove90),
+          SessionAccuracyDistributionChart(accuracies: sessionAccuracies),
           const SizedBox(height: 16),
           if (weekly.length > 1)
             Container(
