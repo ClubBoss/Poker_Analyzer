@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'dart:io';
 
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -176,10 +181,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final manager = context.watch<SavedHandManagerService>();
-    final notes = context.watch<SessionNoteService>();
+  _StatsSummary _gatherStats(
+      SavedHandManagerService manager, SessionNoteService notes) {
     final hands = _activeTag == null
         ? manager.hands
         : manager.hands.where((h) => h.tags.contains(_activeTag)).toList();
@@ -199,16 +202,16 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
 
     for (final entry in grouped.entries) {
       final id = entry.key;
-      final hands = List<SavedHand>.from(entry.value)
+      final list = List<SavedHand>.from(entry.value)
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
-      if (hands.isEmpty) continue;
-      final start = hands.first.savedAt;
-      final end = hands.last.savedAt;
+      if (list.isEmpty) continue;
+      final start = list.first.savedAt;
+      final end = list.last.savedAt;
       totalDuration += end.difference(start);
 
       int correct = 0;
       int incorrect = 0;
-      for (final h in hands) {
+      for (final h in list) {
         final expected = h.expectedAction;
         final gto = h.gtoAction;
         if (expected != null && gto != null) {
@@ -246,19 +249,6 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
         : null;
 
     final weekly = _weeklyWinrates(grouped);
-    final spots = <FlSpot>[];
-    for (var i = 0; i < weekly.length; i++) {
-      spots.add(FlSpot(i.toDouble(), weekly[i].winrate));
-    }
-    final step = (weekly.length / 6).ceil();
-
-    final line = LineChartBarData(
-      spots: spots,
-      isCurved: true,
-      color: Colors.greenAccent,
-      barWidth: 2,
-      dotData: FlDotData(show: false),
-    );
 
     final tagCountsAll = <String, int>{};
     for (final hand in manager.hands) {
@@ -313,10 +303,274 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       }
     }
 
+    return _StatsSummary(
+      totalHands: totalHands,
+      sessionsCount: sessionsCount,
+      avgDuration: avgDuration,
+      overallAccuracy: overallAccuracy,
+      sessionsWithNotes: sessionsWithNotes,
+      sessionsAbove80: sessionsAbove80,
+      sessionsAbove90: sessionsAbove90,
+      sessionAccuracies: sessionAccuracies,
+      weekly: weekly,
+      tagEntries: tagEntries,
+      errorTagEntries: errorTagEntries,
+      positionTotals: positionTotals,
+      positionCorrect: positionCorrect,
+      mistakeTag: mistakeTag,
+      mistakeTotal: mistakeTotal,
+      mistakeErrors: mistakeErrors,
+      mistakeRate: highestRate,
+    );
+  }
+
+  Map<String, int> _accuracyHistogram(List<double> accuracies) {
+    final labels = ['50–60%', '60–70%', '70–80%', '80–90%', '90–100%'];
+    final counts = <String, int>{for (final l in labels) l: 0};
+    for (final a in accuracies) {
+      if (a >= 50 && a < 60) {
+        counts['50–60%'] = counts['50–60%']! + 1;
+      } else if (a < 70) {
+        counts['60–70%'] = counts['60–70%']! + 1;
+      } else if (a < 80) {
+        counts['70–80%'] = counts['70–80%']! + 1;
+      } else if (a < 90) {
+        counts['80–90%'] = counts['80–90%']! + 1;
+      } else {
+        counts['90–100%'] = counts['90–100%']! + 1;
+      }
+    }
+    return counts;
+  }
+
+  Future<void> _exportMarkdown(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final notes = context.read<SessionNoteService>();
+    final summary = _gatherStats(manager, notes);
+
+    final buffer = StringBuffer()
+      ..writeln('# Статистика сессий')
+      ..writeln('- Всего раздач: ${summary.totalHands}')
+      ..writeln('- Средняя длительность: ${_formatDuration(summary.avgDuration)}');
+    if (summary.overallAccuracy != null) {
+      buffer.writeln('- Точность: ${summary.overallAccuracy!.toStringAsFixed(1)}%');
+    }
+    buffer
+      ..writeln('- Сессий с заметками: ${summary.sessionsWithNotes}')
+      ..writeln('- Сессий с точностью > 80%: ${summary.sessionsAbove80} из ${summary.sessionsCount}')
+      ..writeln('- Цель месяца: ${summary.sessionsAbove90} из 10')
+      ..writeln();
+
+    final hist = _accuracyHistogram(summary.sessionAccuracies);
+    if (hist.values.any((v) => v > 0)) {
+      buffer.writeln('## Распределение точности');
+      for (final e in hist.entries) {
+        buffer.writeln('- ${e.key}: ${e.value}');
+      }
+      buffer.writeln();
+    }
+
+    if (summary.mistakeTag != null) {
+      buffer.writeln('## Типичная ошибка');
+      buffer.writeln(
+          '- ${summary.mistakeTag}: ${(summary.mistakeRate * 100).round()}% ошибок (${summary.mistakeErrors} из ${summary.mistakeTotal})');
+      buffer.writeln();
+    }
+
+    if (summary.errorTagEntries.isNotEmpty) {
+      buffer.writeln('## Ошибки по тегам');
+      for (final e in summary.errorTagEntries) {
+        buffer.writeln('- ${e.key}: ${e.value}');
+      }
+      buffer.writeln();
+    }
+
+    if (summary.positionTotals.values.any((v) => v > 0)) {
+      buffer.writeln('## Ошибки по позициям');
+      if (summary.positionTotals['SB']! > 0) {
+        final acc = (summary.positionCorrect['SB']! / summary.positionTotals['SB']! * 100).round();
+        buffer.writeln('- SB — $acc% (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)');
+      }
+      if (summary.positionTotals['BB']! > 0) {
+        final acc = (summary.positionCorrect['BB']! / summary.positionTotals['BB']! * 100).round();
+        buffer.writeln('- BB — $acc% (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)');
+      }
+      buffer.writeln();
+    }
+
+    if (summary.tagEntries.isNotEmpty) {
+      buffer.writeln('## Использование тегов');
+      for (final e in summary.tagEntries) {
+        buffer.writeln('- ${e.key}: ${e.value}');
+      }
+    }
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/session_stats.md');
+    await file.writeAsString(buffer.toString());
+    await Share.shareXFiles([XFile(file.path)], text: 'session_stats.md');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Файл сохранён: session_stats.md')),
+      );
+    }
+  }
+
+  Future<void> _exportPdf(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final notes = context.read<SessionNoteService>();
+    final summary = _gatherStats(manager, notes);
+
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+    final hist = _accuracyHistogram(summary.sessionAccuracies);
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (ctx) {
+          return [
+            pw.Text('Статистика сессий',
+                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 16),
+            pw.Text('Всего раздач: ${summary.totalHands}',
+                style: pw.TextStyle(font: regularFont)),
+            pw.Text('Средняя длительность: ${_formatDuration(summary.avgDuration)}',
+                style: pw.TextStyle(font: regularFont)),
+            if (summary.overallAccuracy != null)
+              pw.Text('Точность: ${summary.overallAccuracy!.toStringAsFixed(1)}%',
+                  style: pw.TextStyle(font: regularFont)),
+            pw.Text('Сессий с заметками: ${summary.sessionsWithNotes}',
+                style: pw.TextStyle(font: regularFont)),
+            pw.Text(
+                'Сессий с точностью > 80%: ${summary.sessionsAbove80} из ${summary.sessionsCount}',
+                style: pw.TextStyle(font: regularFont)),
+            pw.Text('Цель месяца: ${summary.sessionsAbove90} из 10',
+                style: pw.TextStyle(font: regularFont)),
+            if (hist.values.any((v) => v > 0)) ...[
+              pw.SizedBox(height: 12),
+              pw.Text('Распределение точности',
+                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              for (final e in hist.entries)
+                pw.Text('${e.key}: ${e.value}',
+                    style: pw.TextStyle(font: regularFont)),
+            ],
+            if (summary.mistakeTag != null) ...[
+              pw.SizedBox(height: 12),
+              pw.Text('Типичная ошибка',
+                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              pw.Text(
+                  '${summary.mistakeTag}: ${(summary.mistakeRate * 100).round()}% ошибок (${summary.mistakeErrors} из ${summary.mistakeTotal})',
+                  style: pw.TextStyle(font: regularFont)),
+            ],
+            if (summary.errorTagEntries.isNotEmpty) ...[
+              pw.SizedBox(height: 12),
+              pw.Text('Ошибки по тегам',
+                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              for (final e in summary.errorTagEntries)
+                pw.Text('${e.key}: ${e.value}',
+                    style: pw.TextStyle(font: regularFont)),
+            ],
+            if (summary.positionTotals.values.any((v) => v > 0)) ...[
+              pw.SizedBox(height: 12),
+              pw.Text('Ошибки по позициям',
+                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              if (summary.positionTotals['SB']! > 0)
+                pw.Text(
+                    'SB — ${(summary.positionCorrect['SB']! / summary.positionTotals['SB']! * 100).round()}% точность (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)',
+                    style: pw.TextStyle(font: regularFont)),
+              if (summary.positionTotals['BB']! > 0)
+                pw.Text(
+                    'BB — ${(summary.positionCorrect['BB']! / summary.positionTotals['BB']! * 100).round()}% точность (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)',
+                    style: pw.TextStyle(font: regularFont)),
+            ],
+            if (summary.tagEntries.isNotEmpty) ...[
+              pw.SizedBox(height: 12),
+              pw.Text('Использование тегов',
+                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              for (final e in summary.tagEntries)
+                pw.Text('${e.key}: ${e.value}',
+                    style: pw.TextStyle(font: regularFont)),
+            ],
+          ];
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/session_stats.pdf');
+    await file.writeAsBytes(bytes);
+    await Share.shareXFiles([XFile(file.path)], text: 'session_stats.pdf');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Файл сохранён: session_stats.pdf')),
+      );
+    }
+  }
+
+  Future<void> _showExportOptions() async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.description),
+              title: const Text('Markdown'),
+              onTap: () => Navigator.pop(ctx, 'md'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf),
+              title: const Text('PDF'),
+              onTap: () => Navigator.pop(ctx, 'pdf'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (result == 'md') {
+      await _exportMarkdown(context);
+    } else if (result == 'pdf') {
+      await _exportPdf(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final manager = context.watch<SavedHandManagerService>();
+    final notes = context.watch<SessionNoteService>();
+    final summary = _gatherStats(manager, notes);
+
+    final weekly = summary.weekly;
+    final spots = <FlSpot>[];
+    for (var i = 0; i < weekly.length; i++) {
+      spots.add(FlSpot(i.toDouble(), weekly[i].winrate));
+    }
+    final step = (weekly.length / 6).ceil();
+
+    final line = LineChartBarData(
+      spots: spots,
+      isCurved: true,
+      color: Colors.greenAccent,
+      barWidth: 2,
+      dotData: FlDotData(show: false),
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Статистика сессий'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save_alt),
+            tooltip: 'Экспорт',
+            onPressed: _showExportOptions,
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -329,14 +583,14 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 child: const Text('Сбросить фильтр'),
               ),
             ),
-          _buildStat('Всего раздач', totalHands.toString()),
-          _buildStat('Сред. длительность', _formatDuration(avgDuration)),
-          if (overallAccuracy != null)
-            _buildStat('Точность', '${overallAccuracy.toStringAsFixed(1)}%'),
-          _buildStat('Сессий с заметками', sessionsWithNotes.toString()),
-          _buildAccuracyProgress(context, sessionsAbove80, sessionsCount),
-          _buildGoalProgress(context, sessionsAbove90),
-          SessionAccuracyDistributionChart(accuracies: sessionAccuracies),
+          _buildStat('Всего раздач', summary.totalHands.toString()),
+          _buildStat('Сред. длительность', _formatDuration(summary.avgDuration)),
+          if (summary.overallAccuracy != null)
+            _buildStat('Точность', '${summary.overallAccuracy!.toStringAsFixed(1)}%'),
+          _buildStat('Сессий с заметками', summary.sessionsWithNotes.toString()),
+          _buildAccuracyProgress(context, summary.sessionsAbove80, summary.sessionsCount),
+          _buildGoalProgress(context, summary.sessionsAbove90),
+          SessionAccuracyDistributionChart(accuracies: summary.sessionAccuracies),
           const SizedBox(height: 16),
           if (weekly.length > 1)
             Container(
@@ -407,7 +661,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 ),
               ),
             ),
-          if (mistakeTag != null) ...[
+          if (summary.mistakeTag != null) ...[
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
@@ -428,7 +682,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                             style: TextStyle(color: Colors.white70)),
                         const SizedBox(height: 4),
                         Text(
-                          '$mistakeTag: ${(highestRate * 100).round()}% ошибок ($mistakeErrors из $mistakeTotal)',
+                          '${summary.mistakeTag}: ${(summary.mistakeRate * 100).round()}% ошибок (${summary.mistakeErrors} из ${summary.mistakeTotal})',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ],
@@ -438,32 +692,32 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
               ),
             ),
           ],
-          if (tagEntries.isNotEmpty) ...[
+          if (summary.tagEntries.isNotEmpty) ...[
             const SizedBox(height: 16),
             const Text('Использование тегов',
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            for (final e in tagEntries) _buildTag(context, e.key, e.value),
+            for (final e in summary.tagEntries) _buildTag(context, e.key, e.value),
           ],
-          if (errorTagEntries.isNotEmpty) ...[
+          if (summary.errorTagEntries.isNotEmpty) ...[
             const SizedBox(height: 16),
             const Text('Ошибки по тегам',
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            for (final e in errorTagEntries)
+            for (final e in summary.errorTagEntries)
               _buildStat(e.key, e.value.toString()),
           ],
-          if (positionTotals.values.any((v) => v > 0)) ...[
+          if (summary.positionTotals.values.any((v) => v > 0)) ...[
             const SizedBox(height: 16),
             const Text('Ошибки по позициям',
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            if (positionTotals['SB']! > 0)
+            if (summary.positionTotals['SB']! > 0)
               _buildPositionRow(
-                  'SB', positionCorrect['SB']!, positionTotals['SB']!),
-            if (positionTotals['BB']! > 0)
+                  'SB', summary.positionCorrect['SB']!, summary.positionTotals['SB']!),
+            if (summary.positionTotals['BB']! > 0)
               _buildPositionRow(
-                  'BB', positionCorrect['BB']!, positionTotals['BB']!),
+                  'BB', summary.positionCorrect['BB']!, summary.positionTotals['BB']!),
           ],
         ],
       ),
@@ -476,5 +730,45 @@ class _WeekData {
   final double winrate;
 
   _WeekData(this.weekStart, this.winrate);
+}
+
+class _StatsSummary {
+  final int totalHands;
+  final int sessionsCount;
+  final Duration avgDuration;
+  final double? overallAccuracy;
+  final int sessionsWithNotes;
+  final int sessionsAbove80;
+  final int sessionsAbove90;
+  final List<double> sessionAccuracies;
+  final List<_WeekData> weekly;
+  final List<MapEntry<String, int>> tagEntries;
+  final List<MapEntry<String, int>> errorTagEntries;
+  final Map<String, int> positionTotals;
+  final Map<String, int> positionCorrect;
+  final String? mistakeTag;
+  final int mistakeTotal;
+  final int mistakeErrors;
+  final double mistakeRate;
+
+  const _StatsSummary({
+    required this.totalHands,
+    required this.sessionsCount,
+    required this.avgDuration,
+    required this.overallAccuracy,
+    required this.sessionsWithNotes,
+    required this.sessionsAbove80,
+    required this.sessionsAbove90,
+    required this.sessionAccuracies,
+    required this.weekly,
+    required this.tagEntries,
+    required this.errorTagEntries,
+    required this.positionTotals,
+    required this.positionCorrect,
+    required this.mistakeTag,
+    required this.mistakeTotal,
+    required this.mistakeErrors,
+    required this.mistakeRate,
+  });
 }
 
