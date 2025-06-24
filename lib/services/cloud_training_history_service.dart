@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/result_entry.dart';
 import '../models/session_summary.dart';
+import '../models/cloud_history_entry.dart';
 
 /// Simple storage for cloud training history.
 /// Each session is stored as a JSON file per user.
@@ -45,7 +46,7 @@ class CloudTrainingHistoryService {
   }
 
   /// Load all stored training sessions for the current user.
-  Future<List<SessionSummary>> loadSessions() async {
+  Future<List<CloudHistoryEntry>> loadSessions() async {
     final userId = await _getUserId();
     final dir = await getApplicationDocumentsDirectory();
     final subdir = Directory('${dir.path}/cloud_training_history/$userId');
@@ -55,7 +56,7 @@ class CloudTrainingHistoryService {
         .where((e) => e is File && e.path.endsWith('.json'))
         .toList();
     files.sort((a, b) => b.path.compareTo(a.path));
-    final List<SessionSummary> sessions = [];
+    final List<CloudHistoryEntry> sessions = [];
     for (final entity in files) {
       final file = entity as File;
       try {
@@ -73,12 +74,21 @@ class CloudTrainingHistoryService {
                 .whereType<Map>()
                 .where((e) => e['correct'] == true)
                 .length;
-            sessions.add(SessionSummary(
-                date: date, total: total, correct: correct));
+            sessions.add(CloudHistoryEntry(
+                path: file.path,
+                summary:
+                    SessionSummary(date: date, total: total, correct: correct)));
           }
         }
       } catch (_) {}
     }
     return sessions;
+  }
+
+  Future<void> deleteSession(String path) async {
+    final file = File(path);
+    if (await file.exists()) {
+      await file.delete();
+    }
   }
 }

@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../helpers/date_utils.dart';
-import '../models/session_summary.dart';
+import '../models/cloud_history_entry.dart';
 import '../services/cloud_training_history_service.dart';
 
 enum _SortOption { newest, oldest, accuracyDesc, accuracyAsc }
@@ -18,7 +18,7 @@ class CloudTrainingHistoryScreen extends StatefulWidget {
 }
 
 class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen> {
-  List<SessionSummary> _sessions = [];
+  List<CloudHistoryEntry> _sessions = [];
   _SortOption _sort = _SortOption.newest;
 
   @override
@@ -36,19 +36,21 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
     }
   }
 
-  void _sortList(List<SessionSummary> list) {
+  void _sortList(List<CloudHistoryEntry> list) {
     switch (_sort) {
       case _SortOption.newest:
-        list.sort((a, b) => b.date.compareTo(a.date));
+        list.sort((a, b) => b.summary.date.compareTo(a.summary.date));
         break;
       case _SortOption.oldest:
-        list.sort((a, b) => a.date.compareTo(b.date));
+        list.sort((a, b) => a.summary.date.compareTo(b.summary.date));
         break;
       case _SortOption.accuracyDesc:
-        list.sort((a, b) => b.accuracy.compareTo(a.accuracy));
+        list.sort(
+            (a, b) => b.summary.accuracy.compareTo(a.summary.accuracy));
         break;
       case _SortOption.accuracyAsc:
-        list.sort((a, b) => a.accuracy.compareTo(b.accuracy));
+        list.sort(
+            (a, b) => a.summary.accuracy.compareTo(b.summary.accuracy));
         break;
     }
   }
@@ -58,8 +60,9 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
 
     final buffer = StringBuffer();
     for (final s in _sessions) {
+      final sum = s.summary;
       buffer.writeln(
-          '- ${formatDateTime(s.date)}: ${s.correct}/${s.total} (${s.accuracy.toStringAsFixed(1)}%)');
+          '- ${formatDateTime(sum.date)}: ${sum.correct}/${sum.total} (${sum.accuracy.toStringAsFixed(1)}%)');
     }
 
     final dir = await getApplicationDocumentsDirectory();
@@ -121,7 +124,8 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
               itemCount: _sessions.length,
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final s = _sessions[index];
+                final entry = _sessions[index];
+                final s = entry.summary;
                 return ListTile(
                   title: Text(
                     formatDateTime(s.date),
@@ -131,6 +135,36 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
                     '${s.correct}/${s.total} • ${s.accuracy.toStringAsFixed(1)}%',
                     style: const TextStyle(color: Colors.white70),
                   ),
+                  onLongPress: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Delete Session?'),
+                          content: const Text(
+                              'Are you sure you want to delete this session?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    if (confirm == true) {
+                      final service =
+                          context.read<CloudTrainingHistoryService>();
+                      await service.deleteSession(entry.path);
+                      if (mounted) {
+                        setState(() => _sessions.removeAt(index));
+                      }
+                    }
+                  },
                 );
               },
             ),
