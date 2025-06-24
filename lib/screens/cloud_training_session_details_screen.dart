@@ -318,40 +318,43 @@ class _CloudTrainingSessionDetailsScreenState
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       final r = results[index];
-                      return Container(
+                      return Card(
+                        color: const Color(0xFF2A2B2E),
                         margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2A2B2E),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              r.correct ? Icons.check : Icons.close,
-                              color: r.correct ? Colors.green : Colors.red,
+                        child: ExpansionTile(
+                          collapsedIconColor: Colors.white,
+                          iconColor: Colors.white,
+                          textColor: Colors.white,
+                          collapsedTextColor: Colors.white,
+                          leading: Icon(
+                            r.correct ? Icons.check : Icons.close,
+                            color: r.correct ? Colors.green : Colors.red,
+                          ),
+                          title: Text(
+                            r.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    r.name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text('Вы: ${r.userAction}',
-                                      style:
-                                          const TextStyle(color: Colors.white70)),
-                                  Text('Ожидалось: ${r.expected}',
-                                      style:
-                                          const TextStyle(color: Colors.white70)),
-                                ],
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 4),
+                              Text('Вы: ${r.userAction}',
+                                  style:
+                                      const TextStyle(color: Colors.white70)),
+                              Text('Ожидалось: ${r.expected}',
+                                  style:
+                                      const TextStyle(color: Colors.white70)),
+                            ],
+                          ),
+                          children: const [
+                            Padding(
+                              padding: EdgeInsets.all(12.0),
+                              child: Text(
+                                'Тут будет анализ этой раздачи',
+                                style: TextStyle(color: Colors.white70),
                               ),
                             ),
                           ],
