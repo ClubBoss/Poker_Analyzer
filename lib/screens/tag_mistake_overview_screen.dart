@@ -51,12 +51,6 @@ class _TagMistakeHandsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
-    final filtered = hands.where((h) {
-      final expected = h.expectedAction?.trim().toLowerCase();
-      final gto = h.gtoAction?.trim().toLowerCase();
-      final isError = expected != null && gto != null && expected != gto;
-      return isError && h.tags.contains(tag);
-    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -64,7 +58,9 @@ class _TagMistakeHandsScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SavedHandListView(
-        hands: filtered,
+        hands: hands,
+        tags: [tag],
+        accuracy: 'errors',
         title: 'Ошибки: $tag',
         onTap: (hand) {
           Navigator.push(
