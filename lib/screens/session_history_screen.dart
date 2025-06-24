@@ -330,11 +330,37 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                     separatorBuilder: (_, __) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final s = sessions[index];
-                      return ListTile(
-                        title: Text(
-                          formatDateTime(s.end),
-                          style: const TextStyle(color: Colors.white),
+                      return Dismissible(
+                        key: ValueKey(s.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: const Icon(Icons.delete, color: Colors.white),
                         ),
+                        onDismissed: (_) async {
+                          final removed =
+                              await manager.removeSession(s.id);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Сессия удалена'),
+                                action: SnackBarAction(
+                                  label: 'Undo',
+                                  onPressed: () async {
+                                    await manager.restoreSession(removed);
+                                  },
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child: ListTile(
+                          title: Text(
+                            formatDateTime(s.end),
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -386,6 +412,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                             ),
                           );
                         },
+                      ),
                       );
                     },
                   ),
