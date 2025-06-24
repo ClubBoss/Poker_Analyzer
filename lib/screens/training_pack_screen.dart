@@ -1560,6 +1560,7 @@ class TrainingAnalysisScreen extends StatefulWidget {
 }
 
 class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
+  bool _onlyErrors = false;
   @override
   void dispose() {
     final history = context.read<CloudTrainingHistoryService>();
@@ -1688,7 +1689,10 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final mistakes = widget.results.where((r) => !r.correct).toList();
+    final results = _onlyErrors
+        ? widget.results.where((r) => !r.correct).toList()
+        : widget.results;
+    final mistakes = results.where((r) => !r.correct).toList();
     final Map<String, int> actionCounts = {};
     for (final m in mistakes) {
       actionCounts[m.userAction] = (actionCounts[m.userAction] ?? 0) + 1;
@@ -1717,24 +1721,42 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
         ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
-      body: mistakes.isEmpty
+      body: results.isEmpty
           ? const Center(
               child: Text(
-                'Ошибок нет',
+                'Нет данных',
                 style: TextStyle(color: Colors.white70),
               ),
             )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: mistakes.length + (dataMap.isNotEmpty ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index >= mistakes.length) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Column(
-                      children: [
-                        PieChart(
-                          dataMap: dataMap,
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Только ошибки',
+                          style: TextStyle(color: Colors.white)),
+                      Switch(
+                        value: _onlyErrors,
+                        onChanged: (v) => setState(() => _onlyErrors = v),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(color: Colors.white12, height: 1),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: results.length + (mistakes.isNotEmpty ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index >= results.length) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Column(
+                              children: [
+                                PieChart(
+                                  dataMap: dataMap,
                           colorList: [
                             for (var i = 0; i < dataMap.length; i++)
                               baseColors[i % baseColors.length],
@@ -1762,7 +1784,7 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
                     ),
                   );
                 }
-                final m = mistakes[index];
+                final m = results[index];
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   padding: const EdgeInsets.all(12),
