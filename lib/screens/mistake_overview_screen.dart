@@ -18,11 +18,17 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
     with SingleTickerProviderStateMixin {
   late TabController _controller;
   String _dateFilter = 'Все';
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: 3, vsync: this);
+    _controller.addListener(() {
+      if (_currentIndex != _controller.index) {
+        setState(() => _currentIndex = _controller.index);
+      }
+    });
   }
 
   @override
@@ -86,17 +92,43 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
             ),
           ),
           Expanded(
-            child: TabBarView(
-              controller: _controller,
-              children: [
-                TagMistakeOverviewScreen(dateFilter: _dateFilter),
-                PositionMistakeOverviewScreen(dateFilter: _dateFilter),
-                StreetMistakeOverviewScreen(dateFilter: _dateFilter),
-              ],
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                final offset = Tween<Offset>(
+                  begin: const Offset(0, 0.1),
+                  end: Offset.zero,
+                ).animate(animation);
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(position: offset, child: child),
+                );
+              },
+              child: _buildCurrentTab(),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildCurrentTab() {
+    switch (_currentIndex) {
+      case 0:
+        return TagMistakeOverviewScreen(
+          key: ValueKey('tag-$_dateFilter'),
+          dateFilter: _dateFilter,
+        );
+      case 1:
+        return PositionMistakeOverviewScreen(
+          key: ValueKey('position-$_dateFilter'),
+          dateFilter: _dateFilter,
+        );
+      default:
+        return StreetMistakeOverviewScreen(
+          key: ValueKey('street-$_dateFilter'),
+          dateFilter: _dateFilter,
+        );
+    }
   }
 }
