@@ -15,6 +15,19 @@ class SessionHandsScreen extends StatelessWidget {
 
   const SessionHandsScreen({super.key, required this.sessionId});
 
+  String _actionType(SavedHand hand) {
+    final expected = hand.expectedAction?.trim().toLowerCase();
+    final gto = hand.gtoAction?.trim().toLowerCase();
+    if (expected != null && gto != null && expected != gto) {
+      return 'Error';
+    }
+    if (expected == null || expected.isEmpty) return 'Other';
+    if (expected.contains('push')) return 'Push';
+    if (expected.contains('call')) return 'Call';
+    if (expected.contains('fold')) return 'Fold';
+    return 'Other';
+  }
+
   String _formatDuration(Duration d) {
     final hours = d.inHours;
     final minutes = d.inMinutes.remainder(60);
@@ -103,6 +116,56 @@ class SessionHandsScreen extends StatelessWidget {
         .toList()
       ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
 
+    Widget _buildGroupedList() {
+      final groups = <String, List<SavedHand>>{
+        'Push': [],
+        'Call': [],
+        'Fold': [],
+        'Error': [],
+        'Other': [],
+      };
+      for (final h in hands) {
+        groups[_actionType(h)]!.add(h);
+      }
+
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          for (final entry in groups.entries)
+            if (entry.value.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  entry.key,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              for (final hand in entry.value)
+                SavedHandTile(
+                  hand: hand,
+                  onFavoriteToggle: () {
+                    final originalIndex = manager.hands.indexOf(hand);
+                    final updated = hand.copyWith(isFavorite: !hand.isFavorite);
+                    manager.update(originalIndex, updated);
+                  },
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => HandHistoryReviewScreen(hand: hand),
+                      ),
+                    );
+                  },
+                ),
+            ]
+        ],
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Сессия $sessionId'),
@@ -138,32 +201,7 @@ class SessionHandsScreen extends StatelessWidget {
                   ),
                 ),
                 _buildSummary(hands),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: hands.length,
-                    itemBuilder: (context, index) {
-                      final hand = hands[index];
-                      final originalIndex = manager.hands.indexOf(hand);
-                      return SavedHandTile(
-                        hand: hand,
-                        onFavoriteToggle: () {
-                          final updated =
-                              hand.copyWith(isFavorite: !hand.isFavorite);
-                          manager.update(originalIndex, updated);
-                        },
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => HandHistoryReviewScreen(hand: hand),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
+                Expanded(child: _buildGroupedList()),
               ],
             ),
     );
