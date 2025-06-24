@@ -194,50 +194,52 @@ class MistakeRepeatScreen extends StatelessWidget {
               color: Colors.grey[850],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        entry.key,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+            child: Theme(
+              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                tilePadding: const EdgeInsets.all(12),
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                textColor: Colors.white,
+                collapsedTextColor: Colors.white,
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      entry.key,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(
-                        '${entry.value.length}',
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      '${entry.value.length}',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ],
                 ),
-                const Divider(height: 1),
-                for (final hand in entry.value)
-                  SavedHandTile(
-                    hand: hand,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              HandHistoryReviewScreen(hand: hand),
-                        ),
-                      );
-                    },
-                    onFavoriteToggle: () {
-                      final manager =
-                          context.read<SavedHandManagerService>();
-                      final idx = manager.hands.indexOf(hand);
-                      manager.update(idx, hand.copyWith(isFavorite: !hand.isFavorite));
-                    },
-                  ),
-              ],
+                children: [
+                  for (final hand in entry.value)
+                    SavedHandTile(
+                      hand: hand,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HandHistoryReviewScreen(hand: hand),
+                          ),
+                        );
+                      },
+                      onFavoriteToggle: () {
+                        final manager =
+                            context.read<SavedHandManagerService>();
+                        final idx = manager.hands.indexOf(hand);
+                        manager.update(idx,
+                            hand.copyWith(isFavorite: !hand.isFavorite));
+                      },
+                    ),
+                ],
+              ),
             ),
           );
         },
