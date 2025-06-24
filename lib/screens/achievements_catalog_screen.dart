@@ -1,44 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class AchievementCatalogEntry {
-  final String title;
-  final IconData icon;
-  final int progress;
-  final int target;
-
-  const AchievementCatalogEntry({
-    required this.title,
-    required this.icon,
-    required this.progress,
-    required this.target,
-  });
-
-  bool get completed => progress >= target;
-}
+import '../services/goals_service.dart';
+import '../services/saved_hand_manager_service.dart';
+import '../services/evaluation_executor_service.dart';
+import '../services/streak_service.dart';
 
 class AchievementsCatalogScreen extends StatelessWidget {
   const AchievementsCatalogScreen({super.key});
-
-  static const List<AchievementCatalogEntry> _mockData = [
-    AchievementCatalogEntry(
-      title: 'Разобрать 5 ошибок',
-      icon: Icons.bug_report,
-      progress: 2,
-      target: 5,
-    ),
-    AchievementCatalogEntry(
-      title: '3 дня подряд',
-      icon: Icons.local_fire_department,
-      progress: 1,
-      target: 3,
-    ),
-    AchievementCatalogEntry(
-      title: 'Цель выполнена',
-      icon: Icons.flag,
-      progress: 0,
-      target: 1,
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -48,33 +17,49 @@ class AchievementsCatalogScreen extends StatelessWidget {
         title: const Text('Каталог достижений'),
         centerTitle: true,
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _mockData.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.2,
-        ),
-        itemBuilder: (context, index) {
-          final item = _mockData[index];
-          final completed = item.completed;
-          final color = completed ? Colors.white : Colors.white54;
-          Widget icon = Icon(item.icon, size: 40, color: accent);
-          if (!completed) {
-            icon = ColorFiltered(
-              colorFilter:
-                  const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-              child: icon,
-            );
-          }
-          return Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[850],
-              borderRadius: BorderRadius.circular(8),
+      body: Builder(
+        builder: (context) {
+          final handManager = context.watch<SavedHandManagerService>();
+          final eval = context.watch<EvaluationExecutorService>();
+          final streak = context.watch<StreakService>().count;
+          final goals = context.watch<GoalsService>();
+
+          final summary = eval.summarizeHands(handManager.hands);
+          goals.updateAchievements(
+            correctHands: summary.correct,
+            streakDays: streak,
+            goalCompleted: goals.anyCompleted,
+          );
+
+          final data = goals.achievements;
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: data.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.2,
             ),
+            itemBuilder: (context, index) {
+              final item = data[index];
+              final completed = item.completed;
+              final color = completed ? Colors.white : Colors.white54;
+              Widget icon = Icon(item.icon, size: 40, color: accent);
+              if (!completed) {
+                icon = ColorFiltered(
+                  colorFilter:
+                      const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                  child: icon,
+                );
+              }
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(8),
+                ),
             child: Stack(
               children: [
                 Column(
@@ -124,6 +109,8 @@ class AchievementsCatalogScreen extends StatelessWidget {
                   ),
               ],
             ),
+          );
+            },
           );
         },
       ),
