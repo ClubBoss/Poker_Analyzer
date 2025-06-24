@@ -151,11 +151,21 @@ class _CloudTrainingSessionDetailsScreenState
 
   Future<void> _exportMarkdown(BuildContext context) async {
     if (widget.session.results.isEmpty) return;
+    final hands = context.read<SavedHandManagerService>().hands;
+    final handMap = {for (final h in hands) h.name: h};
     final buffer = StringBuffer();
     for (final r in widget.session.results) {
-      final result = r.correct ? 'correct' : 'wrong';
-      buffer.writeln(
-          '- ${r.name}: user `${r.userAction}`, expected `${r.expected}` - $result');
+      if (r.correct) continue;
+      final hand = handMap[r.name];
+      final gto = hand?.gtoAction;
+      final group = hand?.rangeGroup;
+      var line =
+          '- ${r.name}: выбрано `${r.userAction}`, ожидалось `${r.expected}`';
+      final extras = <String>[];
+      if (gto != null && gto.isNotEmpty) extras.add('GTO: `$gto`');
+      if (group != null && group.isNotEmpty) extras.add('группа: `$group`');
+      if (extras.isNotEmpty) line += '. ${extras.join(', ')}';
+      buffer.writeln(line);
     }
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/cloud_session.md');
