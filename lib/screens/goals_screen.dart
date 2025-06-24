@@ -40,6 +40,133 @@ class GoalsScreen extends StatefulWidget {
   State<GoalsScreen> createState() => _GoalsScreenState();
 }
 
+class GoalCard extends StatefulWidget {
+  final Goal goal;
+  final double progress;
+  final int displayProgress;
+  final bool completed;
+  final Color accent;
+  final VoidCallback? onReset;
+
+  const GoalCard({
+    super.key,
+    required this.goal,
+    required this.progress,
+    required this.displayProgress,
+    required this.completed,
+    required this.accent,
+    this.onReset,
+  });
+
+  @override
+  State<GoalCard> createState() => _GoalCardState();
+}
+
+class _GoalCardState extends State<GoalCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    if (widget.completed) {
+      _controller.value = 1;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant GoalCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.completed && !oldWidget.completed) {
+      _controller.forward(from: 0);
+    } else if (!widget.completed && oldWidget.completed) {
+      _controller.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final glow = math.sin(_controller.value * math.pi);
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: widget.completed ? Colors.green[900] : Colors.grey[850],
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: widget.completed
+                ? [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(glow),
+                      blurRadius: 20 * glow,
+                      spreadRadius: 2 * glow,
+                    )
+                  ]
+                : null,
+          ),
+          child: child,
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (widget.goal.icon != null) ...[
+                Icon(widget.goal.icon, color: widget.accent),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(
+                  widget.goal.title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (widget.completed) ...[
+                const Icon(Icons.check_circle, color: Colors.green),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 18),
+                  tooltip: 'Сбросить цель',
+                  style: IconButton.styleFrom(shape: const CircleBorder()),
+                  onPressed: widget.onReset,
+                ),
+              ] else
+                Text('${widget.displayProgress}/${widget.goal.target}')
+            ],
+          ),
+          if (!widget.completed) ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: widget.progress,
+                backgroundColor: Colors.white24,
+                valueColor: AlwaysStoppedAnimation<Color>(widget.accent),
+                minHeight: 6,
+              ),
+            ),
+          ]
+        ],
+      ),
+    );
+  }
+}
+
 class _GoalsScreenState extends State<GoalsScreen> {
   late List<Goal> _goals;
 
@@ -108,58 +235,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
       final progress = (adjusted / goal.target).clamp(0.0, 1.0);
       final isCompleted = goal.progress >= goal.target;
 
-      final card = Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isCompleted ? Colors.green[900] : Colors.grey[850],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                if (goal.icon != null) ...[
-                  Icon(goal.icon, color: accent),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: Text(
-                    goal.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (isCompleted) ...[
-                  const Icon(Icons.check_circle, color: Colors.green),
-                  IconButton(
-                    icon: const Icon(Icons.refresh, size: 18),
-                    tooltip: 'Сбросить цель',
-                    style: IconButton.styleFrom(shape: const CircleBorder()),
-                    onPressed: () => _resetGoal(index),
-                  ),
-                ]
-                else
-                  Text('$adjusted/${goal.target}')
-              ],
-            ),
-            if (!isCompleted) ...[
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(accent),
-                  minHeight: 6,
-                ),
-              ),
-            ]
-          ],
-        ),
+      final card = GoalCard(
+        goal: goal,
+        progress: progress,
+        displayProgress: adjusted,
+        completed: isCompleted,
+        accent: accent,
+        onReset: isCompleted ? () => _resetGoal(index) : null,
       );
 
       if (isCompleted) {
