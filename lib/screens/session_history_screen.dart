@@ -9,6 +9,7 @@ import '../services/session_pin_service.dart';
 import '../helpers/date_utils.dart';
 import '../theme/constants.dart';
 import 'session_hands_screen.dart';
+import 'compare_sessions_screen.dart';
 
 class SessionHistoryScreen extends StatefulWidget {
   const SessionHistoryScreen({super.key});
@@ -46,6 +47,27 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
   final TextEditingController _maxDurationCtrl = TextEditingController();
   final TextEditingController _minHandsCtrl = TextEditingController();
   bool _onlyWithNotes = false;
+  final Set<int> _selected = {};
+
+  bool get _selectionMode => _selected.isNotEmpty;
+
+  void _toggleSelect(int id) {
+    setState(() {
+      if (_selected.contains(id)) {
+        _selected.remove(id);
+      } else {
+        if (_selected.length < 2) {
+          _selected.add(id);
+        }
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() {
+      _selected.clear();
+    });
+  }
 
   @override
   void dispose() {
@@ -224,6 +246,13 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
       appBar: AppBar(
         title: const Text('История сессий'),
         centerTitle: true,
+        actions: [
+          if (_selectionMode)
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: _clearSelection,
+            ),
+        ],
       ),
       body: Column(
         children: [
@@ -324,6 +353,24 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                     ],
                   ),
                 ],
+                if (_selected.length == 2) ...[
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      final ids = _selected.toList();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CompareSessionsScreen(
+                            firstId: ids[0],
+                            secondId: ids[1],
+                          ),
+                        ),
+                      ).then((_) => _clearSelection());
+                    },
+                    child: const Text('Сравнить'),
+                  ),
+                ],
               ],
             ),
           ),
@@ -368,12 +415,18 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                           }
                         },
                         child: Container(
-                          decoration: pins.isPinned(s.id)
-                              ? BoxDecoration(
-                                  border: Border.all(color: Colors.white24),
-                                  borderRadius: BorderRadius.circular(4),
-                                )
-                              : null,
+                          decoration: BoxDecoration(
+                            color: _selected.contains(s.id)
+                                ? Colors.blue.withOpacity(0.3)
+                                : null,
+                            border: pins.isPinned(s.id)
+                                ? Border.all(color: Colors.white24)
+                                : null,
+                            borderRadius: (_selected.contains(s.id) ||
+                                    pins.isPinned(s.id))
+                                ? BorderRadius.circular(4)
+                                : null,
+                          ),
                           child: ListTile(
                             leading: IconButton(
                               icon: Icon(
@@ -434,14 +487,19 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                               ],
                             ),
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      SessionHandsScreen(sessionId: s.id),
-                                ),
-                              );
+                              if (_selectionMode) {
+                                _toggleSelect(s.id);
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        SessionHandsScreen(sessionId: s.id),
+                                  ),
+                                );
+                              }
                             },
+                            onLongPress: () => _toggleSelect(s.id),
                           ),
                         ),
                       );
