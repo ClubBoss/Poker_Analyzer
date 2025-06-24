@@ -101,6 +101,40 @@ class SessionStatsScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildGoalProgress(BuildContext context, int good) {
+    final progress = (good / 10.0).clamp(0.0, 1.0);
+    final accent = Theme.of(context).colorScheme.secondary;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Flexible(
+                child: Text('Цель месяца: 10 сессий с точностью > 90%',
+                    style: TextStyle(color: Colors.white70)),
+              ),
+              Text('$good из 10',
+                  style: const TextStyle(color: Colors.white)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.white24,
+              valueColor: AlwaysStoppedAnimation<Color>(accent),
+              minHeight: 6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
@@ -113,6 +147,7 @@ class SessionStatsScreen extends StatelessWidget {
     int totalIncorrect = 0;
     int sessionsWithNotes = 0;
     int sessionsAbove80 = 0;
+    int sessionsAbove90 = 0;
 
     for (final entry in grouped.entries) {
       final id = entry.key;
@@ -142,6 +177,9 @@ class SessionStatsScreen extends StatelessWidget {
       final total = correct + incorrect;
       if (total > 0 && (correct / total * 100) >= 80) {
         sessionsAbove80++;
+      }
+      if (total > 0 && (correct / total * 100) >= 90) {
+        sessionsAbove90++;
       }
 
       final note = notes.noteFor(id);
@@ -205,6 +243,7 @@ class SessionStatsScreen extends StatelessWidget {
             _buildStat('Точность', '${overallAccuracy.toStringAsFixed(1)}%'),
           _buildStat('Сессий с заметками', sessionsWithNotes.toString()),
           _buildAccuracyProgress(context, sessionsAbove80, sessionsCount),
+          _buildGoalProgress(context, sessionsAbove90),
           const SizedBox(height: 16),
           if (weekly.length > 1)
             Container(
