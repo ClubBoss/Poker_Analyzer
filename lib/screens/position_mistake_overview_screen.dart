@@ -12,6 +12,8 @@ import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../models/mistake_severity.dart';
+import '../models/mistake_sort_option.dart';
+import '../theme/app_colors.dart';
 import '../services/ignored_mistake_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
@@ -25,9 +27,16 @@ import 'hand_history_review_screen.dart';
 /// position opens a filtered [SavedHandListView] showing only the mistaken
 /// hands for the chosen position. A share button exports the table to PDF
 /// for convenient review outside the app.
-class PositionMistakeOverviewScreen extends StatelessWidget {
+class PositionMistakeOverviewScreen extends StatefulWidget {
   final String dateFilter;
   const PositionMistakeOverviewScreen({super.key, required this.dateFilter});
+
+  @override
+  State<PositionMistakeOverviewScreen> createState() => _PositionMistakeOverviewScreenState();
+}
+
+class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewScreen> {
+  MistakeSortOption _sort = MistakeSortOption.count;
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -111,21 +120,44 @@ class PositionMistakeOverviewScreen extends StatelessWidget {
     final now = DateTime.now();
     final hands = [
       for (final h in allHands)
-        if (dateFilter == 'Все' ||
-            (dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
-            (dateFilter == '7 дней' &&
+        if (widget.dateFilter == 'Все' ||
+            (widget.dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+            (widget.dateFilter == '7 дней' &&
                 h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
-            (dateFilter == '30 дней' &&
+            (widget.dateFilter == '30 дней' &&
                 h.date.isAfter(now.subtract(const Duration(days: 30)))))
           h
     ];
     final summary =
         context.read<EvaluationExecutorService>().summarizeHands(hands);
     final ignored = context.watch<IgnoredMistakeService>().ignored;
+    final service = context.read<EvaluationExecutorService>();
     final entries = summary.positionMistakeFrequencies.entries
         .where((e) => !ignored.contains('position:${e.key}'))
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+        .toList();
+
+    int _score(MapEntry<String, int> e) {
+      final severity = service.classifySeverity(e.value);
+      switch (severity) {
+        case MistakeSeverity.high:
+          return 2;
+        case MistakeSeverity.medium:
+          return 1;
+        case MistakeSeverity.low:
+        default:
+          return 0;
+      }
+    }
+
+    if (_sort == MistakeSortOption.severity) {
+      entries.sort((a, b) {
+        final cmp = _score(b).compareTo(_score(a));
+        if (cmp != 0) return cmp;
+        return b.value.compareTo(a.value);
+      });
+    } else {
+      entries.sort((a, b) => b.value.compareTo(a.value));
+    }
 
     return CustomScrollView(
       slivers: [
@@ -146,6 +178,29 @@ class PositionMistakeOverviewScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           sliver: SliverToBoxAdapter(
             child: MistakeSummarySection(summary: summary),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          sliver: SliverToBoxAdapter(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: DropdownButton<MistakeSortOption>(
+                value: _sort,
+                dropdownColor: AppColors.cardBackground,
+                style: const TextStyle(color: Colors.white),
+                items: const [
+                  DropdownMenuItem(
+                      value: MistakeSortOption.count,
+                      child: Text('По количеству')),
+                  DropdownMenuItem(
+                      value: MistakeSortOption.severity,
+                      child: Text('По уровню')),
+                ],
+                onChanged: (v) =>
+                    setState(() => _sort = v ?? MistakeSortOption.count),
+              ),
+            ),
           ),
         ),
         if (entries.isEmpty)
@@ -196,7 +251,7 @@ class PositionMistakeOverviewScreen extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) => _PositionMistakeHandsScreen(
                             position: e.key,
-                            dateFilter: dateFilter,
+                            dateFilter: widget.dateFilter,
                           ),
                         ),
                       );
