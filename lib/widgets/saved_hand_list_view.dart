@@ -6,9 +6,13 @@
 /// show a star button.
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/saved_hand.dart';
+import '../models/mistake_severity.dart';
 import '../theme/constants.dart';
+import '../services/evaluation_executor_service.dart';
+import '../helpers/mistake_advice.dart';
 import 'saved_hand_tile.dart';
 
 class SavedHandListView extends StatelessWidget {
@@ -19,6 +23,7 @@ class SavedHandListView extends StatelessWidget {
   final String title;
   final ValueChanged<SavedHand> onTap;
   final ValueChanged<SavedHand>? onFavoriteToggle;
+  final String? filterKey;
 
   const SavedHandListView({
     super.key,
@@ -29,6 +34,7 @@ class SavedHandListView extends StatelessWidget {
     this.positions,
     this.accuracy,
     this.onFavoriteToggle,
+    this.filterKey,
   });
 
   bool _matchesAccuracy(SavedHand h) {
@@ -69,6 +75,49 @@ class SavedHandListView extends StatelessWidget {
     return {'correct': correct, 'mistakes': mistakes};
   }
 
+  Widget _buildSummaryCard(BuildContext context, int mistakes) {
+    final service = context.read<EvaluationExecutorService>();
+    final severity = service.classifySeverity(mistakes);
+    final advice = filterKey != null ? kMistakeAdvice[filterKey!] : null;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppConstants.padding16,
+        vertical: 4,
+      ),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white10,
+        borderRadius: BorderRadius.circular(AppConstants.radius8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline, color: Colors.amberAccent),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Ошибок: $mistakes',
+                    style: const TextStyle(color: Colors.white)),
+                const SizedBox(height: 2),
+                Text('Уровень: ${severity.label}',
+                    style: TextStyle(color: severity.color)),
+                if (advice != null) ...[
+                  const SizedBox(height: 4),
+                  Text(advice,
+                      style: const TextStyle(
+                          color: Colors.white70, fontSize: 12)),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filtered();
@@ -97,6 +146,8 @@ class SavedHandListView extends StatelessWidget {
             style: const TextStyle(color: Colors.white70),
           ),
         ),
+        if (filterKey != null)
+          _buildSummaryCard(context, counts['mistakes'] ?? 0),
         const SizedBox(height: 8),
         Expanded(
           child: filtered.isEmpty
