@@ -34,40 +34,60 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
 
   Future<void> _exportPdf(
       BuildContext context, SummaryResult summary, List<MapEntry<String, int>> entries) async {
-    if (entries.isEmpty) return;
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
     final pdf = pw.Document();
     final date = formatDateTime(DateTime.now());
-    final mistakes = summary.incorrect;
-    final total = summary.totalHands;
-    final accuracy = summary.accuracy;
-    final mistakePercent = total > 0 ? mistakes / total * 100 : 0.0;
 
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        build: (ctx) => [
-          pw.Text('Ошибки по улицам',
-              style: pw.TextStyle(font: boldFont, fontSize: 24)),
-          pw.SizedBox(height: 8),
-          pw.Text(date, style: pw.TextStyle(font: regularFont)),
-          pw.SizedBox(height: 16),
-            pw.Text("Ошибки: $mistakes", style: pw.TextStyle(font: regularFont)),
-            pw.SizedBox(height: 4),
-            pw.Text("Средняя точность: ${accuracy.toStringAsFixed(1)}%", style: pw.TextStyle(font: regularFont)),
-            pw.SizedBox(height: 4),
-            pw.Text("Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%", style: pw.TextStyle(font: regularFont)),
+    if (entries.isEmpty) {
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          build: (ctx) => [
+            pw.Text('Ошибки по улицам',
+                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 8),
+            pw.Text(date, style: pw.TextStyle(font: regularFont)),
             pw.SizedBox(height: 16),
-          pw.Table.fromTextArray(
-            headers: const ['Улица', 'Ошибки'],
-            data: [for (final e in entries) [e.key, e.value.toString()]],
-          ),
-        ],
-      ),
-    );
+            pw.Text('Ошибок не найдено за выбранный период.',
+                style: pw.TextStyle(font: regularFont)),
+          ],
+        ),
+      );
+    } else {
+      final mistakes = summary.incorrect;
+      final total = summary.totalHands;
+      final accuracy = summary.accuracy;
+      final mistakePercent = total > 0 ? mistakes / total * 100 : 0.0;
+
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          build: (ctx) => [
+            pw.Text('Ошибки по улицам',
+                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.SizedBox(height: 8),
+            pw.Text(date, style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 16),
+            pw.Text('Ошибки: $mistakes',
+                style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 4),
+            pw.Text('Средняя точность: ${accuracy.toStringAsFixed(1)}%',
+                style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 4),
+            pw.Text('Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
+                style: pw.TextStyle(font: regularFont)),
+            pw.SizedBox(height: 16),
+            pw.Table.fromTextArray(
+              headers: const ['Улица', 'Ошибки'],
+              data: [for (final e in entries) [e.key, e.value.toString()]],
+            ),
+          ],
+        ),
+      );
+    }
 
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
