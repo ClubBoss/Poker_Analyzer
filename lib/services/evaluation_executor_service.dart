@@ -4,6 +4,8 @@ import 'dart:math';
 import '../models/action_evaluation_request.dart';
 import '../models/evaluation_result.dart';
 import '../models/training_spot.dart';
+import '../models/saved_hand.dart';
+import '../models/summary_result.dart';
 
 /// Handles execution of a single evaluation request.
 class EvaluationExecutorService {
@@ -38,6 +40,77 @@ class EvaluationExecutorService {
       userEquity: userEquity,
       expectedEquity: expectedEquity,
       hint: correct ? null : 'Подумай о диапазоне оппонента',
+    );
+  }
+
+  /// Generates a summary for a list of saved hands.
+  SummaryResult summarizeHands(List<SavedHand> hands) {
+    final Map<int, List<SavedHand>> sessions = {};
+    for (final hand in hands) {
+      sessions.putIfAbsent(hand.sessionId, () => []).add(hand);
+    }
+
+    int correct = 0;
+    int incorrect = 0;
+    final tagErrors = <String, int>{};
+    final streets = {
+      'Preflop': 0,
+      'Flop': 0,
+      'Turn': 0,
+      'River': 0,
+    };
+    final sessionAcc = <int, double>{};
+
+    for (final entry in sessions.entries) {
+      int sCorrect = 0;
+      int sIncorrect = 0;
+      for (final hand in entry.value) {
+        final expected = hand.expectedAction;
+        final gto = hand.gtoAction;
+        if (expected != null && gto != null) {
+          if (expected.trim().toLowerCase() == gto.trim().toLowerCase()) {
+            sCorrect++;
+          } else {
+            sIncorrect++;
+            final street = hand.boardStreet.clamp(0, 3);
+            switch (street) {
+              case 0:
+                streets['Preflop'] = streets['Preflop']! + 1;
+                break;
+              case 1:
+                streets['Flop'] = streets['Flop']! + 1;
+                break;
+              case 2:
+                streets['Turn'] = streets['Turn']! + 1;
+                break;
+              default:
+                streets['River'] = streets['River']! + 1;
+            }
+            for (final tag in hand.tags) {
+              tagErrors[tag] = (tagErrors[tag] ?? 0) + 1;
+            }
+          }
+        }
+      }
+      final total = sCorrect + sIncorrect;
+      if (total > 0) {
+        sessionAcc[entry.key] = sCorrect / total * 100;
+      }
+      correct += sCorrect;
+      incorrect += sIncorrect;
+    }
+
+    final totalHands = correct + incorrect;
+    final accuracy = totalHands > 0 ? correct / totalHands * 100 : 0.0;
+
+    return SummaryResult(
+      totalHands: totalHands,
+      correct: correct,
+      incorrect: incorrect,
+      accuracy: accuracy,
+      mistakeTagFrequencies: tagErrors,
+      streetBreakdown: streets,
+      accuracyPerSession: sessionAcc,
     );
   }
 }
