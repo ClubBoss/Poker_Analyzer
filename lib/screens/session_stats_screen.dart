@@ -12,6 +12,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../services/session_note_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common/session_accuracy_distribution_chart.dart';
+import '../widgets/common/mistake_by_street_chart.dart';
 import 'saved_hands_screen.dart';
 
 class SessionStatsScreen extends StatefulWidget {
@@ -209,6 +210,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     int sessionsAbove80 = 0;
     int sessionsAbove90 = 0;
     final sessionAccuracies = <double>[];
+    final streetErrors = <int, int>{0: 0, 1: 0, 2: 0, 3: 0};
 
     for (final entry in grouped.entries) {
       final id = entry.key;
@@ -289,6 +291,10 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           positionCorrect[pos] = positionCorrect[pos]! + 1;
         }
       }
+      if (isError) {
+        final s = hand.boardStreet.clamp(0, 3);
+        streetErrors[s] = (streetErrors[s] ?? 0) + 1;
+      }
     }
     final tagEntries = tagCountsAll.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -331,6 +337,12 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       mistakeTotal: mistakeTotal,
       mistakeErrors: mistakeErrors,
       mistakeRate: highestRate,
+      mistakesByStreet: {
+        'Preflop': streetErrors[0] ?? 0,
+        'Flop': streetErrors[1] ?? 0,
+        'Turn': streetErrors[2] ?? 0,
+        'River': streetErrors[3] ?? 0,
+      },
     );
   }
 
@@ -605,6 +617,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           _buildStat('Сессий с заметками', summary.sessionsWithNotes.toString()),
           _buildAccuracyProgress(context, summary.sessionsAbove80, summary.sessionsCount),
           _buildGoalProgress(context, summary.sessionsAbove90),
+          MistakeByStreetChart(counts: summary.mistakesByStreet),
           SessionAccuracyDistributionChart(accuracies: summary.sessionAccuracies),
           const SizedBox(height: 16),
           if (weekly.length > 1)
@@ -807,6 +820,7 @@ class _StatsSummary {
   final int mistakeTotal;
   final int mistakeErrors;
   final double mistakeRate;
+  final Map<String, int> mistakesByStreet;
 
   const _StatsSummary({
     required this.totalHands,
@@ -826,6 +840,7 @@ class _StatsSummary {
     required this.mistakeTotal,
     required this.mistakeErrors,
     required this.mistakeRate,
+    required this.mistakesByStreet,
   });
 }
 
