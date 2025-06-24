@@ -31,6 +31,7 @@ import '../services/streak_service.dart';
 import 'goals_screen.dart';
 import 'mistake_repeat_screen.dart';
 import 'achievements_screen.dart';
+import '../services/goals_service.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -263,6 +264,68 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
   }
 
+  Widget _buildDailyGoalCard(BuildContext context) {
+    final goals = context.watch<GoalsService>().goals;
+    if (goals.isEmpty) return const SizedBox.shrink();
+    final goal = goals.first;
+    final progress = (goal.progress / goal.target).clamp(0.0, 1.0);
+    final accent = Theme.of(context).colorScheme.secondary;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Цель дня',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(goal.title),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.white24,
+                  valueColor: AlwaysStoppedAnimation<Color>(accent),
+                  minHeight: 6,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text('${goal.progress}/${goal.target}')
+            ],
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GoalsScreen()),
+                );
+              },
+              child: const Text('Перейти'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _toggleDemoMode(bool value) async {
     setState(() => _demoMode = value);
     await UserPreferences.instance.setDemoMode(value);
@@ -379,6 +442,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               child: const Text('🔁 Повторы ошибок'),
             ),
             const SizedBox(height: 16),
+            _buildDailyGoalCard(context),
             _buildSpotOfDaySection(context),
             ElevatedButton(
               key: _newHandButtonKey,
