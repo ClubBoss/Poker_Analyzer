@@ -43,6 +43,8 @@ where the complete UI and logic are not required.
 - Save and load played hands
 - View training history and overall statistics
 - See mistake counts grouped by tag to identify weak spots
+- Explore mistake counts by street and position for targeted review
+- Export mistake reports as PDF for sharing
 - Share your results via exported files
 - Optional checkbox lets you export only sessions that contain at least three tags
 - Pending evaluations are stored in saved hand exports so queued
