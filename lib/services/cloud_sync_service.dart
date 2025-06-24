@@ -164,7 +164,7 @@ class CloudSyncService {
             }
           }
           sessions.add(
-            CloudTrainingSession(date: date, results: results),
+            CloudTrainingSession(path: file.path, date: date, results: results),
           );
         } else if (data is Map<String, dynamic>) {
           final list = data['results'];
@@ -178,6 +178,7 @@ class CloudSyncService {
           }
           sessions.add(
             CloudTrainingSession(
+              path: file.path,
               date: date,
               results: results,
               comment: data['comment'] as String?,

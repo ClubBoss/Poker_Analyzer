@@ -1,17 +1,20 @@
 import "result_entry.dart";
 
 class CloudTrainingSession {
+  final String path;
   final DateTime date;
   final List<ResultEntry> results;
   final String? comment;
 
   CloudTrainingSession({
+    required this.path,
     required this.date,
     required this.results,
     this.comment,
   });
 
-  factory CloudTrainingSession.fromJson(Map<String, dynamic> json) {
+  factory CloudTrainingSession.fromJson(Map<String, dynamic> json,
+      {required String path}) {
     final results = <ResultEntry>[];
     final list = json['results'];
     if (list is List) {
@@ -22,6 +25,7 @@ class CloudTrainingSession {
       }
     }
     return CloudTrainingSession(
+      path: path,
       date: DateTime.parse(json['date'] as String),
       results: results,
       comment: json['comment'] as String?,
