@@ -26,7 +26,12 @@ class Goal {
 class GoalsService extends ChangeNotifier {
   static const _prefPrefix = 'goal_progress_';
 
-  GoalsService();
+  static GoalsService? _instance;
+  static GoalsService? get instance => _instance;
+
+  GoalsService() {
+    _instance = this;
+  }
 
   late List<Goal> _goals;
 
