@@ -15,11 +15,35 @@ class Achievement {
   });
 }
 
-class AchievementsScreen extends StatelessWidget {
+class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
 
-  List<Achievement> _buildAchievements(BuildContext context) {
-    final streak = context.watch<StreakService>().count;
+  @override
+  State<AchievementsScreen> createState() => _AchievementsScreenState();
+}
+
+class _AchievementsScreenState extends State<AchievementsScreen> {
+  late final StreakService _streakService;
+
+  @override
+  void initState() {
+    super.initState();
+    _streakService = context.read<StreakService>();
+    _streakService.addListener(_onStreakChanged);
+  }
+
+  void _onStreakChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _streakService.removeListener(_onStreakChanged);
+    super.dispose();
+  }
+
+  List<Achievement> _buildAchievements() {
+    final streak = _streakService.count;
     return [
       const Achievement(
         title: 'Разобрано 5 ошибок',
@@ -41,7 +65,7 @@ class AchievementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final achievements = _buildAchievements(context);
+    final achievements = _buildAchievements();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Достижения'),
