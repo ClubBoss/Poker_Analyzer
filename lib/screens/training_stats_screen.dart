@@ -60,14 +60,16 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
     });
   }
 
-  Widget _buildStat(String label, String value, {VoidCallback? onTap}) {
+  Widget _buildStat(String label, String value,
+      {VoidCallback? onTap, Color? color}) {
     final row = Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white70)),
-          Text(value, style: const TextStyle(color: Colors.white)),
+          Text(label,
+              style: TextStyle(color: color ?? Colors.white70)),
+          Text(value, style: TextStyle(color: color ?? Colors.white)),
         ],
       ),
     );
@@ -78,13 +80,13 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
   }
 
   Widget _buildPositionRow(String pos, int correct, int total,
-      {VoidCallback? onTap}) {
+      {VoidCallback? onTap, Color? color}) {
     final acc = total > 0 ? (correct * 100 / total).round() : 0;
     final row = Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         '$pos — $acc% точность ($correct из $total верно)',
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: color ?? Colors.white),
       ),
     );
     if (onTap != null) {
@@ -109,6 +111,28 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
       return accA.compareTo(accB);
     });
 
+    final tagTop = tagEntries.take(5).toList();
+    final bestTag = tagTop.isNotEmpty ? tagTop.last.key : null;
+    final worstTag = tagTop.isNotEmpty ? tagTop.first.key : null;
+
+    final posTop = posEntries.take(5).toList();
+    String? bestPos;
+    String? worstPos;
+    double bestAcc = -1;
+    double worstAcc = 2;
+    for (final e in posTop) {
+      final total = _positionTotal[e.key] ?? 0;
+      final acc = total > 0 ? e.value / total : 1.0;
+      if (acc > bestAcc) {
+        bestAcc = acc;
+        bestPos = e.key;
+      }
+      if (acc < worstAcc) {
+        worstAcc = acc;
+        worstPos = e.key;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Stats'),
@@ -121,10 +145,15 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
             const Text('Ошибки по тегам',
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            for (final e in tagEntries.take(5))
+            for (final e in tagTop)
               _buildStat(
                 e.key,
                 e.value.toString(),
+                color: e.key == worstTag && worstTag != bestTag
+                    ? Colors.red
+                    : e.key == bestTag
+                        ? Colors.green
+                        : null,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -143,11 +172,16 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
             const Text('Ошибки по позициям',
                 style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            for (final e in posEntries.take(5))
+            for (final e in posTop)
               _buildPositionRow(
                 e.key,
                 e.value,
                 _positionTotal[e.key] ?? 0,
+                color: e.key == worstPos && worstPos != bestPos
+                    ? Colors.red
+                    : e.key == bestPos
+                        ? Colors.green
+                        : null,
                 onTap: () {
                   Navigator.push(
                     context,
