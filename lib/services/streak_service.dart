@@ -4,11 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StreakService extends ChangeNotifier {
   static const _lastOpenKey = 'streak_last_open';
   static const _countKey = 'streak_count';
+  static const bonusThreshold = 3;
+  static const bonusMultiplier = 1.5;
 
   DateTime? _lastOpen;
   int _count = 0;
 
   int get count => _count;
+  bool get hasBonus => _count >= bonusThreshold;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
