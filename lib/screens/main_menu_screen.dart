@@ -30,6 +30,7 @@ import 'training_stats_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_screen.dart';
 import 'mistake_repeat_screen.dart';
+import 'achievements_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -319,6 +320,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('🎯 Мои цели'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+                );
+              },
+              child: const Text('🏆 Достижения'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
