@@ -1,3 +1,4 @@
+/// Reusable widget for displaying filtered saved hands with summary counts.
 import 'package:flutter/material.dart';
 
 import '../models/saved_hand.dart';
@@ -45,12 +46,10 @@ class SavedHandListView extends StatelessWidget {
     ]..sort((a, b) => b.date.compareTo(a.date));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final filtered = _filtered();
-    int correct = 0;
-    int mistakes = 0;
-    for (final h in filtered) {
+  Map<String, int> _summary(List<SavedHand> list) {
+    var correct = 0;
+    var mistakes = 0;
+    for (final h in list) {
       final expected = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
       if (expected != null && gto != null) {
@@ -61,6 +60,13 @@ class SavedHandListView extends StatelessWidget {
         }
       }
     }
+    return {'correct': correct, 'mistakes': mistakes};
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = _filtered();
+    final counts = _summary(filtered);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +87,7 @@ class SavedHandListView extends StatelessWidget {
             horizontal: AppConstants.padding16,
           ),
           child: Text(
-            'Раздач: ${filtered.length} • Верно: $correct • Ошибки: $mistakes',
+            'Раздач: ${filtered.length} • Верно: ${counts['correct']} • Ошибки: ${counts['mistakes']}',
             style: const TextStyle(color: Colors.white70),
           ),
         ),
