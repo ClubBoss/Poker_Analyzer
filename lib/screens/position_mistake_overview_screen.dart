@@ -17,7 +17,8 @@ import 'hand_history_review_screen.dart';
 /// Information is pulled from [EvaluationExecutorService.summarizeHands]. Each
 /// tile shows how many errors were made from that position. Selecting a
 /// position opens a filtered [SavedHandListView] showing only the mistaken
-/// hands for the chosen position.
+/// hands for the chosen position. A share button exports the table to PDF
+/// for convenient review outside the app.
 class PositionMistakeOverviewScreen extends StatelessWidget {
   const PositionMistakeOverviewScreen({super.key});
 
@@ -113,11 +114,7 @@ class _PositionMistakeHandsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final allHands = context.watch<SavedHandManagerService>().hands;
-    final filtered = [
-      for (final h in allHands)
-        if (h.heroPosition == position) h
-    ];
+    final hands = context.watch<SavedHandManagerService>().hands;
 
     return Scaffold(
       appBar: AppBar(
@@ -125,7 +122,7 @@ class _PositionMistakeHandsScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SavedHandListView(
-        hands: filtered,
+        hands: hands,
         positions: [position],
         accuracy: 'errors',
         title: 'Ошибки: $position',
