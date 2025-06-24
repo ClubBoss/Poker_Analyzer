@@ -37,6 +37,20 @@ class SessionHandsScreen extends StatelessWidget {
     return parts.join(' ');
   }
 
+  PageRouteBuilder _buildSwipeRoute(int targetId, {required bool fromRight}) {
+    final begin = fromRight ? const Offset(1, 0) : const Offset(-1, 0);
+    return PageRouteBuilder(
+      pageBuilder: (_, __, ___) => SessionHandsScreen(sessionId: targetId),
+      transitionsBuilder: (_, animation, __, child) {
+        final offset = Tween(begin: begin, end: Offset.zero)
+            .chain(CurveTween(curve: Curves.easeOut))
+            .animate(animation);
+        return SlideTransition(position: offset, child: child);
+      },
+      transitionDuration: const Duration(milliseconds: 300),
+    );
+  }
+
   Widget _buildSummary(List<SavedHand> hands) {
     final start = hands.last.savedAt;
     final end = hands.first.savedAt;
@@ -126,6 +140,14 @@ class SessionHandsScreen extends StatelessWidget {
         .toList()
       ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
 
+    final sessionIds = manager.handsBySession().keys.toList()..sort();
+    final currentIndex = sessionIds.indexOf(sessionId);
+    final previousId =
+        currentIndex > 0 ? sessionIds[currentIndex - 1] : null;
+    final nextId = currentIndex < sessionIds.length - 1
+        ? sessionIds[currentIndex + 1]
+        : null;
+
     Widget _buildGroupedList() {
       final groups = <String, List<SavedHand>>{
         'Push': [],
@@ -176,12 +198,27 @@ class SessionHandsScreen extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Сессия $sessionId'),
-        centerTitle: true,
-      ),
-      body: hands.isEmpty
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        final velocity = details.primaryVelocity ?? 0;
+        if (velocity < -300 && nextId != null) {
+          Navigator.pushReplacement(
+            context,
+            _buildSwipeRoute(nextId, fromRight: true),
+          );
+        } else if (velocity > 300 && previousId != null) {
+          Navigator.pushReplacement(
+            context,
+            _buildSwipeRoute(previousId, fromRight: false),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Сессия $sessionId'),
+          centerTitle: true,
+        ),
+        body: hands.isEmpty
           ? const Center(
               child: Text(
                 'Нет раздач в этой сессии',
@@ -214,6 +251,7 @@ class SessionHandsScreen extends StatelessWidget {
                 Expanded(child: _buildGroupedList()),
               ],
             ),
+      ),
     );
   }
 }
