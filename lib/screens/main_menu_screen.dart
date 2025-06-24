@@ -27,6 +27,7 @@ import '../tutorial/tutorial_completion_screen.dart';
 import 'training_history_screen.dart';
 import 'session_stats_screen.dart';
 import 'training_stats_screen.dart';
+import '../services/streak_service.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -49,6 +50,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _demoMode = UserPreferences.instance.demoMode;
     _tutorialCompleted = UserPreferences.instance.tutorialCompleted;
     _loadSpot();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<StreakService>().updateStreak();
+      }
+    });
   }
 
   Future<void> _loadSpot() async {
@@ -57,6 +63,23 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     if (mounted) {
       setState(() => _spotOfDay = spot);
     }
+  }
+
+  Widget _buildStreakCard(BuildContext context) {
+    final streak = context.watch<StreakService>().count;
+    if (streak <= 0) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        'Streak: $streak \u0434\u043d\u0435\u0439 \u043f\u043e\u0434\u0440\u044f\u0434',
+        style: const TextStyle(fontSize: 16, color: Colors.white),
+      ),
+    );
   }
 
   Widget _buildSpotOfDaySection(BuildContext context) {
@@ -183,6 +206,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            _buildStreakCard(context),
             _buildSpotOfDaySection(context),
             ElevatedButton(
               key: _newHandButtonKey,
