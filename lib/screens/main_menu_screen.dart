@@ -361,6 +361,23 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               },
               child: const Text('Экспорт всех раздач'),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                final manager =
+                    Provider.of<SavedHandManagerService>(context, listen: false);
+                final path = await manager.exportAllHandsPdf();
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(path != null
+                        ? 'Файл сохранён: all_saved_hands.pdf'
+                        : 'Нет сохранённых раздач'),
+                  ),
+                );
+              },
+              child: const Text('Экспорт PDF раздач'),
+            ),
           ],
         ),
       ),
