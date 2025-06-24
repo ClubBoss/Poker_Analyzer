@@ -58,17 +58,18 @@ class TrainingSpotDiagram extends StatelessWidget {
           final seatWidgets = <Widget>[];
 
           for (int i = 0; i < spot.numberOfPlayers; i++) {
-            final seatIndex = (i - spot.heroIndex + spot.numberOfPlayers) % spot.numberOfPlayers;
-            final pos = TableGeometryHelper.positionForPlayer(
-              seatIndex,
-              spot.numberOfPlayers,
-              tableSize.width,
-              tableSize.height,
-            );
-            final offset = Offset(center.dx + pos.dx, center.dy + pos.dy);
-            final isHero = i == spot.heroIndex;
-            final stack = i < spot.stacks.length ? spot.stacks[i] : 0;
-            final action = actions[i];
+          final seatIndex = (i - spot.heroIndex + spot.numberOfPlayers) % spot.numberOfPlayers;
+          final pos = TableGeometryHelper.positionForPlayer(
+            seatIndex,
+            spot.numberOfPlayers,
+            tableSize.width,
+            tableSize.height,
+          );
+          final offset = Offset(center.dx + pos.dx, center.dy + pos.dy);
+          final isHero = i == spot.heroIndex;
+          final highlightColor = Theme.of(context).colorScheme.secondary;
+          final stack = i < spot.stacks.length ? spot.stacks[i] : 0;
+          final action = actions[i];
 
             String? advice;
             if (spot.strategyAdvice != null && i < spot.strategyAdvice!.length) {
@@ -130,16 +131,16 @@ class TrainingSpotDiagram extends StatelessWidget {
                         color: Colors.black.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isHero ? Colors.orangeAccent : Colors.white30,
-                          width: 2,
+                          color: isHero ? highlightColor : Colors.white30,
+                          width: isHero ? 3 : 2,
                         ),
                         boxShadow: [
                           BoxShadow(
                             color: isHero
-                                ? Colors.orangeAccent.withOpacity(0.7)
+                                ? highlightColor.withOpacity(0.7)
                                 : Colors.black54,
-                            blurRadius: isHero ? 8 : 2,
-                            spreadRadius: isHero ? 2 : 0,
+                            blurRadius: isHero ? 10 : 2,
+                            spreadRadius: isHero ? 3 : 0,
                           ),
                         ],
                       ),

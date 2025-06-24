@@ -125,6 +125,16 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
             actionCount: widget.spot.actions.length,
             onSeek: _seek,
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Chip(
+              label: Text(widget.spot.positions[widget.spot.heroIndex]),
+              backgroundColor:
+                  Theme.of(context).colorScheme.secondary,
+              labelStyle: const TextStyle(
+                  color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
