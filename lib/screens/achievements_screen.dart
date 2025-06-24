@@ -7,6 +7,7 @@ import '../services/evaluation_executor_service.dart';
 import '../services/goals_service.dart';
 import '../widgets/achievement_unlocked_overlay.dart';
 import 'achievements_catalog_screen.dart';
+import 'my_achievements_screen.dart';
 
 class Achievement {
   final String title;
@@ -223,7 +224,18 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                     builder: (_) => const AchievementsCatalogScreen()),
               );
             },
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.emoji_events),
+            tooltip: 'Мои достижения',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const MyAchievementsScreen()),
+              );
+            },
+          ),
         ],
       ),
       body: AnimatedList(
