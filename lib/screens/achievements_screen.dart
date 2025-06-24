@@ -5,6 +5,7 @@ import '../services/streak_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/goals_service.dart';
+import '../widgets/achievement_unlocked_overlay.dart';
 
 class Achievement {
   final String title;
@@ -38,9 +39,21 @@ class _AchievementsScreenState extends State<AchievementsScreen>
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final List<Achievement> _achievements = [];
   bool _animationPlayed = false;
+  final Set<String> _shownOverlays = {};
 
   void _updateAchievements({bool playAnimation = false}) async {
     final items = _buildAchievements();
+    for (var i = 0; i < items.length; i++) {
+      final now = items[i];
+      final wasCompleted =
+          i < _achievements.length && _achievements[i].completed;
+      if (now.completed && !wasCompleted && !_shownOverlays.contains(now.title)) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => showAchievementUnlockedOverlay(context, now.icon, now.title),
+        );
+        _shownOverlays.add(now.title);
+      }
+    }
     if (playAnimation && !_animationPlayed) {
       _achievements.clear();
       for (var i = 0; i < items.length; i++) {
