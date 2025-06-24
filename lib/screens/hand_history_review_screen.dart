@@ -11,6 +11,7 @@ import 'package:poker_ai_analyzer/import_export/training_generator.dart';
 import 'package:poker_ai_analyzer/widgets/replay_spot_widget.dart';
 import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../helpers/mistake_advice.dart';
 
 /// Displays a saved hand with simple playback controls.
 /// Shows GTO recommendation and range group when available.
@@ -172,6 +173,49 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     }
   }
 
+  String? _playerAction() => _selectedAction ?? widget.hand.expectedAction;
+
+  String? _deriveAdvice() {
+    for (final t in widget.hand.tags) {
+      if (kMistakeAdvice.containsKey(t)) return kMistakeAdvice[t];
+    }
+    if (kMistakeAdvice.containsKey(widget.hand.heroPosition)) {
+      return kMistakeAdvice[widget.hand.heroPosition];
+    }
+    return null;
+  }
+
+  Widget _buildMistakeCard(String message, {String? advice}) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.redAccent.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning, color: Colors.redAccent),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(message, style: const TextStyle(color: Colors.white)),
+                if (advice != null) ...[
+                  const SizedBox(height: 4),
+                  Text(advice,
+                      style: const TextStyle(
+                          color: Colors.white70, fontSize: 12)),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final spot = TrainingGenerator().generateFromSavedHand(widget.hand);
@@ -197,6 +241,17 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_playerAction() != null &&
+                gto != null &&
+                _playerAction()!.trim().toLowerCase() !=
+                    gto.trim().toLowerCase()) ...[
+              _buildMistakeCard(
+                widget.hand.feedbackText ??
+                    'Ваше действие отличается от GTO',
+                advice: _deriveAdvice(),
+              ),
+              const SizedBox(height: 12),
+            ],
             ReplaySpotWidget(spot: spot),
             const SizedBox(height: 12),
             if ((gto != null && gto.isNotEmpty) ||
