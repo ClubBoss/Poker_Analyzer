@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -123,6 +124,38 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     }).toList();
   }
 
+  Future<void> _exportAllMarkdown(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final noteService = context.read<SessionNoteService>();
+    final notesMap = {
+      for (final id in manager.handsBySession().keys) id: noteService.noteFor(id)
+    };
+    final path = await manager.exportAllSessionsMarkdown(notesMap);
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: 'training_summary.md');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Файл сохранён: training_summary.md')),
+      );
+    }
+  }
+
+  Future<void> _exportAllPdf(BuildContext context) async {
+    final manager = context.read<SavedHandManagerService>();
+    final noteService = context.read<SessionNoteService>();
+    final notesMap = {
+      for (final id in manager.handsBySession().keys) id: noteService.noteFor(id)
+    };
+    final path = await manager.exportAllSessionsPdf(notesMap);
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: 'training_summary.pdf');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Файл сохранён: training_summary.pdf')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
@@ -190,6 +223,24 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                           ),
                           const Text('Только с заметкой'),
                         ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _exportAllMarkdown(context),
+                        child: const Text('Экспорт в Markdown'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _exportAllPdf(context),
+                        child: const Text('Экспорт в PDF'),
                       ),
                     ),
                   ],
