@@ -17,9 +17,7 @@ import '../widgets/common/mistake_by_street_chart.dart';
 import '../widgets/common/session_volume_accuracy_chart.dart';
 import '../helpers/poker_street_helper.dart';
 import 'saved_hands_screen.dart';
-import 'tag_mistake_overview_screen.dart';
-import 'street_mistake_overview_screen.dart';
-import 'position_mistake_overview_screen.dart';
+import 'mistake_overview_screen.dart';
 import 'accuracy_mistake_overview_screen.dart';
 
 class SessionStatsScreen extends StatefulWidget {
@@ -775,39 +773,11 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const TagMistakeOverviewScreen(),
+                    builder: (_) => const MistakeOverviewScreen(),
                   ),
                 );
               },
-              child: const Text('Ошибки по тегам'),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const StreetMistakeOverviewScreen(),
-                  ),
-                );
-              },
-              child: const Text('Ошибки по улицам'),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const PositionMistakeOverviewScreen(),
-                  ),
-                );
-              },
-              child: const Text('Ошибки по позициям'),
+              child: const Text('Ошибки'),
             ),
           ),
           Padding(
