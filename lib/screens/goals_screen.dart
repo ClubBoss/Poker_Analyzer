@@ -71,38 +71,46 @@ class GoalsScreen extends StatelessWidget {
       );
     }
 
+    final List<Widget> activeGoals = [];
+    final List<Widget> completedGoals = [];
+
     for (final goal in _goals) {
       final adjusted = math.min((goal.progress * multiplier).round(), goal.target);
       final progress = (adjusted / goal.target).clamp(0.0, 1.0);
-      children.add(
-        Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey[850],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  if (goal.icon != null) ...[
-                    Icon(goal.icon, color: accent),
-                    const SizedBox(width: 8),
-                  ],
-                  Expanded(
-                    child: Text(
-                      goal.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+      final isCompleted = goal.progress >= goal.target;
+
+      final card = Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isCompleted ? Colors.green[900] : Colors.grey[850],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (goal.icon != null) ...[
+                  Icon(goal.icon, color: accent),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: Text(
+                    goal.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text('$adjusted/${goal.target}'),
-                ],
-              ),
+                ),
+                if (isCompleted)
+                  const Icon(Icons.check_circle, color: Colors.green)
+                else
+                  Text('$adjusted/${goal.target}')
+              ],
+            ),
+            if (!isCompleted) ...[
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
@@ -113,11 +121,20 @@ class GoalsScreen extends StatelessWidget {
                   minHeight: 6,
                 ),
               ),
-            ],
-          ),
+            ]
+          ],
         ),
       );
+
+      if (isCompleted) {
+        completedGoals.add(card);
+      } else {
+        activeGoals.add(card);
+      }
     }
+
+    children.addAll(activeGoals);
+    children.addAll(completedGoals);
 
     return Scaffold(
       appBar: AppBar(
