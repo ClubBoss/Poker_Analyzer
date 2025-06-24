@@ -44,6 +44,7 @@ where the complete UI and logic are not required.
 - View training history and overall statistics
 - See mistake counts grouped by tag to identify weak spots
 - Explore mistake counts by street and position for targeted review
+- View accuracy percentages grouped by tag, street and position to gauge relative weakness
 - Export mistake reports as PDF for sharing
 - Share your results via exported files
 - Optional checkbox lets you export only sessions that contain at least three tags
