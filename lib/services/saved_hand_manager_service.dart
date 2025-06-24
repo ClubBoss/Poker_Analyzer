@@ -123,12 +123,19 @@ class SavedHandManagerService extends ChangeNotifier {
   Future<SavedHand?> selectHand(BuildContext context) async {
     if (hands.isEmpty) return null;
     String filter = '';
+    String dateFilter = 'Все';
+    String sortOrder = 'По дате (новые сверху)';
     Set<String> localFilters = {...tagFilters};
     final selected = await showDialog<SavedHand>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) {
+          bool sameDay(DateTime a, DateTime b) {
+            return a.year == b.year && a.month == b.month && a.day == b.day;
+          }
+
           final query = filter.toLowerCase();
+          final now = DateTime.now();
           final filtered = [
             for (final hand in hands)
               if ((query.isEmpty ||
@@ -136,9 +143,17 @@ class SavedHandManagerService extends ChangeNotifier {
                       hand.name.toLowerCase().contains(query) ||
                       (hand.comment?.toLowerCase().contains(query) ?? false)) &&
                   (localFilters.isEmpty ||
-                      localFilters.every((tag) => hand.tags.contains(tag))))
+                      localFilters.every((tag) => hand.tags.contains(tag))) &&
+                  (dateFilter == 'Все' ||
+                      (dateFilter == 'Сегодня' && sameDay(hand.savedAt, now)) ||
+                      (dateFilter == 'Последние 7 дней' &&
+                          hand.savedAt.isAfter(now.subtract(const Duration(days: 7)))))
                 hand
           ];
+
+          filtered.sort((a, b) => sortOrder == 'По дате (новые сверху)'
+              ? b.savedAt.compareTo(a.savedAt)
+              : a.savedAt.compareTo(b.savedAt));
           return AlertDialog(
             title: const Text('Выберите раздачу'),
             content: SizedBox(
@@ -192,12 +207,38 @@ class SavedHandManagerService extends ChangeNotifier {
                         );
                         setStateDialog(() {});
                       },
-                      child: const Text('Фильтр по тегам'),
-                    ),
+                    child: const Text('Фильтр по тегам'),
                   ),
-                  const SizedBox(height: 8),
-                  Flexible(
-                    child: ListView.builder(
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    DropdownButton<String>(
+                      value: dateFilter,
+                      dropdownColor: const Color(0xFF2A2B2E),
+                      onChanged: (v) => setStateDialog(() => dateFilter = v ?? 'Все'),
+                      items: const ['Все', 'Сегодня', 'Последние 7 дней']
+                          .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                          .toList(),
+                    ),
+                    const SizedBox(width: 12),
+                    DropdownButton<String>(
+                      value: sortOrder,
+                      dropdownColor: const Color(0xFF2A2B2E),
+                      onChanged: (v) => setStateDialog(
+                          () => sortOrder = v ?? 'По дате (новые сверху)'),
+                      items: const [
+                        'По дате (новые сверху)',
+                        'По дате (старые сверху)'
+                      ]
+                          .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                          .toList(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Flexible(
+                  child: ListView.builder(
                       shrinkWrap: true,
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
