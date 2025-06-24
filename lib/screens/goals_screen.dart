@@ -104,7 +104,7 @@ class _GoalCardState extends State<GoalCard>
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: widget.completed ? Colors.green[900] : Colors.grey[850],
+            color: widget.completed ? Colors.green[700] : Colors.grey[850],
             borderRadius: BorderRadius.circular(8),
             boxShadow: widget.completed
                 ? [
@@ -131,9 +131,11 @@ class _GoalCardState extends State<GoalCard>
               Expanded(
                 child: Text(
                   widget.goal.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color:
+                        widget.completed ? Colors.white70 : Colors.white,
                   ),
                 ),
               ),
@@ -149,18 +151,16 @@ class _GoalCardState extends State<GoalCard>
                 Text('${widget.displayProgress}/${widget.goal.target}')
             ],
           ),
-          if (!widget.completed) ...[
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: widget.progress,
-                backgroundColor: Colors.white24,
-                valueColor: AlwaysStoppedAnimation<Color>(widget.accent),
-                minHeight: 6,
-              ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: widget.completed ? 1.0 : widget.progress,
+              backgroundColor: Colors.white24,
+              valueColor: AlwaysStoppedAnimation<Color>(widget.accent),
+              minHeight: 6,
             ),
-          ]
+          )
         ],
       ),
     );
