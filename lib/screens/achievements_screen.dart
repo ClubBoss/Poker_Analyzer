@@ -27,13 +27,36 @@ class AchievementsScreen extends StatefulWidget {
   State<AchievementsScreen> createState() => _AchievementsScreenState();
 }
 
-class _AchievementsScreenState extends State<AchievementsScreen> {
+class _AchievementsScreenState extends State<AchievementsScreen>
+    with TickerProviderStateMixin {
   late final StreakService _streakService;
   late final SavedHandManagerService _handManager;
   late final EvaluationExecutorService _evalService;
   late final GoalsService _goalsService;
   bool _goalCompleted = false;
   int _mistakeCount = 0;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  final List<Achievement> _achievements = [];
+  bool _animationPlayed = false;
+
+  void _updateAchievements({bool playAnimation = false}) async {
+    final items = _buildAchievements();
+    if (playAnimation && !_animationPlayed) {
+      _achievements.clear();
+      for (var i = 0; i < items.length; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        _achievements.insert(i, items[i]);
+        _listKey.currentState?.insertItem(i);
+      }
+      _animationPlayed = true;
+    } else {
+      setState(() {
+        for (var i = 0; i < items.length && i < _achievements.length; i++) {
+          _achievements[i] = items[i];
+        }
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -49,13 +72,14 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   }
 
   void _onStreakChanged() {
-    if (mounted) setState(() {});
+    if (mounted) _updateAchievements();
   }
 
   void _onGoalsChanged() {
     final done = _goalsService.anyCompleted;
     if (mounted) {
       setState(() => _goalCompleted = done);
+      _updateAchievements();
     } else {
       _goalCompleted = done;
     }
@@ -65,6 +89,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     final summary = _evalService.summarizeHands(_handManager.hands);
     if (mounted) {
       setState(() => _mistakeCount = summary.incorrect);
+      _updateAchievements();
     } else {
       _mistakeCount = summary.incorrect;
     }
@@ -82,6 +107,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     super.didChangeDependencies();
     _refreshMistakes();
     _onGoalsChanged();
+    if (!_animationPlayed) {
+      _updateAchievements(playAnimation: true);
+    }
   }
 
   List<Achievement> _buildAchievements() {
@@ -108,63 +136,74 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
     ];
   }
 
+  Widget _buildCard(Achievement a) {
+    final color = a.completed ? Colors.white : Colors.white54;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[850],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(a.icon, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  a.title,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  a.progressText,
+                  style: TextStyle(
+                    color: color.withOpacity(0.8),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.check_circle,
+            color: a.completed ? Colors.green : Colors.grey,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnimatedItem(
+      BuildContext context, int index, Animation<double> animation) {
+    final widget = _buildCard(_achievements[index]);
+    return SlideTransition(
+      position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
+          .animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+      child: FadeTransition(opacity: animation, child: widget),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final achievements = _buildAchievements();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Достижения'),
         centerTitle: true,
       ),
-      body: ListView.builder(
+      body: AnimatedList(
+        key: _listKey,
         padding: const EdgeInsets.all(16),
-        itemCount: achievements.length,
-        itemBuilder: (context, index) {
-          final a = achievements[index];
-          final color = a.completed ? Colors.white : Colors.white54;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[850],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(a.icon, color: color),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        a.title,
-                        style: TextStyle(
-                          color: color,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        a.progressText,
-                        style: TextStyle(
-                          color: color.withOpacity(0.8),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.check_circle,
-                  color: a.completed ? Colors.green : Colors.grey,
-                ),
-              ],
-            ),
-          );
-        },
+        initialItemCount: _achievements.length,
+        itemBuilder: _buildAnimatedItem,
       ),
     );
   }
