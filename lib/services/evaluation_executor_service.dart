@@ -64,8 +64,10 @@ class EvaluationExecutorService implements EvaluationExecutor {
       if (correct) {
         final progress = goals.goals.length > 1 ? goals.goals[1].progress + 1 : 1;
         goals.setProgress(1, progress);
+        goals.updateErrorFreeStreak(true);
       } else {
         goals.setProgress(1, 0);
+        goals.updateErrorFreeStreak(false);
       }
     }
 
