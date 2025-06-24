@@ -59,6 +59,7 @@ class EvaluationExecutorService {
       'Turn': 0,
       'River': 0,
     };
+    final positionErrors = <String, int>{};
     final sessionAcc = <int, double>{};
 
     for (final entry in sessions.entries) {
@@ -89,6 +90,8 @@ class EvaluationExecutorService {
             for (final tag in hand.tags) {
               tagErrors[tag] = (tagErrors[tag] ?? 0) + 1;
             }
+            final pos = hand.heroPosition;
+            positionErrors[pos] = (positionErrors[pos] ?? 0) + 1;
           }
         }
       }
@@ -110,6 +113,7 @@ class EvaluationExecutorService {
       accuracy: accuracy,
       mistakeTagFrequencies: tagErrors,
       streetBreakdown: streets,
+      positionMistakeFrequencies: positionErrors,
       accuracyPerSession: sessionAcc,
     );
   }
