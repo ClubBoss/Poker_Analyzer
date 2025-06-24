@@ -1393,7 +1393,7 @@ body { font-family: sans-serif; padding: 16px; }
                   providers: [
                     ChangeNotifierProvider(create: (_) => PlayerProfileService()),
                     ChangeNotifierProvider(create: (_) => PlayerManagerService(context.read<PlayerProfileService>())),
-                    Provider(create: (_) => EvaluationExecutorService()),
+                    Provider.value(value: EvaluationExecutorService()),
                   ],
                   child: Builder(
                     builder: (context) => ChangeNotifierProvider(

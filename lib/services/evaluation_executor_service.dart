@@ -7,12 +7,26 @@ import '../models/training_spot.dart';
 import '../models/saved_hand.dart';
 import '../models/summary_result.dart';
 
+/// Interface for evaluation execution logic.
+abstract class EvaluationExecutor {
+  Future<void> execute(ActionEvaluationRequest req);
+  EvaluationResult evaluate(TrainingSpot spot, String userAction);
+  SummaryResult summarizeHands(List<SavedHand> hands);
+}
+
 /// Handles execution of a single evaluation request.
-class EvaluationExecutorService {
+class EvaluationExecutorService implements EvaluationExecutor {
+  EvaluationExecutorService._internal();
+  static final EvaluationExecutorService _instance =
+      EvaluationExecutorService._internal();
+
+  factory EvaluationExecutorService() => _instance;
+
   /// Executes the evaluation for [req].
   ///
   /// This stub simulates a delay and introduces a random failure
   /// for debugging purposes.
+  @override
   Future<void> execute(ActionEvaluationRequest req) async {
     await Future.delayed(const Duration(milliseconds: 300));
     if (Random().nextDouble() < 0.2) {
@@ -24,6 +38,7 @@ class EvaluationExecutorService {
   ///
   /// The initial implementation simply checks if the action matches the
   /// expected action for the hero at the given training spot.
+  @override
   EvaluationResult evaluate(TrainingSpot spot, String userAction) {
     final expectedAction = spot.actions[spot.heroIndex].action;
     final correct = userAction == expectedAction;
@@ -44,6 +59,7 @@ class EvaluationExecutorService {
   }
 
   /// Generates a summary for a list of saved hands.
+  @override
   SummaryResult summarizeHands(List<SavedHand> hands) {
     final Map<int, List<SavedHand>> sessions = {};
     for (final hand in hands) {

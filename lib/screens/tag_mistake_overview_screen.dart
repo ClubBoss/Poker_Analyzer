@@ -61,7 +61,8 @@ class TagMistakeOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
-    final summary = EvaluationExecutorService().summarizeHands(hands);
+    final summary =
+        context.read<EvaluationExecutorService>().summarizeHands(hands);
     final entries = summary.mistakeTagFrequencies.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
