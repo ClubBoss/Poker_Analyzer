@@ -1,6 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Tracks the number of consecutive days the app was opened.
+///
+/// The streak information is persisted using [SharedPreferences] so it
+/// survives app restarts. Every time the service is loaded or explicitly
+/// refreshed it compares today's date with the last stored activity date and
+/// updates the counter accordingly.
 class StreakService extends ChangeNotifier {
   static const _lastOpenKey = 'streak_last_open';
   static const _countKey = 'streak_count';
@@ -22,6 +28,7 @@ class StreakService extends ChangeNotifier {
     return value;
   }
 
+  /// Loads the persisted streak information and refreshes it for today.
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final lastStr = prefs.getString(_lastOpenKey);
@@ -40,30 +47,35 @@ class StreakService extends ChangeNotifier {
     await prefs.setInt(_countKey, _count);
   }
 
+  /// Compares the saved date with today and updates the streak accordingly.
   Future<void> updateStreak() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    bool inc = false;
+
+    bool increased = false;
+
     if (_lastOpen == null) {
-      _lastOpen = today;
+      // First app launch.
       _count = 1;
-      inc = true;
+      _lastOpen = today;
+      increased = true;
     } else {
       final last = DateTime(_lastOpen!.year, _lastOpen!.month, _lastOpen!.day);
       final diff = today.difference(last).inDays;
-      if (diff == 0) {
-        // same day, no change
-      } else if (diff == 1) {
+
+      if (diff == 1) {
         _count += 1;
         _lastOpen = today;
-        inc = true;
-      } else if (diff > 1) {
+        increased = true;
+      } else if (diff != 0) {
+        // More than a day has passed or clock was changed.
         _count = 1;
         _lastOpen = today;
-        inc = true;
+        increased = true;
       }
     }
-    _increased = inc;
+
+    _increased = increased;
     await _save();
     notifyListeners();
   }
