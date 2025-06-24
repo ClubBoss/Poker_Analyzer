@@ -15,3 +15,17 @@ extension MistakeSeverityColor on MistakeSeverity {
     }
   }
 }
+
+extension MistakeSeverityText on MistakeSeverity {
+  String get label {
+    switch (this) {
+      case MistakeSeverity.high:
+        return 'Критичный';
+      case MistakeSeverity.medium:
+        return 'Средний';
+      case MistakeSeverity.low:
+      default:
+        return 'Лёгкий';
+    }
+  }
+}

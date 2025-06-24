@@ -40,6 +40,12 @@ class TagMistakeOverviewScreen extends StatelessWidget {
 
     final pdf = pw.Document();
     final date = formatDateTime(DateTime.now());
+    final service = context.read<EvaluationExecutorService>();
+    final rows = [
+      for (final e in entries)
+        [e.key, e.value.toString(), service.classifySeverity(e.value).label]
+    ];
+
     if (entries.isEmpty) {
       pdf.addPage(
         pw.MultiPage(
@@ -80,8 +86,8 @@ class TagMistakeOverviewScreen extends StatelessWidget {
                 style: pw.TextStyle(font: regularFont)),
             pw.SizedBox(height: 16),
             pw.Table.fromTextArray(
-              headers: const ['Тег', 'Ошибки'],
-              data: [for (final e in entries) [e.key, e.value.toString()]],
+              headers: const ['Тег', 'Ошибки', 'Уровень'],
+              data: rows,
             ),
           ],
         ),
