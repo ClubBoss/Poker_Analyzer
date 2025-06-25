@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
 import '../services/streak_counter_service.dart';
@@ -19,6 +21,8 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
   late final Animation<double> _pulse;
   DateTime? _day;
   bool _celebrated = false;
+  DateTime? _lastCelebration;
+  static const _prefKey = 'today_progress_banner_confetti';
 
   @override
   void initState() {
@@ -41,6 +45,12 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
         weight: 50,
       ),
     ]).animate(_controller);
+    SharedPreferences.getInstance().then((prefs) {
+      final str = prefs.getString(_prefKey);
+      if (str != null) {
+        _lastCelebration = DateTime.tryParse(str);
+      }
+    });
   }
 
   bool _isSameDay(DateTime a, DateTime b) =>
@@ -54,9 +64,16 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
       _celebrated = false;
     }
     if (!_celebrated && hands >= target && target > 0) {
-      _celebrated = true;
-      _controller.forward(from: 0);
-      showConfettiOverlay(context);
+      if (_lastCelebration == null || !_isSameDay(_lastCelebration!, today)) {
+        _celebrated = true;
+        _lastCelebration = today;
+        SharedPreferences.getInstance().then(
+          (p) => p.setString(_prefKey, today.toIso8601String()),
+        );
+        _controller.forward(from: 0);
+        HapticFeedback.mediumImpact();
+        showConfettiOverlay(context);
+      }
     }
   }
 
