@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../screens/progress_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Achievement {
@@ -49,8 +50,12 @@ class Goal {
 class GoalsService extends ChangeNotifier {
   static const _prefPrefix = 'goal_progress_';
   static const _streakKey = 'error_free_streak';
+  static const _handsKey = 'consecutive_hands';
+  static const _hintShownKey = 'progress_hint_shown';
 
   int _errorFreeStreak = 0;
+  int _handStreak = 0;
+  bool _hintShown = false;
 
   /// In-memory list of all achievements.
   late List<Achievement> _achievements;
@@ -89,6 +94,8 @@ class GoalsService extends ChangeNotifier {
       ),
     ];
     _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
+    _handStreak = prefs.getInt(_handsKey) ?? 0;
+    _hintShown = prefs.getBool(_hintShownKey) ?? false;
     _achievements = [
       const Achievement(
         title: 'Разобрать 5 ошибок',
@@ -123,6 +130,16 @@ class GoalsService extends ChangeNotifier {
     await prefs.setInt(_streakKey, _errorFreeStreak);
   }
 
+  Future<void> _saveHandStreak() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_handsKey, _handStreak);
+  }
+
+  Future<void> _saveHintShown() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hintShownKey, _hintShown);
+  }
+
   Future<void> _saveProgress(int index) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('${_prefPrefix}$index', _goals[index].progress);
@@ -137,6 +154,32 @@ class GoalsService extends ChangeNotifier {
 
   Future<void> resetGoal(int index) async {
     await setProgress(index, 0);
+  }
+
+  /// Records a completed hand and shows a progress hint if needed.
+  Future<void> recordHandCompleted(BuildContext context) async {
+    _handStreak += 1;
+    await _saveHandStreak();
+    if (_handStreak >= 5 && !_hintShown) {
+      _hintShown = true;
+      await _saveHintShown();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Вы завершили 5 раздач подряд!'),
+            action: SnackBarAction(
+              label: 'Посмотреть прогресс',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                );
+              },
+            ),
+          ),
+        );
+      }
+    }
   }
 
   /// Updates the "error free" streak and achievement.
