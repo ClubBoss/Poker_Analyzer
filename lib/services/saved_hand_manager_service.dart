@@ -1038,4 +1038,34 @@ class SavedHandManagerService extends ChangeNotifier {
     }
     return result;
   }
+
+  /// Returns all completed error-free streaks of 5+ correct hands.
+  ///
+  /// Each streak is represented as a list of [SavedHand] objects in
+  /// chronological order. Only sequences terminated by a mistake are
+  /// included – the current ongoing streak (if any) is omitted.
+  List<List<SavedHand>> completedErrorFreeStreaks() {
+    final List<List<SavedHand>> streaks = [];
+    final List<SavedHand> current = [];
+
+    bool isCorrect(SavedHand h) {
+      final expected = h.expectedAction?.trim().toLowerCase();
+      final gto = h.gtoAction?.trim().toLowerCase();
+      return expected != null && gto != null && expected == gto;
+    }
+
+    for (final h in hands) {
+      if (isCorrect(h)) {
+        current.add(h);
+      } else {
+        if (current.length >= 5) {
+          streaks.add(List<SavedHand>.from(current));
+        }
+        current.clear();
+      }
+    }
+
+    // Only completed streaks are returned, so the trailing streak is ignored.
+    return streaks.reversed.toList();
+  }
 }
