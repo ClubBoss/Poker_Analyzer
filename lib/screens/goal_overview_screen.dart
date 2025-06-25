@@ -83,6 +83,23 @@ class GoalOverviewScreen extends StatelessWidget {
                 Text('Daily Target: $target',
                     style: const TextStyle(color: Colors.white)),
                 const SizedBox(height: 8),
+                if (streak >= 7)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.orangeAccent, Colors.redAccent],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '🔥 Streak Bonus!',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
