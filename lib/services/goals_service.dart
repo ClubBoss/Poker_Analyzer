@@ -86,6 +86,7 @@ class GoalsService extends ChangeNotifier {
   static const _historyPrefix = 'goal_history_';
   static const _drillResultsKey = 'drill_results';
   static const _dailySpotHistoryKey = 'daily_spot_history';
+  static const _sevenDayGoalKey = 'seven_day_goal_unlocked';
 
   int _errorFreeStreak = 0;
   int _handStreak = 0;
@@ -102,6 +103,7 @@ class GoalsService extends ChangeNotifier {
   late List<List<GoalProgressEntry>> _history;
   List<DrillSessionResult> _drillResults = [];
   List<DateTime> _dailySpotHistory = [];
+  bool _hasSevenDayGoalUnlocked = false;
 
   static GoalsService? _instance;
   static GoalsService? get instance => _instance;
@@ -142,6 +144,7 @@ class GoalsService extends ChangeNotifier {
 
   List<DrillSessionResult> get drillResults => List.unmodifiable(_drillResults);
   List<DateTime> get dailySpotHistory => List.unmodifiable(_dailySpotHistory);
+  bool get hasSevenDayGoalUnlocked => _hasSevenDayGoalUnlocked;
 
   List<GoalProgressEntry> historyFor(int index) =>
       index >= 0 && index < _history.length
@@ -228,6 +231,7 @@ class GoalsService extends ChangeNotifier {
     _handStreak = prefs.getInt(_handsKey) ?? 0;
     _mistakeReviewStreak = prefs.getInt(_mistakeStreakKey) ?? 0;
     _hintShown = prefs.getBool(_hintShownKey) ?? false;
+    _hasSevenDayGoalUnlocked = prefs.getBool(_sevenDayGoalKey) ?? false;
     _dailyGoalIndex = prefs.getInt(_dailyIndexKey);
     final dateStr = prefs.getString(_dailyDateKey);
     _dailyGoalDate = dateStr != null ? DateTime.tryParse(dateStr) : null;
@@ -361,6 +365,18 @@ class GoalsService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final list = [for (final r in _drillResults) jsonEncode(r.toJson())];
     await prefs.setStringList(_drillResultsKey, list);
+  }
+
+  Future<void> _saveSevenDayGoalUnlocked() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_sevenDayGoalKey, _hasSevenDayGoalUnlocked);
+  }
+
+  Future<void> setSevenDayGoalUnlocked(bool value) async {
+    if (_hasSevenDayGoalUnlocked == value) return;
+    _hasSevenDayGoalUnlocked = value;
+    await _saveSevenDayGoalUnlocked();
+    notifyListeners();
   }
 
   void _checkAchievements(BuildContext context) {

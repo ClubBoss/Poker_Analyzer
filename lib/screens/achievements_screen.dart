@@ -47,64 +47,110 @@ class AchievementsScreen extends StatelessWidget {
           );
 
           final data = goals.achievements;
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: data.length,
-            itemBuilder: (context, index) {
-              final item = data[index];
-              final completed = item.completed;
-              final color = completed ? Colors.white : Colors.white54;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[850],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(item.icon, size: 32, color: accent),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.title,
-                            style: TextStyle(
-                              color: color,
-                              fontWeight: FontWeight.bold,
+          final list = <Widget>[];
+          for (final item in data) {
+            final completed = item.completed;
+            final color = completed ? Colors.white : Colors.white54;
+            list.add(Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[850],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(item.icon, size: 32, color: accent),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          style: TextStyle(
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: (item.progress / item.target).clamp(0.0, 1.0),
+                            backgroundColor: Colors.white24,
+                            valueColor: AlwaysStoppedAnimation<Color>(accent),
+                            minHeight: 6,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${item.progress}/${item.target}',
+                          style: TextStyle(color: color),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Icon(
+                    Icons.check_circle,
+                    color: completed ? Colors.green : Colors.grey,
+                  ),
+                ],
+              ),
+            ));
+            if (item.title == '7 дней подряд') {
+              final unlocked = goals.hasSevenDayGoalUnlocked;
+              list.add(AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: Container(
+                  key: ValueKey(unlocked),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[850],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.local_fire_department, size: 32, color: accent),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              '🔥 Серия 7 дней',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: (item.progress / item.target).clamp(0.0, 1.0),
-                              backgroundColor: Colors.white24,
-                              valueColor: AlwaysStoppedAnimation<Color>(accent),
-                              minHeight: 6,
+                            SizedBox(height: 4),
+                            Text(
+                              'Выполняйте Спот дня семь дней подряд',
+                              style: TextStyle(color: Colors.white70, fontSize: 12),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${item.progress}/${item.target}',
-                            style: TextStyle(color: color),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(
-                      Icons.check_circle,
-                      color: completed ? Colors.green : Colors.grey,
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.check_circle,
+                        color: unlocked ? Colors.green : Colors.grey,
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
+              ));
+            }
+          }
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: list,
           );
         },
       ),

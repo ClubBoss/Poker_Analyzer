@@ -200,6 +200,9 @@ class _ProgressScreenState extends State<ProgressScreen>
       _dailyMonthCount = month;
     });
     final streak = await service.hasWeeklyStreak();
+    if (streak && !service.hasSevenDayGoalUnlocked) {
+      await service.setSevenDayGoalUnlocked(true);
+    }
     if (streak && !_weeklyConfettiPlayed) {
       _weeklyConfetti.play();
       _weeklyConfettiPlayed = true;
