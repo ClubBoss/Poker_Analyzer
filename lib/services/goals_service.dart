@@ -183,6 +183,7 @@ class GoalsService extends ChangeNotifier {
     _dailyGoalDate = dateStr != null ? DateTime.tryParse(dateStr) : null;
     final completedGoals =
         _goals.where((g) => g.progress >= g.target).length;
+    final allGoalsCompleted = completedGoals == _goals.length ? 1 : 0;
     _achievements = [
       const Achievement(
         title: 'Разобрать 5 ошибок',
@@ -219,6 +220,12 @@ class GoalsService extends ChangeNotifier {
         icon: Icons.build,
         progress: _mistakeReviewStreak > 5 ? 5 : _mistakeReviewStreak,
         target: 5,
+      ),
+      Achievement(
+        title: 'Все цели выполнены',
+        icon: Icons.workspace_premium,
+        progress: allGoalsCompleted,
+        target: 1,
       ),
     ];
     _achievementShown = [
@@ -323,10 +330,20 @@ class GoalsService extends ChangeNotifier {
 
   bool _refreshCompletedGoalsAchievement() {
     if (_achievements.length < 5) return false;
+    bool changed = false;
     final count = _goals.where((g) => g.progress >= g.target).length;
-    if (_achievements[4].progress == count) return false;
-    _achievements[4] = _achievements[4].copyWith(progress: count);
-    return true;
+    if (_achievements[4].progress != count) {
+      _achievements[4] = _achievements[4].copyWith(progress: count);
+      changed = true;
+    }
+    if (_achievements.length > 6) {
+      final all = count == _goals.length ? 1 : 0;
+      if (_achievements[6].progress != all) {
+        _achievements[6] = _achievements[6].copyWith(progress: all);
+        changed = true;
+      }
+    }
+    return changed;
   }
 
   Future<void> setProgress(int index, int progress, {BuildContext? context}) async {
@@ -452,6 +469,13 @@ class GoalsService extends ChangeNotifier {
         _achievements[4].progress != completedGoals) {
       _achievements[4] = _achievements[4].copyWith(progress: completedGoals);
       changed = true;
+    }
+    if (_achievements.length > 6) {
+      final all = completedGoals == _goals.length ? 1 : 0;
+      if (_achievements[6].progress != all) {
+        _achievements[6] = _achievements[6].copyWith(progress: all);
+        changed = true;
+      }
     }
     if (changed) {
       notifyListeners();

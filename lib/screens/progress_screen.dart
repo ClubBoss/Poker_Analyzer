@@ -27,6 +27,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   List<FlSpot> _streakSpots = [];
   List<MapEntry<DateTime, int>> _mistakesPerDay = [];
   bool _goalCompleted = false;
+  bool _allGoalsCompleted = false;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _gatherData());
     final goals = context.read<GoalsService>();
     _goalCompleted = goals.anyCompleted;
+    _allGoalsCompleted = goals.goals.every((g) => g.completed);
     goals.addListener(_onGoalsChanged);
   }
 
@@ -74,9 +76,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
   }
 
   void _onGoalsChanged() {
-    final completed = context.read<GoalsService>().anyCompleted;
-    if (completed != _goalCompleted) {
-      setState(() => _goalCompleted = completed);
+    final service = context.read<GoalsService>();
+    final completed = service.anyCompleted;
+    final all = service.goals.every((g) => g.completed);
+    if (completed != _goalCompleted || all != _allGoalsCompleted) {
+      setState(() {
+        _goalCompleted = completed;
+        _allGoalsCompleted = all;
+      });
     }
   }
 
@@ -193,6 +200,38 @@ class _ProgressScreenState extends State<ProgressScreen> {
               ),
             )
           : const SizedBox.shrink(key: ValueKey('emptyBadge')),
+    );
+  }
+
+  Widget _buildAllGoalsCompletedBadge() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: _allGoalsCompleted
+          ? Container(
+              key: const ValueKey('allGoalsBadge'),
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue[700],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.workspace_premium, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Все цели выполнены',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : const SizedBox.shrink(key: ValueKey('emptyAllGoalsBadge')),
     );
   }
 
@@ -442,6 +481,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           _buildGoalCompletedBadge(),
+          _buildAllGoalsCompletedBadge(),
           const Text(
             'Результаты',
             style: TextStyle(
