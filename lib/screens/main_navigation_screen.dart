@@ -5,6 +5,7 @@ import 'spot_of_the_day_screen.dart';
 import 'spot_of_the_day_history_screen.dart';
 import 'settings_placeholder_screen.dart';
 import '../widgets/streak_banner.dart';
+import '../widgets/motivation_card.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -16,12 +17,14 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    AnalyzerTab(),
-    SpotOfTheDayScreen(),
-    SpotOfTheDayHistoryScreen(),
-    SettingsPlaceholderScreen(),
-  ];
+  Widget _home() {
+    return const Column(
+      children: [
+        MotivationCard(),
+        Expanded(child: AnalyzerTab()),
+      ],
+    );
+  }
 
   void _onTap(int index) {
     setState(() {
@@ -31,8 +34,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final pages = [
+      _home(),
+      const SpotOfTheDayScreen(),
+      const SpotOfTheDayHistoryScreen(),
+      const SettingsPlaceholderScreen(),
+    ];
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _pages),
+      body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
