@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'training_stats_service.dart';
@@ -14,6 +15,10 @@ class StreakCounterService extends ChangeNotifier {
   int _count = 0;
   DateTime? _last;
   int _max = 0;
+
+  final _recordController = StreamController<int>.broadcast();
+
+  Stream<int> get recordStream => _recordController.stream;
 
   int get count => _count;
   DateTime? get lastSuccess => _last;
@@ -57,7 +62,10 @@ class StreakCounterService extends ChangeNotifier {
       final diff = today.difference(lastDay).inDays;
       if (diff == 1) {
         _count += 1;
-        if (_count > _max) _max = _count;
+        if (_count > _max) {
+          _max = _count;
+          _recordController.add(_max);
+        }
       } else if (diff > 1) {
         _count = 0;
       }
@@ -86,6 +94,7 @@ class StreakCounterService extends ChangeNotifier {
   @override
   void dispose() {
     target.removeListener(_checkToday);
+    _recordController.close();
     super.dispose();
   }
 }
