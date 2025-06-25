@@ -20,6 +20,7 @@ import '../helpers/poker_street_helper.dart';
 import '../widgets/mistake_heatmap.dart';
 import 'goals_history_screen.dart';
 import 'daily_spot_screen.dart';
+import 'daily_spot_history_screen.dart';
 import 'achievements_screen.dart';
 import 'drill_history_screen.dart';
 import 'goal_drill_screen.dart';
@@ -945,6 +946,17 @@ class _ProgressScreenState extends State<ProgressScreen> {
             style: TextStyle(
               color: _dailyMonthCount > 0 ? Colors.white : Colors.white70,
             ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const DailySpotHistoryScreen(),
+                ),
+              );
+            },
+            child: const Text('История'),
           ),
         ],
       ),
