@@ -10,16 +10,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StreakService extends ChangeNotifier {
   static const _lastOpenKey = 'streak_last_open';
   static const _countKey = 'streak_count';
+  static const _errorKey = 'error_free_streak';
   static const bonusThreshold = 3;
   static const bonusMultiplier = 1.5;
 
   DateTime? _lastOpen;
   int _count = 0;
   bool _increased = false;
+  int _errorFreeStreak = 0;
 
   int get count => _count;
   bool get hasBonus => _count >= bonusThreshold;
   bool get increased => _increased;
+  int get errorFreeStreak => _errorFreeStreak;
 
   /// Returns true if the streak increased since the last check.
   bool consumeIncreaseFlag() {
@@ -34,6 +37,7 @@ class StreakService extends ChangeNotifier {
     final lastStr = prefs.getString(_lastOpenKey);
     _lastOpen = lastStr != null ? DateTime.tryParse(lastStr) : null;
     _count = prefs.getInt(_countKey) ?? 0;
+    _errorFreeStreak = prefs.getInt(_errorKey) ?? 0;
     await updateStreak();
   }
 
@@ -45,6 +49,7 @@ class StreakService extends ChangeNotifier {
       await prefs.remove(_lastOpenKey);
     }
     await prefs.setInt(_countKey, _count);
+    await prefs.setInt(_errorKey, _errorFreeStreak);
   }
 
   /// Compares the saved date with today and updates the streak accordingly.
@@ -76,6 +81,14 @@ class StreakService extends ChangeNotifier {
     }
 
     _increased = increased;
+    await _save();
+    notifyListeners();
+  }
+
+  Future<void> updateErrorFreeStreak(bool correct) async {
+    final next = correct ? _errorFreeStreak + 1 : 0;
+    if (next == _errorFreeStreak) return;
+    _errorFreeStreak = next;
     await _save();
     notifyListeners();
   }

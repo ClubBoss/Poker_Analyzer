@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'dart:convert';
 import '../screens/progress_screen.dart';
 import '../models/goal_progress_entry.dart';
+import 'streak_service.dart';
 
 class Achievement {
   final String title;
@@ -227,6 +229,12 @@ class GoalsService extends ChangeNotifier {
         progress: allGoalsCompleted,
         target: 1,
       ),
+      Achievement(
+        title: '10 раздач без ошибок',
+        icon: Icons.flash_on,
+        progress: _errorFreeStreak,
+        target: 10,
+      ),
     ];
     _achievementShown = [
       for (var i = 0; i < _achievements.length; i++)
@@ -432,11 +440,20 @@ class GoalsService extends ChangeNotifier {
 
   /// Updates the "error free" streak and achievement.
   Future<void> updateErrorFreeStreak(bool correct, {BuildContext? context}) async {
-    final next = correct ? _errorFreeStreak + 1 : 0;
-    if (next == _errorFreeStreak) return;
-    _errorFreeStreak = next;
+    if (context != null) {
+      final service = context.read<StreakService>();
+      await service.updateErrorFreeStreak(correct);
+      _errorFreeStreak = service.errorFreeStreak;
+    } else {
+      final next = correct ? _errorFreeStreak + 1 : 0;
+      if (next == _errorFreeStreak) return;
+      _errorFreeStreak = next;
+    }
     if (_achievements.length > 3) {
       _achievements[3] = _achievements[3].copyWith(progress: _errorFreeStreak);
+    }
+    if (_achievements.length > 7) {
+      _achievements[7] = _achievements[7].copyWith(progress: _errorFreeStreak);
     }
     await _saveErrorFreeStreak();
     notifyListeners();
