@@ -11,6 +11,7 @@ import '../services/goals_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../models/summary_result.dart';
+import '../models/saved_hand.dart';
 import '../theme/app_colors.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/mistake_heatmap.dart';
@@ -29,6 +30,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   SummaryResult? _summary;
   List<FlSpot> _streakSpots = [];
   List<MapEntry<DateTime, int>> _mistakesPerDay = [];
+  List<MapEntry<DateTime, double>> _weeklyAccuracy = [];
   Map<String, Map<String, int>> _heatmapData = {};
   bool _goalCompleted = false;
   bool _allGoalsCompleted = false;
@@ -53,6 +55,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final spots = <FlSpot>[];
     int streak = 0;
     final counts = <DateTime, int>{};
+    final weekMap = <DateTime, List<SavedHand>>{};
     final heatmap = {
       for (final p in ['BB', 'SB', 'BTN', 'CO', 'MP', 'UTG'])
         p: {for (final s in kStreetNames) s: 0}
@@ -74,6 +77,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
           heatmap[pos]![street] = heatmap[pos]![street]! + 1;
         }
       }
+      final d = DateTime(h.date.year, h.date.month, h.date.day);
+      weekMap.putIfAbsent(d, () => []).add(h);
     }
 
     final entries = counts.entries.toList()
@@ -81,11 +86,38 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final cutoff = DateTime.now().subtract(const Duration(days: 30));
     final recent = entries.where((e) => e.key.isAfter(cutoff)).toList();
 
+    final start = DateTime.now().subtract(const Duration(days: 6));
+    final weekStart = DateTime(start.year, start.month, start.day);
+    final weekAcc = <MapEntry<DateTime, double>>[];
+    final days = weekMap.keys
+        .where((d) => !d.isBefore(weekStart))
+        .toList()
+      ..sort();
+    for (final day in days) {
+      final list = weekMap[day]!;
+      int c = 0;
+      int t = 0;
+      for (final h in list) {
+        final exp = h.expectedAction;
+        final gto = h.gtoAction;
+        if (exp != null && gto != null) {
+          t++;
+          if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) {
+            c++;
+          }
+        }
+      }
+      if (t > 0) {
+        weekAcc.add(MapEntry(day, c / t * 100));
+      }
+    }
+
     setState(() {
       _summary = summary;
       _streakSpots = spots;
       _mistakesPerDay = recent;
       _heatmapData = heatmap;
+      _weeklyAccuracy = weekAcc;
     });
   }
 
@@ -174,6 +206,100 @@ class _ProgressScreenState extends State<ProgressScreen> {
           lineBarsData: [
             LineChartBarData(
               spots: _streakSpots,
+              color: accent,
+              barWidth: 2,
+              isCurved: false,
+              dotData: FlDotData(show: false),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWeeklyAccuracyChart() {
+    if (_weeklyAccuracy.isEmpty) {
+      return Container(
+        height: 200,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Text('Недостаточно данных',
+            style: TextStyle(color: Colors.white70)),
+      );
+    }
+    final accent = Theme.of(context).colorScheme.secondary;
+    final spots = <FlSpot>[];
+    for (var i = 0; i < _weeklyAccuracy.length; i++) {
+      spots.add(FlSpot(i.toDouble(), _weeklyAccuracy[i].value));
+    }
+    final step = (_weeklyAccuracy.length / 6).ceil();
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: LineChart(
+        LineChartData(
+          minY: 0,
+          maxY: 100,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: 20,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.white24, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 20,
+                reservedSize: 30,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toInt().toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index >= _weeklyAccuracy.length) {
+                    return const SizedBox.shrink();
+                  }
+                  if (index % step != 0 && index != _weeklyAccuracy.length - 1) {
+                    return const SizedBox.shrink();
+                  }
+                  final d = _weeklyAccuracy[index].key;
+                  final label =
+                      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                  return Text(label,
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 10));
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(color: Colors.white24),
+              bottom: BorderSide(color: Colors.white24),
+            ),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
               color: accent,
               barWidth: 2,
               isCurved: false,
@@ -516,6 +642,17 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ),
           const SizedBox(height: 12),
           _buildPieChart(),
+          const SizedBox(height: 24),
+          const Text(
+            '🔥 Точность за неделю',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildWeeklyAccuracyChart(),
           const SizedBox(height: 24),
           const Text(
             'История стрика',
