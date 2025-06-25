@@ -32,6 +32,9 @@ class _PackDataSource extends DataTableSource {
   final void Function(TrainingPackStats, String) onSubmitEdit;
   final Future<void> Function(TrainingPackStats, String) onAction;
   final Future<void> Function(TrainingPackStats) showMenu;
+  final Set<TrainingPack> selected;
+  final void Function(TrainingPack) onToggle;
+  final bool selectionMode;
 
   _PackDataSource({
     required this.stats,
@@ -45,6 +48,9 @@ class _PackDataSource extends DataTableSource {
     required this.onSubmitEdit,
     required this.onAction,
     required this.showMenu,
+    required this.selected,
+    required this.onToggle,
+    required this.selectionMode,
   });
 
   @override
@@ -66,13 +72,21 @@ class _PackDataSource extends DataTableSource {
         : progress < 0.8
             ? Colors.orangeAccent
             : Colors.greenAccent;
+    final selectedRow = selected.contains(s.pack);
     return DataRow(
+      selected: selectedRow,
       color: forgotten
           ? MaterialStateProperty.all(Colors.grey.shade800)
           : null,
-      onSelectChanged: (_) => onOpen(s),
-      onLongPress: () => showMenu(s),
+      onSelectChanged: (_) =>
+          selectionMode ? onToggle(s.pack) : onOpen(s),
+      onLongPress: () =>
+          selectionMode ? onToggle(s.pack) : showMenu(s),
       cells: [
+        DataCell(Checkbox(
+          value: selectedRow,
+          onChanged: (_) => onToggle(s.pack),
+        )),
         editingPack == s.pack
             ? DataCell(
                 TextField(
@@ -87,7 +101,7 @@ class _PackDataSource extends DataTableSource {
                   message: 'Открыть обзор пака',
                   child: Text(s.pack.name),
                 ),
-                onTap: () => onStartEdit(s),
+                onTap: () => selectionMode ? onToggle(s.pack) : onStartEdit(s),
               ),
         DataCell(Text(s.total.toString())),
         DataCell(
@@ -170,6 +184,23 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   bool _forgottenOnly = false;
   TrainingPack? _editingPack;
   final TextEditingController _controller = TextEditingController();
+  final Set<TrainingPack> _selected = {};
+  int _firstRowIndex = 0;
+  int _rowsPerPage = 10;
+
+  void _toggleSelect(TrainingPack pack) {
+    setState(() {
+      if (_selected.contains(pack)) {
+        _selected.remove(pack);
+      } else {
+        _selected.add(pack);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() => _selected.clear());
+  }
 
   void _onSort(int columnIndex, bool ascending) {
     setState(() {
@@ -306,9 +337,9 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     return stats;
   }
 
-  Future<void> _exportCsv() async {
+  Future<void> _exportCsv([List<TrainingPackStats>? custom]) async {
     final packs = context.read<TrainingPackStorageService>().packs;
-    final stats = _sortedStats(packs);
+    final stats = custom ?? _sortedStats(packs);
     if (stats.isEmpty) return;
     final rows = <List<dynamic>>[];
     rows.add(['Название', 'Рук', 'Точность', 'Ошибки', 'Рейтинг', 'Последняя сессия']);
@@ -363,6 +394,61 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     }
   }
 
+  String _packReport(TrainingPack pack) {
+    final stats = TrainingPackStats.fromPack(pack);
+    final buffer = StringBuffer()
+      ..writeln('# ${pack.name}')
+      ..writeln('- Кол-во рук: ${stats.total}')
+      ..writeln('- Точность: ${stats.accuracy.toStringAsFixed(1)}%')
+      ..writeln('- Ошибок: ${stats.mistakes}')
+      ..writeln();
+    final last = pack.history.isNotEmpty ? pack.history.last : null;
+    if (last != null) {
+      final mistakes = [for (final t in last.tasks) if (!t.correct) t.question];
+      if (mistakes.isNotEmpty) {
+        buffer.writeln('## Ошибочные руки');
+        for (final m in mistakes) {
+          buffer.writeln('- $m');
+        }
+      }
+    }
+    return buffer.toString();
+  }
+
+  Future<void> _exportMarkdown(List<TrainingPackStats> stats) async {
+    if (stats.isEmpty) return;
+    final buffer = StringBuffer();
+    for (final s in stats) {
+      buffer.writeln(_packReport(s.pack));
+      buffer.writeln();
+    }
+    final dir = await getTemporaryDirectory();
+    final name =
+        'pack_report_${DateFormat("yyyy-MM-dd_HH-mm").format(DateTime.now())}.md';
+    final file = File('${dir.path}/$name');
+    await file.writeAsString(buffer.toString());
+    try {
+      await Share.shareXFiles([XFile(file.path)], text: name);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Markdown экспортирован')));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта Markdown')));
+      }
+    }
+  }
+
+  Future<void> _deleteSelected() async {
+    final list = _selected.toList();
+    for (final pack in list) {
+      await _deletePack(pack);
+    }
+    _clearSelection();
+  }
+
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs;
@@ -409,6 +495,9 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       onSubmitEdit: (s, v) => _submitEdit(s.pack, v),
       onAction: _handleAction,
       showMenu: _showRowMenu,
+      selected: _selected,
+      onToggle: _toggleSelect,
+      selectionMode: _selected.isNotEmpty,
     );
 
     return Scaffold(
@@ -428,6 +517,33 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             onChanged: (v) => setState(() => _forgottenOnly = v),
             activeColor: Colors.orange,
           ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: _selected.isNotEmpty ? 48 : 0,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _selected.isNotEmpty
+                ? Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _deleteSelected,
+                        child: const Text('Удалить'),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: () =>
+                            _exportCsv([for (final s in stats) if (_selected.contains(s.pack)) s]).then((_) => _clearSelection()),
+                        child: const Text('CSV'),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: () =>
+                            _exportMarkdown([for (final s in stats) if (_selected.contains(s.pack)) s]).then((_) => _clearSelection()),
+                        child: const Text('MD'),
+                      ),
+                    ],
+                  )
+                : null,
+          ),
           Expanded(
             child: Column(
               children: [
@@ -435,8 +551,38 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                   child: PaginatedDataTable(
                     sortColumnIndex: _sortColumn,
                     sortAscending: _ascending,
-                    rowsPerPage: 10,
+                    rowsPerPage: _rowsPerPage,
+                    onPageChanged: (i) => setState(() => _firstRowIndex = i),
                     columns: [
+                      DataColumn(
+                        label: Row(
+                          children: [
+                            Checkbox(
+                              value: stats
+                                  .skip(_firstRowIndex)
+                                  .take(_rowsPerPage)
+                                  .every((s) => _selected.contains(s.pack)) &&
+                                  stats.isNotEmpty,
+                              onChanged: (v) {
+                                final visible = stats
+                                    .skip(_firstRowIndex)
+                                    .take(_rowsPerPage);
+                                setState(() {
+                                  if (v == true) {
+                                    _selected.addAll(
+                                        visible.map((e) => e.pack));
+                                  } else {
+                                    for (final s in visible) {
+                                      _selected.remove(s.pack);
+                                    }
+                                  }
+                                });
+                              },
+                            ),
+                            const Text('Все'),
+                          ],
+                        ),
+                      ),
                       DataColumn(
                         label: Row(
                           children: [
@@ -532,6 +678,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                   headingRowHeight: 0,
                   columns: const [
                     DataColumn(label: SizedBox.shrink()),
+                    DataColumn(label: SizedBox.shrink()),
                     DataColumn(label: SizedBox.shrink(), numeric: true),
                     DataColumn(label: SizedBox.shrink(), numeric: true),
                     DataColumn(label: SizedBox.shrink()),
@@ -543,6 +690,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                   rows: [
                     DataRow(
                       cells: [
+                        const DataCell(SizedBox.shrink()),
                         const DataCell(Text('Σ')),
                         DataCell(Text(sumTotal.toString())),
                         DataCell(Text('${avgAcc.toStringAsFixed(1)}%')),
