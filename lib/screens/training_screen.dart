@@ -8,6 +8,8 @@ import '../widgets/training_spot_diagram.dart';
 import '../widgets/training_spot_preview.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../services/goals_service.dart';
+import '../models/drill_session_result.dart';
+import '../helpers/poker_street_helper.dart';
 
 /// Simple screen that shows a single [TrainingSpot].
 class TrainingScreen extends StatefulWidget {
@@ -68,6 +70,16 @@ class _TrainingScreenState extends State<TrainingScreen> {
 
   Future<void> _showSummary() async {
     final total = widget.hands!.length;
+    final result = DrillSessionResult(
+      date: DateTime.now(),
+      position: widget.hands!.first.heroPosition,
+      street: streetName(widget.hands!.first.boardStreet),
+      total: total,
+      correct: _correctCount,
+      hands: widget.hands!,
+    );
+    await GoalsService.instance!
+        .saveDrillResult(result, context: context);
     final repeat = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(

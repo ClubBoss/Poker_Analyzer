@@ -6,6 +6,7 @@ import 'dart:math';
 import 'dart:convert';
 import '../screens/progress_screen.dart';
 import '../models/goal_progress_entry.dart';
+import '../models/drill_session_result.dart';
 import 'streak_service.dart';
 
 class Achievement {
@@ -76,6 +77,7 @@ class GoalsService extends ChangeNotifier {
   static const _dailyDateKey = 'daily_goal_date';
   static const _achievementShownPrefix = 'ach_shown_';
   static const _historyPrefix = 'goal_history_';
+  static const _drillResultsKey = 'drill_results';
 
   int _errorFreeStreak = 0;
   int _handStreak = 0;
@@ -90,6 +92,7 @@ class GoalsService extends ChangeNotifier {
   late List<Achievement> _achievements;
   late List<bool> _achievementShown;
   late List<List<GoalProgressEntry>> _history;
+  List<DrillSessionResult> _drillResults = [];
 
   static GoalsService? _instance;
   static GoalsService? get instance => _instance;
@@ -120,6 +123,8 @@ class GoalsService extends ChangeNotifier {
   bool get anyCompleted => _goals.any((g) => g.progress >= g.target);
 
   int get mistakeReviewStreak => _mistakeReviewStreak;
+
+  List<DrillSessionResult> get drillResults => List.unmodifiable(_drillResults);
 
   List<GoalProgressEntry> historyFor(int index) =>
       index >= 0 && index < _history.length
@@ -176,6 +181,17 @@ class GoalsService extends ChangeNotifier {
       }
       _history.add(list);
     }
+    final rawResults = prefs.getStringList(_drillResultsKey) ?? [];
+    _drillResults = [];
+    for (final item in rawResults) {
+      try {
+        final data = jsonDecode(item);
+        if (data is Map<String, dynamic>) {
+          _drillResults.add(
+              DrillSessionResult.fromJson(Map<String, dynamic>.from(data)));
+        }
+      } catch (_) {}
+    }
     _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
     _handStreak = prefs.getInt(_handsKey) ?? 0;
     _mistakeReviewStreak = prefs.getInt(_mistakeStreakKey) ?? 0;
@@ -186,6 +202,13 @@ class GoalsService extends ChangeNotifier {
     final completedGoals =
         _goals.where((g) => g.progress >= g.target).length;
     final allGoalsCompleted = completedGoals == _goals.length ? 1 : 0;
+    int drillMaster = 0;
+    if (_drillResults.length >= 5) {
+      final last = _drillResults.reversed.take(5).toList();
+      final avg =
+          last.map((e) => e.accuracy).reduce((a, b) => a + b) / last.length;
+      if (avg >= 0.8) drillMaster = 1;
+    }
     _achievements = [
       const Achievement(
         title: 'Разобрать 5 ошибок',
@@ -241,6 +264,12 @@ class GoalsService extends ChangeNotifier {
         progress: 0,
         target: 7,
       ),
+      Achievement(
+        title: 'Drill Master',
+        icon: Icons.school,
+        progress: drillMaster,
+        target: 1,
+      ),
     ];
     _achievementShown = [
       for (var i = 0; i < _achievements.length; i++)
@@ -294,6 +323,12 @@ class GoalsService extends ChangeNotifier {
     } else {
       await prefs.remove(_dailyDateKey);
     }
+  }
+
+  Future<void> _saveDrillResults() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = [for (final r in _drillResults) jsonEncode(r.toJson())];
+    await prefs.setStringList(_drillResultsKey, list);
   }
 
   void _checkAchievements(BuildContext context) {
@@ -509,5 +544,26 @@ class GoalsService extends ChangeNotifier {
       notifyListeners();
       if (context != null) _checkAchievements(context);
     }
+  }
+
+  void _updateDrillAchievement() {
+    if (_achievements.length < 10) return;
+    int value = 0;
+    if (_drillResults.length >= 5) {
+      final last = _drillResults.reversed.take(5).toList();
+      final avg = last.map((e) => e.accuracy).reduce((a, b) => a + b) / last.length;
+      if (avg >= 0.8) value = 1;
+    }
+    if (_achievements[9].progress != value) {
+      _achievements[9] = _achievements[9].copyWith(progress: value);
+    }
+  }
+
+  Future<void> saveDrillResult(DrillSessionResult r, {BuildContext? context}) async {
+    _drillResults.add(r);
+    await _saveDrillResults();
+    _updateDrillAchievement();
+    notifyListeners();
+    if (context != null) _checkAchievements(context);
   }
 }
