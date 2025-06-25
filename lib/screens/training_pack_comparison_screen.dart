@@ -59,9 +59,15 @@ class _PackDataSource extends DataTableSource {
             style: TextStyle(color: color))),
         DataCell(Text(s.mistakes.toString())),
         DataCell(Text(s.rating.toStringAsFixed(1).padLeft(4))),
-        DataCell(Text(s.lastSession != null
-            ? DateFormat('dd.MM').format(s.lastSession!)
-            : '-')),
+        DataCell(Tooltip(
+          message: s.lastSession != null
+              ? 'Последняя сессия: '
+                  '${DateFormat('d MMMM yyyy', 'ru').format(s.lastSession!)}'
+              : 'Нет данных',
+          child: Text(s.lastSession != null
+              ? DateFormat('dd.MM').format(s.lastSession!)
+              : '-'),
+        )),
       ],
     );
   }
