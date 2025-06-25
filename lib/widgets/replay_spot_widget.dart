@@ -8,6 +8,7 @@ import 'board_cards_widget.dart';
 import 'playback_progress_bar.dart';
 import 'poker_table_painter.dart';
 import 'training_spot_diagram.dart';
+import 'ev_loss_bar.dart';
 
 /// Simple hand replay widget for [TrainingSpot].
 class ReplaySpotWidget extends StatefulWidget {
@@ -219,6 +220,11 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
             playbackIndex: _index,
             actionCount: widget.spot.actions.length,
             onSeek: _seek,
+          ),
+          EvLossBar(
+            spot: widget.spot,
+            playbackIndex: _index,
+            totalEvLoss: widget.evLoss,
           ),
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
