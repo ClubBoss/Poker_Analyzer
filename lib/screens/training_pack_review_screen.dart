@@ -16,6 +16,7 @@ import '../widgets/replay_spot_widget.dart';
 import '../theme/app_colors.dart';
 import '../services/tag_service.dart';
 import '../services/training_pack_storage_service.dart';
+import '../models/training_pack_stats.dart';
 
 /// Displays all spots from [pack] with option to show only mistaken ones.
 class TrainingPackReviewScreen extends StatefulWidget {
@@ -362,20 +363,11 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     final hasHistory = history.isNotEmpty;
     final hasRatings = widget.pack.hands.any((h) => h.rating > 0);
     if (!hasHistory && !hasRatings) return const SizedBox.shrink();
-    final total = hasHistory
-        ? history.fold<int>(0, (p, r) => p + r.total)
-        : 0;
-    final correct = hasHistory
-        ? history.fold<int>(0, (p, r) => p + r.correct)
-        : 0;
-    final mistakes = total - correct;
-    final accuracy = total > 0 ? correct * 100 / total : 0.0;
-    final ratingAvg = widget.pack.hands.isNotEmpty
-        ? widget.pack.hands
-                .map((h) => h.rating)
-                .reduce((a, b) => a + b) /
-            widget.pack.hands.length
-        : 0.0;
+    final stats = TrainingPackStats.fromPack(widget.pack);
+    final total = stats.total;
+    final mistakes = stats.mistakes;
+    final accuracy = stats.accuracy;
+    final ratingAvg = stats.rating;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(16),
