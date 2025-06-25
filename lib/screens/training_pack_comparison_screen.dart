@@ -73,6 +73,7 @@ class _PackDataSource extends DataTableSource {
 class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScreen> {
   int _sortColumn = 0;
   bool _ascending = true;
+  bool _forgottenOnly = false;
 
   void _onSort(int columnIndex, bool ascending) {
     setState(() {
@@ -173,7 +174,16 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs;
-    final stats = _sortedStats(packs);
+    final now = DateTime.now();
+    final filtered = _forgottenOnly
+        ? [
+            for (final p in packs)
+              if (p.history.isEmpty ||
+                  now.difference(p.history.last.date).inDays >= 7)
+                p
+          ]
+        : packs;
+    final stats = _sortedStats(filtered);
     final maxAccuracy = stats.isNotEmpty
         ? stats.map((s) => s.accuracy).reduce((a, b) => a > b ? a : b)
         : 0.0;
@@ -204,83 +214,107 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         onPressed: _exportCsv,
         child: const Icon(Icons.share),
       ),
-      body: PaginatedDataTable(
-        sortColumnIndex: _sortColumn,
-        sortAscending: _ascending,
-        rowsPerPage: 10,
-        columns: [
-          DataColumn(
-            label: Row(
-              children: [
-                const Text('Название'),
-                if (_sortColumn == 0)
-                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                      size: 12)
-              ],
-            ),
-            onSort: (i, asc) => _onSort(i, asc),
+      body: Column(
+        children: [
+          SwitchListTile(
+            title: const Text('Давно не повторял'),
+            value: _forgottenOnly,
+            onChanged: (v) => setState(() => _forgottenOnly = v),
+            activeColor: Colors.orange,
           ),
-          DataColumn(
-            label: Row(
-              children: [
-                const Text('Рук'),
-                if (_sortColumn == 1)
-                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                      size: 12)
+          Expanded(
+            child: PaginatedDataTable(
+              sortColumnIndex: _sortColumn,
+              sortAscending: _ascending,
+              rowsPerPage: 10,
+              columns: [
+                DataColumn(
+                  label: Row(
+                    children: [
+                      const Text('Название'),
+                      if (_sortColumn == 0)
+                        Icon(
+                          _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 12,
+                        ),
+                    ],
+                  ),
+                  onSort: (i, asc) => _onSort(i, asc),
+                ),
+                DataColumn(
+                  label: Row(
+                    children: [
+                      const Text('Рук'),
+                      if (_sortColumn == 1)
+                        Icon(
+                          _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 12,
+                        ),
+                    ],
+                  ),
+                  numeric: true,
+                  onSort: (i, asc) => _onSort(i, asc),
+                ),
+                DataColumn(
+                  label: Row(
+                    children: [
+                      const Text('Точность'),
+                      if (_sortColumn == 2)
+                        Icon(
+                          _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 12,
+                        ),
+                    ],
+                  ),
+                  numeric: true,
+                  onSort: (i, asc) => _onSort(i, asc),
+                ),
+                DataColumn(
+                  label: Row(
+                    children: [
+                      const Text('Ошибки'),
+                      if (_sortColumn == 3)
+                        Icon(
+                          _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 12,
+                        ),
+                    ],
+                  ),
+                  numeric: true,
+                  onSort: (i, asc) => _onSort(i, asc),
+                ),
+                DataColumn(
+                  label: Row(
+                    children: [
+                      const Text('Рейтинг'),
+                      if (_sortColumn == 4)
+                        Icon(
+                          _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 12,
+                        ),
+                    ],
+                  ),
+                  numeric: true,
+                  onSort: (i, asc) => _onSort(i, asc),
+                ),
+                DataColumn(
+                  label: Row(
+                    children: [
+                      const Text('Последняя сессия'),
+                      if (_sortColumn == 5)
+                        Icon(
+                          _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 12,
+                        ),
+                    ],
+                  ),
+                  onSort: (i, asc) => _onSort(i, asc),
+                ),
               ],
+              source: source,
             ),
-            numeric: true,
-            onSort: (i, asc) => _onSort(i, asc),
-          ),
-          DataColumn(
-            label: Row(
-              children: [
-                const Text('Точность'),
-                if (_sortColumn == 2)
-                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                      size: 12)
-              ],
-            ),
-            numeric: true,
-            onSort: (i, asc) => _onSort(i, asc),
-          ),
-          DataColumn(
-            label: Row(
-              children: [
-                const Text('Ошибки'),
-                if (_sortColumn == 3)
-                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                      size: 12)
-              ],
-            ),
-            numeric: true,
-            onSort: (i, asc) => _onSort(i, asc),
-          ),
-          DataColumn(
-            label: Row(
-              children: [
-                const Text('Рейтинг'),
-                if (_sortColumn == 4)
-                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                      size: 12)
-              ],
-            ),
-            numeric: true,
-            onSort: (i, asc) => _onSort(i, asc),
-          ),
-          DataColumn(
-            label: Row(
-              children: [
-                const Text('Последняя сессия'),
-                if (_sortColumn == 5)
-                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                      size: 12)
-              ],
-            ),
-            onSort: (i, asc) => _onSort(i, asc),
           ),
         ],
-        source: source,
       ),
     );
   }
