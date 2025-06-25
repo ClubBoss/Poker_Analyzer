@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 
 import '../services/training_pack_storage_service.dart';
+import '../models/training_pack.dart';
 import '../models/training_pack_stats.dart';
 import 'training_pack_review_screen.dart';
 
@@ -25,6 +26,10 @@ class _PackDataSource extends DataTableSource {
   final double maxAccuracy;
   final double minAccuracy;
   final DateTime now;
+  final TrainingPack? editingPack;
+  final TextEditingController controller;
+  final void Function(TrainingPackStats) onStartEdit;
+  final void Function(TrainingPackStats, String) onSubmitEdit;
 
   _PackDataSource({
     required this.stats,
@@ -32,6 +37,10 @@ class _PackDataSource extends DataTableSource {
     required this.maxAccuracy,
     required this.minAccuracy,
     required this.now,
+    required this.editingPack,
+    required this.controller,
+    required this.onStartEdit,
+    required this.onSubmitEdit,
   });
 
   @override
@@ -53,7 +62,22 @@ class _PackDataSource extends DataTableSource {
           : null,
       onSelectChanged: (_) => onOpen(s),
       cells: [
-        DataCell(Tooltip(message: 'Открыть обзор пака', child: Text(s.pack.name))),
+        editingPack == s.pack
+            ? DataCell(
+                TextField(
+                  controller: controller,
+                  autofocus: true,
+                  style: const TextStyle(color: Colors.white),
+                  onSubmitted: (v) => onSubmitEdit(s, v),
+                ),
+              )
+            : DataCell(
+                Tooltip(
+                  message: 'Открыть обзор пака',
+                  child: Text(s.pack.name),
+                ),
+                onTap: () => onStartEdit(s),
+              ),
         DataCell(Text(s.total.toString())),
         DataCell(
           Tooltip(
@@ -94,12 +118,32 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   int _sortColumn = 0;
   bool _ascending = true;
   bool _forgottenOnly = false;
+  TrainingPack? _editingPack;
+  final TextEditingController _controller = TextEditingController();
 
   void _onSort(int columnIndex, bool ascending) {
     setState(() {
       _sortColumn = columnIndex;
       _ascending = ascending;
     });
+  }
+
+  void _startEdit(TrainingPackStats s) {
+    setState(() {
+      _editingPack = s.pack;
+      _controller.text = s.pack.name;
+    });
+  }
+
+  Future<void> _submitEdit(TrainingPack pack, String name) async {
+    setState(() => _editingPack = null);
+    await context.read<TrainingPackStorageService>().renamePack(pack, name);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   List<TrainingPackStats> _sortedStats(List<TrainingPack> packs) {
@@ -224,6 +268,10 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       maxAccuracy: maxAccuracy,
       minAccuracy: minAccuracy,
       now: now,
+      editingPack: _editingPack,
+      controller: _controller,
+      onStartEdit: _startEdit,
+      onSubmitEdit: (s, v) => _submitEdit(s.pack, v),
     );
 
     return Scaffold(
