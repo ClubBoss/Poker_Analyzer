@@ -12,6 +12,7 @@ import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../models/summary_result.dart';
 import '../theme/app_colors.dart';
+import 'goal_history_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -409,6 +410,16 @@ class _ProgressScreenState extends State<ProgressScreen> {
         title: const Text('Прогресс'),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'История целей',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const GoalHistoryScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'PDF',
