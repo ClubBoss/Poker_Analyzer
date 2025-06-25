@@ -3,22 +3,84 @@ import 'package:provider/provider.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
 import '../services/streak_counter_service.dart';
+import 'confetti_overlay.dart';
 
-class TodayProgressBanner extends StatelessWidget {
+class TodayProgressBanner extends StatefulWidget {
   const TodayProgressBanner({super.key});
+
+  @override
+  State<TodayProgressBanner> createState() => _TodayProgressBannerState();
+}
+
+class _TodayProgressBannerState extends State<TodayProgressBanner>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+  DateTime? _day;
+  bool _celebrated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _pulse = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 1.1).chain(
+          CurveTween(curve: Curves.easeOut),
+        ),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.1, end: 1.0).chain(
+          CurveTween(curve: Curves.easeIn),
+        ),
+        weight: 50,
+      ),
+    ]).animate(_controller);
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  void _checkCelebrate(int hands, int target) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (_day == null || !_isSameDay(_day!, today)) {
+      _day = today;
+      _celebrated = false;
+    }
+    if (!_celebrated && hands >= target && target > 0) {
+      _celebrated = true;
+      _controller.forward(from: 0);
+      showConfettiOverlay(context);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final stats = context.watch<TrainingStatsService>();
     final target = context.watch<DailyTargetService>().target;
     final streak = context.watch<StreakCounterService>().count;
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     final hands = stats.handsPerDay[today] ?? 0;
     final dailyMistakes = stats.mistakesDaily(1);
     final mistakes = dailyMistakes.isNotEmpty ? dailyMistakes.first.value : 0;
     final color = mistakes > 0
         ? Colors.redAccent
         : Theme.of(context).colorScheme.secondary;
+
+    _checkCelebrate(hands, target);
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       padding: const EdgeInsets.all(12),
@@ -49,13 +111,16 @@ class TodayProgressBanner extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: (hands / target).clamp(0.0, 1.0),
-              backgroundColor: Colors.white24,
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-              minHeight: 6,
+          ScaleTransition(
+            scale: _pulse,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: (hands / target).clamp(0.0, 1.0),
+                backgroundColor: Colors.white24,
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+                minHeight: 6,
+              ),
             ),
           ),
         ],
