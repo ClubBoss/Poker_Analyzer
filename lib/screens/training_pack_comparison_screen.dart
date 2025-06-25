@@ -30,6 +30,8 @@ class _PackDataSource extends DataTableSource {
   final TextEditingController controller;
   final void Function(TrainingPackStats) onStartEdit;
   final void Function(TrainingPackStats, String) onSubmitEdit;
+  final Future<void> Function(TrainingPackStats, String) onAction;
+  final Future<void> Function(TrainingPackStats) showMenu;
 
   _PackDataSource({
     required this.stats,
@@ -41,6 +43,8 @@ class _PackDataSource extends DataTableSource {
     required this.controller,
     required this.onStartEdit,
     required this.onSubmitEdit,
+    required this.onAction,
+    required this.showMenu,
   });
 
   @override
@@ -61,6 +65,7 @@ class _PackDataSource extends DataTableSource {
           ? MaterialStateProperty.all(Colors.grey.shade800)
           : null,
       onSelectChanged: (_) => onOpen(s),
+      onLongPress: () => showMenu(s),
       cells: [
         editingPack == s.pack
             ? DataCell(
@@ -99,6 +104,17 @@ class _PackDataSource extends DataTableSource {
               ? DateFormat('dd.MM').format(s.lastSession!)
               : '-'),
         )),
+        DataCell(
+          PopupMenuButton<String>(
+            padding: EdgeInsets.zero,
+            onSelected: (v) => onAction(s, v),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'rename', child: Text('Переименовать')),
+              PopupMenuItem(value: 'delete', child: Text('Удалить')),
+              PopupMenuItem(value: 'duplicate', child: Text('Дублировать')),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -138,6 +154,68 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   Future<void> _submitEdit(TrainingPack pack, String name) async {
     setState(() => _editingPack = null);
     await context.read<TrainingPackStorageService>().renamePack(pack, name);
+  }
+
+  Future<void> _deletePack(TrainingPack pack) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Удалить пакет «${pack.name}»?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await context.read<TrainingPackStorageService>().removePack(pack);
+    }
+  }
+
+  Future<void> _duplicatePack(TrainingPack pack) async {
+    await context.read<TrainingPackStorageService>().duplicatePack(pack);
+  }
+
+  Future<void> _showRowMenu(TrainingPackStats s) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(s.pack.name),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, 'rename'),
+            child: const Text('Переименовать'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, 'delete'),
+            child: const Text('Удалить'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, 'duplicate'),
+            child: const Text('Дублировать'),
+          ),
+        ],
+      ),
+    );
+    if (result != null) {
+      await _handleAction(s, result);
+    }
+  }
+
+  Future<void> _handleAction(TrainingPackStats s, String action) async {
+    if (action == 'rename') {
+      _startEdit(s);
+    } else if (action == 'delete') {
+      await _deletePack(s.pack);
+    } else if (action == 'duplicate') {
+      await _duplicatePack(s.pack);
+    }
   }
 
   @override
@@ -272,6 +350,8 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       controller: _controller,
       onStartEdit: _startEdit,
       onSubmitEdit: (s, v) => _submitEdit(s.pack, v),
+      onAction: _handleAction,
+      showMenu: _showRowMenu,
     );
 
     return Scaffold(
@@ -382,6 +462,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                   ),
                   onSort: (i, asc) => _onSort(i, asc),
                 ),
+                const DataColumn(label: SizedBox.shrink()),
               ],
               source: source,
             ),
