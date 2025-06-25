@@ -138,7 +138,9 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       sumMistakes,
       avgRating.toStringAsFixed(1),
     ]);
-    final csvStr = '\uFEFF${const ListToCsvConverter(fieldDelimiter: ';').convert(rows, eol: '\r\n')}';
+    assert(rows.every((r) => r.length == rows.first.length));
+    final csvStr =
+        '\uFEFF${const ListToCsvConverter(fieldDelimiter: ';').convert(rows, eol: '\r\n')}';
     final dir = await getTemporaryDirectory();
     final name =
         'pack_comparison_${DateFormat("yyyy-MM-dd_HH-mm").format(DateTime.now())}.csv';
