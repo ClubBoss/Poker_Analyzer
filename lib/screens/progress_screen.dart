@@ -803,7 +803,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             onPressed: _exportPdf,
           ),
           IconButton(
-            icon: const Icon(Icons.emoji_events),
+            icon: const Text('🏆', style: TextStyle(fontSize: 20)),
             tooltip: 'Достижения',
             onPressed: () {
               Navigator.push(
