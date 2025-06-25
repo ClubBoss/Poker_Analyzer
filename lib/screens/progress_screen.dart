@@ -771,6 +771,17 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 },
                 child: const Text('Отработать цель'),
               ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const DrillHistoryScreen()),
+                  );
+                },
+                child: const Text('История тренировок'),
+              ),
             ],
           ),
           const Text(
