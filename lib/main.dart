@@ -23,6 +23,7 @@ import 'services/training_spot_storage_service.dart';
 import 'services/evaluation_executor_service.dart';
 import "services/training_stats_service.dart";
 import "services/achievement_engine.dart";
+import 'services/goal_engine.dart';
 import 'services/streak_service.dart';
 import 'user_preferences.dart';
 
@@ -77,6 +78,9 @@ void main() {
         ChangeNotifierProvider(
           create: (context) =>
               AchievementEngine(stats: context.read<TrainingStatsService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => GoalEngine(stats: context.read<TrainingStatsService>()),
         ),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
