@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../helpers/date_utils.dart';
 import '../services/reminder_service.dart';
 import '../services/user_action_logger.dart';
+import '../services/daily_target_service.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
@@ -52,6 +53,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reminder = context.watch<ReminderService>();
+    final dailyTarget = context.watch<DailyTargetService>();
     final dismissed = reminder.lastDismissed;
     final status = reminder.enabled ? 'Включены' : 'Выключены';
     final info = dismissed != null
@@ -84,6 +86,22 @@ class SettingsPlaceholderScreen extends StatelessWidget {
               info,
               style: const TextStyle(color: Colors.white70),
             ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Daily hands target',
+              style: TextStyle(color: Colors.white70, fontSize: 18),
+            ),
+          ),
+          Slider(
+            value: dailyTarget.target.toDouble(),
+            min: 5,
+            max: 50,
+            divisions: 45,
+            label: dailyTarget.target.toString(),
+            activeColor: Colors.orange,
+            onChanged: (v) => dailyTarget.setTarget(v.round()),
           ),
           const SizedBox(height: 32),
           const Center(
