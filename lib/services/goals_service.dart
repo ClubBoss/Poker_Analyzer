@@ -30,6 +30,7 @@ class Goal {
   final String title;
   final int progress;
   final int target;
+  final DateTime createdAt;
   final IconData? icon;
   final DateTime? completedAt;
 
@@ -37,16 +38,24 @@ class Goal {
     required this.title,
     required this.progress,
     required this.target,
+    required this.createdAt,
     this.icon,
     this.completedAt,
   });
 
   bool get completed => progress >= target;
 
-  Goal copyWith({int? progress, int? target, DateTime? completedAt}) => Goal(
+  Goal copyWith({
+    int? progress,
+    int? target,
+    DateTime? createdAt,
+    DateTime? completedAt,
+  }) =>
+      Goal(
         title: title,
         progress: progress ?? this.progress,
         target: target ?? this.target,
+        createdAt: createdAt ?? this.createdAt,
         icon: icon,
         completedAt: completedAt ?? this.completedAt,
       );
@@ -88,6 +97,15 @@ class GoalsService extends ChangeNotifier {
     return DateTime.fromMillisecondsSinceEpoch(ts);
   }
 
+  DateTime _readCreated(SharedPreferences prefs, int index) {
+    final key = '${_prefPrefix}${index}_created';
+    final ts = prefs.getInt(key);
+    if (ts != null) return DateTime.fromMillisecondsSinceEpoch(ts);
+    final now = DateTime.now();
+    prefs.setInt(key, now.millisecondsSinceEpoch);
+    return now;
+  }
+
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _goals = [
@@ -95,6 +113,7 @@ class GoalsService extends ChangeNotifier {
         title: 'Разобрать 5 ошибок',
         progress: prefs.getInt('${_prefPrefix}0') ?? 0,
         target: 5,
+        createdAt: _readCreated(prefs, 0),
         icon: Icons.bug_report,
         completedAt: _readDate(prefs, 0),
       ),
@@ -102,6 +121,7 @@ class GoalsService extends ChangeNotifier {
         title: 'Пройти 3 раздачи без ошибок подряд',
         progress: prefs.getInt('${_prefPrefix}1') ?? 0,
         target: 3,
+        createdAt: _readCreated(prefs, 1),
         icon: Icons.play_circle_fill,
         completedAt: _readDate(prefs, 1),
       ),
@@ -164,6 +184,9 @@ class GoalsService extends ChangeNotifier {
   Future<void> _saveProgress(int index) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('${_prefPrefix}$index', _goals[index].progress);
+    await prefs.setInt(
+        '${_prefPrefix}${index}_created',
+        _goals[index].createdAt.millisecondsSinceEpoch);
     final dateKey = '${_prefPrefix}${index}_date';
     final date = _goals[index].completedAt;
     if (date != null) {
