@@ -5,6 +5,7 @@ import '../services/goals_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/streak_service.dart';
+import 'achievements_catalog_screen.dart';
 
 class AchievementsScreen extends StatelessWidget {
   const AchievementsScreen({super.key});
@@ -16,6 +17,19 @@ class AchievementsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Достижения'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu_book),
+            tooltip: 'Каталог',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const AchievementsCatalogScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: Builder(
         builder: (context) {
