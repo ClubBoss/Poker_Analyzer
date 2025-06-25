@@ -8,6 +8,7 @@ import '../services/streak_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/training_calendar_widget.dart';
 import 'streak_calendar_screen.dart';
+import '../widgets/mistake_summary_card.dart';
 
 enum _Mode { daily, weekly }
 
@@ -266,6 +267,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
           _streakChart(streak),
           const SizedBox(height: 12),
           _pie(goals),
+          const SizedBox(height: 12),
+          const MistakeSummaryCard(),
         ],
       ),
     );
