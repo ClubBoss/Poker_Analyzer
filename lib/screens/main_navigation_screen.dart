@@ -12,6 +12,9 @@ import '../widgets/suggested_drill_card.dart';
 import '../widgets/today_progress_banner.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
+import '../services/daily_target_service.dart';
+import '../theme/app_colors.dart';
+import 'package:provider/provider.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -23,10 +26,58 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
+  Future<void> _setDailyGoal() async {
+    final service = context.read<DailyTargetService>();
+    final controller = TextEditingController(text: service.target.toString());
+    final int? value = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text('Daily Goal', style: TextStyle(color: Colors.white)),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Hands',
+              labelStyle: TextStyle(color: Colors.white),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final v = int.tryParse(controller.text);
+                if (v != null && v > 0) {
+                  Navigator.pop(context, v);
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    if (value != null) {
+      await service.setTarget(value);
+    }
+  }
+
   Widget _home() {
     return Column(
       children: [
         const TodayProgressBanner(),
+        TextButton(
+          onPressed: _setDailyGoal,
+          child: const Text('Set Daily Goal'),
+        ),
         TextButton(
           onPressed: () {
             Navigator.push(
