@@ -20,6 +20,7 @@ import '../widgets/mistake_heatmap.dart';
 import 'goals_history_screen.dart';
 import 'achievements_screen.dart';
 import 'drill_history_screen.dart';
+import 'goal_drill_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -759,6 +760,19 @@ class _ProgressScreenState extends State<ProgressScreen> {
         children: [
           _buildGoalCompletedBadge(),
           _buildAllGoalsCompletedBadge(),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GoalDrillScreen()),
+                  );
+                },
+                child: const Text('Отработать цель'),
+              ),
+            ],
+          ),
           const Text(
             'Результаты',
             style: TextStyle(
