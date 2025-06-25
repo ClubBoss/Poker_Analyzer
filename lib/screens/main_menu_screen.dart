@@ -29,7 +29,7 @@ import 'session_stats_screen.dart';
 import 'training_stats_screen.dart';
 import 'progress_screen.dart';
 import '../services/streak_service.dart';
-import 'goals_screen.dart';
+import 'goals_overview_screen.dart';
 import 'mistake_repeat_screen.dart';
 import 'achievements_screen.dart';
 import '../services/goals_service.dart';
@@ -306,7 +306,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const GoalsScreen()),
+                  MaterialPageRoute(builder: (_) => const GoalsOverviewScreen()),
                 );
               },
               child: const Text('Перейти'),
@@ -335,7 +335,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const GoalsScreen()),
+                MaterialPageRoute(builder: (_) => const GoalsOverviewScreen()),
               );
             },
             child: const Text('Перейти'),
@@ -467,7 +467,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const GoalsScreen()),
+                  MaterialPageRoute(builder: (_) => const GoalsOverviewScreen()),
                 );
               },
               child: const Text('🎯 Мои цели'),
