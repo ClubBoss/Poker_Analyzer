@@ -5,9 +5,21 @@ import '../services/achievement_engine.dart';
 import '../services/goal_engine.dart';
 import '../theme/app_colors.dart';
 import 'goal_editor_screen.dart';
+import '../services/user_action_logger.dart';
 
-class AchievementsScreen extends StatelessWidget {
+class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
+
+  @override
+  State<AchievementsScreen> createState() => _AchievementsScreenState();
+}
+
+class _AchievementsScreenState extends State<AchievementsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    UserActionLogger.instance.log('viewed_achievements');
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -6,6 +6,7 @@ import 'spot_of_the_day_history_screen.dart';
 import 'settings_placeholder_screen.dart';
 import '../widgets/streak_banner.dart';
 import '../widgets/motivation_card.dart';
+import '../services/user_action_logger.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -27,6 +28,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   void _onTap(int index) {
+    UserActionLogger.instance.log('nav_$index');
     setState(() {
       _currentIndex = index;
     });

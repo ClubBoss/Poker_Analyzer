@@ -9,6 +9,7 @@ import '../models/goal_progress_entry.dart';
 import '../models/drill_session_result.dart';
 import '../models/saved_hand.dart';
 import 'streak_service.dart';
+import 'user_action_logger.dart';
 
 class Achievement {
   final String title;
@@ -458,6 +459,7 @@ class GoalsService extends ChangeNotifier {
     final willComplete = progress >= goal.target;
     if (!wasCompleted && willComplete) {
       date = time;
+      UserActionLogger.instance.log('completed_goal:${goal.title}');
     } else if (!willComplete) {
       date = null;
     }
