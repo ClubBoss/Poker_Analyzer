@@ -6,13 +6,37 @@ import '../screens/error_free_streak_screen.dart';
 
 /// Displays the current "Без ошибок подряд" streak as a small banner.
 /// Fades in and out when the value changes.
-class StreakBanner extends StatelessWidget {
+class StreakBanner extends StatefulWidget {
   const StreakBanner({super.key});
+
+  @override
+  State<StreakBanner> createState() => _StreakBannerState();
+}
+
+class _StreakBannerState extends State<StreakBanner> {
+  bool _motivationalShown = false;
 
   @override
   Widget build(BuildContext context) {
     final streak = context.watch<GoalsService>().errorFreeStreak;
     final accent = Theme.of(context).colorScheme.secondary;
+
+    if (streak == 0) {
+      _motivationalShown = false;
+    } else if (streak >= 5 && !_motivationalShown) {
+      _motivationalShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text('🔥 5 раздач без ошибок! Отличная серия!'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      });
+    }
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
