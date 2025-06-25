@@ -21,20 +21,25 @@ import 'services/cloud_sync_service.dart';
 import 'services/cloud_training_history_service.dart';
 import 'services/training_spot_storage_service.dart';
 import 'services/evaluation_executor_service.dart';
+import "services/training_stats_service.dart";
+import "services/achievement_engine.dart";
 import 'services/streak_service.dart';
 import 'user_preferences.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() {
   runApp(
     MultiProvider(
       providers: [
         Provider(create: (_) => CloudSyncService()),
         Provider(create: (_) => CloudTrainingHistoryService()),
+        ChangeNotifierProvider(create: (_) => TrainingStatsService()..load()),
         ChangeNotifierProvider(create: (_) => SavedHandStorageService()..load()),
         ChangeNotifierProvider(
           create: (context) => SavedHandManagerService(
             storage: context.read<SavedHandStorageService>(),
             cloud: context.read<CloudSyncService>(),
+            stats: context.read<TrainingStatsService>(),
           ),
         ),
         ChangeNotifierProvider(
@@ -69,6 +74,10 @@ void main() {
         ),
         ChangeNotifierProvider(create: (_) => GoalsService()..load()),
         ChangeNotifierProvider(create: (_) => StreakService()..load()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              AchievementEngine(stats: context.read<TrainingStatsService>()),
+        ),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
       ],
@@ -111,6 +120,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Poker AI Analyzer',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
