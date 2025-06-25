@@ -38,7 +38,10 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
     final stats = context.watch<TrainingStatsService>();
     final targetService = context.watch<DailyTargetService>();
     final xpService = context.watch<XPTrackerService>();
-    final tip = context.watch<DailyTipService>().tip;
+    final tipService = context.watch<DailyTipService>();
+    final tip = tipService.tip;
+    final category = tipService.category;
+    final categories = tipService.categories;
     final streak = streakService.count;
     final history = streakService.history;
     final maxStreak = history.isEmpty
@@ -95,9 +98,25 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Tip of the Day',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Row(
+                          children: [
+                            const Text(
+                              'Tip of the Day',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 8),
+                            DropdownButton<String>(
+                              value: category,
+                              dropdownColor: const Color(0xFF2A2B2E),
+                              underline: const SizedBox(),
+                              onChanged: (v) =>
+                                  context.read<DailyTipService>().setCategory(v!),
+                              items: categories
+                                  .map((c) =>
+                                      DropdownMenuItem(value: c, child: Text(c)))
+                                  .toList(),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(tip, style: const TextStyle(color: Colors.white)),
