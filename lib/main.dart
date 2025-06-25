@@ -29,6 +29,7 @@ import 'services/reminder_service.dart';
 import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/daily_target_service.dart';
+import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
@@ -58,6 +59,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
         ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
         ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
+        ChangeNotifierProvider(create: (_) => DailyTipService()..load()),
         ChangeNotifierProvider(create: (_) => XPTrackerService()..load()),
         ChangeNotifierProvider(
           create: (context) => StreakCounterService(

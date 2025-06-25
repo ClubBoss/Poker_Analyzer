@@ -6,12 +6,25 @@ import '../services/streak_service.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
 import '../services/xp_tracker_service.dart';
+import '../services/daily_tip_service.dart';
 import '../theme/app_colors.dart';
 import 'daily_progress_history_screen.dart';
 import 'achievements_screen.dart';
 
-class GoalOverviewScreen extends StatelessWidget {
+class GoalOverviewScreen extends StatefulWidget {
   const GoalOverviewScreen({super.key});
+
+  @override
+  State<GoalOverviewScreen> createState() => _GoalOverviewScreenState();
+}
+
+class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<DailyTipService>().ensureTodayTip();
+  }
 
   Color _color(int count, int target) {
     if (count >= target) return Colors.greenAccent;
@@ -25,6 +38,7 @@ class GoalOverviewScreen extends StatelessWidget {
     final stats = context.watch<TrainingStatsService>();
     final targetService = context.watch<DailyTargetService>();
     final xpService = context.watch<XPTrackerService>();
+    final tip = context.watch<DailyTipService>().tip;
     final streak = streakService.count;
     final history = streakService.history;
     final maxStreak = history.isEmpty
@@ -65,6 +79,35 @@ class GoalOverviewScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (tip.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[850],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.lightbulb, color: Colors.greenAccent),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Tip of the Day',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(tip, style: const TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (tip.isNotEmpty) const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
