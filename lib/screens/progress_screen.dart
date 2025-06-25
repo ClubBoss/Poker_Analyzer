@@ -24,11 +24,15 @@ class _ProgressScreenState extends State<ProgressScreen> {
   SummaryResult? _summary;
   List<FlSpot> _streakSpots = [];
   List<MapEntry<DateTime, int>> _mistakesPerDay = [];
+  bool _goalCompleted = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _gatherData());
+    final goals = context.read<GoalsService>();
+    _goalCompleted = goals.anyCompleted;
+    goals.addListener(_onGoalsChanged);
   }
 
   void _gatherData() {
@@ -65,6 +69,13 @@ class _ProgressScreenState extends State<ProgressScreen> {
       _streakSpots = spots;
       _mistakesPerDay = recent;
     });
+  }
+
+  void _onGoalsChanged() {
+    final completed = context.read<GoalsService>().anyCompleted;
+    if (completed != _goalCompleted) {
+      setState(() => _goalCompleted = completed);
+    }
   }
 
   Widget _buildPieChart() {
@@ -148,6 +159,38 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildGoalCompletedBadge() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: _goalCompleted
+          ? Container(
+              key: const ValueKey('goalBadge'),
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green[700],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.emoji_events, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Цель выполнена',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : const SizedBox.shrink(key: ValueKey('emptyBadge')),
     );
   }
 
@@ -349,6 +392,12 @@ class _ProgressScreenState extends State<ProgressScreen> {
   }
 
   @override
+  void dispose() {
+    context.read<GoalsService>().removeListener(_onGoalsChanged);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final goals = context.watch<GoalsService>();
     final completedGoals =
@@ -370,6 +419,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _buildGoalCompletedBadge(),
           const Text(
             'Результаты',
             style: TextStyle(
