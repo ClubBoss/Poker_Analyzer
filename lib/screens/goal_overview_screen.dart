@@ -7,6 +7,7 @@ import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
 import '../services/xp_tracker_service.dart';
 import '../services/daily_tip_service.dart';
+import '../services/weekly_challenge_service.dart';
 import '../theme/app_colors.dart';
 import 'daily_progress_history_screen.dart';
 import 'achievements_screen.dart';
@@ -38,6 +39,7 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
     final stats = context.watch<TrainingStatsService>();
     final targetService = context.watch<DailyTargetService>();
     final xpService = context.watch<XPTrackerService>();
+    final challengeService = context.watch<WeeklyChallengeService>();
     final tipService = context.watch<DailyTipService>();
     final tip = tipService.tip;
     final category = tipService.category;
@@ -52,6 +54,8 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
     final start = DateTime(now.year, now.month, now.day)
         .subtract(const Duration(days: 6));
     final days = [for (var i = 0; i < 7; i++) start.add(Duration(days: i))];
+    final challenge = challengeService.current;
+    final challengeProgress = challengeService.progressValue;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Goal'),
@@ -168,6 +172,34 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                     minHeight: 6,
                   ),
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[850],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(challenge.title,
+                    style: const TextStyle(color: Colors.white)),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: challengeService.progress,
+                    backgroundColor: Colors.white24,
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
+                    minHeight: 6,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text('${challengeProgress}/${challenge.target}',
+                    style: const TextStyle(color: Colors.white70)),
               ],
             ),
           ),
