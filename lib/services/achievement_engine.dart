@@ -5,6 +5,7 @@ import '../models/achievement.dart';
 import '../widgets/confetti_overlay.dart';
 import 'training_stats_service.dart';
 import '../main.dart';
+import 'user_action_logger.dart';
 
 class AchievementEngine extends ChangeNotifier {
   static AchievementEngine? _instance;
@@ -75,6 +76,7 @@ class AchievementEngine extends ChangeNotifier {
     if (!_shown[key]! && ach.completed) {
       _shown[key] = true;
       _save(key);
+      UserActionLogger.instance.log('unlocked_achievement:${ach.title}');
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
         showConfettiOverlay(ctx);

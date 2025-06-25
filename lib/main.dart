@@ -27,6 +27,7 @@ import 'services/goal_engine.dart';
 import 'services/streak_service.dart';
 import 'services/reminder_service.dart';
 import 'user_preferences.dart';
+import 'services/user_action_logger.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() {
@@ -92,6 +93,7 @@ void main() {
         ),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
+        ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
       ],
       child: const PokerAIAnalyzerApp(),
     ),
@@ -114,6 +116,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     _spotStorage = TrainingSpotStorageService(
       cloud: context.read<CloudSyncService>(),
     );
+    context.read<UserActionLogger>().log('opened_app');
     WidgetsBinding.instance.addPostFrameCallback((_) => _initialSync());
   }
 
