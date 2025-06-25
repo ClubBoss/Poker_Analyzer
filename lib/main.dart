@@ -27,6 +27,7 @@ import 'services/goal_engine.dart';
 import 'services/streak_service.dart';
 import 'services/reminder_service.dart';
 import 'services/next_step_engine.dart';
+import 'services/drill_suggestion_engine.dart';
 import 'services/daily_target_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
@@ -99,6 +100,12 @@ void main() {
             hands: context.read<SavedHandManagerService>(),
             goals: context.read<GoalEngine>(),
             streak: context.read<StreakService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DrillSuggestionEngine(
+            hands: context.read<SavedHandManagerService>(),
+            packs: context.read<TrainingPackStorageService>(),
           ),
         ),
         Provider(create: (_) => EvaluationExecutorService()),
