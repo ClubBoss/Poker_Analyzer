@@ -13,6 +13,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../models/summary_result.dart';
 import '../theme/app_colors.dart';
 import 'goal_history_screen.dart';
+import 'achievements_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -424,6 +425,16 @@ class _ProgressScreenState extends State<ProgressScreen> {
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'PDF',
             onPressed: _exportPdf,
+          ),
+          IconButton(
+            icon: const Icon(Icons.emoji_events),
+            tooltip: 'Достижения',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+              );
+            },
           ),
         ],
       ),
