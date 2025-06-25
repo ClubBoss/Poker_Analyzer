@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'training_stats_service.dart';
 import 'daily_target_service.dart';
+import 'xp_tracker_service.dart';
 
 class StreakCounterService extends ChangeNotifier {
   static const _countKey = 'target_streak_count';
@@ -11,6 +12,7 @@ class StreakCounterService extends ChangeNotifier {
 
   final TrainingStatsService stats;
   final DailyTargetService target;
+  final XPTrackerService xp;
 
   int _count = 0;
   DateTime? _last;
@@ -24,7 +26,7 @@ class StreakCounterService extends ChangeNotifier {
   DateTime? get lastSuccess => _last;
   int get max => _max;
 
-  StreakCounterService({required this.stats, required this.target}) {
+  StreakCounterService({required this.stats, required this.target, required this.xp}) {
     _init();
   }
 
@@ -81,6 +83,7 @@ class StreakCounterService extends ChangeNotifier {
     if (hands >= target.target && (_last == null || !_isSameDay(_last!, today))) {
       _last = today;
       await _save();
+      await xp.addXp(XPTrackerService.targetXp);
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../services/streak_service.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
+import '../services/xp_tracker_service.dart';
 import '../theme/app_colors.dart';
 import 'daily_progress_history_screen.dart';
 import 'achievements_screen.dart';
@@ -23,6 +24,7 @@ class GoalOverviewScreen extends StatelessWidget {
     final streakService = context.watch<StreakService>();
     final stats = context.watch<TrainingStatsService>();
     final targetService = context.watch<DailyTargetService>();
+    final xpService = context.watch<XPTrackerService>();
     final streak = streakService.count;
     final history = streakService.history;
     final maxStreak = history.isEmpty
@@ -77,6 +79,26 @@ class GoalOverviewScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text('Max: $maxStreak',
                     style: const TextStyle(color: Colors.white70)),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Level ${xpService.level}',
+                        style: const TextStyle(color: Colors.white)),
+                    Text('${xpService.xp}/${xpService.nextLevelXp} XP',
+                        style: const TextStyle(color: Colors.white)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: xpService.progress.clamp(0.0, 1.0),
+                    backgroundColor: Colors.white24,
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                    minHeight: 6,
+                  ),
+                ),
               ],
             ),
           ),
