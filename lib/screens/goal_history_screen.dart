@@ -122,6 +122,39 @@ class _GoalHistoryScreenState extends State<GoalHistoryScreen> {
                   completed ? Icons.check_circle : Icons.timelapse,
                   color: completed ? Colors.green : Colors.grey,
                 ),
+                if (!completed)
+                  IconButton(
+                    icon: const Icon(Icons.refresh, size: 20),
+                    tooltip: 'Сбросить',
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          backgroundColor: Colors.grey[900],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          title: const Text('Сбросить цель?'),
+                          content:
+                              const Text('Прогресс будет обнулён.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Отмена'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        final originalIndex = goals.indexOf(g);
+                        await service.resetGoal(originalIndex);
+                      }
+                    },
+                  ),
               ],
             ),
           );
