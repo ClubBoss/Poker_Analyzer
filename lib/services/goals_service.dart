@@ -109,6 +109,8 @@ class GoalsService extends ChangeNotifier {
     _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
     _handStreak = prefs.getInt(_handsKey) ?? 0;
     _hintShown = prefs.getBool(_hintShownKey) ?? false;
+    final completedGoals =
+        _goals.where((g) => g.progress >= g.target).length;
     _achievements = [
       const Achievement(
         title: 'Разобрать 5 ошибок',
@@ -132,6 +134,12 @@ class GoalsService extends ChangeNotifier {
         title: 'Без ошибок подряд',
         icon: Icons.flash_on,
         progress: _errorFreeStreak,
+        target: 5,
+      ),
+      Achievement(
+        title: '5 целей выполнено',
+        icon: Icons.star,
+        progress: completedGoals,
         target: 5,
       ),
     ];
@@ -165,6 +173,14 @@ class GoalsService extends ChangeNotifier {
     }
   }
 
+  bool _refreshCompletedGoalsAchievement() {
+    if (_achievements.length < 5) return false;
+    final count = _goals.where((g) => g.progress >= g.target).length;
+    if (_achievements[4].progress == count) return false;
+    _achievements[4] = _achievements[4].copyWith(progress: count);
+    return true;
+  }
+
   Future<void> setProgress(int index, int progress) async {
     if (index < 0 || index >= _goals.length) return;
     final goal = _goals[index];
@@ -178,6 +194,7 @@ class GoalsService extends ChangeNotifier {
     }
     _goals[index] = goal.copyWith(progress: progress, completedAt: date);
     await _saveProgress(index);
+    _refreshCompletedGoalsAchievement();
     notifyListeners();
   }
 
@@ -230,6 +247,8 @@ class GoalsService extends ChangeNotifier {
     required bool goalCompleted,
   }) {
     bool changed = false;
+    final completedGoals =
+        _goals.where((g) => g.progress >= g.target).length;
     final values = [
       correctHands,
       streakDays,
@@ -241,6 +260,11 @@ class GoalsService extends ChangeNotifier {
         changed = true;
         _achievements[i] = updated;
       }
+    }
+    if (_achievements.length > 4 &&
+        _achievements[4].progress != completedGoals) {
+      _achievements[4] = _achievements[4].copyWith(progress: completedGoals);
+      changed = true;
     }
     if (changed) notifyListeners();
   }
