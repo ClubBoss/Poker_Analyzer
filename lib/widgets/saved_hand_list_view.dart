@@ -15,6 +15,7 @@ import '../theme/constants.dart';
 import '../services/evaluation_executor_service.dart';
 import '../helpers/mistake_advice.dart';
 import 'saved_hand_tile.dart';
+import '../services/goals_service.dart';
 
 /// Internal enum for accuracy filter options.
 enum _AccuracyFilter { all, errors, correct }
