@@ -29,7 +29,11 @@ class _DailySpotScreenState extends State<DailySpotScreen> {
         break;
       }
     }
-    await prefs.setString('daily_spot_date', DateTime.now().toIso8601String());
+    final now = DateTime.now();
+    await prefs.setString('daily_spot_date', now.toIso8601String());
+    final history = prefs.getStringList('daily_spot_history') ?? [];
+    history.add(now.toIso8601String());
+    await prefs.setStringList('daily_spot_history', history);
     if (id != null) await prefs.setString('daily_spot_id', id);
     if (mounted) {
       Navigator.pushReplacement(
