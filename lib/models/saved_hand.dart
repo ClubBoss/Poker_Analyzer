@@ -56,6 +56,7 @@ class SavedHand {
   /// Predefined group label for hero hand range.
   final String? rangeGroup;
   final String? feedbackText;
+  final double? evLoss;
   final Map<String, int>? effectiveStacksPerStreet;
   final Map<String, String>? validationNotes;
   final List<int>? collapsedHistoryStreets;
@@ -114,6 +115,7 @@ class SavedHand {
     this.gtoAction,
     this.rangeGroup,
     this.feedbackText,
+    this.evLoss,
     this.effectiveStacksPerStreet,
     this.validationNotes,
     this.collapsedHistoryStreets,
@@ -171,6 +173,7 @@ class SavedHand {
     String? gtoAction,
     String? rangeGroup,
     String? feedbackText,
+    double? evLoss,
     Map<String, int>? effectiveStacksPerStreet,
     Map<String, String>? validationNotes,
     List<int>? collapsedHistoryStreets,
@@ -231,6 +234,7 @@ class SavedHand {
       gtoAction: gtoAction ?? this.gtoAction,
       rangeGroup: rangeGroup ?? this.rangeGroup,
       feedbackText: feedbackText ?? this.feedbackText,
+      evLoss: evLoss ?? this.evLoss,
       effectiveStacksPerStreet:
           effectiveStacksPerStreet ?? this.effectiveStacksPerStreet,
       validationNotes: validationNotes ?? this.validationNotes,
@@ -343,6 +347,7 @@ class SavedHand {
         if (gtoAction != null) 'gtoAction': gtoAction,
         if (rangeGroup != null) 'rangeGroup': rangeGroup,
         if (feedbackText != null) 'feedbackText': feedbackText,
+        if (evLoss != null) 'evLoss': evLoss,
         if (effectiveStacksPerStreet != null)
           'effectiveStacksPerStreet': effectiveStacksPerStreet,
         if (validationNotes != null) 'validationNotes': validationNotes,
@@ -561,6 +566,7 @@ class SavedHand {
       gtoAction: json['gtoAction'] as String?,
       rangeGroup: json['rangeGroup'] as String?,
       feedbackText: json['feedbackText'] as String?,
+      evLoss: (json['evLoss'] as num?)?.toDouble(),
       effectiveStacksPerStreet: effStacks,
       validationNotes: notes,
       collapsedHistoryStreets: collapsed,
