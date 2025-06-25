@@ -640,4 +640,18 @@ class GoalsService extends ChangeNotifier {
         if (DateTime.tryParse(s) != null) DateTime.parse(s)
     ];
   }
+
+  Future<bool> hasWeeklyStreak() async {
+    final history = await getDailySpotHistory();
+    final set = {
+      for (final d in history) DateTime(d.year, d.month, d.day)
+    };
+    final now = DateTime.now();
+    for (int i = 0; i < 7; i++) {
+      final day = DateTime(now.year, now.month, now.day)
+          .subtract(Duration(days: i));
+      if (!set.contains(day)) return false;
+    }
+    return true;
+  }
 }
