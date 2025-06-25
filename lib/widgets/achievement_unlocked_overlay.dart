@@ -78,7 +78,7 @@ class _AchievementUnlockedOverlayState extends State<AchievementUnlockedOverlay>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Достижение разблокировано!',
+                          'Новое достижение!',
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 12,

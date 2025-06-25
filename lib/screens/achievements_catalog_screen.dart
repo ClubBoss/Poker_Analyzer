@@ -26,6 +26,7 @@ class AchievementsCatalogScreen extends StatelessWidget {
 
           final summary = eval.summarizeHands(handManager.hands);
           goals.updateAchievements(
+            context: context,
             correctHands: summary.correct,
             streakDays: streak,
             goalCompleted: goals.anyCompleted,
