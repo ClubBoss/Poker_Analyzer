@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../models/training_pack.dart';
+import 'training_pack_review_screen.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
   const TrainingPackComparisonScreen({super.key});
@@ -12,6 +13,7 @@ class TrainingPackComparisonScreen extends StatefulWidget {
 }
 
 class _PackStats {
+  final TrainingPack pack;
   final String name;
   final int total;
   final int mistakes;
@@ -19,6 +21,7 @@ class _PackStats {
   final double rating;
 
   _PackStats({
+    required this.pack,
     required this.name,
     required this.total,
     required this.mistakes,
@@ -36,6 +39,7 @@ class _PackStats {
         ? p.hands.map((h) => h.rating).reduce((a, b) => a + b) / p.hands.length
         : 0.0;
     return _PackStats(
+      pack: p,
       name: p.name,
       total: total,
       mistakes: mistakes,
@@ -123,13 +127,23 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             ],
             rows: [
               for (final s in stats)
-                DataRow(cells: [
-                  DataCell(Text(s.name)),
-                  DataCell(Text(s.total.toString())),
-                  DataCell(Text('${s.accuracy.toStringAsFixed(1)}%')),
-                  DataCell(Text(s.mistakes.toString())),
-                  DataCell(Text(s.rating.toStringAsFixed(1))),
-                ]),
+                DataRow(
+                  onSelectChanged: (_) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TrainingPackReviewScreen(pack: s.pack),
+                      ),
+                    );
+                  },
+                  cells: [
+                    DataCell(Text(s.name)),
+                    DataCell(Text(s.total.toString())),
+                    DataCell(Text('${s.accuracy.toStringAsFixed(1)}%')),
+                    DataCell(Text(s.mistakes.toString())),
+                    DataCell(Text(s.rating.toStringAsFixed(1))),
+                  ],
+                ),
             ],
           ),
         ),
