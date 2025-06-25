@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
@@ -29,9 +30,12 @@ import 'services/reminder_service.dart';
 import 'services/next_step_engine.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
+import 'services/leaderboard_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(
     MultiProvider(
       providers: [
@@ -98,6 +102,11 @@ void main() {
             goals: context.read<GoalEngine>(),
             streak: context.read<StreakService>(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              LeaderboardService(stats: context.read<TrainingStatsService>())
+                ..load(),
         ),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
