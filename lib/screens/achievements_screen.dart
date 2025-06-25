@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/achievement_engine.dart';
-import '../services/goal_engine.dart';
-import '../theme/app_colors.dart';
-import 'goal_editor_screen.dart';
+import 'dart:math' as math;
+import '../services/streak_service.dart';
+import '../services/training_stats_service.dart';
 import '../services/user_action_logger.dart';
 
 class AchievementsScreen extends StatefulWidget {
@@ -23,135 +22,118 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ach = context.watch<AchievementEngine>().achievements;
-    final goalsEngine = context.watch<GoalEngine>();
-    final goals = goalsEngine.goals;
+    final streak = context.watch<StreakService>().count;
+    final stats = context.watch<TrainingStatsService>();
+    final today = stats.mistakesDaily(1);
+    final mistakesToday = today.isNotEmpty ? today.first.value : 0;
     final accent = Theme.of(context).colorScheme.secondary;
+
+    final items = [
+      _AchievementItem(
+        title: '7-day Streak',
+        icon: Icons.emoji_events,
+        progress: math.min(streak, 7),
+        target: 7,
+      ),
+      _AchievementItem(
+        title: '30-day Streak',
+        icon: Icons.emoji_events,
+        progress: math.min(streak, 30),
+        target: 30,
+      ),
+      _AchievementItem(
+        title: 'No Mistakes Today',
+        icon: Icons.check_circle,
+        progress: mistakesToday == 0 ? 1 : 0,
+        target: 1,
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Достижения'),
+        title: const Text('Achievements'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const GoalEditorScreen()),
-              );
-            },
-          )
-        ],
       ),
-      body: ListView.builder(
+      body: GridView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: ach.length + goals.length,
+        itemCount: items.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.2,
+        ),
         itemBuilder: (context, index) {
-          if (index < ach.length) {
-            final item = ach[index];
-            final unlocked = item.completed;
-            final color = unlocked ? Colors.white : Colors.white54;
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: AppColors.cardBackground,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ListTile(
-                leading: Icon(item.icon, color: accent),
-                title: Text(
-                  item.title,
-                  style: TextStyle(color: color, fontWeight: FontWeight.bold),
-                ),
-                trailing: Icon(
-                  unlocked ? Icons.check_circle : Icons.lock,
-                  color: unlocked ? Colors.green : Colors.grey,
-                ),
-                subtitle: LinearProgressIndicator(
-                  value: (item.progress / item.target).clamp(0.0, 1.0),
-                  backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(accent),
-                ),
-              ),
-            );
-          }
-          final g = goals[index - ach.length];
-          final prog = goalsEngine.progress(g);
-          final unlocked = prog >= g.target;
-          final color = unlocked ? Colors.white : Colors.white54;
+          final item = items[index];
+          final completed = item.progress >= item.target;
+          final color = completed ? Colors.white : Colors.white54;
           return Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.cardBackground,
+              color: Colors.grey[850],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: ListTile(
-              onLongPress: () async {
-                final action = await showDialog<String>(
-                  context: context,
-                  builder: (ctx) => SimpleDialog(
-                    title: Text(g.title),
-                    children: [
-                      SimpleDialogOption(
-                        onPressed: () => Navigator.pop(ctx, 'edit'),
-                        child: const Text('Edit'),
-                      ),
-                      SimpleDialogOption(
-                        onPressed: () => Navigator.pop(ctx, 'delete'),
-                        child: const Text('Delete'),
-                      ),
-                    ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(item.icon, size: 40, color: accent),
+                const SizedBox(height: 8),
+                Text(
+                  item.title,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-                if (action == 'edit') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => GoalEditorScreen(goal: g),
-                    ),
-                  );
-                } else if (action == 'delete') {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Удалить цель?'),
-                      content: const Text(
-                          'Вы уверены, что хотите удалить эту цель?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: const Text('Отмена'),
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value:
+                              (item.progress / item.target).clamp(0.0, 1.0),
+                          backgroundColor: Colors.white24,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(accent),
+                          minHeight: 6,
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: const Text('Удалить'),
-                        ),
-                      ],
+                      ),
                     ),
-                  );
-                  if (confirm == true) {
-                    await goalsEngine.removeGoal(g.id);
-                  }
-                }
-              },
-              leading: Icon(Icons.flag, color: accent),
-              title: Text(
-                g.title,
-                style: TextStyle(color: color, fontWeight: FontWeight.bold),
-              ),
-              trailing: Icon(
-                unlocked ? Icons.check_circle : Icons.flag,
-                color: unlocked ? Colors.green : Colors.grey,
-              ),
-              subtitle: LinearProgressIndicator(
-                value: (prog / g.target).clamp(0.0, 1.0),
-                backgroundColor: Colors.white24,
-                valueColor: AlwaysStoppedAnimation<Color>(accent),
-              ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${item.progress}/${item.target}',
+                      style: TextStyle(color: color),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                if (!completed)
+                  const Text(
+                    'Не выполнено',
+                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                  )
+                else
+                  const Icon(Icons.check_circle, color: Colors.green),
+              ],
             ),
           );
         },
       ),
     );
   }
+}
+
+class _AchievementItem {
+  final String title;
+  final IconData icon;
+  final int progress;
+  final int target;
+  const _AchievementItem({
+    required this.title,
+    required this.icon,
+    required this.progress,
+    required this.target,
+  });
 }
