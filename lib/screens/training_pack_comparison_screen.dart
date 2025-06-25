@@ -305,15 +305,18 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                   onSort: (i, asc) => _onSort(i, asc),
                 ),
                 DataColumn(
-                  label: Row(
-                    children: [
-                      const Text('Рейтинг'),
-                      if (_sortColumn == 4)
-                        Icon(
-                          _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                          size: 12,
-                        ),
-                    ],
+                  label: Tooltip(
+                    message: 'Средний рейтинг всех рук в паке (1–5)',
+                    child: Row(
+                      children: [
+                        const Text('Рейтинг'),
+                        if (_sortColumn == 4)
+                          Icon(
+                            _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                            size: 12,
+                          ),
+                      ],
+                    ),
                   ),
                   numeric: true,
                   onSort: (i, asc) => _onSort(i, asc),
