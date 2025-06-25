@@ -65,13 +65,17 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     final goal = service.dailyGoal;
     final action = widget.hand.expectedAction?.trim().toLowerCase();
     final gto = widget.hand.gtoAction?.trim().toLowerCase();
-    final mistake =
-        goal != null && service.dailyGoalIndex == 0 && action != null && gto != null && action != gto;
-    if (mistake) {
+    final isMistake = action != null && gto != null && action != gto;
+    final dailyMistake =
+        goal != null && service.dailyGoalIndex == 0 && isMistake;
+    if (dailyMistake) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         service.recordMistakeReviewed();
       });
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      service.updateMistakeReviewStreak(isMistake, context: context);
+    });
   }
 
   @override
