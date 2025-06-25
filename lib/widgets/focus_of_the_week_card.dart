@@ -7,6 +7,7 @@ import '../helpers/poker_street_helper.dart';
 import '../models/saved_hand.dart';
 import 'saved_hand_list_view.dart';
 import '../screens/hand_history_review_screen.dart';
+import '../screens/training_screen.dart';
 
 class FocusOfTheWeekCard extends StatelessWidget {
   const FocusOfTheWeekCard({super.key});
@@ -85,6 +86,27 @@ class FocusOfTheWeekCard extends StatelessWidget {
               );
             },
             child: const Text('Тренировать'),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: () {
+              final manager = context.read<SavedHandManagerService>();
+              final cutoff = DateTime.now().subtract(const Duration(days: 7));
+              final filteredHands = [
+                for (final h in manager.hands)
+                  if (h.heroPosition == pos! &&
+                      streetName(h.boardStreet) == street! &&
+                      h.date.isAfter(cutoff))
+                    h
+              ];
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TrainingScreen.drill(hands: filteredHands),
+                ),
+              );
+            },
+            child: const Text('Начать сессию'),
           ),
         ],
       ),
