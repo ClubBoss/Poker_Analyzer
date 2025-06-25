@@ -424,6 +424,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                               expectedAction: original.expectedAction,
                               gtoAction: original.gtoAction,
                               evLoss: original.evLoss,
+                              feedbackText: original.feedbackText,
                             ),
                           );
                         },
