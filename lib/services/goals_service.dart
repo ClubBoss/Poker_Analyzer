@@ -7,6 +7,7 @@ import 'dart:convert';
 import '../screens/progress_screen.dart';
 import '../models/goal_progress_entry.dart';
 import '../models/drill_session_result.dart';
+import '../models/saved_hand.dart';
 import 'streak_service.dart';
 
 class Achievement {
@@ -39,6 +40,7 @@ class Goal {
   final DateTime createdAt;
   final IconData? icon;
   final DateTime? completedAt;
+  final bool Function(SavedHand hand)? rule;
 
   const Goal({
     required this.title,
@@ -47,15 +49,19 @@ class Goal {
     required this.createdAt,
     this.icon,
     this.completedAt,
+    this.rule,
   });
 
   bool get completed => progress >= target;
+
+  bool isViolatedBy(SavedHand hand) => rule?.call(hand) ?? false;
 
   Goal copyWith({
     int? progress,
     int? target,
     DateTime? createdAt,
     DateTime? completedAt,
+    bool Function(SavedHand hand)? rule,
   }) =>
       Goal(
         title: title,
@@ -64,6 +70,7 @@ class Goal {
         createdAt: createdAt ?? this.createdAt,
         icon: icon,
         completedAt: completedAt ?? this.completedAt,
+        rule: rule ?? this.rule,
       );
 }
 
@@ -104,6 +111,13 @@ class GoalsService extends ChangeNotifier {
   late List<Goal> _goals;
 
   List<Goal> get goals => List.unmodifiable(_goals);
+
+  Goal? get currentGoal {
+    for (final g in _goals) {
+      if (!g.completed) return g;
+    }
+    return null;
+  }
 
   Goal? get dailyGoal =>
       _dailyGoalIndex != null &&
@@ -159,6 +173,11 @@ class GoalsService extends ChangeNotifier {
         createdAt: _readCreated(prefs, 0),
         icon: Icons.bug_report,
         completedAt: _readDate(prefs, 0),
+        rule: (h) =>
+            h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase(),
       ),
       Goal(
         title: 'Пройти 3 раздачи без ошибок подряд',
@@ -167,6 +186,11 @@ class GoalsService extends ChangeNotifier {
         createdAt: _readCreated(prefs, 1),
         icon: Icons.play_circle_fill,
         completedAt: _readDate(prefs, 1),
+        rule: (h) =>
+            h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase(),
       ),
     ];
     _history = [];
