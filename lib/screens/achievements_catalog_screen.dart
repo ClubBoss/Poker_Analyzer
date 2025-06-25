@@ -122,6 +122,12 @@ class AchievementsCatalogScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 4),
+                    if (!completed)
+                      const Text(
+                        'Не выполнено',
+                        style: TextStyle(color: Colors.white54, fontSize: 12),
+                      ),
                   ],
                 ),
                 if (completed)
