@@ -83,47 +83,54 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           if (tip.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[850],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.lightbulb, color: Colors.greenAccent),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Text(
-                              'Tip of the Day',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 8),
-                            DropdownButton<String>(
-                              value: category,
-                              dropdownColor: const Color(0xFF2A2B2E),
-                              underline: const SizedBox(),
-                              onChanged: (v) =>
-                                  context.read<DailyTipService>().setCategory(v!),
-                              items: categories
-                                  .map((c) =>
-                                      DropdownMenuItem(value: c, child: Text(c)))
-                                  .toList(),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(tip, style: const TextStyle(color: Colors.white)),
-                      ],
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: Container(
+                key: ValueKey('$category$tip'),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.lightbulb, color: Colors.greenAccent),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Tip of the Day',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 8),
+                              DropdownButton<String>(
+                                value: category,
+                                dropdownColor: const Color(0xFF2A2B2E),
+                                underline: const SizedBox(),
+                                onChanged: (v) => context
+                                    .read<DailyTipService>()
+                                    .setCategory(v!),
+                                items: categories
+                                    .map(
+                                        (c) => DropdownMenuItem(value: c, child: Text(c)))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(tip, style: const TextStyle(color: Colors.white)),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           if (tip.isNotEmpty) const SizedBox(height: 16),
