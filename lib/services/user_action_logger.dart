@@ -36,4 +36,32 @@ class UserActionLogger extends ChangeNotifier {
   }
 
   List<Map<String, dynamic>> export() => events;
+
+  Map<String, dynamic> toMap() => {'events': _events};
+
+  Future<void> applyMap(Map<String, dynamic> data) async {
+    final list = data['events'];
+    if (list is List) {
+      final existing = {for (final e in _events) jsonEncode(e)};
+      bool changed = false;
+      for (final item in list) {
+        if (item is Map) {
+          final map = Map<String, dynamic>.from(item);
+          final enc = jsonEncode(map);
+          if (!existing.contains(enc)) {
+            _events.add(map);
+            changed = true;
+          }
+        }
+      }
+      if (changed) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList(
+          _prefsKey,
+          _events.map((e) => jsonEncode(e)).toList(),
+        );
+        notifyListeners();
+      }
+    }
+  }
 }
