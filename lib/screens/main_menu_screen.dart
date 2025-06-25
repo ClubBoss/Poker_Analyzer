@@ -269,50 +269,98 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   Widget _buildDailyGoalCard(BuildContext context) {
     final goal = context.watch<GoalsService>().dailyGoal;
     if (goal == null) return const SizedBox.shrink();
-    final progress = (goal.progress / goal.target).clamp(0.0, 1.0);
     final accent = Theme.of(context).colorScheme.secondary;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Цель дня',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(goal.title),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: LinearProgressIndicator(
-                  value: progress,
-                  backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(accent),
-                  minHeight: 6,
+    final completed = goal.progress >= goal.target;
+    final progress = (goal.progress / goal.target).clamp(0.0, 1.0);
+
+    Widget buildActive() {
+      return Container(
+        key: const ValueKey('activeGoal'),
+        margin: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Цель дня',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(goal.title),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: Colors.white24,
+                    valueColor: AlwaysStoppedAnimation<Color>(accent),
+                    minHeight: 6,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text('${goal.progress}/${goal.target}')
+              ],
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GoalsScreen()),
+                  );
+                },
+                child: const Text('Перейти'),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Widget buildCompleted() {
+      return Container(
+        key: const ValueKey('completedGoal'),
+        margin: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.green[700],
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.emoji_events, color: Colors.white),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Выполнено!',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 8),
-              Text('${goal.progress}/${goal.target}')
-            ],
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
+            ),
+            ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -321,9 +369,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               },
               child: const Text('Перейти'),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      );
+    }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: completed ? buildCompleted() : buildActive(),
     );
   }
 
