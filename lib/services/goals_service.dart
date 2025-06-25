@@ -31,19 +31,24 @@ class Goal {
   final int progress;
   final int target;
   final IconData? icon;
+  final DateTime? completedAt;
 
   const Goal({
     required this.title,
     required this.progress,
     required this.target,
     this.icon,
+    this.completedAt,
   });
 
-  Goal copyWith({int? progress, int? target}) => Goal(
+  bool get completed => progress >= target;
+
+  Goal copyWith({int? progress, int? target, DateTime? completedAt}) => Goal(
         title: title,
         progress: progress ?? this.progress,
         target: target ?? this.target,
         icon: icon,
+        completedAt: completedAt ?? this.completedAt,
       );
 }
 
@@ -77,6 +82,12 @@ class GoalsService extends ChangeNotifier {
 
   bool get anyCompleted => _goals.any((g) => g.progress >= g.target);
 
+  DateTime? _readDate(SharedPreferences prefs, int index) {
+    final ts = prefs.getInt('${_prefPrefix}${index}_date');
+    if (ts == null) return null;
+    return DateTime.fromMillisecondsSinceEpoch(ts);
+  }
+
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _goals = [
@@ -85,12 +96,14 @@ class GoalsService extends ChangeNotifier {
         progress: prefs.getInt('${_prefPrefix}0') ?? 0,
         target: 5,
         icon: Icons.bug_report,
+        completedAt: _readDate(prefs, 0),
       ),
       Goal(
         title: 'Пройти 3 раздачи без ошибок подряд',
         progress: prefs.getInt('${_prefPrefix}1') ?? 0,
         target: 3,
         icon: Icons.play_circle_fill,
+        completedAt: _readDate(prefs, 1),
       ),
     ];
     _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
@@ -143,11 +156,27 @@ class GoalsService extends ChangeNotifier {
   Future<void> _saveProgress(int index) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('${_prefPrefix}$index', _goals[index].progress);
+    final dateKey = '${_prefPrefix}${index}_date';
+    final date = _goals[index].completedAt;
+    if (date != null) {
+      await prefs.setInt(dateKey, date.millisecondsSinceEpoch);
+    } else {
+      await prefs.remove(dateKey);
+    }
   }
 
   Future<void> setProgress(int index, int progress) async {
     if (index < 0 || index >= _goals.length) return;
-    _goals[index] = _goals[index].copyWith(progress: progress);
+    final goal = _goals[index];
+    DateTime? date = goal.completedAt;
+    final wasCompleted = goal.progress >= goal.target;
+    final willComplete = progress >= goal.target;
+    if (!wasCompleted && willComplete) {
+      date = DateTime.now();
+    } else if (!willComplete) {
+      date = null;
+    }
+    _goals[index] = goal.copyWith(progress: progress, completedAt: date);
     await _saveProgress(index);
     notifyListeners();
   }
