@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/material.dart';
 
 import '../models/action_evaluation_request.dart';
 import '../models/evaluation_result.dart';
@@ -12,7 +13,7 @@ import 'goals_service.dart';
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
   Future<void> execute(ActionEvaluationRequest req);
-  EvaluationResult evaluate(TrainingSpot spot, String userAction);
+  EvaluationResult evaluate(BuildContext context, TrainingSpot spot, String userAction);
   SummaryResult summarizeHands(List<SavedHand> hands);
 }
 
@@ -41,7 +42,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
   /// The initial implementation simply checks if the action matches the
   /// expected action for the hero at the given training spot.
   @override
-  EvaluationResult evaluate(TrainingSpot spot, String userAction) {
+  EvaluationResult evaluate(BuildContext context, TrainingSpot spot, String userAction) {
     final expectedAction = spot.actions[spot.heroIndex].action;
     final correct = userAction == expectedAction;
     final expectedEquity =
@@ -63,11 +64,11 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (goals != null) {
       if (correct) {
         final progress = goals.goals.length > 1 ? goals.goals[1].progress + 1 : 1;
-        goals.setProgress(1, progress);
-        goals.updateErrorFreeStreak(true);
+        goals.setProgress(1, progress, context: context);
+        goals.updateErrorFreeStreak(true, context: context);
       } else {
-        goals.setProgress(1, 0);
-        goals.updateErrorFreeStreak(false);
+        goals.setProgress(1, 0, context: context);
+        goals.updateErrorFreeStreak(false, context: context);
       }
     }
 

@@ -70,7 +70,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
         goal != null && service.dailyGoalIndex == 0 && isMistake;
     if (dailyMistake) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        service.recordMistakeReviewed();
+        service.recordMistakeReviewed(context);
       });
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {

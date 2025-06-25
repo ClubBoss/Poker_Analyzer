@@ -70,6 +70,7 @@ class GoalsService extends ChangeNotifier {
   static const _hintShownKey = 'progress_hint_shown';
   static const _dailyIndexKey = 'daily_goal_index';
   static const _dailyDateKey = 'daily_goal_date';
+  static const _achievementShownPrefix = 'ach_shown_';
 
   int _errorFreeStreak = 0;
   int _handStreak = 0;
@@ -82,6 +83,7 @@ class GoalsService extends ChangeNotifier {
 
   /// In-memory list of all achievements.
   late List<Achievement> _achievements;
+  late List<bool> _achievementShown;
 
   static GoalsService? _instance;
   static GoalsService? get instance => _instance;
@@ -198,6 +200,10 @@ class GoalsService extends ChangeNotifier {
         target: 5,
       ),
     ];
+    _achievementShown = [
+      for (var i = 0; i < _achievements.length; i++)
+        prefs.getBool('$_achievementShownPrefix$i') ?? false
+    ];
     await ensureDailyGoal();
     notifyListeners();
   }
@@ -222,6 +228,11 @@ class GoalsService extends ChangeNotifier {
     await prefs.setBool(_hintShownKey, _hintShown);
   }
 
+  Future<void> _saveAchievementShown(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('$_achievementShownPrefix$index', true);
+  }
+
   Future<void> _saveDailyGoal() async {
     final prefs = await SharedPreferences.getInstance();
     if (_dailyGoalIndex != null) {
@@ -233,6 +244,19 @@ class GoalsService extends ChangeNotifier {
       await prefs.setString(_dailyDateKey, _dailyGoalDate!.toIso8601String());
     } else {
       await prefs.remove(_dailyDateKey);
+    }
+  }
+
+  void _checkAchievements(BuildContext context) {
+    for (var i = 0; i < _achievements.length && i < _achievementShown.length; i++) {
+      if (!_achievementShown[i] && _achievements[i].completed) {
+        _achievementShown[i] = true;
+        _saveAchievementShown(i);
+        if (context.mounted) {
+          showAchievementUnlockedOverlay(
+              context, _achievements[i].icon, _achievements[i].title);
+        }
+      }
     }
   }
 
@@ -277,7 +301,7 @@ class GoalsService extends ChangeNotifier {
     return true;
   }
 
-  Future<void> setProgress(int index, int progress) async {
+  Future<void> setProgress(int index, int progress, {BuildContext? context}) async {
     if (index < 0 || index >= _goals.length) return;
     final goal = _goals[index];
     DateTime? date = goal.completedAt;
@@ -292,19 +316,20 @@ class GoalsService extends ChangeNotifier {
     await _saveProgress(index);
     _refreshCompletedGoalsAchievement();
     notifyListeners();
+    if (context != null) _checkAchievements(context);
   }
 
-  Future<void> resetGoal(int index) async {
-    await setProgress(index, 0);
+  Future<void> resetGoal(int index, {BuildContext? context}) async {
+    await setProgress(index, 0, context: context);
   }
 
   /// Increments the progress for the "mistake review" goal.
-  Future<void> recordMistakeReviewed() async {
+  Future<void> recordMistakeReviewed(BuildContext context) async {
     const index = 0;
     if (index >= _goals.length) return;
     final goal = _goals[index];
     if (goal.completed) return;
-    await setProgress(index, goal.progress + 1);
+    await setProgress(index, goal.progress + 1, context: context);
     _lastIncrementGoal = index;
     _lastIncrementTime = DateTime.now();
   }
@@ -346,6 +371,7 @@ class GoalsService extends ChangeNotifier {
       _achievements[5] = _achievements[5].copyWith(progress: progress);
     }
     notifyListeners();
+    if (context != null) _checkAchievements(context);
     if (previous < 5 && _mistakeReviewStreak >= 5 && context != null &&
         context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -354,7 +380,7 @@ class GoalsService extends ChangeNotifier {
   }
 
   /// Updates the "error free" streak and achievement.
-  Future<void> updateErrorFreeStreak(bool correct) async {
+  Future<void> updateErrorFreeStreak(bool correct, {BuildContext? context}) async {
     final next = correct ? _errorFreeStreak + 1 : 0;
     if (next == _errorFreeStreak) return;
     _errorFreeStreak = next;
@@ -363,10 +389,12 @@ class GoalsService extends ChangeNotifier {
     }
     await _saveErrorFreeStreak();
     notifyListeners();
+    if (context != null) _checkAchievements(context);
   }
 
   /// Refreshes the progress values for all achievements.
   void updateAchievements({
+    BuildContext? context,
     required int correctHands,
     required int streakDays,
     required bool goalCompleted,
@@ -391,6 +419,9 @@ class GoalsService extends ChangeNotifier {
       _achievements[4] = _achievements[4].copyWith(progress: completedGoals);
       changed = true;
     }
-    if (changed) notifyListeners();
+    if (changed) {
+      notifyListeners();
+      if (context != null) _checkAchievements(context);
+    }
   }
 }

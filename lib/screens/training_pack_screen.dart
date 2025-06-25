@@ -309,7 +309,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
     final evaluation = context
         .read<EvaluationExecutorService>()
-        .evaluate(TrainingSpot.fromSavedHand(original), userAct);
+        .evaluate(context, TrainingSpot.fromSavedHand(original), userAct);
     _showQuickFeedback(evaluation);
     final expected = evaluation.expectedAction;
     final matched = evaluation.correct;
