@@ -157,62 +157,6 @@ class TrainingStatsService extends ChangeNotifier {
     _mistakeController.add(_mistakes);
   }
 
-  Map<String, dynamic> toMap() => {
-        'sessions': _sessions,
-        'hands': _hands,
-        'mistakes': _mistakes,
-        'sessionsPerDay': _sessionsPerDay,
-        'handsPerDay': _handsPerDay,
-        'mistakesPerDay': _mistakesPerDay,
-      };
-
-  Future<void> applyMap(Map<String, dynamic> data) async {
-    bool changed = false;
-    final s = data['sessions'];
-    if (s is int && s > _sessions) {
-      _sessions = s;
-      changed = true;
-    }
-    final h = data['hands'];
-    if (h is int && h > _hands) {
-      _hands = h;
-      changed = true;
-    }
-    final m = data['mistakes'];
-    if (m is int && m > _mistakes) {
-      _mistakes = m;
-      changed = true;
-    }
-    final spd = data['sessionsPerDay'];
-    if (spd is Map) {
-      for (final e in spd.entries) {
-        final v = e.value is int ? e.value as int : int.tryParse('${e.value}') ?? 0;
-        _sessionsPerDay.update(e.key, (val) => v > val ? v : val, ifAbsent: () => v);
-      }
-      changed = true;
-    }
-    final hpd = data['handsPerDay'];
-    if (hpd is Map) {
-      for (final e in hpd.entries) {
-        final v = e.value is int ? e.value as int : int.tryParse('${e.value}') ?? 0;
-        _handsPerDay.update(e.key, (val) => v > val ? v : val, ifAbsent: () => v);
-      }
-      changed = true;
-    }
-    final mpd = data['mistakesPerDay'];
-    if (mpd is Map) {
-      for (final e in mpd.entries) {
-        final v = e.value is int ? e.value as int : int.tryParse('${e.value}') ?? 0;
-        _mistakesPerDay.update(e.key, (val) => v > val ? v : val, ifAbsent: () => v);
-      }
-      changed = true;
-    }
-    if (changed) {
-      await _save();
-      notifyListeners();
-    }
-  }
-
   @override
   void dispose() {
     _sessionController.close();
