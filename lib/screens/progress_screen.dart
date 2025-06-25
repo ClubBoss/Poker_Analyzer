@@ -12,7 +12,7 @@ import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../models/summary_result.dart';
 import '../theme/app_colors.dart';
-import 'goal_history_screen.dart';
+import 'goals_history_screen.dart';
 import 'achievements_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
@@ -417,7 +417,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const GoalHistoryScreen()),
+                MaterialPageRoute(builder: (_) => const GoalsHistoryScreen()),
               );
             },
           ),
