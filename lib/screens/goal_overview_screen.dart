@@ -6,6 +6,7 @@ import '../services/streak_service.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
 import '../theme/app_colors.dart';
+import 'daily_progress_history_screen.dart';
 
 class GoalOverviewScreen extends StatelessWidget {
   const GoalOverviewScreen({super.key});
@@ -35,6 +36,19 @@ class GoalOverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Goal'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const DailyProgressHistoryScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
