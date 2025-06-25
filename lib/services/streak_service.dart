@@ -115,45 +115,4 @@ class StreakService extends ChangeNotifier {
     await _save();
     notifyListeners();
   }
-
-  Map<String, dynamic> toMap() => {
-        'lastOpen': _lastOpen?.toIso8601String(),
-        'count': _count,
-        'errorFreeStreak': _errorFreeStreak,
-        'history': _history,
-      };
-
-  Future<void> applyMap(Map<String, dynamic> data) async {
-    bool changed = false;
-    final count = data['count'];
-    if (count is int && count > _count) {
-      _count = count;
-      changed = true;
-    }
-    final error = data['errorFreeStreak'];
-    if (error is int && error > _errorFreeStreak) {
-      _errorFreeStreak = error;
-      changed = true;
-    }
-    final last = data['lastOpen'];
-    if (last is String) {
-      final t = DateTime.tryParse(last);
-      if (t != null && (_lastOpen == null || t.isAfter(_lastOpen!))) {
-        _lastOpen = t;
-        changed = true;
-      }
-    }
-    final hist = data['history'];
-    if (hist is Map) {
-      for (final e in hist.entries) {
-        final v = e.value is int ? e.value as int : int.tryParse('${e.value}') ?? 0;
-        _history.update(e.key, (val) => v > val ? v : val, ifAbsent: () => v);
-      }
-      changed = true;
-    }
-    if (changed) {
-      await _save();
-      notifyListeners();
-    }
-  }
 }

@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import '../helpers/date_utils.dart';
 import '../services/reminder_service.dart';
 import '../services/user_action_logger.dart';
-import '../services/cloud_backup_service.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
@@ -47,20 +46,6 @@ class SettingsPlaceholderScreen extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
-    }
-  }
-
-  Future<void> _syncNow(BuildContext context) async {
-    final service = context.read<CloudBackupService>();
-    try {
-      await service.syncNow();
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Sync complete')));
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Sync failed')));
     }
   }
 
@@ -112,13 +97,6 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => _exportLog(context),
               child: const Text('Export Activity Log'),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: ElevatedButton(
-              onPressed: () => _syncNow(context),
-              child: const Text('Sync now'),
             ),
           ),
         ],

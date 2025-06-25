@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
@@ -30,14 +29,9 @@ import 'services/reminder_service.dart';
 import 'services/next_step_engine.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
-import 'services/leaderboard_service.dart';
-import 'services/cloud_backup_service.dart';
-import 'services/ab_test_engine.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+void main() {
   runApp(
     MultiProvider(
       providers: [
@@ -105,24 +99,9 @@ Future<void> main() async {
             streak: context.read<StreakService>(),
           ),
         ),
-        ChangeNotifierProvider(
-          create: (context) =>
-              LeaderboardService(stats: context.read<TrainingStatsService>())
-                ..load(),
-        ),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
         ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
-        ChangeNotifierProvider(create: (_) => ABTestEngine()..load()),
-        ChangeNotifierProvider(
-          create: (context) => CloudBackupService(
-            stats: context.read<TrainingStatsService>(),
-            streak: context.read<StreakService>(),
-            goals: context.read<GoalsService>(),
-            log: context.read<UserActionLogger>(),
-            ab: context.read<ABTestEngine>(),
-          )..load(),
-        ),
       ],
       child: const PokerAIAnalyzerApp(),
     ),
