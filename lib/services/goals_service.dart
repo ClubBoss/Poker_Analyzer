@@ -66,12 +66,14 @@ class GoalsService extends ChangeNotifier {
   static const _prefPrefix = 'goal_progress_';
   static const _streakKey = 'error_free_streak';
   static const _handsKey = 'consecutive_hands';
+  static const _mistakeStreakKey = 'mistake_review_streak';
   static const _hintShownKey = 'progress_hint_shown';
   static const _dailyIndexKey = 'daily_goal_index';
   static const _dailyDateKey = 'daily_goal_date';
 
   int _errorFreeStreak = 0;
   int _handStreak = 0;
+  int _mistakeReviewStreak = 0;
   bool _hintShown = false;
   int? _dailyGoalIndex;
   DateTime? _dailyGoalDate;
@@ -108,6 +110,8 @@ class GoalsService extends ChangeNotifier {
   int get errorFreeStreak => _errorFreeStreak;
 
   bool get anyCompleted => _goals.any((g) => g.progress >= g.target);
+
+  int get mistakeReviewStreak => _mistakeReviewStreak;
 
   DateTime? _readDate(SharedPreferences prefs, int index) {
     final ts = prefs.getInt('${_prefPrefix}${index}_date');
@@ -149,6 +153,7 @@ class GoalsService extends ChangeNotifier {
     ];
     _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
     _handStreak = prefs.getInt(_handsKey) ?? 0;
+    _mistakeReviewStreak = prefs.getInt(_mistakeStreakKey) ?? 0;
     _hintShown = prefs.getBool(_hintShownKey) ?? false;
     _dailyGoalIndex = prefs.getInt(_dailyIndexKey);
     final dateStr = prefs.getString(_dailyDateKey);
@@ -186,6 +191,12 @@ class GoalsService extends ChangeNotifier {
         progress: completedGoals,
         target: 5,
       ),
+      Achievement(
+        title: '5 ошибок подряд исправлены',
+        icon: Icons.build,
+        progress: _mistakeReviewStreak > 5 ? 5 : _mistakeReviewStreak,
+        target: 5,
+      ),
     ];
     await ensureDailyGoal();
     notifyListeners();
@@ -199,6 +210,11 @@ class GoalsService extends ChangeNotifier {
   Future<void> _saveHandStreak() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_handsKey, _handStreak);
+  }
+
+  Future<void> _saveMistakeReviewStreak() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_mistakeStreakKey, _mistakeReviewStreak);
   }
 
   Future<void> _saveHintShown() async {
@@ -316,6 +332,24 @@ class GoalsService extends ChangeNotifier {
           ),
         );
       }
+    }
+  }
+
+  /// Updates the consecutive mistake review streak and achievement.
+  Future<void> updateMistakeReviewStreak(bool mistake,
+      {BuildContext? context}) async {
+    final previous = _mistakeReviewStreak;
+    _mistakeReviewStreak = mistake ? _mistakeReviewStreak + 1 : 0;
+    await _saveMistakeReviewStreak();
+    if (_achievements.length > 5) {
+      final progress = _mistakeReviewStreak > 5 ? 5 : _mistakeReviewStreak;
+      _achievements[5] = _achievements[5].copyWith(progress: progress);
+    }
+    notifyListeners();
+    if (previous < 5 && _mistakeReviewStreak >= 5 && context != null &&
+        context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Достижение: 5 ошибок подряд исправлены!')));
     }
   }
 
