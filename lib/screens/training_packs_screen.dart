@@ -17,6 +17,8 @@ class TrainingPacksScreen extends StatefulWidget {
 class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   static const _hideKey = 'hide_completed_packs';
 
+  final TextEditingController _searchController = TextEditingController();
+
   bool _hideCompleted = false;
   SharedPreferences? _prefs;
 
@@ -24,6 +26,12 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   void initState() {
     super.initState();
     _loadPrefs();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadPrefs() async {
@@ -58,9 +66,19 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       );
     }
 
-    final visible = _hideCompleted
+    List<TrainingPack> visible = _hideCompleted
         ? [for (final p in packs) if (!_isPackCompleted(p)) p]
         : packs;
+
+    final query = _searchController.text.toLowerCase();
+    if (query.isNotEmpty) {
+      visible = [
+        for (final p in visible)
+          if (p.name.toLowerCase().contains(query) ||
+              p.description.toLowerCase().contains(query))
+            p
+      ];
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -73,6 +91,14 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             value: _hideCompleted,
             onChanged: _toggleHideCompleted,
             activeColor: Colors.orange,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(hintText: 'Поиск'),
+              onChanged: (_) => setState(() {}),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
