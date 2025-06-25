@@ -17,6 +17,7 @@ import '../theme/app_colors.dart';
 import '../services/tag_service.dart';
 import '../services/training_pack_storage_service.dart';
 import '../models/training_pack_stats.dart';
+import '../helpers/poker_street_helper.dart';
 
 /// Displays all spots from [pack] with option to show only mistaken ones.
 class TrainingPackReviewScreen extends StatefulWidget {
@@ -258,6 +259,48 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     }
   }
 
+  String _generateReport() {
+    final stats = TrainingPackStats.fromPack(widget.pack);
+    final buffer = StringBuffer()
+      ..writeln('# ${widget.pack.name}')
+      ..writeln('- Кол-во рук: ${stats.total}')
+      ..writeln('- Точность: ${stats.accuracy.toStringAsFixed(1)}%')
+      ..writeln('- Ошибок: ${stats.mistakes}')
+      ..writeln();
+    final mistakes = [
+      for (final h in widget.pack.hands)
+        if (widget.mistakenNames.contains(h.name)) h
+    ];
+    if (mistakes.isNotEmpty) {
+      buffer.writeln('## Ошибочные руки');
+      for (final h in mistakes) {
+        buffer.writeln('- ${h.name} — ${streetName(h.boardStreet)}');
+      }
+    }
+    return buffer.toString();
+  }
+
+  Future<void> _exportReport() async {
+    final markdown = _generateReport();
+    final dir =
+        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final safeName = widget.pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final fileName = '${safeName}_${DateTime.now().millisecondsSinceEpoch}.md';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsString(markdown);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Файл сохранён: $fileName'),
+          action: SnackBarAction(
+            label: 'Открыть',
+            onPressed: () => OpenFilex.open(file.path),
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _exportPdf() async {
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
@@ -420,6 +463,11 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Export to PDF',
             onPressed: _exportPdf,
+          ),
+          IconButton(
+            icon: const Icon(Icons.description),
+            tooltip: 'Export report',
+            onPressed: _exportReport,
           ),
           IconButton(
             icon: const Icon(Icons.copy),
