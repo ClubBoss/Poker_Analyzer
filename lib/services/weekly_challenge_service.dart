@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'training_stats_service.dart';
+import 'xp_tracker_service.dart';
+import '../main.dart';
 
 class WeeklyChallenge {
   final String title;
@@ -17,7 +21,11 @@ class WeeklyChallengeService extends ChangeNotifier {
   static const _mistakesKey = 'weekly_challenge_base_mistakes';
 
   final TrainingStatsService stats;
-  WeeklyChallengeService({required this.stats});
+  final XPTrackerService xp;
+
+  static const _rewardXp = 50;
+
+  WeeklyChallengeService({required this.stats, required this.xp});
 
   static const _challenges = [
     WeeklyChallenge('Tag 5 mistakes', 'mistakes', 5),
@@ -29,6 +37,9 @@ class WeeklyChallengeService extends ChangeNotifier {
   int _baseHands = 0;
   int _baseMistakes = 0;
 
+  StreamSubscription<int>? _handsSub;
+  StreamSubscription<int>? _mistakeSub;
+
   WeeklyChallenge get current => _challenges[_index];
 
   Future<void> load() async {
@@ -39,8 +50,8 @@ class WeeklyChallengeService extends ChangeNotifier {
     _baseHands = prefs.getInt(_handsKey) ?? stats.handsReviewed;
     _baseMistakes = prefs.getInt(_mistakesKey) ?? stats.mistakesFixed;
     _rotate();
-    stats.handsStream.listen((_) => _onStats());
-    stats.mistakesStream.listen((_) => _onStats());
+    _handsSub = stats.handsStream.listen((_) => _onStats());
+    _mistakeSub = stats.mistakesStream.listen((_) => _onStats());
     notifyListeners();
   }
 
@@ -48,22 +59,37 @@ class WeeklyChallengeService extends ChangeNotifier {
     _rotate();
     switch (current.type) {
       case 'hands':
-        return stats.handsReviewed - _baseHands;
+        final val = stats.handsReviewed - _baseHands;
+        return val.clamp(0, current.target);
       default:
-        return stats.mistakesFixed - _baseMistakes;
+        final val = stats.mistakesFixed - _baseMistakes;
+        return val.clamp(0, current.target);
     }
   }
 
   double get progress => (progressValue / current.target).clamp(0.0, 1.0);
 
-  void _onStats() {
+  Future<void> _onStats() async {
+    if (progressValue >= current.target) {
+      await xp.addXp(_rewardXp);
+      if (navigatorKey.currentState?.context.mounted ?? false) {
+        ScaffoldMessenger.of(navigatorKey.currentState!.context).showSnackBar(
+          const SnackBar(
+            content: Text('🎉 Challenge completed!'),
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      _rotate(force: true);
+    }
     _rotate();
     notifyListeners();
   }
 
-  bool _rotate() {
+  bool _rotate({bool force = false}) {
     final now = DateTime.now();
-    if (now.difference(_start).inDays >= 7) {
+    if (force || now.difference(_start).inDays >= 7) {
       _index = (_index + 1) % _challenges.length;
       _start = DateTime(now.year, now.month, now.day);
       _baseHands = stats.handsReviewed;
@@ -80,5 +106,12 @@ class WeeklyChallengeService extends ChangeNotifier {
     await prefs.setString(_startKey, _start.toIso8601String());
     await prefs.setInt(_handsKey, _baseHands);
     await prefs.setInt(_mistakesKey, _baseMistakes);
+  }
+
+  @override
+  void dispose() {
+    _handsSub?.cancel();
+    _mistakeSub?.cancel();
+    super.dispose();
   }
 }
