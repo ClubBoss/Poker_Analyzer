@@ -41,6 +41,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
   bool _goalCompleted = false;
   bool _allGoalsCompleted = false;
   bool _dailySpotDone = false;
+  int _dailyWeekCount = 0;
+  int _dailyMonthCount = 0;
 
   @override
   void initState() {
@@ -50,6 +52,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     _goalCompleted = goals.anyCompleted;
     _allGoalsCompleted = goals.goals.every((g) => g.completed);
     _loadDailySpot();
+    _loadDailySpotStats();
     goals.addListener(_onGoalsChanged);
   }
 
@@ -170,6 +173,25 @@ class _ProgressScreenState extends State<ProgressScreen> {
         date.day == now.day) {
       setState(() => _dailySpotDone = true);
     }
+  }
+
+  Future<void> _loadDailySpotStats() async {
+    final service = context.read<GoalsService>();
+    final history = await service.getDailySpotHistory();
+    final now = DateTime.now();
+    final weekStart = now.subtract(const Duration(days: 6));
+    final monthStart = now.subtract(const Duration(days: 29));
+    int week = 0;
+    int month = 0;
+    for (final d in history) {
+      final day = DateTime(d.year, d.month, d.day);
+      if (!day.isBefore(weekStart)) week++;
+      if (!day.isBefore(monthStart)) month++;
+    }
+    setState(() {
+      _dailyWeekCount = week;
+      _dailyMonthCount = month;
+    });
   }
 
   Widget _buildPieChart() {
@@ -828,6 +850,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                       ),
                     );
                     _loadDailySpot();
+                    _loadDailySpotStats();
                   },
             child: Text(_dailySpotDone ? '✅ Выполнено' : 'Спот дня'),
           ),
@@ -895,6 +918,33 @@ class _ProgressScreenState extends State<ProgressScreen> {
           Text(
             'Всего разобрано раздач: $totalHands',
             style: const TextStyle(color: Colors.white),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            '📅 Статистика спотов дня',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _dailyWeekCount > 0
+                ? 'За неделю: $_dailyWeekCount / 7 дней'
+                : 'Нет активности за период',
+            style: TextStyle(
+              color: _dailyWeekCount > 0 ? Colors.white : Colors.white70,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _dailyMonthCount > 0
+                ? 'За месяц: $_dailyMonthCount / 30 дней'
+                : 'Нет активности за период',
+            style: TextStyle(
+              color: _dailyMonthCount > 0 ? Colors.white : Colors.white70,
+            ),
           ),
         ],
       ),

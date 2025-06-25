@@ -85,6 +85,7 @@ class GoalsService extends ChangeNotifier {
   static const _achievementShownPrefix = 'ach_shown_';
   static const _historyPrefix = 'goal_history_';
   static const _drillResultsKey = 'drill_results';
+  static const _dailySpotHistoryKey = 'daily_spot_history';
 
   int _errorFreeStreak = 0;
   int _handStreak = 0;
@@ -100,6 +101,7 @@ class GoalsService extends ChangeNotifier {
   late List<bool> _achievementShown;
   late List<List<GoalProgressEntry>> _history;
   List<DrillSessionResult> _drillResults = [];
+  List<DateTime> _dailySpotHistory = [];
 
   static GoalsService? _instance;
   static GoalsService? get instance => _instance;
@@ -139,6 +141,7 @@ class GoalsService extends ChangeNotifier {
   int get mistakeReviewStreak => _mistakeReviewStreak;
 
   List<DrillSessionResult> get drillResults => List.unmodifiable(_drillResults);
+  List<DateTime> get dailySpotHistory => List.unmodifiable(_dailySpotHistory);
 
   List<GoalProgressEntry> historyFor(int index) =>
       index >= 0 && index < _history.length
@@ -216,6 +219,11 @@ class GoalsService extends ChangeNotifier {
         }
       } catch (_) {}
     }
+    final spotRaw = prefs.getStringList(_dailySpotHistoryKey) ?? [];
+    _dailySpotHistory = [
+      for (final s in spotRaw)
+        if (DateTime.tryParse(s) != null) DateTime.parse(s)
+    ];
     _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
     _handStreak = prefs.getInt(_handsKey) ?? 0;
     _mistakeReviewStreak = prefs.getInt(_mistakeStreakKey) ?? 0;
@@ -622,5 +630,14 @@ class GoalsService extends ChangeNotifier {
     if (candidates.isEmpty) return null;
     final rnd = Random().nextInt(candidates.length);
     return candidates[rnd];
+  }
+
+  Future<List<DateTime>> getDailySpotHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(_dailySpotHistoryKey) ?? [];
+    return [
+      for (final s in raw)
+        if (DateTime.tryParse(s) != null) DateTime.parse(s)
+    ];
   }
 }
