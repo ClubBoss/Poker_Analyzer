@@ -104,6 +104,7 @@ class GoalsService extends ChangeNotifier {
   List<DrillSessionResult> _drillResults = [];
   List<DateTime> _dailySpotHistory = [];
   bool _hasSevenDayGoalUnlocked = false;
+  bool _weeklyStreakCelebrated = false;
 
   static GoalsService? _instance;
   static GoalsService? get instance => _instance;
@@ -145,6 +146,7 @@ class GoalsService extends ChangeNotifier {
   List<DrillSessionResult> get drillResults => List.unmodifiable(_drillResults);
   List<DateTime> get dailySpotHistory => List.unmodifiable(_dailySpotHistory);
   bool get hasSevenDayGoalUnlocked => _hasSevenDayGoalUnlocked;
+  bool get weeklyStreakCelebrated => _weeklyStreakCelebrated;
 
   List<GoalProgressEntry> historyFor(int index) =>
       index >= 0 && index < _history.length
@@ -377,6 +379,10 @@ class GoalsService extends ChangeNotifier {
     _hasSevenDayGoalUnlocked = value;
     await _saveSevenDayGoalUnlocked();
     notifyListeners();
+  }
+
+  void markWeeklyStreakCelebrated() {
+    _weeklyStreakCelebrated = true;
   }
 
   void _checkAchievements(BuildContext context) {

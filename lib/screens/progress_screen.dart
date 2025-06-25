@@ -47,7 +47,6 @@ class _ProgressScreenState extends State<ProgressScreen>
   int _dailyWeekCount = 0;
   int _dailyMonthCount = 0;
   bool _weeklyStreak = false;
-  bool _weeklyConfettiPlayed = false;
   late final ConfettiController _weeklyConfetti;
 
   @override
@@ -203,9 +202,9 @@ class _ProgressScreenState extends State<ProgressScreen>
     if (streak && !service.hasSevenDayGoalUnlocked) {
       await service.setSevenDayGoalUnlocked(true);
     }
-    if (streak && !_weeklyConfettiPlayed) {
+    if (streak && !service.weeklyStreakCelebrated) {
       _weeklyConfetti.play();
-      _weeklyConfettiPlayed = true;
+      service.markWeeklyStreakCelebrated();
     }
     if (mounted) {
       setState(() => _weeklyStreak = streak);
