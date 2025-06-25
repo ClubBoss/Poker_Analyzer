@@ -7,6 +7,7 @@ import 'settings_placeholder_screen.dart';
 import 'insights_screen.dart';
 import '../widgets/streak_banner.dart';
 import '../widgets/motivation_card.dart';
+import '../widgets/next_step_card.dart';
 import '../services/user_action_logger.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return const Column(
       children: [
         MotivationCard(),
+        NextStepCard(),
         Expanded(child: AnalyzerTab()),
       ],
     );
