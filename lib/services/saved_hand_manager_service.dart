@@ -1020,4 +1020,22 @@ class SavedHandManagerService extends ChangeNotifier {
     }
     return grouped;
   }
+
+  /// Return the list of hands in the current error-free streak.
+  ///
+  /// Hands are returned in chronological order and only include
+  /// those with correct user action compared to GTO.
+  List<SavedHand> currentErrorFreeStreak() {
+    final result = <SavedHand>[];
+    for (int i = hands.length - 1; i >= 0; i--) {
+      final h = hands[i];
+      final expected = h.expectedAction?.trim().toLowerCase();
+      final gto = h.gtoAction?.trim().toLowerCase();
+      if (expected == null || gto == null || expected != gto) {
+        break;
+      }
+      result.insert(0, h);
+    }
+    return result;
+  }
 }
