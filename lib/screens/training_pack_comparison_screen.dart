@@ -52,6 +52,9 @@ class _PackDataSource extends DataTableSource {
             style: TextStyle(color: color))),
         DataCell(Text(s.mistakes.toString())),
         DataCell(Text(s.rating.toStringAsFixed(1).padLeft(4))),
+        DataCell(Text(s.lastSession != null
+            ? DateFormat('dd.MM').format(s.lastSession!)
+            : '-')),
       ],
     );
   }
@@ -98,6 +101,10 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         case 4:
           cmp = a.rating.compareTo(b.rating);
           break;
+        case 5:
+          cmp = (a.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0))
+              .compareTo(b.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0));
+          break;
         default:
           cmp = 0;
       }
@@ -111,7 +118,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     final stats = _sortedStats(packs);
     if (stats.isEmpty) return;
     final rows = <List<dynamic>>[];
-    rows.add(['Название', 'Рук', 'Точность', 'Ошибки', 'Рейтинг']);
+    rows.add(['Название', 'Рук', 'Точность', 'Ошибки', 'Рейтинг', 'Последняя сессия']);
     var sumTotal = 0;
     var sumMistakes = 0;
     var sumAcc = 0.0;
@@ -123,6 +130,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         '${s.accuracy.toStringAsFixed(1)}%',
         s.mistakes,
         s.rating.toStringAsFixed(1),
+        s.lastSession != null ? DateFormat('dd.MM').format(s.lastSession!) : '-',
       ]);
       sumTotal += s.total;
       sumMistakes += s.mistakes;
@@ -137,6 +145,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       '${avgAcc.toStringAsFixed(1)}%',
       sumMistakes,
       avgRating.toStringAsFixed(1),
+      '-',
     ]);
     assert(rows.every((r) => r.length == rows.first.length));
     final csvStr =
@@ -257,6 +266,17 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
               ],
             ),
             numeric: true,
+            onSort: (i, asc) => _onSort(i, asc),
+          ),
+          DataColumn(
+            label: Row(
+              children: [
+                const Text('Последняя сессия'),
+                if (_sortColumn == 5)
+                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                      size: 12)
+              ],
+            ),
             onSort: (i, asc) => _onSort(i, asc),
           ),
         ],

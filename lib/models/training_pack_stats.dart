@@ -6,6 +6,7 @@ class TrainingPackStats {
   final int mistakes;
   final double accuracy;
   final double rating;
+  final DateTime? lastSession;
 
   TrainingPackStats({
     required this.pack,
@@ -13,6 +14,7 @@ class TrainingPackStats {
     required this.mistakes,
     required this.accuracy,
     required this.rating,
+    required this.lastSession,
   });
 
   factory TrainingPackStats.fromPack(TrainingPack p) {
@@ -27,6 +29,7 @@ class TrainingPackStats {
       mistakes: total - correct,
       accuracy: total > 0 ? correct * 100 / total : 0.0,
       rating: ratingAvg,
+      lastSession: p.history.isNotEmpty ? p.history.last.date : null,
     );
   }
 }
