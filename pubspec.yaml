@@ -38,7 +38,7 @@ dependencies:
   poker_solver: ^1.0.0
   webview_flutter: ^4.2.2
   markdown: ^7.1.1
-  table_calendar: ^3.2.0
+  table_calendar: ^3.0.9
 
 dependency_overrides:
   intl: ^0.20.2
