@@ -357,6 +357,58 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     );
   }
 
+  Widget _buildPackOverview() {
+    final history = widget.pack.history;
+    final hasHistory = history.isNotEmpty;
+    final hasRatings = widget.pack.hands.any((h) => h.rating > 0);
+    if (!hasHistory && !hasRatings) return const SizedBox.shrink();
+    final total = hasHistory
+        ? history.fold<int>(0, (p, r) => p + r.total)
+        : 0;
+    final correct = hasHistory
+        ? history.fold<int>(0, (p, r) => p + r.correct)
+        : 0;
+    final mistakes = total - correct;
+    final accuracy = total > 0 ? correct * 100 / total : 0.0;
+    final ratingAvg = widget.pack.hands.isNotEmpty
+        ? widget.pack.hands
+                .map((h) => h.rating)
+                .reduce((a, b) => a + b) /
+            widget.pack.hands.length
+        : 0.0;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '🧠 Обзор пака',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text('Кол-во рук: $total',
+              style: const TextStyle(color: Colors.white)),
+          Text('Точность: ${accuracy.toStringAsFixed(1)}%',
+              style: const TextStyle(color: Colors.white)),
+          Text('Ошибок: $mistakes',
+              style: const TextStyle(color: Colors.white)),
+          Text('Средний рейтинг: ${ratingAvg.toStringAsFixed(1)}',
+              style: const TextStyle(color: Colors.white)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final visible = _visibleHands;
@@ -459,6 +511,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
             ),
           ),
           const Divider(color: Colors.white24, height: 1),
+          _buildPackOverview(),
           Expanded(
             child: hands.isEmpty
                 ? const Center(
