@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,7 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
   bool _celebrated = false;
   DateTime? _lastCelebration;
   static const _prefKey = 'today_progress_banner_confetti';
+  StreamSubscription<int>? _recordSub;
 
   @override
   void initState() {
@@ -45,6 +47,17 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
         weight: 50,
       ),
     ]).animate(_controller);
+    _recordSub =
+        context.read<StreakCounterService>().recordStream.listen((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('🏆 New record!'),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    });
     SharedPreferences.getInstance().then((prefs) {
       final str = prefs.getString(_prefKey);
       if (str != null) {
@@ -79,6 +92,7 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
 
   @override
   void dispose() {
+    _recordSub?.cancel();
     _controller.dispose();
     super.dispose();
   }
