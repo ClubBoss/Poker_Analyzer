@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+import 'dart:convert';
 import '../screens/progress_screen.dart';
+import '../models/goal_progress_entry.dart';
 
 class Achievement {
   final String title;
@@ -71,6 +73,7 @@ class GoalsService extends ChangeNotifier {
   static const _dailyIndexKey = 'daily_goal_index';
   static const _dailyDateKey = 'daily_goal_date';
   static const _achievementShownPrefix = 'ach_shown_';
+  static const _historyPrefix = 'goal_history_';
 
   int _errorFreeStreak = 0;
   int _handStreak = 0;
@@ -84,6 +87,7 @@ class GoalsService extends ChangeNotifier {
   /// In-memory list of all achievements.
   late List<Achievement> _achievements;
   late List<bool> _achievementShown;
+  late List<List<GoalProgressEntry>> _history;
 
   static GoalsService? _instance;
   static GoalsService? get instance => _instance;
@@ -114,6 +118,11 @@ class GoalsService extends ChangeNotifier {
   bool get anyCompleted => _goals.any((g) => g.progress >= g.target);
 
   int get mistakeReviewStreak => _mistakeReviewStreak;
+
+  List<GoalProgressEntry> historyFor(int index) =>
+      index >= 0 && index < _history.length
+          ? List.unmodifiable(_history[index])
+          : const [];
 
   DateTime? _readDate(SharedPreferences prefs, int index) {
     final ts = prefs.getInt('${_prefPrefix}${index}_date');
@@ -153,6 +162,18 @@ class GoalsService extends ChangeNotifier {
         completedAt: _readDate(prefs, 1),
       ),
     ];
+    _history = [];
+    for (var i = 0; i < _goals.length; i++) {
+      final raw = prefs.getStringList('$_historyPrefix$i') ?? [];
+      final list = <GoalProgressEntry>[];
+      for (final item in raw) {
+        try {
+          list.add(GoalProgressEntry.fromJson(
+              jsonDecode(item) as Map<String, dynamic>));
+        } catch (_) {}
+      }
+      _history.add(list);
+    }
     _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
     _handStreak = prefs.getInt(_handsKey) ?? 0;
     _mistakeReviewStreak = prefs.getInt(_mistakeStreakKey) ?? 0;
@@ -233,6 +254,13 @@ class GoalsService extends ChangeNotifier {
     await prefs.setBool('$_achievementShownPrefix$index', true);
   }
 
+  Future<void> _saveHistory(int index) async {
+    if (index < 0 || index >= _history.length) return;
+    final prefs = await SharedPreferences.getInstance();
+    final list = [for (final e in _history[index]) jsonEncode(e.toJson())];
+    await prefs.setStringList('$_historyPrefix$index', list);
+  }
+
   Future<void> _saveDailyGoal() async {
     final prefs = await SharedPreferences.getInstance();
     if (_dailyGoalIndex != null) {
@@ -304,16 +332,22 @@ class GoalsService extends ChangeNotifier {
   Future<void> setProgress(int index, int progress, {BuildContext? context}) async {
     if (index < 0 || index >= _goals.length) return;
     final goal = _goals[index];
+    final time = DateTime.now();
     DateTime? date = goal.completedAt;
     final wasCompleted = goal.progress >= goal.target;
     final willComplete = progress >= goal.target;
     if (!wasCompleted && willComplete) {
-      date = DateTime.now();
+      date = time;
     } else if (!willComplete) {
       date = null;
     }
     _goals[index] = goal.copyWith(progress: progress, completedAt: date);
+    if (_history.length <= index) {
+      _history.add([]);
+    }
+    _history[index].add(GoalProgressEntry(date: time, progress: progress));
     await _saveProgress(index);
+    await _saveHistory(index);
     _refreshCompletedGoalsAchievement();
     notifyListeners();
     if (context != null) _checkAchievements(context);
