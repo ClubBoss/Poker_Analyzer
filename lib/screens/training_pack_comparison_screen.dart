@@ -60,6 +60,12 @@ class _PackDataSource extends DataTableSource {
         : isWorst
             ? Colors.redAccent
             : null;
+    final progress = s.total > 0 ? (s.total - s.mistakes) / s.total : 0.0;
+    final progressColor = progress < 0.5
+        ? Colors.redAccent
+        : progress < 0.8
+            ? Colors.orangeAccent
+            : Colors.greenAccent;
     return DataRow(
       color: forgotten
           ? MaterialStateProperty.all(Colors.grey.shade800)
@@ -90,6 +96,34 @@ class _PackDataSource extends DataTableSource {
             child: Text(
               '${s.accuracy.toStringAsFixed(1).padLeft(5)}%',
               style: TextStyle(color: color),
+            ),
+          ),
+        ),
+        DataCell(
+          Tooltip(
+            message: '${s.total - s.mistakes} из ${s.total} выполнено верно',
+            child: SizedBox(
+              width: 120,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: Colors.white24,
+                        valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                        minHeight: 6,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${(progress * 100).toStringAsFixed(0)}%',
+                    style: TextStyle(color: progressColor),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -254,13 +288,13 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         case 2:
           cmp = a.accuracy.compareTo(b.accuracy);
           break;
-        case 3:
+        case 4:
           cmp = a.mistakes.compareTo(b.mistakes);
           break;
-        case 4:
+        case 5:
           cmp = a.rating.compareTo(b.rating);
           break;
-        case 5:
+        case 6:
           cmp = (a.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0))
               .compareTo(b.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0));
           break;
@@ -441,53 +475,54 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                               ),
                           ],
                         ),
-                        numeric: true,
-                        onSort: (i, asc) => _onSort(i, asc),
-                      ),
-                      DataColumn(
-                        label: Row(
-                          children: [
-                            const Text('Ошибки'),
-                            if (_sortColumn == 3)
-                              Icon(
-                                _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                                size: 12,
-                              ),
-                          ],
-                        ),
-                        numeric: true,
-                        onSort: (i, asc) => _onSort(i, asc),
-                      ),
-                      DataColumn(
-                        label: Tooltip(
-                          message: 'Средний рейтинг всех рук в паке (1–5)',
-                          child: Row(
-                            children: [
-                              const Text('Рейтинг'),
-                              if (_sortColumn == 4)
-                                Icon(
-                                  _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                                  size: 12,
-                                ),
-                            ],
+                    numeric: true,
+                    onSort: (i, asc) => _onSort(i, asc),
+                  ),
+                  const DataColumn(label: Text('Прогресс')),
+                  DataColumn(
+                    label: Row(
+                      children: [
+                        const Text('Ошибки'),
+                        if (_sortColumn == 4)
+                          Icon(
+                            _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                            size: 12,
                           ),
-                        ),
-                        numeric: true,
-                        onSort: (i, asc) => _onSort(i, asc),
+                      ],
+                    ),
+                    numeric: true,
+                    onSort: (i, asc) => _onSort(i, asc),
+                  ),
+                  DataColumn(
+                    label: Tooltip(
+                      message: 'Средний рейтинг всех рук в паке (1–5)',
+                      child: Row(
+                        children: [
+                          const Text('Рейтинг'),
+                          if (_sortColumn == 5)
+                            Icon(
+                              _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                              size: 12,
+                            ),
+                        ],
                       ),
-                      DataColumn(
-                        label: Row(
-                          children: [
-                            const Text('Последняя сессия'),
-                            if (_sortColumn == 5)
-                              Icon(
-                                _ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                                size: 12,
-                              ),
-                          ],
-                        ),
-                        onSort: (i, asc) => _onSort(i, asc),
-                      ),
+                    ),
+                    numeric: true,
+                    onSort: (i, asc) => _onSort(i, asc),
+                  ),
+                  DataColumn(
+                    label: Row(
+                      children: [
+                        const Text('Последняя сессия'),
+                        if (_sortColumn == 6)
+                          Icon(
+                            _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                            size: 12,
+                          ),
+                      ],
+                    ),
+                    onSort: (i, asc) => _onSort(i, asc),
+                  ),
                       const DataColumn(label: SizedBox.shrink()),
                     ],
                     source: source,
@@ -499,6 +534,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                     DataColumn(label: SizedBox.shrink()),
                     DataColumn(label: SizedBox.shrink(), numeric: true),
                     DataColumn(label: SizedBox.shrink(), numeric: true),
+                    DataColumn(label: SizedBox.shrink()),
                     DataColumn(label: SizedBox.shrink(), numeric: true),
                     DataColumn(label: SizedBox.shrink(), numeric: true),
                     DataColumn(label: SizedBox.shrink()),
@@ -510,6 +546,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                         const DataCell(Text('Σ')),
                         DataCell(Text(sumTotal.toString())),
                         DataCell(Text('${avgAcc.toStringAsFixed(1)}%')),
+                        DataCell(Text('${((sumTotal - sumMistakes) / (sumTotal > 0 ? sumTotal : 1) * 100).toStringAsFixed(1)}%')),
                         DataCell(Text(sumMistakes.toString())),
                         DataCell(Text(avgRating.toStringAsFixed(1))),
                         const DataCell(Text('-')),
