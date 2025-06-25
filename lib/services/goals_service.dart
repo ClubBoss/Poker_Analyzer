@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../screens/progress_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
+import '../screens/progress_screen.dart';
 
 class Achievement {
   final String title;
@@ -66,10 +67,14 @@ class GoalsService extends ChangeNotifier {
   static const _streakKey = 'error_free_streak';
   static const _handsKey = 'consecutive_hands';
   static const _hintShownKey = 'progress_hint_shown';
+  static const _dailyIndexKey = 'daily_goal_index';
+  static const _dailyDateKey = 'daily_goal_date';
 
   int _errorFreeStreak = 0;
   int _handStreak = 0;
   bool _hintShown = false;
+  int? _dailyGoalIndex;
+  DateTime? _dailyGoalDate;
 
   /// In-memory list of all achievements.
   late List<Achievement> _achievements;
@@ -84,6 +89,13 @@ class GoalsService extends ChangeNotifier {
   late List<Goal> _goals;
 
   List<Goal> get goals => List.unmodifiable(_goals);
+
+  Goal? get dailyGoal =>
+      _dailyGoalIndex != null &&
+              _dailyGoalIndex! >= 0 &&
+              _dailyGoalIndex! < _goals.length
+          ? _goals[_dailyGoalIndex!]
+          : null;
 
   List<Achievement> get achievements => List.unmodifiable(_achievements);
 
@@ -105,6 +117,9 @@ class GoalsService extends ChangeNotifier {
     prefs.setInt(key, now.millisecondsSinceEpoch);
     return now;
   }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -129,6 +144,9 @@ class GoalsService extends ChangeNotifier {
     _errorFreeStreak = prefs.getInt(_streakKey) ?? 0;
     _handStreak = prefs.getInt(_handsKey) ?? 0;
     _hintShown = prefs.getBool(_hintShownKey) ?? false;
+    _dailyGoalIndex = prefs.getInt(_dailyIndexKey);
+    final dateStr = prefs.getString(_dailyDateKey);
+    _dailyGoalDate = dateStr != null ? DateTime.tryParse(dateStr) : null;
     final completedGoals =
         _goals.where((g) => g.progress >= g.target).length;
     _achievements = [
@@ -163,6 +181,7 @@ class GoalsService extends ChangeNotifier {
         target: 5,
       ),
     ];
+    await ensureDailyGoal();
     notifyListeners();
   }
 
@@ -181,6 +200,20 @@ class GoalsService extends ChangeNotifier {
     await prefs.setBool(_hintShownKey, _hintShown);
   }
 
+  Future<void> _saveDailyGoal() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_dailyGoalIndex != null) {
+      await prefs.setInt(_dailyIndexKey, _dailyGoalIndex!);
+    } else {
+      await prefs.remove(_dailyIndexKey);
+    }
+    if (_dailyGoalDate != null) {
+      await prefs.setString(_dailyDateKey, _dailyGoalDate!.toIso8601String());
+    } else {
+      await prefs.remove(_dailyDateKey);
+    }
+  }
+
   Future<void> _saveProgress(int index) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('${_prefPrefix}$index', _goals[index].progress);
@@ -193,6 +226,24 @@ class GoalsService extends ChangeNotifier {
       await prefs.setInt(dateKey, date.millisecondsSinceEpoch);
     } else {
       await prefs.remove(dateKey);
+    }
+  }
+
+  Future<void> ensureDailyGoal() async {
+    final now = DateTime.now();
+    if (_dailyGoalDate == null || !_isSameDay(_dailyGoalDate!, now)) {
+      final active = <int>[];
+      for (var i = 0; i < _goals.length; i++) {
+        if (!_goals[i].completed) active.add(i);
+      }
+      if (active.isNotEmpty) {
+        _dailyGoalIndex = active[Random().nextInt(active.length)];
+      } else {
+        _dailyGoalIndex = null;
+      }
+      _dailyGoalDate = now;
+      await _saveDailyGoal();
+      notifyListeners();
     }
   }
 

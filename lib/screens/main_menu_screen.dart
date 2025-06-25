@@ -96,6 +96,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<StreakService>().updateStreak();
+        context.read<GoalsService>().ensureDailyGoal();
       }
     });
   }
@@ -266,9 +267,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   Widget _buildDailyGoalCard(BuildContext context) {
-    final goals = context.watch<GoalsService>().goals;
-    if (goals.isEmpty) return const SizedBox.shrink();
-    final goal = goals.first;
+    final goal = context.watch<GoalsService>().dailyGoal;
+    if (goal == null) return const SizedBox.shrink();
     final progress = (goal.progress / goal.target).clamp(0.0, 1.0);
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
@@ -413,6 +413,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildStreakCard(context),
+            _buildDailyGoalCard(context),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -443,7 +444,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               child: const Text('🔁 Повторы ошибок'),
             ),
             const SizedBox(height: 16),
-            _buildDailyGoalCard(context),
             _buildSpotOfDaySection(context),
             ElevatedButton(
               key: _newHandButtonKey,
