@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
+import '../services/streak_counter_service.dart';
 
 class TodayProgressBanner extends StatelessWidget {
   const TodayProgressBanner({super.key});
@@ -10,6 +11,7 @@ class TodayProgressBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final stats = context.watch<TrainingStatsService>();
     final target = context.watch<DailyTargetService>().target;
+    final streak = context.watch<StreakCounterService>().count;
     final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     final hands = stats.handsPerDay[today] ?? 0;
     final dailyMistakes = stats.mistakesDaily(1);
@@ -27,9 +29,24 @@ class TodayProgressBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Today: $hands/$target hands \u00b7 $mistakes mistakes',
-            style: const TextStyle(color: Colors.white),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Today: $hands/$target hands \u00b7 $mistakes mistakes',
+                style: const TextStyle(color: Colors.white),
+              ),
+              if (streak > 0)
+                Row(
+                  children: [
+                    const Icon(Icons.local_fire_department,
+                        color: Colors.orange, size: 16),
+                    const SizedBox(width: 4),
+                    Text('$streak',
+                        style: const TextStyle(color: Colors.white)),
+                  ],
+                ),
+            ],
           ),
           const SizedBox(height: 4),
           ClipRRect(
