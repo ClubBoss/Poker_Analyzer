@@ -33,6 +33,7 @@ import 'goals_overview_screen.dart';
 import 'mistake_repeat_screen.dart';
 import 'achievements_screen.dart';
 import '../services/goals_service.dart';
+import '../widgets/focus_of_the_week_card.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -463,6 +464,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           children: [
             _buildStreakCard(context),
             _buildDailyGoalCard(context),
+            const FocusOfTheWeekCard(),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
