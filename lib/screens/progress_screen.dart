@@ -22,6 +22,7 @@ import '../widgets/mistake_heatmap.dart';
 import 'goals_history_screen.dart';
 import 'daily_spot_screen.dart';
 import 'daily_spot_history_screen.dart';
+import 'daily_spot_history_calendar_screen.dart';
 import 'achievements_screen.dart';
 import 'drill_history_screen.dart';
 import 'goal_drill_screen.dart';
@@ -975,6 +976,17 @@ class _ProgressScreenState extends State<ProgressScreen>
               );
             },
             child: const Text('История'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const DailySpotHistoryCalendarScreen(),
+                ),
+              );
+            },
+            child: const Text('Календарь'),
           ),
           const SizedBox(height: 8),
           AnimatedSwitcher(
