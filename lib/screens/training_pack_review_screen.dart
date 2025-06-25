@@ -456,6 +456,9 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
               style: const TextStyle(color: Colors.white)),
           Text('Средний рейтинг: ${ratingAvg.toStringAsFixed(1)}',
               style: const TextStyle(color: Colors.white)),
+          Text('Потеря EV: –${stats.totalEvLoss.toStringAsFixed(1)} bb',
+              style: TextStyle(
+                  color: stats.totalEvLoss > 0 ? Colors.red : Colors.green)),
         ],
       ),
     );

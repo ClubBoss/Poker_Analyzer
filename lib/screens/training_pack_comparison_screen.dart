@@ -142,6 +142,9 @@ class _PackDataSource extends DataTableSource {
           ),
         ),
         DataCell(Text(s.mistakes.toString())),
+        DataCell(Text('–${s.totalEvLoss.toStringAsFixed(1)} bb',
+            style: TextStyle(
+                color: s.totalEvLoss > 0 ? Colors.red : Colors.green))),
         DataCell(Text(s.rating.toStringAsFixed(1).padLeft(4))),
         DataCell(Tooltip(
           message: s.lastSession != null
@@ -323,9 +326,12 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
           cmp = a.mistakes.compareTo(b.mistakes);
           break;
         case 5:
-          cmp = a.rating.compareTo(b.rating);
+          cmp = a.totalEvLoss.compareTo(b.totalEvLoss);
           break;
         case 6:
+          cmp = a.rating.compareTo(b.rating);
+          break;
+        case 7:
           cmp = (a.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0))
               .compareTo(b.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0));
           break;
@@ -342,17 +348,19 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     final stats = custom ?? _sortedStats(packs);
     if (stats.isEmpty) return;
     final rows = <List<dynamic>>[];
-    rows.add(['Название', 'Рук', 'Точность', 'Ошибки', 'Рейтинг', 'Последняя сессия']);
+    rows.add(['Название', 'Рук', 'Точность', 'Ошибки', 'Потеря EV', 'Рейтинг', 'Последняя сессия']);
     var sumTotal = 0;
     var sumMistakes = 0;
     var sumAcc = 0.0;
     var sumRating = 0.0;
+    var sumEvLoss = 0.0;
     for (final s in stats) {
       rows.add([
         s.pack.name,
         s.total,
         '${s.accuracy.toStringAsFixed(1)}%',
         s.mistakes,
+        '–${s.totalEvLoss.toStringAsFixed(1)} bb',
         s.rating.toStringAsFixed(1),
         s.lastSession != null ? DateFormat('dd.MM').format(s.lastSession!) : '-',
       ]);
@@ -360,6 +368,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       sumMistakes += s.mistakes;
       sumAcc += s.accuracy;
       sumRating += s.rating;
+      sumEvLoss += s.totalEvLoss;
     }
     final avgAcc = stats.isNotEmpty ? sumAcc / stats.length : 0.0;
     final avgRating = stats.isNotEmpty ? sumRating / stats.length : 0.0;
@@ -368,6 +377,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       sumTotal,
       '${avgAcc.toStringAsFixed(1)}%',
       sumMistakes,
+      '–${sumEvLoss.toStringAsFixed(1)} bb',
       avgRating.toStringAsFixed(1),
       '-',
     ]);
@@ -455,6 +465,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     final allStats = [for (final p in packs) TrainingPackStats.fromPack(p)];
     final sumTotal = allStats.fold<int>(0, (s, e) => s + e.total);
     final sumMistakes = allStats.fold<int>(0, (s, e) => s + e.mistakes);
+    final sumEvLoss = allStats.fold<double>(0, (s, e) => s + e.totalEvLoss);
     final avgAcc =
         allStats.isNotEmpty ? allStats.fold<double>(0, (s, e) => s + e.accuracy) / allStats.length : 0.0;
     final avgRating =
@@ -641,11 +652,28 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                   ),
                   DataColumn(
                     label: Tooltip(
+                      message: 'Суммарная потеря EV в паке',
+                      child: Row(
+                        children: [
+                          const Text('Потеря EV'),
+                          if (_sortColumn == 5)
+                            Icon(
+                              _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                              size: 12,
+                            ),
+                        ],
+                      ),
+                    ),
+                    numeric: true,
+                    onSort: (i, asc) => _onSort(i, asc),
+                  ),
+                  DataColumn(
+                    label: Tooltip(
                       message: 'Средний рейтинг всех рук в паке (1–5)',
                       child: Row(
                         children: [
                           const Text('Рейтинг'),
-                          if (_sortColumn == 5)
+                          if (_sortColumn == 6)
                             Icon(
                               _ascending ? Icons.arrow_upward : Icons.arrow_downward,
                               size: 12,
@@ -660,7 +688,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                     label: Row(
                       children: [
                         const Text('Последняя сессия'),
-                        if (_sortColumn == 6)
+                        if (_sortColumn == 7)
                           Icon(
                             _ascending ? Icons.arrow_upward : Icons.arrow_downward,
                             size: 12,
@@ -684,6 +712,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                     DataColumn(label: SizedBox.shrink()),
                     DataColumn(label: SizedBox.shrink(), numeric: true),
                     DataColumn(label: SizedBox.shrink(), numeric: true),
+                    DataColumn(label: SizedBox.shrink(), numeric: true),
                     DataColumn(label: SizedBox.shrink()),
                     DataColumn(label: SizedBox.shrink()),
                   ],
@@ -696,6 +725,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                         DataCell(Text('${avgAcc.toStringAsFixed(1)}%')),
                         DataCell(Text('${((sumTotal - sumMistakes) / (sumTotal > 0 ? sumTotal : 1) * 100).toStringAsFixed(1)}%')),
                         DataCell(Text(sumMistakes.toString())),
+                        DataCell(Text('–${sumEvLoss.toStringAsFixed(1)} bb')),
                         DataCell(Text(avgRating.toStringAsFixed(1))),
                         const DataCell(Text('-')),
                         const DataCell(SizedBox.shrink()),
