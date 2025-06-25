@@ -6,10 +6,12 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'dart:math';
+import 'package:intl/intl.dart';
 
 import '../services/goals_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
+import '../services/training_pack_storage_service.dart';
 import '../models/summary_result.dart';
 import '../models/saved_hand.dart';
 import '../theme/app_colors.dart';
@@ -31,6 +33,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   List<FlSpot> _streakSpots = [];
   List<MapEntry<DateTime, int>> _mistakesPerDay = [];
   List<MapEntry<DateTime, double>> _weeklyAccuracy = [];
+  List<MapEntry<DateTime, double>> _dailyEvLoss = [];
   Map<String, Map<String, int>> _heatmapData = {};
   bool _goalCompleted = false;
   bool _allGoalsCompleted = false;
@@ -88,6 +91,22 @@ class _ProgressScreenState extends State<ProgressScreen> {
 
     final start = DateTime.now().subtract(const Duration(days: 6));
     final weekStart = DateTime(start.year, start.month, start.day);
+    final packs = context.read<TrainingPackStorageService>().packs;
+    final evMap = <DateTime, double>{};
+    for (final p in packs) {
+      for (final h in p.hands) {
+        final loss = h.evLoss;
+        if (loss == null) continue;
+        final d = DateTime(h.date.year, h.date.month, h.date.day);
+        if (d.isBefore(weekStart)) continue;
+        evMap.update(d, (v) => v + loss, ifAbsent: () => loss);
+      }
+    }
+    final evLoss = <MapEntry<DateTime, double>>[];
+    for (int i = 0; i < 7; i++) {
+      final d = weekStart.add(Duration(days: i));
+      evLoss.add(MapEntry(d, -(evMap[d] ?? 0))); 
+    }
     final weekAcc = <MapEntry<DateTime, double>>[];
     final days = weekMap.keys
         .where((d) => !d.isBefore(weekStart))
@@ -118,6 +137,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       _mistakesPerDay = recent;
       _heatmapData = heatmap;
       _weeklyAccuracy = weekAcc;
+      _dailyEvLoss = evLoss;
     });
   }
 
@@ -304,6 +324,113 @@ class _ProgressScreenState extends State<ProgressScreen> {
               barWidth: 2,
               isCurved: false,
               dotData: FlDotData(show: false),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEvLossChart() {
+    final spots = <FlSpot>[];
+    for (var i = 0; i < _dailyEvLoss.length; i++) {
+      spots.add(FlSpot(i.toDouble(), _dailyEvLoss[i].value));
+    }
+    final minY = _dailyEvLoss.map((e) => e.value).reduce(min);
+    final interval = minY.abs() < 1 ? 1.0 : (minY.abs() / 5).ceilToDouble();
+    final step = (_dailyEvLoss.length / 6).ceil();
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: LineChart(
+        LineChartData(
+          minY: minY,
+          maxY: 0,
+          lineTouchData: LineTouchData(
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Colors.black87,
+              fitInsideHorizontally: true,
+              fitInsideVertically: true,
+              getTooltipItems: (spots) {
+                return spots.map((s) {
+                  final entry = _dailyEvLoss[s.spotIndex];
+                  final date = DateFormat('d MMM', 'ru').format(entry.key);
+                  return LineTooltipItem(
+                    '$date: ${entry.value.toStringAsFixed(1)} bb',
+                    const TextStyle(color: Colors.white, fontSize: 12),
+                  );
+                }).toList();
+              },
+            ),
+          ),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: interval,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.white24, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: interval,
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index >= _dailyEvLoss.length) {
+                    return const SizedBox.shrink();
+                  }
+                  if (index % step != 0 && index != _dailyEvLoss.length - 1) {
+                    return const SizedBox.shrink();
+                  }
+                  final d = _dailyEvLoss[index].key;
+                  final label =
+                      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                  return Text(label,
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 10));
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(color: Colors.white24),
+              bottom: BorderSide(color: Colors.white24),
+            ),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              color: Colors.redAccent,
+              barWidth: 2,
+              isCurved: false,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
+                  radius: 3,
+                  color: Colors.redAccent,
+                  strokeWidth: 0,
+                ),
+              ),
             ),
           ],
         ),
@@ -653,6 +780,17 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ),
           const SizedBox(height: 12),
           _buildWeeklyAccuracyChart(),
+          const SizedBox(height: 24),
+          const Text(
+            '💸 Потеря EV за неделю',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildEvLossChart(),
           const SizedBox(height: 24),
           const Text(
             'История стрика',
