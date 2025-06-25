@@ -235,6 +235,12 @@ class GoalsService extends ChangeNotifier {
         progress: _errorFreeStreak,
         target: 10,
       ),
+      const Achievement(
+        title: '7 дней подряд',
+        icon: Icons.local_fire_department,
+        progress: 0,
+        target: 7,
+      ),
     ];
     _achievementShown = [
       for (var i = 0; i < _achievements.length; i++)
@@ -481,6 +487,11 @@ class GoalsService extends ChangeNotifier {
         changed = true;
         _achievements[i] = updated;
       }
+    }
+    if (_achievements.length > 8 &&
+        _achievements[8].progress != streakDays) {
+      _achievements[8] = _achievements[8].copyWith(progress: streakDays);
+      changed = true;
     }
     if (_achievements.length > 4 &&
         _achievements[4].progress != completedGoals) {
