@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'dart:convert';
+import 'xp_tracker_service.dart';
 import '../screens/progress_screen.dart';
 import '../models/goal_progress_entry.dart';
 import '../models/drill_session_result.dart';
@@ -391,6 +392,7 @@ class GoalsService extends ChangeNotifier {
       if (!_achievementShown[i] && _achievements[i].completed) {
         _achievementShown[i] = true;
         _saveAchievementShown(i);
+        context.read<XPTrackerService>().addXp(XPTrackerService.achievementXp);
         if (context.mounted) {
           showAchievementUnlockedOverlay(
               context, _achievements[i].icon, _achievements[i].title);
