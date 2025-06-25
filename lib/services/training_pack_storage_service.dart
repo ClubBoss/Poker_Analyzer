@@ -105,4 +105,20 @@ class TrainingPackStorageService extends ChangeNotifier {
       return null;
     }
   }
+
+  Future<void> renamePack(TrainingPack pack, String newName) async {
+    final index = _packs.indexOf(pack);
+    if (index == -1) return;
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty || trimmed == pack.name) return;
+    _packs[index] = TrainingPack(
+      name: trimmed,
+      description: pack.description,
+      category: pack.category,
+      hands: pack.hands,
+      history: pack.history,
+    );
+    await _persist();
+    notifyListeners();
+  }
 }
