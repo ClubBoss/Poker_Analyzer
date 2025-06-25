@@ -51,8 +51,18 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> removePack(TrainingPack pack) async {
-    _packs.remove(pack);
+  Future<(TrainingPack pack, int index)?> removePack(TrainingPack pack) async {
+    final index = _packs.indexOf(pack);
+    if (index == -1) return null;
+    final removed = _packs.removeAt(index);
+    await _persist();
+    notifyListeners();
+    return (removed, index);
+  }
+
+  Future<void> restorePack(TrainingPack pack, int index) async {
+    final insertIndex = index.clamp(0, _packs.length);
+    _packs.insert(insertIndex, pack);
     await _persist();
     notifyListeners();
   }
