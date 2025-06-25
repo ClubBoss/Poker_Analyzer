@@ -7,6 +7,7 @@ import '../services/goal_engine.dart';
 import '../services/streak_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/training_calendar_widget.dart';
+import 'streak_calendar_screen.dart';
 
 enum _Mode { daily, weekly }
 
@@ -244,7 +245,17 @@ class _InsightsScreenState extends State<InsightsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const TrainingCalendarWidget(),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StreakCalendarScreen(),
+                ),
+              );
+            },
+            child: const TrainingCalendarWidget(),
+          ),
           const SizedBox(height: 12),
           _chart(_hands(stats)),
           const SizedBox(height: 12),
