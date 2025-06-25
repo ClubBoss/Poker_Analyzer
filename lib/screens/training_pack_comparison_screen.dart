@@ -174,12 +174,28 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       ),
     );
     if (confirm == true) {
-      await context.read<TrainingPackStorageService>().removePack(pack);
+      final result = await context.read<TrainingPackStorageService>().removePack(pack);
+      if (result != null) {
+        _showUndoDelete(result.\$1, result.\$2);
+      }
     }
   }
 
   Future<void> _duplicatePack(TrainingPack pack) async {
     await context.read<TrainingPackStorageService>().duplicatePack(pack);
+  }
+
+  void _showUndoDelete(TrainingPack pack, int index) {
+    final snack = SnackBar(
+      content: const Text('Пакет удалён'),
+      action: SnackBarAction(
+        label: 'Отмена',
+        onPressed: () =>
+            context.read<TrainingPackStorageService>().restorePack(pack, index),
+      ),
+      duration: const Duration(seconds: 5),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snack);
   }
 
   Future<void> _showRowMenu(TrainingPackStats s) async {
