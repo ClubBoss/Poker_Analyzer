@@ -5,6 +5,7 @@ import 'spot_of_the_day_screen.dart';
 import 'spot_of_the_day_history_screen.dart';
 import 'settings_placeholder_screen.dart';
 import 'insights_screen.dart';
+import 'goal_overview_screen.dart';
 import '../widgets/streak_banner.dart';
 import '../widgets/motivation_card.dart';
 import '../widgets/next_step_card.dart';
@@ -110,6 +111,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       _home(),
       const SpotOfTheDayScreen(),
       const SpotOfTheDayHistoryScreen(),
+      const GoalOverviewScreen(),
       const InsightsScreen(),
       const SettingsPlaceholderScreen(),
     ];
@@ -138,6 +140,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.history),
                 label: 'История',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.flag),
+                label: 'Goal',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.insights),
