@@ -5,6 +5,7 @@ import 'spot_of_the_day_screen.dart';
 import 'spot_of_the_day_history_screen.dart';
 import 'settings_placeholder_screen.dart';
 import 'insights_screen.dart';
+import 'leaderboard_screen.dart';
 import '../widgets/streak_banner.dart';
 import '../widgets/motivation_card.dart';
 import '../widgets/next_step_card.dart';
@@ -44,6 +45,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       const SpotOfTheDayScreen(),
       const SpotOfTheDayHistoryScreen(),
       const InsightsScreen(),
+      const LeaderboardScreen(),
       const SettingsPlaceholderScreen(),
     ];
     return Scaffold(
@@ -75,6 +77,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.insights),
                 label: '📊 Insights',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.emoji_events),
+                label: '🏆 Leaderboard',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.more_horiz),
