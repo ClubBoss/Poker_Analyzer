@@ -12,6 +12,8 @@ import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../models/summary_result.dart';
 import '../theme/app_colors.dart';
+import '../helpers/poker_street_helper.dart';
+import '../widgets/mistake_heatmap.dart';
 import 'goals_history_screen.dart';
 import 'achievements_screen.dart';
 
@@ -26,6 +28,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   SummaryResult? _summary;
   List<FlSpot> _streakSpots = [];
   List<MapEntry<DateTime, int>> _mistakesPerDay = [];
+  Map<String, Map<String, int>> _heatmapData = {};
   bool _goalCompleted = false;
   bool _allGoalsCompleted = false;
 
@@ -49,6 +52,10 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final spots = <FlSpot>[];
     int streak = 0;
     final counts = <DateTime, int>{};
+    final heatmap = {
+      for (final p in ['BB', 'SB', 'BTN', 'CO', 'MP', 'UTG'])
+        p: {for (final s in kStreetNames) s: 0}
+    };
     for (var i = 0; i < sorted.length; i++) {
       final h = sorted[i];
       final correct = h.expectedAction != null &&
@@ -60,6 +67,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
       if (!correct) {
         final day = DateTime(h.date.year, h.date.month, h.date.day);
         counts.update(day, (v) => v + 1, ifAbsent: () => 1);
+        final pos = h.heroPosition;
+        final street = streetName(h.boardStreet);
+        if (heatmap.containsKey(pos)) {
+          heatmap[pos]![street] = heatmap[pos]![street]! + 1;
+        }
       }
     }
 
@@ -72,6 +84,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       _summary = summary;
       _streakSpots = spots;
       _mistakesPerDay = recent;
+      _heatmapData = heatmap;
     });
   }
 
@@ -514,6 +527,17 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ),
           const SizedBox(height: 12),
           _buildMistakePerDayChart(),
+          const SizedBox(height: 24),
+          const Text(
+            'Ошибки по позициям и улицам',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          MistakeHeatmap(data: _heatmapData),
           const SizedBox(height: 24),
           Text(
             'Выполнено целей: $completedGoals',
