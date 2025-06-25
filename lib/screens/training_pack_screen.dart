@@ -46,6 +46,7 @@ import '../services/cloud_sync_service.dart';
 import '../models/training_spot.dart';
 import '../models/evaluation_result.dart';
 import '../services/evaluation_executor_service.dart';
+import '../services/goals_service.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../models/result_entry.dart';
 import '../widgets/common/training_spot_list.dart';
@@ -489,6 +490,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
 
   Future<void> _nextHand() async {
     final result = await _showFeedback();
+    context.read<GoalsService>().recordHandCompleted(context);
     if (_results.length > _currentIndex) {
       _results[_currentIndex] = result;
     } else {
