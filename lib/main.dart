@@ -26,6 +26,7 @@ import "services/achievement_engine.dart";
 import 'services/goal_engine.dart';
 import 'services/streak_service.dart';
 import 'services/reminder_service.dart';
+import 'services/next_step_engine.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 
@@ -90,6 +91,13 @@ void main() {
             goalEngine: context.read<GoalEngine>(),
             streakService: context.read<StreakService>(),
           )..load(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => NextStepEngine(
+            hands: context.read<SavedHandManagerService>(),
+            goals: context.read<GoalEngine>(),
+            streak: context.read<StreakService>(),
+          ),
         ),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
