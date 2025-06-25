@@ -24,12 +24,14 @@ class _PackDataSource extends DataTableSource {
   final void Function(TrainingPackStats) onOpen;
   final double maxAccuracy;
   final double minAccuracy;
+  final DateTime now;
 
   _PackDataSource({
     required this.stats,
     required this.onOpen,
     required this.maxAccuracy,
     required this.minAccuracy,
+    required this.now,
   });
 
   @override
@@ -38,12 +40,17 @@ class _PackDataSource extends DataTableSource {
     final s = stats[index];
     final isBest = s.accuracy == maxAccuracy;
     final isWorst = s.accuracy == minAccuracy;
+    final forgotten =
+        s.lastSession == null || now.difference(s.lastSession!).inDays >= 7;
     final color = isBest
         ? Colors.greenAccent
         : isWorst
             ? Colors.redAccent
             : null;
     return DataRow(
+      color: forgotten
+          ? MaterialStateProperty.all(Colors.grey.shade800)
+          : null,
       onSelectChanged: (_) => onOpen(s),
       cells: [
         DataCell(Tooltip(message: 'Открыть обзор пака', child: Text(s.pack.name))),
@@ -203,6 +210,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       },
       maxAccuracy: maxAccuracy,
       minAccuracy: minAccuracy,
+      now: now,
     );
 
     return Scaffold(
