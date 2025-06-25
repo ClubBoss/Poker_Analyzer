@@ -6,15 +6,18 @@ import 'daily_target_service.dart';
 class StreakCounterService extends ChangeNotifier {
   static const _countKey = 'target_streak_count';
   static const _lastKey = 'target_streak_last';
+  static const _maxKey = 'target_streak_max';
 
   final TrainingStatsService stats;
   final DailyTargetService target;
 
   int _count = 0;
   DateTime? _last;
+  int _max = 0;
 
   int get count => _count;
   DateTime? get lastSuccess => _last;
+  int get max => _max;
 
   StreakCounterService({required this.stats, required this.target}) {
     _init();
@@ -23,6 +26,7 @@ class StreakCounterService extends ChangeNotifier {
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
     _count = prefs.getInt(_countKey) ?? 0;
+    _max = prefs.getInt(_maxKey) ?? 0;
     final lastStr = prefs.getString(_lastKey);
     _last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     await _updateForToday();
@@ -34,6 +38,7 @@ class StreakCounterService extends ChangeNotifier {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_countKey, _count);
+    await prefs.setInt(_maxKey, _max);
     if (_last != null) {
       await prefs.setString(_lastKey, _last!.toIso8601String());
     } else {
@@ -52,6 +57,7 @@ class StreakCounterService extends ChangeNotifier {
       final diff = today.difference(lastDay).inDays;
       if (diff == 1) {
         _count += 1;
+        if (_count > _max) _max = _count;
       } else if (diff > 1) {
         _count = 0;
       }
