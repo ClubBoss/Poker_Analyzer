@@ -57,6 +57,12 @@ void main() {
         ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
         ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
         ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
+        ChangeNotifierProvider(
+          create: (context) => StreakCounterService(
+            stats: context.read<TrainingStatsService>(),
+            target: context.read<DailyTargetService>(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => SpotOfTheDayService()..load()),
         ChangeNotifierProvider(create: (_) => AllInPlayersService()),
         ChangeNotifierProvider(create: (_) => FoldedPlayersService()),
