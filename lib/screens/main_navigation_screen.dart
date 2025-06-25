@@ -10,6 +10,7 @@ import '../widgets/motivation_card.dart';
 import '../widgets/next_step_card.dart';
 import '../widgets/suggested_drill_card.dart';
 import '../widgets/today_progress_banner.dart';
+import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -23,13 +24,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
   Widget _home() {
-    return const Column(
+    return Column(
       children: [
-        TodayProgressBanner(),
-        MotivationCard(),
-        NextStepCard(),
-        SuggestedDrillCard(),
-        Expanded(child: AnalyzerTab()),
+        const TodayProgressBanner(),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const StreakHistoryScreen()),
+            );
+          },
+          child: const Text('View History'),
+        ),
+        const MotivationCard(),
+        const NextStepCard(),
+        const SuggestedDrillCard(),
+        const Expanded(child: AnalyzerTab()),
       ],
     );
   }
