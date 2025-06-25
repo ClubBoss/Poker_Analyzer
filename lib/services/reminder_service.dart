@@ -25,6 +25,7 @@ class ReminderService extends ChangeNotifier {
   DateTime? _dismissed;
 
   bool get enabled => _enabled;
+  DateTime? get lastDismissed => _dismissed;
 
   ReminderService({
     required this.spotService,
@@ -76,6 +77,7 @@ class ReminderService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _dismissed = DateTime.now();
     await prefs.setString(_dismissKey, _dismissed!.toIso8601String());
+    notifyListeners();
   }
 
   bool _sameDay(DateTime a, DateTime b) =>
