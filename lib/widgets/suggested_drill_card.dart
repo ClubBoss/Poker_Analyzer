@@ -11,9 +11,9 @@ class SuggestedDrillCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final engine = context.watch<DrillSuggestionEngine>();
-    final reminder = context.watch<ReminderService>();
     if (engine.suggestedDrills.isEmpty) return const SizedBox.shrink();
     final drill = engine.suggestedDrills.first;
+    final reminder = context.watch<ReminderService>();
     final key = '${drill.position}_${drill.street}';
     if (reminder.isDrillDismissed(key)) return const SizedBox.shrink();
     final card = Container(
