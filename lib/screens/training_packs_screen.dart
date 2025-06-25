@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
 import 'training_pack_screen.dart';
+import 'training_pack_comparison_screen.dart';
 
 class TrainingPacksScreen extends StatefulWidget {
   const TrainingPacksScreen({super.key});
@@ -72,6 +73,23 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             value: _hideCompleted,
             onChanged: _toggleHideCompleted,
             activeColor: Colors.orange,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const TrainingPackComparisonScreen(),
+                    ),
+                  );
+                },
+                child: const Text('📊 Сравнить паки'),
+              ),
+            ),
           ),
           Expanded(
             child: visible.isEmpty
