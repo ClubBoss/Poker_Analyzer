@@ -7,6 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/saved_hand.dart';
 import '../models/mistake_severity.dart';
@@ -17,6 +18,8 @@ import 'saved_hand_tile.dart';
 
 /// Internal enum for accuracy filter options.
 enum _AccuracyFilter { all, errors, correct }
+
+const _prefsAccuracyKey = 'saved_hand_accuracy_filter';
 
 class SavedHandListView extends StatefulWidget {
   final List<SavedHand> hands;
@@ -49,10 +52,36 @@ class SavedHandListView extends StatefulWidget {
 class _SavedHandListViewState extends State<SavedHandListView> {
   late _AccuracyFilter _accuracy;
 
+  String _accuracyToString(_AccuracyFilter value) {
+    switch (value) {
+      case _AccuracyFilter.errors:
+        return 'errors';
+      case _AccuracyFilter.correct:
+        return 'correct';
+      case _AccuracyFilter.all:
+      default:
+        return 'all';
+    }
+  }
+
+  Future<void> _loadAccuracy() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString(_prefsAccuracyKey);
+    if (stored != null && mounted) {
+      setState(() => _accuracy = _parseAccuracy(stored));
+    }
+  }
+
+  Future<void> _saveAccuracy(_AccuracyFilter value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefsAccuracyKey, _accuracyToString(value));
+  }
+
   @override
   void initState() {
     super.initState();
     _accuracy = _parseAccuracy(widget.initialAccuracy);
+    _loadAccuracy();
   }
 
   @override
@@ -61,6 +90,7 @@ class _SavedHandListViewState extends State<SavedHandListView> {
     if (widget.initialAccuracy != oldWidget.initialAccuracy) {
       _accuracy = _parseAccuracy(widget.initialAccuracy);
     }
+    _loadAccuracy();
   }
 
   _AccuracyFilter _parseAccuracy(String? value) {
@@ -178,7 +208,10 @@ class _SavedHandListViewState extends State<SavedHandListView> {
                 label: Text(entry.value),
                 selected: _accuracy == entry.key,
                 onSelected: (selected) {
-                  if (selected) setState(() => _accuracy = entry.key);
+                  if (selected) {
+                    setState(() => _accuracy = entry.key);
+                    _saveAccuracy(entry.key);
+                  }
                 },
               ),
             ),
