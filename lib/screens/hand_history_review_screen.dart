@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import 'package:poker_ai_analyzer/import_export/training_generator.dart';
 import 'package:poker_ai_analyzer/widgets/replay_spot_widget.dart';
+import '../services/goals_service.dart';
 import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../helpers/mistake_advice.dart';
@@ -60,6 +61,17 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
   void initState() {
     super.initState();
     _commentController = TextEditingController(text: widget.hand.comment ?? '');
+    final service = Provider.of<GoalsService>(context, listen: false);
+    final goal = service.dailyGoal;
+    final action = widget.hand.expectedAction?.trim().toLowerCase();
+    final gto = widget.hand.gtoAction?.trim().toLowerCase();
+    final mistake =
+        goal != null && service.dailyGoalIndex == 0 && action != null && gto != null && action != gto;
+    if (mistake) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        service.recordMistakeReviewed();
+      });
+    }
   }
 
   @override
@@ -216,6 +228,43 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     );
   }
 
+  Widget _buildGoalProgress(BuildContext context) {
+    final service = context.watch<GoalsService>();
+    final goal = service.dailyGoal;
+    if (goal == null || service.dailyGoalIndex != 0) {
+      return const SizedBox.shrink();
+    }
+    final accent = Theme.of(context).colorScheme.secondary;
+    final value = (goal.progress / goal.target).clamp(0.0, 1.0);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: value),
+              duration: const Duration(milliseconds: 300),
+              builder: (context, v, _) => ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: v,
+                  backgroundColor: Colors.white24,
+                  valueColor: AlwaysStoppedAnimation<Color>(accent),
+                  minHeight: 6,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${goal.progress}/${goal.target}',
+            style: const TextStyle(color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final spot = TrainingGenerator().generateFromSavedHand(widget.hand);
@@ -241,6 +290,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+          _buildGoalProgress(context),
           if (_playerAction() != null &&
               gto != null &&
               _playerAction()!.trim().toLowerCase() !=

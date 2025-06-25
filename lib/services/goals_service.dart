@@ -75,6 +75,8 @@ class GoalsService extends ChangeNotifier {
   bool _hintShown = false;
   int? _dailyGoalIndex;
   DateTime? _dailyGoalDate;
+  DateTime? _lastIncrementTime;
+  int? _lastIncrementGoal;
 
   /// In-memory list of all achievements.
   late List<Achievement> _achievements;
@@ -96,6 +98,10 @@ class GoalsService extends ChangeNotifier {
               _dailyGoalIndex! < _goals.length
           ? _goals[_dailyGoalIndex!]
           : null;
+  int? get dailyGoalIndex => _dailyGoalIndex;
+
+  DateTime? get lastIncrementTime => _lastIncrementTime;
+  int? get lastIncrementGoal => _lastIncrementGoal;
 
   List<Achievement> get achievements => List.unmodifiable(_achievements);
 
@@ -274,6 +280,17 @@ class GoalsService extends ChangeNotifier {
 
   Future<void> resetGoal(int index) async {
     await setProgress(index, 0);
+  }
+
+  /// Increments the progress for the "mistake review" goal.
+  Future<void> recordMistakeReviewed() async {
+    const index = 0;
+    if (index >= _goals.length) return;
+    final goal = _goals[index];
+    if (goal.completed) return;
+    await setProgress(index, goal.progress + 1);
+    _lastIncrementGoal = index;
+    _lastIncrementTime = DateTime.now();
   }
 
   /// Records a completed hand and shows a progress hint if needed.
