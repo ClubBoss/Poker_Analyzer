@@ -74,6 +74,54 @@ class AchievementsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
+              onLongPress: () async {
+                final action = await showDialog<String>(
+                  context: context,
+                  builder: (ctx) => SimpleDialog(
+                    title: Text(g.title),
+                    children: [
+                      SimpleDialogOption(
+                        onPressed: () => Navigator.pop(ctx, 'edit'),
+                        child: const Text('Edit'),
+                      ),
+                      SimpleDialogOption(
+                        onPressed: () => Navigator.pop(ctx, 'delete'),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                );
+                if (action == 'edit') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => GoalEditorScreen(goal: g),
+                    ),
+                  );
+                } else if (action == 'delete') {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Удалить цель?'),
+                      content: const Text(
+                          'Вы уверены, что хотите удалить эту цель?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Отмена'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('Удалить'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    await goalsEngine.removeGoal(g.id);
+                  }
+                }
+              },
               leading: Icon(Icons.flag, color: accent),
               title: Text(
                 g.title,

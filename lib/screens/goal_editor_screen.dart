@@ -4,7 +4,8 @@ import '../services/goal_engine.dart';
 import '../models/user_goal.dart';
 
 class GoalEditorScreen extends StatefulWidget {
-  const GoalEditorScreen({super.key});
+  final UserGoal? goal;
+  const GoalEditorScreen({super.key, this.goal});
 
   @override
   State<GoalEditorScreen> createState() => _GoalEditorScreenState();
@@ -14,6 +15,17 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
   final _title = TextEditingController();
   final _target = TextEditingController(text: '1');
   String _type = 'mistakes';
+
+  @override
+  void initState() {
+    super.initState();
+    final g = widget.goal;
+    if (g != null) {
+      _title.text = g.title;
+      _target.text = g.target.toString();
+      _type = g.type;
+    }
+  }
 
   @override
   void dispose() {
@@ -26,21 +38,38 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     final title = _title.text.trim();
     final target = int.tryParse(_target.text) ?? 1;
     if (title.isEmpty) return;
-    final stats = context.read<GoalEngine>().stats;
-    final base = {
-      'sessions': stats.sessionsCompleted,
-      'hands': stats.handsReviewed,
-      'mistakes': stats.mistakesFixed,
-    }[_type]!;
+    final engine = context.read<GoalEngine>();
+    final stats = engine.stats;
+    int base;
+    if (widget.goal == null) {
+      base = {
+        'sessions': stats.sessionsCompleted,
+        'hands': stats.handsReviewed,
+        'mistakes': stats.mistakesFixed,
+      }[_type]!;
+    } else if (widget.goal!.type == _type) {
+      base = widget.goal!.base;
+    } else {
+      base = {
+        'sessions': stats.sessionsCompleted,
+        'hands': stats.handsReviewed,
+        'mistakes': stats.mistakesFixed,
+      }[_type]!;
+    }
     final goal = UserGoal(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.goal?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       type: _type,
       target: target,
       base: base,
-      createdAt: DateTime.now(),
+      createdAt: widget.goal?.createdAt ?? DateTime.now(),
+      completedAt: widget.goal?.completedAt,
     );
-    await context.read<GoalEngine>().addGoal(goal);
+    if (widget.goal == null) {
+      await engine.addGoal(goal);
+    } else {
+      await engine.updateGoal(goal);
+    }
     if (mounted) Navigator.pop(context);
   }
 
@@ -48,7 +77,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Новая цель'),
+        title: Text(widget.goal == null ? 'Новая цель' : 'Редактирование цели'),
         actions: [
           IconButton(onPressed: _save, icon: const Icon(Icons.check))
         ],

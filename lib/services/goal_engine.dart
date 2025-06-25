@@ -81,4 +81,12 @@ class GoalEngine extends ChangeNotifier {
     await _save();
     notifyListeners();
   }
+
+  Future<void> updateGoal(UserGoal goal) async {
+    final index = _goals.indexWhere((g) => g.id == goal.id);
+    if (index == -1) return;
+    _goals[index] = goal;
+    await _save();
+    _update();
+  }
 }
