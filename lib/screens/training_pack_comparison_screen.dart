@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/training_pack_storage_service.dart';
-import '../models/training_pack.dart';
+import '../models/training_pack_stats.dart';
 import 'training_pack_review_screen.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
@@ -12,42 +12,53 @@ class TrainingPackComparisonScreen extends StatefulWidget {
   State<TrainingPackComparisonScreen> createState() => _TrainingPackComparisonScreenState();
 }
 
-class _PackStats {
-  final TrainingPack pack;
-  final String name;
-  final int total;
-  final int mistakes;
-  final double accuracy;
-  final double rating;
+class _PackDataSource extends DataTableSource {
+  final List<TrainingPackStats> stats;
+  final void Function(TrainingPackStats) onOpen;
+  final double maxAccuracy;
+  final double minAccuracy;
 
-  _PackStats({
-    required this.pack,
-    required this.name,
-    required this.total,
-    required this.mistakes,
-    required this.accuracy,
-    required this.rating,
+  _PackDataSource({
+    required this.stats,
+    required this.onOpen,
+    required this.maxAccuracy,
+    required this.minAccuracy,
   });
 
-  factory _PackStats.fromPack(TrainingPack p) {
-    final history = p.history;
-    final total = history.fold<int>(0, (p0, r) => p0 + r.total);
-    final correct = history.fold<int>(0, (p0, r) => p0 + r.correct);
-    final mistakes = total - correct;
-    final accuracy = total > 0 ? correct * 100 / total : 0.0;
-    final ratingAvg = p.hands.isNotEmpty
-        ? p.hands.map((h) => h.rating).reduce((a, b) => a + b) / p.hands.length
-        : 0.0;
-    return _PackStats(
-      pack: p,
-      name: p.name,
-      total: total,
-      mistakes: mistakes,
-      accuracy: accuracy,
-      rating: ratingAvg,
+  @override
+  DataRow? getRow(int index) {
+    if (index >= stats.length) return null;
+    final s = stats[index];
+    final isBest = s.accuracy == maxAccuracy;
+    final isWorst = s.accuracy == minAccuracy;
+    final color = isBest
+        ? Colors.greenAccent
+        : isWorst
+            ? Colors.redAccent
+            : null;
+    return DataRow(
+      onSelectChanged: (_) => onOpen(s),
+      cells: [
+        DataCell(Tooltip(message: 'Открыть обзор пака', child: Text(s.pack.name))),
+        DataCell(Text(s.total.toString())),
+        DataCell(Text('${s.accuracy.toStringAsFixed(1).padLeft(5)}%',
+            style: TextStyle(color: color))),
+        DataCell(Text(s.mistakes.toString())),
+        DataCell(Text(s.rating.toStringAsFixed(1).padLeft(4))),
+      ],
     );
   }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => stats.length;
+
+  @override
+  int get selectedRowCount => 0;
 }
+
 
 class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScreen> {
   int _sortColumn = 0;
@@ -63,11 +74,11 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs;
-    final stats = [for (final p in packs) _PackStats.fromPack(p)]..sort((a, b) {
+    final stats = [for (final p in packs) TrainingPackStats.fromPack(p)]..sort((a, b) {
         int cmp;
         switch (_sortColumn) {
           case 0:
-            cmp = a.name.compareTo(b.name);
+            cmp = a.pack.name.compareTo(b.pack.name);
             break;
           case 1:
             cmp = a.total.compareTo(b.total);
@@ -86,67 +97,98 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         }
         return _ascending ? cmp : -cmp;
       });
+    final maxAccuracy = stats.isNotEmpty
+        ? stats.map((s) => s.accuracy).reduce((a, b) => a > b ? a : b)
+        : 0.0;
+    final minAccuracy = stats.isNotEmpty
+        ? stats.map((s) => s.accuracy).reduce((a, b) => a < b ? a : b)
+        : 0.0;
+
+    final source = _PackDataSource(
+      stats: stats,
+      onOpen: (s) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrainingPackReviewScreen(pack: s.pack),
+          ),
+        );
+      },
+      maxAccuracy: maxAccuracy,
+      minAccuracy: minAccuracy,
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Сравнение паков'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            sortColumnIndex: _sortColumn,
-            sortAscending: _ascending,
-            columns: [
-              DataColumn(
-                label: const Text('Название'),
-                onSort: _onSort,
-              ),
-              DataColumn(
-                label: const Text('Рук'),
-                numeric: true,
-                onSort: _onSort,
-              ),
-              DataColumn(
-                label: const Text('Точность'),
-                numeric: true,
-                onSort: _onSort,
-              ),
-              DataColumn(
-                label: const Text('Ошибки'),
-                numeric: true,
-                onSort: _onSort,
-              ),
-              DataColumn(
-                label: const Text('Рейтинг'),
-                numeric: true,
-                onSort: _onSort,
-              ),
-            ],
-            rows: [
-              for (final s in stats)
-                DataRow(
-                  onSelectChanged: (_) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TrainingPackReviewScreen(pack: s.pack),
-                      ),
-                    );
-                  },
-                  cells: [
-                    DataCell(Text(s.name)),
-                    DataCell(Text(s.total.toString())),
-                    DataCell(Text('${s.accuracy.toStringAsFixed(1)}%')),
-                    DataCell(Text(s.mistakes.toString())),
-                    DataCell(Text(s.rating.toStringAsFixed(1))),
-                  ],
-                ),
-            ],
+      body: PaginatedDataTable(
+        sortColumnIndex: _sortColumn,
+        sortAscending: _ascending,
+        rowsPerPage: 10,
+        columns: [
+          DataColumn(
+            label: Row(
+              children: [
+                const Text('Название'),
+                if (_sortColumn == 0)
+                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                      size: 12)
+              ],
+            ),
+            onSort: (i, asc) => _onSort(i, asc),
           ),
-        ),
+          DataColumn(
+            label: Row(
+              children: [
+                const Text('Рук'),
+                if (_sortColumn == 1)
+                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                      size: 12)
+              ],
+            ),
+            numeric: true,
+            onSort: (i, asc) => _onSort(i, asc),
+          ),
+          DataColumn(
+            label: Row(
+              children: [
+                const Text('Точность'),
+                if (_sortColumn == 2)
+                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                      size: 12)
+              ],
+            ),
+            numeric: true,
+            onSort: (i, asc) => _onSort(i, asc),
+          ),
+          DataColumn(
+            label: Row(
+              children: [
+                const Text('Ошибки'),
+                if (_sortColumn == 3)
+                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                      size: 12)
+              ],
+            ),
+            numeric: true,
+            onSort: (i, asc) => _onSort(i, asc),
+          ),
+          DataColumn(
+            label: Row(
+              children: [
+                const Text('Рейтинг'),
+                if (_sortColumn == 4)
+                  Icon(_ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                      size: 12)
+              ],
+            ),
+            numeric: true,
+            onSort: (i, asc) => _onSort(i, asc),
+          ),
+        ],
+        source: source,
       ),
     );
   }
