@@ -8,6 +8,7 @@ import 'package:printing/printing.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:confetti/confetti.dart';
 
 import '../services/goals_service.dart';
 import '../services/evaluation_executor_service.dart';
@@ -32,7 +33,8 @@ class ProgressScreen extends StatefulWidget {
   State<ProgressScreen> createState() => _ProgressScreenState();
 }
 
-class _ProgressScreenState extends State<ProgressScreen> {
+class _ProgressScreenState extends State<ProgressScreen>
+    with SingleTickerProviderStateMixin {
   SummaryResult? _summary;
   List<FlSpot> _streakSpots = [];
   List<MapEntry<DateTime, int>> _mistakesPerDay = [];
@@ -44,10 +46,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
   bool _dailySpotDone = false;
   int _dailyWeekCount = 0;
   int _dailyMonthCount = 0;
+  bool _weeklyStreak = false;
+  bool _weeklyConfettiPlayed = false;
+  late final ConfettiController _weeklyConfetti;
 
   @override
   void initState() {
     super.initState();
+    _weeklyConfetti = ConfettiController(duration: const Duration(seconds: 2));
     WidgetsBinding.instance.addPostFrameCallback((_) => _gatherData());
     final goals = context.read<GoalsService>();
     _goalCompleted = goals.anyCompleted;
@@ -193,6 +199,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
       _dailyWeekCount = week;
       _dailyMonthCount = month;
     });
+    final streak = await service.hasWeeklyStreak();
+    if (streak && !_weeklyConfettiPlayed) {
+      _weeklyConfetti.play();
+      _weeklyConfettiPlayed = true;
+    }
+    if (mounted) {
+      setState(() => _weeklyStreak = streak);
+    }
   }
 
   Widget _buildPieChart() {
@@ -744,6 +758,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   @override
   void dispose() {
     context.read<GoalsService>().removeListener(_onGoalsChanged);
+    _weeklyConfetti.dispose();
     super.dispose();
   }
 
@@ -957,6 +972,40 @@ class _ProgressScreenState extends State<ProgressScreen> {
               );
             },
             child: const Text('История'),
+          ),
+          const SizedBox(height: 8),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            child: _weeklyStreak
+                ? Stack(
+                    key: const ValueKey('weeklyStreak'),
+                    alignment: Alignment.center,
+                    children: [
+                      Card(
+                        color: AppColors.cardBackground,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        elevation: 4,
+                        child: const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Text(
+                            '🔥 Серия 7 дней!',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: ConfettiWidget(
+                          confettiController: _weeklyConfetti,
+                          numberOfParticles: 20,
+                          blastDirectionality:
+                              BlastDirectionality.explosive,
+                          shouldLoop: false,
+                        ),
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(key: ValueKey('noWeeklyStreak')),
           ),
         ],
       ),
