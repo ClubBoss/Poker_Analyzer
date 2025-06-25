@@ -321,7 +321,12 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          ReplaySpotWidget(spot: spot),
+          ReplaySpotWidget(
+            spot: spot,
+            expectedAction: widget.hand.expectedAction,
+            gtoAction: widget.hand.gtoAction,
+            evLoss: widget.hand.evLoss,
+          ),
             const SizedBox(height: 12),
             if ((gto != null && gto.isNotEmpty) ||
                 (group != null && group.isNotEmpty))

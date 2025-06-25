@@ -404,8 +404,12 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             ),
-            builder: (_) =>
-                ReplaySpotWidget(spot: TrainingSpot.fromSavedHand(hand)),
+            builder: (_) => ReplaySpotWidget(
+              spot: TrainingSpot.fromSavedHand(hand),
+              expectedAction: hand.expectedAction,
+              gtoAction: hand.gtoAction,
+              evLoss: hand.evLoss,
+            ),
           );
         },
         onLongPress: () => _showHandOptions(hand),

@@ -419,8 +419,12 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
                               borderRadius:
                                   BorderRadius.vertical(top: Radius.circular(16)),
                             ),
-                            builder: (_) =>
-                                ReplaySpotWidget(spot: TrainingSpot.fromSavedHand(original)),
+                            builder: (_) => ReplaySpotWidget(
+                              spot: TrainingSpot.fromSavedHand(original),
+                              expectedAction: original.expectedAction,
+                              gtoAction: original.gtoAction,
+                              evLoss: original.evLoss,
+                            ),
                           );
                         },
                         child: const Text('Replay Hand'),

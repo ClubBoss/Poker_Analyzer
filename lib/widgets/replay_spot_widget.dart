@@ -12,7 +12,17 @@ import 'training_spot_diagram.dart';
 /// Simple hand replay widget for [TrainingSpot].
 class ReplaySpotWidget extends StatefulWidget {
   final TrainingSpot spot;
-  const ReplaySpotWidget({super.key, required this.spot});
+  final String? expectedAction;
+  final String? gtoAction;
+  final double? evLoss;
+
+  const ReplaySpotWidget({
+    super.key,
+    required this.spot,
+    this.expectedAction,
+    this.gtoAction,
+    this.evLoss,
+  });
 
   @override
   State<ReplaySpotWidget> createState() => _ReplaySpotWidgetState();
@@ -71,6 +81,56 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
     });
   }
 
+  Widget _buildComparison() {
+    if (widget.expectedAction == null && widget.gtoAction == null) {
+      return const SizedBox.shrink();
+    }
+    final highlight = (widget.evLoss ?? 0) > 0.5;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: highlight ? Colors.redAccent.withOpacity(0.2) : Colors.white10,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Вы выбрали',
+                    style: TextStyle(color: Colors.white70, fontSize: 12)),
+                const SizedBox(height: 4),
+                Text(
+                  widget.expectedAction ?? '-',
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Оптимально',
+                    style: TextStyle(color: Colors.white70, fontSize: 12)),
+                const SizedBox(height: 4),
+                Text(
+                  widget.gtoAction ?? '-',
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final street = _currentActions.isNotEmpty ? _currentActions.last.street : 0;
@@ -94,6 +154,7 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          _buildComparison(),
           SizedBox(
             height: 260,
             child: Stack(
