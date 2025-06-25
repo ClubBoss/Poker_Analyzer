@@ -14,6 +14,7 @@ class StreakCounterService extends ChangeNotifier {
   DateTime? _last;
 
   int get count => _count;
+  DateTime? get lastSuccess => _last;
 
   StreakCounterService({required this.stats, required this.target}) {
     _init();
@@ -67,6 +68,13 @@ class StreakCounterService extends ChangeNotifier {
       _last = today;
       await _save();
     }
+  }
+
+  Future<void> restart() async {
+    _count = 0;
+    _last = null;
+    await _save();
+    notifyListeners();
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
 import '../services/streak_counter_service.dart';
+import 'package:intl/intl.dart';
 import 'confetti_overlay.dart';
 
 class TodayProgressBanner extends StatefulWidget {
@@ -69,7 +70,8 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
   Widget build(BuildContext context) {
     final stats = context.watch<TrainingStatsService>();
     final target = context.watch<DailyTargetService>().target;
-    final streak = context.watch<StreakCounterService>().count;
+    final streakService = context.watch<StreakCounterService>();
+    final streak = streakService.count;
     final today =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     final hands = stats.handsPerDay[today] ?? 0;
@@ -123,6 +125,38 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
               ),
             ),
           ),
+          if (streak == 0 && streakService.lastSuccess != null)
+            Builder(builder: (context) {
+              final last = streakService.lastSuccess!;
+              final diff = today.difference(
+                      DateTime(last.year, last.month, last.day))
+                  .inDays;
+              if (diff > 1) {
+                final date = DateFormat('d MMM', 'ru').format(last);
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Text('🔥 Streak Lost',
+                              style: TextStyle(color: Colors.white)),
+                          const SizedBox(width: 8),
+                          Text(date,
+                              style: const TextStyle(color: Colors.white70)),
+                        ],
+                      ),
+                      TextButton(
+                        onPressed: () => streakService.restart(),
+                        child: const Text('Restart'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
         ],
       ),
     );
