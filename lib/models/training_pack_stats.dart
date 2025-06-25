@@ -7,6 +7,7 @@ class TrainingPackStats {
   final double accuracy;
   final double rating;
   final DateTime? lastSession;
+  final double totalEvLoss;
 
   TrainingPackStats({
     required this.pack,
@@ -15,6 +16,7 @@ class TrainingPackStats {
     required this.accuracy,
     required this.rating,
     required this.lastSession,
+    required this.totalEvLoss,
   });
 
   factory TrainingPackStats.fromPack(TrainingPack p) {
@@ -23,6 +25,7 @@ class TrainingPackStats {
     final ratingAvg = p.hands.isNotEmpty
         ? p.hands.map((h) => h.rating).reduce((a, b) => a + b) / p.hands.length
         : 0.0;
+    final evLoss = p.hands.fold<double>(0, (s, h) => s + (h.evLoss ?? 0));
     return TrainingPackStats(
       pack: p,
       total: total,
@@ -30,6 +33,7 @@ class TrainingPackStats {
       accuracy: total > 0 ? correct * 100 / total : 0.0,
       rating: ratingAvg,
       lastSession: p.history.isNotEmpty ? p.history.last.date : null,
+      totalEvLoss: evLoss,
     );
   }
 }
