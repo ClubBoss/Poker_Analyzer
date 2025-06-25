@@ -111,7 +111,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 const SizedBox(height: 4),
                 if (!completed)
                   const Text(
-                    'Не выполнено',
+                    'Incomplete',
                     style: TextStyle(color: Colors.white54, fontSize: 12),
                   )
                 else
