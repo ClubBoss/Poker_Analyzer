@@ -121,4 +121,18 @@ class TrainingPackStorageService extends ChangeNotifier {
     await _persist();
     notifyListeners();
   }
+
+  Future<void> duplicatePack(TrainingPack pack) async {
+    String base = pack.name;
+    String name = '${base}-copy';
+    int idx = 1;
+    while (_packs.any((p) => p.name == name)) {
+      name = '${base}-copy${idx > 1 ? idx : ''}';
+      idx++;
+    }
+    final copy = TrainingPack.fromJson({...pack.toJson(), 'name': name});
+    _packs.add(copy);
+    await _persist();
+    notifyListeners();
+  }
 }
