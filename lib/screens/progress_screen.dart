@@ -16,6 +16,7 @@ import '../helpers/poker_street_helper.dart';
 import '../widgets/mistake_heatmap.dart';
 import 'goals_history_screen.dart';
 import 'achievements_screen.dart';
+import 'drill_history_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -470,6 +471,16 @@ class _ProgressScreenState extends State<ProgressScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const GoalsHistoryScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.history_edu),
+            tooltip: 'Drill-История',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DrillHistoryScreen()),
               );
             },
           ),
