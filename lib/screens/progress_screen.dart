@@ -23,6 +23,7 @@ class ProgressScreen extends StatefulWidget {
 class _ProgressScreenState extends State<ProgressScreen> {
   SummaryResult? _summary;
   List<FlSpot> _streakSpots = [];
+  List<MapEntry<DateTime, int>> _mistakesPerDay = [];
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final sorted = [...hands]..sort((a, b) => a.date.compareTo(b.date));
     final spots = <FlSpot>[];
     int streak = 0;
+    final counts = <DateTime, int>{};
     for (var i = 0; i < sorted.length; i++) {
       final h = sorted[i];
       final correct = h.expectedAction != null &&
@@ -47,11 +49,21 @@ class _ProgressScreenState extends State<ProgressScreen> {
               h.gtoAction!.trim().toLowerCase();
       streak = correct ? streak + 1 : 0;
       spots.add(FlSpot(i.toDouble(), streak.toDouble()));
+      if (!correct) {
+        final day = DateTime(h.date.year, h.date.month, h.date.day);
+        counts.update(day, (v) => v + 1, ifAbsent: () => 1);
+      }
     }
+
+    final entries = counts.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    final cutoff = DateTime.now().subtract(const Duration(days: 30));
+    final recent = entries.where((e) => e.key.isAfter(cutoff)).toList();
 
     setState(() {
       _summary = summary;
       _streakSpots = spots;
+      _mistakesPerDay = recent;
     });
   }
 
@@ -134,6 +146,110 @@ class _ProgressScreenState extends State<ProgressScreen> {
               dotData: FlDotData(show: false),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMistakePerDayChart() {
+    if (_mistakesPerDay.isEmpty) return const SizedBox.shrink();
+
+    final maxCount =
+        _mistakesPerDay.map((e) => e.value).reduce(max);
+    final groups = <BarChartGroupData>[];
+    for (var i = 0; i < _mistakesPerDay.length; i++) {
+      final count = _mistakesPerDay[i].value;
+      const color = Colors.redAccent;
+      groups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: count.toDouble(),
+              width: 14,
+              borderRadius: BorderRadius.circular(4),
+              gradient: LinearGradient(
+                colors: [color.withOpacity(0.7), color],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    double interval = 1;
+    if (maxCount > 5) {
+      interval = (maxCount / 5).ceilToDouble();
+    }
+
+    final step = (_mistakesPerDay.length / 6).ceil();
+
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: BarChart(
+        BarChartData(
+          maxY: maxCount.toDouble(),
+          minY: 0,
+          alignment: BarChartAlignment.spaceBetween,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: interval,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.white24, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: interval,
+                reservedSize: 30,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toInt().toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index >= _mistakesPerDay.length) {
+                    return const SizedBox.shrink();
+                  }
+                  if (index % step != 0 && index != _mistakesPerDay.length - 1) {
+                    return const SizedBox.shrink();
+                  }
+                  final d = _mistakesPerDay[index].key;
+                  final label =
+                      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                  return Text(
+                    label,
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(color: Colors.white24),
+              bottom: BorderSide(color: Colors.white24),
+            ),
+          ),
+          barGroups: groups,
         ),
       ),
     );
@@ -275,6 +391,17 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ),
           const SizedBox(height: 12),
           _buildStreakChart(),
+          const SizedBox(height: 24),
+          const Text(
+            'Ошибки по дням',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildMistakePerDayChart(),
           const SizedBox(height: 24),
           Text(
             'Выполнено целей: $completedGoals',
