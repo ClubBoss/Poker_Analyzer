@@ -1,11 +1,53 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:csv/csv.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:intl/intl.dart';
 
 import '../helpers/date_utils.dart';
 import '../services/reminder_service.dart';
+import '../services/user_action_logger.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
+
+  Future<void> _exportLog(BuildContext context) async {
+    final events = context.read<UserActionLogger>().export();
+    if (events.isEmpty) return;
+    final rows = <List<dynamic>>[
+      ['Time', 'Event'],
+      for (final e in events)
+        [
+          DateFormat('yyyy-MM-dd HH:mm:ss')
+              .format(DateTime.parse(e['time'] as String)),
+          e['event']
+        ]
+    ];
+    final csv = const ListToCsvConverter(fieldDelimiter: ';')
+        .convert(rows, eol: '\r\n');
+    final bytes = Uint8List.fromList(utf8.encode(csv));
+    final name =
+        'user_log_${DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now())}';
+    try {
+      await FileSaver.instance.saveAs(
+        name: name,
+        bytes: bytes,
+        ext: 'csv',
+        mimeType: MimeType.csv,
+      );
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: $name.csv')),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +90,13 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             child: Text(
               'Настройки будут доступны позже',
               style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: ElevatedButton(
+              onPressed: () => _exportLog(context),
+              child: const Text('Export Activity Log'),
             ),
           ),
         ],
