@@ -590,4 +590,37 @@ class GoalsService extends ChangeNotifier {
     notifyListeners();
     if (context != null) _checkAchievements(context);
   }
+
+  Future<SavedHand?> getDailySpot(List<TrainingPack> packs) async {
+    final prefs = await SharedPreferences.getInstance();
+    final dateStr = prefs.getString('daily_spot_date');
+    final now = DateTime.now();
+    if (dateStr != null) {
+      final date = DateTime.tryParse(dateStr);
+      if (date != null && _isSameDay(date, now)) return null;
+    }
+    final seen = <String>{};
+    for (final r in _drillResults) {
+      if (_isSameDay(r.date, now)) {
+        for (final h in r.hands) {
+          seen.add(jsonEncode(h.toJson()));
+        }
+      }
+    }
+    final candidates = <SavedHand>[];
+    for (final p in packs) {
+      for (final h in p.hands) {
+        final key = jsonEncode(h.toJson());
+        if (!seen.contains(key)) candidates.add(h);
+      }
+    }
+    if (candidates.isEmpty) {
+      for (final p in packs) {
+        candidates.addAll(p.hands);
+      }
+    }
+    if (candidates.isEmpty) return null;
+    final rnd = Random().nextInt(candidates.length);
+    return candidates[rnd];
+  }
 }

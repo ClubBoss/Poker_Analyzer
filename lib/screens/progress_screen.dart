@@ -7,6 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/goals_service.dart';
 import '../services/evaluation_executor_service.dart';
@@ -18,6 +19,7 @@ import '../theme/app_colors.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/mistake_heatmap.dart';
 import 'goals_history_screen.dart';
+import 'daily_spot_screen.dart';
 import 'achievements_screen.dart';
 import 'drill_history_screen.dart';
 import 'goal_drill_screen.dart';
@@ -38,6 +40,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Map<String, Map<String, int>> _heatmapData = {};
   bool _goalCompleted = false;
   bool _allGoalsCompleted = false;
+  bool _dailySpotDone = false;
 
   @override
   void initState() {
@@ -46,6 +49,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final goals = context.read<GoalsService>();
     _goalCompleted = goals.anyCompleted;
     _allGoalsCompleted = goals.goals.every((g) => g.completed);
+    _loadDailySpot();
     goals.addListener(_onGoalsChanged);
   }
 
@@ -151,6 +155,20 @@ class _ProgressScreenState extends State<ProgressScreen> {
         _goalCompleted = completed;
         _allGoalsCompleted = all;
       });
+    }
+  }
+
+  Future<void> _loadDailySpot() async {
+    final prefs = await SharedPreferences.getInstance();
+    final dateStr = prefs.getString('daily_spot_date');
+    if (dateStr == null) return;
+    final date = DateTime.tryParse(dateStr);
+    final now = DateTime.now();
+    if (date != null &&
+        date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day) {
+      setState(() => _dailySpotDone = true);
     }
   }
 
@@ -794,6 +812,25 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ),
           const SizedBox(height: 12),
           _buildPieChart(),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: _dailySpotDone
+                ? null
+                : () async {
+                    final service = context.read<GoalsService>();
+                    final packs = context.read<TrainingPackStorageService>().packs;
+                    final hand = await service.getDailySpot(packs);
+                    if (hand == null) return;
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DailySpotScreen(hand: hand),
+                      ),
+                    );
+                    _loadDailySpot();
+                  },
+            child: Text(_dailySpotDone ? '✅ Выполнено' : 'Спот дня'),
+          ),
           const SizedBox(height: 24),
           const Text(
             '🔥 Точность за неделю',
