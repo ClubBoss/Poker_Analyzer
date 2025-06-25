@@ -1,5 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:csv/csv.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../models/training_pack_stats.dart';
@@ -71,32 +77,62 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     });
   }
 
+  List<TrainingPackStats> _sortedStats(List<TrainingPack> packs) {
+    final stats = [for (final p in packs) TrainingPackStats.fromPack(p)];
+    stats.sort((a, b) {
+      int cmp;
+      switch (_sortColumn) {
+        case 0:
+          cmp = a.pack.name.compareTo(b.pack.name);
+          break;
+        case 1:
+          cmp = a.total.compareTo(b.total);
+          break;
+        case 2:
+          cmp = a.accuracy.compareTo(b.accuracy);
+          break;
+        case 3:
+          cmp = a.mistakes.compareTo(b.mistakes);
+          break;
+        case 4:
+          cmp = a.rating.compareTo(b.rating);
+          break;
+        default:
+          cmp = 0;
+      }
+      return _ascending ? cmp : -cmp;
+    });
+    return stats;
+  }
+
+  Future<void> _exportCsv() async {
+    final packs = context.read<TrainingPackStorageService>().packs;
+    final stats = _sortedStats(packs);
+    if (stats.isEmpty) return;
+    final rows = <List<dynamic>>[];
+    rows.add(['Название', 'Рук', 'Точность', 'Ошибки', 'Рейтинг']);
+    for (final s in stats) {
+      rows.add([
+        s.pack.name,
+        s.total,
+        s.accuracy.toStringAsFixed(1),
+        s.mistakes,
+        s.rating.toStringAsFixed(1),
+      ]);
+    }
+    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
+        .convert(rows, eol: '\r\n');
+    final dir = await getTemporaryDirectory();
+    final file = File(
+        '${dir.path}/pack_comparison_${DateTime.now().millisecondsSinceEpoch}.csv');
+    await file.writeAsString(csvStr, encoding: utf8);
+    await Share.shareXFiles([XFile(file.path)], text: 'pack_comparison.csv');
+  }
+
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs;
-    final stats = [for (final p in packs) TrainingPackStats.fromPack(p)]..sort((a, b) {
-        int cmp;
-        switch (_sortColumn) {
-          case 0:
-            cmp = a.pack.name.compareTo(b.pack.name);
-            break;
-          case 1:
-            cmp = a.total.compareTo(b.total);
-            break;
-          case 2:
-            cmp = a.accuracy.compareTo(b.accuracy);
-            break;
-          case 3:
-            cmp = a.mistakes.compareTo(b.mistakes);
-            break;
-          case 4:
-            cmp = a.rating.compareTo(b.rating);
-            break;
-          default:
-            cmp = 0;
-        }
-        return _ascending ? cmp : -cmp;
-      });
+    final stats = _sortedStats(packs);
     final maxAccuracy = stats.isNotEmpty
         ? stats.map((s) => s.accuracy).reduce((a, b) => a > b ? a : b)
         : 0.0;
@@ -122,6 +158,10 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       appBar: AppBar(
         title: const Text('Сравнение паков'),
         centerTitle: true,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _exportCsv,
+        child: const Icon(Icons.share),
       ),
       body: PaginatedDataTable(
         sortColumnIndex: _sortColumn,
