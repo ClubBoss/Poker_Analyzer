@@ -7,18 +7,21 @@ import 'training_stats_service.dart';
 import 'streak_service.dart';
 import 'goals_service.dart';
 import 'user_action_logger.dart';
+import 'ab_test_engine.dart';
 
 class CloudBackupService extends ChangeNotifier {
   final TrainingStatsService stats;
   final StreakService streak;
   final GoalsService goals;
   final UserActionLogger log;
+  final ABTestEngine ab;
 
   CloudBackupService({
     required this.stats,
     required this.streak,
     required this.goals,
     required this.log,
+    required this.ab,
   });
 
   late final CollectionReference<Map<String, dynamic>> _ref;
@@ -26,6 +29,7 @@ class CloudBackupService extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _streakSub;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _goalsSub;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _logSub;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _abSub;
 
   Future<void> load() async {
     await FirebaseAuth.instance.signInAnonymously();
@@ -52,16 +56,22 @@ class CloudBackupService extends ChangeNotifier {
       final data = snap.data();
       if (data != null) log.applyMap(data);
     });
+    _abSub = _ref.doc('ab').snapshots().listen((snap) {
+      final data = snap.data();
+      if (data != null) ab.applyMap(data);
+    });
     stats.addListener(_pushStats);
     streak.addListener(_pushStreak);
     goals.addListener(_pushGoals);
     log.addListener(_pushLog);
+    ab.addListener(_pushAb);
   }
 
   Future<void> _pushStats() => _ref.doc('stats').set(stats.toMap(), SetOptions(merge: true));
   Future<void> _pushStreak() => _ref.doc('streak').set(streak.toMap(), SetOptions(merge: true));
   Future<void> _pushGoals() => _ref.doc('goals').set(goals.toMap(), SetOptions(merge: true));
   Future<void> _pushLog() => _ref.doc('user_action_log').set(log.toMap(), SetOptions(merge: true));
+  Future<void> _pushAb() => _ref.doc('ab').set(ab.toMap(), SetOptions(merge: true));
 
   Future<void> syncNow() async {
     await Future.wait([
@@ -69,6 +79,7 @@ class CloudBackupService extends ChangeNotifier {
       _pushStreak(),
       _pushGoals(),
       _pushLog(),
+      _pushAb(),
     ]);
   }
 
@@ -78,10 +89,12 @@ class CloudBackupService extends ChangeNotifier {
     _streakSub?.cancel();
     _goalsSub?.cancel();
     _logSub?.cancel();
+    _abSub?.cancel();
     stats.removeListener(_pushStats);
     streak.removeListener(_pushStreak);
     goals.removeListener(_pushGoals);
     log.removeListener(_pushLog);
+    ab.removeListener(_pushAb);
     super.dispose();
   }
 }

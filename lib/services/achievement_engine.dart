@@ -6,6 +6,7 @@ import '../widgets/confetti_overlay.dart';
 import 'training_stats_service.dart';
 import '../main.dart';
 import 'user_action_logger.dart';
+import 'ab_test_engine.dart';
 
 class AchievementEngine extends ChangeNotifier {
   static AchievementEngine? _instance;
@@ -77,9 +78,13 @@ class AchievementEngine extends ChangeNotifier {
       _shown[key] = true;
       _save(key);
       UserActionLogger.instance.log('unlocked_achievement:${ach.title}');
+      final variant = ABTestEngine.instance.confettiEnabled ? 'A' : 'B';
+      UserActionLogger.instance.log('ab_confetti_${variant}_unlocked');
       final ctx = navigatorKey.currentContext;
-      if (ctx != null) {
+      if (ctx != null && ABTestEngine.instance.confettiEnabled) {
         showConfettiOverlay(ctx);
+      }
+      if (ctx != null) {
         ScaffoldMessenger.of(ctx).showSnackBar(
           SnackBar(content: Text('Achievement unlocked: ${ach.title}')),
         );
