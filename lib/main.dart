@@ -31,6 +31,7 @@ import 'services/drill_suggestion_engine.dart';
 import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
+import 'services/weekly_challenge_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 
@@ -61,6 +62,11 @@ void main() {
         ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
         ChangeNotifierProvider(create: (_) => DailyTipService()..load()),
         ChangeNotifierProvider(create: (_) => XPTrackerService()..load()),
+        ChangeNotifierProvider(
+          create: (context) => WeeklyChallengeService(
+            stats: context.read<TrainingStatsService>(),
+          )..load(),
+        ),
         ChangeNotifierProvider(
           create: (context) => StreakCounterService(
             stats: context.read<TrainingStatsService>(),
