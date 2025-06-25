@@ -409,6 +409,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
               expectedAction: hand.expectedAction,
               gtoAction: hand.gtoAction,
               evLoss: hand.evLoss,
+              feedbackText: hand.feedbackText,
             ),
           );
         },

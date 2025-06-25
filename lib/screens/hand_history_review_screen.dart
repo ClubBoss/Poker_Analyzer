@@ -326,8 +326,9 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
             expectedAction: widget.hand.expectedAction,
             gtoAction: widget.hand.gtoAction,
             evLoss: widget.hand.evLoss,
+            feedbackText: widget.hand.feedbackText,
           ),
-            const SizedBox(height: 12),
+          const SizedBox(height: 12),
             if ((gto != null && gto.isNotEmpty) ||
                 (group != null && group.isNotEmpty))
               Column(

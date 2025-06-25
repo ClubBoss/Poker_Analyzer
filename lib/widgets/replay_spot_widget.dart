@@ -15,6 +15,7 @@ class ReplaySpotWidget extends StatefulWidget {
   final String? expectedAction;
   final String? gtoAction;
   final double? evLoss;
+  final String? feedbackText;
 
   const ReplaySpotWidget({
     super.key,
@@ -22,6 +23,7 @@ class ReplaySpotWidget extends StatefulWidget {
     this.expectedAction,
     this.gtoAction,
     this.evLoss,
+    this.feedbackText,
   });
 
   @override
@@ -79,6 +81,38 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
       _index = value.clamp(0, widget.spot.actions.length);
       _isPlaying = false;
     });
+  }
+
+  Future<void> _showGto() async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Оптимальное действие'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (widget.gtoAction != null)
+              Text(widget.gtoAction!,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+            if (widget.feedbackText != null) ...[
+              const SizedBox(height: 8),
+              Text(widget.feedbackText!),
+            ],
+            if ((widget.evLoss ?? 0) > 0.5) ...[
+              const SizedBox(height: 8),
+              Text('Потеря EV: –${widget.evLoss!.toStringAsFixed(1)} bb'),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildComparison() {
@@ -208,7 +242,14 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
                 icon: const Icon(Icons.restart_alt),
               ),
             ],
-          )
+          ),
+          if (widget.gtoAction != null || widget.feedbackText != null) ...[
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _showGto,
+              child: const Text('Показать GTO'),
+            ),
+          ]
         ],
       ),
     );
