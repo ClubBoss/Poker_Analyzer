@@ -55,8 +55,15 @@ class _PackDataSource extends DataTableSource {
       cells: [
         DataCell(Tooltip(message: 'Открыть обзор пака', child: Text(s.pack.name))),
         DataCell(Text(s.total.toString())),
-        DataCell(Text('${s.accuracy.toStringAsFixed(1).padLeft(5)}%',
-            style: TextStyle(color: color))),
+        DataCell(
+          Tooltip(
+            message: '${s.total - s.mistakes} из ${s.total} верно',
+            child: Text(
+              '${s.accuracy.toStringAsFixed(1).padLeft(5)}%',
+              style: TextStyle(color: color),
+            ),
+          ),
+        ),
         DataCell(Text(s.mistakes.toString())),
         DataCell(Text(s.rating.toStringAsFixed(1).padLeft(4))),
         DataCell(Tooltip(
