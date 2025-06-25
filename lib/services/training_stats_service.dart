@@ -25,6 +25,9 @@ class TrainingStatsService extends ChangeNotifier {
   Map<String, int> _handsPerDay = {};
   Map<String, int> _mistakesPerDay = {};
 
+  Map<DateTime, int> get handsPerDay =>
+      {for (final e in _handsPerDay.entries) DateTime.parse(e.key): e.value};
+
   final _sessionController = StreamController<int>.broadcast();
   final _handsController = StreamController<int>.broadcast();
   final _mistakeController = StreamController<int>.broadcast();
