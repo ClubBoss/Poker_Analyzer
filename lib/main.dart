@@ -25,6 +25,7 @@ import "services/training_stats_service.dart";
 import "services/achievement_engine.dart";
 import 'services/goal_engine.dart';
 import 'services/streak_service.dart';
+import 'services/reminder_service.dart';
 import 'user_preferences.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -81,6 +82,13 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => GoalEngine(stats: context.read<TrainingStatsService>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ReminderService(
+            spotService: context.read<SpotOfTheDayService>(),
+            goalEngine: context.read<GoalEngine>(),
+            streakService: context.read<StreakService>(),
+          )..load(),
         ),
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
