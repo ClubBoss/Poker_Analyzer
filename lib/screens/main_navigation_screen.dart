@@ -8,6 +8,7 @@ import 'insights_screen.dart';
 import '../widgets/streak_banner.dart';
 import '../widgets/motivation_card.dart';
 import '../widgets/next_step_card.dart';
+import '../widgets/today_progress_banner.dart';
 import '../services/user_action_logger.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget _home() {
     return const Column(
       children: [
+        TodayProgressBanner(),
         MotivationCard(),
         NextStepCard(),
         Expanded(child: AnalyzerTab()),
