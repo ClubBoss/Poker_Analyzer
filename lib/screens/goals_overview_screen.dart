@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import '../services/goals_service.dart';
 import 'goal_history_screen.dart';
 
@@ -12,6 +15,44 @@ class GoalsOverviewScreen extends StatelessWidget {
     return '$d.$m.${date.year}';
   }
 
+  Future<void> _exportPdf(BuildContext context, List<Goal> goals) async {
+    final regularFont = await pw.PdfGoogleFonts.robotoRegular();
+    final boldFont = await pw.PdfGoogleFonts.robotoBold();
+
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (ctx) => [
+          pw.Text('Мои цели', style: pw.TextStyle(font: boldFont, fontSize: 24)),
+          pw.SizedBox(height: 16),
+          pw.Table.fromTextArray(
+            headers: const ['Цель', 'Прогресс', 'Создано', 'Завершено'],
+            headerStyle: pw.TextStyle(font: boldFont),
+            cellStyle: pw.TextStyle(font: regularFont),
+            data: [
+              for (final g in goals)
+                [
+                  g.title,
+                  '${g.progress}/${g.target}',
+                  _formatDate(g.createdAt),
+                  g.completedAt != null ? _formatDate(g.completedAt!) : '-',
+                ]
+            ],
+          ),
+        ],
+      ),
+    );
+
+    final bytes = await pdf.save();
+    await Printing.sharePdf(bytes: bytes, filename: 'goals.pdf');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Файл сохранён: goals.pdf')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final service = context.watch<GoalsService>();
@@ -21,6 +62,12 @@ class GoalsOverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Мои цели'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: () => _exportPdf(context, goals),
+          ),
+        ],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
