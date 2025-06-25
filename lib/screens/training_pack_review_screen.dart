@@ -368,7 +368,19 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
       color: AppColors.cardBackground,
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
-        title: Text(hand.name, style: const TextStyle(color: Colors.white)),
+        title: Row(
+          children: [
+            Expanded(
+                child: Text(hand.name,
+                    style: const TextStyle(color: Colors.white))),
+            if (hand.evLoss != null)
+              Tooltip(
+                message: 'Потеря EV из-за выбранного действия',
+                child: Text('–${hand.evLoss!.toStringAsFixed(1)} bb',
+                    style: const TextStyle(color: Colors.red)),
+              ),
+          ],
+        ),
         subtitle: Wrap(
           spacing: 4,
           children: [for (final t in hand.tags) Chip(label: Text(t))],
