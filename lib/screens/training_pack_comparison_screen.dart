@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../models/training_pack_stats.dart';
@@ -111,22 +112,51 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     if (stats.isEmpty) return;
     final rows = <List<dynamic>>[];
     rows.add(['Название', 'Рук', 'Точность', 'Ошибки', 'Рейтинг']);
+    var sumTotal = 0;
+    var sumMistakes = 0;
+    var sumAcc = 0.0;
+    var sumRating = 0.0;
     for (final s in stats) {
       rows.add([
         s.pack.name,
         s.total,
-        s.accuracy.toStringAsFixed(1),
+        '${s.accuracy.toStringAsFixed(1)}%',
         s.mistakes,
         s.rating.toStringAsFixed(1),
       ]);
+      sumTotal += s.total;
+      sumMistakes += s.mistakes;
+      sumAcc += s.accuracy;
+      sumRating += s.rating;
     }
-    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
+    final avgAcc = stats.isNotEmpty ? sumAcc / stats.length : 0.0;
+    final avgRating = stats.isNotEmpty ? sumRating / stats.length : 0.0;
+    rows.add([
+      'Σ',
+      sumTotal,
+      '${avgAcc.toStringAsFixed(1)}%',
+      sumMistakes,
+      avgRating.toStringAsFixed(1),
+    ]);
+    final csvStr = '\uFEFF${const ListToCsvConverter(fieldDelimiter: ';').convert(rows, eol: '\r\n')}';
     final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/pack_comparison_${DateTime.now().millisecondsSinceEpoch}.csv');
+    final name =
+        'pack_comparison_${DateFormat("yyyy-MM-dd_HH-mm").format(DateTime.now())}.csv';
+    final file = File('${dir.path}/$name');
     await file.writeAsString(csvStr, encoding: utf8);
-    await Share.shareXFiles([XFile(file.path)], text: 'pack_comparison.csv');
+    try {
+      await Share.shareXFiles([XFile(file.path)], text: name);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('CSV экспортирован')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
+      }
+    }
   }
 
   @override
