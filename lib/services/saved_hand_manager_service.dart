@@ -10,15 +10,19 @@ import '../helpers/date_utils.dart';
 import '../models/saved_hand.dart';
 import 'saved_hand_storage_service.dart';
 import 'cloud_sync_service.dart';
+import "training_stats_service.dart";
 
 class SavedHandManagerService extends ChangeNotifier {
   SavedHandManagerService({
     required SavedHandStorageService storage,
     CloudSyncService? cloud,
+    TrainingStatsService? stats,
   })  : _storage = storage,
-        _cloud = cloud;
+        _cloud = cloud,
+        _stats = stats;
 
   final SavedHandStorageService _storage;
+  final TrainingStatsService? _stats;
   final CloudSyncService? _cloud;
 
   List<SavedHand> get hands => _storage.hands;
@@ -37,10 +41,22 @@ class SavedHandManagerService extends ChangeNotifier {
     final withSession = hand.copyWith(sessionId: sessionId);
     await _storage.add(withSession);
     await _cloud?.uploadHand(withSession);
+    _stats?.incrementHands();
+    if (sessionId != last?.sessionId) {
+      _stats?.incrementSessions();
+    }
   }
 
   Future<void> update(int index, SavedHand hand) async {
+    final old = _storage.hands[index];
     await _storage.update(index, hand);
+    final oldExp = old.expectedAction?.trim().toLowerCase();
+    final oldGto = old.gtoAction?.trim().toLowerCase();
+    final newExp = hand.expectedAction?.trim().toLowerCase();
+    final newGto = hand.gtoAction?.trim().toLowerCase();
+    if (oldExp != oldGto && newExp == newGto && newExp != null) {
+      _stats?.incrementMistakes();
+    }
   }
 
   Future<void> removeAt(int index) async {
