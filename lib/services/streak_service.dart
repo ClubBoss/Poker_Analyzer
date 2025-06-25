@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 /// Tracks the number of consecutive days the app was opened.
 ///
@@ -11,6 +12,7 @@ class StreakService extends ChangeNotifier {
   static const _lastOpenKey = 'streak_last_open';
   static const _countKey = 'streak_count';
   static const _errorKey = 'error_free_streak';
+  static const _historyKey = 'streak_history';
   static const bonusThreshold = 3;
   static const bonusMultiplier = 1.5;
 
@@ -18,11 +20,19 @@ class StreakService extends ChangeNotifier {
   int _count = 0;
   bool _increased = false;
   int _errorFreeStreak = 0;
+  Map<String, int> _history = {};
 
   int get count => _count;
   bool get hasBonus => _count >= bonusThreshold;
   bool get increased => _increased;
   int get errorFreeStreak => _errorFreeStreak;
+  List<MapEntry<DateTime, int>> get history {
+    final list = _history.entries
+        .map((e) => MapEntry(DateTime.parse(e.key), e.value))
+        .toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    return list;
+  }
 
   /// Returns true if the streak increased since the last check.
   bool consumeIncreaseFlag() {
@@ -38,6 +48,11 @@ class StreakService extends ChangeNotifier {
     _lastOpen = lastStr != null ? DateTime.tryParse(lastStr) : null;
     _count = prefs.getInt(_countKey) ?? 0;
     _errorFreeStreak = prefs.getInt(_errorKey) ?? 0;
+    final raw = prefs.getString(_historyKey);
+    if (raw != null) {
+      final data = jsonDecode(raw) as Map<String, dynamic>;
+      _history = {for (final e in data.entries) e.key: e.value as int};
+    }
     await updateStreak();
   }
 
@@ -50,6 +65,7 @@ class StreakService extends ChangeNotifier {
     }
     await prefs.setInt(_countKey, _count);
     await prefs.setInt(_errorKey, _errorFreeStreak);
+    await prefs.setString(_historyKey, jsonEncode(_history));
   }
 
   /// Compares the saved date with today and updates the streak accordingly.
@@ -80,6 +96,13 @@ class StreakService extends ChangeNotifier {
       }
     }
 
+    final key = today.toIso8601String().split('T').first;
+    _history[key] = _count;
+    final keys = _history.keys.toList()..sort();
+    while (keys.length > 30) {
+      _history.remove(keys.first);
+      keys.removeAt(0);
+    }
     _increased = increased;
     await _save();
     notifyListeners();

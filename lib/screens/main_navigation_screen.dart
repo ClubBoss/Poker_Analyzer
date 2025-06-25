@@ -4,6 +4,7 @@ import 'analyzer_tab.dart';
 import 'spot_of_the_day_screen.dart';
 import 'spot_of_the_day_history_screen.dart';
 import 'settings_placeholder_screen.dart';
+import 'insights_screen.dart';
 import '../widgets/streak_banner.dart';
 import '../widgets/motivation_card.dart';
 import '../services/user_action_logger.dart';
@@ -40,6 +41,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       _home(),
       const SpotOfTheDayScreen(),
       const SpotOfTheDayHistoryScreen(),
+      const InsightsScreen(),
       const SettingsPlaceholderScreen(),
     ];
     return Scaffold(
@@ -67,6 +69,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.history),
                 label: 'История',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.insights),
+                label: '📊 Insights',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.more_horiz),
