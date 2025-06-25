@@ -31,6 +31,7 @@ import 'services/next_step_engine.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 import 'services/leaderboard_service.dart';
+import 'services/cloud_backup_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -111,6 +112,14 @@ Future<void> main() async {
         Provider(create: (_) => EvaluationExecutorService()),
         Provider(create: (_) => CloudSyncService()),
         ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
+        ChangeNotifierProvider(
+          create: (context) => CloudBackupService(
+            stats: context.read<TrainingStatsService>(),
+            streak: context.read<StreakService>(),
+            goals: context.read<GoalsService>(),
+            log: context.read<UserActionLogger>(),
+          )..load(),
+        ),
       ],
       child: const PokerAIAnalyzerApp(),
     ),

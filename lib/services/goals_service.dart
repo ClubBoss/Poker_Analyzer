@@ -678,4 +678,52 @@ class GoalsService extends ChangeNotifier {
     }
     return true;
   }
+
+  Map<String, dynamic> toMap() => {
+        'errorFreeStreak': _errorFreeStreak,
+        'handStreak': _handStreak,
+        'mistakeReviewStreak': _mistakeReviewStreak,
+        'goals': [for (final g in _goals) g.progress],
+        'hasSevenDayGoalUnlocked': _hasSevenDayGoalUnlocked,
+      };
+
+  Future<void> applyMap(Map<String, dynamic> data) async {
+    bool changed = false;
+    final goals = data['goals'];
+    if (goals is List) {
+      for (var i = 0; i < goals.length && i < _goals.length; i++) {
+        final p = goals[i];
+        if (p is int && p > _goals[i].progress) {
+          _goals[i] = _goals[i].copyWith(progress: p);
+          await _saveProgress(i);
+          changed = true;
+        }
+      }
+    }
+    final err = data['errorFreeStreak'];
+    if (err is int && err > _errorFreeStreak) {
+      _errorFreeStreak = err;
+      await _saveErrorFreeStreak();
+      changed = true;
+    }
+    final hand = data['handStreak'];
+    if (hand is int && hand > _handStreak) {
+      _handStreak = hand;
+      await _saveHandStreak();
+      changed = true;
+    }
+    final mr = data['mistakeReviewStreak'];
+    if (mr is int && mr > _mistakeReviewStreak) {
+      _mistakeReviewStreak = mr;
+      await _saveMistakeReviewStreak();
+      changed = true;
+    }
+    final seven = data['hasSevenDayGoalUnlocked'];
+    if (seven is bool && seven && !_hasSevenDayGoalUnlocked) {
+      _hasSevenDayGoalUnlocked = true;
+      await _saveSevenDayGoalUnlocked();
+      changed = true;
+    }
+    if (changed) notifyListeners();
+  }
 }
