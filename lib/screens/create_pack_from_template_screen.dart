@@ -41,7 +41,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
 
   Future<void> _create() async {
     if (_selected.isEmpty) return;
-    await context.read<TrainingPackStorageService>().createFromTemplate(
+    await context.read<TrainingPackStorageService>().createFromTemplateWithOptions(
       widget.template,
       hands: _selected,
       categoryOverride: _category.text.trim(),
