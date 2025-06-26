@@ -44,6 +44,14 @@ class TemplateStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateTemplate(TrainingPackTemplate template) {
+    final index = _templates.indexWhere((t) => t.id == template.id);
+    if (index == -1) return;
+    _templates[index] = template;
+    _resort();
+    notifyListeners();
+  }
+
   void removeTemplate(TrainingPackTemplate template) {
     if (template.isBuiltIn) return;
     _templates.remove(template);

@@ -6,6 +6,7 @@ import '../services/template_storage_service.dart';
 import '../services/training_pack_storage_service.dart';
 
 import 'create_template_screen.dart';
+import 'template_hands_editor_screen.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -71,6 +72,24 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
     if (template != null) {
       context.read<TemplateStorageService>().addTemplate(template);
+      if (template.hands.isEmpty && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Шаблон пуст — не забудьте добавить раздачи'),
+            action: SnackBarAction(
+              label: 'Добавить сейчас',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TemplateHandsEditorScreen(template: template),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      }
     }
   }
 
