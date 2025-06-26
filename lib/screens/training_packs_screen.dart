@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
+import '../helpers/color_utils.dart';
 import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
@@ -159,7 +160,16 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                       final pack = visible[index];
                       final completed = _isPackCompleted(pack);
                       return ListTile(
-                        leading: pack.isBuiltIn ? const Text('📦') : null,
+                        leading: pack.isBuiltIn
+                            ? const Text('📦')
+                            : Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: colorFromHex(pack.colorTag),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
                         title: Text(pack.name),
                         subtitle: Text(
                           pack.description.isEmpty

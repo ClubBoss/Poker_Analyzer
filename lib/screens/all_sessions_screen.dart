@@ -883,6 +883,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
               description: newDescription,
               category: p.category,
               gameType: p.gameType,
+              colorTag: p.colorTag,
               hands: p.hands,
               history: p.history,
             );
@@ -907,6 +908,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           description: newDescription,
           category: oldPack.category,
           gameType: oldPack.gameType,
+          colorTag: oldPack.colorTag,
           hands: oldPack.hands,
           history: oldPack.history,
         );

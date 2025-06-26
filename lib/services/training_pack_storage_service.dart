@@ -149,6 +149,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       description: pack.description,
       category: pack.category,
       gameType: pack.gameType,
+      colorTag: pack.colorTag,
       isBuiltIn: pack.isBuiltIn,
       hands: pack.hands,
       history: pack.history,
@@ -177,6 +178,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       template,
       hands: template.hands,
       categoryOverride: null,
+      colorTag: '#2196F3',
     );
   }
 
@@ -184,6 +186,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     TrainingPackTemplate template, {
     List<SavedHand>? hands,
     String? categoryOverride,
+    String? colorTag,
   }) async {
     final selected = hands ?? template.hands;
     String base = template.name;
@@ -200,6 +203,7 @@ class TrainingPackStorageService extends ChangeNotifier {
           ? categoryOverride!
           : 'Uncategorized',
       gameType: template.gameType,
+      colorTag: colorTag ?? '#2196F3',
       hands: selected,
     );
     _packs.add(pack);
