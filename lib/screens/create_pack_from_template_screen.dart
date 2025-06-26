@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import '../helpers/color_utils.dart';
 
 import '../models/training_pack_template.dart';
 import '../models/saved_hand.dart';
@@ -16,6 +18,32 @@ class CreatePackFromTemplateScreen extends StatefulWidget {
 class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScreen> {
   late List<SavedHand> _selected;
   final TextEditingController _category = TextEditingController();
+  Color _color = Colors.blue;
+
+  Future<void> _pickColor() async {
+    Color pickerColor = _color;
+    final result = await showDialog<Color>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Цвет пакета'),
+        content: BlockPicker(
+          pickerColor: pickerColor,
+          onColorChanged: (c) => pickerColor = c,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, pickerColor),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (result != null) setState(() => _color = result);
+  }
 
   @override
   void dispose() {
@@ -45,6 +73,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
       widget.template,
       hands: _selected,
       categoryOverride: _category.text.trim(),
+      colorTag: colorToHex(_color),
     );
     if (!mounted) return;
     Navigator.pop(context);
@@ -67,6 +96,21 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
             child: TextField(
               controller: _category,
               decoration: const InputDecoration(labelText: 'Категория (опц.)'),
+            ),
+          ),
+          ListTile(
+            leading: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: _color,
+                shape: BoxShape.circle,
+              ),
+            ),
+            title: const Text('Цвет пакета'),
+            trailing: IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: _pickColor,
             ),
           ),
           Expanded(

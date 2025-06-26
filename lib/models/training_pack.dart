@@ -39,6 +39,7 @@ class TrainingPack {
   final String description;
   final String category;
   final String gameType;
+  final String colorTag;
   final bool isBuiltIn;
   final List<SavedHand> hands;
   final List<TrainingSessionResult> history;
@@ -48,6 +49,7 @@ class TrainingPack {
     required this.description,
     this.category = 'Uncategorized',
     this.gameType = 'Cash Game',
+    this.colorTag = '#2196F3',
     this.isBuiltIn = false,
     required this.hands,
     List<TrainingSessionResult>? history,
@@ -58,6 +60,7 @@ class TrainingPack {
         'description': description,
         'category': category,
         'gameType': gameType,
+        'colorTag': colorTag,
         'isBuiltIn': isBuiltIn,
         'hands': [for (final h in hands) h.toJson()],
         'history': [for (final r in history) r.toJson()],
@@ -68,6 +71,7 @@ class TrainingPack {
         description: json['description'] as String? ?? '',
         category: json['category'] as String? ?? 'Uncategorized',
         gameType: json['gameType'] as String? ?? 'Cash Game',
+        colorTag: json['colorTag'] as String? ?? '#2196F3',
         isBuiltIn: json['isBuiltIn'] as bool? ?? false,
         hands: [
           for (final h in (json['hands'] as List? ?? []))
