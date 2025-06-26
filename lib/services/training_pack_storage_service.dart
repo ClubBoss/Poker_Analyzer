@@ -172,7 +172,15 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createFromTemplate(
+  Future<void> createFromTemplate(TrainingPackTemplate template) async {
+    await createFromTemplateWithOptions(
+      template,
+      hands: template.hands,
+      categoryOverride: null,
+    );
+  }
+
+  Future<void> createFromTemplateWithOptions(
     TrainingPackTemplate template, {
     List<SavedHand>? hands,
     String? categoryOverride,
