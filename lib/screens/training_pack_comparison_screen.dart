@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
@@ -528,6 +529,12 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             onChanged: (v) => setState(() => _forgottenOnly = v),
             activeColor: Colors.orange,
           ),
+          PackCompletionBarChart(
+            stats: stats,
+            hideCompleted: false,
+            forgottenOnly: _forgottenOnly,
+          ),
+          const SizedBox(height: 16),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             height: _selected.isNotEmpty ? 48 : 0,
@@ -737,6 +744,104 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class PackCompletionBarChart extends StatelessWidget {
+  final List<TrainingPackStats> stats;
+  final bool hideCompleted;
+  final bool forgottenOnly;
+
+  const PackCompletionBarChart({
+    super.key,
+    required this.stats,
+    required this.hideCompleted,
+    required this.forgottenOnly,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final filtered = stats.where((s) {
+      final progress = s.total > 0 ? (s.total - s.mistakes) / s.total : 0.0;
+      final completed = progress >= 1.0;
+      final forgotten =
+          s.lastSession == null || now.difference(s.lastSession!).inDays >= 7;
+      if (hideCompleted && completed) return false;
+      if (forgottenOnly && !forgotten) return false;
+      return true;
+    }).toList();
+
+    filtered.sort((a, b) {
+      final pa = a.total > 0 ? (a.total - a.mistakes) * 100 / a.total : 0.0;
+      final pb = b.total > 0 ? (b.total - b.mistakes) * 100 / b.total : 0.0;
+      return pb.compareTo(pa);
+    });
+
+    if (filtered.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final groups = <BarChartGroupData>[];
+    for (var i = 0; i < filtered.length; i++) {
+      final stat = filtered[i];
+      final percent =
+          stat.total > 0 ? (stat.total - stat.mistakes) * 100 / stat.total : 0.0;
+      groups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: percent,
+              width: 14,
+              borderRadius: BorderRadius.circular(4),
+              gradient: const LinearGradient(
+                colors: [Colors.lightGreenAccent, Colors.green],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return AspectRatio(
+      aspectRatio: 1.7,
+      child: BarChart(
+        BarChartData(
+          maxY: 100,
+          minY: 0,
+          barGroups: groups,
+          gridData: FlGridData(show: false),
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, _) {
+                  final idx = value.toInt();
+                  if (idx < 0 || idx >= filtered.length) {
+                    return const SizedBox.shrink();
+                  }
+                  return Transform.rotate(
+                    angle: -1.5708,
+                    child: Text(
+                      filtered[idx].pack.name,
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                  );
+                },
+              ),
+            ),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+        ),
       ),
     );
   }
