@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
@@ -18,6 +19,7 @@ class SpotOfTheDayService extends ChangeNotifier {
   DateTime? _date;
   String? _result;
   List<SpotOfDayHistoryEntry> _history = [];
+  Timer? _timer;
 
   bool? get correct {
     if (_spot == null || _result == null || _spot!.recommendedAction == null) {
@@ -27,11 +29,15 @@ class SpotOfTheDayService extends ChangeNotifier {
   }
 
   TrainingSpot? get spot => _spot;
+  TrainingSpot? get currentSpot => _spot;
   String? get result => _result;
   List<SpotOfDayHistoryEntry> get history => List.unmodifiable(_history);
 
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
+  bool _isSameDay(DateTime a, DateTime b) {
+    final ua = a.toUtc();
+    final ub = b.toUtc();
+    return ua.year == ub.year && ua.month == ub.month && ua.day == ub.day;
+  }
 
   Future<void> _loadHistory() async {
     final prefs = await SharedPreferences.getInstance();
@@ -104,6 +110,7 @@ class SpotOfTheDayService extends ChangeNotifier {
         await _saveHistory();
       }
     }
+    _scheduleTimer();
     notifyListeners();
   }
 
@@ -124,6 +131,7 @@ class SpotOfTheDayService extends ChangeNotifier {
     await prefs.setString(_dateKey, _date!.toIso8601String());
     await prefs.setInt(_indexKey, rnd);
     await prefs.remove(_resultKey);
+    _scheduleTimer();
     notifyListeners();
   }
 
@@ -160,5 +168,18 @@ class SpotOfTheDayService extends ChangeNotifier {
     );
     await _saveHistory();
     notifyListeners();
+  }
+
+  void _scheduleTimer() {
+    _timer?.cancel();
+    final now = DateTime.now().toUtc();
+    final next = DateTime.utc(now.year, now.month, now.day + 1);
+    _timer = Timer(next.difference(now), ensureTodaySpot);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }
