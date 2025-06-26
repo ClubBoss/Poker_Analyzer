@@ -42,7 +42,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ),
     );
     if (confirm == true) {
-      context.read<TemplateStorageService>().removeTemplate(t);
+      final service = context.read<TemplateStorageService>();
+      final index = service.templates.indexOf(t);
+      service.removeTemplate(t);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Шаблон удалён'),
+            action: SnackBarAction(
+              label: 'Отмена',
+              onPressed: () => service.restoreTemplate(t, index),
+            ),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
