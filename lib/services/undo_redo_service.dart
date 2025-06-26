@@ -114,6 +114,12 @@ class UndoRedoService {
       commentCursor: snap.commentCursor,
       tags: snap.tags,
       tagsCursor: snap.tagsCursor,
+      tournamentId: snap.tournamentId,
+      buyIn: snap.buyIn,
+      totalPrizePool: snap.totalPrizePool,
+      numberOfEntrants: snap.numberOfEntrants,
+      gameType: snap.gameType,
+      category: snap.category,
     );
     playerManager.restoreFromHand(snap);
     boardManager.setBoardCards(snap.boardCards);
