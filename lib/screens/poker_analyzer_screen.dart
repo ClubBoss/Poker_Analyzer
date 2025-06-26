@@ -2829,59 +2829,89 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
-  Future<void> _ensureGameInfo() async {
+  Future<bool> _ensureGameInfo() async {
     if ((_handContext.gameType?.isEmpty ?? true) ||
         (_handContext.category?.isEmpty ?? true)) {
       final gtController =
           TextEditingController(text: _handContext.gameType ?? '');
       final catController =
           TextEditingController(text: _handContext.category ?? '');
+      final gameTypes = _handManager.hands
+          .map((h) => h.gameType)
+          .whereType<String>()
+          .toSet()
+          .toList()
+        ..sort();
+      final categories = _handManager.hands
+          .map((h) => h.category)
+          .whereType<String>()
+          .toSet()
+          .toList()
+        ..sort();
       final result = await showDialog<(String, String)>(
         context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: AppColors.cardBackground,
-          title: const Text('Информация о споте',
-              style: TextStyle(color: Colors.white)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: gtController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Тип игры',
-                  labelStyle: TextStyle(color: Colors.white),
+        builder: (context) => StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            backgroundColor: AppColors.cardBackground,
+            title: const Text('Информация о споте',
+                style: TextStyle(color: Colors.white)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: gtController.text.isEmpty ? null : gtController.text,
+                  decoration: const InputDecoration(
+                    labelText: 'Тип игры',
+                    labelStyle: TextStyle(color: Colors.white),
+                  ),
+                  dropdownColor: Colors.grey[900],
+                  items: [
+                    for (final g in gameTypes)
+                      DropdownMenuItem(value: g, child: Text(g)),
+                  ],
+                  onChanged: (v) => setState(() => gtController.text = v ?? ''),
                 ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: catController.text.isEmpty ? null : catController.text,
+                  decoration: const InputDecoration(
+                    labelText: 'Категория',
+                    labelStyle: TextStyle(color: Colors.white),
+                  ),
+                  dropdownColor: Colors.grey[900],
+                  items: [
+                    for (final c in categories)
+                      DropdownMenuItem(value: c, child: Text(c)),
+                  ],
+                  onChanged: (v) => setState(() => catController.text = v ?? ''),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Отмена'),
               ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: catController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Категория',
-                  labelStyle: TextStyle(color: Colors.white),
-                ),
+              TextButton(
+                onPressed: () => Navigator.pop(
+                    context, (gtController.text, catController.text)),
+                child: const Text('OK'),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Отмена'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(
-                  context, (gtController.text, catController.text)),
-              child: const Text('OK'),
-            ),
-          ],
         ),
       );
-      if (result != null) {
-        _handContext.gameType = result.$1.trim();
-        _handContext.category = result.$2.trim();
+      gtController.dispose();
+      catController.dispose();
+      if (result == null ||
+          result.$1.trim().isEmpty ||
+          result.$2.trim().isEmpty) {
+        return false;
       }
+      _handContext.gameType = result.$1.trim();
+      _handContext.category = result.$2.trim();
     }
+    return true;
   }
 
   void _playAll() {
@@ -5121,7 +5151,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
   Future<String> saveHand() async {
     _addQualityTags();
-    await _ensureGameInfo();
+    if (!await _ensureGameInfo()) return '';
     final hand = _currentSavedHand(
       gameType: _handContext.gameType,
       category: _handContext.category,
@@ -5210,7 +5240,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (result == null) return;
     final handName = result.trim().isEmpty ? _defaultHandName() : result.trim();
     _addQualityTags();
-    await _ensureGameInfo();
+    if (!await _ensureGameInfo()) return;
     final hand = _currentSavedHand(
       name: handName,
       gameType: _handContext.gameType,
