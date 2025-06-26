@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:file_picker/file_picker.dart';
-import 'package:uuid/uuid.dart';
 import 'dart:io';
 
 import '../models/training_pack_template.dart';
@@ -13,8 +12,17 @@ class TemplateStorageService extends ChangeNotifier {
   final List<TrainingPackTemplate> _templates = [];
   List<TrainingPackTemplate> get templates => List.unmodifiable(_templates);
 
+  void _resort() {
+    _templates.sort((a, b) {
+      if (a.gameType != b.gameType) return a.gameType.compareTo(b.gameType);
+      final rev = b.revision.compareTo(a.revision);
+      return rev == 0 ? a.name.compareTo(b.name) : rev;
+    });
+  }
+
   void addTemplate(TrainingPackTemplate template) {
     _templates.add(template);
+    _resort();
     notifyListeners();
   }
 
@@ -37,12 +45,7 @@ class TemplateStorageService extends ChangeNotifier {
           _templates.add(TrainingPackTemplate.fromJson(data));
         }
       }
-      // сортируем по type → revision ↓ → name
-      _templates.sort((a, b) {
-        if (a.gameType != b.gameType) return a.gameType.compareTo(b.gameType);
-        final rev = b.revision.compareTo(a.revision);
-        return rev == 0 ? a.name.compareTo(b.name) : rev;
-      });
+      _resort();
     } catch (_) {}
     notifyListeners();
   }
@@ -151,7 +154,7 @@ class TemplateStorageService extends ChangeNotifier {
             return template;
           } else if (action == 'keep') {
             template = TrainingPackTemplate(
-              id: const Uuid().v4(),
+              id: DateTime.now().microsecondsSinceEpoch.toString(),
               name: template.name,
               gameType: template.gameType,
               description: template.description,
@@ -169,6 +172,7 @@ class TemplateStorageService extends ChangeNotifier {
         }
       }
       _templates.add(template);
+      _resort();
       notifyListeners();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
