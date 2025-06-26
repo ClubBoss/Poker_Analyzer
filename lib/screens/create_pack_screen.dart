@@ -18,6 +18,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+  String _gameType = 'Cash Game';
   final TrainingSpotFileService _spotFileService = const TrainingSpotFileService();
   List<TrainingSpot> _spots = [];
   final GlobalKey<TrainingSpotListState> _spotListKey =
@@ -31,6 +32,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
       _nameController.text = pack.name;
       _descriptionController.text = pack.description;
       _categoryController.text = pack.category;
+      _gameType = pack.gameType;
     }
   }
 
@@ -42,6 +44,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
       name: name,
       description: _descriptionController.text.trim(),
       category: category.isEmpty ? 'Uncategorized' : category,
+      gameType: _gameType,
       hands: widget.initialPack?.hands ?? const [],
     );
     Navigator.pop(context, pack);
@@ -99,6 +102,21 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                 labelStyle: TextStyle(color: Colors.white),
                 border: OutlineInputBorder(),
               ),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _gameType,
+              decoration: const InputDecoration(
+                labelText: 'Тип игры',
+                labelStyle: TextStyle(color: Colors.white),
+                border: OutlineInputBorder(),
+              ),
+              dropdownColor: const Color(0xFF3A3B3E),
+              items: const [
+                DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
+                DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+              ],
+              onChanged: (v) => setState(() => _gameType = v ?? 'Cash Game'),
             ),
             const SizedBox(height: 24),
             ElevatedButton(

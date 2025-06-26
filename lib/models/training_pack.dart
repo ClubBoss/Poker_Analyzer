@@ -38,6 +38,7 @@ class TrainingPack {
   final String name;
   final String description;
   final String category;
+  final String gameType;
   final List<SavedHand> hands;
   final List<TrainingSessionResult> history;
 
@@ -45,6 +46,7 @@ class TrainingPack {
     required this.name,
     required this.description,
     this.category = 'Uncategorized',
+    this.gameType = 'Cash Game',
     required this.hands,
     List<TrainingSessionResult>? history,
   }) : history = history ?? [];
@@ -53,6 +55,7 @@ class TrainingPack {
         'name': name,
         'description': description,
         'category': category,
+        'gameType': gameType,
         'hands': [for (final h in hands) h.toJson()],
         'history': [for (final r in history) r.toJson()],
       };
@@ -61,6 +64,7 @@ class TrainingPack {
         name: json['name'] as String? ?? '',
         description: json['description'] as String? ?? '',
         category: json['category'] as String? ?? 'Uncategorized',
+        gameType: json['gameType'] as String? ?? 'Cash Game',
         hands: [
           for (final h in (json['hands'] as List? ?? []))
             SavedHand.fromJson(h as Map<String, dynamic>)

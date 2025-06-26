@@ -57,6 +57,7 @@ class DrillSuggestionEngine extends ChangeNotifier {
     return TrainingPack(
       name: '${d.position} ${d.street}',
       description: 'Drill',
+      gameType: 'Cash Game',
       hands: hands,
     );
   }
