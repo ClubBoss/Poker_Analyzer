@@ -18,6 +18,12 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   final TextEditingController _category = TextEditingController();
 
   @override
+  void dispose() {
+    _category.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _selected = List.from(widget.template.hands);
