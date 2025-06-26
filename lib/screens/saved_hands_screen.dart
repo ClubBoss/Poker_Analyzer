@@ -14,12 +14,14 @@ class SavedHandsScreen extends StatefulWidget {
   final String? initialTag;
   final String? initialPosition;
   final String? initialAccuracy;
+  final String? initialDateFilter;
 
   const SavedHandsScreen({
     super.key,
     this.initialTag,
     this.initialPosition,
     this.initialAccuracy,
+    this.initialDateFilter,
   });
 
   @override
@@ -45,6 +47,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     _tagFilter = widget.initialTag ?? 'Все';
     _positionFilter = widget.initialPosition ?? 'Все';
     _accuracyFilter = widget.initialAccuracy ?? 'Все';
+    _dateFilter = widget.initialDateFilter ?? 'Все';
   }
 
   @override
