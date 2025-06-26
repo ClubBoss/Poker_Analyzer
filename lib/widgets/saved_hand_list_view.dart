@@ -32,6 +32,7 @@ class SavedHandListView extends StatefulWidget {
   final String title;
   final ValueChanged<SavedHand> onTap;
   final ValueChanged<SavedHand>? onFavoriteToggle;
+  final ValueChanged<SavedHand>? onRename;
   final String? filterKey;
 
   const SavedHandListView({
@@ -45,6 +46,7 @@ class SavedHandListView extends StatefulWidget {
     this.showAccuracyToggle = true,
     this.showGameFilters = true,
     this.onFavoriteToggle,
+    this.onRename,
     this.filterKey,
   });
 
@@ -318,6 +320,9 @@ class _SavedHandListViewState extends State<SavedHandListView> {
                       onFavoriteToggle: widget.onFavoriteToggle == null
                           ? null
                           : () => widget.onFavoriteToggle!(hand),
+                      onRename: widget.onRename == null
+                          ? null
+                          : () => widget.onRename!(hand),
                     );
                   },
                 ),

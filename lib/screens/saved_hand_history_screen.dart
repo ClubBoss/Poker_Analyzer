@@ -57,6 +57,38 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
     manager.update(index, updated);
   }
 
+  Future<void> _renameHand(
+      SavedHand hand, SavedHandManagerService manager) async {
+    final controller = TextEditingController(text: hand.name);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardBackground,
+        title:
+            const Text('Переименовать', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (name != null && name.isNotEmpty && name != hand.name) {
+      final index = manager.hands.indexOf(hand);
+      await manager.update(index, hand.copyWith(name: name));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
@@ -154,6 +186,7 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                   title: 'Раздачи',
                   onTap: _openHand,
                   onFavoriteToggle: (hand) => _toggleFavorite(hand, manager),
+                  onRename: (hand) => _renameHand(hand, manager),
                   showGameFilters: false,
                 ),
                 SavedHandListView(
@@ -161,6 +194,7 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                   title: 'Избранные',
                   onTap: _openHand,
                   onFavoriteToggle: (hand) => _toggleFavorite(hand, manager),
+                  onRename: (hand) => _renameHand(hand, manager),
                   showGameFilters: false,
                 ),
                 SavedHandListView(
@@ -168,6 +202,7 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                   title: 'Сессии',
                   onTap: _openHand,
                   onFavoriteToggle: (hand) => _toggleFavorite(hand, manager),
+                  onRename: (hand) => _renameHand(hand, manager),
                   showGameFilters: false,
                 ),
               ],

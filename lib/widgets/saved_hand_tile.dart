@@ -8,12 +8,14 @@ class SavedHandTile extends StatelessWidget {
   final SavedHand hand;
   final VoidCallback onTap;
   final VoidCallback? onFavoriteToggle;
+  final VoidCallback? onRename;
 
   const SavedHandTile({
     super.key,
     required this.hand,
     required this.onTap,
     this.onFavoriteToggle,
+    this.onRename,
   });
 
   String _formatDate(DateTime date) {
@@ -123,7 +125,17 @@ class SavedHandTile extends StatelessWidget {
             ],
           ],
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onRename != null)
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.white),
+                onPressed: onRename,
+              ),
+            const Icon(Icons.chevron_right, color: Colors.white),
+          ],
+        ),
       ),
     );
   }
