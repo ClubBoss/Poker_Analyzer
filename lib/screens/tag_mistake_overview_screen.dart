@@ -16,6 +16,8 @@ import '../models/mistake_severity.dart';
 import '../models/mistake_sort_option.dart';
 import '../theme/app_colors.dart';
 import '../services/ignored_mistake_service.dart';
+import '../services/tag_service.dart';
+import '../helpers/color_utils.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
@@ -37,6 +39,7 @@ class TagMistakeOverviewScreen extends StatefulWidget {
 
 class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   MistakeSortOption _sort = MistakeSortOption.count;
+  String? _activeTag;
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -134,6 +137,10 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     final entries = summary.mistakeTagFrequencies.entries
         .where((e) => !ignored.contains('tag:${e.key}'))
         .toList();
+    final tags = [for (final e in entries) e.key]..sort();
+    if (_activeTag != null) {
+      entries.removeWhere((e) => e.key != _activeTag);
+    }
 
     int _score(MapEntry<String, int> e) {
       final severity = service.classifySeverity(e.value);
@@ -198,6 +205,40 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                 ],
                 onChanged: (v) =>
                     setState(() => _sort = v ?? MistakeSortOption.count),
+              ),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 36,
+            child: Consumer<TagService>(
+              builder: (context, service, _) => ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  for (final t in tags)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(t),
+                        selected: _activeTag == t,
+                        selectedColor: colorFromHex(service.colorOf(t)),
+                        onSelected: (_) => setState(() =>
+                            _activeTag = _activeTag == t ? null : t),
+                      ),
+                    ),
+                  if (_activeTag != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        color: Colors.white70,
+                        tooltip: 'Очистить',
+                        onPressed: () => setState(() => _activeTag = null),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
