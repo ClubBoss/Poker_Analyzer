@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
+import '../models/training_pack_template.dart';
 import '../services/training_pack_storage_service.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
@@ -52,14 +53,14 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   Future<void> _createFromTemplate() async {
     final service = context.read<TrainingPackStorageService>();
     String type = 'Tournament';
-    TrainingPack? selected;
+    TrainingPackTemplate? selected;
     await showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setStateDialog) {
           final templates = [
-            for (final p in service.packs)
-              if (p.isBuiltIn && p.gameType == type) p
+            for (final t in service.templates)
+              if (t.gameType == type) t
           ];
           return AlertDialog(
             title: const Text('Шаблоны'),
@@ -92,7 +93,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       ),
     );
     if (selected != null) {
-      await service.duplicatePack(selected!);
+      await service.createFromTemplate(selected!);
     }
   }
 

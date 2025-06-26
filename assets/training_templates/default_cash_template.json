@@ -1,0 +1,26 @@
+{
+  "id": "default-cash-template",
+  "name": "Default Cash Template",
+  "gameType": "Cash Game",
+  "description": "Basic cash game spots",
+  "version": "1.0",
+  "author": "Poker Analyzer",
+  "isBuiltIn": true,
+  "hands": [
+    {
+      "name": "Cash Hand 1",
+      "heroIndex": 0,
+      "heroPosition": "CO",
+      "numberOfPlayers": 2,
+      "playerCards": [
+        [{"rank": "J", "suit": "♠"}, {"rank": "J", "suit": "♦"}],
+        [{"rank": "A", "suit": "♥"}, {"rank": "K", "suit": "♥"}]
+      ],
+      "boardCards": [],
+      "boardStreet": 0,
+      "actions": [],
+      "stackSizes": {"0": 100, "1": 100},
+      "playerPositions": {"0": "CO", "1": "BB"}
+    }
+  ]
+}
