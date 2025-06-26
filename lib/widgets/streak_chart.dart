@@ -55,11 +55,22 @@ class StreakChart extends StatelessWidget {
       );
     }
     final interval = maxHands <= 5 ? 1.0 : (maxHands / 5).ceilToDouble();
+    String? message;
+    const levels = [3, 7, 14, 30];
+    const labels = ['Bronze', 'Silver', 'Gold', 'Platinum'];
+    for (var i = 0; i < levels.length; i++) {
+      if (stats.currentStreak < levels[i]) {
+        final remain = levels[i] - stats.currentStreak;
+        message = '$remain days to ${labels[i]}';
+        break;
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
           child: Row(
             children: [
               const BadgeIcon(Icons.local_fire_department, size: 20),
@@ -69,6 +80,12 @@ class StreakChart extends StatelessWidget {
             ],
           ),
         ),
+        if (message != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(message!,
+                style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          ),
         Container(
           height: 100,
           margin: const EdgeInsets.symmetric(horizontal: 16),
