@@ -5037,6 +5037,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     int? totalPrizePool,
     int? numberOfEntrants,
     String? gameType,
+    String? category,
   }) {
     return _handImportExportService.buildHand(
       name: name ?? _defaultHandName(),
@@ -5058,6 +5059,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       totalPrizePool: totalPrizePool ?? _handContext.totalPrizePool,
       numberOfEntrants: numberOfEntrants ?? _handContext.numberOfEntrants,
       gameType: gameType ?? _handContext.gameType,
+      category: category,
       activePlayerIndex: activePlayerIndex,
     );
   }
