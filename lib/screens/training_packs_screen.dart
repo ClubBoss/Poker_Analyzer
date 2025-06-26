@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/training_pack.dart';
 import '../models/training_pack_template.dart';
 import '../services/training_pack_storage_service.dart';
+import '../services/template_storage_service.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
 
@@ -51,7 +52,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   }
 
   Future<void> _createFromTemplate() async {
-    final service = context.read<TrainingPackStorageService>();
+    final packService = context.read<TrainingPackStorageService>();
+    final templateService = context.read<TemplateStorageService>();
     String type = 'Tournament';
     TrainingPackTemplate? selected;
     await showDialog<void>(
@@ -59,7 +61,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setStateDialog) {
           final templates = [
-            for (final t in service.templates)
+            for (final t in templateService.templates)
               if (t.gameType == type) t
           ];
           return AlertDialog(
@@ -93,7 +95,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       ),
     );
     if (selected != null) {
-      await service.createFromTemplate(selected!);
+      await packService.createFromTemplate(selected!);
     }
   }
 

@@ -15,8 +15,6 @@ class TrainingPackStorageService extends ChangeNotifier {
   final List<TrainingPack> _packs = [];
   List<TrainingPack> get packs => List.unmodifiable(_packs);
 
-  final List<TrainingPackTemplate> _templates = [];
-  List<TrainingPackTemplate> get templates => List.unmodifiable(_templates);
 
   Future<File> _getStorageFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -53,19 +51,6 @@ class TrainingPackStorageService extends ChangeNotifier {
       } catch (_) {}
     }
 
-    try {
-      final manifest =
-          jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
-      final templatePaths = manifest.keys.where((e) =>
-          e.startsWith('assets/training_templates/') && e.endsWith('.json'));
-      _templates.clear();
-      for (final p in templatePaths) {
-        final data = jsonDecode(await rootBundle.loadString(p));
-        if (data is Map<String, dynamic>) {
-          _templates.add(TrainingPackTemplate.fromJson(data));
-        }
-      }
-    } catch (_) {}
     notifyListeners();
   }
 
