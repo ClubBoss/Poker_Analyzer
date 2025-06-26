@@ -6,8 +6,15 @@ class TrainingPackTemplate {
   final String gameType;
   final String description;
   final List<SavedHand> hands;
+  /// семантическая версия шаблона (major.minor.patch)
   final String version;
+  /// имя или ник автора шаблона
   final String author;
+  /// уникальная ревизия (монотонно увеличивается, служит для обновлений)
+  final int revision;
+  /// дата создания и последнего обновления
+  final DateTime createdAt;
+  final DateTime updatedAt;
   final bool isBuiltIn;
 
   TrainingPackTemplate({
@@ -16,10 +23,14 @@ class TrainingPackTemplate {
     required this.gameType,
     required this.description,
     required this.hands,
-    this.version = '1.0',
+    this.version = '1.0.0',
     this.author = '',
+    this.revision = 1,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     this.isBuiltIn = false,
-  });
+  })  : createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -29,6 +40,9 @@ class TrainingPackTemplate {
         'hands': [for (final h in hands) h.toJson()],
         'version': version,
         'author': author,
+        'revision': revision,
+        'createdAt': createdAt.toIso8601String(),
+        'updatedAt': updatedAt.toIso8601String(),
         'isBuiltIn': isBuiltIn,
       };
 
@@ -42,8 +56,11 @@ class TrainingPackTemplate {
         for (final h in (json['hands'] as List? ?? []))
           SavedHand.fromJson(Map<String, dynamic>.from(h))
       ],
-      version: json['version'] as String? ?? '1.0',
+      version: json['version'] as String? ?? '1.0.0',
       author: json['author'] as String? ?? '',
+      revision: json['revision'] as int? ?? 1,
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       isBuiltIn: json['isBuiltIn'] as bool? ?? false,
     );
   }

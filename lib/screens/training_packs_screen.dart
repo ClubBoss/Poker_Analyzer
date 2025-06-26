@@ -61,8 +61,9 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setStateDialog) {
           final templates = [
-            for (final t in templateService.templates)
-              if (t.gameType == type) t
+            for (final t in templateService.templates
+                .where((tpl) => tpl.gameType == type))
+              t
           ];
           return AlertDialog(
             title: const Text('Шаблоны'),
@@ -82,6 +83,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                   for (final t in templates)
                     ListTile(
                       title: Text(t.name),
+                      subtitle: Text(
+                          'v${t.version} • rev ${t.revision} • ${t.author.isEmpty ? "anon" : t.author}'),
                       onTap: () {
                         selected = t;
                         Navigator.pop(ctx);
