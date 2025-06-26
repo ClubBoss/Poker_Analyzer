@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_stats_service.dart';
 import '../theme/app_colors.dart';
+import 'badge_icon.dart';
 
 class StreakChart extends StatelessWidget {
   const StreakChart({super.key});
@@ -59,8 +60,14 @@ class StreakChart extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Text('\uD83D\uDD25 Streak: ${stats.currentStreak}',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          child: Row(
+            children: [
+              const BadgeIcon(Icons.local_fire_department, size: 20),
+              const SizedBox(width: 8),
+              Text('Streak: ${stats.currentStreak}',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ],
+          ),
         ),
         Container(
           height: 100,
