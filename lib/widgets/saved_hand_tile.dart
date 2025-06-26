@@ -9,6 +9,9 @@ class SavedHandTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onFavoriteToggle;
   final VoidCallback? onRename;
+  final VoidCallback? onLongPress;
+  final bool selected;
+  final bool selectionMode;
 
   const SavedHandTile({
     super.key,
@@ -16,6 +19,9 @@ class SavedHandTile extends StatelessWidget {
     required this.onTap,
     this.onFavoriteToggle,
     this.onRename,
+    this.onLongPress,
+    this.selected = false,
+    this.selectionMode = false,
   });
 
   String _formatDate(DateTime date) {
@@ -99,14 +105,21 @@ class SavedHandTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final actionWidget = _buildActionWidget();
     return Card(
-      color: const Color(0xFF2A2B2E),
+      color:
+          selected ? Colors.blue.withOpacity(0.3) : const Color(0xFF2A2B2E),
       child: ListTile(
         onTap: onTap,
-        leading: IconButton(
-          icon: Icon(hand.isFavorite ? Icons.star : Icons.star_border),
-          color: hand.isFavorite ? Colors.amber : Colors.white54,
-          onPressed: onFavoriteToggle,
-        ),
+        onLongPress: onLongPress,
+        leading: selectionMode
+            ? Checkbox(
+                value: selected,
+                onChanged: (_) => onLongPress?.call(),
+              )
+            : IconButton(
+                icon: Icon(hand.isFavorite ? Icons.star : Icons.star_border),
+                color: hand.isFavorite ? Colors.amber : Colors.white54,
+                onPressed: onFavoriteToggle,
+              ),
         title: Text(hand.name, style: const TextStyle(color: Colors.white)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

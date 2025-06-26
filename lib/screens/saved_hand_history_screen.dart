@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -20,6 +22,9 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
   late TabController _controller;
   String _gameTypeFilter = 'Все';
   String _categoryFilter = 'Все';
+  final Set<SavedHand> _selected = {};
+
+  bool get _selectionMode => _selected.isNotEmpty;
 
   @override
   void initState() {
@@ -43,6 +48,10 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
   }
 
   void _openHand(SavedHand hand) {
+    if (_selectionMode) {
+      _toggleSelect(hand);
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -55,6 +64,79 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
     final index = manager.hands.indexOf(hand);
     final updated = hand.copyWith(isFavorite: !hand.isFavorite);
     manager.update(index, updated);
+  }
+
+  void _toggleSelect(SavedHand hand) {
+    setState(() {
+      if (_selected.contains(hand)) {
+        _selected.remove(hand);
+      } else {
+        _selected.add(hand);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() => _selected.clear());
+  }
+
+  Future<void> _deleteSelected(SavedHandManagerService manager) async {
+    final indices = _selected
+        .map((h) => manager.hands.indexOf(h))
+        .where((i) => i != -1)
+        .toList()
+      ..sort((a, b) => b.compareTo(a));
+    for (final i in indices) {
+      await manager.removeAt(i);
+    }
+    _clearSelection();
+  }
+
+  Future<void> _favoriteSelected(SavedHandManagerService manager) async {
+    if (_selected.isEmpty) return;
+    final add = !_selected.every((h) => h.isFavorite);
+    for (final h in _selected) {
+      final idx = manager.hands.indexOf(h);
+      if (idx == -1) continue;
+      await manager.update(idx, h.copyWith(isFavorite: add));
+    }
+    _clearSelection();
+  }
+
+  Future<void> _exportSelected(SavedHandManagerService manager) async {
+    final format = await showModalBottomSheet<String>(
+      context: context,
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text('JSON'),
+            onTap: () => Navigator.pop(context, 'json'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.article),
+            title: const Text('Markdown'),
+            onTap: () => Navigator.pop(context, 'md'),
+          ),
+        ],
+      ),
+    );
+    if (format == null) return;
+    String? path;
+    if (format == 'json') {
+      path = await manager.exportHandsJson(_selected.toList());
+    } else {
+      path = await manager.exportHandsMarkdown(_selected.toList());
+    }
+    if (path == null) return;
+    await Share.shareXFiles([XFile(path)], text: path.split(Platform.pathSeparator).last);
+    if (mounted) {
+      final name = path.split(Platform.pathSeparator).last;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    }
+    _clearSelection();
   }
 
   Future<void> _renameHand(
@@ -108,41 +190,67 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('История раздач'),
+        leading: _selectionMode
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: _clearSelection,
+              )
+            : null,
+        title: _selectionMode
+            ? Text('Выбрано ${_selected.length}')
+            : const Text('История раздач'),
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.cardBackground,
-                borderRadius: BorderRadius.circular(AppConstants.radius8),
-              ),
-              child: TabBar(
-                controller: _controller,
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.white70,
-                indicator: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(AppConstants.radius8),
+        actions: _selectionMode
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _deleteSelected(manager),
                 ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorPadding: EdgeInsets.zero,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
+                IconButton(
+                  icon: const Icon(Icons.star),
+                  onPressed: () => _favoriteSelected(manager),
                 ),
-                tabs: const [
-                  Tab(text: 'Все'),
-                  Tab(text: 'Избранные'),
-                  Tab(text: 'Сессии'),
-                ],
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () => _exportSelected(manager),
+                ),
+              ]
+            : null,
+        bottom: _selectionMode
+            ? null
+            : PreferredSize(
+                preferredSize: const Size.fromHeight(48),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardBackground,
+                      borderRadius: BorderRadius.circular(AppConstants.radius8),
+                    ),
+                    child: TabBar(
+                      controller: _controller,
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.white70,
+                      indicator: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        borderRadius: BorderRadius.circular(AppConstants.radius8),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      indicatorPadding: EdgeInsets.zero,
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                      tabs: const [
+                        Tab(text: 'Все'),
+                        Tab(text: 'Избранные'),
+                        Tab(text: 'Сессии'),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
       ),
       body: Column(
         children: [
@@ -188,6 +296,9 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                   onFavoriteToggle: (hand) => _toggleFavorite(hand, manager),
                   onRename: (hand) => _renameHand(hand, manager),
                   showGameFilters: false,
+                  selected: _selected,
+                  selectionMode: _selectionMode,
+                  onToggleSelection: _toggleSelect,
                 ),
                 SavedHandListView(
                   hands: filteredFav,
@@ -196,6 +307,9 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                   onFavoriteToggle: (hand) => _toggleFavorite(hand, manager),
                   onRename: (hand) => _renameHand(hand, manager),
                   showGameFilters: false,
+                  selected: _selected,
+                  selectionMode: _selectionMode,
+                  onToggleSelection: _toggleSelect,
                 ),
                 SavedHandListView(
                   hands: filteredSessions,
@@ -204,6 +318,9 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                   onFavoriteToggle: (hand) => _toggleFavorite(hand, manager),
                   onRename: (hand) => _renameHand(hand, manager),
                   showGameFilters: false,
+                  selected: _selected,
+                  selectionMode: _selectionMode,
+                  onToggleSelection: _toggleSelect,
                 ),
               ],
             ),

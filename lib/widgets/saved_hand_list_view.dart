@@ -35,6 +35,9 @@ class SavedHandListView extends StatefulWidget {
   final ValueChanged<SavedHand> onTap;
   final ValueChanged<SavedHand>? onFavoriteToggle;
   final ValueChanged<SavedHand>? onRename;
+  final Set<SavedHand>? selected;
+  final bool selectionMode;
+  final ValueChanged<SavedHand>? onToggleSelection;
   final String? filterKey;
 
   const SavedHandListView({
@@ -49,6 +52,9 @@ class SavedHandListView extends StatefulWidget {
     this.showGameFilters = true,
     this.onFavoriteToggle,
     this.onRename,
+    this.selected,
+    this.selectionMode = false,
+    this.onToggleSelection,
     this.filterKey,
   });
 
@@ -293,13 +299,22 @@ class _SavedHandListViewState extends State<SavedHandListView> {
               for (final h in hands)
                 SavedHandTile(
                   hand: h,
-                  onTap: () => widget.onTap(h),
-                  onFavoriteToggle: widget.onFavoriteToggle == null
+                  onTap: widget.selectionMode
+                      ? () => widget.onToggleSelection?.call(h)
+                      : () => widget.onTap(h),
+                  onLongPress: () => widget.onToggleSelection?.call(h),
+                  selectionMode: widget.selectionMode,
+                  selected: widget.selected?.contains(h) ?? false,
+                  onFavoriteToggle: widget.selectionMode
                       ? null
-                      : () => widget.onFavoriteToggle!(h),
-                  onRename: widget.onRename == null
+                      : widget.onFavoriteToggle == null
+                          ? null
+                          : () => widget.onFavoriteToggle!(h),
+                  onRename: widget.selectionMode
                       ? null
-                      : () => widget.onRename!(h),
+                      : widget.onRename == null
+                          ? null
+                          : () => widget.onRename!(h),
                 )
             ],
           ),

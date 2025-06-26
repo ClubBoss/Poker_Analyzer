@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:archive/archive.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -163,6 +164,45 @@ class SavedHandManagerService extends ChangeNotifier {
     final bytes = await pdf.save();
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/all_saved_hands.pdf');
+    await file.writeAsBytes(bytes);
+    return file.path;
+  }
+
+  Future<String?> exportHandsMarkdown(List<SavedHand> list) async {
+    if (list.isEmpty) return null;
+    final buffer = StringBuffer();
+    for (final hand in list) {
+      final title = hand.name.isNotEmpty ? hand.name : 'Без названия';
+      buffer.writeln('## $title');
+      final userAction = hand.expectedAction;
+      if (userAction != null && userAction.isNotEmpty) {
+        buffer.writeln('- Действие: $userAction');
+      }
+      if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty) {
+        buffer.writeln('- GTO: ${hand.gtoAction}');
+      }
+      if (hand.rangeGroup != null && hand.rangeGroup!.isNotEmpty) {
+        buffer.writeln('- Группа: ${hand.rangeGroup}');
+      }
+      if (hand.comment != null && hand.comment!.isNotEmpty) {
+        buffer.writeln('- Комментарий: ${hand.comment}');
+      }
+      buffer.writeln();
+    }
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File(
+        '${dir.path}/selected_hands_${DateTime.now().millisecondsSinceEpoch}.md');
+    await file.writeAsString(buffer.toString());
+    return file.path;
+  }
+
+  Future<String?> exportHandsJson(List<SavedHand> list) async {
+    if (list.isEmpty) return null;
+    final encoder = JsonEncoder.withIndent('  ');
+    final bytes = utf8.encode(encoder.convert([for (final h in list) h.toJson()]));
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File(
+        '${dir.path}/selected_hands_${DateTime.now().millisecondsSinceEpoch}.json');
     await file.writeAsBytes(bytes);
     return file.path;
   }
