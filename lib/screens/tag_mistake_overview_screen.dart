@@ -40,9 +40,30 @@ class TagMistakeOverviewScreen extends StatefulWidget {
 class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   MistakeSortOption _sort = MistakeSortOption.count;
   String? _activeTag;
+  DateTimeRange? _range;
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  String get _rangeLabel {
+    if (_range == null) return 'Период';
+    final start = formatDate(_range!.start);
+    final end = formatDate(_range!.end);
+    return start == end ? start : '$start – $end';
+  }
+
+  Future<void> _pickRange() async {
+    final now = DateTime.now();
+    final initial = _range ??
+        DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      initialDateRange: initial,
+    );
+    if (picked != null) setState(() => _range = picked);
   }
 
   Future<void> _exportPdf(BuildContext context, SummaryResult summary,
@@ -122,12 +143,15 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     final now = DateTime.now();
     final hands = [
       for (final h in allHands)
-        if (widget.dateFilter == 'Все' ||
-            (widget.dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
-            (widget.dateFilter == '7 дней' &&
-                h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
-            (widget.dateFilter == '30 дней' &&
-                h.date.isAfter(now.subtract(const Duration(days: 30)))))
+        if ((widget.dateFilter == 'Все' ||
+                (widget.dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+                (widget.dateFilter == '7 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+                (widget.dateFilter == '30 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 30))))) &&
+            (_range == null ||
+                (!h.date.isBefore(_range!.start) &&
+                    !h.date.isAfter(_range!.end))))
           h
     ];
     final summary =
@@ -206,6 +230,25 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                 onChanged: (v) =>
                     setState(() => _sort = v ?? MistakeSortOption.count),
               ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          sliver: SliverToBoxAdapter(
+            child: Row(
+              children: [
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.date_range),
+                  label: Text(_rangeLabel),
+                  onPressed: _pickRange,
+                ),
+                if (_range != null)
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 18, color: Colors.white70),
+                    onPressed: () => setState(() => _range = null),
+                  ),
+              ],
             ),
           ),
         ),
@@ -295,6 +338,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                           builder: (_) => _TagMistakeHandsScreen(
                             tag: e.key,
                             dateFilter: widget.dateFilter,
+                            dateRange: _range,
                           ),
                         ),
                       );
@@ -313,7 +357,8 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
 class _TagMistakeHandsScreen extends StatelessWidget {
   final String tag;
   final String dateFilter;
-  const _TagMistakeHandsScreen({required this.tag, required this.dateFilter});
+  final DateTimeRange? dateRange;
+  const _TagMistakeHandsScreen({required this.tag, required this.dateFilter, this.dateRange});
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -325,13 +370,16 @@ class _TagMistakeHandsScreen extends StatelessWidget {
     final now = DateTime.now();
     final hands = [
       for (final h in allHands)
-        if (dateFilter == 'Все' ||
-            (dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
-            (dateFilter == '7 дней' &&
-                h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
-            (dateFilter == '30 дней' &&
-                h.date.isAfter(now.subtract(const Duration(days: 30)))))
-          h
+        if ((dateFilter == 'Все' ||
+                (dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+                (dateFilter == '7 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+                (dateFilter == '30 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 30))))) &&
+            (dateRange == null ||
+                (!h.date.isBefore(dateRange!.start) &&
+                    !h.date.isAfter(dateRange!.end)))
+        h
     ];
 
     return Scaffold(
