@@ -21,6 +21,7 @@ import '../helpers/color_utils.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
+import '../widgets/common/mistake_trend_chart.dart';
 import 'hand_history_review_screen.dart';
 
 /// Displays a list of tags sorted by mistake count.
@@ -215,6 +216,36 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       entries.sort((a, b) => b.value.compareTo(a.value));
     }
 
+    final visibleTags = _activeTag != null
+        ? {_activeTag!}
+        : {
+            for (final e in baseEntries)
+              if (_levels.contains(service.classifySeverity(e.value))) e.key
+          };
+    final start = _range?.start ?? now.subtract(const Duration(days: 29));
+    final end = _range?.end ?? now;
+    final dailyCounts = <DateTime, int>{};
+    for (var d = DateTime(start.year, start.month, start.day);
+        !d.isAfter(end);
+        d = d.add(const Duration(days: 1))) {
+      dailyCounts[d] = 0;
+    }
+    for (final h in hands) {
+      final exp = h.expectedAction;
+      final gto = h.gtoAction;
+      if (exp == null || gto == null) continue;
+      if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
+      if (visibleTags.isNotEmpty) {
+        final ok = _activeTag != null
+            ? h.tags.contains(_activeTag)
+            : h.tags.any(visibleTags.contains);
+        if (!ok) continue;
+      }
+      final day = DateTime(h.date.year, h.date.month, h.date.day);
+      if (day.isBefore(start) || day.isAfter(end)) continue;
+      dailyCounts[day] = (dailyCounts[day] ?? 0) + 1;
+    }
+
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -339,6 +370,15 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                     ),
                 ],
               ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          sliver: SliverToBoxAdapter(
+            child: SizedBox(
+              height: 200,
+              child: MistakeTrendChart(counts: dailyCounts),
             ),
           ),
         ),
