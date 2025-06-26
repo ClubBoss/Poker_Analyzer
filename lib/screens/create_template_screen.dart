@@ -13,12 +13,14 @@ class CreateTemplateScreen extends StatefulWidget {
 class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
   String _gameType = 'Cash Game';
 
   @override
   void dispose() {
     _nameController.dispose();
     _descController.dispose();
+    _categoryController.dispose();
     super.dispose();
   }
 
@@ -29,6 +31,9 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
       id: const Uuid().v4(),
       name: name,
       gameType: _gameType,
+      category: _categoryController.text.trim().isEmpty
+          ? null
+          : _categoryController.text.trim(),
       description: _descController.text.trim(),
       hands: const [],
       isBuiltIn: false,
@@ -55,6 +60,11 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
             TextField(
               controller: _descController,
               decoration: const InputDecoration(labelText: 'Описание'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _categoryController,
+              decoration: const InputDecoration(labelText: 'Категория (опц.)'),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(

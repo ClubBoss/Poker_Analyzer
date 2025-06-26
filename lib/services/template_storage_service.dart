@@ -28,6 +28,9 @@ class TemplateStorageService extends ChangeNotifier {
       if (!data.containsKey(f)) return "отсутствует поле '$f'";
       if (data[f] is! String) return "поле '$f' должно быть строкой";
     }
+    if (data.containsKey('category') && data['category'] is! String) {
+      return "поле 'category' должно быть строкой";
+    }
     if (!data.containsKey('revision')) return "отсутствует поле 'revision'";
     if (data['revision'] is! int) return "поле 'revision' должно быть числом";
     if (!data.containsKey('hands')) return "отсутствует поле 'hands'";
