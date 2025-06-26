@@ -41,6 +41,8 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   MistakeSortOption _sort = MistakeSortOption.count;
   String? _activeTag;
   DateTimeRange? _range;
+  final Set<MistakeSeverity> _levels =
+      {MistakeSeverity.high, MistakeSeverity.medium, MistakeSeverity.low};
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -64,6 +66,27 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       initialDateRange: initial,
     );
     if (picked != null) setState(() => _range = picked);
+  }
+
+  void _toggleLevel(MistakeSeverity level) {
+    setState(() {
+      if (_levels.contains(level)) {
+        _levels.remove(level);
+      } else {
+        _levels.add(level);
+      }
+      if (_levels.isEmpty) {
+        _levels.add(level);
+      }
+    });
+  }
+
+  void _resetLevels() {
+    setState(() {
+      _levels
+        ..clear()
+        ..addAll(MistakeSeverity.values);
+    });
   }
 
   Future<void> _exportPdf(BuildContext context, SummaryResult summary,
@@ -158,13 +181,16 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         context.read<EvaluationExecutorService>().summarizeHands(hands);
     final ignored = context.watch<IgnoredMistakeService>().ignored;
     final service = context.read<EvaluationExecutorService>();
-    final entries = summary.mistakeTagFrequencies.entries
+    final baseEntries = summary.mistakeTagFrequencies.entries
         .where((e) => !ignored.contains('tag:${e.key}'))
         .toList();
-    final tags = [for (final e in entries) e.key]..sort();
+    final tags = [for (final e in baseEntries) e.key]..sort();
+    final entries = <MapEntry<String, int>>[...baseEntries];
     if (_activeTag != null) {
       entries.removeWhere((e) => e.key != _activeTag);
     }
+    entries.removeWhere(
+        (e) => !_levels.contains(service.classifySeverity(e.value)));
 
     int _score(MapEntry<String, int> e) {
       final severity = service.classifySeverity(e.value);
@@ -248,6 +274,36 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                     icon: const Icon(Icons.close, size: 18, color: Colors.white70),
                     onPressed: () => setState(() => _range = null),
                   ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Wrap(
+                    spacing: 4,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('❗'),
+                        selected: _levels.contains(MistakeSeverity.high),
+                        onSelected: (_) => _toggleLevel(MistakeSeverity.high),
+                      ),
+                      ChoiceChip(
+                        label: const Text('⚠️'),
+                        selected: _levels.contains(MistakeSeverity.medium),
+                        onSelected: (_) => _toggleLevel(MistakeSeverity.medium),
+                      ),
+                      ChoiceChip(
+                        label: const Text('ℹ️'),
+                        selected: _levels.contains(MistakeSeverity.low),
+                        onSelected: (_) => _toggleLevel(MistakeSeverity.low),
+                      ),
+                      if (_levels.length != MistakeSeverity.values.length)
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 18),
+                          color: Colors.white70,
+                          tooltip: 'Очистить',
+                          onPressed: _resetLevels,
+                        ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
