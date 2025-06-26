@@ -20,6 +20,22 @@ class TemplateStorageService extends ChangeNotifier {
     });
   }
 
+  String? validateTemplateJson(Map<String, dynamic> data) {
+    const strings = ['id', 'name', 'gameType', 'description', 'version'];
+    for (final f in strings) {
+      if (!data.containsKey(f)) return "отсутствует поле '$f'";
+      if (data[f] is! String) return "поле '$f' должно быть строкой";
+    }
+    if (!data.containsKey('revision')) return "отсутствует поле 'revision'";
+    if (data['revision'] is! int) return "поле 'revision' должно быть числом";
+    if (!data.containsKey('hands')) return "отсутствует поле 'hands'";
+    if (data['hands'] is! List) return "поле 'hands' должно быть списком";
+    final v = data['version'] as String;
+    final major = int.tryParse(v.split('.').first);
+    if (major == null || major != 1) return 'несовместимая версия';
+    return null;
+  }
+
   void addTemplate(TrainingPackTemplate template) {
     _templates.add(template);
     _resort();
@@ -62,8 +78,21 @@ class TemplateStorageService extends ChangeNotifier {
     try {
       final content = await file.readAsString();
       final data = jsonDecode(content);
-      if (data is! Map<String, dynamic>) return null;
-      if (!data.containsKey('name') || !data.containsKey('hands')) return null;
+      if (data is! Map<String, dynamic>) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Неверный формат шаблона: неверный JSON')));
+        }
+        return null;
+      }
+      final error = validateTemplateJson(Map<String, dynamic>.from(data));
+      if (error != null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Неверный формат шаблона: $error')));
+        }
+        return null;
+      }
       var template =
           TrainingPackTemplate.fromJson(Map<String, dynamic>.from(data));
       final index = _templates.indexWhere((t) => t.id == template.id);
