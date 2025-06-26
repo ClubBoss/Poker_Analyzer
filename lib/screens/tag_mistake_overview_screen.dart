@@ -24,6 +24,7 @@ import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
 import '../widgets/common/mistake_trend_chart.dart';
 import 'hand_history_review_screen.dart';
+import '../widgets/saved_hand_tile.dart';
 
 /// Displays a list of tags sorted by mistake count.
 ///
@@ -196,7 +197,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => _DailyMistakeHandsScreen(
+        builder: (_) => _DailySeverityHandsScreen(
           day: day,
           tags: _activeTags.isNotEmpty ? _activeTags : null,
           dateFilter: widget.dateFilter,
@@ -657,14 +658,14 @@ class _TagMistakeHandsScreen extends StatelessWidget {
   }
 }
 
-class _DailyMistakeHandsScreen extends StatelessWidget {
+class _DailySeverityHandsScreen extends StatelessWidget {
   final DateTime day;
   final String dateFilter;
   final DateTimeRange? dateRange;
   final Set<String>? tags;
   final Set<MistakeSeverity> levels;
 
-  const _DailyMistakeHandsScreen({
+  const _DailySeverityHandsScreen({
     required this.day,
     required this.dateFilter,
     this.dateRange,
@@ -715,26 +716,98 @@ class _DailyMistakeHandsScreen extends StatelessWidget {
             (visibleTags.isEmpty || h.tags.any(visibleTags.contains)))
           h
     ];
+    final severityMap = {
+      for (final e in baseEntries)
+        if (visibleTags.isEmpty || visibleTags.contains(e.key))
+          e.key: service.classifySeverity(e.value)
+    };
+    final grouped = {
+      MistakeSeverity.high: <SavedHand>[],
+      MistakeSeverity.medium: <SavedHand>[],
+      MistakeSeverity.low: <SavedHand>[],
+    };
+    for (final h in hands) {
+      MistakeSeverity? level;
+      for (final t in h.tags) {
+        final s = severityMap[t];
+        if (s == null) continue;
+        if (level == null || s.index < level.index) level = s;
+      }
+      if (level != null) grouped[level]!.add(h);
+    }
+
+    Widget section(MistakeSeverity s, String label, List<SavedHand> data) {
+      return Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.grey[850],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.all(12),
+            iconColor: Colors.white,
+            collapsedIconColor: Colors.white,
+            textColor: Colors.white,
+            collapsedTextColor: Colors.white,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(label),
+                Text('${data.length}',
+                    style: const TextStyle(color: Colors.white70)),
+              ],
+            ),
+            children: [
+              if (data.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text('Нет ошибок',
+                      style: TextStyle(color: Colors.white70)),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    final hand = data[index];
+                    return SavedHandTile(
+                      hand: hand,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                HandHistoryReviewScreen(hand: hand),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(formatLongDate(day)),
         centerTitle: true,
       ),
-      body: SavedHandListView(
-        hands: hands,
-        tags: tags?.toList(),
-        initialAccuracy: 'errors',
-        filterKey: day.toIso8601String(),
-        title: 'Ошибки: ${formatDate(day)}',
-        onTap: (hand) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => HandHistoryReviewScreen(hand: hand),
-            ),
-          );
-        },
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          section(MistakeSeverity.high, 'High ❗',
+              grouped[MistakeSeverity.high]!),
+          section(MistakeSeverity.medium, 'Medium ⚠️',
+              grouped[MistakeSeverity.medium]!),
+          section(MistakeSeverity.low, 'Low ℹ️',
+              grouped[MistakeSeverity.low]!),
+        ],
       ),
     );
   }
