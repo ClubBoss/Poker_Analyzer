@@ -37,7 +37,8 @@ class TagMistakeOverviewScreen extends StatefulWidget {
   const TagMistakeOverviewScreen({super.key, required this.dateFilter});
 
   @override
-  State<TagMistakeOverviewScreen> createState() => _TagMistakeOverviewScreenState();
+  State<TagMistakeOverviewScreen> createState() =>
+      _TagMistakeOverviewScreenState();
 }
 
 class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
@@ -45,11 +46,17 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   static const _levelsKey = 'tag_filter_levels';
   static const _startKey = 'tag_filter_range_start';
   static const _endKey = 'tag_filter_range_end';
+  static const _cmpStartKey = 'tag_compare_start';
+  static const _cmpEndKey = 'tag_compare_end';
   MistakeSortOption _sort = MistakeSortOption.count;
   final Set<String> _activeTags = {};
   DateTimeRange? _range;
-  final Set<MistakeSeverity> _levels =
-      {MistakeSeverity.high, MistakeSeverity.medium, MistakeSeverity.low};
+  DateTimeRange? _compareRange;
+  final Set<MistakeSeverity> _levels = {
+    MistakeSeverity.high,
+    MistakeSeverity.medium,
+    MistakeSeverity.low
+  };
 
   @override
   void initState() {
@@ -65,7 +72,8 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     if (levels != null && levels.isNotEmpty) {
       _levels
         ..clear()
-        ..addAll(levels.map((e) => MistakeSeverity.values.firstWhere((m) => m.name == e)));
+        ..addAll(levels
+            .map((e) => MistakeSeverity.values.firstWhere((m) => m.name == e)));
     }
     final start = prefs.getString(_startKey);
     final end = prefs.getString(_endKey);
@@ -73,6 +81,15 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       final s = DateTime.tryParse(start);
       final e = DateTime.tryParse(end);
       if (s != null && e != null) _range = DateTimeRange(start: s, end: e);
+    }
+    final cs = prefs.getString(_cmpStartKey);
+    final ce = prefs.getString(_cmpEndKey);
+    if (cs != null && ce != null) {
+      final s = DateTime.tryParse(cs);
+      final e = DateTime.tryParse(ce);
+      if (s != null && e != null) {
+        _compareRange = DateTimeRange(start: s, end: e);
+      }
     }
     if (mounted) setState(() {});
   }
@@ -102,6 +119,18 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     }
   }
 
+  Future<void> _saveCompareRange() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_compareRange == null) {
+      await prefs.remove(_cmpStartKey);
+      await prefs.remove(_cmpEndKey);
+    } else {
+      await prefs.setString(
+          _cmpStartKey, _compareRange!.start.toIso8601String());
+      await prefs.setString(_cmpEndKey, _compareRange!.end.toIso8601String());
+    }
+  }
+
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
@@ -111,6 +140,13 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     final start = formatDate(_range!.start);
     final end = formatDate(_range!.end);
     return start == end ? start : '$start – $end';
+  }
+
+  String get _compareLabel {
+    if (_compareRange == null) return 'Сравнить периоды';
+    final s = formatDate(_compareRange!.start);
+    final e = formatDate(_compareRange!.end);
+    return s == e ? s : '$s – $e';
   }
 
   Future<void> _pickRange() async {
@@ -126,6 +162,22 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     if (picked != null) {
       setState(() => _range = picked);
       _saveRange();
+    }
+  }
+
+  Future<void> _pickCompareRange() async {
+    final now = DateTime.now();
+    final initial = _compareRange ??
+        DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: now,
+      initialDateRange: initial,
+    );
+    if (picked != null) {
+      setState(() => _compareRange = picked);
+      _saveCompareRange();
     }
   }
 
@@ -152,6 +204,11 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     _saveLevels();
   }
 
+  void _resetCompare() {
+    setState(() => _compareRange = null);
+    _saveCompareRange();
+  }
+
   void _openDay(DateTime day) {
     final allHands = context.read<SavedHandManagerService>().hands;
     final now = DateTime.now();
@@ -164,11 +221,13 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                 (widget.dateFilter == '30 дней' &&
                     h.date.isAfter(now.subtract(const Duration(days: 30))))) &&
             (_range == null ||
-                (!h.date.isBefore(_range!.start) && !h.date.isAfter(_range!.end))) &&
+                (!h.date.isBefore(_range!.start) &&
+                    !h.date.isAfter(_range!.end))) &&
             _sameDay(h.date, day))
           h
     ];
-    final summary = context.read<EvaluationExecutorService>().summarizeHands(filtered);
+    final summary =
+        context.read<EvaluationExecutorService>().summarizeHands(filtered);
     final ignored = context.read<IgnoredMistakeService>().ignored;
     final service = context.read<EvaluationExecutorService>();
     final baseEntries = summary.mistakeTagFrequencies.entries
@@ -210,7 +269,6 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
 
   Future<void> _exportPdf(BuildContext context, SummaryResult summary,
       List<MapEntry<String, int>> entries) async {
-
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
@@ -258,7 +316,8 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
             pw.Text('Средняя точность: ${accuracy.toStringAsFixed(1)}%',
                 style: pw.TextStyle(font: regularFont)),
             pw.SizedBox(height: 4),
-            pw.Text('Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
+            pw.Text(
+                'Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
                 style: pw.TextStyle(font: regularFont)),
             pw.SizedBox(height: 16),
             pw.Table.fromTextArray(
@@ -272,8 +331,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
 
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
-    final file = File(
-        '${dir.path}/tag_summary.pdf');
+    final file = File('${dir.path}/tag_summary.pdf');
     await file.writeAsBytes(bytes);
 
     await Share.shareXFiles([XFile(file.path)], text: 'tag_summary.pdf');
@@ -311,6 +369,19 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     entries.removeWhere(
         (e) => !_levels.contains(service.classifySeverity(e.value)));
 
+    List<MapEntry<String, int>> cmpEntries = [];
+    if (cmpSummary != null) {
+      cmpEntries = [
+        for (final e in cmpSummary.mistakeTagFrequencies.entries)
+          if (!ignored.contains('tag:${e.key}')) e
+      ];
+      if (_activeTags.isNotEmpty) {
+        cmpEntries.removeWhere((e) => !_activeTags.contains(e.key));
+      }
+      cmpEntries.removeWhere(
+          (e) => !_levels.contains(service.classifySeverity(e.value)));
+    }
+
     int _score(MapEntry<String, int> e) {
       final severity = service.classifySeverity(e.value);
       switch (severity) {
@@ -330,8 +401,14 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         if (cmp != 0) return cmp;
         return b.value.compareTo(a.value);
       });
+      cmpEntries.sort((a, b) {
+        final cmp = _score(b).compareTo(_score(a));
+        if (cmp != 0) return cmp;
+        return b.value.compareTo(a.value);
+      });
     } else {
       entries.sort((a, b) => b.value.compareTo(a.value));
+      cmpEntries.sort((a, b) => b.value.compareTo(a.value));
     }
 
     final visibleTags = _activeTags.isNotEmpty
@@ -383,6 +460,85 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
               t: colorFromHex(context.read<TagService>().colorOf(t))
           }
         : {'all': Colors.redAccent};
+
+    List<SavedHand> cmpHands = [];
+    SummaryResult? cmpSummary;
+    Map<String, Map<DateTime, int>> cmpCounts = {};
+    Map<String, Color> cmpColors = {};
+    if (_compareRange != null) {
+      cmpHands = [
+        for (final h in allHands)
+          if ((widget.dateFilter == 'Все' ||
+                  (widget.dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+                  (widget.dateFilter == '7 дней' &&
+                      h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+                  (widget.dateFilter == '30 дней' &&
+                      h.date
+                          .isAfter(now.subtract(const Duration(days: 30))))) &&
+              (!_compareRange!.start.isAfter(h.date) &&
+                  !_compareRange!.end.isBefore(h.date)))
+            h
+      ];
+      cmpSummary =
+          context.read<EvaluationExecutorService>().summarizeHands(cmpHands);
+      cmpSummary.mistakeTagFrequencies.entries
+          .where((e) => !ignored.contains('tag:${e.key}'));
+      final cmpStart = _compareRange!.start;
+      final cmpEnd = _compareRange!.end;
+      final cmpOverlay = _activeTags.length > 1;
+      final cmpDaily = <DateTime, int>{};
+      final cmpTags = <String, Map<DateTime, int>>{};
+      for (var d = DateTime(cmpStart.year, cmpStart.month, cmpStart.day);
+          !d.isAfter(cmpEnd);
+          d = d.add(const Duration(days: 1))) {
+        cmpDaily[d] = 0;
+        if (cmpOverlay) {
+          for (final t in _activeTags) {
+            cmpTags.putIfAbsent(t, () => {})[d] = 0;
+          }
+        }
+      }
+      for (final h in cmpHands) {
+        final exp = h.expectedAction;
+        final gto = h.gtoAction;
+        if (exp == null || gto == null) continue;
+        if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
+        if (visibleTags.isNotEmpty && !h.tags.any(visibleTags.contains))
+          continue;
+        final day = DateTime(h.date.year, h.date.month, h.date.day);
+        if (day.isBefore(cmpStart) || day.isAfter(cmpEnd)) continue;
+        if (cmpOverlay) {
+          for (final t in _activeTags) {
+            if (h.tags.contains(t)) {
+              cmpTags[t]![day] = (cmpTags[t]![day] ?? 0) + 1;
+            }
+          }
+        } else {
+          cmpDaily[day] = (cmpDaily[day] ?? 0) + 1;
+        }
+      }
+      cmpCounts = cmpOverlay ? cmpTags : {'all': cmpDaily};
+      cmpColors = cmpOverlay
+          ? {
+              for (final t in _activeTags)
+                t: colorFromHex(context.read<TagService>().colorOf(t))
+                    .withOpacity(0.5)
+            }
+          : {'all': Colors.blueAccent};
+    }
+
+    final diffs = <MapEntry<String, double>>[];
+    if (cmpSummary != null) {
+      final mapA = {for (final e in entries) e.key: e.value};
+      final mapB = {for (final e in cmpEntries) e.key: e.value};
+      final allTags = {...mapA.keys, ...mapB.keys}.toList()..sort();
+      for (final t in allTags) {
+        final a = mapA[t] ?? 0;
+        final b = mapB[t] ?? 0;
+        final diff = a == 0 ? (b > 0 ? 100.0 : 0.0) : (b - a) / a * 100;
+        diffs.add(MapEntry(t, diff));
+      }
+    }
 
     return CustomScrollView(
       slivers: [
@@ -440,11 +596,24 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                 ),
                 if (_range != null)
                   IconButton(
-                    icon: const Icon(Icons.close, size: 18, color: Colors.white70),
+                    icon: const Icon(Icons.close,
+                        size: 18, color: Colors.white70),
                     onPressed: () {
                       setState(() => _range = null);
                       _saveRange();
                     },
+                  ),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.compare_arrows),
+                  label: Text(_compareLabel),
+                  onPressed: _pickCompareRange,
+                ),
+                if (_compareRange != null)
+                  IconButton(
+                    icon: const Icon(Icons.close,
+                        size: 18, color: Colors.white70),
+                    onPressed: _resetCompare,
                   ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -538,6 +707,45 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
             ),
           ),
         ),
+        if (_compareRange != null)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            sliver: SliverToBoxAdapter(
+              child: SizedBox(
+                height: 200,
+                child: MistakeTrendChart(
+                  counts: cmpCounts,
+                  colors: cmpColors,
+                ),
+              ),
+            ),
+          ),
+        if (diffs.isNotEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final d in diffs)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(d.key,
+                              style: const TextStyle(color: Colors.white)),
+                          Text(
+                            '${d.value >= 0 ? '+' : ''}${d.value.toStringAsFixed(0)}%',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
         if (entries.isEmpty)
           const SliverFillRemaining(
             hasScrollBody: false,
@@ -610,7 +818,8 @@ class _TagMistakeHandsScreen extends StatelessWidget {
   final String tag;
   final String dateFilter;
   final DateTimeRange? dateRange;
-  const _TagMistakeHandsScreen({required this.tag, required this.dateFilter, this.dateRange});
+  const _TagMistakeHandsScreen(
+      {required this.tag, required this.dateFilter, this.dateRange});
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -630,8 +839,8 @@ class _TagMistakeHandsScreen extends StatelessWidget {
                     h.date.isAfter(now.subtract(const Duration(days: 30))))) &&
             (dateRange == null ||
                 (!h.date.isBefore(dateRange!.start) &&
-                    !h.date.isAfter(dateRange!.end)))
-        h
+                    !h.date.isAfter(dateRange!.end))))
+          h
     ];
 
     return Scaffold(
@@ -779,8 +988,7 @@ class _DailySeverityHandsScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                HandHistoryReviewScreen(hand: hand),
+                            builder: (_) => HandHistoryReviewScreen(hand: hand),
                           ),
                         );
                       },
@@ -801,12 +1009,11 @@ class _DailySeverityHandsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          section(MistakeSeverity.high, 'High ❗',
-              grouped[MistakeSeverity.high]!),
+          section(
+              MistakeSeverity.high, 'High ❗', grouped[MistakeSeverity.high]!),
           section(MistakeSeverity.medium, 'Medium ⚠️',
               grouped[MistakeSeverity.medium]!),
-          section(MistakeSeverity.low, 'Low ℹ️',
-              grouped[MistakeSeverity.low]!),
+          section(MistakeSeverity.low, 'Low ℹ️', grouped[MistakeSeverity.low]!),
         ],
       ),
     );
