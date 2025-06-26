@@ -13,6 +13,8 @@ import 'package:intl/intl.dart';
 import '../services/training_pack_storage_service.dart';
 import '../models/training_pack.dart';
 import '../models/training_pack_stats.dart';
+import '../models/pack_chart_sort_option.dart';
+import '../theme/app_colors.dart';
 import 'training_pack_review_screen.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
@@ -192,6 +194,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   final Set<TrainingPack> _selected = {};
   int _firstRowIndex = 0;
   int _rowsPerPage = 10;
+  PackChartSort _chartSort = PackChartSort.progress;
 
   void _toggleSelect(TrainingPack pack) {
     setState(() {
@@ -530,10 +533,33 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             onChanged: (v) => setState(() => _forgottenOnly = v),
             activeColor: Colors.orange,
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const Text('Сортировка',
+                    style: TextStyle(color: Colors.white)),
+                const SizedBox(width: 8),
+                DropdownButton<PackChartSort>(
+                  value: _chartSort,
+                  dropdownColor: AppColors.cardBackground,
+                  style: const TextStyle(color: Colors.white),
+                  items: [
+                    for (final s in PackChartSort.values)
+                      DropdownMenuItem(value: s, child: Text(s.label))
+                  ],
+                  onChanged: (v) {
+                    if (v != null) setState(() => _chartSort = v);
+                  },
+                ),
+              ],
+            ),
+          ),
           PackCompletionBarChart(
             stats: stats,
             hideCompleted: false,
             forgottenOnly: _forgottenOnly,
+            sort: _chartSort,
           ),
           const SizedBox(height: 16),
           AnimatedContainer(
@@ -754,12 +780,14 @@ class PackCompletionBarChart extends StatefulWidget {
   final List<TrainingPackStats> stats;
   final bool hideCompleted;
   final bool forgottenOnly;
+  final PackChartSort sort;
 
   const PackCompletionBarChart({
     super.key,
     required this.stats,
     required this.hideCompleted,
     required this.forgottenOnly,
+    required this.sort,
   });
 
   @override
@@ -824,9 +852,19 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
     }).toList();
 
     filtered.sort((a, b) {
-      final pa = a.total > 0 ? (a.total - a.mistakes) * 100 / a.total : 0.0;
-      final pb = b.total > 0 ? (b.total - b.mistakes) * 100 / b.total : 0.0;
-      return pb.compareTo(pa);
+      switch (widget.sort) {
+        case PackChartSort.lastSession:
+          final da = a.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final db = b.lastSession ?? DateTime.fromMillisecondsSinceEpoch(0);
+          return db.compareTo(da);
+        case PackChartSort.handsPlayed:
+          return b.total.compareTo(a.total);
+        case PackChartSort.progress:
+        default:
+          final pa = a.total > 0 ? (a.total - a.mistakes) * 100 / a.total : 0.0;
+          final pb = b.total > 0 ? (b.total - b.mistakes) * 100 / b.total : 0.0;
+          return pb.compareTo(pa);
+      }
     });
 
     if (filtered.isEmpty) {
