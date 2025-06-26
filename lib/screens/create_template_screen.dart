@@ -40,7 +40,7 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Новый шаблон'),
+        title: const Text('Создать шаблон'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -69,7 +69,7 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _save,
-              child: const Text('Сохранить'),
+              child: const Text('Далее'),
             ),
           ],
         ),
