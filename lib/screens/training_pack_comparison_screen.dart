@@ -105,7 +105,9 @@ class _PackDataSource extends DataTableSource {
             : DataCell(
                 Tooltip(
                   message: 'Открыть обзор пака',
-                  child: Text(s.pack.name),
+                  child: Text(
+                    s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name,
+                  ),
                 ),
                 onTap: () => selectionMode ? onToggle(s.pack) : onStartEdit(s),
               ),
@@ -165,10 +167,12 @@ class _PackDataSource extends DataTableSource {
           PopupMenuButton<String>(
             padding: EdgeInsets.zero,
             onSelected: (v) => onAction(s, v),
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'rename', child: Text('Переименовать')),
-              PopupMenuItem(value: 'delete', child: Text('Удалить')),
-              PopupMenuItem(value: 'duplicate', child: Text('Дублировать')),
+            itemBuilder: (_) => [
+              if (!s.pack.isBuiltIn)
+                const PopupMenuItem(value: 'rename', child: Text('Переименовать')),
+              if (!s.pack.isBuiltIn)
+                const PopupMenuItem(value: 'delete', child: Text('Удалить')),
+              const PopupMenuItem(value: 'duplicate', child: Text('Дублировать')),
             ],
           ),
         ),
@@ -197,6 +201,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   int _firstRowIndex = 0;
   int _rowsPerPage = 10;
   PackChartSort _chartSort = PackChartSort.progress;
+  String _typeFilter = 'All';
   SharedPreferences? _prefs;
 
   @override
@@ -229,6 +234,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 
   void _startEdit(TrainingPackStats s) {
+    if (s.pack.isBuiltIn) return;
     setState(() {
       _editingPack = s.pack;
       _controller.text = s.pack.name;
@@ -236,11 +242,13 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 
   Future<void> _submitEdit(TrainingPack pack, String name) async {
+    if (pack.isBuiltIn) return;
     setState(() => _editingPack = null);
     await context.read<TrainingPackStorageService>().renamePack(pack, name);
   }
 
   Future<void> _deletePack(TrainingPack pack) async {
+    if (pack.isBuiltIn) return;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -470,14 +478,17 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   Future<void> _deleteSelected() async {
     final list = _selected.toList();
     for (final pack in list) {
-      await _deletePack(pack);
+      if (!pack.isBuiltIn) await _deletePack(pack);
     }
     _clearSelection();
   }
 
   @override
   Widget build(BuildContext context) {
-    final packs = context.watch<TrainingPackStorageService>().packs;
+    final allPacks = context.watch<TrainingPackStorageService>().packs;
+    final packs = _typeFilter == 'All'
+        ? allPacks
+        : [for (final p in allPacks) if (p.gameType == _typeFilter) p];
     final allStats = [for (final p in packs) TrainingPackStats.fromPack(p)];
     final sumTotal = allStats.fold<int>(0, (s, e) => s + e.total);
     final sumMistakes = allStats.fold<int>(0, (s, e) => s + e.mistakes);
@@ -559,32 +570,52 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             activeColor: Colors.orange,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Text('Сортировка',
-                    style: TextStyle(color: Colors.white)),
-                const SizedBox(width: 8),
-                DropdownButton<PackChartSort>(
-                  value: _chartSort,
-                  dropdownColor: AppColors.cardBackground,
-                  style: const TextStyle(color: Colors.white),
-                  items: [
-                    for (final s in PackChartSort.values)
-                      DropdownMenuItem(value: s, child: Text(s.label))
-                  ],
-                  onChanged: (v) {
-                    if (v != null) setState(() => _chartSort = v);
-                  },
-                ),
-              ],
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const Text('Сортировка',
+                  style: TextStyle(color: Colors.white)),
+              const SizedBox(width: 8),
+              DropdownButton<PackChartSort>(
+                value: _chartSort,
+                dropdownColor: AppColors.cardBackground,
+                style: const TextStyle(color: Colors.white),
+                items: [
+                  for (final s in PackChartSort.values)
+                    DropdownMenuItem(value: s, child: Text(s.label))
+                ],
+                onChanged: (v) {
+                  if (v != null) setState(() => _chartSort = v);
+                },
+              ),
+            ],
           ),
-          PackCompletionBarChart(
-            stats: stats,
-            hideCompleted: false,
-            forgottenOnly: _forgottenOnly,
-            sort: _chartSort,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const Text('Тип', style: TextStyle(color: Colors.white)),
+              const SizedBox(width: 8),
+              DropdownButton<String>(
+                value: _typeFilter,
+                dropdownColor: AppColors.cardBackground,
+                style: const TextStyle(color: Colors.white),
+                items: const [
+                  DropdownMenuItem(value: 'All', child: Text('Все')),
+                  DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
+                  DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+                ],
+                onChanged: (v) => setState(() => _typeFilter = v ?? 'All'),
+              ),
+            ],
+          ),
+        ),
+        PackCompletionBarChart(
+          stats: stats,
+          hideCompleted: false,
+          forgottenOnly: _forgottenOnly,
+          sort: _chartSort,
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),

@@ -49,6 +49,53 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     await prefs.setBool(_hideKey, value);
   }
 
+  Future<void> _createFromTemplate() async {
+    final service = context.read<TrainingPackStorageService>();
+    String type = 'Tournament';
+    TrainingPack? selected;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateDialog) {
+          final templates = [
+            for (final p in service.packs)
+              if (p.isBuiltIn && p.gameType == type) p
+          ];
+          return AlertDialog(
+            title: const Text('Шаблоны'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButton<String>(
+                    value: type,
+                    onChanged: (v) => setStateDialog(() => type = v ?? 'Tournament'),
+                    items: const [
+                      DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
+                      DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+                    ],
+                  ),
+                  for (final t in templates)
+                    ListTile(
+                      title: Text(t.name),
+                      onTap: () {
+                        selected = t;
+                        Navigator.pop(ctx);
+                      },
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    if (selected != null) {
+      await service.duplicatePack(selected!);
+    }
+  }
+
   bool _isPackCompleted(TrainingPack pack) {
     final progress = _prefs?.getInt('training_progress_${pack.name}') ?? 0;
     return progress >= pack.hands.length;
@@ -120,19 +167,25 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const TrainingPackComparisonScreen(),
-                    ),
-                  );
-                },
-                child: const Text('📊 Сравнить паки'),
-              ),
+            child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TrainingPackComparisonScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('📊 Сравнить паки'),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _createFromTemplate,
+                  child: const Text('✚ Создать из шаблона'),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -144,6 +197,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                       final pack = visible[index];
                       final completed = _isPackCompleted(pack);
                       return ListTile(
+                        leading: pack.isBuiltIn ? const Text('📦') : null,
                         title: Text(pack.name),
                         subtitle: Text(
                           pack.description.isEmpty

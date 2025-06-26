@@ -61,6 +61,7 @@ flutter:
   assets:
     - assets/cards/card_back.png
     - assets/spots/spots.json
+    - assets/training_packs/
 
 # Release build configuration for the demo entry point. Run
 # `flutter build apk --target=main.dart` to compile the demo
