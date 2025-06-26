@@ -13,6 +13,7 @@ import 'daily_hand_screen.dart';
 import 'spot_of_the_day_screen.dart';
 import 'create_pack_screen.dart';
 import 'edit_pack_screen.dart';
+import 'template_library_screen.dart';
 import 'training_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/hand_history_file_service.dart';
@@ -623,6 +624,18 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('✏️ Редактировать тренировку'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TemplateLibraryScreen(),
+                  ),
+                );
+              },
+              child: const Text('📑 Шаблоны'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(

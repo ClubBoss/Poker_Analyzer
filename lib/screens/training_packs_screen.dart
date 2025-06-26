@@ -3,9 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
-import '../models/training_pack_template.dart';
 import '../services/training_pack_storage_service.dart';
-import '../services/template_storage_service.dart';
+import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
 
@@ -51,60 +50,6 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     await prefs.setBool(_hideKey, value);
   }
 
-  Future<void> _createFromTemplate() async {
-    final packService = context.read<TrainingPackStorageService>();
-    final templateService = context.read<TemplateStorageService>();
-    String type = 'Tournament';
-    TrainingPackTemplate? selected;
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setStateDialog) {
-          final templates = [
-            for (final t in templateService.templates
-                .where((tpl) => tpl.gameType == type))
-              t
-          ];
-          return AlertDialog(
-            title: const Text('Шаблоны'),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButton<String>(
-                    value: type,
-                    onChanged: (v) => setStateDialog(() => type = v ?? 'Tournament'),
-                    items: const [
-                      DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
-                      DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
-                    ],
-                  ),
-                  for (final t in templates)
-                    ListTile(
-                      title: Text(t.name),
-                      subtitle: Text(
-                          'v${t.version} • rev ${t.revision} • ${t.author.isEmpty ? "anon" : t.author}'),
-                      onTap: () {
-                        selected = t;
-                        Navigator.pop(ctx);
-                      },
-                    ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-    if (selected != null) {
-      await packService.createFromTemplate(selected!);
-    }
-  }
-
-  Future<void> _importTemplate() async {
-    await context.read<TemplateStorageService>().importTemplateFromFile();
-  }
 
   bool _isPackCompleted(TrainingPack pack) {
     final progress = _prefs?.getInt('training_progress_${pack.name}') ?? 0;
@@ -192,8 +137,15 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
-                  onPressed: _createFromTemplate,
-                  child: const Text('✚ Создать из шаблона'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const TemplateLibraryScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('📑 Шаблоны'),
                 ),
               ],
             ),
@@ -232,10 +184,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _importTemplate,
-        child: const Icon(Icons.upload),
-      ),
+      floatingActionButton: null,
     );
   }
 }

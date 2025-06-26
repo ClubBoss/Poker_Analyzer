@@ -11,6 +11,17 @@ class TemplateStorageService extends ChangeNotifier {
   final List<TrainingPackTemplate> _templates = [];
   List<TrainingPackTemplate> get templates => List.unmodifiable(_templates);
 
+  void addTemplate(TrainingPackTemplate template) {
+    _templates.add(template);
+    notifyListeners();
+  }
+
+  void removeTemplate(TrainingPackTemplate template) {
+    if (template.isBuiltIn) return;
+    _templates.remove(template);
+    notifyListeners();
+  }
+
   Future<void> load() async {
     try {
       final manifest =
