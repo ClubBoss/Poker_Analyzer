@@ -103,6 +103,7 @@ class TrainingPackStorageService extends ChangeNotifier {
           name: name,
           description: pack.description,
           category: pack.category,
+          gameType: pack.gameType,
           hands: pack.hands,
           history: pack.history,
         );
@@ -125,6 +126,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       name: trimmed,
       description: pack.description,
       category: pack.category,
+      gameType: pack.gameType,
       hands: pack.hands,
       history: pack.history,
     );

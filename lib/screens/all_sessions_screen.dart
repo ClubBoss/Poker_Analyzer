@@ -882,6 +882,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
               name: newName,
               description: newDescription,
               category: p.category,
+              gameType: p.gameType,
               hands: p.hands,
               history: p.history,
             );
@@ -905,6 +906,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           name: newName,
           description: newDescription,
           category: oldPack.category,
+          gameType: oldPack.gameType,
           hands: oldPack.hands,
           history: oldPack.history,
         );
@@ -1037,6 +1039,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
             if (pack.description.isNotEmpty) Text(pack.description),
             const SizedBox(height: 8),
             Text('Категория: ${pack.category}'),
+            Text('Тип: ${pack.gameType}'),
             Text('Кол-во рук: ${pack.hands.length}'),
             Text('Всего сессий: ${pack.history.length}'),
             Text('Средний % верных: ${avg.toStringAsFixed(0)}%'),

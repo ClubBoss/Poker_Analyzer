@@ -20,6 +20,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   bool _hideCompleted = false;
+  String _typeFilter = 'All';
   SharedPreferences? _prefs;
 
   @override
@@ -70,6 +71,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         ? [for (final p in packs) if (!_isPackCompleted(p)) p]
         : packs;
 
+    if (_typeFilter != 'All') {
+      visible = [for (final p in visible) if (p.gameType == _typeFilter) p];
+    }
+
     final query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
       visible = [
@@ -101,6 +106,19 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             ),
           ),
           Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: DropdownButton<String>(
+              value: _typeFilter,
+              underline: const SizedBox.shrink(),
+              onChanged: (v) => setState(() => _typeFilter = v ?? 'All'),
+              items: const [
+                DropdownMenuItem(value: 'All', child: Text('Все')),
+                DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
+                DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+              ],
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Align(
               alignment: Alignment.centerLeft,
@@ -127,7 +145,11 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                       final completed = _isPackCompleted(pack);
                       return ListTile(
                         title: Text(pack.name),
-                        subtitle: Text(pack.description),
+                        subtitle: Text(
+                          pack.description.isEmpty
+                              ? pack.gameType
+                              : '${pack.description} • ${pack.gameType}',
+                        ),
                         trailing: completed
                             ? const Icon(Icons.check, color: Colors.green)
                             : null,

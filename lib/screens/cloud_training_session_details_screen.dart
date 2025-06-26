@@ -260,6 +260,7 @@ class _CloudTrainingSessionDetailsScreenState
     final pack = TrainingPack(
       name: 'Повторение',
       description: '',
+      gameType: 'Cash Game',
       hands: hands,
     );
     await Navigator.push(
@@ -292,6 +293,7 @@ class _CloudTrainingSessionDetailsScreenState
     final pack = TrainingPack(
       name: 'Повторение ошибок',
       description: '',
+      gameType: 'Cash Game',
       hands: hands,
     );
     await Navigator.push(

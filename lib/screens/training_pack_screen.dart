@@ -476,6 +476,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
           name: updated.name,
           description: updated.description,
           category: updated.category,
+          gameType: updated.gameType,
           hands: _pack.hands,
         );
       });
@@ -1367,17 +1368,35 @@ body { font-family: sans-serif; padding: 16px; }
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerLeft,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF3A3B3E),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _pack.category,
-                style: const TextStyle(color: Colors.white70),
-              ),
+            child: Row(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3A3B3E),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _pack.category,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(right: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3A3B3E),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _pack.gameType,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 8),
