@@ -7,6 +7,7 @@ import '../services/training_pack_storage_service.dart';
 
 import 'create_template_screen.dart';
 import 'template_hands_editor_screen.dart';
+import 'create_pack_from_template_screen.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -160,15 +161,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                           ],
                         ),
                         trailing: IconButton(
-                          tooltip: 'Создать тренировку',
+                          tooltip: 'Мастер создания',
                           icon: const Icon(Icons.arrow_forward),
-                          onPressed: () async {
-                            await context
-                                .read<TrainingPackStorageService>()
-                                .createFromTemplate(t);
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Пакет создан')),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    CreatePackFromTemplateScreen(template: t),
+                              ),
                             );
                           },
                         ),
