@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
+String colorToHex(Color c) =>
+    '#${c.red.toRadixString(16).padLeft(2, '0')}${c.green.toRadixString(16).padLeft(2, '0')}${c.blue.toRadixString(16).padLeft(2, '0')}'.toUpperCase();
+
 Color colorFromHex(String hex) {
-  hex = hex.replaceFirst('#', '');
-  if (hex.length == 6) hex = 'FF$hex';
-  return Color(int.parse(hex, radix: 16));
+  final h = hex.replaceFirst('#', '');
+  if (h.length != 6) return const Color(0xFF2196F3);
+  return Color(int.parse('FF$h', radix: 16));
 }
 
-String colorToHex(Color color) {
-  final String hex = color.value.toRadixString(16).padLeft(8, '0');
-  return '#${hex.substring(2).toUpperCase()}';
-}
