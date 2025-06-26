@@ -17,6 +17,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
 import '../models/training_pack.dart';
+import '../models/game_type.dart';
 import '../models/saved_hand.dart';
 import '../models/session_task_result.dart';
 import 'poker_analyzer_screen.dart';
@@ -1405,7 +1406,7 @@ body { font-family: sans-serif; padding: 16px; }
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    _pack.gameType,
+                    _pack.gameType.label,
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ),

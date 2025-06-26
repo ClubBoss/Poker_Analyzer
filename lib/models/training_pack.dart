@@ -1,5 +1,12 @@
 import 'saved_hand.dart';
 import 'session_task_result.dart';
+import 'game_type.dart';
+
+GameType parseGameType(dynamic v) {
+  final s = (v as String? ?? '').toLowerCase();
+  if (s.startsWith('tour')) return GameType.tournament;
+  return GameType.cash;
+}
 
 class TrainingSessionResult {
   final DateTime date;
@@ -38,7 +45,7 @@ class TrainingPack {
   final String name;
   final String description;
   final String category;
-  final String gameType;
+  final GameType gameType;
   final String colorTag;
   final bool isBuiltIn;
   final List<SavedHand> hands;
@@ -48,7 +55,7 @@ class TrainingPack {
     required this.name,
     required this.description,
     this.category = 'Uncategorized',
-    this.gameType = 'Cash Game',
+    this.gameType = GameType.cash,
     this.colorTag = '#2196F3',
     this.isBuiltIn = false,
     required this.hands,
@@ -59,7 +66,7 @@ class TrainingPack {
         'name': name,
         'description': description,
         'category': category,
-        'gameType': gameType,
+        'gameType': gameType.name,
         'colorTag': colorTag,
         'isBuiltIn': isBuiltIn,
         'hands': [for (final h in hands) h.toJson()],
@@ -70,7 +77,7 @@ class TrainingPack {
         name: json['name'] as String? ?? '',
         description: json['description'] as String? ?? '',
         category: json['category'] as String? ?? 'Uncategorized',
-        gameType: json['gameType'] as String? ?? 'Cash Game',
+        gameType: parseGameType(json['gameType']),
         colorTag: json['colorTag'] as String? ?? '#2196F3',
         isBuiltIn: json['isBuiltIn'] as bool? ?? false,
         hands: [

@@ -9,6 +9,7 @@ import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import '../models/game_type.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../models/training_pack.dart';
@@ -201,7 +202,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   int _firstRowIndex = 0;
   int _rowsPerPage = 10;
   PackChartSort _chartSort = PackChartSort.progress;
-  String _typeFilter = 'All';
+  GameType? _typeFilter;
   SharedPreferences? _prefs;
 
   @override
@@ -486,7 +487,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   @override
   Widget build(BuildContext context) {
     final allPacks = context.watch<TrainingPackStorageService>().packs;
-    final packs = _typeFilter == 'All'
+    final packs = _typeFilter == null
         ? allPacks
         : [for (final p in allPacks) if (p.gameType == _typeFilter) p];
     final allStats = [for (final p in packs) TrainingPackStats.fromPack(p)];
@@ -597,16 +598,16 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             children: [
               const Text('Тип', style: TextStyle(color: Colors.white)),
               const SizedBox(width: 8),
-              DropdownButton<String>(
+              DropdownButton<GameType?>(
                 value: _typeFilter,
                 dropdownColor: AppColors.cardBackground,
                 style: const TextStyle(color: Colors.white),
                 items: const [
-                  DropdownMenuItem(value: 'All', child: Text('Все')),
-                  DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
-                  DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+                  DropdownMenuItem(value: null, child: Text('Все')),
+                  DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                  DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
                 ],
-                onChanged: (v) => setState(() => _typeFilter = v ?? 'All'),
+                onChanged: (v) => setState(() => _typeFilter = v),
               ),
             ],
           ),

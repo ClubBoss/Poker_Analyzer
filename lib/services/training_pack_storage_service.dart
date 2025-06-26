@@ -8,6 +8,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/training_pack.dart';
 import '../models/training_pack_template.dart';
+import '../models/game_type.dart';
 
 class TrainingPackStorageService extends ChangeNotifier {
   static const _storageFile = 'training_packs.json';
@@ -204,7 +205,7 @@ class TrainingPackStorageService extends ChangeNotifier {
           : (template.category?.isNotEmpty == true
               ? template.category!
               : 'Uncategorized'),
-      gameType: template.gameType,
+      gameType: parseGameType(template.gameType),
       colorTag: colorTag ?? '#2196F3',
       hands: selected,
     );
