@@ -25,6 +25,8 @@ import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
 import '../widgets/common/mistake_trend_chart.dart';
+
+enum _ChartMode { daily, weekly }
 import 'hand_history_review_screen.dart';
 import '../widgets/saved_hand_tile.dart';
 
@@ -60,6 +62,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     MistakeSeverity.medium,
     MistakeSeverity.low
   };
+  _ChartMode _chartMode = _ChartMode.daily;
 
   @override
   void initState() {
@@ -491,7 +494,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       }
     }
 
-    final chartCounts = overlay ? tagCounts : {'all': dailyCounts};
+    var chartCounts = overlay ? tagCounts : {'all': dailyCounts};
     final chartColors = overlay
         ? {
             for (final t in _activeTags)
@@ -563,6 +566,13 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                     .withOpacity(0.5)
             }
           : {'all': Colors.blueAccent};
+    }
+
+    if (_chartMode == _ChartMode.weekly) {
+      chartCounts = MistakeTrendChart.aggregateByWeek(chartCounts);
+      if (cmpCounts.isNotEmpty) {
+        cmpCounts = MistakeTrendChart.aggregateByWeek(cmpCounts);
+      }
     }
 
     final sharedPeaks = <DateTime>{};
@@ -757,6 +767,40 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           sliver: SliverToBoxAdapter(
+            child: Row(
+              children: [
+                const Text('Период',
+                    style: TextStyle(color: Colors.white)),
+                const Spacer(),
+                ToggleButtons(
+                  isSelected: [
+                    _chartMode == _ChartMode.daily,
+                    _chartMode == _ChartMode.weekly,
+                  ],
+                  onPressed: (i) =>
+                      setState(() => _chartMode = _ChartMode.values[i]),
+                  borderRadius: BorderRadius.circular(4),
+                  selectedColor: Colors.white,
+                  fillColor: Colors.blueGrey,
+                  color: Colors.white70,
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text('День'),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text('Неделя'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          sliver: SliverToBoxAdapter(
             child: RepaintBoundary(
               key: _chartKey,
               child: SizedBox(
@@ -772,6 +816,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                         onDayTap: _openDay,
                         highlights: sharedPeaks,
                         showLegend: false,
+                        mode: MistakeTrendMode.values[_chartMode.index],
                       ),
                     ),
                   ],
@@ -796,6 +841,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                         colors: cmpColors,
                         highlights: sharedPeaks,
                         showLegend: false,
+                        mode: MistakeTrendMode.values[_chartMode.index],
                       ),
                     ),
                   ],

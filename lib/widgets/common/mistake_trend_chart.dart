@@ -1,7 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import 'package:intl/intl.dart';
+
 import '../../theme/app_colors.dart';
+
+enum MistakeTrendMode { daily, weekly }
 
 class MistakeTrendChart extends StatelessWidget {
   final Map<String, Map<DateTime, int>> counts;
@@ -9,6 +13,7 @@ class MistakeTrendChart extends StatelessWidget {
   final ValueChanged<DateTime>? onDayTap;
   final Set<DateTime>? highlights;
   final bool showLegend;
+  final MistakeTrendMode mode;
 
   const MistakeTrendChart({
     super.key,
@@ -17,17 +22,62 @@ class MistakeTrendChart extends StatelessWidget {
     this.onDayTap,
     this.highlights,
     this.showLegend = true,
+    this.mode = MistakeTrendMode.daily,
   });
+
+  static Map<String, Map<DateTime, int>> aggregateByWeek(
+      Map<String, Map<DateTime, int>> src) {
+    DateTime? min;
+    DateTime? max;
+    for (final m in src.values) {
+      for (final d in m.keys) {
+        min = min == null || d.isBefore(min!) ? d : min;
+        max = max == null || d.isAfter(max!) ? d : max;
+      }
+    }
+    if (min == null || max == null) return {};
+    final start = min!.subtract(Duration(days: min!.weekday - 1));
+    final end = max!.subtract(Duration(days: max!.weekday - 1));
+    final result = {
+      for (final k in src.keys) k: <DateTime, int>{}
+    };
+    for (var d = start; !d.isAfter(end); d = d.add(const Duration(days: 7))) {
+      for (final k in src.keys) {
+        result[k]![d] = 0;
+      }
+    }
+    for (final entry in src.entries) {
+      for (final e in entry.value.entries) {
+        final w = e.key.subtract(Duration(days: e.key.weekday - 1));
+        result[entry.key]![w] = (result[entry.key]![w] ?? 0) + e.value;
+      }
+    }
+    return result;
+  }
+
+  int _weekNumber(DateTime d) => int.parse(DateFormat('w').format(d));
+
+  String _weekLabel(DateTime monday) {
+    final week = _weekNumber(monday);
+    final end = monday.add(const Duration(days: 6));
+    final s = '${monday.day.toString().padLeft(2, '0')}.${monday.month.toString().padLeft(2, '0')}';
+    final e = '${end.day.toString().padLeft(2, '0')}.${end.month.toString().padLeft(2, '0')}';
+    return 'W$week ($s–$e)';
+  }
 
   @override
   Widget build(BuildContext context) {
+    Map<String, Map<DateTime, int>> data = counts;
+    if (mode == MistakeTrendMode.weekly) {
+      data = aggregateByWeek(counts);
+    }
     final datesSet = <DateTime>{};
-    for (final m in counts.values) {
+    for (final m in data.values) {
       datesSet.addAll(m.keys);
     }
     final dates = datesSet.toList()..sort();
     if (dates.isEmpty ||
-        counts.values.every((m) => m.values.every((v) => v == 0))) {
+        data.values.every((m) => m.values.every((v) => v == 0))) {
       return const Center(
         child: Text(
           'Нет данных для графика',
@@ -38,7 +88,7 @@ class MistakeTrendChart extends StatelessWidget {
 
     final values = <String, List<int>>{};
     int maxCount = 0;
-    for (final entry in counts.entries) {
+    for (final entry in data.entries) {
       final list = <int>[];
       for (final d in dates) {
         final v = entry.value[d] ?? 0;
@@ -83,7 +133,9 @@ class MistakeTrendChart extends StatelessWidget {
 
     String _tooltipText(int index) {
       final d = dates[index];
-      final label = '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+      final label = mode == MistakeTrendMode.weekly
+          ? _weekLabel(d)
+          : '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
       final lines = [label];
       for (final entry in values.entries) {
         lines.add('${entry.key}: ${entry.value[index]}');
@@ -155,8 +207,9 @@ class MistakeTrendChart extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
                 final d = dates[index];
-                final label =
-                    '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                final label = mode == MistakeTrendMode.weekly
+                    ? 'W${_weekNumber(d)}'
+                    : '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
                 return Text(
                   label,
                   style: const TextStyle(color: Colors.white, fontSize: 10),
