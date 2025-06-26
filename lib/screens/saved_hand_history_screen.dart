@@ -20,6 +20,8 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
   late TabController _controller;
   String _gameTypeFilter = 'Все';
   String _categoryFilter = 'Все';
+  DateTime? _fromDate;
+  DateTime? _toDate;
 
   @override
   void initState() {
@@ -37,7 +39,9 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
     return [
       for (final h in hands)
         if ((_gameTypeFilter == 'Все' || h.gameType == _gameTypeFilter) &&
-            (_categoryFilter == 'Все' || h.category == _categoryFilter))
+            (_categoryFilter == 'Все' || h.category == _categoryFilter) &&
+            (_fromDate == null || !h.date.isBefore(_fromDate!)) &&
+            (_toDate == null || !h.date.isAfter(_toDate!)))
           h
     ]..sort((a, b) => b.date.compareTo(a.date));
   }
@@ -56,6 +60,9 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
     final updated = hand.copyWith(isFavorite: !hand.isFavorite);
     manager.update(index, updated);
   }
+
+  String _dateStr(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 
   Future<void> _renameHand(
       SavedHand hand, SavedHandManagerService manager) async {
@@ -174,6 +181,33 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                           .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                           .toList(),
                     ),
+                  const SizedBox(width: 12),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.date_range),
+                    label: Text(_fromDate == null && _toDate == null
+                        ? 'Период'
+                        : '${_fromDate == null ? '…' : _dateStr(_fromDate!)} – ${_toDate == null ? '…' : _dateStr(_toDate!)}'),
+                    onPressed: () async {
+                      final picked = await showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now(),
+                        initialDateRange: _fromDate == null && _toDate == null
+                            ? null
+                            : DateTimeRange(
+                                start: _fromDate ??
+                                    DateTime.now().subtract(const Duration(days: 30)),
+                                end: _toDate ?? DateTime.now(),
+                              ),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _fromDate = picked.start;
+                          _toDate = picked.end;
+                        });
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
