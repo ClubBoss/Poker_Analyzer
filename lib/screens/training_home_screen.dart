@@ -5,6 +5,7 @@ import '../services/spot_of_the_day_service.dart';
 import '../widgets/spot_of_the_day_card.dart';
 import '../widgets/streak_chart.dart';
 import '../widgets/daily_progress_ring.dart';
+import '../widgets/repeat_mistakes_card.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
   const TrainingHomeScreen({super.key});
@@ -29,6 +30,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           SpotOfTheDayCard(),
           StreakChart(),
           DailyProgressRing(),
+          RepeatMistakesCard(),
         ],
       ),
     );

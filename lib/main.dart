@@ -37,6 +37,7 @@ import 'services/weekly_challenge_service.dart';
 import 'services/category_usage_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
+import 'services/mistake_review_pack_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() {
@@ -53,6 +54,11 @@ void main() {
             cloud: context.read<CloudSyncService>(),
             stats: context.read<TrainingStatsService>(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => MistakeReviewPackService(
+            hands: context.read<SavedHandManagerService>(),
+          )..load(),
         ),
         ChangeNotifierProvider(
           create: (_) => SessionNoteService()..load(),
