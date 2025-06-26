@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/training_pack.dart';
 import '../models/training_spot.dart';
 import '../services/training_spot_file_service.dart';
+import '../services/category_usage_service.dart';
 import '../widgets/common/training_spot_list.dart';
 
 class CreatePackScreen extends StatefulWidget {
@@ -63,6 +65,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final categories = context.watch<CategoryUsageService>().categories;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.initialPack == null ? 'Новый пакет' : 'Редактирование'),
@@ -94,6 +97,23 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            if (categories.isNotEmpty)
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Популярные категории',
+                  labelStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(),
+                ),
+                dropdownColor: const Color(0xFF3A3B3E),
+                items: [
+                  for (final c in categories)
+                    DropdownMenuItem(value: c, child: Text(c)),
+                ],
+                onChanged: (v) {
+                  if (v != null) setState(() => _categoryController.text = v);
+                },
+              ),
+            if (categories.isNotEmpty) const SizedBox(height: 16),
             TextField(
               controller: _categoryController,
               style: const TextStyle(color: Colors.white),

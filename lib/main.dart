@@ -33,6 +33,7 @@ import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
 import 'services/weekly_challenge_service.dart';
+import 'services/category_usage_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 
@@ -60,6 +61,12 @@ void main() {
         ),
         ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
+        ChangeNotifierProvider(
+          create: (context) => CategoryUsageService(
+            templates: context.read<TemplateStorageService>(),
+            packs: context.read<TrainingPackStorageService>(),
+          ),
+        ),
         ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
         ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
         ChangeNotifierProvider(create: (_) => DailyTipService()..load()),
