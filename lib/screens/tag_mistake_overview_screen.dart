@@ -90,6 +90,65 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     });
   }
 
+  void _openDay(DateTime day) {
+    final allHands = context.read<SavedHandManagerService>().hands;
+    final now = DateTime.now();
+    final filtered = [
+      for (final h in allHands)
+        if ((widget.dateFilter == 'Все' ||
+                (widget.dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+                (widget.dateFilter == '7 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+                (widget.dateFilter == '30 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 30))))) &&
+            (_range == null ||
+                (!h.date.isBefore(_range!.start) && !h.date.isAfter(_range!.end))) &&
+            _sameDay(h.date, day))
+          h
+    ];
+    final summary = context.read<EvaluationExecutorService>().summarizeHands(filtered);
+    final ignored = context.read<IgnoredMistakeService>().ignored;
+    final service = context.read<EvaluationExecutorService>();
+    final baseEntries = summary.mistakeTagFrequencies.entries
+        .where((e) => !ignored.contains('tag:${e.key}'))
+        .toList();
+    final visibleTags = _activeTag != null
+        ? {_activeTag!}
+        : {
+            for (final e in baseEntries)
+              if (_levels.contains(service.classifySeverity(e.value))) e.key
+          };
+    final hands = [
+      for (final h in filtered)
+        if (h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase() &&
+            (visibleTags.isEmpty ||
+                (_activeTag != null
+                    ? h.tags.contains(_activeTag)
+                    : h.tags.any(visibleTags.contains))))
+          h
+    ];
+    if (hands.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет ошибок в этот день')));
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _DailyMistakeHandsScreen(
+          day: day,
+          tag: _activeTag,
+          dateFilter: widget.dateFilter,
+          dateRange: _range,
+          levels: _levels,
+        ),
+      ),
+    );
+  }
+
   Future<void> _exportPdf(BuildContext context, SummaryResult summary,
       List<MapEntry<String, int>> entries) async {
 
@@ -378,7 +437,10 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           sliver: SliverToBoxAdapter(
             child: SizedBox(
               height: 200,
-              child: MistakeTrendChart(counts: dailyCounts),
+              child: MistakeTrendChart(
+                counts: dailyCounts,
+                onDayTap: _openDay,
+              ),
             ),
           ),
         ),
@@ -489,6 +551,92 @@ class _TagMistakeHandsScreen extends StatelessWidget {
         initialAccuracy: 'errors',
         filterKey: tag,
         title: 'Ошибки: $tag',
+        onTap: (hand) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => HandHistoryReviewScreen(hand: hand),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _DailyMistakeHandsScreen extends StatelessWidget {
+  final DateTime day;
+  final String dateFilter;
+  final DateTimeRange? dateRange;
+  final String? tag;
+  final Set<MistakeSeverity> levels;
+
+  const _DailyMistakeHandsScreen({
+    required this.day,
+    required this.dateFilter,
+    this.dateRange,
+    this.tag,
+    required this.levels,
+  });
+
+  bool _sameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final allHands = context.watch<SavedHandManagerService>().hands;
+    final now = DateTime.now();
+    final filtered = [
+      for (final h in allHands)
+        if ((dateFilter == 'Все' ||
+                (dateFilter == 'Сегодня' && _sameDay(h.date, now)) ||
+                (dateFilter == '7 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
+                (dateFilter == '30 дней' &&
+                    h.date.isAfter(now.subtract(const Duration(days: 30))))) &&
+            (dateRange == null ||
+                (!h.date.isBefore(dateRange!.start) &&
+                    !h.date.isAfter(dateRange!.end))) &&
+            _sameDay(h.date, day))
+          h
+    ];
+    final service = context.read<EvaluationExecutorService>();
+    final ignored = context.read<IgnoredMistakeService>().ignored;
+    final summary = service.summarizeHands(filtered);
+    final baseEntries = summary.mistakeTagFrequencies.entries
+        .where((e) => !ignored.contains('tag:${e.key}'))
+        .toList();
+    final visibleTags = tag != null
+        ? {tag!}
+        : {
+            for (final e in baseEntries)
+              if (levels.contains(service.classifySeverity(e.value))) e.key
+          };
+    final hands = [
+      for (final h in filtered)
+        if (h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase() &&
+            (visibleTags.isEmpty ||
+                (tag != null
+                    ? h.tags.contains(tag)
+                    : h.tags.any(visibleTags.contains))))
+          h
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(formatLongDate(day)),
+        centerTitle: true,
+      ),
+      body: SavedHandListView(
+        hands: hands,
+        tags: tag != null ? [tag!] : null,
+        initialAccuracy: 'errors',
+        filterKey: day.toIso8601String(),
+        title: 'Ошибки: ${formatDate(day)}',
         onTap: (hand) {
           Navigator.push(
             context,
