@@ -50,6 +50,12 @@ class TemplateStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void restoreTemplate(TrainingPackTemplate template, int index) {
+    final insertIndex = index.clamp(0, _templates.length);
+    _templates.insert(insertIndex, template);
+    notifyListeners();
+  }
+
   Future<void> load() async {
     try {
       final manifest =
