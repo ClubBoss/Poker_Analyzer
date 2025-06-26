@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:file_picker/file_picker.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:io';
 
 import '../models/training_pack_template.dart';
@@ -13,6 +14,7 @@ class TemplateStorageService extends ChangeNotifier {
 
   void addTemplate(TrainingPackTemplate template) {
     _templates.add(template);
+    _resort();
     notifyListeners();
   }
 
@@ -20,6 +22,14 @@ class TemplateStorageService extends ChangeNotifier {
     if (template.isBuiltIn) return;
     _templates.remove(template);
     notifyListeners();
+  }
+
+  void _resort() {
+    _templates.sort((a, b) {
+      if (a.gameType != b.gameType) return a.gameType.compareTo(b.gameType);
+      final rev = b.revision.compareTo(a.revision);
+      return rev == 0 ? a.name.compareTo(b.name) : rev;
+    });
   }
 
   Future<void> load() async {
@@ -35,12 +45,7 @@ class TemplateStorageService extends ChangeNotifier {
           _templates.add(TrainingPackTemplate.fromJson(data));
         }
       }
-      // сортируем по type → revision ↓ → name
-      _templates.sort((a, b) {
-        if (a.gameType != b.gameType) return a.gameType.compareTo(b.gameType);
-        final rev = b.revision.compareTo(a.revision);
-        return rev == 0 ? a.name.compareTo(b.name) : rev;
-      });
+      _resort();
     } catch (_) {}
     notifyListeners();
   }
@@ -59,9 +64,10 @@ class TemplateStorageService extends ChangeNotifier {
       final data = jsonDecode(content);
       if (data is! Map<String, dynamic>) return null;
       if (!data.containsKey('name') || !data.containsKey('hands')) return null;
-      final template =
-          TrainingPackTemplate.fromJson(Map<String, dynamic>.from(data));
+      var template = TrainingPackTemplate.fromJson(
+          Map<String, dynamic>.from(data));
       _templates.add(template);
+      _resort();
       notifyListeners();
       return template;
     } catch (_) {
