@@ -28,6 +28,7 @@ class SavedHandListView extends StatefulWidget {
   final Iterable<String>? positions;
   final String? initialAccuracy; // 'correct' or 'errors'
   final bool showAccuracyToggle;
+  final bool showGameFilters;
   final String title;
   final ValueChanged<SavedHand> onTap;
   final ValueChanged<SavedHand>? onFavoriteToggle;
@@ -42,6 +43,7 @@ class SavedHandListView extends StatefulWidget {
     this.positions,
     this.initialAccuracy,
     this.showAccuracyToggle = true,
+    this.showGameFilters = true,
     this.onFavoriteToggle,
     this.filterKey,
   });
@@ -293,7 +295,7 @@ class _SavedHandListViewState extends State<SavedHandListView> {
           ),
         ),
         _buildAccuracyToggle(),
-        _buildFilters(games, categories),
+        if (widget.showGameFilters) _buildFilters(games, categories),
         if (widget.filterKey != null)
           _buildSummaryCard(context, counts['mistakes'] ?? 0),
         const SizedBox(height: 8),
