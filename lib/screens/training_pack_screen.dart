@@ -43,6 +43,7 @@ import '../services/training_import_export_service.dart';
 import '../services/training_spot_file_service.dart';
 import '../services/training_spot_storage_service.dart';
 import '../services/cloud_sync_service.dart';
+import '../services/training_stats_service.dart';
 import '../models/training_spot.dart';
 import '../models/evaluation_result.dart';
 import '../services/evaluation_executor_service.dart';
@@ -1176,6 +1177,18 @@ body { font-family: sans-serif; padding: 16px; }
             Text('Верные действия: $correct'),
             Text('Ошибок: ${total - correct}'),
             Text('Точность: $accuracy%'),
+            Builder(
+              builder: (context) {
+                final stats = context.watch<TrainingStatsService>();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Текущий стрик: ${stats.currentStreak} дней'),
+                    Text('Лучший стрик: ${stats.bestStreak} дней'),
+                  ],
+                );
+              },
+            ),
             const SizedBox(height: 12),
             if (_sessionComment != null && _sessionComment!.isNotEmpty) ...[
               Text('Комментарий: \$_sessionComment',

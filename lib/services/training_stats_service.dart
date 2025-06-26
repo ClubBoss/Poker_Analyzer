@@ -16,10 +16,15 @@ class TrainingStatsService extends ChangeNotifier {
   static const _sessionsHistKey = 'stats_sessions_hist';
   static const _handsHistKey = 'stats_hands_hist';
   static const _mistakesHistKey = 'stats_mistakes_hist';
+  static const _currentStreakKey = 'stats_current_streak';
+  static const _bestStreakKey = 'stats_best_streak';
 
   int _sessions = 0;
   int _hands = 0;
   int _mistakes = 0;
+
+  int _currentStreak = 0;
+  int _bestStreak = 0;
 
   Map<String, int> _sessionsPerDay = {};
   Map<String, int> _handsPerDay = {};
@@ -35,6 +40,8 @@ class TrainingStatsService extends ChangeNotifier {
   int get sessionsCompleted => _sessions;
   int get handsReviewed => _hands;
   int get mistakesFixed => _mistakes;
+  int get currentStreak => _currentStreak;
+  int get bestStreak => _bestStreak;
 
   Stream<int> get sessionsStream => _sessionController.stream;
   Stream<int> get handsStream => _handsController.stream;
@@ -109,6 +116,57 @@ class TrainingStatsService extends ChangeNotifier {
     }
   }
 
+  int _calcCurrentStreak() {
+    final today = DateTime.now();
+    int streak = 0;
+    for (int i = 0;; i++) {
+      final day = DateTime(today.year, today.month, today.day)
+          .subtract(Duration(days: i));
+      final key = day.toIso8601String().split('T').first;
+      final hands = _handsPerDay[key] ?? 0;
+      final mistakes = _mistakesPerDay[key] ?? 0;
+      if (hands > 0 && mistakes == 0) {
+        streak += 1;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  int _calcBestStreak() {
+    final allKeys = {
+      ..._handsPerDay.keys,
+      ..._mistakesPerDay.keys,
+    }..removeWhere((e) => e.isEmpty);
+    final dates = allKeys.map(DateTime.parse).toList()..sort();
+    int best = 0;
+    int current = 0;
+    DateTime? prev;
+    for (final d in dates) {
+      final key = d.toIso8601String().split('T').first;
+      final hands = _handsPerDay[key] ?? 0;
+      final mistakes = _mistakesPerDay[key] ?? 0;
+      if (prev != null && d.difference(prev!).inDays > 1) current = 0;
+      if (hands > 0 && mistakes == 0) {
+        current += 1;
+        if (current > best) best = current;
+      } else {
+        current = 0;
+      }
+      prev = d;
+    }
+    return best;
+  }
+
+  Future<void> _updateStreaks() async {
+    _currentStreak = _calcCurrentStreak();
+    _bestStreak = _calcBestStreak();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_currentStreakKey, _currentStreak);
+    await prefs.setInt(_bestStreakKey, _bestStreak);
+  }
+
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _sessions = prefs.getInt(_sessionsKey) ?? 0;
@@ -117,6 +175,9 @@ class TrainingStatsService extends ChangeNotifier {
     _sessionsPerDay = _loadMap(prefs, _sessionsHistKey);
     _handsPerDay = _loadMap(prefs, _handsHistKey);
     _mistakesPerDay = _loadMap(prefs, _mistakesHistKey);
+    _currentStreak = prefs.getInt(_currentStreakKey) ?? 0;
+    _bestStreak = prefs.getInt(_bestStreakKey) ?? 0;
+    await _updateStreaks();
     notifyListeners();
   }
 
@@ -128,6 +189,8 @@ class TrainingStatsService extends ChangeNotifier {
     await _saveMap(prefs, _sessionsHistKey, _sessionsPerDay);
     await _saveMap(prefs, _handsHistKey, _handsPerDay);
     await _saveMap(prefs, _mistakesHistKey, _mistakesPerDay);
+    await prefs.setInt(_currentStreakKey, _currentStreak);
+    await prefs.setInt(_bestStreakKey, _bestStreak);
   }
 
   Future<void> incrementSessions() async {
@@ -145,6 +208,7 @@ class TrainingStatsService extends ChangeNotifier {
     final key = DateTime.now().toIso8601String().split('T').first;
     _handsPerDay.update(key, (v) => v + count, ifAbsent: () => count);
     _trim(_handsPerDay);
+    await _updateStreaks();
     await _save();
     notifyListeners();
     _handsController.add(_hands);
@@ -155,6 +219,7 @@ class TrainingStatsService extends ChangeNotifier {
     final key = DateTime.now().toIso8601String().split('T').first;
     _mistakesPerDay.update(key, (v) => v + count, ifAbsent: () => count);
     _trim(_mistakesPerDay);
+    await _updateStreaks();
     await _save();
     notifyListeners();
     _mistakeController.add(_mistakes);
