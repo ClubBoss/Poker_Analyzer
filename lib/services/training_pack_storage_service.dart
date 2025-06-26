@@ -7,12 +7,16 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/training_pack.dart';
+import '../models/training_pack_template.dart';
 
 class TrainingPackStorageService extends ChangeNotifier {
   static const _storageFile = 'training_packs.json';
 
   final List<TrainingPack> _packs = [];
   List<TrainingPack> get packs => List.unmodifiable(_packs);
+
+  final List<TrainingPackTemplate> _templates = [];
+  List<TrainingPackTemplate> get templates => List.unmodifiable(_templates);
 
   Future<File> _getStorageFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -35,11 +39,11 @@ class TrainingPackStorageService extends ChangeNotifier {
     }
     if (_packs.isEmpty) {
       try {
-        final manifest = jsonDecode(
-            await rootBundle.loadString('AssetManifest.json')) as Map;
-        final paths = manifest.keys.where((e) =>
+        final manifest =
+            jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
+        final packPaths = manifest.keys.where((e) =>
             e.startsWith('assets/training_packs/') && e.endsWith('.json'));
-        for (final p in paths) {
+        for (final p in packPaths) {
           final data = jsonDecode(await rootBundle.loadString(p));
           if (data is Map<String, dynamic>) {
             _packs.add(TrainingPack.fromJson(data));
@@ -48,6 +52,20 @@ class TrainingPackStorageService extends ChangeNotifier {
         await _persist();
       } catch (_) {}
     }
+
+    try {
+      final manifest =
+          jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
+      final templatePaths = manifest.keys.where((e) =>
+          e.startsWith('assets/training_templates/') && e.endsWith('.json'));
+      _templates.clear();
+      for (final p in templatePaths) {
+        final data = jsonDecode(await rootBundle.loadString(p));
+        if (data is Map<String, dynamic>) {
+          _templates.add(TrainingPackTemplate.fromJson(data));
+        }
+      }
+    } catch (_) {}
     notifyListeners();
   }
 
@@ -165,6 +183,25 @@ class TrainingPackStorageService extends ChangeNotifier {
     final map = {...pack.toJson(), 'name': name, 'isBuiltIn': false};
     final copy = TrainingPack.fromJson(map);
     _packs.add(copy);
+    await _persist();
+    notifyListeners();
+  }
+
+  Future<void> createFromTemplate(TrainingPackTemplate template) async {
+    String base = template.name;
+    String name = base;
+    int idx = 1;
+    while (_packs.any((p) => p.name == name)) {
+      name = '${base}-copy${idx > 1 ? idx : ''}';
+      idx++;
+    }
+    final pack = TrainingPack(
+      name: name,
+      description: template.description,
+      gameType: template.gameType,
+      hands: template.hands,
+    );
+    _packs.add(pack);
     await _persist();
     notifyListeners();
   }
