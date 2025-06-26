@@ -6,14 +6,26 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 
 class MistakeTrendChart extends StatelessWidget {
-  final Map<DateTime, int> counts;
+  final Map<String, Map<DateTime, int>> counts;
+  final Map<String, Color> colors;
   final ValueChanged<DateTime>? onDayTap;
 
-  const MistakeTrendChart({super.key, required this.counts, this.onDayTap});
+  const MistakeTrendChart({
+    super.key,
+    required this.counts,
+    required this.colors,
+    this.onDayTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (counts.values.every((v) => v == 0)) {
+    final datesSet = <DateTime>{};
+    for (final m in counts.values) {
+      datesSet.addAll(m.keys);
+    }
+    final dates = datesSet.toList()..sort();
+    if (dates.isEmpty ||
+        counts.values.every((m) => m.values.every((v) => v == 0))) {
       return const Center(
         child: Text(
           'Нет данных для графика',
@@ -22,30 +34,59 @@ class MistakeTrendChart extends StatelessWidget {
       );
     }
 
-    final dates = counts.keys.toList()..sort();
-    final values = [for (final d in dates) counts[d] ?? 0];
-    final maxCount = values.reduce(max);
-    final spots = <FlSpot>[for (var i = 0; i < dates.length; i++) FlSpot(i.toDouble(), values[i].toDouble())];
+    final values = <String, List<int>>{};
+    int maxCount = 0;
+    for (final entry in counts.entries) {
+      final list = <int>[];
+      for (final d in dates) {
+        final v = entry.value[d] ?? 0;
+        list.add(v);
+        if (v > maxCount) maxCount = maxCount < v ? v : maxCount;
+      }
+      values[entry.key] = list;
+    }
+
     final step = (dates.length / 6).ceil();
     double interval = 1;
     if (maxCount > 5) interval = (maxCount / 5).ceilToDouble();
 
-    final line = LineChartBarData(
-      spots: spots,
-      isCurved: true,
-      color: Colors.redAccent,
-      barWidth: 2,
-      dotData: FlDotData(show: false),
-    );
+    final lines = <LineChartBarData>[];
+    for (final entry in values.entries) {
+      final spots = <FlSpot>[];
+      for (var i = 0; i < entry.value.length; i++) {
+        spots.add(FlSpot(i.toDouble(), entry.value[i].toDouble()));
+      }
+      lines.add(
+        LineChartBarData(
+          spots: spots,
+          isCurved: true,
+          color: colors[entry.key] ?? Colors.redAccent,
+          barWidth: 2,
+          dotData: FlDotData(show: false),
+        ),
+      );
+    }
 
-    return LineChart(
+    String _tooltipText(int index) {
+      final d = dates[index];
+      final label = '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+      final lines = [label];
+      for (final entry in values.entries) {
+        lines.add('${entry.key}: ${entry.value[index]}');
+      }
+      return lines.join('\n');
+    }
+
+    Widget chart = LineChart(
       LineChartData(
         minY: 0,
         maxY: maxCount.toDouble(),
         lineTouchData: LineTouchData(
           handleBuiltInTouches: false,
           touchCallback: (event, response) {
-            if (event is FlTapUpEvent && response?.lineBarSpots != null && response!.lineBarSpots!.isNotEmpty) {
+            if (event is FlTapUpEvent &&
+                response?.lineBarSpots != null &&
+                response!.lineBarSpots!.isNotEmpty) {
               onDayTap?.call(dates[response.lineBarSpots!.first.spotIndex]);
             }
           },
@@ -54,15 +95,15 @@ class MistakeTrendChart extends StatelessWidget {
             fitInsideHorizontally: true,
             fitInsideVertically: true,
             getTooltipItems: (spots) {
-              return spots.map((s) {
-                final d = dates[s.spotIndex];
-                final label = '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                final count = values[s.spotIndex];
-                return LineTooltipItem(
-                  '$label: $count',
-                  const TextStyle(color: Colors.white, fontSize: 12),
-                );
-              }).toList();
+              final idx = spots.first.spotIndex;
+              final text = _tooltipText(idx);
+              return [
+                for (int i = 0; i < spots.length; i++)
+                  LineTooltipItem(
+                    text,
+                    const TextStyle(color: Colors.white, fontSize: 12),
+                  )
+              ];
             },
           ),
         ),
@@ -70,7 +111,8 @@ class MistakeTrendChart extends StatelessWidget {
           show: true,
           drawVerticalLine: false,
           horizontalInterval: interval,
-          getDrawingHorizontalLine: (value) => FlLine(color: Colors.white24, strokeWidth: 1),
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: Colors.white24, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
           rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -99,7 +141,8 @@ class MistakeTrendChart extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
                 final d = dates[index];
-                final label = '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                final label =
+                    '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
                 return Text(
                   label,
                   style: const TextStyle(color: Colors.white, fontSize: 10),
@@ -115,8 +158,58 @@ class MistakeTrendChart extends StatelessWidget {
             bottom: BorderSide(color: Colors.white24),
           ),
         ),
-        lineBarsData: [line],
+        lineBarsData: lines,
       ),
+    );
+
+    if (counts.length > 6) {
+      chart = Stack(
+        children: [
+          chart,
+          Container(
+            color: Colors.black54,
+            alignment: Alignment.center,
+            child: const Text(
+              'Слишком много линий, уберите лишние теги',
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      );
+    }
+
+    final legend = Wrap(
+      spacing: 8,
+      children: [
+        for (final entry in values.entries)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: colors[entry.key] ?? Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${entry.key}: ${entry.value.fold<int>(0, (a, b) => a + b)}',
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ],
+          ),
+      ],
+    );
+
+    return Column(
+      children: [
+        Expanded(child: chart),
+        const SizedBox(height: 4),
+        legend,
+      ],
     );
   }
 }
