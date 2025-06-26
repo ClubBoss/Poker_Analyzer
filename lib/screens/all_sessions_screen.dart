@@ -13,6 +13,7 @@ import '../helpers/date_utils.dart';
 import '../helpers/accuracy_utils.dart';
 
 import '../models/training_pack.dart';
+import '../models/game_type.dart';
 import 'session_detail_screen.dart';
 
 class AllSessionsScreen extends StatefulWidget {
@@ -1041,7 +1042,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
             if (pack.description.isNotEmpty) Text(pack.description),
             const SizedBox(height: 8),
             Text('Категория: ${pack.category}'),
-            Text('Тип: ${pack.gameType}'),
+            Text('Тип: ${pack.gameType.label}'),
             Text('Кол-во рук: ${pack.hands.length}'),
             Text('Всего сессий: ${pack.history.length}'),
             Text('Средний % верных: ${avg.toStringAsFixed(0)}%'),

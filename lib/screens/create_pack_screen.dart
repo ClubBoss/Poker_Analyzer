@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/training_pack.dart';
 import '../models/training_spot.dart';
+import '../models/game_type.dart';
 import '../services/training_spot_file_service.dart';
 import '../services/category_usage_service.dart';
 import '../widgets/common/training_spot_list.dart';
@@ -20,7 +21,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
-  String _gameType = 'Cash Game';
+  GameType _gameType = GameType.cash;
   final TrainingSpotFileService _spotFileService = const TrainingSpotFileService();
   List<TrainingSpot> _spots = [];
   final GlobalKey<TrainingSpotListState> _spotListKey =
@@ -124,7 +125,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<GameType>(
               value: _gameType,
               decoration: const InputDecoration(
                 labelText: 'Тип игры',
@@ -133,10 +134,10 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
               ),
               dropdownColor: const Color(0xFF3A3B3E),
               items: const [
-                DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
-                DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+                DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
               ],
-              onChanged: (v) => setState(() => _gameType = v ?? 'Cash Game'),
+              onChanged: (v) => setState(() => _gameType = v ?? GameType.cash),
             ),
             const SizedBox(height: 24),
             ElevatedButton(

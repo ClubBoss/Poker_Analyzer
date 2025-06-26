@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
+import '../models/game_type.dart';
 import '../services/training_pack_storage_service.dart';
 import '../helpers/color_utils.dart';
 import 'template_library_screen.dart';
@@ -19,11 +20,12 @@ class TrainingPacksScreen extends StatefulWidget {
 
 class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   static const _hideKey = 'hide_completed_packs';
+  static const _typeKey = 'pack_game_type_filter';
 
   final TextEditingController _searchController = TextEditingController();
 
   bool _hideCompleted = false;
-  String _typeFilter = 'All';
+  GameType? _typeFilter;
   SharedPreferences? _prefs;
 
   Future<void> _importPack() async {
@@ -56,6 +58,9 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     setState(() {
       _prefs = prefs;
       _hideCompleted = prefs.getBool(_hideKey) ?? false;
+      final t = prefs.getString(_typeKey);
+      if (t == 'tournament') _typeFilter = GameType.tournament;
+      if (t == 'cash') _typeFilter = GameType.cash;
     });
   }
 
@@ -63,6 +68,16 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     setState(() => _hideCompleted = value);
     final prefs = _prefs ?? await SharedPreferences.getInstance();
     await prefs.setBool(_hideKey, value);
+  }
+
+  Future<void> _setTypeFilter(GameType? value) async {
+    setState(() => _typeFilter = value);
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_typeKey);
+    } else {
+      await prefs.setString(_typeKey, value.name);
+    }
   }
 
 
@@ -88,7 +103,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         ? [for (final p in packs) if (!_isPackCompleted(p)) p]
         : packs;
 
-    if (_typeFilter != 'All') {
+    if (_typeFilter != null) {
       visible = [for (final p in visible) if (p.gameType == _typeFilter) p];
     }
 
@@ -171,14 +186,14 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: DropdownButton<String>(
+            child: DropdownButton<GameType?>(
               value: _typeFilter,
               underline: const SizedBox.shrink(),
-              onChanged: (v) => setState(() => _typeFilter = v ?? 'All'),
+              onChanged: (v) => _setTypeFilter(v),
               items: const [
-                DropdownMenuItem(value: 'All', child: Text('Все')),
-                DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
-                DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+                DropdownMenuItem(value: null, child: Text('Все')),
+                DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
               ],
             ),
           ),
@@ -224,7 +239,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                           onPressed: () {
                             setState(() {
                               _hideCompleted = false;
-                              _typeFilter = 'All';
+                              _typeFilter = null;
                               _searchController.clear();
                             });
                           },
@@ -252,8 +267,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                         title: Text(pack.name),
                         subtitle: Text(
                           pack.description.isEmpty
-                              ? pack.gameType
-                              : '${pack.description} • ${pack.gameType}',
+                              ? pack.gameType.label
+                              : '${pack.description} • ${pack.gameType.label}',
                         ),
                         trailing: completed
                             ? const Icon(Icons.check, color: Colors.green)
