@@ -102,6 +102,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     }
   }
 
+  Future<void> _importTemplate() async {
+    await context.read<TemplateStorageService>().importTemplateFromFile();
+  }
+
   bool _isPackCompleted(TrainingPack pack) {
     final progress = _prefs?.getInt('training_progress_${pack.name}') ?? 0;
     return progress >= pack.hands.length;
@@ -227,6 +231,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                   ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _importTemplate,
+        child: const Icon(Icons.upload),
       ),
     );
   }
