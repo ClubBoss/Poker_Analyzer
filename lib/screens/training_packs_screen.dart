@@ -84,7 +84,28 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       );
     }
 
-    if (packs.isEmpty) {
+    List<TrainingPack> visible = _hideCompleted
+        ? [for (final p in packs) if (!_isPackCompleted(p)) p]
+        : packs;
+
+    if (_typeFilter != 'All') {
+      visible = [for (final p in visible) if (p.gameType == _typeFilter) p];
+    }
+
+    final query = _searchController.text.toLowerCase();
+    if (query.isNotEmpty) {
+      visible = [
+        for (final p in visible)
+          if (p.name.toLowerCase().contains(query) ||
+              p.description.toLowerCase().contains(query))
+            p
+      ];
+    }
+
+    final bool noRealPacks = packs.isEmpty;
+    final bool showQuickStart = noRealPacks || visible.isEmpty;
+
+    if (showQuickStart) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
@@ -95,6 +116,24 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             children: [
               const Icon(Icons.auto_awesome, size: 96, color: Colors.white30),
               const SizedBox(height: 24),
+              if (!noRealPacks) ...[
+                Text(
+                  'По текущему фильтру пакетов не найдено',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _hideCompleted = false;
+                      _typeFilter = 'All';
+                      _searchController.clear();
+                    });
+                  },
+                  child: const Text('Сбросить фильтры'),
+                ),
+                const SizedBox(height: 24),
+              ],
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -128,23 +167,6 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       );
     }
 
-    List<TrainingPack> visible = _hideCompleted
-        ? [for (final p in packs) if (!_isPackCompleted(p)) p]
-        : packs;
-
-    if (_typeFilter != 'All') {
-      visible = [for (final p in visible) if (p.gameType == _typeFilter) p];
-    }
-
-    final query = _searchController.text.toLowerCase();
-    if (query.isNotEmpty) {
-      visible = [
-        for (final p in visible)
-          if (p.name.toLowerCase().contains(query) ||
-              p.description.toLowerCase().contains(query))
-            p
-      ];
-    }
 
     return Scaffold(
       appBar: AppBar(
