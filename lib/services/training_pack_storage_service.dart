@@ -172,7 +172,12 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createFromTemplate(TrainingPackTemplate template) async {
+  Future<void> createFromTemplate(
+    TrainingPackTemplate template, {
+    List<SavedHand>? hands,
+    String? categoryOverride,
+  }) async {
+    final selected = hands ?? template.hands;
     String base = template.name;
     String name = base;
     int idx = 1;
@@ -183,8 +188,11 @@ class TrainingPackStorageService extends ChangeNotifier {
     final pack = TrainingPack(
       name: name,
       description: template.description,
+      category: categoryOverride?.isNotEmpty == true
+          ? categoryOverride!
+          : 'Uncategorized',
       gameType: template.gameType,
-      hands: template.hands,
+      hands: selected,
     );
     _packs.add(pack);
     await _persist();

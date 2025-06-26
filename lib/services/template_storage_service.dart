@@ -44,6 +44,7 @@ class TemplateStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// replaces existing template by id, keeps ordering
   void updateTemplate(TrainingPackTemplate template) {
     final index = _templates.indexWhere((t) => t.id == template.id);
     if (index == -1) return;
