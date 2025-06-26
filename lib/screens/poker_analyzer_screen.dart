@@ -2829,6 +2829,61 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
+  Future<void> _ensureGameInfo() async {
+    if ((_handContext.gameType?.isEmpty ?? true) ||
+        (_handContext.category?.isEmpty ?? true)) {
+      final gtController =
+          TextEditingController(text: _handContext.gameType ?? '');
+      final catController =
+          TextEditingController(text: _handContext.category ?? '');
+      final result = await showDialog<(String, String)>(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text('Информация о споте',
+              style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: gtController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Тип игры',
+                  labelStyle: TextStyle(color: Colors.white),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: catController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: 'Категория',
+                  labelStyle: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(
+                  context, (gtController.text, catController.text)),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      if (result != null) {
+        _handContext.gameType = result.$1.trim();
+        _handContext.category = result.$2.trim();
+      }
+    }
+  }
+
   void _playAll() {
     if (lockService.isLocked) return;
     _playbackManager.seek(0);
@@ -5064,9 +5119,13 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     );
   }
 
-  String saveHand() {
+  Future<String> saveHand() async {
     _addQualityTags();
-    final hand = _currentSavedHand();
+    await _ensureGameInfo();
+    final hand = _currentSavedHand(
+      gameType: _handContext.gameType,
+      category: _handContext.category,
+    );
     return _handImportExportService.serializeHand(hand);
   }
 
@@ -5151,7 +5210,12 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (result == null) return;
     final handName = result.trim().isEmpty ? _defaultHandName() : result.trim();
     _addQualityTags();
-    final hand = _currentSavedHand(name: handName);
+    await _ensureGameInfo();
+    final hand = _currentSavedHand(
+      name: handName,
+      gameType: _handContext.gameType,
+      category: _handContext.category,
+    );
     await _handManager.add(hand);
     lockService.safeSetState(this, () => _handContext.currentHandName = handName);
   }

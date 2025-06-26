@@ -17,6 +17,7 @@ class CurrentHandContextService {
   final TextEditingController totalPrizePoolController = TextEditingController();
   final TextEditingController numberOfEntrantsController = TextEditingController();
   final TextEditingController gameTypeController = TextEditingController();
+  final TextEditingController categoryController = TextEditingController();
 
   /// Current comment text or `null` if empty.
   String? get comment =>
@@ -65,6 +66,10 @@ class CurrentHandContextService {
       gameTypeController.text.isNotEmpty ? gameTypeController.text : null;
   set gameType(String? value) => gameTypeController.text = value ?? '';
 
+  String? get category =>
+      categoryController.text.isNotEmpty ? categoryController.text : null;
+  set category(String? value) => categoryController.text = value ?? '';
+
   /// Cursor offset inside the tag field.
   int? get tagsCursor => tagsController.selection.baseOffset >= 0
       ? tagsController.selection.baseOffset
@@ -87,6 +92,7 @@ class CurrentHandContextService {
     totalPrizePoolController.clear();
     numberOfEntrantsController.clear();
     gameTypeController.clear();
+    categoryController.clear();
   }
 
   /// Restore context from persisted data.
@@ -101,6 +107,7 @@ class CurrentHandContextService {
     int? totalPrizePool,
     int? numberOfEntrants,
     String? gameType,
+    String? category,
   }) {
     _currentHandName = name;
     this.comment = comment;
@@ -112,6 +119,7 @@ class CurrentHandContextService {
     this.totalPrizePool = totalPrizePool;
     this.numberOfEntrants = numberOfEntrants;
     this.gameType = gameType;
+    this.category = category;
   }
 
   /// Restore context directly from a [SavedHand].
@@ -127,6 +135,7 @@ class CurrentHandContextService {
       totalPrizePool: hand.totalPrizePool,
       numberOfEntrants: hand.numberOfEntrants,
       gameType: hand.gameType,
+      category: hand.category,
     );
   }
 
@@ -143,6 +152,7 @@ class CurrentHandContextService {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
+      category: category,
     );
   }
 
@@ -159,5 +169,6 @@ class CurrentHandContextService {
     totalPrizePoolController.dispose();
     numberOfEntrantsController.dispose();
     gameTypeController.dispose();
+    categoryController.dispose();
   }
 }

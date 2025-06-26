@@ -292,9 +292,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     SavedHand? played;
     if (state != null) {
       try {
-        final jsonStr = state.saveHand() as String;
-        played =
-            SavedHandImportExportService.decode(jsonStr);
+        final jsonStr = await state.saveHand() as String;
+        played = SavedHandImportExportService.decode(jsonStr);
       } catch (_) {}
     }
     final original = _sessionHands[_currentIndex];
