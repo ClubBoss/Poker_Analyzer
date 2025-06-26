@@ -93,6 +93,59 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     }
   }
 
+  Widget _buildFeaturedRow(List<TrainingPackTemplate> templates) {
+    final list = List<TrainingPackTemplate>.from(templates);
+    int score(TrainingPackTemplate t) {
+      var s = 0;
+      if (t.isBuiltIn) s += 2;
+      if (t.gameType == 'Tournament') s += 2;
+      if (t.gameType == 'Cash Game') s += 1;
+      return s;
+    }
+    list.sort((a, b) {
+      final sa = score(a);
+      final sb = score(b);
+      if (sa != sb) return sb.compareTo(sa);
+      return b.updatedAt.compareTo(a.updatedAt);
+    });
+    final featured = list.take(5).toList();
+    if (featured.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Text('Избранные шаблоны'),
+        ),
+        SizedBox(
+          height: 40,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: featured.length,
+            itemBuilder: (context, index) {
+              final t = featured[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CreatePackFromTemplateScreen(template: t),
+                      ),
+                    );
+                  },
+                  child: Text(t.name),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final templates = context.watch<TemplateStorageService>().templates;
@@ -125,6 +178,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               onChanged: (_) => setState(() {}),
             ),
           ),
+          _buildFeaturedRow(templates),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: DropdownButton<String>(
