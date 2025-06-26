@@ -52,6 +52,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   static const _endKey = 'tag_filter_range_end';
   static const _cmpStartKey = 'tag_compare_start';
   static const _cmpEndKey = 'tag_compare_end';
+  static const _chartModeKey = 'tag_chart_mode';
   MistakeSortOption _sort = MistakeSortOption.count;
   final Set<String> _activeTags = {};
   DateTimeRange? _range;
@@ -97,6 +98,11 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         _compareRange = DateTimeRange(start: s, end: e);
       }
     }
+    final modeName = prefs.getString(_chartModeKey);
+    if (modeName != null) {
+      final index = _ChartMode.values.indexWhere((m) => m.name == modeName);
+      if (index != -1) _chartMode = _ChartMode.values[index];
+    }
     if (mounted) setState(() {});
   }
 
@@ -135,6 +141,12 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           _cmpStartKey, _compareRange!.start.toIso8601String());
       await prefs.setString(_cmpEndKey, _compareRange!.end.toIso8601String());
     }
+  }
+
+  Future<void> _setChartMode(_ChartMode mode) async {
+    setState(() => _chartMode = mode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_chartModeKey, mode.name);
   }
 
   bool _sameDay(DateTime a, DateTime b) {
@@ -777,8 +789,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                     _chartMode == _ChartMode.daily,
                     _chartMode == _ChartMode.weekly,
                   ],
-                  onPressed: (i) =>
-                      setState(() => _chartMode = _ChartMode.values[i]),
+                  onPressed: (i) => _setChartMode(_ChartMode.values[i]),
                   borderRadius: BorderRadius.circular(4),
                   selectedColor: Colors.white,
                   fillColor: Colors.blueGrey,
