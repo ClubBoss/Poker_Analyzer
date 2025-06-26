@@ -2836,17 +2836,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           TextEditingController(text: _handContext.gameType ?? '');
       final catController =
           TextEditingController(text: _handContext.category ?? '');
-      final gameTypes = _handManager.hands
-          .map((h) => h.gameType)
-          .whereType<String>()
-          .toSet()
-          .toList()
+      final gameTypes = <String>{
+        'Tournament',
+        'Cash Game',
+        ..._handManager.hands
+            .map((h) => h.gameType)
+            .whereType<String>()
+      }.toList()
         ..sort();
-      final categories = _handManager.hands
-          .map((h) => h.category)
-          .whereType<String>()
-          .toSet()
-          .toList()
+      final categories = <String>{
+        'Uncategorized',
+        ..._handManager.hands
+            .map((h) => h.category)
+            .whereType<String>()
+      }.toList()
         ..sort();
       final result = await showDialog<(String, String)>(
         context: context,
@@ -2901,15 +2904,18 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           ),
         ),
       );
-      gtController.dispose();
-      catController.dispose();
-      if (result == null ||
-          result.$1.trim().isEmpty ||
-          result.$2.trim().isEmpty) {
-        return false;
+      try {
+        if (result == null ||
+            result.$1.trim().isEmpty ||
+            result.$2.trim().isEmpty) {
+          return false;
+        }
+        _handContext.gameType = result.$1.trim();
+        _handContext.category = result.$2.trim();
+      } finally {
+        gtController.dispose();
+        catController.dispose();
       }
-      _handContext.gameType = result.$1.trim();
-      _handContext.category = result.$2.trim();
     }
     return true;
   }
