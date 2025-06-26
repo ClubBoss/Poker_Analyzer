@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../models/training_pack_template.dart';
 import '../services/template_storage_service.dart';
-import '../services/training_pack_storage_service.dart';
 
 import 'create_template_screen.dart';
 import 'template_hands_editor_screen.dart';
