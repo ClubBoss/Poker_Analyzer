@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/summary_result.dart';
 import 'dart:io';
@@ -39,11 +40,66 @@ class TagMistakeOverviewScreen extends StatefulWidget {
 }
 
 class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
+  static const _tagsKey = 'tag_filter_tags';
+  static const _levelsKey = 'tag_filter_levels';
+  static const _startKey = 'tag_filter_range_start';
+  static const _endKey = 'tag_filter_range_end';
   MistakeSortOption _sort = MistakeSortOption.count;
   final Set<String> _activeTags = {};
   DateTimeRange? _range;
   final Set<MistakeSeverity> _levels =
       {MistakeSeverity.high, MistakeSeverity.medium, MistakeSeverity.low};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFilters();
+  }
+
+  Future<void> _loadFilters() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tags = prefs.getStringList(_tagsKey);
+    if (tags != null) _activeTags.addAll(tags);
+    final levels = prefs.getStringList(_levelsKey);
+    if (levels != null && levels.isNotEmpty) {
+      _levels
+        ..clear()
+        ..addAll(levels.map((e) => MistakeSeverity.values.firstWhere((m) => m.name == e)));
+    }
+    final start = prefs.getString(_startKey);
+    final end = prefs.getString(_endKey);
+    if (start != null && end != null) {
+      final s = DateTime.tryParse(start);
+      final e = DateTime.tryParse(end);
+      if (s != null && e != null) _range = DateTimeRange(start: s, end: e);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _saveTags() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_activeTags.isEmpty) {
+      await prefs.remove(_tagsKey);
+    } else {
+      await prefs.setStringList(_tagsKey, _activeTags.toList());
+    }
+  }
+
+  Future<void> _saveLevels() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_levelsKey, _levels.map((e) => e.name).toList());
+  }
+
+  Future<void> _saveRange() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_range == null) {
+      await prefs.remove(_startKey);
+      await prefs.remove(_endKey);
+    } else {
+      await prefs.setString(_startKey, _range!.start.toIso8601String());
+      await prefs.setString(_endKey, _range!.end.toIso8601String());
+    }
+  }
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -66,7 +122,10 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       lastDate: now,
       initialDateRange: initial,
     );
-    if (picked != null) setState(() => _range = picked);
+    if (picked != null) {
+      setState(() => _range = picked);
+      _saveRange();
+    }
   }
 
   void _toggleLevel(MistakeSeverity level) {
@@ -80,6 +139,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         _levels.add(level);
       }
     });
+    _saveLevels();
   }
 
   void _resetLevels() {
@@ -88,6 +148,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         ..clear()
         ..addAll(MistakeSeverity.values);
     });
+    _saveLevels();
   }
 
   void _openDay(DateTime day) {
@@ -379,7 +440,10 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                 if (_range != null)
                   IconButton(
                     icon: const Icon(Icons.close, size: 18, color: Colors.white70),
-                    onPressed: () => setState(() => _range = null),
+                    onPressed: () {
+                      setState(() => _range = null);
+                      _saveRange();
+                    },
                   ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -430,13 +494,16 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                         label: Text(t),
                         selected: _activeTags.contains(t),
                         selectedColor: colorFromHex(service.colorOf(t)),
-                        onSelected: (sel) => setState(() {
-                          if (sel) {
-                            _activeTags.add(t);
-                          } else {
-                            _activeTags.remove(t);
-                          }
-                        }),
+                        onSelected: (sel) {
+                          setState(() {
+                            if (sel) {
+                              _activeTags.add(t);
+                            } else {
+                              _activeTags.remove(t);
+                            }
+                          });
+                          _saveTags();
+                        },
                       ),
                     ),
                   if (_activeTags.isNotEmpty)
@@ -446,7 +513,10 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                         icon: const Icon(Icons.close, size: 18),
                         color: Colors.white70,
                         tooltip: 'Очистить',
-                        onPressed: () => setState(() => _activeTags.clear()),
+                        onPressed: () {
+                          setState(() => _activeTags.clear());
+                          _saveTags();
+                        },
                       ),
                     ),
                 ],
