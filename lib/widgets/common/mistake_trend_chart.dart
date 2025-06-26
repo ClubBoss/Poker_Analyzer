@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -9,12 +7,16 @@ class MistakeTrendChart extends StatelessWidget {
   final Map<String, Map<DateTime, int>> counts;
   final Map<String, Color> colors;
   final ValueChanged<DateTime>? onDayTap;
+  final Set<DateTime>? highlights;
+  final bool showLegend;
 
   const MistakeTrendChart({
     super.key,
     required this.counts,
     required this.colors,
     this.onDayTap,
+    this.highlights,
+    this.showLegend = true,
   });
 
   @override
@@ -62,7 +64,19 @@ class MistakeTrendChart extends StatelessWidget {
           isCurved: true,
           color: colors[entry.key] ?? Colors.redAccent,
           barWidth: 2,
-          dotData: FlDotData(show: false),
+          dotData: FlDotData(
+            show: highlights != null,
+            checkToShowDot: (spot, bar) {
+              final d = dates[spot.x.toInt()];
+              return highlights?.contains(d) ?? false;
+            },
+            getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
+              radius: 4,
+              color: bar.color ?? Colors.redAccent,
+              strokeColor: Colors.yellow,
+              strokeWidth: 2,
+            ),
+          ),
         ),
       );
     }
@@ -196,13 +210,17 @@ class MistakeTrendChart extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                '${entry.key}: ${entry.value.fold<int>(0, (a, b) => a + b)}',
+                entry.key,
                 style: const TextStyle(color: Colors.white, fontSize: 10),
               ),
             ],
           ),
       ],
     );
+
+    if (!showLegend) {
+      return chart;
+    }
 
     return Column(
       children: [

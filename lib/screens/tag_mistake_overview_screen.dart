@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 
 import '../models/summary_result.dart';
 import 'dart:io';
@@ -264,6 +265,33 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           levels: _levels,
         ),
       ),
+    );
+  }
+
+  Widget _buildLegend(Map<String, Color> colors, bool overlay, bool primary) {
+    return Wrap(
+      spacing: 8,
+      children: [
+        for (final entry in colors.entries)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: entry.value,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                overlay ? entry.key : (primary ? 'Основной' : 'Сравнение'),
+                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ],
+          ),
+      ],
     );
   }
 
@@ -527,6 +555,28 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           : {'all': Colors.blueAccent};
     }
 
+    final sharedPeaks = <DateTime>{};
+    if (cmpCounts.isNotEmpty) {
+      final totalA = <DateTime, int>{};
+      for (final map in chartCounts.values) {
+        map.forEach((d, v) => totalA[d] = (totalA[d] ?? 0) + v);
+      }
+      final totalB = <DateTime, int>{};
+      for (final map in cmpCounts.values) {
+        map.forEach((d, v) => totalB[d] = (totalB[d] ?? 0) + v);
+      }
+      if (totalA.isNotEmpty && totalB.isNotEmpty) {
+        final maxA = totalA.values.reduce(max);
+        final maxB = totalB.values.reduce(max);
+        for (final d in totalA.keys) {
+          if ((totalA[d] ?? 0) == maxA && (totalB[d] ?? 0) == maxB &&
+              maxA > 0 && maxB > 0) {
+            sharedPeaks.add(d);
+          }
+        }
+      }
+    }
+
     final diffs = <MapEntry<String, double>>[];
     if (cmpSummary != null) {
       final mapA = {for (final e in entries) e.key: e.value};
@@ -698,11 +748,21 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           sliver: SliverToBoxAdapter(
             child: SizedBox(
-              height: 200,
-              child: MistakeTrendChart(
-                counts: chartCounts,
-                colors: chartColors,
-                onDayTap: _openDay,
+              height: 216,
+              child: Column(
+                children: [
+                  _buildLegend(chartColors, overlay, true),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: MistakeTrendChart(
+                      counts: chartCounts,
+                      colors: chartColors,
+                      onDayTap: _openDay,
+                      highlights: sharedPeaks,
+                      showLegend: false,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -712,10 +772,20 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             sliver: SliverToBoxAdapter(
               child: SizedBox(
-                height: 200,
-                child: MistakeTrendChart(
-                  counts: cmpCounts,
-                  colors: cmpColors,
+                height: 216,
+                child: Column(
+                  children: [
+                    _buildLegend(cmpColors, overlay, false),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: MistakeTrendChart(
+                        counts: cmpCounts,
+                        colors: cmpColors,
+                        highlights: sharedPeaks,
+                        showLegend: false,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
