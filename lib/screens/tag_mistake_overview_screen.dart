@@ -6,6 +6,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import '../models/summary_result.dart';
 import 'dart:io';
@@ -53,6 +54,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   final Set<String> _activeTags = {};
   DateTimeRange? _range;
   DateTimeRange? _compareRange;
+  final GlobalKey _chartKey = GlobalKey();
   final Set<MistakeSeverity> _levels = {
     MistakeSeverity.high,
     MistakeSeverity.medium,
@@ -295,8 +297,18 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     );
   }
 
+  Future<Uint8List?> _captureChart() async {
+    final boundary = _chartKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
+    if (boundary == null) return null;
+    final image = await boundary.toImage(pixelRatio: 3);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData?.buffer.asUint8List();
+  }
+
   Future<void> _exportPdf(BuildContext context, SummaryResult summary,
       List<MapEntry<String, int>> entries) async {
+    final chartBytes = await _captureChart();
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
@@ -308,54 +320,52 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         [e.key, e.value.toString(), service.classifySeverity(e.value).label]
     ];
 
-    if (entries.isEmpty) {
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          build: (ctx) => [
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (ctx) {
+          final items = <pw.Widget>[
             pw.Text('Ошибки по тегам',
                 style: pw.TextStyle(font: boldFont, fontSize: 24)),
             pw.SizedBox(height: 8),
             pw.Text(date, style: pw.TextStyle(font: regularFont)),
-            pw.SizedBox(height: 16),
-            pw.Text('Ошибок не найдено за выбранный период.',
-                style: pw.TextStyle(font: regularFont)),
-          ],
-        ),
-      );
-    } else {
-      final mistakes = summary.incorrect;
-      final total = summary.totalHands;
-      final accuracy = summary.accuracy;
-      final mistakePercent = total > 0 ? mistakes / total * 100 : 0.0;
-
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          build: (ctx) => [
-            pw.Text('Ошибки по тегам',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
-            pw.SizedBox(height: 8),
-            pw.Text(date, style: pw.TextStyle(font: regularFont)),
-            pw.SizedBox(height: 16),
-            pw.Text('Ошибки: $mistakes',
-                style: pw.TextStyle(font: regularFont)),
-            pw.SizedBox(height: 4),
-            pw.Text('Средняя точность: ${accuracy.toStringAsFixed(1)}%',
-                style: pw.TextStyle(font: regularFont)),
-            pw.SizedBox(height: 4),
-            pw.Text(
-                'Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
-                style: pw.TextStyle(font: regularFont)),
-            pw.SizedBox(height: 16),
-            pw.Table.fromTextArray(
-              headers: const ['Тег', 'Ошибки', 'Уровень'],
-              data: rows,
-            ),
-          ],
-        ),
-      );
-    }
+          ];
+          if (chartBytes != null) {
+            items.add(pw.SizedBox(height: 16));
+            items.add(pw.Image(pw.MemoryImage(chartBytes),
+                width: PdfPageFormat.a4.availableWidth));
+          }
+          items.add(pw.SizedBox(height: 16));
+          if (entries.isEmpty) {
+            items.add(pw.Text('Ошибок не найдено за выбранный период.',
+                style: pw.TextStyle(font: regularFont)));
+          } else {
+            final mistakes = summary.incorrect;
+            final total = summary.totalHands;
+            final accuracy = summary.accuracy;
+            final mistakePercent =
+                total > 0 ? mistakes / total * 100 : 0.0;
+            items.addAll([
+              pw.Text('Ошибки: $mistakes',
+                  style: pw.TextStyle(font: regularFont)),
+              pw.SizedBox(height: 4),
+              pw.Text('Средняя точность: ${accuracy.toStringAsFixed(1)}%',
+                  style: pw.TextStyle(font: regularFont)),
+              pw.SizedBox(height: 4),
+              pw.Text(
+                  'Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
+                  style: pw.TextStyle(font: regularFont)),
+              pw.SizedBox(height: 16),
+              pw.Table.fromTextArray(
+                headers: const ['Тег', 'Ошибки', 'Уровень'],
+                data: rows,
+              ),
+            ]);
+          }
+          return items;
+        },
+      ),
+    );
 
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
@@ -747,22 +757,25 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           sliver: SliverToBoxAdapter(
-            child: SizedBox(
-              height: 216,
-              child: Column(
-                children: [
-                  _buildLegend(chartColors, overlay, true),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: MistakeTrendChart(
-                      counts: chartCounts,
-                      colors: chartColors,
-                      onDayTap: _openDay,
-                      highlights: sharedPeaks,
-                      showLegend: false,
+            child: RepaintBoundary(
+              key: _chartKey,
+              child: SizedBox(
+                height: 216,
+                child: Column(
+                  children: [
+                    _buildLegend(chartColors, overlay, true),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: MistakeTrendChart(
+                        counts: chartCounts,
+                        colors: chartColors,
+                        onDayTap: _openDay,
+                        highlights: sharedPeaks,
+                        showLegend: false,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
