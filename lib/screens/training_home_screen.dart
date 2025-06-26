@@ -8,6 +8,7 @@ import '../widgets/daily_progress_ring.dart';
 import '../widgets/repeat_mistakes_card.dart';
 import '../widgets/weekly_challenge_card.dart';
 import '../widgets/xp_progress_bar.dart';
+import '../widgets/quick_continue_card.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
   const TrainingHomeScreen({super.key});
@@ -29,6 +30,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
       appBar: AppBar(title: const Text('Training')),
       body: ListView(
         children: const [
+          QuickContinueCard(),
           SpotOfTheDayCard(),
           StreakChart(),
           DailyProgressRing(),
