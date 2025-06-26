@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/training_pack.dart';
+import 'training_pack_storage_service.dart';
+
 import 'training_stats_service.dart';
 import 'xp_tracker_service.dart';
 import '../main.dart';
@@ -22,10 +25,11 @@ class WeeklyChallengeService extends ChangeNotifier {
 
   final TrainingStatsService stats;
   final XPTrackerService xp;
+  final TrainingPackStorageService packs;
 
   static const _rewardXp = 50;
 
-  WeeklyChallengeService({required this.stats, required this.xp});
+  WeeklyChallengeService({required this.stats, required this.xp, required this.packs});
 
   static const _challenges = [
     WeeklyChallenge('Tag 5 mistakes', 'mistakes', 5),
@@ -68,6 +72,14 @@ class WeeklyChallengeService extends ChangeNotifier {
   }
 
   double get progress => (progressValue / current.target).clamp(0.0, 1.0);
+
+  int get daysLeft =>
+      (7 - DateTime.now().difference(_start).inDays).clamp(0, 7);
+
+  TrainingPack get currentPack =>
+      packs.packs.isNotEmpty
+          ? packs.packs.first
+          : TrainingPack(name: current.title, description: '', hands: []);
 
   Future<void> _onStats() async {
     if (progressValue >= current.target) {
