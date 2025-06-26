@@ -16,6 +16,8 @@ import '../services/evaluation_executor_service.dart';
 import '../helpers/mistake_advice.dart';
 import 'saved_hand_tile.dart';
 import '../services/goals_service.dart';
+import '../helpers/date_utils.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 
 /// Internal enum for accuracy filter options.
 enum _AccuracyFilter { all, errors, correct }
@@ -261,6 +263,51 @@ class _SavedHandListViewState extends State<SavedHandListView> {
     );
   }
 
+  Widget _buildGroupedList(List<SavedHand> list) {
+    final groups = <DateTime, List<SavedHand>>{};
+    for (final h in list) {
+      final d = DateTime(h.date.year, h.date.month, h.date.day);
+      groups.putIfAbsent(d, () => []).add(h);
+    }
+    final dates = groups.keys.toList()..sort((a, b) => b.compareTo(a));
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppConstants.padding16),
+      itemCount: dates.length,
+      itemBuilder: (context, index) {
+        final date = dates[index];
+        final hands = groups[date]!;
+        return StickyHeader(
+          header: Container(
+            color: const Color(0xFF2A2B2E),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            child: Text(
+              formatDate(date),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          content: Column(
+            children: [
+              for (final h in hands)
+                SavedHandTile(
+                  hand: h,
+                  onTap: () => widget.onTap(h),
+                  onFavoriteToggle: widget.onFavoriteToggle == null
+                      ? null
+                      : () => widget.onFavoriteToggle!(h),
+                  onRename: widget.onRename == null
+                      ? null
+                      : () => widget.onRename!(h),
+                )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filtered();
@@ -309,23 +356,7 @@ class _SavedHandListViewState extends State<SavedHandListView> {
                     style: TextStyle(color: Colors.white54),
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(AppConstants.padding16),
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final hand = filtered[index];
-                    return SavedHandTile(
-                      hand: hand,
-                      onTap: () => widget.onTap(hand),
-                      onFavoriteToggle: widget.onFavoriteToggle == null
-                          ? null
-                          : () => widget.onFavoriteToggle!(hand),
-                      onRename: widget.onRename == null
-                          ? null
-                          : () => widget.onRename!(hand),
-                    );
-                  },
-                ),
+              : _buildGroupedList(filtered),
         ),
       ],
     );
