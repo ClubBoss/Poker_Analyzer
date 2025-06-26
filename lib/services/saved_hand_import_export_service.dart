@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
@@ -43,8 +44,33 @@ class SavedHandImportExportService {
   /// Instance convenience wrapper around [encode].
   String serializeHand(SavedHand hand) => encode(hand);
 
-  /// Instance convenience wrapper around [decode].
-  SavedHand deserializeHand(String jsonStr) => decode(jsonStr);
+  /// Instance convenience wrapper around [decode] with basic heuristics.
+  SavedHand deserializeHand(String jsonStr) {
+    final hand = decode(jsonStr);
+    String? gameType = hand.gameType;
+    String? category = hand.category;
+    if (gameType == null || gameType.isEmpty) {
+      gameType = (hand.buyIn != null ||
+              hand.tournamentId?.isNotEmpty == true ||
+              (hand.numberOfEntrants ?? 0) > 0)
+          ? 'Tournament'
+          : 'Cash Game';
+    }
+    if (category == null || category.isEmpty) {
+      if (hand.boardStreet == 0) {
+        int stack = 0;
+        for (final s in hand.stackSizes.values) {
+          stack = max(stack, s);
+        }
+        category = stack <= 20 ? 'Push/Fold' : 'Preflop';
+      } else {
+        category = 'Postflop';
+      }
+    }
+    return (gameType != hand.gameType || category != hand.category)
+        ? hand.copyWith(gameType: gameType, category: category)
+        : hand;
+  }
 
   SavedHand buildHand({
     String? name,
