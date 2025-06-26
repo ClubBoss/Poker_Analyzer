@@ -22,6 +22,12 @@ class TemplateStorageService extends ChangeNotifier {
           _templates.add(TrainingPackTemplate.fromJson(data));
         }
       }
+      // сортируем по type → revision ↓ → name
+      _templates.sort((a, b) {
+        if (a.gameType != b.gameType) return a.gameType.compareTo(b.gameType);
+        final rev = b.revision.compareTo(a.revision);
+        return rev == 0 ? a.name.compareTo(b.name) : rev;
+      });
     } catch (_) {}
     notifyListeners();
   }
