@@ -40,7 +40,7 @@ class TagMistakeOverviewScreen extends StatefulWidget {
 
 class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   MistakeSortOption _sort = MistakeSortOption.count;
-  String? _activeTag;
+  final Set<String> _activeTags = {};
   DateTimeRange? _range;
   final Set<MistakeSeverity> _levels =
       {MistakeSeverity.high, MistakeSeverity.medium, MistakeSeverity.low};
@@ -112,8 +112,8 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     final baseEntries = summary.mistakeTagFrequencies.entries
         .where((e) => !ignored.contains('tag:${e.key}'))
         .toList();
-    final visibleTags = _activeTag != null
-        ? {_activeTag!}
+    final visibleTags = _activeTags.isNotEmpty
+        ? _activeTags
         : {
             for (final e in baseEntries)
               if (_levels.contains(service.classifySeverity(e.value))) e.key
@@ -124,10 +124,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
             h.gtoAction != null &&
             h.expectedAction!.trim().toLowerCase() !=
                 h.gtoAction!.trim().toLowerCase() &&
-            (visibleTags.isEmpty ||
-                (_activeTag != null
-                    ? h.tags.contains(_activeTag)
-                    : h.tags.any(visibleTags.contains))))
+            (visibleTags.isEmpty || h.tags.any(visibleTags.contains)))
           h
     ];
     if (hands.isEmpty) {
@@ -140,7 +137,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       MaterialPageRoute(
         builder: (_) => _DailyMistakeHandsScreen(
           day: day,
-          tag: _activeTag,
+          tags: _activeTags.isNotEmpty ? _activeTags : null,
           dateFilter: widget.dateFilter,
           dateRange: _range,
           levels: _levels,
@@ -246,8 +243,8 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         .toList();
     final tags = [for (final e in baseEntries) e.key]..sort();
     final entries = <MapEntry<String, int>>[...baseEntries];
-    if (_activeTag != null) {
-      entries.removeWhere((e) => e.key != _activeTag);
+    if (_activeTags.isNotEmpty) {
+      entries.removeWhere((e) => !_activeTags.contains(e.key));
     }
     entries.removeWhere(
         (e) => !_levels.contains(service.classifySeverity(e.value)));
@@ -275,35 +272,55 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       entries.sort((a, b) => b.value.compareTo(a.value));
     }
 
-    final visibleTags = _activeTag != null
-        ? {_activeTag!}
+    final visibleTags = _activeTags.isNotEmpty
+        ? _activeTags
         : {
             for (final e in baseEntries)
               if (_levels.contains(service.classifySeverity(e.value))) e.key
           };
     final start = _range?.start ?? now.subtract(const Duration(days: 29));
     final end = _range?.end ?? now;
+    final overlay = _activeTags.length > 1;
     final dailyCounts = <DateTime, int>{};
+    final tagCounts = <String, Map<DateTime, int>>{};
     for (var d = DateTime(start.year, start.month, start.day);
         !d.isAfter(end);
         d = d.add(const Duration(days: 1))) {
       dailyCounts[d] = 0;
+      if (overlay) {
+        for (final t in _activeTags) {
+          tagCounts.putIfAbsent(t, () => {})[d] = 0;
+        }
+      }
     }
     for (final h in hands) {
       final exp = h.expectedAction;
       final gto = h.gtoAction;
       if (exp == null || gto == null) continue;
       if (exp.trim().toLowerCase() == gto.trim().toLowerCase()) continue;
-      if (visibleTags.isNotEmpty) {
-        final ok = _activeTag != null
-            ? h.tags.contains(_activeTag)
-            : h.tags.any(visibleTags.contains);
-        if (!ok) continue;
+      if (visibleTags.isNotEmpty && !h.tags.any(visibleTags.contains)) {
+        continue;
       }
       final day = DateTime(h.date.year, h.date.month, h.date.day);
       if (day.isBefore(start) || day.isAfter(end)) continue;
-      dailyCounts[day] = (dailyCounts[day] ?? 0) + 1;
+      if (overlay) {
+        for (final t in _activeTags) {
+          if (h.tags.contains(t)) {
+            tagCounts[t]![day] = (tagCounts[t]![day] ?? 0) + 1;
+          }
+        }
+      } else {
+        dailyCounts[day] = (dailyCounts[day] ?? 0) + 1;
+      }
     }
+
+    final chartCounts = overlay ? tagCounts : {'all': dailyCounts};
+    final chartColors = overlay
+        ? {
+            for (final t in _activeTags)
+              t: colorFromHex(context.read<TagService>().colorOf(t))
+          }
+        : {'all': Colors.redAccent};
 
     return CustomScrollView(
       slivers: [
@@ -409,22 +426,27 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                   for (final t in tags)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: ChoiceChip(
+                      child: FilterChip(
                         label: Text(t),
-                        selected: _activeTag == t,
+                        selected: _activeTags.contains(t),
                         selectedColor: colorFromHex(service.colorOf(t)),
-                        onSelected: (_) => setState(() =>
-                            _activeTag = _activeTag == t ? null : t),
+                        onSelected: (sel) => setState(() {
+                          if (sel) {
+                            _activeTags.add(t);
+                          } else {
+                            _activeTags.remove(t);
+                          }
+                        }),
                       ),
                     ),
-                  if (_activeTag != null)
+                  if (_activeTags.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: IconButton(
                         icon: const Icon(Icons.close, size: 18),
                         color: Colors.white70,
                         tooltip: 'Очистить',
-                        onPressed: () => setState(() => _activeTag = null),
+                        onPressed: () => setState(() => _activeTags.clear()),
                       ),
                     ),
                 ],
@@ -438,7 +460,8 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
             child: SizedBox(
               height: 200,
               child: MistakeTrendChart(
-                counts: dailyCounts,
+                counts: chartCounts,
+                colors: chartColors,
                 onDayTap: _openDay,
               ),
             ),
@@ -568,14 +591,14 @@ class _DailyMistakeHandsScreen extends StatelessWidget {
   final DateTime day;
   final String dateFilter;
   final DateTimeRange? dateRange;
-  final String? tag;
+  final Set<String>? tags;
   final Set<MistakeSeverity> levels;
 
   const _DailyMistakeHandsScreen({
     required this.day,
     required this.dateFilter,
     this.dateRange,
-    this.tag,
+    this.tags,
     required this.levels,
   });
 
@@ -607,8 +630,8 @@ class _DailyMistakeHandsScreen extends StatelessWidget {
     final baseEntries = summary.mistakeTagFrequencies.entries
         .where((e) => !ignored.contains('tag:${e.key}'))
         .toList();
-    final visibleTags = tag != null
-        ? {tag!}
+    final visibleTags = tags != null && tags!.isNotEmpty
+        ? tags!
         : {
             for (final e in baseEntries)
               if (levels.contains(service.classifySeverity(e.value))) e.key
@@ -619,10 +642,7 @@ class _DailyMistakeHandsScreen extends StatelessWidget {
             h.gtoAction != null &&
             h.expectedAction!.trim().toLowerCase() !=
                 h.gtoAction!.trim().toLowerCase() &&
-            (visibleTags.isEmpty ||
-                (tag != null
-                    ? h.tags.contains(tag)
-                    : h.tags.any(visibleTags.contains))))
+            (visibleTags.isEmpty || h.tags.any(visibleTags.contains)))
           h
     ];
 
@@ -633,7 +653,7 @@ class _DailyMistakeHandsScreen extends StatelessWidget {
       ),
       body: SavedHandListView(
         hands: hands,
-        tags: tag != null ? [tag!] : null,
+        tags: tags?.toList(),
         initialAccuracy: 'errors',
         filterKey: day.toIso8601String(),
         title: 'Ошибки: ${formatDate(day)}',
