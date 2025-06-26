@@ -16,6 +16,8 @@ import '../models/training_pack_stats.dart';
 import '../models/pack_chart_sort_option.dart';
 import '../theme/app_colors.dart';
 import 'training_pack_review_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/pack_next_step_card.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
   const TrainingPackComparisonScreen({super.key});
@@ -195,6 +197,15 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   int _firstRowIndex = 0;
   int _rowsPerPage = 10;
   PackChartSort _chartSort = PackChartSort.progress;
+  SharedPreferences? _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((p) {
+      if (mounted) setState(() => _prefs = p);
+    });
+  }
 
   void _toggleSelect(TrainingPack pack) {
     setState(() {
@@ -492,6 +503,20 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         ? stats.map((s) => s.accuracy).reduce((a, b) => a < b ? a : b)
         : 0.0;
 
+    TrainingPack? nextPack;
+    double nextProgress = 1.0;
+    if (_prefs != null) {
+      for (final p in packs) {
+        final idx = _prefs!.getInt('training_progress_${p.name}') ?? 0;
+        if (p.hands.isEmpty || idx >= p.hands.length) continue;
+        final ratio = idx / p.hands.length;
+        if (nextPack == null || ratio < nextProgress) {
+          nextPack = p;
+          nextProgress = ratio;
+        }
+      }
+    }
+
     final source = _PackDataSource(
       stats: stats,
       onOpen: (s) {
@@ -561,6 +586,8 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             forgottenOnly: _forgottenOnly,
             sort: _chartSort,
           ),
+          if (nextPack != null)
+            PackNextStepCard(pack: nextPack!, progress: nextProgress),
           const SizedBox(height: 16),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
