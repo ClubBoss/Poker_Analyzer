@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../user_preferences.dart';
 import 'tag_management_screen.dart';
 import 'cloud_sync_screen.dart';
+import '../services/achievement_engine.dart';
+import 'achievements_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -80,6 +82,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const TagManagementScreen()),
+              );
+            },
+          ),
+          Consumer<AchievementEngine>(
+            builder: (context, engine, child) {
+              final count = engine.unseenCount;
+              Widget icon = const Icon(Icons.emoji_events);
+              if (count > 0) {
+                icon = Stack(
+                  children: [
+                    const Icon(Icons.emoji_events),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        child: Text(
+                          '$count',
+                          style: const TextStyle(fontSize: 10),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return IconButton(
+                icon: icon,
+                tooltip: 'Achievements',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+                  );
+                },
               );
             },
           ),
