@@ -27,6 +27,8 @@ class SavedHand {
   final int? numberOfEntrants;
   /// Game type description such as "Hold'em No Limit".
   final String? gameType;
+  /// Custom category label for this hand.
+  final String? category;
   final Map<int, int> stackSizes;
   final Map<int, int>? currentBets;
   final Map<int, int>? remainingStacks;
@@ -100,6 +102,7 @@ class SavedHand {
     this.totalPrizePool,
     this.numberOfEntrants,
     this.gameType,
+    this.category,
     required this.playerPositions,
     this.playerTypes,
     this.comment,
@@ -159,6 +162,7 @@ class SavedHand {
     int? totalPrizePool,
     int? numberOfEntrants,
     String? gameType,
+    String? category,
     Map<int, String>? playerPositions,
     Map<int, PlayerType>? playerTypes,
     String? comment,
@@ -219,6 +223,7 @@ class SavedHand {
       totalPrizePool: totalPrizePool ?? this.totalPrizePool,
       numberOfEntrants: numberOfEntrants ?? this.numberOfEntrants,
       gameType: gameType ?? this.gameType,
+      category: category ?? this.category,
       playerPositions: playerPositions ?? Map<int, String>.from(this.playerPositions),
       playerTypes: playerTypes ?? this.playerTypes,
       comment: comment ?? this.comment,
@@ -330,6 +335,7 @@ class SavedHand {
         if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
         if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
         if (gameType != null) 'gameType': gameType,
+        if (category != null) 'category': category,
         'playerPositions': playerPositions.map((k, v) => MapEntry(k.toString(), v)),
         if (playerTypes != null)
           'playerTypes':
@@ -440,6 +446,7 @@ class SavedHand {
     final totalPrizePool = json['totalPrizePool'] as int?;
     final numberOfEntrants = json['numberOfEntrants'] as int?;
     final gameType = json['gameType'] as String?;
+    final category = json['category'] as String?;
     final positions = <int, String>{};
     (json['playerPositions'] as Map? ?? {}).forEach((key, value) {
       positions[int.parse(key as String)] = value as String;
@@ -552,6 +559,7 @@ class SavedHand {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
+      category: category,
       playerPositions: positions,
       playerTypes: types,
       comment: json['comment'] as String?,

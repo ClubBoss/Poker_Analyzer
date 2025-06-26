@@ -52,6 +52,8 @@ class SavedHandListView extends StatefulWidget {
 
 class _SavedHandListViewState extends State<SavedHandListView> {
   late _AccuracyFilter _accuracy;
+  String _gameTypeFilter = 'Все';
+  String _categoryFilter = 'Все';
 
   String _accuracyToString(_AccuracyFilter value) {
     switch (value) {
@@ -122,6 +124,8 @@ class _SavedHandListViewState extends State<SavedHandListView> {
         if ((widget.tags == null || widget.tags!.any(h.tags.contains)) &&
             (widget.positions == null ||
                 widget.positions!.contains(h.heroPosition)) &&
+            (_gameTypeFilter == 'Все' || h.gameType == _gameTypeFilter) &&
+            (_categoryFilter == 'Все' || h.category == _categoryFilter) &&
             _matchesAccuracy(h))
           h
     ]..sort((a, b) => b.date.compareTo(a.date));
@@ -221,10 +225,50 @@ class _SavedHandListViewState extends State<SavedHandListView> {
     );
   }
 
+  Widget _buildFilters(Set<String> games, Set<String> categories) {
+    if (games.isEmpty && categories.isEmpty) return const SizedBox.shrink();
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding16),
+      child: Row(
+        children: [
+          if (games.isNotEmpty)
+            DropdownButton<String>(
+              value: _gameTypeFilter,
+              dropdownColor: const Color(0xFF2A2B2E),
+              onChanged: (v) => setState(() => _gameTypeFilter = v ?? 'Все'),
+              items: ['Все', ...games]
+                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                  .toList(),
+            ),
+          if (games.isNotEmpty && categories.isNotEmpty)
+            const SizedBox(width: 12),
+          if (categories.isNotEmpty)
+            DropdownButton<String>(
+              value: _categoryFilter,
+              dropdownColor: const Color(0xFF2A2B2E),
+              onChanged: (v) => setState(() => _categoryFilter = v ?? 'Все'),
+              items: ['Все', ...categories]
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = _filtered();
     final counts = _summary(filtered);
+    final games = {
+      for (final h in widget.hands)
+        if (h.gameType != null && h.gameType!.isNotEmpty) h.gameType!
+    };
+    final categories = {
+      for (final h in widget.hands)
+        if (h.category != null && h.category!.isNotEmpty) h.category!
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,6 +293,7 @@ class _SavedHandListViewState extends State<SavedHandListView> {
           ),
         ),
         _buildAccuracyToggle(),
+        _buildFilters(games, categories),
         if (widget.filterKey != null)
           _buildSummaryCard(context, counts['mistakes'] ?? 0),
         const SizedBox(height: 8),

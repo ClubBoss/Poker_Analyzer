@@ -66,6 +66,7 @@ class SavedHandImportExportService {
     int? totalPrizePool,
     int? numberOfEntrants,
     String? gameType,
+    String? category,
     int? activePlayerIndex,
   }) {
     final actions = actionSync.analyzerActions;
@@ -104,6 +105,7 @@ class SavedHandImportExportService {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
+      category: category,
       playerPositions: Map<int, String>.from(playerManager.playerPositions),
       playerTypes: Map<int, PlayerType>.from(playerManager.playerTypes),
       isFavorite: false,
