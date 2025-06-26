@@ -81,6 +81,8 @@ void main() {
         ChangeNotifierProvider(
           create: (context) => WeeklyChallengeService(
             stats: context.read<TrainingStatsService>(),
+            xp: context.read<XPTrackerService>(),
+            packs: context.read<TrainingPackStorageService>(),
           )..load(),
         ),
         ChangeNotifierProvider(
