@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -749,7 +750,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 }
 
-class PackCompletionBarChart extends StatelessWidget {
+class PackCompletionBarChart extends StatefulWidget {
   final List<TrainingPackStats> stats;
   final bool hideCompleted;
   final bool forgottenOnly;
@@ -760,6 +761,54 @@ class PackCompletionBarChart extends StatelessWidget {
     required this.hideCompleted,
     required this.forgottenOnly,
   });
+
+  @override
+  State<PackCompletionBarChart> createState() => _PackCompletionBarChartState();
+}
+
+class _PackCompletionBarChartState extends State<PackCompletionBarChart>
+    with SingleTickerProviderStateMixin {
+  int? _index;
+  Offset? _pos;
+  Timer? _timer;
+  late final AnimationController _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _anim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _anim.dispose();
+    super.dispose();
+  }
+
+  void _show(int index, Offset pos) {
+    if (_index == index) {
+      _hide();
+      return;
+    }
+    _timer?.cancel();
+    setState(() {
+      _index = index;
+      _pos = pos;
+    });
+    _anim.forward(from: 0);
+    _timer = Timer(const Duration(seconds: 2), _hide);
+  }
+
+  void _hide() {
+    _timer?.cancel();
+    if (_index != null) {
+      setState(() => _index = null);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -810,36 +859,131 @@ class PackCompletionBarChart extends StatelessWidget {
 
     return AspectRatio(
       aspectRatio: 1.7,
-      child: BarChart(
-        BarChartData(
-          maxY: 100,
-          minY: 0,
-          barGroups: groups,
-          gridData: FlGridData(show: false),
-          borderData: FlBorderData(show: false),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 1,
-                getTitlesWidget: (value, _) {
-                  final idx = value.toInt();
-                  if (idx < 0 || idx >= filtered.length) {
-                    return const SizedBox.shrink();
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          BarChart(
+            BarChartData(
+              maxY: 100,
+              minY: 0,
+              barGroups: groups,
+              gridData: FlGridData(show: false),
+              borderData: FlBorderData(show: false),
+              barTouchData: BarTouchData(
+                handleBuiltInTouches: false,
+                touchCallback: (event, response) {
+                  if (!event.isInterestedForInteractions ||
+                      response?.spot == null) {
+                    return;
                   }
-                  return Transform.rotate(
-                    angle: -1.5708,
-                    child: Text(
-                      filtered[idx].pack.name,
-                      style: const TextStyle(fontSize: 10),
-                    ),
+                  _show(
+                    response!.spot!.touchedBarGroupIndex,
+                    response.touchLocation,
                   );
                 },
               ),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 1,
+                    getTitlesWidget: (value, _) {
+                      final idx = value.toInt();
+                      if (idx < 0 || idx >= filtered.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return Transform.rotate(
+                        angle: -1.5708,
+                        child: Text(
+                          filtered[idx].pack.name,
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              ),
             ),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          if (_index != null && _pos != null && _index! < filtered.length)
+            _BarTooltip(
+              position: (context.findRenderObject() as RenderBox)
+                      .globalToLocal(_pos!) -
+                  const Offset(40, 60),
+              stats: filtered[_index!],
+              animation: _anim,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BarTooltip extends StatefulWidget {
+  final Offset position;
+  final TrainingPackStats stats;
+  final Animation<double> animation;
+
+  const _BarTooltip({
+    required this.position,
+    required this.stats,
+    required this.animation,
+  });
+
+  @override
+  State<_BarTooltip> createState() => _BarTooltipState();
+}
+
+class _BarTooltipState extends State<_BarTooltip> {
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.stats;
+    final completed = s.total - s.mistakes;
+    final percent = s.total > 0 ? completed * 100 / s.total : 0.0;
+    final remain = s.total - completed;
+    final last = s.lastSession != null
+        ? DateFormat('dd.MM.yyyy').format(s.lastSession!)
+        : 'нет данных';
+    return Positioned(
+      left: widget.position.dx,
+      top: widget.position.dy,
+      child: FadeTransition(
+        opacity: widget.animation,
+        child: ScaleTransition(
+          scale: Tween(begin: 0.8, end: 1.0).animate(widget.animation),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${percent.toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '$completed/${s.total} (осталось $remain)',
+                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                  ),
+                  Text(
+                    last,
+                    style: const TextStyle(color: Colors.white70, fontSize: 10),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
