@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/training_pack_template.dart';
 import '../services/template_storage_service.dart';
+import '../services/training_pack_storage_service.dart';
 
 import 'create_template_screen.dart';
 
@@ -116,6 +117,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         title: Text(t.name),
                         subtitle: Text(
                           '${t.gameType} • ${t.author.isEmpty ? 'anon' : t.author}',
+                        ),
+                        trailing: IconButton(
+                          tooltip: 'Создать тренировку',
+                          icon: const Icon(Icons.arrow_forward),
+                          onPressed: () async {
+                            await context
+                                .read<TrainingPackStorageService>()
+                                .createFromTemplate(t);
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Пакет создан')),
+                            );
+                          },
                         ),
                         onLongPress:
                             t.isBuiltIn ? null : () => _deleteTemplate(t),
