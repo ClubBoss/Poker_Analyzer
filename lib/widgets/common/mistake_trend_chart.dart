@@ -7,8 +7,9 @@ import '../../theme/app_colors.dart';
 
 class MistakeTrendChart extends StatelessWidget {
   final Map<DateTime, int> counts;
+  final ValueChanged<DateTime>? onDayTap;
 
-  const MistakeTrendChart({super.key, required this.counts});
+  const MistakeTrendChart({super.key, required this.counts, this.onDayTap});
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +43,12 @@ class MistakeTrendChart extends StatelessWidget {
         minY: 0,
         maxY: maxCount.toDouble(),
         lineTouchData: LineTouchData(
+          handleBuiltInTouches: false,
+          touchCallback: (event, response) {
+            if (event is FlTapUpEvent && response?.lineBarSpots != null && response!.lineBarSpots!.isNotEmpty) {
+              onDayTap?.call(dates[response.lineBarSpots!.first.spotIndex]);
+            }
+          },
           touchTooltipData: LineTouchTooltipData(
             tooltipBgColor: Colors.black87,
             fitInsideHorizontally: true,
