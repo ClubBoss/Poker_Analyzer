@@ -132,9 +132,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               underline: const SizedBox.shrink(),
               onChanged: (v) => setState(() => _typeFilter = v ?? 'All'),
               items: const [
-                DropdownMenuItem(value: 'All', child: Text('Все')),
-                DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
-                DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+                DropdownMenuItem(value: 'All', child: Text('Все типы')),
+                DropdownMenuItem(value: 'Tournament', child: Text('MTT')),
+                DropdownMenuItem(value: 'Cash Game', child: Text('Cash')),
               ],
             ),
           ),
