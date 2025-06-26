@@ -52,11 +52,13 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   static const _endKey = 'tag_filter_range_end';
   static const _cmpStartKey = 'tag_compare_start';
   static const _cmpEndKey = 'tag_compare_end';
+  static const _prevKey = 'tag_compare_prev';
   static const _chartModeKey = 'tag_chart_mode';
   MistakeSortOption _sort = MistakeSortOption.count;
   final Set<String> _activeTags = {};
   DateTimeRange? _range;
   DateTimeRange? _compareRange;
+  bool _comparePrevious = false;
   final GlobalKey _chartKey = GlobalKey();
   final Set<MistakeSeverity> _levels = {
     MistakeSeverity.high,
@@ -89,13 +91,24 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       final e = DateTime.tryParse(end);
       if (s != null && e != null) _range = DateTimeRange(start: s, end: e);
     }
-    final cs = prefs.getString(_cmpStartKey);
-    final ce = prefs.getString(_cmpEndKey);
-    if (cs != null && ce != null) {
-      final s = DateTime.tryParse(cs);
-      final e = DateTime.tryParse(ce);
-      if (s != null && e != null) {
-        _compareRange = DateTimeRange(start: s, end: e);
+    _comparePrevious = prefs.getBool(_prevKey) ?? false;
+    if (_comparePrevious) {
+      final now = DateTime.now();
+      final baseStart = _range?.start ?? now.subtract(const Duration(days: 29));
+      final baseEnd = _range?.end ?? now;
+      final diff = baseEnd.difference(baseStart).inDays;
+      final cmpEnd = baseStart.subtract(const Duration(days: 1));
+      final cmpStart = cmpEnd.subtract(Duration(days: diff));
+      _compareRange = DateTimeRange(start: cmpStart, end: cmpEnd);
+    } else {
+      final cs = prefs.getString(_cmpStartKey);
+      final ce = prefs.getString(_cmpEndKey);
+      if (cs != null && ce != null) {
+        final s = DateTime.tryParse(cs);
+        final e = DateTime.tryParse(ce);
+        if (s != null && e != null) {
+          _compareRange = DateTimeRange(start: s, end: e);
+        }
       }
     }
     final modeName = prefs.getString(_chartModeKey);
@@ -143,6 +156,34 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     }
   }
 
+  Future<void> _saveComparePrevious() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prevKey, _comparePrevious);
+  }
+
+  DateTimeRange _calcPrevRange() {
+    final now = DateTime.now();
+    final start = _range?.start ?? now.subtract(const Duration(days: 29));
+    final end = _range?.end ?? now;
+    final diff = end.difference(start).inDays;
+    final cmpEnd = start.subtract(const Duration(days: 1));
+    final cmpStart = cmpEnd.subtract(Duration(days: diff));
+    return DateTimeRange(start: cmpStart, end: cmpEnd);
+  }
+
+  void _toggleComparePrevious(bool v) {
+    setState(() {
+      _comparePrevious = v;
+      if (v) {
+        _compareRange = _calcPrevRange();
+      } else {
+        _compareRange = null;
+      }
+    });
+    _saveComparePrevious();
+    _saveCompareRange();
+  }
+
   Future<void> _setChartMode(_ChartMode mode) async {
     setState(() => _chartMode = mode);
     final prefs = await SharedPreferences.getInstance();
@@ -161,6 +202,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   }
 
   String get _compareLabel {
+    if (_comparePrevious) return 'Предыдущий период';
     if (_compareRange == null) return 'Сравнить периоды';
     final s = formatDate(_compareRange!.start);
     final e = formatDate(_compareRange!.end);
@@ -178,8 +220,19 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       initialDateRange: initial,
     );
     if (picked != null) {
-      setState(() => _range = picked);
+      setState(() {
+        _range = picked;
+        if (_comparePrevious) {
+          final diff = picked.end.difference(picked.start).inDays;
+          final cmpEnd = picked.start.subtract(const Duration(days: 1));
+          final cmpStart = cmpEnd.subtract(Duration(days: diff));
+          _compareRange = DateTimeRange(start: cmpStart, end: cmpEnd);
+        }
+      });
       _saveRange();
+      if (_comparePrevious) {
+        _saveCompareRange();
+      }
     }
   }
 
@@ -223,8 +276,12 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
   }
 
   void _resetCompare() {
-    setState(() => _compareRange = null);
+    setState(() {
+      _compareRange = null;
+      _comparePrevious = false;
+    });
     _saveCompareRange();
+    _saveComparePrevious();
   }
 
   void _openDay(DateTime day) {
@@ -472,14 +529,14 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           };
     final start = _range?.start ?? now.subtract(const Duration(days: 29));
     final end = _range?.end ?? now;
-    final overlay = _activeTags.length > 1;
+    final overlayTags = _activeTags.length > 1 && !_comparePrevious;
     final dailyCounts = <DateTime, int>{};
     final tagCounts = <String, Map<DateTime, int>>{};
     for (var d = DateTime(start.year, start.month, start.day);
         !d.isAfter(end);
         d = d.add(const Duration(days: 1))) {
       dailyCounts[d] = 0;
-      if (overlay) {
+      if (overlayTags) {
         for (final t in _activeTags) {
           tagCounts.putIfAbsent(t, () => {})[d] = 0;
         }
@@ -495,7 +552,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       }
       final day = DateTime(h.date.year, h.date.month, h.date.day);
       if (day.isBefore(start) || day.isAfter(end)) continue;
-      if (overlay) {
+      if (overlayTags) {
         for (final t in _activeTags) {
           if (h.tags.contains(t)) {
             tagCounts[t]![day] = (tagCounts[t]![day] ?? 0) + 1;
@@ -506,18 +563,19 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
       }
     }
 
-    var chartCounts = overlay ? tagCounts : {'all': dailyCounts};
-    final chartColors = overlay
+    var chartCounts = overlayTags ? tagCounts : {'Текущий': dailyCounts};
+    final chartColors = overlayTags
         ? {
             for (final t in _activeTags)
               t: colorFromHex(context.read<TagService>().colorOf(t))
           }
-        : {'all': Colors.redAccent};
+        : {'Текущий': Colors.redAccent};
 
     List<SavedHand> cmpHands = [];
     SummaryResult? cmpSummary;
     Map<String, Map<DateTime, int>> cmpCounts = {};
     Map<String, Color> cmpColors = {};
+    Map<DateTime, int> cmpDaily = {};
     if (_compareRange != null) {
       cmpHands = [
         for (final h in allHands)
@@ -538,8 +596,8 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           .where((e) => !ignored.contains('tag:${e.key}'));
       final cmpStart = _compareRange!.start;
       final cmpEnd = _compareRange!.end;
-      final cmpOverlay = _activeTags.length > 1;
-      final cmpDaily = <DateTime, int>{};
+      final cmpOverlay = overlayTags;
+      cmpDaily = <DateTime, int>{};
       final cmpTags = <String, Map<DateTime, int>>{};
       for (var d = DateTime(cmpStart.year, cmpStart.month, cmpStart.day);
           !d.isAfter(cmpEnd);
@@ -570,14 +628,27 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
           cmpDaily[day] = (cmpDaily[day] ?? 0) + 1;
         }
       }
-      cmpCounts = cmpOverlay ? cmpTags : {'all': cmpDaily};
+      cmpCounts = cmpOverlay ? cmpTags : {'Предыдущий': cmpDaily};
       cmpColors = cmpOverlay
           ? {
               for (final t in _activeTags)
                 t: colorFromHex(context.read<TagService>().colorOf(t))
                     .withOpacity(0.5)
             }
-          : {'all': Colors.blueAccent};
+          : {'Предыдущий': Colors.blueAccent};
+    }
+
+    if (_comparePrevious && cmpCounts.isNotEmpty) {
+      chartCounts = {
+        'Текущий': dailyCounts,
+        'Предыдущий': cmpDaily,
+      };
+      chartColors = {
+        'Текущий': Colors.redAccent,
+        'Предыдущий': Colors.blueAccent,
+      };
+      cmpCounts = {};
+      cmpColors = {};
     }
 
     if (_chartMode == _ChartMode.weekly) {
@@ -779,6 +850,17 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           sliver: SliverToBoxAdapter(
+            child: SwitchListTile(
+              title: const Text('Сравнить с предыдущим периодом'),
+              value: _comparePrevious,
+              onChanged: _toggleComparePrevious,
+              activeColor: Colors.orange,
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          sliver: SliverToBoxAdapter(
             child: Row(
               children: [
                 const Text('Период',
@@ -818,7 +900,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                 height: 216,
                 child: Column(
                   children: [
-                    _buildLegend(chartColors, overlay, true),
+                    _buildLegend(chartColors, chartCounts.length > 1, true),
                     const SizedBox(height: 8),
                     Expanded(
                       child: MistakeTrendChart(
@@ -836,7 +918,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
             ),
           ),
         ),
-        if (_compareRange != null)
+        if (_compareRange != null && !_comparePrevious)
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             sliver: SliverToBoxAdapter(
@@ -844,7 +926,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
                 height: 216,
                 child: Column(
                   children: [
-                    _buildLegend(cmpColors, overlay, false),
+                    _buildLegend(cmpColors, cmpCounts.length > 1, false),
                     const SizedBox(height: 8),
                     Expanded(
                       child: MistakeTrendChart(
