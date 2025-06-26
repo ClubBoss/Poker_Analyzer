@@ -586,8 +586,21 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             forgottenOnly: _forgottenOnly,
             sort: _chartSort,
           ),
-          if (nextPack != null)
-            PackNextStepCard(pack: nextPack!, progress: nextProgress),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) => SlideTransition(
+              position: Tween(begin: const Offset(0, 0.1), end: Offset.zero)
+                  .animate(animation),
+              child: FadeTransition(opacity: animation, child: child),
+            ),
+            child: nextPack != null
+                ? PackNextStepCard(
+                    key: ValueKey(nextPack!.name),
+                    pack: nextPack!,
+                    progress: nextProgress,
+                  )
+                : const SizedBox.shrink(),
+          ),
           const SizedBox(height: 16),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
