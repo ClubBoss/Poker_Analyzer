@@ -922,7 +922,7 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
   }
 }
 
-class _BarTooltip extends StatefulWidget {
+class _BarTooltip extends StatelessWidget {
   final Offset position;
   final TrainingPackStats stats;
   final Animation<double> animation;
@@ -934,13 +934,8 @@ class _BarTooltip extends StatefulWidget {
   });
 
   @override
-  State<_BarTooltip> createState() => _BarTooltipState();
-}
-
-class _BarTooltipState extends State<_BarTooltip> {
-  @override
   Widget build(BuildContext context) {
-    final s = widget.stats;
+    final s = stats;
     final completed = s.total - s.mistakes;
     final percent = s.total > 0 ? completed * 100 / s.total : 0.0;
     final remain = s.total - completed;
@@ -948,12 +943,12 @@ class _BarTooltipState extends State<_BarTooltip> {
         ? DateFormat('dd.MM.yyyy').format(s.lastSession!)
         : 'нет данных';
     return Positioned(
-      left: widget.position.dx,
-      top: widget.position.dy,
+      left: position.dx,
+      top: position.dy,
       child: FadeTransition(
-        opacity: widget.animation,
+        opacity: animation,
         child: ScaleTransition(
-          scale: Tween(begin: 0.8, end: 1.0).animate(widget.animation),
+          scale: Tween(begin: 0.8, end: 1.0).animate(animation),
           child: Material(
             color: Colors.transparent,
             child: Container(
