@@ -27,6 +27,7 @@ import "services/achievement_engine.dart";
 import 'services/goal_engine.dart';
 import 'services/streak_service.dart';
 import 'services/reminder_service.dart';
+import 'services/daily_reminder_service.dart';
 import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/daily_target_service.dart';
@@ -119,6 +120,13 @@ void main() {
             spotService: context.read<SpotOfTheDayService>(),
             goalEngine: context.read<GoalEngine>(),
             streakService: context.read<StreakService>(),
+          )..load(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DailyReminderService(
+            spot: context.read<SpotOfTheDayService>(),
+            target: context.read<DailyTargetService>(),
+            stats: context.read<TrainingStatsService>(),
           )..load(),
         ),
         ChangeNotifierProvider(
