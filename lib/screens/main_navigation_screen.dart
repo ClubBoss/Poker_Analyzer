@@ -12,6 +12,7 @@ import '../widgets/next_step_card.dart';
 import '../widgets/suggested_drill_card.dart';
 import '../widgets/today_progress_banner.dart';
 import '../widgets/streak_mini_card.dart';
+import '../widgets/streak_chart.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
@@ -75,6 +76,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget _home() {
     return Column(
       children: [
+        const StreakChart(),
         const TodayProgressBanner(),
         const StreakMiniCard(),
         TextButton(
