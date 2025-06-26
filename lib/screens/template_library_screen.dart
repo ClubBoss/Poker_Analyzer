@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/training_pack_template.dart';
 import '../services/template_storage_service.dart';
+import '../services/category_usage_service.dart';
 
 import 'create_template_screen.dart';
 import 'template_hands_editor_screen.dart';
@@ -18,6 +19,7 @@ class TemplateLibraryScreen extends StatefulWidget {
 class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _typeFilter = 'All';
+  String _categoryFilter = 'All';
 
   @override
   void dispose() {
@@ -149,10 +151,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final templates = context.watch<TemplateStorageService>().templates;
+    final categories = context.watch<CategoryUsageService>().categories;
     List<TrainingPackTemplate> visible = [...templates];
     visible.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     if (_typeFilter != 'All') {
       visible = [for (final t in visible) if (t.gameType == _typeFilter) t];
+    }
+    if (_categoryFilter != 'All') {
+      visible = [
+        for (final t in visible)
+          if ((t.category ?? 'Uncategorized') == _categoryFilter) t
+      ];
     }
     final query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
@@ -192,6 +201,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ],
             ),
           ),
+          if (categories.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DropdownButton<String>(
+                value: _categoryFilter,
+                underline: const SizedBox.shrink(),
+                onChanged: (v) => setState(() => _categoryFilter = v ?? 'All'),
+                items: [
+                  const DropdownMenuItem(value: 'All', child: Text('Все категории')),
+                  ...categories.map(
+                    (c) => DropdownMenuItem(value: c, child: Text(c)),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: visible.isEmpty
                 ? const Center(child: Text('Нет шаблонов'))
