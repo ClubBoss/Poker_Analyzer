@@ -8,6 +8,7 @@ import '../helpers/color_utils.dart';
 import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
+import 'create_pack_screen.dart';
 
 class TrainingPacksScreen extends StatefulWidget {
   const TrainingPacksScreen({super.key});
@@ -24,6 +25,19 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   bool _hideCompleted = false;
   String _typeFilter = 'All';
   SharedPreferences? _prefs;
+
+  Future<void> _importPack() async {
+    final service = context.read<TrainingPackStorageService>();
+    final pack = await service.importPack();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          pack == null ? 'Ошибка загрузки пакета' : 'Пакет "${pack.name}" загружен',
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -67,6 +81,50 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           title: const Text('Тренировочные споты'),
         ),
         body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (packs.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Тренировочные споты'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.auto_awesome, size: 96, color: Colors.white30),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TemplateLibraryScreen()),
+                  );
+                },
+                child: const Text('Создать из шаблона'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _importPack,
+                child: const Text('Импортировать'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () async {
+                  final pack = await Navigator.push<TrainingPack>(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CreatePackScreen()),
+                  );
+                  if (pack != null && context.mounted) {
+                    await context.read<TrainingPackStorageService>().addPack(pack);
+                  }
+                },
+                child: const Text('Создать с нуля'),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
