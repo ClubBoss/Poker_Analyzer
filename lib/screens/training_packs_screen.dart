@@ -103,9 +103,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     }
 
     final bool noRealPacks = packs.isEmpty;
-    final bool showQuickStart = noRealPacks || visible.isEmpty;
 
-    if (showQuickStart) {
+    if (noRealPacks) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
@@ -116,24 +115,6 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             children: [
               const Icon(Icons.auto_awesome, size: 96, color: Colors.white30),
               const SizedBox(height: 24),
-              if (!noRealPacks) ...[
-                Text(
-                  'По текущему фильтру пакетов не найдено',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _hideCompleted = false;
-                      _typeFilter = 'All';
-                      _searchController.clear();
-                    });
-                  },
-                  child: const Text('Сбросить фильтры'),
-                ),
-                const SizedBox(height: 24),
-              ],
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -233,7 +214,25 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           ),
           Expanded(
             child: visible.isEmpty
-                ? const Center(child: Text('Нет доступных пакетов'))
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('По текущему фильтру пакетов не найдено'),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _hideCompleted = false;
+                              _typeFilter = 'All';
+                              _searchController.clear();
+                            });
+                          },
+                          child: const Text('Сбросить фильтры'),
+                        ),
+                      ],
+                    ),
+                  )
                 : ListView.builder(
                     itemCount: visible.length,
                     itemBuilder: (context, index) {
