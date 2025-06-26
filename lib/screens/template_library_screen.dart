@@ -46,7 +46,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   Future<void> _importTemplate() async {
-    await context.read<TemplateStorageService>().importTemplateFromFile();
+    await context.read<TemplateStorageService>().importTemplateFromFile(context);
   }
 
   Future<void> _createTemplate() async {
