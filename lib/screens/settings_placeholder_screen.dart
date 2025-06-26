@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import '../helpers/date_utils.dart';
 import '../services/reminder_service.dart';
+import '../services/daily_reminder_service.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
 
@@ -53,12 +54,14 @@ class SettingsPlaceholderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reminder = context.watch<ReminderService>();
+    final dailyReminder = context.watch<DailyReminderService>();
     final dailyTarget = context.watch<DailyTargetService>();
     final dismissed = reminder.lastDismissed;
     final status = reminder.enabled ? 'Включены' : 'Выключены';
     final info = dismissed != null
         ? '$status, последний отказ: ${formatDateTime(dismissed)}'
         : status;
+    final drInfo = '${dailyReminder.hour.toString().padLeft(2, '0')}:00';
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
@@ -86,6 +89,25 @@ class SettingsPlaceholderScreen extends StatelessWidget {
               info,
               style: const TextStyle(color: Colors.white70),
             ),
+          ),
+          SwitchListTile(
+            value: dailyReminder.enabled,
+            onChanged: (v) => dailyReminder.setEnabled(v),
+            title: const Text('Daily Reminder'),
+            activeColor: Colors.orange,
+          ),
+          ListTile(
+            title: const Text('Time', style: TextStyle(color: Colors.white)),
+            subtitle: Text(drInfo, style: const TextStyle(color: Colors.white70)),
+            onTap: () async {
+              final picked = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay(hour: dailyReminder.hour, minute: 0),
+              );
+              if (picked != null) {
+                dailyReminder.setHour(picked.hour);
+              }
+            },
           ),
           const Padding(
             padding: EdgeInsets.all(16),
