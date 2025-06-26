@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/training_pack.dart';
 
@@ -20,17 +21,33 @@ class TrainingPackStorageService extends ChangeNotifier {
 
   Future<void> load() async {
     final file = await _getStorageFile();
-    if (!await file.exists()) return;
-    try {
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      if (data is List) {
-        _packs
-          ..clear()
-          ..addAll(data.whereType<Map>().map((e) =>
-              TrainingPack.fromJson(Map<String, dynamic>.from(e))));
-      }
-    } catch (_) {}
+    if (await file.exists()) {
+      try {
+        final content = await file.readAsString();
+        final data = jsonDecode(content);
+        if (data is List) {
+          _packs
+            ..clear()
+            ..addAll(data.whereType<Map>().map((e) =>
+                TrainingPack.fromJson(Map<String, dynamic>.from(e))));
+        }
+      } catch (_) {}
+    }
+    if (_packs.isEmpty) {
+      try {
+        final manifest = jsonDecode(
+            await rootBundle.loadString('AssetManifest.json')) as Map;
+        final paths = manifest.keys.where((e) =>
+            e.startsWith('assets/training_packs/') && e.endsWith('.json'));
+        for (final p in paths) {
+          final data = jsonDecode(await rootBundle.loadString(p));
+          if (data is Map<String, dynamic>) {
+            _packs.add(TrainingPack.fromJson(data));
+          }
+        }
+        await _persist();
+      } catch (_) {}
+    }
     notifyListeners();
   }
 
@@ -52,6 +69,7 @@ class TrainingPackStorageService extends ChangeNotifier {
   }
 
   Future<(TrainingPack pack, int index)?> removePack(TrainingPack pack) async {
+    if (pack.isBuiltIn) return null;
     final index = _packs.indexOf(pack);
     if (index == -1) return null;
     final removed = _packs.removeAt(index);
@@ -118,6 +136,7 @@ class TrainingPackStorageService extends ChangeNotifier {
   }
 
   Future<void> renamePack(TrainingPack pack, String newName) async {
+    if (pack.isBuiltIn) return;
     final index = _packs.indexOf(pack);
     if (index == -1) return;
     final trimmed = newName.trim();
@@ -127,6 +146,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       description: pack.description,
       category: pack.category,
       gameType: pack.gameType,
+      isBuiltIn: pack.isBuiltIn,
       hands: pack.hands,
       history: pack.history,
     );
@@ -142,7 +162,8 @@ class TrainingPackStorageService extends ChangeNotifier {
       name = '${base}-copy${idx > 1 ? idx : ''}';
       idx++;
     }
-    final copy = TrainingPack.fromJson({...pack.toJson(), 'name': name});
+    final map = {...pack.toJson(), 'name': name, 'isBuiltIn': false};
+    final copy = TrainingPack.fromJson(map);
     _packs.add(copy);
     await _persist();
     notifyListeners();

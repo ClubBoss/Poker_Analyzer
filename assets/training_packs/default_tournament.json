@@ -1,0 +1,24 @@
+{
+  "name": "Default Tournament Pack",
+  "description": "Basic tournament spots",
+  "category": "Default",
+  "gameType": "Tournament",
+  "isBuiltIn": true,
+  "hands": [
+    {
+      "name": "Tourney Hand 1",
+      "heroIndex": 0,
+      "heroPosition": "BTN",
+      "numberOfPlayers": 2,
+      "playerCards": [
+        [{"rank": "A", "suit": "♠"}, {"rank": "K", "suit": "♠"}],
+        [{"rank": "Q", "suit": "♦"}, {"rank": "Q", "suit": "♣"}]
+      ],
+      "boardCards": [],
+      "boardStreet": 0,
+      "actions": [],
+      "stackSizes": {"0": 100, "1": 100},
+      "playerPositions": {"0": "BTN", "1": "BB"}
+    }
+  ]
+}
