@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 
 import '../models/training_pack_template.dart';
 
@@ -216,6 +218,35 @@ class TemplateStorageService extends ChangeNotifier {
         );
       }
       return null;
+    }
+  }
+
+  Future<void> exportTemplateToFile(
+      BuildContext context, TrainingPackTemplate template) async {
+    try {
+      final dir =
+          await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      final safeName =
+          template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+      final file = File('${dir.path}/$safeName.json');
+      await file.writeAsString(jsonEncode(template.toJson()));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Экспорт завершён'),
+            action: SnackBarAction(
+              label: 'Открыть',
+              onPressed: () => OpenFilex.open(file.path),
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось экспортировать файл')),
+        );
+      }
     }
   }
 }
