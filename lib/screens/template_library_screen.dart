@@ -145,11 +145,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     itemCount: visible.length,
                     itemBuilder: (context, index) {
                       final t = visible[index];
+                      final versionParts = t.version.split('.');
+                      final versionDisplay = versionParts.length >= 2
+                          ? '${versionParts[0]}.${versionParts[1]}'
+                          : t.version;
                       return ListTile(
                         leading: t.isBuiltIn ? const Text('📦') : null,
                         title: Text(t.name),
-                        subtitle: Text(
-                          '${t.gameType} • ${t.author.isEmpty ? 'anon' : t.author}',
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('${t.gameType} • ${t.author.isEmpty ? 'anon' : t.author}'),
+                            Text('${t.hands.length} раздач • v$versionDisplay • rev${t.revision}'),
+                          ],
                         ),
                         trailing: IconButton(
                           tooltip: 'Создать тренировку',
