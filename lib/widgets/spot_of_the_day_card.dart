@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/spot_of_the_day_service.dart';
 import '../screens/training_screen.dart';
+import '../screens/spot_of_the_day_history_screen.dart';
 import 'training_spot_preview.dart';
 
 class SpotOfTheDayCard extends StatelessWidget {
@@ -34,17 +35,29 @@ class SpotOfTheDayCard extends StatelessWidget {
           const SizedBox(height: 8),
           TrainingSpotPreview(spot: spot),
           const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => TrainingScreen(spot: spot)),
-                );
-              },
-              child: const Text('Play'),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => TrainingScreen(spot: spot)),
+                  );
+                },
+                child: const Text('Play'),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SpotOfTheDayHistoryScreen()),
+                  );
+                },
+                child: const Text('History'),
+              ),
+            ],
           )
         ],
       ),

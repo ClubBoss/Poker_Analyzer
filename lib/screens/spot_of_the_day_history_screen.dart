@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../models/training_spot.dart';
 import '../services/spot_of_the_day_service.dart';
+import '../screens/training_screen.dart';
+import 'package:intl/intl.dart';
 
 class SpotOfTheDayHistoryScreen extends StatefulWidget {
   const SpotOfTheDayHistoryScreen({super.key});
@@ -22,9 +24,7 @@ class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
   }
 
   String _formatDate(DateTime date) {
-    final d = date.day.toString().padLeft(2, '0');
-    final m = date.month.toString().padLeft(2, '0');
-    return '$d.$m.${date.year}';
+    return DateFormat('dd MMM', 'en').format(date);
   }
 
   @override
@@ -53,48 +53,32 @@ class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
               final entry = history[index];
-              final spot = entry.spotIndex < spots.length
-                  ? spots[entry.spotIndex]
-                  : null;
-              final board = spot != null
-                  ? spot.boardCards.map((c) => c.toString()).join(' ')
-                  : 'N/A';
-              final positions = spot != null ? spot.positions.join(', ') : 'N/A';
-              final stacks = spot != null
-                  ? spot.stacks.map((s) => '$s').join(', ')
-                  : 'N/A';
+              final spot = entry.spotIndex < spots.length ? spots[entry.spotIndex] : null;
+              final pos = spot != null && spot.heroIndex < spot.positions.length
+                  ? spot.positions[spot.heroIndex]
+                  : '-';
+              final icon = entry.correct == true
+                  ? Icons.check_circle
+                  : entry.correct == false
+                      ? Icons.cancel
+                      : Icons.remove;
+              final color = entry.correct == true
+                  ? Colors.green
+                  : entry.correct == false
+                      ? Colors.red
+                      : Colors.grey;
               return ListTile(
-                title: Text(_formatDate(entry.date),
-                    style: const TextStyle(color: Colors.white)),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Доска: $board',
-                        style: const TextStyle(color: Colors.white70)),
-                    Text('Позиции: $positions',
-                        style: const TextStyle(color: Colors.white70)),
-                    Text('Стэки: $stacks',
-                        style: const TextStyle(color: Colors.white70)),
-                    Text(
-                        'Ваш ответ: ${entry.userAction ?? '-'} \u2022 Реком.: ${entry.recommendedAction ?? '-'}',
-                        style: const TextStyle(color: Colors.white)),
-                    if ((entry.userAction != null && entry.recommendedAction != null) ||
-                        entry.correct != null)
-                      Text(
-                        (entry.correct ??
-                                (entry.userAction == entry.recommendedAction))
-                            ? 'Верно'
-                            : 'Ошибка',
-                        style: TextStyle(
-                          color: (entry.correct ??
-                                  (entry.userAction == entry.recommendedAction))
-                              ? Colors.green
-                              : Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                  ],
-                ),
+                leading: Icon(icon, color: color),
+                title: Text(_formatDate(entry.date), style: const TextStyle(color: Colors.white)),
+                subtitle: Text(pos, style: const TextStyle(color: Colors.white70)),
+                onTap: spot == null
+                    ? null
+                    : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => TrainingScreen(spot: spot)),
+                        );
+                      },
               );
             },
           );
