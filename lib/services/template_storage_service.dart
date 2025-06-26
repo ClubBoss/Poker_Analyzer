@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 import '../models/training_pack_template.dart';
 
@@ -30,5 +32,29 @@ class TemplateStorageService extends ChangeNotifier {
       });
     } catch (_) {}
     notifyListeners();
+  }
+
+  Future<TrainingPackTemplate?> importTemplateFromFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return null;
+    final path = result.files.single.path;
+    if (path == null) return null;
+    final file = File(path);
+    try {
+      final content = await file.readAsString();
+      final data = jsonDecode(content);
+      if (data is! Map<String, dynamic>) return null;
+      if (!data.containsKey('name') || !data.containsKey('hands')) return null;
+      final template =
+          TrainingPackTemplate.fromJson(Map<String, dynamic>.from(data));
+      _templates.add(template);
+      notifyListeners();
+      return template;
+    } catch (_) {
+      return null;
+    }
   }
 }
