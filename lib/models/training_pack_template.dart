@@ -4,6 +4,7 @@ class TrainingPackTemplate {
   final String id;
   final String name;
   final String gameType;
+  final String? category;
   final String description;
   final List<SavedHand> hands;
   /// семантическая версия шаблона (major.minor.patch)
@@ -21,6 +22,7 @@ class TrainingPackTemplate {
     required this.id,
     required this.name,
     required this.gameType,
+    this.category,
     required this.description,
     required this.hands,
     this.version = '1.0.0',
@@ -36,6 +38,7 @@ class TrainingPackTemplate {
         'id': id,
         'name': name,
         'gameType': gameType,
+        if (category != null) 'category': category,
         'description': description,
         'hands': [for (final h in hands) h.toJson()],
         'version': version,
@@ -51,6 +54,7 @@ class TrainingPackTemplate {
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       gameType: json['gameType'] as String? ?? 'Cash Game',
+      category: json['category'] as String?,
       description: json['description'] as String? ?? '',
       hands: [
         for (final h in (json['hands'] as List? ?? []))

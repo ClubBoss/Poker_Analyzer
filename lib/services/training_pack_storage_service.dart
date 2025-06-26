@@ -177,7 +177,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     await createFromTemplateWithOptions(
       template,
       hands: template.hands,
-      categoryOverride: null,
+      categoryOverride: template.category,
       colorTag: '#2196F3',
     );
   }
@@ -201,7 +201,9 @@ class TrainingPackStorageService extends ChangeNotifier {
       description: template.description,
       category: categoryOverride?.isNotEmpty == true
           ? categoryOverride!
-          : 'Uncategorized',
+          : (template.category?.isNotEmpty == true
+              ? template.category!
+              : 'Uncategorized'),
       gameType: template.gameType,
       colorTag: colorTag ?? '#2196F3',
       hands: selected,

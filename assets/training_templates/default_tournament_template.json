@@ -2,6 +2,7 @@
   "id": "default-tournament-template",
   "name": "Default Tournament Template",
   "gameType": "Tournament",
+  "category": "Default",
   "description": "Basic tournament spots",
   "version": "1.0.0",
   "author": "Poker Analyzer",

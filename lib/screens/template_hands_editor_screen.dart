@@ -18,6 +18,7 @@ class TemplateHandsEditorScreen extends StatefulWidget {
 class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
   String _gameType = 'Cash Game';
   late List<SavedHand> _hands;
 
@@ -26,6 +27,7 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
     super.initState();
     _nameController.text = widget.template.name;
     _descController.text = widget.template.description;
+    _categoryController.text = widget.template.category ?? '';
     _gameType = widget.template.gameType;
     _hands = List.from(widget.template.hands);
   }
@@ -34,6 +36,7 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
   void dispose() {
     _nameController.dispose();
     _descController.dispose();
+    _categoryController.dispose();
     super.dispose();
   }
 
@@ -62,6 +65,9 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
       id: widget.template.id,
       name: _nameController.text.trim(),
       gameType: _gameType,
+      category: _categoryController.text.trim().isEmpty
+          ? null
+          : _categoryController.text.trim(),
       description: _descController.text.trim(),
       hands: _hands,
       version: widget.template.version,
@@ -93,12 +99,18 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
                   decoration: const InputDecoration(labelText: 'Название'),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _descController,
-                  decoration: const InputDecoration(labelText: 'Описание'),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
+              TextField(
+                controller: _descController,
+                decoration: const InputDecoration(labelText: 'Описание'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _categoryController,
+                decoration:
+                    const InputDecoration(labelText: 'Категория (опц.)'),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
                   value: _gameType,
                   decoration: const InputDecoration(labelText: 'Тип игры'),
                   items: const [

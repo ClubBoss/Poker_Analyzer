@@ -55,6 +55,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   void initState() {
     super.initState();
     _selected = List.from(widget.template.hands);
+    _category.text = widget.template.category ?? '';
   }
 
   void _toggle(SavedHand h) {
