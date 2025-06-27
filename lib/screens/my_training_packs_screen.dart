@@ -212,6 +212,11 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
         return db.compareTo(da);
       case 'category':
         return a.category.compareTo(b.category);
+      case 'lastAttempt':
+        final da = a.lastAttemptDate;
+        final db = b.lastAttemptDate;
+        if (da.isAtSameMomentAs(db)) return a.name.compareTo(b.name);
+        return db.compareTo(da);
       default:
         return a.name.compareTo(b.name);
     }
@@ -315,6 +320,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
             onChanged: (v) => _setSort(v ?? 'name'),
             items: const [
               DropdownMenuItem(value: 'name', child: Text('По имени')),
+              DropdownMenuItem(value: 'lastAttempt', child: Text('Последняя попытка')),
               DropdownMenuItem(value: 'date', child: Text('По дате')),
               DropdownMenuItem(value: 'category', child: Text('По категории')),
             ],
