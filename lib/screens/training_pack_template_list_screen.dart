@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
@@ -155,6 +156,22 @@ class _TrainingPackTemplateListScreenState
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('⚠️ Ошибка экспорта')));
+      }
+    }
+  }
+
+  Future<void> _shareTemplate(TrainingPackTemplateModel t) async {
+    try {
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/pack_template_${t.id}.json');
+      await file.writeAsString(jsonEncode(t.toJson()));
+      await Share.shareXFiles([XFile(file.path)]);
+      if (await file.exists()) await file.delete();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('⚠️ Не удалось поделиться')),
+        );
       }
     }
   }
@@ -372,6 +389,9 @@ class _TrainingPackTemplateListScreenState
                           case 'export':
                             await _exportTemplate(t);
                             break;
+                          case 'share':
+                            await _shareTemplate(t);
+                            break;
                           case 'rename':
                             await _renameTemplate(t);
                             break;
@@ -389,6 +409,7 @@ class _TrainingPackTemplateListScreenState
                       itemBuilder: (_) => const [
                         PopupMenuItem(value: 'apply', child: Text('Применить шаблон')),
                         PopupMenuItem(value: 'export', child: Text('📤 Экспортировать')),
+                        PopupMenuItem(value: 'share', child: Text('📤 Поделиться')),
                         PopupMenuItem(value: 'rename', child: Text('✏️ Переименовать')),
                         PopupMenuItem(value: 'duplicate', child: Text('📄 Дублировать')),
                       ],
