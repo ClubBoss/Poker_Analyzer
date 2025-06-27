@@ -15,6 +15,7 @@ import "../widgets/progress_chip.dart";
 import '../widgets/color_picker_dialog.dart';
 import 'package:intl/intl.dart';
 import '../services/tag_service.dart';
+import 'training_pack_template_list_screen.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
   const MyTrainingPacksScreen({super.key});
@@ -304,6 +305,17 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
               ),
             )
           : null,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => const TrainingPackTemplateListScreen()),
+          );
+        },
+        label: const Text('Из шаблона'),
+        icon: const Icon(Icons.add),
+      ),
       body: Column(
         children: [
           Padding(
