@@ -6,8 +6,12 @@ import 'package:share_plus/share_plus.dart';
 import 'package:csv/csv.dart';
 
 import '../models/training_spot.dart';
+import '../models/training_pack_template_model.dart';
+import '../services/training_pack_template_storage_service.dart';
 import '../services/training_spot_storage_service.dart';
+import 'training_pack_template_editor_screen.dart';
 import 'training_spot_builder_screen.dart';
+import 'package:uuid/uuid.dart';
 
 class TrainingSpotLibraryScreen extends StatefulWidget {
   const TrainingSpotLibraryScreen({super.key});
@@ -176,6 +180,28 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     if (mounted) setState(() => _selected.clear());
   }
 
+  Future<void> _createTemplateFromFilter() async {
+    final filters = Map<String, dynamic>.from(
+        context.read<TrainingSpotStorageService>().activeFilters);
+    final initial = TrainingPackTemplateModel(
+      id: const Uuid().v4(),
+      name: 'Новый шаблон',
+      description: '',
+      category: '',
+      difficulty: 1,
+      filters: filters,
+      isTournament: true,
+    );
+    final model = await Navigator.push<TrainingPackTemplateModel>(
+      context,
+      MaterialPageRoute(
+          builder: (_) => TrainingPackTemplateEditorScreen(initial: initial)),
+    );
+    if (model != null && mounted) {
+      await context.read<TrainingPackTemplateStorageService>().add(model);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tags = <String>{for (final s in _spots) ...s.tags};
@@ -310,15 +336,30 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final created = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TrainingSpotBuilderScreen()),
-          );
-          if (created == true) _load();
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'createTplFromFilterFab',
+            onPressed: _createTemplateFromFilter,
+            label: const Text('Создать шаблон из фильтра'),
+            icon: const Icon(Icons.save),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addSpotFab',
+            onPressed: () async {
+              final created = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const TrainingSpotBuilderScreen()),
+              );
+              if (created == true) _load();
+            },
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }
