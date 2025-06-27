@@ -256,10 +256,10 @@ class TrainingPackStorageService extends ChangeNotifier {
         (template.category?.isNotEmpty == true ? template.category! : 'custom');
     String base = 'Новый пак: $category';
     String name = base;
-    int idx = 1;
+    int idx = 2;
     while (_packs.any((p) => p.name == name)) {
-      idx++;
       name = '$base ($idx)';
+      idx++;
     }
     final pack = TrainingPack(
       name: name,
