@@ -24,6 +24,17 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
       }
     }
     final maxCount = counts.reduce(max);
+    if (maxCount == 0) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Активность по дням недели'),
+          centerTitle: true,
+        ),
+        body: const Center(
+          child: Text('Нет данных за последнюю неделю'),
+        ),
+      );
+    }
     const labels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < counts.length; i++) {
@@ -63,7 +74,6 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
           ),
           child: BarChart(
             BarChartData(
-              rotationQuarterTurns: 1,
               maxY: maxCount.toDouble(),
               minY: 0,
               gridData: FlGridData(
@@ -74,44 +84,52 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                     FlLine(color: Colors.white24, strokeWidth: 1),
               ),
               titlesData: FlTitlesData(
-                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                bottomTitles: AxisTitles(
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index < 0 || index >= counts.length) {
+                        return const SizedBox.shrink();
+                      }
+                      final c = counts[index];
+                      return c > 0
+                          ? Text('$c',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 10))
+                          : const SizedBox.shrink();
+                    },
+                  ),
+                ),
+                leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
                     interval: interval,
                     reservedSize: 28,
-                    getTitlesWidget: (value, meta) => Transform.rotate(
-                      angle: -pi / 2,
-                      child: Text(
-                        value.toInt().toString(),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10),
-                      ),
+                    getTitlesWidget: (value, meta) => Text(
+                      value.toInt().toString(),
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
                     ),
                   ),
                 ),
-                rightTitles: AxisTitles(
+                bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 70,
+                    reservedSize: 28,
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < 0 || index >= labels.length) {
                         return const SizedBox.shrink();
                       }
-                      final text = '${labels[index]} (${counts[index]})';
-                      return Transform.rotate(
-                        angle: -pi / 2,
-                        child: Text(
-                          text,
-                          style:
-                              const TextStyle(color: Colors.white, fontSize: 10),
-                        ),
+                      return Text(
+                        labels[index],
+                        style: const TextStyle(color: Colors.white, fontSize: 10),
                       );
                     },
                   ),
                 ),
+                rightTitles:
+                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
               borderData: FlBorderData(
                 show: true,
