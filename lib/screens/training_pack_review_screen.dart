@@ -18,6 +18,10 @@ import '../services/tag_service.dart';
 import '../services/training_pack_storage_service.dart';
 import '../models/training_pack_stats.dart';
 import '../helpers/poker_street_helper.dart';
+import '../models/training_pack_template_model.dart';
+import '../services/training_pack_template_storage_service.dart';
+import 'training_pack_template_editor_screen.dart';
+import 'package:uuid/uuid.dart';
 
 /// Displays all spots from [pack] with option to show only mistaken ones.
 class TrainingPackReviewScreen extends StatefulWidget {
@@ -363,6 +367,45 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     }
   }
 
+  Future<void> _createTemplate() async {
+    final tags = <String>{...widget.pack.tags};
+    final positions = <String>{};
+    final streets = <String>{};
+    for (final h in widget.pack.hands) {
+      tags.addAll(h.tags);
+      positions.add(h.heroPosition);
+      streets.add(switch (h.boardStreet) {
+        0 => 'preflop',
+        1 => 'flop',
+        2 => 'turn',
+        _ => 'river'
+      });
+    }
+    final filters = <String, dynamic>{};
+    if (tags.isNotEmpty) filters['tags'] = tags.toList();
+    if (positions.isNotEmpty) filters['positions'] = positions.toList();
+    if (streets.isNotEmpty) filters['streets'] = streets.toList();
+    final initial = TrainingPackTemplateModel(
+      id: const Uuid().v4(),
+      name: widget.pack.name,
+      description: widget.pack.description,
+      category: widget.pack.category,
+      difficulty: widget.pack.difficulty,
+      filters: filters,
+      isTournament: widget.pack.gameType == GameType.tournament,
+    );
+    final model = await Navigator.push<TrainingPackTemplateModel>(
+      context,
+      MaterialPageRoute(
+          builder: (_) => TrainingPackTemplateEditorScreen(initial: initial)),
+    );
+    if (model != null && mounted) {
+      await context.read<TrainingPackTemplateStorageService>().add(model);
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Шаблон сохранён')));
+    }
+  }
+
   Widget _buildHandTile(SavedHand hand) {
     return Card(
       color: AppColors.cardBackground,
@@ -493,6 +536,17 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
             icon: const Icon(Icons.copy),
             tooltip: 'Export to Markdown',
             onPressed: _exportMarkdown,
+          ),
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              if (v == 'template') _createTemplate();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'template',
+                child: Text('📄 Create Template'),
+              ),
+            ],
           ),
         ],
       ),
