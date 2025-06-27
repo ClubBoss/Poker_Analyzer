@@ -64,6 +64,9 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
       _groupByColor = prefs.getBool(_groupKey) ?? false;
       _lastColor = colorFromHex(prefs.getString(_lastColorKey) ?? '#2196F3');
     });
+    if (_searchController.text.isNotEmpty) {
+      await _setSearch(_searchController.text);
+    }
   }
 
   Future<void> _loadDates() async {
