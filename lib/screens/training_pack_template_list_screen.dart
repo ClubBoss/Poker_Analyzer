@@ -158,6 +158,34 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _renameTemplate(TrainingPackTemplateModel t) async {
+    final controller = TextEditingController(text: t.name);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Переименовать шаблон'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Сохранить'),
+          ),
+        ],
+      ),
+    );
+    if (result != null && result.isNotEmpty && result != t.name) {
+      final updated = t.copyWith(name: result);
+      await context.read<TrainingPackTemplateStorageService>().update(updated);
+    }
+  }
+
   int _compare(TrainingPackTemplateModel a, TrainingPackTemplateModel b) {
     switch (_sort) {
       case _SortOption.category:
@@ -307,11 +335,15 @@ class _TrainingPackTemplateListScreenState
                           case 'export':
                             await _exportTemplate(t);
                             break;
+                          case 'rename':
+                            await _renameTemplate(t);
+                            break;
                         }
                       },
                       itemBuilder: (_) => const [
                         PopupMenuItem(value: 'apply', child: Text('Применить шаблон')),
                         PopupMenuItem(value: 'export', child: Text('📤 Экспортировать')),
+                        PopupMenuItem(value: 'rename', child: Text('✏️ Переименовать')),
                       ],
                     ),
                   ),
