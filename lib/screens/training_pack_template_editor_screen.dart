@@ -29,11 +29,15 @@ class _TrainingPackTemplateEditorScreenState
     _name = TextEditingController(text: m?.name ?? '');
     _desc = TextEditingController(text: m?.description ?? '');
     _category = TextEditingController(text: m?.category ?? '');
-    _filters = TextEditingController(
-      text: m != null && m.filters.isNotEmpty
-          ? const JsonEncoder.withIndent('  ').convert(m.filters)
-          : '',
-    );
+    Map<String, dynamic> f = {};
+    if (m != null && m.filters.isNotEmpty) {
+      f = Map<String, dynamic>.from(m.filters);
+    }
+    if (f.isEmpty || !f.containsKey('streets')) {
+      f['streets'] = ['preflop'];
+    }
+    _filters =
+        TextEditingController(text: const JsonEncoder.withIndent('  ').convert(f));
     _difficulty = m?.difficulty ?? 1;
   }
 
@@ -64,6 +68,12 @@ class _TrainingPackTemplateEditorScreenState
             const SnackBar(content: Text('Некорректный JSON фильтров')));
         return;
       }
+    }
+    final streets = filters['streets'];
+    if (streets is! List || streets.isEmpty || streets.any((e) => e is! String)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Некорректный список улиц')));
+      return;
     }
     final model = TrainingPackTemplateModel(
       id: widget.initial?.id ?? const Uuid().v4(),
