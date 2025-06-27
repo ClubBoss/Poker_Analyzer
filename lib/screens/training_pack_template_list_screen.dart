@@ -27,7 +27,7 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
   static const _prefsSortKey = 'tpl_sort_option';
-  static const _prefsCollapsedKey = 'tpl_collapsed_categories';
+  static const _prefsCollapsedKey = 'tpl_collapsed_state';
   _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
   final Map<String, bool> _collapsed = {};
