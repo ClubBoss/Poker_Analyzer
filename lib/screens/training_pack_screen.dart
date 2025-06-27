@@ -57,6 +57,7 @@ import 'markdown_preview_screen.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'dart:async';
 import '../services/cloud_training_history_service.dart';
+import '../helpers/color_utils.dart';
 
 
 class _SessionSummary {
@@ -1569,9 +1570,30 @@ body { font-family: sans-serif; padding: 16px; }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_isMistakeReviewMode
-              ? '${_pack.name} — Повторение ошибок'
-              : _pack.name),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _pack.colorTag.isEmpty
+                  ? const Icon(Icons.circle_outlined, color: Colors.white24, size: 16)
+                  : Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: colorFromHex(_pack.colorTag),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  _isMistakeReviewMode
+                      ? '${_pack.name} — Повторение ошибок'
+                      : _pack.name,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
           centerTitle: true,
           actions: [
             IconButton(

@@ -111,14 +111,16 @@ class _PackDataSource extends DataTableSource {
                   child: Row(
                     children: [
                       if (!s.pack.isBuiltIn) ...[
-                        Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: colorFromHex(s.pack.colorTag),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
+                        s.pack.colorTag.isEmpty
+                            ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                            : Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: colorFromHex(s.pack.colorTag),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
                         const SizedBox(width: 4),
                       ],
                       Expanded(child: Text(s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name)),
@@ -221,6 +223,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   PackChartSort _chartSort = PackChartSort.progress;
   GameType? _typeFilter;
   int _diffFilter = 0;
+  String _colorFilter = 'All';
   SharedPreferences? _prefs;
 
   @override
@@ -231,6 +234,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         setState(() {
           _prefs = p;
           _diffFilter = p.getInt('pack_diff_filter') ?? 0;
+          _colorFilter = p.getString('pack_color_filter') ?? 'All';
         });
       }
     });
@@ -554,6 +558,24 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     if (_diffFilter > 0) {
       packs = [for (final p in packs) if (p.difficulty == _diffFilter) p];
     }
+    if (_colorFilter != 'All') {
+      if (_colorFilter == 'None') {
+        packs = [for (final p in packs) if (p.colorTag.isEmpty) p];
+      } else {
+        const map = {
+          'Red': '#F44336',
+          'Blue': '#2196F3',
+          'Orange': '#FF9800',
+          'Green': '#4CAF50',
+          'Purple': '#9C27B0',
+          'Grey': '#9E9E9E',
+        };
+        final hex = map[_colorFilter];
+        if (hex != null) {
+          packs = [for (final p in packs) if (p.colorTag == hex) p];
+        }
+      }
+    }
     final allStats = [for (final p in packs) TrainingPackStats.fromPack(p)];
     final sumTotal = allStats.fold<int>(0, (s, e) => s + e.total);
     final sumMistakes = allStats.fold<int>(0, (s, e) => s + e.mistakes);
@@ -706,6 +728,40 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              const Text('Color', style: TextStyle(color: Colors.white)),
+              const SizedBox(width: 8),
+              DropdownButton<String>(
+                value: _colorFilter,
+                dropdownColor: AppColors.cardBackground,
+                style: const TextStyle(color: Colors.white),
+                onChanged: (v) async {
+                  final value = v ?? 'All';
+                  setState(() => _colorFilter = value);
+                  final prefs = _prefs ?? await SharedPreferences.getInstance();
+                  if (value == 'All') {
+                    await prefs.remove('pack_color_filter');
+                  } else {
+                    await prefs.setString('pack_color_filter', value);
+                  }
+                },
+                items: const [
+                  DropdownMenuItem(value: 'All', child: Text('All')),
+                  DropdownMenuItem(value: 'Red', child: Text('Red')),
+                  DropdownMenuItem(value: 'Blue', child: Text('Blue')),
+                  DropdownMenuItem(value: 'Orange', child: Text('Orange')),
+                  DropdownMenuItem(value: 'Green', child: Text('Green')),
+                  DropdownMenuItem(value: 'Purple', child: Text('Purple')),
+                  DropdownMenuItem(value: 'Grey', child: Text('Grey')),
+                  DropdownMenuItem(value: 'None', child: Text('None')),
+                ],
+              ),
+            ],
+          ),
+        ),
         PackCompletionBarChart(
           stats: stats,
           hideCompleted: false,
@@ -738,6 +794,18 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                       ElevatedButton(
                         onPressed: _setColorTag,
                         child: const Text('🎨 Color Tag'),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final service = context.read<TrainingPackStorageService>();
+                          for (final p in _selected) {
+                            await service.setColorTag(p, '');
+                          }
+                          await service.save();
+                          _clearSelection();
+                        },
+                        child: const Text('🧹 Clear Color'),
                       ),
                       const SizedBox(width: 12),
                       ElevatedButton(

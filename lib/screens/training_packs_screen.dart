@@ -23,12 +23,14 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   static const _hideKey = 'hide_completed_packs';
   static const _typeKey = 'pack_game_type_filter';
   static const _diffKey = 'pack_diff_filter';
+  static const _colorKey = 'pack_color_filter';
 
   final TextEditingController _searchController = TextEditingController();
 
   bool _hideCompleted = false;
   GameType? _typeFilter;
   int _diffFilter = 0;
+  String _colorFilter = 'All';
   SharedPreferences? _prefs;
 
   Future<void> _importPack() async {
@@ -65,6 +67,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       if (t == 'tournament') _typeFilter = GameType.tournament;
       if (t == 'cash') _typeFilter = GameType.cash;
       _diffFilter = prefs.getInt(_diffKey) ?? 0;
+      _colorFilter = prefs.getString(_colorKey) ?? 'All';
     });
   }
 
@@ -91,6 +94,16 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       await prefs.remove(_diffKey);
     } else {
       await prefs.setInt(_diffKey, value);
+    }
+  }
+
+  Future<void> _setColorFilter(String value) async {
+    setState(() => _colorFilter = value);
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    if (value == 'All') {
+      await prefs.remove(_colorKey);
+    } else {
+      await prefs.setString(_colorKey, value);
     }
   }
 
@@ -123,6 +136,25 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
     if (_diffFilter > 0) {
       visible = [for (final p in visible) if (p.difficulty == _diffFilter) p];
+    }
+
+    if (_colorFilter != 'All') {
+      if (_colorFilter == 'None') {
+        visible = [for (final p in visible) if (p.colorTag.isEmpty) p];
+      } else {
+        const map = {
+          'Red': '#F44336',
+          'Blue': '#2196F3',
+          'Orange': '#FF9800',
+          'Green': '#4CAF50',
+          'Purple': '#9C27B0',
+          'Grey': '#9E9E9E',
+        };
+        final hex = map[_colorFilter];
+        if (hex != null) {
+          visible = [for (final p in visible) if (p.colorTag == hex) p];
+        }
+      }
     }
 
     final query = _searchController.text.toLowerCase();
@@ -230,6 +262,24 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           ),
         ),
         Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: DropdownButton<String>(
+            value: _colorFilter,
+            underline: const SizedBox.shrink(),
+            onChanged: (v) => _setColorFilter(v ?? 'All'),
+            items: const [
+              DropdownMenuItem(value: 'All', child: Text('Color: All')),
+              DropdownMenuItem(value: 'Red', child: Text('Red')),
+              DropdownMenuItem(value: 'Blue', child: Text('Blue')),
+              DropdownMenuItem(value: 'Orange', child: Text('Orange')),
+              DropdownMenuItem(value: 'Green', child: Text('Green')),
+              DropdownMenuItem(value: 'Purple', child: Text('Purple')),
+              DropdownMenuItem(value: 'Grey', child: Text('Grey')),
+              DropdownMenuItem(value: 'None', child: Text('None')),
+            ],
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
@@ -288,14 +338,16 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                       return ListTile(
                         leading: pack.isBuiltIn
                             ? const Text('📦')
-                            : Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: colorFromHex(pack.colorTag),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
+                            : (pack.colorTag.isEmpty
+                                ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                                : Container(
+                                    width: 16,
+                                    height: 16,
+                                    decoration: BoxDecoration(
+                                      color: colorFromHex(pack.colorTag),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  )),
                         title: Row(
                           children: [
                             Expanded(child: Text(pack.name)),
