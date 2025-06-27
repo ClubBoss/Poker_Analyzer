@@ -30,9 +30,15 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
           title: const Text('Активность по дням недели'),
           centerTitle: true,
         ),
-        body: const Center(
-          child:
-              Text('Нет данных за последнюю неделю', style: TextStyle(color: Colors.white70)),
+        body: const Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(
+            child: Text(
+              'Нет данных за последнюю неделю',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
         ),
       );
     }
@@ -58,10 +64,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
         ),
       );
     }
-    double interval = 1;
-    if (maxCount > 5) {
-      interval = pow(10, (log(maxCount) / ln10).floor()).toDouble();
-    }
+    final interval = pow(10, (log(maxCount) / ln10).floor()).toDouble();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Активность по дням недели'),
@@ -88,7 +91,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
               ),
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
-                  tooltipBgColor: Colors.black45,
+                  tooltipBgColor: Colors.black54,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final c = counts[group.x];
                     return BarTooltipItem('$c попыток', const TextStyle(color: Colors.white));
@@ -99,7 +102,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                 topTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 24,
+                    reservedSize: 28,
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < 0 || index >= counts.length) {
@@ -118,7 +121,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     interval: interval,
-                    reservedSize: 28,
+                    reservedSize: 40,
                     getTitlesWidget: (value, meta) => Text(
                       value.toInt().toString(),
                       style: const TextStyle(color: Colors.white, fontSize: 10),
