@@ -59,6 +59,7 @@ import 'package:markdown/markdown.dart' as md;
 import 'dart:async';
 import '../services/cloud_training_history_service.dart';
 import '../helpers/color_utils.dart';
+import '../theme/app_colors.dart';
 
 
 class _SessionSummary {
@@ -1285,6 +1286,38 @@ body { font-family: sans-serif; padding: 16px; }
       );
   }
 
+  Widget _buildInfoCard() {
+    final subtitle =
+        '${_pack.gameType.label} • ${_pack.spots.isNotEmpty ? '${_pack.spots.length} spots' : '${_pack.hands.length} hands'}';
+    final leading = _pack.isBuiltIn
+        ? const Text('📦')
+        : (_pack.colorTag.isEmpty
+            ? const Icon(Icons.circle_outlined, color: Colors.white24)
+            : Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: colorFromHex(_pack.colorTag),
+                  shape: BoxShape.circle,
+                ),
+              ));
+    return Card(
+      color: AppColors.cardBackground,
+      margin: const EdgeInsets.all(16),
+      child: ListTile(
+        leading: leading,
+        title: Row(
+          children: [
+            Expanded(child: Text(_pack.name)),
+            const SizedBox(width: 4),
+            DifficultyChip(_pack.difficulty),
+          ],
+        ),
+        subtitle: Text(subtitle),
+      ),
+    );
+  }
+
   Widget _buildImportedSpotsList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1381,13 +1414,13 @@ body { font-family: sans-serif; padding: 16px; }
     final hands = _sessionHands;
     final bool completed = _currentIndex >= hands.length;
 
-    Widget body;
+    Widget content;
     if (hands.isEmpty) {
-      body = const Center(child: Text('Нет раздач'));
+      content = const Center(child: Text('Нет раздач'));
     } else if (completed) {
-      body = _buildSummary();
+      content = _buildSummary();
     } else {
-      body = Column(
+      content = Column(
         children: [
           LinearProgressIndicator(
             value: _currentIndex / hands.length,
@@ -1635,7 +1668,12 @@ body { font-family: sans-serif; padding: 16px; }
             ),
           ],
         ),
-        body: body,
+        body: Column(
+          children: [
+            _buildInfoCard(),
+            Expanded(child: content),
+          ],
+        ),
         backgroundColor: const Color(0xFF1B1C1E),
       ),
     );
