@@ -50,7 +50,7 @@ class MistakeReviewPackService extends ChangeNotifier {
     final today = DateTime.now();
     if (_pack != null && _date != null && _sameDay(_date!, today)) return;
     final hs = _mistakes();
-    _pack = TrainingPack(name: 'Repeat Mistakes', description: '', isBuiltIn: true, hands: hs);
+    _pack = TrainingPack(name: 'Repeat Mistakes', description: '', isBuiltIn: true, tags: const [], hands: hs);
     _date = today;
     _progress = 0;
     _save();

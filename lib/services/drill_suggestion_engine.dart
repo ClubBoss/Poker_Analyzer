@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../helpers/poker_street_helper.dart';
 import '../models/drill.dart';
 import '../models/training_pack.dart';
+import '../models/game_type.dart';
 import '../models/saved_hand.dart';
 import 'saved_hand_manager_service.dart';
 import 'training_pack_storage_service.dart';
@@ -57,7 +58,8 @@ class DrillSuggestionEngine extends ChangeNotifier {
     return TrainingPack(
       name: '${d.position} ${d.street}',
       description: 'Drill',
-      gameType: 'Cash Game',
+      gameType: GameType.cash,
+      tags: const [],
       hands: hands,
     );
   }
