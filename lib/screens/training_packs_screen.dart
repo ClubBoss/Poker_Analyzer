@@ -7,6 +7,7 @@ import '../models/game_type.dart';
 import '../services/training_pack_storage_service.dart';
 import '../helpers/color_utils.dart';
 import '../widgets/difficulty_chip.dart';
+import '../theme/app_colors.dart';
 import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
@@ -24,6 +25,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   static const _typeKey = 'pack_game_type_filter';
   static const _diffKey = 'pack_diff_filter';
   static const _colorKey = 'pack_color_filter';
+  static const _groupKey = 'group_by_color';
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -31,6 +33,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   GameType? _typeFilter;
   int _diffFilter = 0;
   String _colorFilter = 'All';
+  bool _groupByColor = false;
   SharedPreferences? _prefs;
 
   Future<void> _importPack() async {
@@ -68,6 +71,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       if (t == 'cash') _typeFilter = GameType.cash;
       _diffFilter = prefs.getInt(_diffKey) ?? 0;
       _colorFilter = prefs.getString(_colorKey) ?? 'All';
+      _groupByColor = prefs.getBool(_groupKey) ?? false;
     });
   }
 
@@ -279,6 +283,16 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             ],
           ),
         ),
+        SwitchListTile(
+          title: const Text('Group by Color'),
+          value: _groupByColor,
+          onChanged: (v) async {
+            setState(() => _groupByColor = v);
+            final prefs = _prefs ?? await SharedPreferences.getInstance();
+            await prefs.setBool(_groupKey, v);
+          },
+          activeColor: Colors.orange,
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -330,53 +344,135 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                       ],
                     ),
                   )
-                : ListView.builder(
-                    itemCount: visible.length,
-                    itemBuilder: (context, index) {
-                      final pack = visible[index];
-                      final completed = _isPackCompleted(pack);
-                      return ListTile(
-                        leading: pack.isBuiltIn
-                            ? const Text('📦')
-                            : (pack.colorTag.isEmpty
-                                ? const Icon(Icons.circle_outlined, color: Colors.white24)
-                                : Container(
-                                    width: 16,
-                                    height: 16,
-                                    decoration: BoxDecoration(
-                                      color: colorFromHex(pack.colorTag),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  )),
-                        title: Row(
-                          children: [
-                            Expanded(child: Text(pack.name)),
-                            const SizedBox(width: 4),
-                            DifficultyChip(pack.difficulty),
-                          ],
-                        ),
-                        subtitle: Text(
-                          '${pack.spots.isNotEmpty ? '${pack.spots.length} spots' : '${pack.hands.length} hands'} • ${pack.gameType.label}',
-                        ),
-                        trailing: completed
-                            ? const Icon(Icons.check, color: Colors.green)
-                            : null,
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => TrainingPackScreen(pack: pack),
+                : _groupByColor
+                    ? _buildGroupedList(visible)
+                    : ListView.builder(
+                        itemCount: visible.length,
+                        itemBuilder: (context, index) {
+                          final pack = visible[index];
+                          final completed = _isPackCompleted(pack);
+                          return ListTile(
+                            leading: pack.isBuiltIn
+                                ? const Text('📦')
+                                : (pack.colorTag.isEmpty
+                                    ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                                    : Container(
+                                        width: 16,
+                                        height: 16,
+                                        decoration: BoxDecoration(
+                                          color: colorFromHex(pack.colorTag),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      )),
+                            title: Row(
+                              children: [
+                                Expanded(child: Text(pack.name)),
+                                const SizedBox(width: 4),
+                                DifficultyChip(pack.difficulty),
+                              ],
                             ),
+                            subtitle: Text(
+                              '${pack.spots.isNotEmpty ? '${pack.spots.length} spots' : '${pack.hands.length} hands'} • ${pack.gameType.label}',
+                            ),
+                            trailing: completed ? const Icon(Icons.check, color: Colors.green) : null,
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => TrainingPackScreen(pack: pack),
+                                ),
+                              );
+                              setState(() {});
+                            },
                           );
-                          setState(() {});
                         },
-                      );
-                    },
-                  ),
+                      ),
           ),
         ],
       ),
       floatingActionButton: null,
+    );
+  }
+
+  Widget _buildGroupedList(List<TrainingPack> packs) {
+    const order = ['Red', 'Blue', 'Orange', 'Green', 'Purple', 'Grey', 'None'];
+    const map = {
+      '#F44336': 'Red',
+      '#2196F3': 'Blue',
+      '#FF9800': 'Orange',
+      '#4CAF50': 'Green',
+      '#9C27B0': 'Purple',
+      '#9E9E9E': 'Grey',
+    };
+    final groups = <String, List<TrainingPack>>{};
+    for (final p in packs) {
+      final name = map[p.colorTag] ?? (p.colorTag.isEmpty ? 'None' : 'None');
+      groups.putIfAbsent(name, () => []).add(p);
+    }
+    for (final g in groups.values) {
+      g.sort((a, b) => a.name.compareTo(b.name));
+    }
+    final colors = [for (final c in order) if (groups.containsKey(c)) c];
+    final itemCount = colors.fold<int>(0, (s, c) => s + 1 + groups[c]!.length);
+    return ListView.builder(
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        int count = 0;
+        for (final color in colors) {
+          if (index == count) {
+            return Container(
+              color: AppColors.cardBackground,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(color,
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+            );
+          }
+          count++;
+          final list = groups[color]!;
+          if (index < count + list.length) {
+            final pack = list[index - count];
+            final completed = _isPackCompleted(pack);
+            return ListTile(
+              leading: pack.isBuiltIn
+                  ? const Text('📦')
+                  : (pack.colorTag.isEmpty
+                      ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                      : Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: colorFromHex(pack.colorTag),
+                            shape: BoxShape.circle,
+                          ),
+                        )),
+              title: Row(
+                children: [
+                  Expanded(child: Text(pack.name)),
+                  const SizedBox(width: 4),
+                  DifficultyChip(pack.difficulty),
+                ],
+              ),
+              subtitle: Text(
+                '${pack.spots.isNotEmpty ? '${pack.spots.length} spots' : '${pack.hands.length} hands'} • ${pack.gameType.label}',
+              ),
+              trailing:
+                  completed ? const Icon(Icons.check, color: Colors.green) : null,
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TrainingPackScreen(pack: pack),
+                  ),
+                );
+                setState(() {});
+              },
+            );
+          }
+          count += list.length;
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 }
