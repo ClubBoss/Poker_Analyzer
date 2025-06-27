@@ -7,6 +7,7 @@ import '../helpers/date_utils.dart';
 import '../models/training_pack.dart';
 import '../theme/app_colors.dart';
 import 'training_pack_screen.dart';
+import '../widgets/difficulty_chip.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
   const MyTrainingPacksScreen({super.key});
@@ -18,11 +19,22 @@ class MyTrainingPacksScreen extends StatefulWidget {
 class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   final Map<String, DateTime?> _dates = {};
   String _sort = 'name';
+  int _diffFilter = 0;
+  SharedPreferences? _prefs;
 
   @override
   void initState() {
     super.initState();
     _loadDates();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _prefs = prefs;
+      _diffFilter = prefs.getInt('pack_diff_filter') ?? 0;
+    });
   }
 
   Future<void> _loadDates() async {
@@ -66,6 +78,9 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs.where((p) => !p.isBuiltIn).toList();
+    if (_diffFilter > 0) {
+      packs.retainWhere((p) => p.difficulty == _diffFilter);
+    }
     packs.sort(_compare);
     final Map<String, List<TrainingPack>> groups = {};
     for (final p in packs) {
@@ -78,19 +93,42 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: DropdownButton<String>(
-              value: _sort,
-              underline: const SizedBox.shrink(),
-              onChanged: (v) => setState(() => _sort = v ?? 'name'),
-              items: const [
-                DropdownMenuItem(value: 'name', child: Text('По имени')),
-                DropdownMenuItem(value: 'date', child: Text('По дате')),
-                DropdownMenuItem(value: 'category', child: Text('По категории')),
-              ],
-            ),
+          padding: const EdgeInsets.all(16),
+          child: DropdownButton<String>(
+            value: _sort,
+            underline: const SizedBox.shrink(),
+            onChanged: (v) => setState(() => _sort = v ?? 'name'),
+            items: const [
+              DropdownMenuItem(value: 'name', child: Text('По имени')),
+              DropdownMenuItem(value: 'date', child: Text('По дате')),
+              DropdownMenuItem(value: 'category', child: Text('По категории')),
+            ],
           ),
-          Expanded(
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: DropdownButton<int>(
+            value: _diffFilter,
+            underline: const SizedBox.shrink(),
+            onChanged: (v) async {
+              final value = v ?? 0;
+              setState(() => _diffFilter = value);
+              final prefs = _prefs ?? await SharedPreferences.getInstance();
+              if (value == 0) {
+                await prefs.remove('pack_diff_filter');
+              } else {
+                await prefs.setInt('pack_diff_filter', value);
+              }
+            },
+            items: const [
+              DropdownMenuItem(value: 0, child: Text('Difficulty: All')),
+              DropdownMenuItem(value: 1, child: Text('Beginner')),
+              DropdownMenuItem(value: 2, child: Text('Intermediate')),
+              DropdownMenuItem(value: 3, child: Text('Advanced')),
+            ],
+          ),
+        ),
+        Expanded(
             child: ListView.builder(
               itemCount: categories.fold<int>(0, (n, c) => n + 1 + groups[c]!.length),
               itemBuilder: (context, index) {
@@ -109,11 +147,17 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                     final p = list[index - count];
                     final date = _dates[p.name];
                     return ListTile(
-                      title: Text(p.name),
+                      title: Row(
+                        children: [
+                          Expanded(child: Text(p.name)),
+                          const SizedBox(width: 4),
+                          DifficultyChip(p.difficulty),
+                        ],
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${p.category} • ${p.hands.length} рук'),
+                          Text('${p.category} • ${p.spots.isNotEmpty ? '${p.spots.length} spots' : '${p.hands.length} hands'}'),
                           if (p.tags.isNotEmpty) Text(p.tags.join(', ')),
                         ],
                       ),

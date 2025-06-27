@@ -19,6 +19,7 @@ import '../theme/app_colors.dart';
 import 'training_pack_review_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/pack_next_step_card.dart';
+import '../widgets/difficulty_chip.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
   const TrainingPackComparisonScreen({super.key});
@@ -106,8 +107,12 @@ class _PackDataSource extends DataTableSource {
             : DataCell(
                 Tooltip(
                   message: 'Открыть обзор пака',
-                  child: Text(
-                    s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name,
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name)),
+                      const SizedBox(width: 4),
+                      DifficultyChip(s.pack.difficulty),
+                    ],
                   ),
                 ),
                 onTap: () => selectionMode ? onToggle(s.pack) : onStartEdit(s),
@@ -203,13 +208,19 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   int _rowsPerPage = 10;
   PackChartSort _chartSort = PackChartSort.progress;
   GameType? _typeFilter;
+  int _diffFilter = 0;
   SharedPreferences? _prefs;
 
   @override
   void initState() {
     super.initState();
     SharedPreferences.getInstance().then((p) {
-      if (mounted) setState(() => _prefs = p);
+      if (mounted) {
+        setState(() {
+          _prefs = p;
+          _diffFilter = p.getInt('pack_diff_filter') ?? 0;
+        });
+      }
     });
   }
 
@@ -487,9 +498,12 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   @override
   Widget build(BuildContext context) {
     final allPacks = context.watch<TrainingPackStorageService>().packs;
-    final packs = _typeFilter == null
+    var packs = _typeFilter == null
         ? allPacks
         : [for (final p in allPacks) if (p.gameType == _typeFilter) p];
+    if (_diffFilter > 0) {
+      packs = [for (final p in packs) if (p.difficulty == _diffFilter) p];
+    }
     final allStats = [for (final p in packs) TrainingPackStats.fromPack(p)];
     final sumTotal = allStats.fold<int>(0, (s, e) => s + e.total);
     final sumMistakes = allStats.fold<int>(0, (s, e) => s + e.mistakes);
@@ -608,6 +622,36 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                   DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
                 ],
                 onChanged: (v) => setState(() => _typeFilter = v),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              const Text('Difficulty', style: TextStyle(color: Colors.white)),
+              const SizedBox(width: 8),
+              DropdownButton<int>(
+                value: _diffFilter,
+                dropdownColor: AppColors.cardBackground,
+                style: const TextStyle(color: Colors.white),
+                onChanged: (v) async {
+                  final value = v ?? 0;
+                  setState(() => _diffFilter = value);
+                  final prefs = _prefs ?? await SharedPreferences.getInstance();
+                  if (value == 0) {
+                    await prefs.remove('pack_diff_filter');
+                  } else {
+                    await prefs.setInt('pack_diff_filter', value);
+                  }
+                },
+                items: const [
+                  DropdownMenuItem(value: 0, child: Text('All')),
+                  DropdownMenuItem(value: 1, child: Text('Beginner')),
+                  DropdownMenuItem(value: 2, child: Text('Intermediate')),
+                  DropdownMenuItem(value: 3, child: Text('Advanced')),
+                ],
               ),
             ],
           ),
