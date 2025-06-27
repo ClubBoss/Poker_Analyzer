@@ -68,6 +68,25 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> addCustomPack(TrainingPack pack) async {
+    final newPack = TrainingPack(
+      name: pack.name,
+      description: pack.description,
+      category: pack.category,
+      gameType: pack.gameType,
+      colorTag: pack.colorTag,
+      isBuiltIn: false,
+      tags: pack.tags,
+      hands: pack.hands,
+      spots: pack.spots,
+      difficulty: pack.difficulty,
+      history: const [],
+    );
+    _packs.add(newPack);
+    await _persist();
+    notifyListeners();
+  }
+
   Future<void> clear() async {
     _packs.clear();
     await _persist();
