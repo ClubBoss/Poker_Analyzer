@@ -8,6 +8,7 @@ import '../services/training_pack_storage_service.dart';
 import '../helpers/color_utils.dart';
 import '../widgets/difficulty_chip.dart';
 import '../theme/app_colors.dart';
+import '../widgets/color_picker_dialog.dart';
 import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
@@ -26,6 +27,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   static const _diffKey = 'pack_diff_filter';
   static const _colorKey = 'pack_color_filter';
   static const _groupKey = 'group_by_color';
+  static const _lastColorKey = 'pack_last_color';
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -34,6 +36,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   int _diffFilter = 0;
   String _colorFilter = 'All';
   bool _groupByColor = false;
+  Color _lastColor = Colors.blue;
   SharedPreferences? _prefs;
 
   Future<void> _importPack() async {
@@ -72,6 +75,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       _diffFilter = prefs.getInt(_diffKey) ?? 0;
       _colorFilter = prefs.getString(_colorKey) ?? 'All';
       _groupByColor = prefs.getBool(_groupKey) ?? false;
+      _lastColor = colorFromHex(prefs.getString(_lastColorKey) ?? '#2196F3');
     });
   }
 
@@ -102,8 +106,23 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   }
 
   Future<void> _setColorFilter(String value) async {
-    setState(() => _colorFilter = value);
     final prefs = _prefs ?? await SharedPreferences.getInstance();
+    if (value == 'Custom') {
+      final color = await showColorPickerDialog(
+        context,
+        initialColor: _lastColor,
+      );
+      if (color == null) return;
+      final hex = colorToHex(color);
+      setState(() {
+        _colorFilter = hex;
+        _lastColor = color;
+      });
+      await prefs.setString(_lastColorKey, hex);
+      await prefs.setString(_colorKey, hex);
+      return;
+    }
+    setState(() => _colorFilter = value);
     if (value == 'All') {
       await prefs.remove(_colorKey);
     } else {
@@ -145,6 +164,8 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     if (_colorFilter != 'All') {
       if (_colorFilter == 'None') {
         visible = [for (final p in visible) if (p.colorTag.isEmpty) p];
+      } else if (_colorFilter.startsWith('#')) {
+        visible = [for (final p in visible) if (p.colorTag == _colorFilter) p];
       } else {
         const map = {
           'Red': '#F44336',
@@ -271,15 +292,34 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             value: _colorFilter,
             underline: const SizedBox.shrink(),
             onChanged: (v) => _setColorFilter(v ?? 'All'),
-            items: const [
-              DropdownMenuItem(value: 'All', child: Text('Color: All')),
-              DropdownMenuItem(value: 'Red', child: Text('Red')),
-              DropdownMenuItem(value: 'Blue', child: Text('Blue')),
-              DropdownMenuItem(value: 'Orange', child: Text('Orange')),
-              DropdownMenuItem(value: 'Green', child: Text('Green')),
-              DropdownMenuItem(value: 'Purple', child: Text('Purple')),
-              DropdownMenuItem(value: 'Grey', child: Text('Grey')),
-              DropdownMenuItem(value: 'None', child: Text('None')),
+            items: [
+              const DropdownMenuItem(value: 'All', child: Text('Color: All')),
+              const DropdownMenuItem(value: 'Red', child: Text('Red')),
+              const DropdownMenuItem(value: 'Blue', child: Text('Blue')),
+              const DropdownMenuItem(value: 'Orange', child: Text('Orange')),
+              const DropdownMenuItem(value: 'Green', child: Text('Green')),
+              const DropdownMenuItem(value: 'Purple', child: Text('Purple')),
+              const DropdownMenuItem(value: 'Grey', child: Text('Grey')),
+              const DropdownMenuItem(value: 'None', child: Text('None')),
+              const DropdownMenuItem(value: 'Custom', child: Text('Custom...')),
+              if (_colorFilter.startsWith('#'))
+                DropdownMenuItem(
+                  value: _colorFilter,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: colorFromHex(_colorFilter),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(_colorFilter),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
@@ -395,7 +435,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   }
 
   Widget _buildGroupedList(List<TrainingPack> packs) {
-    const order = ['Red', 'Blue', 'Orange', 'Green', 'Purple', 'Grey', 'None'];
+    const order = ['Red', 'Blue', 'Orange', 'Green', 'Purple', 'Grey', 'Custom', 'None'];
     const map = {
       '#F44336': 'Red',
       '#2196F3': 'Blue',
@@ -406,7 +446,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     };
     final groups = <String, List<TrainingPack>>{};
     for (final p in packs) {
-      final name = map[p.colorTag] ?? (p.colorTag.isEmpty ? 'None' : 'None');
+      final name = map[p.colorTag] ?? (p.colorTag.isEmpty ? 'None' : 'Custom');
       groups.putIfAbsent(name, () => []).add(p);
     }
     for (final g in groups.values) {
