@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
 import 'training_activity_by_weekday_screen.dart';
+import 'top_mistakes_overview_screen.dart';
 
 class TrainingProgressAnalyticsScreen extends StatelessWidget {
   static const route = '/training/analytics';
@@ -40,6 +41,19 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
             },
             child: const Text(
               'Дни недели',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const TopMistakesOverviewScreen()),
+              );
+            },
+            child: const Text(
+              'Ошибки',
               style: TextStyle(color: Colors.white),
             ),
           ),
