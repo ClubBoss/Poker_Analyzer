@@ -27,6 +27,22 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   static const _lastCategoryKey = 'pack_last_category';
   final TextEditingController _categoryController = TextEditingController();
 
+  double _estimateDifficulty(SavedHand hand) {
+    final actions = hand.actions.length;
+    if (actions > 10 || hand.numberOfPlayers > 2) return 3;
+    if (actions > 5 || hand.boardStreet > 1) return 2;
+    return 1;
+  }
+
+  double get _averageDifficulty {
+    if (_selected.isEmpty) return 0;
+    double total = 0;
+    for (final h in _selected) {
+      total += _estimateDifficulty(h);
+    }
+    return total / _selected.length;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -238,6 +254,25 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
                   onPressed: _selected.isEmpty ? null : _editSelected,
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Рук: ${_selected.length}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Сложн.: ${_averageDifficulty.toStringAsFixed(1)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Opacity(
