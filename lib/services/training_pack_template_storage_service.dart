@@ -68,4 +68,10 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
     await _persist();
     notifyListeners();
   }
+
+  Future<void> clear() async {
+    _templates.clear();
+    await _persist();
+    notifyListeners();
+  }
 }

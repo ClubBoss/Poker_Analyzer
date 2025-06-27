@@ -187,6 +187,31 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _deleteAllTemplates() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить все шаблоны?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    await context.read<TrainingPackTemplateStorageService>().clear();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Все шаблоны удалены')),
+    );
+  }
+
   int _compare(TrainingPackTemplateModel a, TrainingPackTemplateModel b) {
     switch (_sort) {
       case _SortOption.category:
@@ -237,6 +262,17 @@ class _TrainingPackTemplateListScreenState
         actions: [
           IconButton(onPressed: _export, icon: const Icon(Icons.upload_file)),
           IconButton(onPressed: _import, icon: const Icon(Icons.download)),
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              if (v == 'delete_all') _deleteAllTemplates();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'delete_all',
+                child: Text('🗑️ Удалить все шаблоны'),
+              ),
+            ],
+          ),
           PopupMenuButton<_SortOption>(
             icon: const Icon(Icons.sort),
             padding: EdgeInsets.zero,
