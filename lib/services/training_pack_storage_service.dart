@@ -209,6 +209,38 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<TrainingPack?> recordAttempt(TrainingPack pack, bool correct) async {
+    if (pack.isBuiltIn) return null;
+    final index = _packs.indexOf(pack);
+    if (index == -1) return null;
+    final history = List<TrainingSessionResult>.from(pack.history);
+    final last = history.isNotEmpty ? history.last : null;
+    final total = (last?.total ?? 0) + 1;
+    final solved = (last?.correct ?? 0) + (correct ? 1 : 0);
+    history.add(TrainingSessionResult(
+      date: DateTime.now(),
+      total: total,
+      correct: solved,
+    ));
+    final updated = TrainingPack(
+      name: pack.name,
+      description: pack.description,
+      category: pack.category,
+      gameType: pack.gameType,
+      colorTag: pack.colorTag,
+      isBuiltIn: pack.isBuiltIn,
+      tags: pack.tags,
+      hands: pack.hands,
+      spots: pack.spots,
+      difficulty: pack.difficulty,
+      history: history,
+    );
+    _packs[index] = updated;
+    await _persist();
+    notifyListeners();
+    return updated;
+  }
+
   Future<void> save() async {
     await _persist();
     notifyListeners();
@@ -282,8 +314,6 @@ class TrainingPackStorageService extends ChangeNotifier {
 }
 
 extension PackProgress on TrainingPack {
-  int get solved => history.isNotEmpty ? history.last.correct : 0;
-  int get lastAttempted => history.isNotEmpty ? history.last.total : 0;
   double get pctComplete =>
       (hands.isEmpty ? 0 : solved / hands.length).clamp(0, 1);
 }
