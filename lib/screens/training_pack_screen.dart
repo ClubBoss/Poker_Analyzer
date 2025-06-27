@@ -534,8 +534,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       context,
       MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: copy)),
     );
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Копия «${copy.name}» создана')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Копия «${copy.name}» создана')),
+    );
   }
 
   void _previousHand() {
