@@ -9,6 +9,7 @@ import 'services/session_note_service.dart';
 import 'services/session_pin_service.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/template_storage_service.dart';
+import 'services/training_pack_template_storage_service.dart';
 import 'services/daily_hand_service.dart';
 import 'services/spot_of_the_day_service.dart';
 import 'services/action_sync_service.dart';
@@ -72,6 +73,7 @@ void main() {
         ),
         ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
+        ChangeNotifierProvider(create: (_) => TrainingPackTemplateStorageService()..load()),
         ChangeNotifierProvider(
           create: (context) => CategoryUsageService(
             templates: context.read<TemplateStorageService>(),
