@@ -5,7 +5,6 @@ import '../helpers/poker_position_helper.dart';
 import '../models/training_spot.dart';
 import '../models/card_model.dart';
 import '../services/training_spot_storage_service.dart';
-import '../services/cloud_sync_service.dart';
 import '../widgets/board_cards_widget.dart';
 
 class TrainingSpotBuilderScreen extends StatefulWidget {
@@ -34,8 +33,7 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   @override
   void initState() {
     super.initState();
-    _storage =
-        TrainingSpotStorageService(cloud: context.read<CloudSyncService>());
+    _storage = context.read<TrainingSpotStorageService>();
     _initStacks();
   }
 

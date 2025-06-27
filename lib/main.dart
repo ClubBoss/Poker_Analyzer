@@ -46,6 +46,10 @@ void main() {
       providers: [
         Provider(create: (_) => CloudSyncService()),
         Provider(create: (_) => CloudTrainingHistoryService()),
+        Provider(
+          create: (context) =>
+              TrainingSpotStorageService(cloud: context.read<CloudSyncService>()),
+        ),
         ChangeNotifierProvider(create: (_) => TrainingStatsService()..load()),
         ChangeNotifierProvider(create: (_) => SavedHandStorageService()..load()),
         ChangeNotifierProvider(
@@ -172,9 +176,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   @override
   void initState() {
     super.initState();
-    _spotStorage = TrainingSpotStorageService(
-      cloud: context.read<CloudSyncService>(),
-    );
+    _spotStorage = context.read<TrainingSpotStorageService>();
     context.read<UserActionLogger>().log('opened_app');
     WidgetsBinding.instance.addPostFrameCallback((_) => _initialSync());
   }
