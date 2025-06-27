@@ -8,6 +8,7 @@ import '../models/training_pack.dart';
 import '../theme/app_colors.dart';
 import 'training_pack_screen.dart';
 import '../widgets/difficulty_chip.dart';
+import '../widgets/info_tooltip.dart';
 import '../helpers/color_utils.dart';
 import '../widgets/color_picker_dialog.dart';
 
@@ -327,16 +328,21 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                     final p = list[index - count];
                     final date = _dates[p.name];
                     return ListTile(
-                      leading: p.colorTag.isEmpty
-                          ? const Icon(Icons.circle_outlined, color: Colors.white24)
-                          : Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: colorFromHex(p.colorTag),
-                                shape: BoxShape.circle,
+                      leading: InfoTooltip(
+                        message: p.colorTag.isEmpty
+                            ? 'No color tag'
+                            : 'Color tag ${p.colorTag} (tap to edit)',
+                        child: p.colorTag.isEmpty
+                            ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                            : Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: colorFromHex(p.colorTag),
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                            ),
+                      ),
                       selected: _selected.contains(p),
                       onLongPress: () => _toggleSelect(p),
                       onTap: () async {

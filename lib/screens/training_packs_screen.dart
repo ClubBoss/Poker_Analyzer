@@ -7,6 +7,7 @@ import '../models/game_type.dart';
 import '../services/training_pack_storage_service.dart';
 import '../helpers/color_utils.dart';
 import '../widgets/difficulty_chip.dart';
+import '../widgets/info_tooltip.dart';
 import '../theme/app_colors.dart';
 import '../widgets/color_picker_dialog.dart';
 import 'template_library_screen.dart';
@@ -394,16 +395,21 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                           return ListTile(
                             leading: pack.isBuiltIn
                                 ? const Text('📦')
-                                : (pack.colorTag.isEmpty
-                                    ? const Icon(Icons.circle_outlined, color: Colors.white24)
-                                    : Container(
-                                        width: 16,
-                                        height: 16,
-                                        decoration: BoxDecoration(
-                                          color: colorFromHex(pack.colorTag),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      )),
+                                : InfoTooltip(
+                                    message: pack.colorTag.isEmpty
+                                        ? 'No color tag'
+                                        : 'Color tag ${pack.colorTag} (tap to edit)',
+                                    child: pack.colorTag.isEmpty
+                                        ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                                        : Container(
+                                            width: 16,
+                                            height: 16,
+                                            decoration: BoxDecoration(
+                                              color: colorFromHex(pack.colorTag),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                  ),
                             title: Row(
                               children: [
                                 Expanded(child: Text(pack.name)),
@@ -411,8 +417,19 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                                 DifficultyChip(pack.difficulty),
                               ],
                             ),
-                            subtitle: Text(
-                              '${pack.spots.isNotEmpty ? '${pack.spots.length} spots' : '${pack.hands.length} hands'} • ${pack.gameType.label}',
+                            subtitle: Row(
+                              children: [
+                                InfoTooltip(
+                                  message: pack.gameType == GameType.tournament
+                                      ? 'Blind levels, ICM pressure.'
+                                      : '100 BB deep, no blind escalation.',
+                                  child: Text(pack.gameType.label),
+                                ),
+                                const Text(' • '),
+                                Text(pack.spots.isNotEmpty
+                                    ? '${pack.spots.length} spots'
+                                    : '${pack.hands.length} hands'),
+                              ],
                             ),
                             trailing: completed ? const Icon(Icons.check, color: Colors.green) : null,
                             onTap: () async {
@@ -476,16 +493,21 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             return ListTile(
               leading: pack.isBuiltIn
                   ? const Text('📦')
-                  : (pack.colorTag.isEmpty
-                      ? const Icon(Icons.circle_outlined, color: Colors.white24)
-                      : Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: colorFromHex(pack.colorTag),
-                            shape: BoxShape.circle,
-                          ),
-                        )),
+                  : InfoTooltip(
+                      message: pack.colorTag.isEmpty
+                          ? 'No color tag'
+                          : 'Color tag ${pack.colorTag} (tap to edit)',
+                      child: pack.colorTag.isEmpty
+                          ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                          : Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: colorFromHex(pack.colorTag),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                    ),
               title: Row(
                 children: [
                   Expanded(child: Text(pack.name)),
@@ -493,8 +515,19 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                   DifficultyChip(pack.difficulty),
                 ],
               ),
-              subtitle: Text(
-                '${pack.spots.isNotEmpty ? '${pack.spots.length} spots' : '${pack.hands.length} hands'} • ${pack.gameType.label}',
+              subtitle: Row(
+                children: [
+                  InfoTooltip(
+                    message: pack.gameType == GameType.tournament
+                        ? 'Blind levels, ICM pressure.'
+                        : '100 BB deep, no blind escalation.',
+                    child: Text(pack.gameType.label),
+                  ),
+                  const Text(' • '),
+                  Text(pack.spots.isNotEmpty
+                      ? '${pack.spots.length} spots'
+                      : '${pack.hands.length} hands'),
+                ],
               ),
               trailing:
                   completed ? const Icon(Icons.check, color: Colors.green) : null,

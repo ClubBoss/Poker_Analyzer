@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'info_tooltip.dart';
 
 class DifficultyChip extends StatelessWidget {
   final int difficulty;
@@ -28,15 +29,23 @@ class DifficultyChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: _color,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        _label,
-        style: const TextStyle(color: Colors.black, fontSize: 12),
+    final message = difficulty == 1
+        ? 'Beginner: mostly straightforward push/fold spots.'
+        : difficulty == 2
+            ? 'Intermediate: mixed decisions, some multi-street play.'
+            : 'Advanced: tricky, multi-way or solver-heavy spots.';
+    return InfoTooltip(
+      message: message,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: _color,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          _label,
+          style: const TextStyle(color: Colors.black, fontSize: 12),
+        ),
       ),
     );
   }

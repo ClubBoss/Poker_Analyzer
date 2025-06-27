@@ -23,6 +23,7 @@ import '../models/session_task_result.dart';
 import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
 import '../widgets/difficulty_chip.dart';
+import '../widgets/info_tooltip.dart';
 import '../services/training_pack_storage_service.dart';
 import '../widgets/color_picker_dialog.dart';
 import '../services/action_sync_service.dart';
@@ -1287,20 +1288,26 @@ body { font-family: sans-serif; padding: 16px; }
   }
 
   Widget _buildInfoCard() {
-    final subtitle =
-        '${_pack.gameType.label} • ${_pack.spots.isNotEmpty ? '${_pack.spots.length} spots' : '${_pack.hands.length} hands'}';
+    final subtitleCount = _pack.spots.isNotEmpty
+        ? '${_pack.spots.length} spots'
+        : '${_pack.hands.length} hands';
     final leading = _pack.isBuiltIn
         ? const Text('📦')
-        : (_pack.colorTag.isEmpty
-            ? const Icon(Icons.circle_outlined, color: Colors.white24)
-            : Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: colorFromHex(_pack.colorTag),
-                  shape: BoxShape.circle,
-                ),
-              ));
+        : InfoTooltip(
+            message: _pack.colorTag.isEmpty
+                ? 'No color tag'
+                : 'Color tag ${_pack.colorTag} (tap to edit)',
+            child: _pack.colorTag.isEmpty
+                ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                : Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: colorFromHex(_pack.colorTag),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+          );
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.all(16),
@@ -1313,7 +1320,18 @@ body { font-family: sans-serif; padding: 16px; }
             DifficultyChip(_pack.difficulty),
           ],
         ),
-        subtitle: Text(subtitle),
+        subtitle: Row(
+          children: [
+            InfoTooltip(
+              message: _pack.gameType == GameType.tournament
+                  ? 'Blind levels, ICM pressure.'
+                  : '100 BB deep, no blind escalation.',
+              child: Text(_pack.gameType.label),
+            ),
+            const Text(' • '),
+            Text(subtitleCount),
+          ],
+        ),
       ),
     );
   }
@@ -1443,17 +1461,22 @@ body { font-family: sans-serif; padding: 16px; }
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(right: 16),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3A3B3E),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _pack.gameType.label,
-                    style: const TextStyle(color: Colors.white70),
+                InfoTooltip(
+                  message: _pack.gameType == GameType.tournament
+                      ? 'Blind levels, ICM pressure.'
+                      : '100 BB deep, no blind escalation.',
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 16),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF3A3B3E),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      _pack.gameType.label,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -1633,16 +1656,22 @@ body { font-family: sans-serif; padding: 16px; }
             children: [
               GestureDetector(
                 onTap: _changeColor,
-                child: _pack.colorTag.isEmpty
-                    ? const Icon(Icons.circle_outlined, color: Colors.white24, size: 16)
-                    : Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: colorFromHex(_pack.colorTag),
-                          shape: BoxShape.circle,
+                behavior: HitTestBehavior.translucent,
+                child: InfoTooltip(
+                  message: _pack.colorTag.isEmpty
+                      ? 'No color tag'
+                      : 'Color tag ${_pack.colorTag} (tap to edit)',
+                  child: _pack.colorTag.isEmpty
+                      ? const Icon(Icons.circle_outlined, color: Colors.white24, size: 16)
+                      : Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: colorFromHex(_pack.colorTag),
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
+                ),
               ),
               const SizedBox(width: 8),
               Flexible(
