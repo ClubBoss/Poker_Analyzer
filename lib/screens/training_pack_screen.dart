@@ -465,25 +465,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   }
 
   Future<void> _editPack() async {
-    final updated = await Navigator.push(
+    await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => CreatePackScreen(initialPack: _pack),
-      ),
+      MaterialPageRoute(builder: (_) => const CreatePackScreen()),
     );
-    if (updated is TrainingPack) {
-      setState(() {
-        _pack = TrainingPack(
-          name: updated.name,
-          description: updated.description,
-          category: updated.category,
-          gameType: updated.gameType,
-          colorTag: _pack.colorTag,
-          tags: updated.tags,
-          hands: _pack.hands,
-        );
-      });
-    }
   }
 
   void _previousHand() {

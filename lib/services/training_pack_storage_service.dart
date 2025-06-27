@@ -128,6 +128,8 @@ class TrainingPackStorageService extends ChangeNotifier {
           gameType: pack.gameType,
           tags: pack.tags,
           hands: pack.hands,
+          spots: pack.spots,
+          difficulty: pack.difficulty,
           history: pack.history,
         );
       }
@@ -155,6 +157,8 @@ class TrainingPackStorageService extends ChangeNotifier {
         isBuiltIn: pack.isBuiltIn,
         tags: pack.tags,
         hands: pack.hands,
+        spots: pack.spots,
+        difficulty: pack.difficulty,
         history: pack.history,
       );
     await _persist();
@@ -210,6 +214,8 @@ class TrainingPackStorageService extends ChangeNotifier {
       gameType: parseGameType(template.gameType),
       colorTag: colorTag ?? '#2196F3',
       hands: selected,
+      spots: const [],
+      difficulty: 1,
     );
     _packs.add(pack);
     await _persist();

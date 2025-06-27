@@ -61,6 +61,8 @@ class DrillSuggestionEngine extends ChangeNotifier {
       gameType: GameType.cash,
       tags: const [],
       hands: hands,
+      spots: const [],
+      difficulty: 1,
     );
   }
 }

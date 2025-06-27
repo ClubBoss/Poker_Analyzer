@@ -10,16 +10,10 @@ class EditPackScreen extends StatelessWidget {
 
   Future<void> _openEditor(BuildContext context, TrainingPack pack) async {
     final service = context.read<TrainingPackStorageService>();
-    final updated = await Navigator.push(
+    await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => CreatePackScreen(initialPack: pack),
-      ),
+      MaterialPageRoute(builder: (_) => const CreatePackScreen()),
     );
-    if (updated is TrainingPack) {
-      await service.removePack(pack);
-      await service.addPack(updated);
-    }
   }
 
   @override
