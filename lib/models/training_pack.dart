@@ -1,4 +1,5 @@
 import 'saved_hand.dart';
+import 'training_spot.dart';
 import 'session_task_result.dart';
 import 'game_type.dart';
 
@@ -50,6 +51,8 @@ class TrainingPack {
   final bool isBuiltIn;
   final List<String> tags;
   final List<SavedHand> hands;
+  final List<TrainingSpot> spots;
+  final int difficulty;
   final List<TrainingSessionResult> history;
 
   TrainingPack({
@@ -61,8 +64,11 @@ class TrainingPack {
     this.isBuiltIn = false,
     List<String>? tags,
     required this.hands,
+    List<TrainingSpot>? spots,
+    this.difficulty = 1,
     List<TrainingSessionResult>? history,
   })  : tags = tags ?? const [],
+        spots = spots ?? const [],
         history = history ?? [];
 
   Map<String, dynamic> toJson() => {
@@ -74,6 +80,8 @@ class TrainingPack {
         'isBuiltIn': isBuiltIn,
         if (tags.isNotEmpty) 'tags': tags,
         'hands': [for (final h in hands) h.toJson()],
+        if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
+        'difficulty': difficulty,
         'history': [for (final r in history) r.toJson()],
       };
 
@@ -89,6 +97,11 @@ class TrainingPack {
           for (final h in (json['hands'] as List? ?? []))
             SavedHand.fromJson(h as Map<String, dynamic>)
         ],
+        spots: [
+          for (final s in (json['spots'] as List? ?? []))
+            TrainingSpot.fromJson(Map<String, dynamic>.from(s as Map))
+        ],
+        difficulty: (json['difficulty'] as num?)?.toInt() ?? 1,
         history: [
           for (final r in (json['history'] as List? ?? []))
             TrainingSessionResult.fromJson(r as Map<String, dynamic>)

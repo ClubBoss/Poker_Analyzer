@@ -887,6 +887,8 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                 colorTag: p.colorTag,
                 tags: p.tags,
                 hands: p.hands,
+                spots: p.spots,
+                difficulty: p.difficulty,
                 history: p.history,
               );
             await file
@@ -913,6 +915,8 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
             colorTag: oldPack.colorTag,
             tags: oldPack.tags,
             hands: oldPack.hands,
+            spots: oldPack.spots,
+            difficulty: oldPack.difficulty,
             history: oldPack.history,
           );
       }

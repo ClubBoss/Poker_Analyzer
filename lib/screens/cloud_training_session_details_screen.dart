@@ -263,6 +263,8 @@ class _CloudTrainingSessionDetailsScreenState
       gameType: 'Cash Game',
       tags: const [],
       hands: hands,
+      spots: const [],
+      difficulty: 1,
     );
     await Navigator.push(
       context,
@@ -297,6 +299,8 @@ class _CloudTrainingSessionDetailsScreenState
       gameType: 'Cash Game',
       tags: const [],
       hands: hands,
+      spots: const [],
+      difficulty: 1,
     );
     await Navigator.push(
       context,

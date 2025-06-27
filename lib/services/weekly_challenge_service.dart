@@ -79,7 +79,14 @@ class WeeklyChallengeService extends ChangeNotifier {
   TrainingPack get currentPack =>
       packs.packs.isNotEmpty
           ? packs.packs.first
-          : TrainingPack(name: current.title, description: '', tags: const [], hands: []);
+          : TrainingPack(
+              name: current.title,
+              description: '',
+              tags: const [],
+              hands: [],
+              spots: const [],
+              difficulty: 1,
+            );
 
   Future<void> _onStats() async {
     if (progressValue >= current.target) {
