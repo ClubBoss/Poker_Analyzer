@@ -17,6 +17,8 @@ class TrainingPackTemplate {
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool isBuiltIn;
+  final List<String> tags;
+  final String defaultColor;
 
   TrainingPackTemplate({
     required this.id,
@@ -31,8 +33,11 @@ class TrainingPackTemplate {
     DateTime? createdAt,
     DateTime? updatedAt,
     this.isBuiltIn = false,
+    List<String>? tags,
+    this.defaultColor = '#2196F3',
   })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+        updatedAt = updatedAt ?? DateTime.now(),
+        tags = tags ?? const [];
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -47,6 +52,8 @@ class TrainingPackTemplate {
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
         'isBuiltIn': isBuiltIn,
+        if (tags.isNotEmpty) 'tags': tags,
+        'defaultColor': defaultColor,
       };
 
   factory TrainingPackTemplate.fromJson(Map<String, dynamic> json) {
@@ -66,6 +73,8 @@ class TrainingPackTemplate {
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
       isBuiltIn: json['isBuiltIn'] as bool? ?? false,
+      tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
+      defaultColor: json['defaultColor'] as String? ?? '#2196F3',
     );
   }
 }
