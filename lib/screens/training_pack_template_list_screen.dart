@@ -1,11 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:provider/provider.dart';
-import '../helpers/color_utils.dart';
-import '../models/training_pack_template.dart';
-import '../services/training_pack_storage_service.dart';
-import 'pack_editor_screen.dart';
+
+import '../models/training_pack_template_model.dart';
+import '../repositories/training_pack_template_repository.dart';
+import 'training_pack_template_editor_screen.dart';
 
 class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
@@ -15,7 +12,7 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 }
 
 class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateListScreen> {
-  List<TrainingPackTemplate> _templates = [];
+  List<TrainingPackTemplateModel> _templates = [];
 
   @override
   void initState() {
@@ -24,71 +21,35 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
   }
 
   Future<void> _load() async {
-    try {
-      final manifest = jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
-      final paths = manifest.keys.where((e) => e.startsWith('assets/training_templates/') && e.endsWith('.json'));
-      final list = <TrainingPackTemplate>[];
-      for (final p in paths) {
-        final data = jsonDecode(await rootBundle.loadString(p));
-        if (data is Map<String, dynamic>) {
-          list.add(TrainingPackTemplate.fromJson(data));
-        }
-      }
-      list.sort((a, b) => a.name.compareTo(b.name));
-      if (mounted) setState(() => _templates = list);
-    } catch (_) {}
+    final list = await TrainingPackTemplateRepository.getAll();
+    if (mounted) setState(() => _templates = list);
   }
 
-  Future<void> _create(TrainingPackTemplate tpl) async {
-    final service = context.read<TrainingPackStorageService>();
-    final pack = await service.createPackFromTemplate(tpl);
-    if (!mounted) return;
-    Navigator.pushReplacement(
+  Future<void> _add() async {
+    final model = await Navigator.push<TrainingPackTemplateModel>(
       context,
-      MaterialPageRoute(builder: (_) => PackEditorScreen(pack: pack)),
+      MaterialPageRoute(builder: (_) => const TrainingPackTemplateEditorScreen()),
     );
+    if (model != null && mounted) setState(() => _templates.add(model));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Шаблоны паков')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _add,
+        child: const Icon(Icons.add),
+      ),
       body: _templates.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               itemCount: _templates.length,
               itemBuilder: (context, i) {
                 final t = _templates[i];
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: colorFromHex(t.defaultColor),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text(t.name, style: const TextStyle(fontWeight: FontWeight.bold))),
-                            ElevatedButton(onPressed: () => _create(t), child: const Text('Создать')),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(t.description),
-                        if (t.tags.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Wrap(spacing: 4, children: [for (final tag in t.tags) Chip(label: Text(tag))]),
-                        ],
-                      ],
-                    ),
-                  ),
+                return ListTile(
+                  title: Text(t.name),
+                  subtitle: Text('${t.category} • ${t.difficulty}'),
                 );
               },
             ),
