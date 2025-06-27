@@ -31,14 +31,15 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
           centerTitle: true,
         ),
         body: const Center(
-          child: Text('Нет данных за последнюю неделю'),
+          child:
+              Text('Нет данных за последнюю неделю', style: TextStyle(color: Colors.white70)),
         ),
       );
     }
     const labels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < counts.length; i++) {
-      const color = Colors.orangeAccent;
+      const color = AppColors.accent;
       groups.add(
         BarChartGroupData(
           x: i,
@@ -58,7 +59,9 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
       );
     }
     double interval = 1;
-    if (maxCount > 5) interval = (maxCount / 5).ceilToDouble();
+    if (maxCount > 5) {
+      interval = pow(10, (log(maxCount) / ln10).floor()).toDouble();
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Активность по дням недели'),
@@ -83,10 +86,20 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                 getDrawingHorizontalLine: (value) =>
                     FlLine(color: Colors.white24, strokeWidth: 1),
               ),
+              barTouchData: BarTouchData(
+                touchTooltipData: BarTouchTooltipData(
+                  tooltipBgColor: Colors.black45,
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final c = counts[group.x];
+                    return BarTooltipItem('$c попыток', const TextStyle(color: Colors.white));
+                  },
+                ),
+              ),
               titlesData: FlTitlesData(
                 topTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
+                    reservedSize: 24,
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < 0 || index >= counts.length) {
