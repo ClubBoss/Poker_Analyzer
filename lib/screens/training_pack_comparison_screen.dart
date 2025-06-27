@@ -208,7 +208,8 @@ class _PackDataSource extends DataTableSource {
                 const PopupMenuItem(value: 'rename', child: Text('Переименовать')),
               if (!s.pack.isBuiltIn)
                 const PopupMenuItem(value: 'delete', child: Text('Удалить')),
-              const PopupMenuItem(value: 'duplicate', child: Text('Дублировать')),
+              if (!s.pack.isBuiltIn)
+                const PopupMenuItem(value: 'duplicate', child: Text('Дублировать')),
             ],
           ),
         ),
@@ -343,18 +344,21 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       builder: (ctx) => SimpleDialog(
         title: Text(s.pack.name),
         children: [
-          SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, 'rename'),
-            child: const Text('Переименовать'),
-          ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, 'delete'),
-            child: const Text('Удалить'),
-          ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, 'duplicate'),
-            child: const Text('Дублировать'),
-          ),
+          if (!s.pack.isBuiltIn)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, 'rename'),
+              child: const Text('Переименовать'),
+            ),
+          if (!s.pack.isBuiltIn)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, 'delete'),
+              child: const Text('Удалить'),
+            ),
+          if (!s.pack.isBuiltIn)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, 'duplicate'),
+              child: const Text('Дублировать'),
+            ),
         ],
       ),
     );
