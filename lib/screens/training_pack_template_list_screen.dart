@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/app_colors.dart';
+import '../helpers/map_utils.dart';
 
 import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
@@ -461,6 +462,8 @@ class _TrainingPackTemplateListScreenState
                     if (!collapsed && index < count + list.length) {
                       final t = list[index - count];
                       _ensureCount(t.id, t.filters);
+                      final isActive =
+                          t.filters.equals(_spotStorage.activeFilters);
                       return Dismissible(
                         key: ValueKey(t.id),
                         confirmDismiss: (_) async {
@@ -486,6 +489,8 @@ class _TrainingPackTemplateListScreenState
                             context.read<TrainingPackTemplateStorageService>().
                                 remove(t),
                         child: ListTile(
+                          tileColor:
+                              isActive ? Colors.blueGrey.shade800 : null,
                           leading: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -534,9 +539,10 @@ class _TrainingPackTemplateListScreenState
                             ],
                           ),
                           subtitle: Text(
-                            _counts[t.id] == null
-                                ? 'Невозможно оценить'
-                                : '≈ ${_counts[t.id]} рук',
+                            (_counts[t.id] == null
+                                    ? 'Невозможно оценить'
+                                    : '≈ ${_counts[t.id]} рук') +
+                                (isActive ? ' (активен)' : ''),
                           ),
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) async {
