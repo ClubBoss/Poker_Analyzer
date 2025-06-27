@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
@@ -186,6 +187,26 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setTags(TrainingPack pack, List<String> tags) async {
+    final index = _packs.indexOf(pack);
+    if (index == -1) return;
+    _packs[index] = TrainingPack(
+      name: pack.name,
+      description: pack.description,
+      category: pack.category,
+      gameType: pack.gameType,
+      colorTag: pack.colorTag,
+      isBuiltIn: pack.isBuiltIn,
+      tags: tags,
+      hands: pack.hands,
+      spots: pack.spots,
+      difficulty: pack.difficulty,
+      history: pack.history,
+    );
+    await _persist();
+    notifyListeners();
+  }
+
   Future<void> clearProgress(TrainingPack pack) async {
     final index = _packs.indexOf(pack);
     if (index == -1 || pack.history.isEmpty) return;
@@ -266,6 +287,25 @@ class TrainingPackStorageService extends ChangeNotifier {
     await _persist();
     notifyListeners();
     return copy;
+  }
+
+  Future<TrainingPack> createPackFromTemplate(TrainingPackTemplate tpl) async {
+    final ts = DateFormat('dd.MM HH:mm').format(DateTime.now());
+    final pack = TrainingPack(
+      name: 'Новый пак: ${tpl.name} ($ts)',
+      description: tpl.description,
+      category: tpl.category ?? 'Uncategorized',
+      gameType: parseGameType(tpl.gameType),
+      colorTag: tpl.defaultColor,
+      tags: List.from(tpl.tags),
+      hands: tpl.hands,
+      spots: const [],
+      difficulty: 1,
+    );
+    _packs.add(pack);
+    await _persist();
+    notifyListeners();
+    return pack;
   }
 
   Future<void> createFromTemplate(TrainingPackTemplate template) async {

@@ -11,6 +11,7 @@ import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
 import '../widgets/progress_summary_box.dart';
 import 'training_progress_analytics_screen.dart';
+import 'template_library_screen.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
   const TrainingHomeScreen({super.key});
@@ -55,6 +56,15 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           XPProgressBar(),
           RepeatMistakesCard(),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TemplateLibraryScreen()),
+          );
+        },
+        child: const Icon(Icons.library_books),
       ),
     );
   }

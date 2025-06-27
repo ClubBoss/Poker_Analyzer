@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../helpers/color_utils.dart';
-
+import '../widgets/color_picker_dialog.dart';
 import '../models/training_pack_template.dart';
-import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
+import 'training_pack_screen.dart';
 
 class CreatePackFromTemplateScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -16,118 +15,65 @@ class CreatePackFromTemplateScreen extends StatefulWidget {
 }
 
 class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScreen> {
-  late List<SavedHand> _selected;
-  final TextEditingController _category = TextEditingController();
+  late TextEditingController _name;
+  bool _addTags = true;
   Color _color = Colors.blue;
-
-  Future<void> _pickColor() async {
-    Color pickerColor = _color;
-    final result = await showDialog<Color>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Цвет пакета'),
-        content: BlockPicker(
-          pickerColor: pickerColor,
-          onColorChanged: (c) => pickerColor = c,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, pickerColor),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    if (result != null) setState(() => _color = result);
-  }
-
-  @override
-  void dispose() {
-    _category.dispose();
-    super.dispose();
-  }
 
   @override
   void initState() {
     super.initState();
-    _selected = List.from(widget.template.hands);
-    _category.text = widget.template.category ?? '';
+    _name = TextEditingController(text: 'Новый пак: ${widget.template.name}');
+    _color = colorFromHex(widget.template.defaultColor);
   }
 
-  void _toggle(SavedHand h) {
-    setState(() {
-      if (_selected.contains(h)) {
-        _selected.remove(h);
-      } else {
-        _selected.add(h);
-      }
-    });
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickColor() async {
+    final c = await showColorPickerDialog(context, initialColor: _color);
+    if (c != null) setState(() => _color = c);
   }
 
   Future<void> _create() async {
-    if (_selected.isEmpty) return;
-    await context.read<TrainingPackStorageService>().createFromTemplateWithOptions(
-      widget.template,
-      hands: _selected,
-      categoryOverride: _category.text.trim(),
-      colorTag: colorToHex(_color),
-    );
+    final service = context.read<TrainingPackStorageService>();
+    var pack = await service.createPackFromTemplate(widget.template);
+    await service.renamePack(pack, _name.text.trim());
+    await service.setColorTag(pack, colorToHex(_color));
+    if (!_addTags) await service.setTags(pack, []);
     if (!mounted) return;
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Пакет создан из шаблона')),
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: pack)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.template.name),
-        actions: [IconButton(onPressed: _create, icon: const Icon(Icons.check))],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _category,
-              decoration: const InputDecoration(labelText: 'Категория (опц.)'),
+      appBar: AppBar(title: Text(widget.template.name)),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(controller: _name, decoration: const InputDecoration(labelText: 'Название')),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: CircleAvatar(backgroundColor: _color),
+              title: const Text('Цвет'),
+              trailing: IconButton(icon: const Icon(Icons.color_lens), onPressed: _pickColor),
             ),
-          ),
-          ListTile(
-            leading: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: _color,
-                shape: BoxShape.circle,
-              ),
+            CheckboxListTile(
+              value: _addTags,
+              onChanged: (v) => setState(() => _addTags = v ?? true),
+              title: const Text('Добавить теги шаблона'),
             ),
-            title: const Text('Цвет пакета'),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: _pickColor,
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.template.hands.length,
-              itemBuilder: (_, i) {
-                final h = widget.template.hands[i];
-                return CheckboxListTile(
-                  value: _selected.contains(h),
-                  onChanged: (_) => _toggle(h),
-                  title: Text(h.name.isNotEmpty ? h.name : 'Раздача ${i + 1}'),
-                );
-              },
-            ),
-          ),
-        ],
+            const Spacer(),
+            ElevatedButton(onPressed: _create, child: const Text('Создать')),
+          ],
+        ),
       ),
     );
   }
