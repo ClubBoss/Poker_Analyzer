@@ -22,6 +22,7 @@ import '../models/saved_hand.dart';
 import '../models/session_task_result.dart';
 import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
+import '../widgets/difficulty_chip.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/action_sync_service.dart';
 import '../services/all_in_players_service.dart';
@@ -1396,6 +1397,21 @@ body { font-family: sans-serif; padding: 16px; }
                     style: const TextStyle(color: Colors.white70),
                   ),
                 ),
+                const SizedBox(width: 4),
+                DifficultyChip(_pack.difficulty),
+                if (_pack.spots.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(right: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF3A3B3E),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Spots: ${_pack.spots.length}',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ),
               ],
             ),
           ),

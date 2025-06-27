@@ -6,6 +6,7 @@ import '../models/training_pack.dart';
 import '../models/game_type.dart';
 import '../services/training_pack_storage_service.dart';
 import '../helpers/color_utils.dart';
+import '../widgets/difficulty_chip.dart';
 import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
@@ -21,11 +22,13 @@ class TrainingPacksScreen extends StatefulWidget {
 class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   static const _hideKey = 'hide_completed_packs';
   static const _typeKey = 'pack_game_type_filter';
+  static const _diffKey = 'pack_diff_filter';
 
   final TextEditingController _searchController = TextEditingController();
 
   bool _hideCompleted = false;
   GameType? _typeFilter;
+  int _diffFilter = 0;
   SharedPreferences? _prefs;
 
   Future<void> _importPack() async {
@@ -61,6 +64,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       final t = prefs.getString(_typeKey);
       if (t == 'tournament') _typeFilter = GameType.tournament;
       if (t == 'cash') _typeFilter = GameType.cash;
+      _diffFilter = prefs.getInt(_diffKey) ?? 0;
     });
   }
 
@@ -77,6 +81,16 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       await prefs.remove(_typeKey);
     } else {
       await prefs.setString(_typeKey, value.name);
+    }
+  }
+
+  Future<void> _setDiffFilter(int value) async {
+    setState(() => _diffFilter = value);
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    if (value == 0) {
+      await prefs.remove(_diffKey);
+    } else {
+      await prefs.setInt(_diffKey, value);
     }
   }
 
@@ -105,6 +119,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
     if (_typeFilter != null) {
       visible = [for (final p in visible) if (p.gameType == _typeFilter) p];
+    }
+
+    if (_diffFilter > 0) {
+      visible = [for (final p in visible) if (p.difficulty == _diffFilter) p];
     }
 
     final query = _searchController.text.toLowerCase();
@@ -185,20 +203,34 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: DropdownButton<GameType?>(
-              value: _typeFilter,
-              underline: const SizedBox.shrink(),
-              onChanged: (v) => _setTypeFilter(v),
-              items: const [
-                DropdownMenuItem(value: null, child: Text('Все')),
-                DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
-                DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
-              ],
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: DropdownButton<GameType?>(
+            value: _typeFilter,
+            underline: const SizedBox.shrink(),
+            onChanged: (v) => _setTypeFilter(v),
+            items: const [
+              DropdownMenuItem(value: null, child: Text('Все')),
+              DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+              DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: DropdownButton<int>(
+            value: _diffFilter,
+            underline: const SizedBox.shrink(),
+            onChanged: (v) => _setDiffFilter(v ?? 0),
+            items: const [
+              DropdownMenuItem(value: 0, child: Text('Difficulty: All')),
+              DropdownMenuItem(value: 1, child: Text('Beginner')),
+              DropdownMenuItem(value: 2, child: Text('Intermediate')),
+              DropdownMenuItem(value: 3, child: Text('Advanced')),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 ElevatedButton(
@@ -264,11 +296,15 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                                   shape: BoxShape.circle,
                                 ),
                               ),
-                        title: Text(pack.name),
+                        title: Row(
+                          children: [
+                            Expanded(child: Text(pack.name)),
+                            const SizedBox(width: 4),
+                            DifficultyChip(pack.difficulty),
+                          ],
+                        ),
                         subtitle: Text(
-                          pack.description.isEmpty
-                              ? pack.gameType.label
-                              : '${pack.description} • ${pack.gameType.label}',
+                          '${pack.spots.isNotEmpty ? '${pack.spots.length} spots' : '${pack.hands.length} hands'} • ${pack.gameType.label}',
                         ),
                         trailing: completed
                             ? const Icon(Icons.check, color: Colors.green)

@@ -1,4 +1,5 @@
 # Poker AI Analyzer
+<!-- 30/40 (Advanced Insights) -->
 
 [![Demo APK Build](https://github.com/OWNER/REPO/actions/workflows/demo_build.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/demo_build.yml)
 
