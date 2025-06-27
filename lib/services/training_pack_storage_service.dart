@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack.dart';
 import '../models/training_pack_template.dart';
@@ -202,6 +203,8 @@ class TrainingPackStorageService extends ChangeNotifier {
       difficulty: pack.difficulty,
       history: history,
     );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('training_progress_${pack.name}');
     await _persist();
     notifyListeners();
   }
