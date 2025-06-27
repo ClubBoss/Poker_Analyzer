@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/color_utils.dart';
 import '../models/game_type.dart';
@@ -29,6 +30,23 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
   GameType _gameType = GameType.cash;
   Color _color = Colors.blue;
   final List<SavedHand> _hands = [];
+  SharedPreferences? _prefs;
+  static const _lastCategoryKey = 'pack_last_category';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cat = prefs.getString(_lastCategoryKey);
+    if (cat != null && cat.isNotEmpty) {
+      _categoryController.text = cat;
+    }
+    _prefs = prefs;
+  }
 
   @override
   void dispose() {
@@ -185,6 +203,9 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
       history: const [],
     );
     await context.read<TrainingPackStorageService>().addCustomPack(pack);
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final cat = _categoryController.text.trim();
+    if (cat.isNotEmpty) await prefs.setString(_lastCategoryKey, cat);
     if (!mounted) return;
     Navigator.pushAndRemoveUntil(
       context,

@@ -333,10 +333,14 @@ class TrainingPackStorageService extends ChangeNotifier {
     final last = prefs.getString('pack_last_color');
     final reg = RegExp(r'^#[0-9A-Fa-f]{6}\$');
     final color = last != null && reg.hasMatch(last) ? last : tpl.defaultColor;
+    final lastCat = prefs.getString('pack_last_category');
+    final cat = lastCat != null && lastCat.isNotEmpty
+        ? lastCat
+        : tpl.category ?? 'Uncategorized';
     final pack = TrainingPack(
       name: name,
       description: tpl.description,
-      category: tpl.category ?? 'Uncategorized',
+      category: cat,
       gameType: parseGameType(tpl.gameType),
       colorTag: color,
       tags: List.from(tpl.tags),
