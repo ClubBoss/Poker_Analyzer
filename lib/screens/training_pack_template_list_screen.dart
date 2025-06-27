@@ -29,17 +29,20 @@ class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
   static const _prefsSortKey = 'tpl_sort_option';
   static const _prefsCollapsedKey = 'tpl_collapsed_state';
+  static const _prefsFavKey = 'tpl_show_fav_only';
   _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
   final Map<String, bool> _collapsed = {};
   final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
+  bool _showFavoritesOnly = false;
 
   @override
   void initState() {
     super.initState();
     _loadSort();
     _loadCollapsed();
+    _loadShowFavorites();
   }
 
   Future<void> _loadSort() async {
@@ -65,10 +68,22 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadShowFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getBool(_prefsFavKey) ?? false;
+    if (mounted) setState(() => _showFavoritesOnly = value);
+  }
+
   Future<void> _setSort(_SortOption value) async {
     setState(() => _sort = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefsSortKey, value.name);
+  }
+
+  Future<void> _setShowFavoritesOnly(bool value) async {
+    setState(() => _showFavoritesOnly = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsFavKey, value);
   }
 
   Future<void> _saveCollapsed() async {
@@ -333,9 +348,10 @@ class _TrainingPackTemplateListScreenState
     final query = _searchController.text.toLowerCase();
     final templates = [
       for (final t in all)
-        if (query.isEmpty ||
-            t.name.toLowerCase().contains(query) ||
-            t.category.toLowerCase().contains(query))
+        if ((query.isEmpty ||
+                t.name.toLowerCase().contains(query) ||
+                t.category.toLowerCase().contains(query)) &&
+            (!_showFavoritesOnly || t.isFavorite))
           t
     ]..sort(_compare);
     final Map<String, List<TrainingPackTemplateModel>> groups = {};
@@ -354,6 +370,13 @@ class _TrainingPackTemplateListScreenState
       appBar: AppBar(
         title: const Text('Шаблоны паков'),
         actions: [
+          IconButton(
+            onPressed: () => _setShowFavoritesOnly(!_showFavoritesOnly),
+            icon: Icon(
+              _showFavoritesOnly ? Icons.star : Icons.star_border,
+              color: _showFavoritesOnly ? Colors.amber : null,
+            ),
+          ),
           IconButton(onPressed: _export, icon: const Icon(Icons.upload_file)),
           IconButton(onPressed: _import, icon: const Icon(Icons.download)),
           PopupMenuButton<String>(
