@@ -264,6 +264,14 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  IconData _categoryIcon(String value) {
+    final v = value.toLowerCase();
+    if (v.contains('spin')) return Icons.videogame_asset;
+    if (v.contains('mtt') || v.contains('tournament')) return Icons.emoji_events;
+    if (v.contains('heads') || v.contains('hu')) return Icons.sports_esports;
+    return Icons.folder_open;
+  }
+
   @override
   Widget build(BuildContext context) {
     final all = context.watch<TrainingPackTemplateStorageService>().templates;
@@ -400,14 +408,26 @@ class _TrainingPackTemplateListScreenState
                             context.read<TrainingPackTemplateStorageService>().
                                 remove(t),
                         child: ListTile(
-                          leading: Center(
-                            child: Container(
-                              width: 8,
-                              height: 32,
-                              color: _difficultyColor(t.difficulty),
-                            ),
+                          leading: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width: 32,
+                                child: Center(
+                                  child: Icon(
+                                    _categoryIcon(t.category),
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: 8,
+                                height: 32,
+                                color: _difficultyColor(t.difficulty),
+                              ),
+                            ],
                           ),
-                          minLeadingWidth: 8,
+                          minLeadingWidth: 40,
                           onTap: () async {
                             final model = await Navigator.push<
                                 TrainingPackTemplateModel>(
