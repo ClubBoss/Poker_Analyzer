@@ -530,9 +530,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final service = context.read<TrainingPackStorageService>();
     final copy = await service.duplicatePack(_pack);
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Копия создана')));
-    Navigator.push(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Копия «${copy.name}» создана')),
+    );
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: copy)),
     );
@@ -1774,9 +1775,10 @@ body { font-family: sans-serif; padding: 16px; }
                   enabled: _pack.history.isNotEmpty,
                   child: const Text('Сбросить прогресс'),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'duplicate',
-                  child: Text('Создать копию'),
+                  enabled: !_pack.isBuiltIn,
+                  child: const Text('Создать копию'),
                 ),
               ],
             ),
