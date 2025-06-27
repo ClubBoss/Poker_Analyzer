@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../helpers/poker_position_helper.dart';
 import '../models/training_spot.dart';
 import '../models/card_model.dart';
-import '../services/training_spot_storage_service.dart';
-import '../services/cloud_sync_service.dart';
 import '../widgets/board_cards_widget.dart';
 
 class TrainingSpotBuilderScreen extends StatefulWidget {
-  const TrainingSpotBuilderScreen({super.key});
+  final TrainingSpot? initialSpot;
+
+  const TrainingSpotBuilderScreen({super.key, this.initialSpot});
 
   @override
   State<TrainingSpotBuilderScreen> createState() =>
@@ -17,7 +16,6 @@ class TrainingSpotBuilderScreen extends StatefulWidget {
 }
 
 class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
-  late TrainingSpotStorageService _storage;
   int _tableSize = 6;
   int _heroIndex = 0;
   final TextEditingController _blindController =
@@ -34,9 +32,25 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   @override
   void initState() {
     super.initState();
-    _storage =
-        TrainingSpotStorageService(cloud: context.read<CloudSyncService>());
+    final spot = widget.initialSpot;
+    if (spot != null) {
+      _tableSize = spot.numberOfPlayers;
+      _heroIndex = spot.heroIndex;
+      _boardCards.addAll(spot.boardCards);
+      _recommendedAction = spot.recommendedAction;
+      if (spot.recommendedAmount != null) {
+        _recommendedAmountController.text = spot.recommendedAmount.toString();
+      }
+    }
     _initStacks();
+    if (spot != null) {
+      for (int i = 0; i < _tableSize && i < spot.stacks.length; i++) {
+        _stackControllers[i].text = spot.stacks[i].toString();
+      }
+      _actionsController.text = spot.actions
+          .map((a) => '${a.playerIndex + 1} ${a.action}${a.amount != null ? ' ${a.amount}' : ''}')
+          .join('\n');
+    }
   }
 
   void _initStacks() {
@@ -102,18 +116,16 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
           ? int.tryParse(_recommendedAmountController.text)
           : null,
     );
-    await _storage.addSpot(spot);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Spot saved')),
-    );
-    Navigator.pop(context);
+    Navigator.pop(context, spot);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Создание спота'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(widget.initialSpot == null ? 'Создание спота' : 'Редактирование спота'),
+        centerTitle: true,
+      ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
