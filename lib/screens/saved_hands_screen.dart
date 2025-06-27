@@ -9,12 +9,14 @@ import 'package:share_plus/share_plus.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../screens/hand_history_review_screen.dart';
+import '../helpers/poker_street_helper.dart';
 
 class SavedHandsScreen extends StatefulWidget {
   final String? initialTag;
   final String? initialPosition;
   final String? initialAccuracy;
   final String? initialDateFilter;
+  final String? initialStreet;
 
   const SavedHandsScreen({
     super.key,
@@ -22,6 +24,7 @@ class SavedHandsScreen extends StatefulWidget {
     this.initialPosition,
     this.initialAccuracy,
     this.initialDateFilter,
+    this.initialStreet,
   });
 
   @override
@@ -34,6 +37,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
   String _positionFilter = 'Все';
   String _dateFilter = 'Все';
   String _accuracyFilter = 'Все';
+  String _streetFilter = 'Все';
   bool _onlyFavorites = false;
   late SavedHandImportExportService _importExport;
 
@@ -48,6 +52,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     _positionFilter = widget.initialPosition ?? 'Все';
     _accuracyFilter = widget.initialAccuracy ?? 'Все';
     _dateFilter = widget.initialDateFilter ?? 'Все';
+    _streetFilter = widget.initialStreet ?? 'Все';
   }
 
   @override
@@ -72,6 +77,9 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
         return false;
       }
       if (_dateFilter == '30 дней' && hand.date.isBefore(now.subtract(const Duration(days: 30)))) {
+        return false;
+      }
+      if (_streetFilter != 'Все' && streetName(hand.boardStreet) != _streetFilter) {
         return false;
       }
       final query = _searchController.text.toLowerCase();
@@ -121,6 +129,15 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                   onChanged: (v) => setState(() => _positionFilter = v ?? 'Все'),
                   items: ['Все', ...positions]
                       .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                      .toList(),
+                ),
+                const SizedBox(width: 12),
+                DropdownButton<String>(
+                  value: _streetFilter,
+                  dropdownColor: const Color(0xFF2A2B2E),
+                  onChanged: (v) => setState(() => _streetFilter = v ?? 'Все'),
+                  items: ['Все', ...kStreetNames]
+                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
                 ),
                 const SizedBox(width: 12),
