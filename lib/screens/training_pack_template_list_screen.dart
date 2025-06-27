@@ -21,12 +21,19 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
   final Map<String, int?> _counts = {};
+  final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _spotStorage = context.read<TrainingSpotStorageService>();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _ensureCount(String id, Map<String, dynamic> filters) {
@@ -108,7 +115,16 @@ class _TrainingPackTemplateListScreenState
 
   @override
   Widget build(BuildContext context) {
-    final templates = context.watch<TrainingPackTemplateStorageService>().templates;
+    final all = context.watch<TrainingPackTemplateStorageService>().templates;
+    final query = _searchController.text.toLowerCase();
+    final templates = query.isEmpty
+        ? all
+        : [
+            for (final t in all)
+              if (t.name.toLowerCase().contains(query) ||
+                  t.category.toLowerCase().contains(query))
+                t
+          ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Шаблоны паков'),
@@ -116,6 +132,17 @@ class _TrainingPackTemplateListScreenState
           IconButton(onPressed: _export, icon: const Icon(Icons.upload_file)),
           IconButton(onPressed: _import, icon: const Icon(Icons.download)),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(hintText: 'Поиск…'),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _add,
