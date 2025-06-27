@@ -185,6 +185,27 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> clearProgress(TrainingPack pack) async {
+    final index = _packs.indexOf(pack);
+    if (index == -1 || pack.history.isEmpty) return;
+    final history = List<TrainingSessionResult>.from(pack.history)..removeLast();
+    _packs[index] = TrainingPack(
+      name: pack.name,
+      description: pack.description,
+      category: pack.category,
+      gameType: pack.gameType,
+      colorTag: pack.colorTag,
+      isBuiltIn: pack.isBuiltIn,
+      tags: pack.tags,
+      hands: pack.hands,
+      spots: pack.spots,
+      difficulty: pack.difficulty,
+      history: history,
+    );
+    await _persist();
+    notifyListeners();
+  }
+
   Future<void> save() async {
     await _persist();
     notifyListeners();
