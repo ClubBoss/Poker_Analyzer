@@ -2,16 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/training_spot.dart';
 import 'cloud_sync_service.dart';
 
-class TrainingSpotStorageService {
+class TrainingSpotStorageService extends ChangeNotifier {
   static const String _fileName = 'training_spots.json';
 
-  const TrainingSpotStorageService({this.cloud});
+  TrainingSpotStorageService({this.cloud});
 
   final CloudSyncService? cloud;
+
+  final Map<String, dynamic> activeFilters = {};
 
   Future<File> _getFile() async {
     final dir = await getApplicationDocumentsDirectory();
