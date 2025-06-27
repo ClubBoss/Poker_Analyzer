@@ -500,6 +500,27 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         ));
   }
 
+  Future<void> _clearProgress() async {
+    await context.read<TrainingPackStorageService>().clearProgress(_pack);
+    final history = List<TrainingSessionResult>.from(_pack.history);
+    if (history.isNotEmpty) history.removeLast();
+    setState(() {
+      _pack = TrainingPack(
+        name: _pack.name,
+        description: _pack.description,
+        category: _pack.category,
+        gameType: _pack.gameType,
+        colorTag: _pack.colorTag,
+        isBuiltIn: _pack.isBuiltIn,
+        tags: _pack.tags,
+        hands: _pack.hands,
+        spots: _pack.spots,
+        difficulty: _pack.difficulty,
+        history: history,
+      );
+    });
+  }
+
   void _previousHand() {
     if (_currentIndex > 0) {
       setState(() {
@@ -1724,6 +1745,14 @@ body { font-family: sans-serif; padding: 16px; }
               icon: const Icon(Icons.file_download),
               tooltip: 'Импорт пакета',
               onPressed: _importPackFromFile,
+            ),
+            PopupMenuButton<String>(
+              onSelected: (v) {
+                if (v == 'reset') _clearProgress();
+              },
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'reset', child: Text('Сбросить прогресс')),
+              ],
             ),
           ],
         ),
