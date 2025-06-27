@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+import '../helpers/map_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -285,7 +285,7 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
                       .templates;
                   TrainingPackTemplateModel? tpl;
                   for (final t in templates) {
-                    if (mapEquals(t.filters, filters)) {
+                    if (t.filters.equals(filters)) {
                       tpl = t;
                       break;
                     }
