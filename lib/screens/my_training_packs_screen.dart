@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/training_pack_storage_service.dart';
 import '../helpers/date_utils.dart';
+import '../helpers/color_utils.dart';
 import '../models/training_pack.dart';
 import '../theme/app_colors.dart';
+import '../widgets/color_tag_dialog.dart';
 import 'training_pack_screen.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class MyTrainingPacksScreen extends StatefulWidget {
 class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   final Map<String, DateTime?> _dates = {};
   String _sort = 'name';
+  final Set<TrainingPack> _selected = {};
 
   @override
   void initState() {
@@ -63,6 +66,41 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     }
   }
 
+  void _toggleSelect(TrainingPack p) {
+    setState(() {
+      if (_selected.contains(p)) {
+        _selected.remove(p);
+      } else {
+        _selected.add(p);
+      }
+    });
+  }
+
+  void _clearSelection() => setState(() => _selected.clear());
+
+  Future<void> _setColorForSelected() async {
+    final hex = await showColorTagDialog(context);
+    if (hex == null) return;
+    final service = context.read<TrainingPackStorageService>();
+    for (final p in _selected) {
+      final updated = TrainingPack(
+        name: p.name,
+        description: p.description,
+        category: p.category,
+        gameType: p.gameType,
+        colorTag: hex,
+        isBuiltIn: p.isBuiltIn,
+        tags: p.tags,
+        hands: p.hands,
+        spots: p.spots,
+        difficulty: p.difficulty,
+        history: p.history,
+      );
+      await service.save(updated);
+    }
+    _clearSelection();
+  }
+
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs.where((p) => !p.isBuiltIn).toList();
@@ -73,8 +111,17 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     }
     final categories = groups.keys.toList()..sort();
     return Scaffold(
-      appBar: AppBar(title: const Text('Мои паки'), centerTitle: true),
+      appBar: AppBar(title: const Text('Мои паки'), centerTitle: true,
+          actions: [if (_selected.isNotEmpty) IconButton(icon: const Icon(Icons.close), onPressed: _clearSelection)]),
       backgroundColor: AppColors.background,
+      bottomNavigationBar: _selected.isNotEmpty
+          ? BottomAppBar(
+              child: TextButton(
+                onPressed: _setColorForSelected,
+                child: const Text('🎨 Color Tag'),
+              ),
+            )
+          : null,
       body: Column(
         children: [
           Padding(
@@ -108,7 +155,16 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                   if (index < count + list.length) {
                     final p = list[index - count];
                     final date = _dates[p.name];
+                    final selected = _selected.contains(p);
                     return ListTile(
+                      leading: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: colorFromHex(p.colorTag),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                       title: Text(p.name),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,13 +174,19 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                         ],
                       ),
                       trailing: Text(date != null ? formatDate(date) : '-'),
+                      selected: selected,
                       onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: p)),
-                        );
-                        if (mounted) await _loadDates();
+                        if (_selected.isNotEmpty) {
+                          _toggleSelect(p);
+                        } else {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: p)),
+                          );
+                          if (mounted) await _loadDates();
+                        }
                       },
+                      onLongPress: () => _toggleSelect(p),
                     );
                   }
                   count += list.length;

@@ -180,6 +180,14 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> save(TrainingPack pack) async {
+    final index = _packs.indexWhere((p) => p.name == pack.name);
+    if (index == -1) return;
+    _packs[index] = pack;
+    await _persist();
+    notifyListeners();
+  }
+
   Future<void> createFromTemplate(TrainingPackTemplate template) async {
     await createFromTemplateWithOptions(
       template,

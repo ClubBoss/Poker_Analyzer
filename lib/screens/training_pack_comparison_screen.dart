@@ -16,6 +16,8 @@ import '../models/training_pack.dart';
 import '../models/training_pack_stats.dart';
 import '../models/pack_chart_sort_option.dart';
 import '../theme/app_colors.dart';
+import '../helpers/color_utils.dart';
+import '../widgets/color_tag_dialog.dart';
 import 'training_pack_review_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/pack_next_step_card.dart';
@@ -106,8 +108,20 @@ class _PackDataSource extends DataTableSource {
             : DataCell(
                 Tooltip(
                   message: 'Открыть обзор пака',
-                  child: Text(
-                    s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name,
+                  child: Row(
+                    children: [
+                      if (!s.pack.isBuiltIn)
+                        Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: colorFromHex(s.pack.colorTag),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      if (!s.pack.isBuiltIn) const SizedBox(width: 6),
+                      Text(s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name),
+                    ],
                   ),
                 ),
                 onTap: () => selectionMode ? onToggle(s.pack) : onStartEdit(s),
@@ -484,6 +498,29 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     _clearSelection();
   }
 
+  Future<void> _colorSelected() async {
+    final hex = await showColorTagDialog(context);
+    if (hex == null) return;
+    final service = context.read<TrainingPackStorageService>();
+    for (final p in _selected) {
+      final updated = TrainingPack(
+        name: p.name,
+        description: p.description,
+        category: p.category,
+        gameType: p.gameType,
+        colorTag: hex,
+        isBuiltIn: p.isBuiltIn,
+        tags: p.tags,
+        hands: p.hands,
+        spots: p.spots,
+        difficulty: p.difficulty,
+        history: p.history,
+      );
+      await service.save(updated);
+    }
+    _clearSelection();
+  }
+
   @override
   Widget build(BuildContext context) {
     final allPacks = context.watch<TrainingPackStorageService>().packs;
@@ -644,6 +681,11 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                       ElevatedButton(
                         onPressed: _deleteSelected,
                         child: const Text('Удалить'),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: _colorSelected,
+                        child: const Text('🎨 Color Tag'),
                       ),
                       const SizedBox(width: 12),
                       ElevatedButton(
