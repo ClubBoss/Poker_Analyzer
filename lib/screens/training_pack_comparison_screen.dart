@@ -20,6 +20,7 @@ import 'training_pack_review_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/pack_next_step_card.dart';
 import '../widgets/difficulty_chip.dart';
+import '../helpers/color_utils.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
   const TrainingPackComparisonScreen({super.key});
@@ -109,6 +110,17 @@ class _PackDataSource extends DataTableSource {
                   message: 'Открыть обзор пака',
                   child: Row(
                     children: [
+                      if (!s.pack.isBuiltIn) ...[
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: colorFromHex(s.pack.colorTag),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                      ],
                       Expanded(child: Text(s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name)),
                       const SizedBox(width: 4),
                       DifficultyChip(s.pack.difficulty),
@@ -495,6 +507,44 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     _clearSelection();
   }
 
+  Future<void> _setColorTag() async {
+    final color = await _pickColor();
+    if (color == null) return;
+    final hex = colorToHex(color);
+    final service = context.read<TrainingPackStorageService>();
+    for (final p in _selected) {
+      await service.setColorTag(p, hex);
+    }
+    _clearSelection();
+  }
+
+  Future<Color?> _pickColor() {
+    const colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.orange,
+      Colors.green,
+      Colors.purple,
+      Colors.grey,
+    ];
+    return showDialog<Color>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Color Tag'),
+        content: Wrap(
+          spacing: 8,
+          children: [
+            for (final c in colors)
+              GestureDetector(
+                onTap: () => Navigator.pop(context, c),
+                child: CircleAvatar(backgroundColor: c),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final allPacks = context.watch<TrainingPackStorageService>().packs;
@@ -685,6 +735,11 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             child: _selected.isNotEmpty
                 ? Row(
                     children: [
+                      ElevatedButton(
+                        onPressed: _setColorTag,
+                        child: const Text('🎨 Color Tag'),
+                      ),
+                      const SizedBox(width: 12),
                       ElevatedButton(
                         onPressed: _deleteSelected,
                         child: const Text('Удалить'),
