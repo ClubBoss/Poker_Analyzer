@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -273,6 +274,27 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
               ],
             ),
           ),
+          if (filters.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Builder(
+                builder: (context) {
+                  final templates = context
+                      .watch<TrainingPackTemplateStorageService>()
+                      .templates;
+                  TrainingPackTemplateModel? tpl;
+                  for (final t in templates) {
+                    if (mapEquals(t.filters, filters)) {
+                      tpl = t;
+                      break;
+                    }
+                  }
+                  final name = tpl?.name ?? 'пользовательский фильтр';
+                  return Text('📦 Активен фильтр: $name');
+                },
+              ),
+            ),
           Expanded(
             child: Stack(
               children: [
