@@ -24,6 +24,8 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   SharedPreferences? _prefs;
   static const _colorKey = 'template_last_color';
   static const _tagsKey = 'template_add_tags';
+  static const _lastCategoryKey = 'pack_last_category';
+  final TextEditingController _categoryController = TextEditingController();
 
   @override
   void initState() {
@@ -31,12 +33,14 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
     _name = TextEditingController(text: 'Новый пак: ${widget.template.name}');
     _color = colorFromHex(widget.template.defaultColor);
     _selected.addAll(widget.template.hands);
+    _categoryController.text = widget.template.category ?? '';
     _loadPrefs();
   }
 
   @override
   void dispose() {
     _name.dispose();
+    _categoryController.dispose();
     super.dispose();
   }
 
@@ -46,6 +50,8 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
       _prefs = prefs;
       _color = colorFromHex(prefs.getString(_colorKey) ?? widget.template.defaultColor);
       _addTags = prefs.getBool(_tagsKey) ?? true;
+      final cat = prefs.getString(_lastCategoryKey);
+      if (cat != null && cat.isNotEmpty) _categoryController.text = cat;
     });
   }
 
@@ -165,12 +171,14 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
     await prefs.setString(_colorKey, colorToHex(_color));
     await prefs.setString('pack_last_color', colorToHex(_color));
     await prefs.setBool(_tagsKey, _addTags);
+    final cat = _categoryController.text.trim();
+    if (cat.isNotEmpty) await prefs.setString(_lastCategoryKey, cat);
     final hands = List<SavedHand>.from(_selected);
     var pack = await service.createFromTemplateWithOptions(
       widget.template,
       hands: hands,
       colorTag: colorToHex(_color),
-      categoryOverride: widget.template.category,
+      categoryOverride: cat.isNotEmpty ? cat : widget.template.category,
     );
     await service.renamePack(pack, _name.text.trim());
     if (!_addTags) await service.setTags(pack, []);
@@ -190,6 +198,11 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
         child: Column(
           children: [
             TextField(controller: _name, decoration: const InputDecoration(labelText: 'Название')),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _categoryController,
+              decoration: const InputDecoration(labelText: 'Категория'),
+            ),
             const SizedBox(height: 16),
             ListTile(
               leading: CircleAvatar(backgroundColor: _color),
