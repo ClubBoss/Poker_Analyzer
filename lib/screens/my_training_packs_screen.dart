@@ -23,10 +23,15 @@ class MyTrainingPacksScreen extends StatefulWidget {
 class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   static const _groupKey = 'group_by_color';
   static const _lastColorKey = 'pack_last_color';
+  static const _sortKey = 'pack_sort_option';
+  static const _searchKey = 'pack_search_query';
+  static const _tagKey = 'pack_tag_filter';
   final Map<String, DateTime?> _dates = {};
+  final TextEditingController _searchController = TextEditingController();
   String _sort = 'name';
   int _diffFilter = 0;
   String _colorFilter = 'All';
+  String _tagFilter = 'All';
   bool _groupByColor = false;
   Color _lastColor = Colors.blue;
   SharedPreferences? _prefs;
@@ -41,12 +46,21 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     _loadPrefs();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _prefs = prefs;
       _diffFilter = prefs.getInt('pack_diff_filter') ?? 0;
       _colorFilter = prefs.getString('pack_color_filter') ?? 'All';
+      _sort = prefs.getString(_sortKey) ?? 'name';
+      _searchController.text = prefs.getString(_searchKey) ?? '';
+      _tagFilter = prefs.getString(_tagKey) ?? 'All';
       _groupByColor = prefs.getBool(_groupKey) ?? false;
       _lastColor = colorFromHex(prefs.getString(_lastColorKey) ?? '#2196F3');
     });
@@ -116,6 +130,28 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     _clearSelection();
   }
 
+  Future<void> _setSort(String value) async {
+    setState(() => _sort = value);
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    await prefs.setString(_sortKey, value);
+  }
+
+  Future<void> _setSearch(String value) async {
+    setState(() {});
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    await prefs.setString(_searchKey, value);
+  }
+
+  Future<void> _setTagFilter(String value) async {
+    setState(() => _tagFilter = value);
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    if (value == 'All') {
+      await prefs.remove(_tagKey);
+    } else {
+      await prefs.setString(_tagKey, value);
+    }
+  }
+
 
   int _compare(TrainingPack a, TrainingPack b) {
     switch (_sort) {
@@ -134,6 +170,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs.where((p) => !p.isBuiltIn).toList();
+    final allTags = {for (final p in packs) ...p.tags};
     if (_diffFilter > 0) {
       packs.retainWhere((p) => p.difficulty == _diffFilter);
     }
@@ -154,6 +191,15 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
         final hex = map[_colorFilter];
         if (hex != null) packs.retainWhere((p) => p.colorTag == hex);
       }
+    }
+    if (_tagFilter != 'All') {
+      packs.retainWhere((p) => p.tags.contains(_tagFilter));
+    }
+    final query = _searchController.text.toLowerCase();
+    if (query.isNotEmpty) {
+      packs.retainWhere((p) =>
+          p.name.toLowerCase().contains(query) ||
+          p.description.toLowerCase().contains(query));
     }
     final Map<String, List<TrainingPack>> groups = {};
     List<String> categories;
@@ -204,11 +250,19 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
       body: Column(
         children: [
           Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(hintText: 'Поиск'),
+              onChanged: (v) => _setSearch(v),
+            ),
+          ),
+          Padding(
           padding: const EdgeInsets.all(16),
           child: DropdownButton<String>(
             value: _sort,
             underline: const SizedBox.shrink(),
-            onChanged: (v) => setState(() => _sort = v ?? 'name'),
+            onChanged: (v) => _setSort(v ?? 'name'),
             items: const [
               DropdownMenuItem(value: 'name', child: Text('По имени')),
               DropdownMenuItem(value: 'date', child: Text('По дате')),
@@ -297,6 +351,20 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                     ],
                   ),
                 ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: DropdownButton<String>(
+            value: _tagFilter,
+            underline: const SizedBox.shrink(),
+            onChanged: (v) => _setTagFilter(v ?? 'All'),
+            items: [
+              const DropdownMenuItem(value: 'All', child: Text('Все тэги')),
+              ...allTags
+                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                  .toList(),
             ],
           ),
         ),
