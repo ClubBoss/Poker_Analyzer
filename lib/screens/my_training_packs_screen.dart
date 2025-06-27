@@ -174,6 +174,32 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     }
   }
 
+  Future<void> _showPackMenu(TrainingPack pack) async {
+    if (pack.isBuiltIn || pack.history.isEmpty) return;
+    final reset = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(pack.name),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Сбросить прогресс'),
+          ),
+        ],
+      ),
+    );
+    if (reset == true) {
+      await context.read<TrainingPackStorageService>().clearProgress(pack);
+      if (mounted) {
+        await _loadDates();
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Прогресс сброшен')),
+        );
+      }
+    }
+  }
+
 
   int _compare(TrainingPack a, TrainingPack b) {
     switch (_sort) {
@@ -448,7 +474,15 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                               ),
                       ),
                       selected: _selected.contains(p),
-                      onLongPress: () => _toggleSelect(p),
+                      onLongPress: () {
+                        if (_selectionMode) {
+                          _toggleSelect(p);
+                        } else if (p.history.isNotEmpty) {
+                          _showPackMenu(p);
+                        } else {
+                          _toggleSelect(p);
+                        }
+                      },
                       onTap: () async {
                         if (_selectionMode) {
                           _toggleSelect(p);
