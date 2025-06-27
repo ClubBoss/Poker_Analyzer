@@ -9,6 +9,7 @@ import '../theme/app_colors.dart';
 import 'training_pack_screen.dart';
 import '../widgets/difficulty_chip.dart';
 import '../helpers/color_utils.dart';
+import '../widgets/color_picker_dialog.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
   const MyTrainingPacksScreen({super.key});
@@ -19,11 +20,13 @@ class MyTrainingPacksScreen extends StatefulWidget {
 
 class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   static const _groupKey = 'group_by_color';
+  static const _lastColorKey = 'pack_last_color';
   final Map<String, DateTime?> _dates = {};
   String _sort = 'name';
   int _diffFilter = 0;
   String _colorFilter = 'All';
   bool _groupByColor = false;
+  Color _lastColor = Colors.blue;
   SharedPreferences? _prefs;
   final Set<TrainingPack> _selected = {};
 
@@ -43,6 +46,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
       _diffFilter = prefs.getInt('pack_diff_filter') ?? 0;
       _colorFilter = prefs.getString('pack_color_filter') ?? 'All';
       _groupByColor = prefs.getBool(_groupKey) ?? false;
+      _lastColor = colorFromHex(prefs.getString(_lastColorKey) ?? '#2196F3');
     });
   }
 
@@ -85,9 +89,15 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   }
 
   Future<void> _setColorTag() async {
-    final color = await _pickColor();
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final color = await showColorPickerDialog(
+      context,
+      initialColor: _lastColor,
+    );
     if (color == null) return;
     final hex = colorToHex(color);
+    setState(() => _lastColor = color);
+    await prefs.setString(_lastColorKey, hex);
     final service = context.read<TrainingPackStorageService>();
     for (final p in _selected) {
       await service.setColorTag(p, hex);
@@ -104,32 +114,6 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     _clearSelection();
   }
 
-  Future<Color?> _pickColor() {
-    const colors = [
-      Colors.red,
-      Colors.blue,
-      Colors.orange,
-      Colors.green,
-      Colors.purple,
-      Colors.grey,
-    ];
-    return showDialog<Color>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Color Tag'),
-        content: Wrap(
-          spacing: 8,
-          children: [
-            for (final c in colors)
-              GestureDetector(
-                onTap: () => Navigator.pop(context, c),
-                child: CircleAvatar(backgroundColor: c),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
 
   int _compare(TrainingPack a, TrainingPack b) {
     switch (_sort) {
@@ -154,6 +138,8 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     if (_colorFilter != 'All') {
       if (_colorFilter == 'None') {
         packs.retainWhere((p) => p.colorTag.isEmpty);
+      } else if (_colorFilter.startsWith('#')) {
+        packs.retainWhere((p) => p.colorTag == _colorFilter);
       } else {
         const map = {
           'Red': '#F44336',
@@ -180,10 +166,11 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
       };
       packs.sort((a, b) => a.name.compareTo(b.name));
       for (final p in packs) {
-        final name = hexMap[p.colorTag] ?? (p.colorTag.isEmpty ? 'None' : 'None');
+        final name = hexMap[p.colorTag] ??
+            (p.colorTag.isEmpty ? 'None' : 'Custom');
         groups.putIfAbsent(name, () => []).add(p);
       }
-      const order = ['Red', 'Blue', 'Orange', 'Green', 'Purple', 'Grey', 'None'];
+      const order = ['Red', 'Blue', 'Orange', 'Green', 'Purple', 'Grey', 'Custom', 'None'];
       categories = [for (final c in order) if (groups.containsKey(c)) c];
     } else {
       packs.sort(_compare);
@@ -253,27 +240,61 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: DropdownButton<String>(
-            value: _colorFilter,
+            value: _colorFilter.startsWith('#') ? _colorFilter : _colorFilter,
             underline: const SizedBox.shrink(),
             onChanged: (v) async {
-              final value = v ?? 'All';
-              setState(() => _colorFilter = value);
               final prefs = _prefs ?? await SharedPreferences.getInstance();
+              final value = v ?? 'All';
+              if (value == 'Custom') {
+                final color = await showColorPickerDialog(
+                  context,
+                  initialColor: _lastColor,
+                );
+                if (color == null) return;
+                final hex = colorToHex(color);
+                setState(() {
+                  _colorFilter = hex;
+                  _lastColor = color;
+                });
+                await prefs.setString(_lastColorKey, hex);
+                await prefs.setString('pack_color_filter', hex);
+                return;
+              }
+              setState(() => _colorFilter = value);
               if (value == 'All') {
                 await prefs.remove('pack_color_filter');
               } else {
                 await prefs.setString('pack_color_filter', value);
               }
             },
-            items: const [
-              DropdownMenuItem(value: 'All', child: Text('Color: All')),
-              DropdownMenuItem(value: 'Red', child: Text('Red')),
-              DropdownMenuItem(value: 'Blue', child: Text('Blue')),
-              DropdownMenuItem(value: 'Orange', child: Text('Orange')),
-              DropdownMenuItem(value: 'Green', child: Text('Green')),
-              DropdownMenuItem(value: 'Purple', child: Text('Purple')),
-              DropdownMenuItem(value: 'Grey', child: Text('Grey')),
-              DropdownMenuItem(value: 'None', child: Text('None')),
+            items: [
+              const DropdownMenuItem(value: 'All', child: Text('Color: All')),
+              const DropdownMenuItem(value: 'Red', child: Text('Red')),
+              const DropdownMenuItem(value: 'Blue', child: Text('Blue')),
+              const DropdownMenuItem(value: 'Orange', child: Text('Orange')),
+              const DropdownMenuItem(value: 'Green', child: Text('Green')),
+              const DropdownMenuItem(value: 'Purple', child: Text('Purple')),
+              const DropdownMenuItem(value: 'Grey', child: Text('Grey')),
+              const DropdownMenuItem(value: 'None', child: Text('None')),
+              const DropdownMenuItem(value: 'Custom', child: Text('Custom...')),
+              if (_colorFilter.startsWith('#'))
+                DropdownMenuItem(
+                  value: _colorFilter,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: colorFromHex(_colorFilter),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(_colorFilter),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),

@@ -21,6 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/pack_next_step_card.dart';
 import '../widgets/difficulty_chip.dart';
 import '../helpers/color_utils.dart';
+import '../widgets/color_picker_dialog.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
   const TrainingPackComparisonScreen({super.key});
@@ -224,6 +225,8 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   GameType? _typeFilter;
   int _diffFilter = 0;
   String _colorFilter = 'All';
+  Color _lastColor = Colors.blue;
+  static const _lastColorKey = 'pack_last_color';
   SharedPreferences? _prefs;
 
   @override
@@ -235,6 +238,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
           _prefs = p;
           _diffFilter = p.getInt('pack_diff_filter') ?? 0;
           _colorFilter = p.getString('pack_color_filter') ?? 'All';
+          _lastColor = colorFromHex(p.getString(_lastColorKey) ?? '#2196F3');
         });
       }
     });
@@ -512,41 +516,20 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
   }
 
   Future<void> _setColorTag() async {
-    final color = await _pickColor();
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    final color = await showColorPickerDialog(
+      context,
+      initialColor: _lastColor,
+    );
     if (color == null) return;
     final hex = colorToHex(color);
+    setState(() => _lastColor = color);
+    await prefs.setString(_lastColorKey, hex);
     final service = context.read<TrainingPackStorageService>();
     for (final p in _selected) {
       await service.setColorTag(p, hex);
     }
     _clearSelection();
-  }
-
-  Future<Color?> _pickColor() {
-    const colors = [
-      Colors.red,
-      Colors.blue,
-      Colors.orange,
-      Colors.green,
-      Colors.purple,
-      Colors.grey,
-    ];
-    return showDialog<Color>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Color Tag'),
-        content: Wrap(
-          spacing: 8,
-          children: [
-            for (final c in colors)
-              GestureDetector(
-                onTap: () => Navigator.pop(context, c),
-                child: CircleAvatar(backgroundColor: c),
-              ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -561,6 +544,8 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
     if (_colorFilter != 'All') {
       if (_colorFilter == 'None') {
         packs = [for (final p in packs) if (p.colorTag.isEmpty) p];
+      } else if (_colorFilter.startsWith('#')) {
+        packs = [for (final p in packs) if (p.colorTag == _colorFilter) p];
       } else {
         const map = {
           'Red': '#F44336',
@@ -740,23 +725,57 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                 style: const TextStyle(color: Colors.white),
                 onChanged: (v) async {
                   final value = v ?? 'All';
-                  setState(() => _colorFilter = value);
                   final prefs = _prefs ?? await SharedPreferences.getInstance();
+                  if (value == 'Custom') {
+                    final color = await showColorPickerDialog(
+                      context,
+                      initialColor: _lastColor,
+                    );
+                    if (color == null) return;
+                    final hex = colorToHex(color);
+                    setState(() {
+                      _colorFilter = hex;
+                      _lastColor = color;
+                    });
+                    await prefs.setString(_lastColorKey, hex);
+                    await prefs.setString('pack_color_filter', hex);
+                    return;
+                  }
+                  setState(() => _colorFilter = value);
                   if (value == 'All') {
                     await prefs.remove('pack_color_filter');
                   } else {
                     await prefs.setString('pack_color_filter', value);
                   }
                 },
-                items: const [
-                  DropdownMenuItem(value: 'All', child: Text('All')),
-                  DropdownMenuItem(value: 'Red', child: Text('Red')),
-                  DropdownMenuItem(value: 'Blue', child: Text('Blue')),
-                  DropdownMenuItem(value: 'Orange', child: Text('Orange')),
-                  DropdownMenuItem(value: 'Green', child: Text('Green')),
-                  DropdownMenuItem(value: 'Purple', child: Text('Purple')),
-                  DropdownMenuItem(value: 'Grey', child: Text('Grey')),
-                  DropdownMenuItem(value: 'None', child: Text('None')),
+                items: [
+                  const DropdownMenuItem(value: 'All', child: Text('All')),
+                  const DropdownMenuItem(value: 'Red', child: Text('Red')),
+                  const DropdownMenuItem(value: 'Blue', child: Text('Blue')),
+                  const DropdownMenuItem(value: 'Orange', child: Text('Orange')),
+                  const DropdownMenuItem(value: 'Green', child: Text('Green')),
+                  const DropdownMenuItem(value: 'Purple', child: Text('Purple')),
+                  const DropdownMenuItem(value: 'Grey', child: Text('Grey')),
+                  const DropdownMenuItem(value: 'None', child: Text('None')),
+                  const DropdownMenuItem(value: 'Custom', child: Text('Custom...')),
+                  if (_colorFilter.startsWith('#'))
+                    DropdownMenuItem(
+                      value: _colorFilter,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: colorFromHex(_colorFilter),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(_colorFilter),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ],

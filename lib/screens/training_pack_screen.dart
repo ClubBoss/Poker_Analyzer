@@ -24,6 +24,7 @@ import 'poker_analyzer_screen.dart';
 import 'create_pack_screen.dart';
 import '../widgets/difficulty_chip.dart';
 import '../services/training_pack_storage_service.dart';
+import '../widgets/color_picker_dialog.dart';
 import '../services/action_sync_service.dart';
 import '../services/all_in_players_service.dart';
 import '../services/pot_sync_service.dart';
@@ -471,6 +472,30 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       context,
       MaterialPageRoute(builder: (_) => const CreatePackScreen()),
     );
+  }
+
+  Future<void> _changeColor() async {
+    final prefs = await SharedPreferences.getInstance();
+    final last = prefs.getString('pack_last_color');
+    final initColor = last != null ? colorFromHex(last) : colorFromHex(_pack.colorTag);
+    final color = await showColorPickerDialog(context, initialColor: initColor);
+    if (color == null) return;
+    final hex = colorToHex(color);
+    await prefs.setString('pack_last_color', hex);
+    await context.read<TrainingPackStorageService>().setColorTag(_pack, hex);
+    setState(() => _pack = TrainingPack(
+          name: _pack.name,
+          description: _pack.description,
+          category: _pack.category,
+          gameType: _pack.gameType,
+          colorTag: hex,
+          isBuiltIn: _pack.isBuiltIn,
+          tags: _pack.tags,
+          hands: _pack.hands,
+          spots: _pack.spots,
+          difficulty: _pack.difficulty,
+          history: _pack.history,
+        ));
   }
 
   void _previousHand() {
@@ -1573,16 +1598,19 @@ body { font-family: sans-serif; padding: 16px; }
           title: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _pack.colorTag.isEmpty
-                  ? const Icon(Icons.circle_outlined, color: Colors.white24, size: 16)
-                  : Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: colorFromHex(_pack.colorTag),
-                        shape: BoxShape.circle,
+              GestureDetector(
+                onTap: _changeColor,
+                child: _pack.colorTag.isEmpty
+                    ? const Icon(Icons.circle_outlined, color: Colors.white24, size: 16)
+                    : Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: colorFromHex(_pack.colorTag),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
+              ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
