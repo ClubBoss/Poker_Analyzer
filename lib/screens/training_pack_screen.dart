@@ -1345,7 +1345,7 @@ body { font-family: sans-serif; padding: 16px; }
                   : pct >= .5
                       ? Colors.amber
                       : Colors.red,
-              minHeight: 4,
+              minHeight: 6,
             ),
           ],
         ),
@@ -1707,12 +1707,10 @@ body { font-family: sans-serif; padding: 16px; }
               IconButton(
                 icon: const Icon(Icons.play_arrow),
                 tooltip: 'Resume',
-                onPressed: () async {
-                  await _saveProgress();
+                onPressed: () {
                   setState(() {
-                    _currentIndex = _pack.history.isNotEmpty
-                        ? _pack.history.last.total
-                        : 0;
+                    _currentIndex =
+                        _pack.history.isNotEmpty ? _pack.history.last.total : 0;
                     _sessionHands = _pack.hands;
                     _isMistakeReviewMode = false;
                   });
