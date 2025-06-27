@@ -27,6 +27,7 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
   static const _prefsSortKey = 'tpl_sort_option';
+  static const _prefsCollapsedKey = 'tpl_collapsed_categories';
   _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
   final Map<String, bool> _collapsed = {};
@@ -37,6 +38,7 @@ class _TrainingPackTemplateListScreenState
   void initState() {
     super.initState();
     _loadSort();
+    _loadCollapsed();
   }
 
   Future<void> _loadSort() async {
@@ -50,10 +52,45 @@ class _TrainingPackTemplateListScreenState
     if (mounted) setState(() {});
   }
 
+  Future<void> _loadCollapsed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_prefsCollapsedKey) ?? [];
+    if (list.isNotEmpty && mounted) {
+      setState(() {
+        for (final c in list) {
+          _collapsed[c] = true;
+        }
+      });
+    }
+  }
+
   Future<void> _setSort(_SortOption value) async {
     setState(() => _sort = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefsSortKey, value.name);
+  }
+
+  Future<void> _saveCollapsed() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _prefsCollapsedKey,
+      [for (final e in _collapsed.entries) if (e.value) e.key],
+    );
+  }
+
+  void _cleanupCollapsed(List<String> categories) {
+    final removed =
+        _collapsed.keys.where((c) => !categories.contains(c)).toList();
+    if (removed.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        for (final c in removed) {
+          _collapsed.remove(c);
+        }
+      });
+      _saveCollapsed();
+    });
   }
 
   @override
@@ -340,6 +377,7 @@ class _TrainingPackTemplateListScreenState
               }
               final categories = groups.keys.toList()
                 ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+              _cleanupCollapsed(categories);
               final itemCount = categories.fold<int>(0, (n, c) =>
                   n + (c.trim().isEmpty ? 0 : 1) + (_collapsed[c] == true ? 0 : groups[c]!.length));
               return ListView.builder(
@@ -353,8 +391,10 @@ class _TrainingPackTemplateListScreenState
                     if (hasHeader) {
                       if (index == count) {
                         return InkWell(
-                          onTap: () => setState(() =>
-                              _collapsed[cat] = !collapsed),
+                          onTap: () {
+                            setState(() => _collapsed[cat] = !collapsed);
+                            _saveCollapsed();
+                          },
                           child: Container(
                             color: AppColors.cardBackground,
                             padding: const EdgeInsets.symmetric(
