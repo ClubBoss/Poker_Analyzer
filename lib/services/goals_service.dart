@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'dart:convert';
 import 'xp_tracker_service.dart';
+import 'training_stats_service.dart';
 import '../screens/progress_screen.dart';
 import '../models/goal_progress_entry.dart';
 import '../models/drill_session_result.dart';
@@ -89,6 +90,8 @@ class GoalsService extends ChangeNotifier {
   static const _drillResultsKey = 'drill_results';
   static const _dailySpotHistoryKey = 'daily_spot_history';
   static const _sevenDayGoalKey = 'seven_day_goal_unlocked';
+  static const _weeklyHandsTargetKey = 'weekly_hands_target';
+  static const _weeklyAccuracyTargetKey = 'weekly_accuracy_target';
 
   int _errorFreeStreak = 0;
   int _handStreak = 0;
@@ -107,6 +110,8 @@ class GoalsService extends ChangeNotifier {
   List<DateTime> _dailySpotHistory = [];
   bool _hasSevenDayGoalUnlocked = false;
   bool _weeklyStreakCelebrated = false;
+  int _weeklyHandsTarget = 100;
+  double _weeklyAccuracyTarget = 80.0;
 
   static GoalsService? _instance;
   static GoalsService? get instance => _instance;
@@ -149,6 +154,50 @@ class GoalsService extends ChangeNotifier {
   List<DateTime> get dailySpotHistory => List.unmodifiable(_dailySpotHistory);
   bool get hasSevenDayGoalUnlocked => _hasSevenDayGoalUnlocked;
   bool get weeklyStreakCelebrated => _weeklyStreakCelebrated;
+  int get weeklyHandsTarget => _weeklyHandsTarget;
+  double get weeklyAccuracyTarget => _weeklyAccuracyTarget;
+
+  int weeklyHandsProgress() {
+    final stats = TrainingStatsService.instance;
+    if (stats == null) return 0;
+    final list = stats.handsWeekly(2);
+    return list.isNotEmpty ? list.last.value : 0;
+  }
+
+  int weeklyHandsPrevious() {
+    final stats = TrainingStatsService.instance;
+    if (stats == null) return 0;
+    final list = stats.handsWeekly(2);
+    return list.length >= 2 ? list[list.length - 2].value : 0;
+  }
+
+  double weeklyAccuracyProgress() {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+    final end = start.add(const Duration(days: 7));
+    final list = [
+      for (final r in _drillResults)
+        if (!r.date.isBefore(start) && r.date.isBefore(end)) r
+    ];
+    if (list.isEmpty) return 0;
+    final sum = list.map((e) => e.accuracy).reduce((a, b) => a + b);
+    return sum / list.length * 100;
+  }
+
+  double weeklyAccuracyPrevious() {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: now.weekday - 1));
+    final prevStart = start.subtract(const Duration(days: 7));
+    final list = [
+      for (final r in _drillResults)
+        if (!r.date.isBefore(prevStart) && r.date.isBefore(start)) r
+    ];
+    if (list.isEmpty) return 0;
+    final sum = list.map((e) => e.accuracy).reduce((a, b) => a + b);
+    return sum / list.length * 100;
+  }
 
   List<GoalProgressEntry> historyFor(int index) =>
       index >= 0 && index < _history.length
@@ -175,6 +224,8 @@ class GoalsService extends ChangeNotifier {
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
+    _weeklyHandsTarget = prefs.getInt(_weeklyHandsTargetKey) ?? 100;
+    _weeklyAccuracyTarget = prefs.getDouble(_weeklyAccuracyTargetKey) ?? 80.0;
     _goals = [
       Goal(
         title: 'Разобрать 5 ошибок',
@@ -380,6 +431,22 @@ class GoalsService extends ChangeNotifier {
     if (_hasSevenDayGoalUnlocked == value) return;
     _hasSevenDayGoalUnlocked = value;
     await _saveSevenDayGoalUnlocked();
+    notifyListeners();
+  }
+
+  Future<void> setWeeklyHandsTarget(int value) async {
+    if (_weeklyHandsTarget == value) return;
+    _weeklyHandsTarget = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_weeklyHandsTargetKey, value);
+    notifyListeners();
+  }
+
+  Future<void> setWeeklyAccuracyTarget(double value) async {
+    if (_weeklyAccuracyTarget == value) return;
+    _weeklyAccuracyTarget = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_weeklyAccuracyTargetKey, value);
     notifyListeners();
   }
 
