@@ -9,6 +9,7 @@ import '../widgets/repeat_mistakes_card.dart';
 import '../widgets/weekly_challenge_card.dart';
 import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
+import '../widgets/progress_summary_box.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
   const TrainingHomeScreen({super.key});
@@ -32,6 +33,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
         children: const [
           QuickContinueCard(),
           SpotOfTheDayCard(),
+          ProgressSummaryBox(),
           StreakChart(),
           DailyProgressRing(),
           WeeklyChallengeCard(),
