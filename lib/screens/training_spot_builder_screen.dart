@@ -4,8 +4,12 @@ import 'package:provider/provider.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/training_spot.dart';
 import '../models/card_model.dart';
+import '../models/saved_hand.dart';
+import '../models/training_pack_template.dart';
 import '../services/training_spot_storage_service.dart';
+import '../services/template_storage_service.dart';
 import '../widgets/board_cards_widget.dart';
+import '../widgets/template_selection_dialog.dart';
 
 class TrainingSpotBuilderScreen extends StatefulWidget {
   const TrainingSpotBuilderScreen({super.key});
@@ -92,6 +96,46 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
     return actions;
   }
 
+  String _formatActions(List<ActionEntry> actions) {
+    return actions
+        .map((a) =>
+            '${a.playerIndex + 1} ${a.action}${a.amount != null ? ' ${a.amount}' : ''}')
+        .join('\n');
+  }
+
+  void _applyHand(SavedHand hand) {
+    setState(() {
+      _tableSize = hand.numberOfPlayers;
+      _heroIndex = hand.heroIndex;
+      _initStacks();
+      for (int i = 0; i < _tableSize; i++) {
+        final v = hand.stackSizes[i] ?? 0;
+        if (i < _stackControllers.length) {
+          _stackControllers[i].text = v.toString();
+        }
+      }
+      _boardCards
+        ..clear()
+        ..addAll(hand.boardCards);
+      _actionsController.text = _formatActions(hand.actions);
+      _tagsController.text = hand.tags.join(', ');
+      final rec = hand.gtoAction ?? hand.expectedAction;
+      _recommendedAction = rec;
+      _recommendedAmountController.text = '';
+      _nameController.text = hand.name;
+    });
+  }
+
+  Future<void> _openTemplate() async {
+    final templates = context.read<TemplateStorageService>().templates;
+    final TrainingPackTemplate? template = await showDialog(
+      context: context,
+      builder: (_) => TemplateSelectionDialog(templates: templates),
+    );
+    if (template == null || template.hands.isEmpty) return;
+    _applyHand(template.hands.first);
+  }
+
   Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
@@ -141,6 +185,11 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            ElevatedButton(
+              onPressed: _openTemplate,
+              child: const Text('📋 From Template'),
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
