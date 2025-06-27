@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import '../models/training_pack_template_model.dart';
-import '../repositories/training_pack_template_repository.dart';
+import '../services/training_pack_template_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
 
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -13,44 +15,35 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
-  final List<TrainingPackTemplateModel> _templates = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final list = await TrainingPackTemplateRepository.getAll();
-    if (mounted) setState(() => _templates.addAll(list));
-  }
-
   Future<void> _add() async {
     final model = await Navigator.push<TrainingPackTemplateModel>(
       context,
       MaterialPageRoute(builder: (_) => const TrainingPackTemplateEditorScreen()),
     );
-    if (model != null && mounted) setState(() => _templates.add(model));
+    if (model != null && mounted) {
+      await context.read<TrainingPackTemplateStorageService>().add(model);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final templates = context.watch<TrainingPackTemplateStorageService>().templates;
     return Scaffold(
       appBar: AppBar(title: const Text('Шаблоны паков')),
       floatingActionButton: FloatingActionButton(
         onPressed: _add,
         child: const Icon(Icons.add),
       ),
-      body: _templates.isEmpty
+      body: templates.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: _templates.length,
+              itemCount: templates.length,
               itemBuilder: (context, i) {
-                final t = _templates[i];
+                final t = templates[i];
                 return Dismissible(
                   key: ValueKey(t.id),
-                  onDismissed: (_) => setState(() => _templates.removeAt(i)),
+                  onDismissed: (_) =>
+                      context.read<TrainingPackTemplateStorageService>().remove(t),
                   child: ListTile(
                     onTap: () async {
                       final model = await Navigator.push<TrainingPackTemplateModel>(
@@ -59,7 +52,9 @@ class _TrainingPackTemplateListScreenState
                             builder: (_) => TrainingPackTemplateEditorScreen(initial: t)),
                       );
                       if (model != null && mounted) {
-                        setState(() => _templates[i] = model);
+                        await context
+                            .read<TrainingPackTemplateStorageService>()
+                            .update(model);
                       }
                     },
                     title: Text(t.name),
