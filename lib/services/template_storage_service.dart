@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 
@@ -65,6 +66,29 @@ class TemplateStorageService extends ChangeNotifier {
     final insertIndex = index.clamp(0, _templates.length);
     _templates.insert(insertIndex, template);
     notifyListeners();
+  }
+
+  String? importTemplate(Uint8List data) {
+    try {
+      final content = utf8.decode(data);
+      final json = jsonDecode(content);
+      if (json is! Map<String, dynamic>) return 'неверный JSON';
+      final error = validateTemplateJson(Map<String, dynamic>.from(json));
+      if (error != null) return error;
+      final template =
+          TrainingPackTemplate.fromJson(Map<String, dynamic>.from(json));
+      final index = _templates.indexWhere((t) => t.id == template.id);
+      if (index == -1) {
+        _templates.add(template);
+      } else {
+        _templates[index] = template;
+      }
+      _resort();
+      notifyListeners();
+      return null;
+    } catch (_) {
+      return 'ошибка импорта файла';
+    }
   }
 
   Future<void> load() async {
