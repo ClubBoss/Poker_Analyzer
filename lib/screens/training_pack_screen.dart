@@ -479,6 +479,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
           category: updated.category,
           gameType: updated.gameType,
           colorTag: _pack.colorTag,
+          tags: updated.tags,
           hands: _pack.hands,
         );
       });

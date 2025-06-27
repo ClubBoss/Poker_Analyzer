@@ -261,6 +261,7 @@ class _CloudTrainingSessionDetailsScreenState
       name: 'Повторение',
       description: '',
       gameType: 'Cash Game',
+      tags: const [],
       hands: hands,
     );
     await Navigator.push(
@@ -294,6 +295,7 @@ class _CloudTrainingSessionDetailsScreenState
       name: 'Повторение ошибок',
       description: '',
       gameType: 'Cash Game',
+      tags: const [],
       hands: hands,
     );
     await Navigator.push(

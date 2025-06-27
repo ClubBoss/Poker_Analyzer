@@ -126,6 +126,7 @@ class TrainingPackStorageService extends ChangeNotifier {
           description: pack.description,
           category: pack.category,
           gameType: pack.gameType,
+          tags: pack.tags,
           hands: pack.hands,
           history: pack.history,
         );
@@ -145,16 +146,17 @@ class TrainingPackStorageService extends ChangeNotifier {
     if (index == -1) return;
     final trimmed = newName.trim();
     if (trimmed.isEmpty || trimmed == pack.name) return;
-    _packs[index] = TrainingPack(
-      name: trimmed,
-      description: pack.description,
-      category: pack.category,
-      gameType: pack.gameType,
-      colorTag: pack.colorTag,
-      isBuiltIn: pack.isBuiltIn,
-      hands: pack.hands,
-      history: pack.history,
-    );
+      _packs[index] = TrainingPack(
+        name: trimmed,
+        description: pack.description,
+        category: pack.category,
+        gameType: pack.gameType,
+        colorTag: pack.colorTag,
+        isBuiltIn: pack.isBuiltIn,
+        tags: pack.tags,
+        hands: pack.hands,
+        history: pack.history,
+      );
     await _persist();
     notifyListeners();
   }

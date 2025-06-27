@@ -48,6 +48,7 @@ class TrainingPack {
   final GameType gameType;
   final String colorTag;
   final bool isBuiltIn;
+  final List<String> tags;
   final List<SavedHand> hands;
   final List<TrainingSessionResult> history;
 
@@ -58,9 +59,11 @@ class TrainingPack {
     this.gameType = GameType.cash,
     this.colorTag = '#2196F3',
     this.isBuiltIn = false,
+    List<String>? tags,
     required this.hands,
     List<TrainingSessionResult>? history,
-  }) : history = history ?? [];
+  })  : tags = tags ?? const [],
+        history = history ?? [];
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -69,6 +72,7 @@ class TrainingPack {
         'gameType': gameType.name,
         'colorTag': colorTag,
         'isBuiltIn': isBuiltIn,
+        if (tags.isNotEmpty) 'tags': tags,
         'hands': [for (final h in hands) h.toJson()],
         'history': [for (final r in history) r.toJson()],
       };
@@ -80,6 +84,7 @@ class TrainingPack {
         gameType: parseGameType(json['gameType']),
         colorTag: json['colorTag'] as String? ?? '#2196F3',
         isBuiltIn: json['isBuiltIn'] as bool? ?? false,
+        tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
         hands: [
           for (final h in (json['hands'] as List? ?? []))
             SavedHand.fromJson(h as Map<String, dynamic>)

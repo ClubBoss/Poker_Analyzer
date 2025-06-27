@@ -879,15 +879,16 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           final idx = packs.indexWhere((p) => p.name == oldName);
           if (idx != -1) {
             final p = packs[idx];
-            packs[idx] = TrainingPack(
-              name: newName,
-              description: newDescription,
-              category: p.category,
-              gameType: p.gameType,
-              colorTag: p.colorTag,
-              hands: p.hands,
-              history: p.history,
-            );
+              packs[idx] = TrainingPack(
+                name: newName,
+                description: newDescription,
+                category: p.category,
+                gameType: p.gameType,
+                colorTag: p.colorTag,
+                tags: p.tags,
+                hands: p.hands,
+                history: p.history,
+              );
             await file
                 .writeAsString(jsonEncode([for (final p in packs) p.toJson()]));
           }
@@ -904,15 +905,16 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
         ..add(newName);
       final oldPack = _packs.remove(oldName);
       if (oldPack != null) {
-        _packs[newName] = TrainingPack(
-          name: newName,
-          description: newDescription,
-          category: oldPack.category,
-          gameType: oldPack.gameType,
-          colorTag: oldPack.colorTag,
-          hands: oldPack.hands,
-          history: oldPack.history,
-        );
+          _packs[newName] = TrainingPack(
+            name: newName,
+            description: newDescription,
+            category: oldPack.category,
+            gameType: oldPack.gameType,
+            colorTag: oldPack.colorTag,
+            tags: oldPack.tags,
+            hands: oldPack.hands,
+            history: oldPack.history,
+          );
       }
     });
     _applyFilter();

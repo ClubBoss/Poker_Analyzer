@@ -24,8 +24,32 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
   GameType _gameType = GameType.cash;
   final TrainingSpotFileService _spotFileService = const TrainingSpotFileService();
   List<TrainingSpot> _spots = [];
+  final Set<String> _tags = {};
+  final List<String> _suggested = [];
   final GlobalKey<TrainingSpotListState> _spotListKey =
       GlobalKey<TrainingSpotListState>();
+
+  void _suggestTags() {
+    const map = {
+      'push': 'Push',
+      'bubble': 'Bubble',
+      'bb defense': 'BB defense',
+    };
+    final text = (_nameController.text + ' ' + _descriptionController.text).toLowerCase();
+    final found = <String>[];
+    for (final entry in map.entries) {
+      if (text.contains(entry.key) && !found.contains(entry.value)) {
+        found.add(entry.value);
+        if (found.length >= 3) break;
+      }
+    }
+    setState(() {
+      _suggested
+        ..clear()
+        ..addAll(found);
+      _tags.addAll(found);
+    });
+  }
 
   @override
   void initState() {
@@ -36,6 +60,8 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
       _descriptionController.text = pack.description;
       _categoryController.text = pack.category;
       _gameType = pack.gameType;
+      _tags.addAll(pack.tags);
+      _suggested.addAll(pack.tags);
     }
   }
 
@@ -48,6 +74,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
       description: _descriptionController.text.trim(),
       category: category.isEmpty ? 'Uncategorized' : category,
       gameType: _gameType,
+      tags: _tags.toList(),
       hands: widget.initialPack?.hands ?? const [],
     );
     Navigator.pop(context, pack);
@@ -86,6 +113,8 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                 labelStyle: TextStyle(color: Colors.white),
                 border: OutlineInputBorder(),
               ),
+              onEditingComplete: _suggestTags,
+              onSubmitted: (_) => _suggestTags(),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -96,6 +125,8 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                 labelStyle: TextStyle(color: Colors.white),
                 border: OutlineInputBorder(),
               ),
+              onEditingComplete: _suggestTags,
+              onSubmitted: (_) => _suggestTags(),
             ),
             const SizedBox(height: 16),
             if (categories.isNotEmpty)
@@ -124,6 +155,26 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
+            if (_suggested.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 4,
+                children: [
+                  for (final tag in _suggested)
+                    FilterChip(
+                      label: Text(tag),
+                      selected: _tags.contains(tag),
+                      onSelected: (v) => setState(() {
+                        if (v) {
+                          _tags.add(tag);
+                        } else {
+                          _tags.remove(tag);
+                        }
+                      }),
+                    ),
+                ],
+              ),
+            ],
             const SizedBox(height: 16),
             DropdownButtonFormField<GameType>(
               value: _gameType,
