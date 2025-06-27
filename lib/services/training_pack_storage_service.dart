@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
@@ -111,56 +112,59 @@ class TrainingPackStorageService extends ChangeNotifier {
   }
 
   Future<File?> exportPack(TrainingPack pack) async {
-    final dir = await getDownloadsDirectory() ??
-        await getApplicationDocumentsDirectory();
+    if (pack.isBuiltIn) return null;
+    final dir =
+        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
     final safeName = pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final file = File('${dir.path}/$safeName.json');
     await file.writeAsString(jsonEncode(pack.toJson()));
     return file;
   }
 
-  Future<TrainingPack?> importPack() async {
+  Future<String?> importPack(Uint8List data) async {
+    try {
+      final content = utf8.decode(data);
+      final json = jsonDecode(content);
+      if (json is! Map<String, dynamic>) return 'Неверный формат файла';
+      var pack = TrainingPack.fromJson(Map<String, dynamic>.from(json));
+      String base = pack.name.isEmpty ? 'Pack' : pack.name;
+      String name = base;
+      int idx = 2;
+      while (_packs.any((p) => p.name == name)) {
+        name = '$base ($idx)';
+        idx++;
+      }
+      final imported = TrainingPack(
+        name: name,
+        description: pack.description,
+        category: pack.category,
+        gameType: pack.gameType,
+        colorTag: pack.colorTag,
+        isBuiltIn: false,
+        tags: pack.tags,
+        hands: pack.hands,
+        spots: pack.spots,
+        difficulty: pack.difficulty,
+        history: pack.history,
+      );
+      _packs.add(imported);
+      await _persist();
+      notifyListeners();
+      return null;
+    } catch (_) {
+      return 'Ошибка чтения файла';
+    }
+  }
+
+  Future<String?> importPackFromFile() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
-    if (result == null || result.files.isEmpty) return null;
-    final path = result.files.single.path;
-    if (path == null) return null;
-    final file = File(path);
-    try {
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      if (data is! Map<String, dynamic>) return null;
-      if (!data.containsKey('name') || !data.containsKey('hands')) return null;
-      var pack = TrainingPack.fromJson(Map<String, dynamic>.from(data));
-      String baseName = pack.name;
-      String name = baseName;
-      int idx = 1;
-      while (_packs.any((p) => p.name == name)) {
-        name = '$baseName-copy${idx > 1 ? idx : ''}';
-        idx++;
-      }
-      if (name != pack.name) {
-        pack = TrainingPack(
-          name: name,
-          description: pack.description,
-          category: pack.category,
-          gameType: pack.gameType,
-          tags: pack.tags,
-          hands: pack.hands,
-          spots: pack.spots,
-          difficulty: pack.difficulty,
-          history: pack.history,
-        );
-      }
-      _packs.add(pack);
-      await _persist();
-      notifyListeners();
-      return pack;
-    } catch (_) {
-      return null;
-    }
+    if (result == null || result.files.isEmpty) return 'Файл не выбран';
+    final file = result.files.single;
+    final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+    return importPack(bytes);
   }
 
   Future<void> renamePack(TrainingPack pack, String newName) async {
