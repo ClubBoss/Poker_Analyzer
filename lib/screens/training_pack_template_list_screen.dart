@@ -402,10 +402,14 @@ class _TrainingPackTemplateListScreenState
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: Text(cat,
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold)),
+                                  child: Text(
+                                    list.isEmpty || cat.trim().isEmpty
+                                        ? cat
+                                        : '$cat (${list.length})',
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                                 Icon(
                                   collapsed
