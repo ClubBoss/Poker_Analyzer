@@ -7,6 +7,7 @@ import 'package:csv/csv.dart';
 
 import '../models/training_spot.dart';
 import '../services/training_spot_storage_service.dart';
+import 'training_spot_builder_screen.dart';
 
 class TrainingSpotLibraryScreen extends StatefulWidget {
   const TrainingSpotLibraryScreen({super.key});
@@ -18,13 +19,22 @@ class TrainingSpotLibraryScreen extends StatefulWidget {
 class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
   late TrainingSpotStorageService _storage;
   List<TrainingSpot> _spots = [];
-  final Set<int> _selected = {};
+  final Set<TrainingSpot> _selected = {};
+  final TextEditingController _searchController = TextEditingController();
+  String _positionFilter = 'All';
+  String _tagFilter = 'All';
 
   @override
   void initState() {
     super.initState();
-    _storage = TrainingSpotStorageService();
+    _storage = context.read<TrainingSpotStorageService>();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -36,12 +46,28 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     await _storage.save(_spots);
   }
 
-  void _toggle(int index) {
+  Future<void> _delete(TrainingSpot spot) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete spot?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    setState(() => _spots.remove(spot));
+    await _save();
+  }
+
+  void _toggle(TrainingSpot spot) {
     setState(() {
-      if (_selected.contains(index)) {
-        _selected.remove(index);
+      if (_selected.contains(spot)) {
+        _selected.remove(spot);
       } else {
-        _selected.add(index);
+        _selected.add(spot);
       }
     });
   }
@@ -67,10 +93,12 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     );
     if (tag == null || tag.isEmpty) return;
     setState(() {
-      for (final i in _selected) {
-        final spot = _spots[i];
-        final tags = {...spot.tags, tag}..removeWhere((e) => e.isEmpty);
-        _spots[i] = spot.copyWith(tags: tags.toList()..sort());
+      for (final spot in _selected) {
+        final idx = _spots.indexOf(spot);
+        if (idx != -1) {
+          final tags = {...spot.tags, tag}..removeWhere((e) => e.isEmpty);
+          _spots[idx] = spot.copyWith(tags: tags.toList()..sort());
+        }
       }
       _selected.clear();
     });
@@ -79,26 +107,35 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
 
   Future<void> _removeTag() async {
     final tags = <String>{};
-    for (final i in _selected) {
-      tags.addAll(_spots[i].tags);
+    for (final spot in _selected) {
+      tags.addAll(spot.tags);
     }
+    String? selected = tags.isNotEmpty ? tags.first : null;
     final tag = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Remove Tag'),
-        content: DropdownButton<String>(
-          value: tags.isEmpty ? null : tags.first,
-          items: [for (final t in tags) DropdownMenuItem(value: t, child: Text(t))],
-          onChanged: (v) => Navigator.pop(context, v),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Remove Tag'),
+          content: DropdownButton<String>(
+            value: selected,
+            items: [for (final t in tags) DropdownMenuItem(value: t, child: Text(t))],
+            onChanged: (v) => setState(() => selected = v),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(context, selected), child: const Text('OK')),
+          ],
         ),
       ),
     );
     if (tag == null || tag.isEmpty) return;
     setState(() {
-      for (final i in _selected) {
-        final spot = _spots[i];
-        final newTags = List<String>.from(spot.tags)..remove(tag);
-        _spots[i] = spot.copyWith(tags: newTags);
+      for (final spot in _selected) {
+        final idx = _spots.indexOf(spot);
+        if (idx != -1) {
+          final newTags = List<String>.from(spot.tags)..remove(tag);
+          _spots[idx] = spot.copyWith(tags: newTags);
+        }
       }
       _selected.clear();
     });
@@ -107,9 +144,8 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
 
   Future<void> _exportCsv() async {
     final rows = <List<String>>[];
-    rows.add(['date', 'position', 'stackBB', 'tags']);
-    for (final i in _selected) {
-      final s = _spots[i];
+    rows.add(['date', 'position', 'stackChips', 'tags']);
+    for (final s in _selected) {
       final pos = s.positions.isNotEmpty ? s.positions[s.heroIndex] : '';
       final stack = s.stacks.isNotEmpty ? s.stacks[s.heroIndex].toString() : '';
       final date = s.createdAt.toIso8601String();
@@ -120,66 +156,133 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     final file = File('${dir.path}/spots_${DateTime.now().millisecondsSinceEpoch}.csv');
     await file.writeAsString(csv);
     await Share.shareXFiles([XFile(file.path)]);
-    setState(() => _selected.clear());
+    if (mounted) setState(() => _selected.clear());
   }
 
   @override
   Widget build(BuildContext context) {
+    final tags = <String>{for (final s in _spots) ...s.tags};
+    final positions = <String>{for (final s in _spots) if (s.positions.isNotEmpty) s.positions[s.heroIndex]};
+    List<TrainingSpot> visible = [..._spots];
+    if (_positionFilter != 'All') {
+      visible = [for (final s in visible) if (s.positions.isNotEmpty && s.positions[s.heroIndex] == _positionFilter) s];
+    }
+    if (_tagFilter != 'All') {
+      visible = [for (final s in visible) if (s.tags.contains(_tagFilter)) s];
+    }
+    final query = _searchController.text.toLowerCase();
+    if (query.isNotEmpty) {
+      visible = [for (final s in visible) if (s.tags.any((t) => t.toLowerCase().contains(query))) s];
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('My Spots')),
-      body: Stack(
+      body: Column(
         children: [
-          ListView.builder(
-            itemCount: _spots.length,
-            itemBuilder: (context, index) {
-              final s = _spots[index];
-              final selected = _selected.contains(index);
-              final pos = s.positions.isNotEmpty ? s.positions[s.heroIndex] : '';
-              final stack = s.stacks.isNotEmpty ? s.stacks[s.heroIndex] : 0;
-              return ListTile(
-                leading: Checkbox(
-                  value: selected,
-                  onChanged: (_) => _toggle(index),
-                ),
-                title: Text('$pos ${stack}bb'),
-                subtitle: s.tags.isNotEmpty ? Text(s.tags.join(', ')) : null,
-                onTap: () => _toggle(index),
-              );
-            },
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(hintText: 'Search'),
+              onChanged: (_) => setState(() {}),
+            ),
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              height: _selected.isNotEmpty ? 56 : 0,
-              child: _selected.isNotEmpty
-                  ? Container(
-                      color: Colors.black54,
-                      padding: const EdgeInsets.all(8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          ElevatedButton(
-                            onPressed: _addTag,
-                            child: const Text('🏷 Add Tag'),
-                          ),
-                          ElevatedButton(
-                            onPressed: _removeTag,
-                            child: const Text('❌ Remove Tag'),
-                          ),
-                          ElevatedButton(
-                            onPressed: _exportCsv,
-                            child: const Text('📄 Export CSV'),
-                          ),
-                        ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                DropdownButton<String>(
+                  value: _positionFilter,
+                  underline: const SizedBox.shrink(),
+                  onChanged: (v) => setState(() => _positionFilter = v ?? 'All'),
+                  items: ['All', ...positions]
+                      .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                      .toList(),
+                ),
+                const SizedBox(width: 12),
+                DropdownButton<String>(
+                  value: _tagFilter,
+                  underline: const SizedBox.shrink(),
+                  onChanged: (v) => setState(() => _tagFilter = v ?? 'All'),
+                  items: ['All', ...tags]
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                ListView.builder(
+                  itemCount: visible.length,
+                  itemBuilder: (context, index) {
+                    final s = visible[index];
+                    final selected = _selected.contains(s);
+                    final pos = s.positions.isNotEmpty ? s.positions[s.heroIndex] : '';
+                    final stack = s.stacks.isNotEmpty ? s.stacks[s.heroIndex] : 0;
+                    return Dismissible(
+                      key: ValueKey(s.createdAt),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
                       ),
-                    )
-                  : null,
+                      confirmDismiss: (_) async {
+                        await _delete(s);
+                        return false;
+                      },
+                      child: ListTile(
+                        leading: Checkbox(
+                          value: selected,
+                          onChanged: (_) => _toggle(s),
+                        ),
+                        title: Text('$pos ${stack}bb'),
+                        subtitle: s.tags.isNotEmpty ? Text(s.tags.join(', ')) : null,
+                        onTap: () => _toggle(s),
+                      ),
+                    );
+                  },
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    height: _selected.isNotEmpty ? 56 : 0,
+                    child: _selected.isNotEmpty
+                        ? Container(
+                            color: Colors.black54,
+                            padding: const EdgeInsets.all(8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                ElevatedButton(onPressed: _addTag, child: const Text('🏷 Add Tag')),
+                                ElevatedButton(onPressed: _removeTag, child: const Text('❌ Remove Tag')),
+                                ElevatedButton(onPressed: _exportCsv, child: const Text('📄 Export CSV')),
+                              ],
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final created = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TrainingSpotBuilderScreen()),
+          );
+          if (created == true) _load();
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
