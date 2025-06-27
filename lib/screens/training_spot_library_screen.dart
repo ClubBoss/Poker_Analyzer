@@ -24,6 +24,23 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
   String _positionFilter = 'All';
   String _tagFilter = 'All';
 
+  bool _matchesFilters(TrainingSpot spot, Map<String, dynamic> f) {
+    final tags = f['tags'];
+    if (tags is List && tags.isNotEmpty) {
+      if (!tags.every((t) => spot.tags.contains(t))) return false;
+    }
+    final pos = f['positions'];
+    if (pos is List && pos.isNotEmpty) {
+      final hero = spot.positions.isNotEmpty ? spot.positions[spot.heroIndex] : '';
+      if (!pos.contains(hero)) return false;
+    }
+    final minDiff = f['minDifficulty'];
+    if (minDiff is int && spot.difficulty < minDiff) return false;
+    final maxDiff = f['maxDifficulty'];
+    if (maxDiff is int && spot.difficulty > maxDiff) return false;
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -164,6 +181,10 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     final tags = <String>{for (final s in _spots) ...s.tags};
     final positions = <String>{for (final s in _spots) if (s.positions.isNotEmpty) s.positions[s.heroIndex]};
     List<TrainingSpot> visible = [..._spots];
+    final filters = context.watch<TrainingSpotStorageService>().activeFilters;
+    if (filters.isNotEmpty) {
+      visible = [for (final s in visible) if (_matchesFilters(s, filters)) s];
+    }
     if (_positionFilter != 'All') {
       visible = [for (final s in visible) if (s.positions.isNotEmpty && s.positions[s.heroIndex] == _positionFilter) s];
     }
