@@ -47,7 +47,7 @@ void main() {
       providers: [
         Provider(create: (_) => CloudSyncService()),
         Provider(create: (_) => CloudTrainingHistoryService()),
-        Provider(
+        ChangeNotifierProvider(
           create: (context) =>
               TrainingSpotStorageService(cloud: context.read<CloudSyncService>()),
         ),

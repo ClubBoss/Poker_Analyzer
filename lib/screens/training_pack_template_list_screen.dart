@@ -151,6 +151,19 @@ class _TrainingPackTemplateListScreenState
                           ? 'Невозможно оценить'
                           : '≈ ${_counts[t.id]} рук',
                     ),
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (_) {
+                        _spotStorage.activeFilters
+                          ..clear()
+                          ..addAll(t.filters);
+                        _spotStorage.notifyListeners();
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(content: Text('Шаблон применён')));
+                      },
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(value: 'apply', child: Text('Применить шаблон')),
+                      ],
+                    ),
                   ),
                 );
               },
