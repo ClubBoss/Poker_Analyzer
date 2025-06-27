@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/training_spot_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
+
+enum _SortOption { name, category, difficulty, createdAt }
 
 class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
@@ -20,9 +23,34 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
+  static const _prefsSortKey = 'tpl_sort_option';
+  _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
   final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSort();
+  }
+
+  Future<void> _loadSort() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString(_prefsSortKey);
+    if (name != null) {
+      try {
+        _sort = _SortOption.values.byName(name);
+      } catch (_) {}
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _setSort(_SortOption value) async {
+    setState(() => _sort = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefsSortKey, value.name);
+  }
 
   @override
   void didChangeDependencies() {
@@ -113,24 +141,54 @@ class _TrainingPackTemplateListScreenState
     );
   }
 
+  int _compare(TrainingPackTemplateModel a, TrainingPackTemplateModel b) {
+    switch (_sort) {
+      case _SortOption.category:
+        final r = a.category.toLowerCase().compareTo(b.category.toLowerCase());
+        if (r != 0) return r;
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+      case _SortOption.difficulty:
+        final r = a.difficulty.compareTo(b.difficulty);
+        if (r != 0) return r;
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+      case _SortOption.createdAt:
+        final r = b.createdAt.compareTo(a.createdAt);
+        if (r != 0) return r;
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+      case _SortOption.name:
+      default:
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final all = context.watch<TrainingPackTemplateStorageService>().templates;
     final query = _searchController.text.toLowerCase();
-    final templates = query.isEmpty
-        ? all
-        : [
-            for (final t in all)
-              if (t.name.toLowerCase().contains(query) ||
-                  t.category.toLowerCase().contains(query))
-                t
-          ];
+    final templates = [
+      for (final t in all)
+        if (query.isEmpty ||
+            t.name.toLowerCase().contains(query) ||
+            t.category.toLowerCase().contains(query))
+          t
+    ]..sort(_compare);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Шаблоны паков'),
         actions: [
           IconButton(onPressed: _export, icon: const Icon(Icons.upload_file)),
           IconButton(onPressed: _import, icon: const Icon(Icons.download)),
+          PopupMenuButton<_SortOption>(
+            icon: const Icon(Icons.sort),
+            padding: EdgeInsets.zero,
+            onSelected: _setSort,
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: _SortOption.name, child: Text('По имени')),
+              PopupMenuItem(value: _SortOption.category, child: Text('По категории')),
+              PopupMenuItem(value: _SortOption.difficulty, child: Text('По сложности')),
+              PopupMenuItem(value: _SortOption.createdAt, child: Text('По дате')),
+            ],
+          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
