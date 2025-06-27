@@ -48,11 +48,24 @@ class _TrainingPackTemplateListScreenState
               itemCount: _templates.length,
               itemBuilder: (context, i) {
                 final t = _templates[i];
-                return ListTile(
-                  title: Text(t.name),
-                  subtitle: Text(
-                      '${t.category.isEmpty ? 'Без категории' : t.category} • '
-                      'сложность: ${t.difficulty}'),
+                return Dismissible(
+                  key: ValueKey(t.id),
+                  onDismissed: (_) => setState(() => _templates.removeAt(i)),
+                  child: ListTile(
+                    onTap: () async {
+                      final model = await Navigator.push<TrainingPackTemplateModel>(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => TrainingPackTemplateEditorScreen(initial: t)),
+                      );
+                      if (model != null && mounted) {
+                        setState(() => _templates[i] = model);
+                      }
+                    },
+                    title: Text(t.name),
+                    subtitle: Text(
+                        '${t.category.isEmpty ? 'Без категории' : t.category} • сложность: ${t.difficulty}'),
+                  ),
                 );
               },
             ),
