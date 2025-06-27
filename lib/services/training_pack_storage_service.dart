@@ -329,20 +329,23 @@ class TrainingPackStorageService extends ChangeNotifier {
       name = '$base ($idx)';
       idx++;
     }
+    final prefs = await SharedPreferences.getInstance();
+    final last = prefs.getString('pack_last_color');
+    final reg = RegExp(r'^#[0-9A-Fa-f]{6}\$');
+    final color = last != null && reg.hasMatch(last) ? last : tpl.defaultColor;
     final pack = TrainingPack(
       name: name,
       description: tpl.description,
       category: tpl.category ?? 'Uncategorized',
       gameType: parseGameType(tpl.gameType),
-      colorTag: tpl.defaultColor,
+      colorTag: color,
       tags: List.from(tpl.tags),
       hands: tpl.hands,
       spots: const [],
       difficulty: 1,
     );
     _packs.add(pack);
-    await _persist();
-    notifyListeners();
+    await save();
     return pack;
   }
 

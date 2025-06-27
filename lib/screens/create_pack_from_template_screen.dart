@@ -163,6 +163,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
     final service = context.read<TrainingPackStorageService>();
     final prefs = _prefs ?? await SharedPreferences.getInstance();
     await prefs.setString(_colorKey, colorToHex(_color));
+    await prefs.setString('pack_last_color', colorToHex(_color));
     await prefs.setBool(_tagsKey, _addTags);
     final hands = List<SavedHand>.from(_selected);
     var pack = await service.createFromTemplateWithOptions(
