@@ -10,6 +10,7 @@ import '../widgets/weekly_challenge_card.dart';
 import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
 import '../widgets/progress_summary_box.dart';
+import 'training_progress_analytics_screen.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
   const TrainingHomeScreen({super.key});
@@ -28,7 +29,21 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Training')),
+      appBar: AppBar(
+        title: const Text('Training'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.analytics),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const TrainingProgressAnalyticsScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: ListView(
         children: const [
           QuickContinueCard(),
