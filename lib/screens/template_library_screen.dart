@@ -17,11 +17,13 @@ class TemplateLibraryScreen extends StatelessWidget {
         itemCount: templates.length,
         itemBuilder: (context, i) {
           final t = templates[i];
+          final parts = t.version.split('.');
+          final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
           return Card(
             child: ListTile(
               leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
               title: Text(t.name),
-              subtitle: Text('${t.category ?? 'Без категории'} • ${t.hands.length}'),
+              subtitle: Text('${t.category ?? 'Без категории'} • ${t.hands.length} рук • v$version'),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => CreatePackFromTemplateScreen(template: t)),

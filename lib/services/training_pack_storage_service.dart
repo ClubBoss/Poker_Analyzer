@@ -291,8 +291,15 @@ class TrainingPackStorageService extends ChangeNotifier {
 
   Future<TrainingPack> createPackFromTemplate(TrainingPackTemplate tpl) async {
     final ts = DateFormat('dd.MM HH:mm').format(DateTime.now());
+    String base = 'Новый пак: ${tpl.name} ($ts)';
+    String name = base;
+    int idx = 2;
+    while (_packs.any((p) => p.name == name)) {
+      name = '$base ($idx)';
+      idx++;
+    }
     final pack = TrainingPack(
-      name: 'Новый пак: ${tpl.name} ($ts)',
+      name: name,
       description: tpl.description,
       category: tpl.category ?? 'Uncategorized',
       gameType: parseGameType(tpl.gameType),
@@ -308,8 +315,8 @@ class TrainingPackStorageService extends ChangeNotifier {
     return pack;
   }
 
-  Future<void> createFromTemplate(TrainingPackTemplate template) async {
-    await createFromTemplateWithOptions(
+  Future<TrainingPack> createFromTemplate(TrainingPackTemplate template) async {
+    return createFromTemplateWithOptions(
       template,
       hands: template.hands,
       categoryOverride: template.category,
@@ -317,7 +324,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     );
   }
 
-  Future<void> createFromTemplateWithOptions(
+  Future<TrainingPack> createFromTemplateWithOptions(
     TrainingPackTemplate template, {
     List<SavedHand>? hands,
     String? categoryOverride,
@@ -350,6 +357,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     _packs.add(pack);
     await _persist();
     notifyListeners();
+    return pack;
   }
 }
 

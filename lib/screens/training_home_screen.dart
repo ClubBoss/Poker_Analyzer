@@ -64,7 +64,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
             MaterialPageRoute(builder: (_) => const TemplateLibraryScreen()),
           );
         },
-        child: const Icon(Icons.library_books),
+        child: const Icon(Icons.auto_awesome_motion),
       ),
     );
   }

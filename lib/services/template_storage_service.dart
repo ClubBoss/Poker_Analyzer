@@ -16,9 +16,8 @@ class TemplateStorageService extends ChangeNotifier {
 
   void _resort() {
     _templates.sort((a, b) {
-      if (a.gameType != b.gameType) return a.gameType.compareTo(b.gameType);
-      final rev = b.revision.compareTo(a.revision);
-      return rev == 0 ? a.name.compareTo(b.name) : rev;
+      final cmp = b.updatedAt.compareTo(a.updatedAt);
+      return cmp == 0 ? a.name.compareTo(b.name) : cmp;
     });
   }
 
