@@ -300,12 +300,12 @@ class TrainingPackStorageService extends ChangeNotifier {
 
   Future<TrainingPack> duplicatePack(TrainingPack pack) async {
     assert(!pack.isBuiltIn);
-    String base = pack.name.replaceAll(RegExp(r'(-copy\d*)+\$'), '');
-    String name = '$base-copy';
-    int idx = 1;
+    String base = pack.name.replaceAll(RegExp(r'\s*\(copy\d*\)\$'), '');
+    String name = '$base (copy)';
+    int idx = 2;
     while (_packs.any((p) => p.name == name)) {
+      name = '$base (copy$idx)';
       idx++;
-      name = '$base-copy$idx';
     }
     final map = {
       ...pack.toJson(),
