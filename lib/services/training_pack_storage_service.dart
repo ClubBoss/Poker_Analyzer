@@ -247,3 +247,10 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+extension PackProgress on TrainingPack {
+  int get solved => history.isNotEmpty ? history.last.correct : 0;
+  int get attempted => history.isNotEmpty ? history.last.total : 0;
+  double get pctComplete =>
+      (attempted == 0 ? 0 : solved / hands.length).clamp(0, 1);
+}

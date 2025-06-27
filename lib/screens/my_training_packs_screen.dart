@@ -10,6 +10,7 @@ import 'training_pack_screen.dart';
 import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
 import '../helpers/color_utils.dart';
+import "../widgets/progress_chip.dart";
 import '../widgets/color_picker_dialog.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
@@ -327,6 +328,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                   if (index < count + list.length) {
                     final p = list[index - count];
                     final date = _dates[p.name];
+                    final pct = p.pctComplete;
                     return ListTile(
                       leading: InfoTooltip(
                         message: p.colorTag.isEmpty
@@ -361,6 +363,13 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                           Expanded(child: Text(p.name)),
                           const SizedBox(width: 4),
                           DifficultyChip(p.difficulty),
+                          const SizedBox(width: 4),
+                          InfoTooltip(
+                            message: pct == 1
+                                ? 'Completed!'
+                                : 'Solved ${p.solved} of ${p.hands.length} hands',
+                            child: ProgressChip(pct),
+                          ),
                         ],
                       ),
                       subtitle: Column(
