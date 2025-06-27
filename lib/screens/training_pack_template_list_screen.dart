@@ -29,6 +29,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsSortKey = 'tpl_sort_option';
   _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
+  final Map<String, bool> _collapsed = {};
   final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
 
@@ -332,7 +333,7 @@ class _TrainingPackTemplateListScreenState
               final categories = groups.keys.toList()
                 ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
               final itemCount = categories.fold<int>(0, (n, c) =>
-                  n + groups[c]!.length + (c.trim().isEmpty ? 0 : 1));
+                  n + (c.trim().isEmpty ? 0 : 1) + (_collapsed[c] == true ? 0 : groups[c]!.length));
               return ListView.builder(
                 itemCount: itemCount,
                 itemBuilder: (context, index) {
@@ -340,21 +341,38 @@ class _TrainingPackTemplateListScreenState
                   for (final cat in categories) {
                     final list = groups[cat]!;
                     final hasHeader = cat.trim().isNotEmpty;
+                    final collapsed = _collapsed[cat] ?? false;
                     if (hasHeader) {
                       if (index == count) {
-                        return Container(
-                          color: AppColors.cardBackground,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: Text(cat,
-                              style: const TextStyle(
+                        return InkWell(
+                          onTap: () => setState(() =>
+                              _collapsed[cat] = !collapsed),
+                          child: Container(
+                            color: AppColors.cardBackground,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(cat,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Icon(
+                                  collapsed
+                                      ? Icons.expand_more
+                                      : Icons.expand_less,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold)),
+                                ),
+                              ],
+                            ),
+                          ),
                         );
                       }
                       count++;
                     }
-                    if (index < count + list.length) {
+                    if (!collapsed && index < count + list.length) {
                       final t = list[index - count];
                       _ensureCount(t.id, t.filters);
                       return Dismissible(
@@ -459,7 +477,7 @@ class _TrainingPackTemplateListScreenState
                         ),
                       );
                     }
-                    count += list.length;
+                    if (!collapsed) count += list.length;
                   }
                   return const SizedBox.shrink();
                 },
