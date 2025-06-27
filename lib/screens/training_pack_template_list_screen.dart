@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
+import '../theme/app_colors.dart';
 
 import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
@@ -320,104 +321,150 @@ class _TrainingPackTemplateListScreenState
       ),
       body: templates.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: templates.length,
-              itemBuilder: (context, i) {
-                final t = templates[i];
-                _ensureCount(t.id, t.filters);
-                return Dismissible(
-                  key: ValueKey(t.id),
-                  confirmDismiss: (_) async {
-                    final ok = await showDialog<bool>(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Удалить шаблон?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text('Отмена'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text('Удалить'),
-                          ),
-                        ],
-                      ),
-                    );
-                    return ok == true;
-                  },
-                  onDismissed: (_) =>
-                      context.read<TrainingPackTemplateStorageService>().remove(t),
-                  child: ListTile(
-                    leading: Center(
-                      child: Container(
-                        width: 8,
-                        height: 32,
-                        color: _difficultyColor(t.difficulty),
-                      ),
-                    ),
-                    minLeadingWidth: 8,
-                    onTap: () async {
-                      final model = await Navigator.push<TrainingPackTemplateModel>(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => TrainingPackTemplateEditorScreen(initial: t)),
-                      );
-                      if (model != null && mounted) {
-                        await context
-                            .read<TrainingPackTemplateStorageService>()
-                            .update(model);
+          : (() {
+              final Map<String, List<TrainingPackTemplateModel>> groups = {};
+              for (final t in templates) {
+                groups.putIfAbsent(t.category, () => []).add(t);
+              }
+              for (final g in groups.values) {
+                g.sort(_compare);
+              }
+              final categories = groups.keys.toList()
+                ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+              final itemCount = categories.fold<int>(0, (n, c) =>
+                  n + groups[c]!.length + (c.trim().isEmpty ? 0 : 1));
+              return ListView.builder(
+                itemCount: itemCount,
+                itemBuilder: (context, index) {
+                  int count = 0;
+                  for (final cat in categories) {
+                    final list = groups[cat]!;
+                    final hasHeader = cat.trim().isNotEmpty;
+                    if (hasHeader) {
+                      if (index == count) {
+                        return Container(
+                          color: AppColors.cardBackground,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: Text(cat,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
+                        );
                       }
-                    },
-                    title: Text(t.name),
-                    subtitle: Text(
-                      _counts[t.id] == null
-                          ? 'Невозможно оценить'
-                          : '≈ ${_counts[t.id]} рук',
-                    ),
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (value) async {
-                        switch (value) {
-                          case 'apply':
-                            _spotStorage.activeFilters
-                              ..clear()
-                              ..addAll(t.filters);
-                            _spotStorage.notifyListeners();
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(const SnackBar(content: Text('Шаблон применён')));
-                            break;
-                          case 'export':
-                            await _exportTemplate(t);
-                            break;
-                          case 'share':
-                            await _shareTemplate(t);
-                            break;
-                          case 'rename':
-                            await _renameTemplate(t);
-                            break;
-                          case 'duplicate':
-                            final copy = t.copyWith(
-                              id: const Uuid().v4(),
-                              name: 'Копия ${t.name}',
+                      count++;
+                    }
+                    if (index < count + list.length) {
+                      final t = list[index - count];
+                      _ensureCount(t.id, t.filters);
+                      return Dismissible(
+                        key: ValueKey(t.id),
+                        confirmDismiss: (_) async {
+                          final ok = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Удалить шаблон?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx, false),
+                                  child: const Text('Отмена'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  child: const Text('Удалить'),
+                                ),
+                              ],
+                            ),
+                          );
+                          return ok == true;
+                        },
+                        onDismissed: (_) =>
+                            context.read<TrainingPackTemplateStorageService>().
+                                remove(t),
+                        child: ListTile(
+                          leading: Center(
+                            child: Container(
+                              width: 8,
+                              height: 32,
+                              color: _difficultyColor(t.difficulty),
+                            ),
+                          ),
+                          minLeadingWidth: 8,
+                          onTap: () async {
+                            final model = await Navigator.push<
+                                TrainingPackTemplateModel>(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      TrainingPackTemplateEditorScreen(initial: t)),
                             );
-                            await context
-                                .read<TrainingPackTemplateStorageService>()
-                                .add(copy);
-                            break;
-                        }
-                      },
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(value: 'apply', child: Text('Применить шаблон')),
-                        PopupMenuItem(value: 'export', child: Text('📤 Экспортировать')),
-                        PopupMenuItem(value: 'share', child: Text('📤 Поделиться')),
-                        PopupMenuItem(value: 'rename', child: Text('✏️ Переименовать')),
-                        PopupMenuItem(value: 'duplicate', child: Text('📄 Дублировать')),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                            if (model != null && mounted) {
+                              await context
+                                  .read<TrainingPackTemplateStorageService>()
+                                  .update(model);
+                            }
+                          },
+                          title: Text(t.name),
+                          subtitle: Text(
+                            _counts[t.id] == null
+                                ? 'Невозможно оценить'
+                                : '≈ ${_counts[t.id]} рук',
+                          ),
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              switch (value) {
+                                case 'apply':
+                                  _spotStorage.activeFilters
+                                    ..clear()
+                                    ..addAll(t.filters);
+                                  _spotStorage.notifyListeners();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Шаблон применён')));
+                                  break;
+                                case 'export':
+                                  await _exportTemplate(t);
+                                  break;
+                                case 'share':
+                                  await _shareTemplate(t);
+                                  break;
+                                case 'rename':
+                                  await _renameTemplate(t);
+                                  break;
+                                case 'duplicate':
+                                  final copy = t.copyWith(
+                                    id: const Uuid().v4(),
+                                    name: 'Копия ${t.name}',
+                                  );
+                                  await context
+                                      .read<TrainingPackTemplateStorageService>()
+                                      .add(copy);
+                                  break;
+                              }
+                            },
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(
+                                  value: 'apply', child: Text('Применить шаблон')),
+                              PopupMenuItem(
+                                  value: 'export',
+                                  child: Text('📤 Экспортировать')),
+                              PopupMenuItem(
+                                  value: 'share', child: Text('📤 Поделиться')),
+                              PopupMenuItem(
+                                  value: 'rename', child: Text('✏️ Переименовать')),
+                              PopupMenuItem(
+                                  value: 'duplicate', child: Text('📄 Дублировать')),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                    count += list.length;
+                  }
+                  return const SizedBox.shrink();
+                },
+              );
+            })(),
     );
   }
 }
