@@ -9,7 +9,9 @@ import '../services/cloud_sync_service.dart';
 import '../widgets/board_cards_widget.dart';
 
 class TrainingSpotBuilderScreen extends StatefulWidget {
-  const TrainingSpotBuilderScreen({super.key});
+  final TrainingSpot? spot;
+
+  const TrainingSpotBuilderScreen({super.key, this.spot});
 
   @override
   State<TrainingSpotBuilderScreen> createState() =>
@@ -36,7 +38,25 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
     super.initState();
     _storage =
         TrainingSpotStorageService(cloud: context.read<CloudSyncService>());
-    _initStacks();
+    final spot = widget.spot;
+    if (spot != null) {
+      _tableSize = spot.numberOfPlayers;
+      _heroIndex = spot.heroIndex;
+      _actionsController.text = [
+        for (final a in spot.actions)
+          '${a.playerIndex + 1} ${a.action}${a.amount != null ? ' ${a.amount}' : ''}'
+      ].join('\n');
+      _boardCards.addAll(spot.boardCards);
+      _recommendedAction = spot.recommendedAction;
+      if (spot.recommendedAmount != null) {
+        _recommendedAmountController.text = spot.recommendedAmount.toString();
+      }
+      _stackControllers
+        ..clear()
+        ..addAll([for (final s in spot.stacks) TextEditingController(text: '$s')]);
+    } else {
+      _initStacks();
+    }
   }
 
   void _initStacks() {
@@ -101,19 +121,27 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
       recommendedAmount: _recommendedAction == 'raise'
           ? int.tryParse(_recommendedAmountController.text)
           : null,
+      createdAt: widget.spot?.createdAt,
     );
-    await _storage.addSpot(spot);
+    if (widget.spot == null) {
+      await _storage.addSpot(spot);
+    } else {
+      await _storage.updateSpot(spot);
+    }
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Spot saved')),
     );
-    Navigator.pop(context);
+    Navigator.pop(context, spot);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Создание спота'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(widget.spot == null ? 'Создание спота' : 'Редактирование'),
+        centerTitle: true,
+      ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

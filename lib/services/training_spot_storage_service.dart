@@ -53,4 +53,19 @@ class TrainingSpotStorageService {
     spots.add(spot);
     await save(spots);
   }
+
+  Future<void> updateSpot(TrainingSpot spot) async {
+    final spots = await load();
+    final index = spots.indexWhere((s) => s.createdAt == spot.createdAt);
+    if (index != -1) {
+      spots[index] = spot;
+      await save(spots);
+    }
+  }
+
+  Future<void> deleteSpot(TrainingSpot spot) async {
+    final spots = await load();
+    spots.removeWhere((s) => s.createdAt == spot.createdAt);
+    await save(spots);
+  }
 }
