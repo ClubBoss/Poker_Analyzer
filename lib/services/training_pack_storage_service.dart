@@ -252,12 +252,14 @@ class TrainingPackStorageService extends ChangeNotifier {
     String? colorTag,
   }) async {
     final selected = hands ?? template.hands;
-    String base = template.name;
+    final category =
+        (template.category?.isNotEmpty == true ? template.category! : 'custom');
+    String base = 'Новый пак: $category';
     String name = base;
     int idx = 1;
     while (_packs.any((p) => p.name == name)) {
-      name = '${base}-copy${idx > 1 ? idx : ''}';
       idx++;
+      name = '$base ($idx)';
     }
     final pack = TrainingPack(
       name: name,
