@@ -526,6 +526,18 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     }
   }
 
+  Future<void> _duplicatePack() async {
+    final service = context.read<TrainingPackStorageService>();
+    final copy = await service.duplicatePack(_pack);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Копия создана')));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: copy)),
+    );
+  }
+
   void _previousHand() {
     if (_currentIndex > 0) {
       setState(() {
@@ -1754,12 +1766,17 @@ body { font-family: sans-serif; padding: 16px; }
             PopupMenuButton<String>(
               onSelected: (v) {
                 if (v == 'reset') _clearProgress();
+                if (v == 'duplicate') _duplicatePack();
               },
               itemBuilder: (_) => [
                 PopupMenuItem(
                   value: 'reset',
                   enabled: _pack.history.isNotEmpty,
                   child: const Text('Сбросить прогресс'),
+                ),
+                const PopupMenuItem(
+                  value: 'duplicate',
+                  child: Text('Создать копию'),
                 ),
               ],
             ),
