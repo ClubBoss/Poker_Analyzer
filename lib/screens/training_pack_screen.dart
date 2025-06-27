@@ -530,13 +530,12 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     final service = context.read<TrainingPackStorageService>();
     final copy = await service.duplicatePack(_pack);
     if (!mounted) return;
-    Navigator.pushReplacement(
+    await Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: copy)),
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Копия «${copy.name}» создана')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Копия «${copy.name}» создана')));
   }
 
   void _previousHand() {
