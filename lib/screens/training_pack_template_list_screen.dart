@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
+import '../services/training_spot_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
 
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -19,6 +20,22 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
+  final Map<String, int?> _counts = {};
+  late TrainingSpotStorageService _spotStorage;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _spotStorage = context.read<TrainingSpotStorageService>();
+  }
+
+  void _ensureCount(String id, Map<String, dynamic> filters) {
+    if (_counts.containsKey(id)) return;
+    _counts[id] = null;
+    _spotStorage.evaluateFilterCount(filters).then((value) {
+      if (mounted) setState(() => _counts[id] = value);
+    });
+  }
   Future<void> _add() async {
     final model = await Navigator.push<TrainingPackTemplateModel>(
       context,
@@ -110,6 +127,7 @@ class _TrainingPackTemplateListScreenState
               itemCount: templates.length,
               itemBuilder: (context, i) {
                 final t = templates[i];
+                _ensureCount(t.id, t.filters);
                 return Dismissible(
                   key: ValueKey(t.id),
                   onDismissed: (_) =>
@@ -129,7 +147,10 @@ class _TrainingPackTemplateListScreenState
                     },
                     title: Text(t.name),
                     subtitle: Text(
-                        '${t.category.isEmpty ? 'Без категории' : t.category} • сложность: ${t.difficulty}'),
+                      _counts[t.id] == null
+                          ? 'Невозможно оценить'
+                          : '≈ ${_counts[t.id]} рук',
+                    ),
                   ),
                 );
               },
