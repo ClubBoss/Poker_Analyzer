@@ -197,7 +197,22 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Spots')),
+      appBar: AppBar(
+        title: const Text('My Spots'),
+        actions: [
+          if (context.watch<TrainingSpotStorageService>().activeFilters.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.filter_alt_off),
+              onPressed: () {
+                final service = context.read<TrainingSpotStorageService>();
+                service.activeFilters.clear();
+                service.notifyListeners();
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text('Фильтр сброшен')));
+              },
+            ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
