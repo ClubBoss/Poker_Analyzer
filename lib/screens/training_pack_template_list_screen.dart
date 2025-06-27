@@ -141,6 +141,23 @@ class _TrainingPackTemplateListScreenState
     );
   }
 
+  Future<void> _exportTemplate(TrainingPackTemplateModel t) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/pack_template_${t.id}.json');
+      await file.writeAsString(jsonEncode(t.toJson()));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Файл сохранён')));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('⚠️ Ошибка экспорта')));
+      }
+    }
+  }
+
   int _compare(TrainingPackTemplateModel a, TrainingPackTemplateModel b) {
     switch (_sort) {
       case _SortOption.category:
@@ -277,16 +294,24 @@ class _TrainingPackTemplateListScreenState
                           : '≈ ${_counts[t.id]} рук',
                     ),
                     trailing: PopupMenuButton<String>(
-                      onSelected: (_) {
-                        _spotStorage.activeFilters
-                          ..clear()
-                          ..addAll(t.filters);
-                        _spotStorage.notifyListeners();
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(content: Text('Шаблон применён')));
+                      onSelected: (value) async {
+                        switch (value) {
+                          case 'apply':
+                            _spotStorage.activeFilters
+                              ..clear()
+                              ..addAll(t.filters);
+                            _spotStorage.notifyListeners();
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(content: Text('Шаблон применён')));
+                            break;
+                          case 'export':
+                            await _exportTemplate(t);
+                            break;
+                        }
                       },
                       itemBuilder: (_) => const [
                         PopupMenuItem(value: 'apply', child: Text('Применить шаблон')),
+                        PopupMenuItem(value: 'export', child: Text('📤 Экспортировать')),
                       ],
                     ),
                   ),
