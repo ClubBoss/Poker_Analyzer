@@ -10,8 +10,9 @@ import '../widgets/common/training_spot_list.dart';
 
 class CreatePackScreen extends StatefulWidget {
   final TrainingPack? initialPack;
+  final List<TrainingSpot>? initialSpots;
 
-  const CreatePackScreen({super.key, this.initialPack});
+  const CreatePackScreen({super.key, this.initialPack, this.initialSpots});
 
   @override
   State<CreatePackScreen> createState() => _CreatePackScreenState();
@@ -62,6 +63,9 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
       _gameType = pack.gameType;
       _tags.addAll(pack.tags);
       _suggested.addAll(pack.tags);
+    }
+    if (widget.initialSpots != null) {
+      _spots = List.from(widget.initialSpots!);
     }
   }
 
