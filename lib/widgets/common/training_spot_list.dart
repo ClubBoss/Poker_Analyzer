@@ -139,6 +139,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
 
   final Set<String> _selectedTags = {};
   final Set<TrainingSpot> _selectedSpots = {};
+
+  Set<TrainingSpot> get selectedSpots => _selectedSpots;
   bool _tagFiltersExpanded = true;
   SortOption? _sortOption;
   List<TrainingSpot>? _originalOrder;
@@ -4173,6 +4175,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
     setState(() => _selectedSpots.clear());
     widget.onChanged?.call();
   }
+
+  void clearSelection() => _clearSelection();
 
   Future<void> _exportPack(List<TrainingSpot> spots) async {
     if (spots.isEmpty) return;
