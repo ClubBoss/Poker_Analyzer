@@ -12,6 +12,7 @@ import '../widgets/info_tooltip.dart';
 import '../helpers/color_utils.dart';
 import "../widgets/progress_chip.dart";
 import '../widgets/color_picker_dialog.dart';
+import 'package:intl/intl.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
   const MyTrainingPacksScreen({super.key});
@@ -476,6 +477,15 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (p.lastAttempted > 0)
+                            Row(
+                              children: [
+                                Text('Решено: ${p.solved} / ${p.lastAttempted}'),
+                                const SizedBox(width: 12),
+                                Text('Последняя попытка: '
+                                    '${DateFormat('dd.MM.yy').format(p.lastAttemptDate)}'),
+                              ],
+                            ),
                           Text('${p.category} • ${p.spots.isNotEmpty ? '${p.spots.length} spots' : '${p.hands.length} hands'}'),
                           if (p.tags.isNotEmpty) Text(p.tags.join(', ')),
                         ],
