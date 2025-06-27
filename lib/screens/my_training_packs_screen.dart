@@ -21,6 +21,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   final Map<String, DateTime?> _dates = {};
   String _sort = 'name';
   int _diffFilter = 0;
+  String _colorFilter = 'All';
   SharedPreferences? _prefs;
   final Set<TrainingPack> _selected = {};
 
@@ -38,6 +39,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     setState(() {
       _prefs = prefs;
       _diffFilter = prefs.getInt('pack_diff_filter') ?? 0;
+      _colorFilter = prefs.getString('pack_color_filter') ?? 'All';
     });
   }
 
@@ -90,6 +92,15 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     _clearSelection();
   }
 
+  Future<void> _clearColorTag() async {
+    final service = context.read<TrainingPackStorageService>();
+    for (final p in _selected) {
+      await service.setColorTag(p, '');
+    }
+    await service.save();
+    _clearSelection();
+  }
+
   Future<Color?> _pickColor() {
     const colors = [
       Colors.red,
@@ -137,6 +148,22 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     if (_diffFilter > 0) {
       packs.retainWhere((p) => p.difficulty == _diffFilter);
     }
+    if (_colorFilter != 'All') {
+      if (_colorFilter == 'None') {
+        packs.retainWhere((p) => p.colorTag.isEmpty);
+      } else {
+        const map = {
+          'Red': '#F44336',
+          'Blue': '#2196F3',
+          'Orange': '#FF9800',
+          'Green': '#4CAF50',
+          'Purple': '#9C27B0',
+          'Grey': '#9E9E9E',
+        };
+        final hex = map[_colorFilter];
+        if (hex != null) packs.retainWhere((p) => p.colorTag == hex);
+      }
+    }
     packs.sort(_compare);
     final Map<String, List<TrainingPack>> groups = {};
     for (final p in packs) {
@@ -148,9 +175,18 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
       backgroundColor: AppColors.background,
       bottomNavigationBar: _selectionMode
           ? BottomAppBar(
-              child: TextButton(
-                onPressed: _setColorTag,
-                child: const Text('🎨 Color Tag'),
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: _setColorTag,
+                    child: const Text('🎨 Color Tag'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: _clearColorTag,
+                    child: const Text('🧹 Clear Color'),
+                  ),
+                ],
               ),
             )
           : null,
@@ -192,6 +228,33 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
             ],
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: DropdownButton<String>(
+            value: _colorFilter,
+            underline: const SizedBox.shrink(),
+            onChanged: (v) async {
+              final value = v ?? 'All';
+              setState(() => _colorFilter = value);
+              final prefs = _prefs ?? await SharedPreferences.getInstance();
+              if (value == 'All') {
+                await prefs.remove('pack_color_filter');
+              } else {
+                await prefs.setString('pack_color_filter', value);
+              }
+            },
+            items: const [
+              DropdownMenuItem(value: 'All', child: Text('Color: All')),
+              DropdownMenuItem(value: 'Red', child: Text('Red')),
+              DropdownMenuItem(value: 'Blue', child: Text('Blue')),
+              DropdownMenuItem(value: 'Orange', child: Text('Orange')),
+              DropdownMenuItem(value: 'Green', child: Text('Green')),
+              DropdownMenuItem(value: 'Purple', child: Text('Purple')),
+              DropdownMenuItem(value: 'Grey', child: Text('Grey')),
+              DropdownMenuItem(value: 'None', child: Text('None')),
+            ],
+          ),
+        ),
         Expanded(
             child: ListView.builder(
               itemCount: categories.fold<int>(0, (n, c) => n + 1 + groups[c]!.length),
@@ -211,14 +274,16 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                     final p = list[index - count];
                     final date = _dates[p.name];
                     return ListTile(
-                      leading: Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: colorFromHex(p.colorTag),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
+                      leading: p.colorTag.isEmpty
+                          ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                          : Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: colorFromHex(p.colorTag),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                       selected: _selected.contains(p),
                       onLongPress: () => _toggleSelect(p),
                       onTap: () async {
