@@ -558,6 +558,12 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     } else {
       _results.add(result);
     }
+    if (!_pack.isBuiltIn) {
+      final updated = await context
+          .read<TrainingPackStorageService>()
+          .recordAttempt(_pack, result.correct);
+      if (updated != null) _pack = updated;
+    }
     setState(() {
       _currentIndex++;
     });
