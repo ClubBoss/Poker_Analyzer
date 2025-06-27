@@ -30,7 +30,10 @@ class _TrainingPackTemplateEditorScreenState
     _desc = TextEditingController(text: m?.description ?? '');
     _category = TextEditingController(text: m?.category ?? '');
     _filters = TextEditingController(
-        text: m != null && m.filters.isNotEmpty ? jsonEncode(m.filters) : '');
+      text: m != null && m.filters.isNotEmpty
+          ? const JsonEncoder.withIndent('  ').convert(m.filters)
+          : '',
+    );
     _difficulty = m?.difficulty ?? 1;
   }
 
