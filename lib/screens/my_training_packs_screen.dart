@@ -139,6 +139,56 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     _clearSelection();
   }
 
+  Future<void> _deleteSelected() async {
+    final count = _selected.length;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Удалить $count паков?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Нет')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Да')),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final service = context.read<TrainingPackStorageService>();
+    final removed = <(TrainingPack, int)>[];
+    for (final p in _selected) {
+      if (p.isBuiltIn) continue;
+      final res = await service.removePack(p);
+      if (res != null) removed.add(res);
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Паки удалены'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            for (final r in removed.reversed) {
+              service.restorePack(r.$1, r.$2);
+            }
+          },
+        ),
+      ),
+    );
+    _clearSelection();
+  }
+
+  Future<void> _exportSelected() async {
+    final service = context.read<TrainingPackStorageService>();
+    for (final p in _selected) {
+      if (!p.isBuiltIn) {
+        await service.exportPack(p);
+      }
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Файлы сохранены в Загрузках')));
+    _clearSelection();
+  }
+
   Future<void> _resetFilters() async {
     final prefs = _prefs ?? await SharedPreferences.getInstance();
     await prefs.setString(_sortKey, 'name');
@@ -376,6 +426,18 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                   TextButton(
                     onPressed: _clearColorTag,
                     child: const Text('🧹 Clear Color'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton.icon(
+                    onPressed: _deleteSelected,
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Удалить'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton.icon(
+                    onPressed: _exportSelected,
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Экспорт'),
                   ),
                 ],
               ),
