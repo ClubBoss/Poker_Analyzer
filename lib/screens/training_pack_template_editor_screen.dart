@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+const _validStreets = ['preflop', 'flop', 'turn', 'river'];
+
 import '../models/training_pack_template_model.dart';
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
@@ -33,9 +35,17 @@ class _TrainingPackTemplateEditorScreenState
     if (m != null && m.filters.isNotEmpty) {
       f = Map<String, dynamic>.from(m.filters);
     }
-    if (f.isEmpty || !f.containsKey('streets')) {
-      f['streets'] = ['preflop'];
+    var streets = f['streets'];
+    if (streets is List) {
+      streets = streets
+          .whereType<String>()
+          .where((s) => _validStreets.contains(s))
+          .toList();
     }
+    if (streets is! List || streets.isEmpty) {
+      streets = ['preflop'];
+    }
+    f['streets'] = streets;
     _filters =
         TextEditingController(text: const JsonEncoder.withIndent('  ').convert(f));
     _difficulty = m?.difficulty ?? 1;
@@ -74,6 +84,13 @@ class _TrainingPackTemplateEditorScreenState
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Некорректный список улиц')));
       return;
+    }
+    for (final s in streets) {
+      if (!_validStreets.contains(s)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Улица "$s" не поддерживается')));
+        return;
+      }
     }
     final model = TrainingPackTemplateModel(
       id: widget.initial?.id ?? const Uuid().v4(),
