@@ -133,6 +133,24 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     _clearSelection();
   }
 
+  Future<void> _resetFilters() async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    await prefs.setString(_sortKey, 'name');
+    await prefs.remove('pack_diff_filter');
+    await prefs.remove('pack_color_filter');
+    await prefs.remove(_searchKey);
+    await prefs.remove(_tagKey);
+    await prefs.setBool(_groupKey, false);
+    setState(() {
+      _sort = 'name';
+      _diffFilter = 0;
+      _colorFilter = 'All';
+      _tagFilter = 'All';
+      _groupByColor = false;
+      _searchController.clear();
+    });
+  }
+
   Future<void> _setSort(String value) async {
     setState(() => _sort = value);
     final prefs = _prefs ?? await SharedPreferences.getInstance();
@@ -382,6 +400,16 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
             await prefs.setBool(_groupKey, v);
           },
           activeColor: Colors.orange,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: _resetFilters,
+              child: const Text('Сбросить фильтры'),
+            ),
+          ),
         ),
         Expanded(
             child: ListView.builder(
