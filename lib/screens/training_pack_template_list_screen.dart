@@ -268,6 +268,17 @@ class _TrainingPackTemplateListScreenState
     );
   }
 
+  void _toggleAll(List<String> categories) {
+    final allCollapsed = categories.isNotEmpty &&
+        categories.every((c) => _collapsed[c] ?? false);
+    setState(() {
+      for (final c in categories) {
+        _collapsed[c] = !allCollapsed;
+      }
+    });
+    _saveCollapsed();
+  }
+
   int _compare(TrainingPackTemplateModel a, TrainingPackTemplateModel b) {
     switch (_sort) {
       case _SortOption.category:
@@ -320,6 +331,18 @@ class _TrainingPackTemplateListScreenState
             t.category.toLowerCase().contains(query))
           t
     ]..sort(_compare);
+    final Map<String, List<TrainingPackTemplateModel>> groups = {};
+    for (final t in templates) {
+      groups.putIfAbsent(t.category, () => []).add(t);
+    }
+    for (final g in groups.values) {
+      g.sort(_compare);
+    }
+    final categories = groups.keys.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _cleanupCollapsed(categories);
+    final allCollapsed =
+        categories.isNotEmpty && categories.every((c) => _collapsed[c] ?? false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Шаблоны паков'),
@@ -361,25 +384,30 @@ class _TrainingPackTemplateListScreenState
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _add,
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'toggleTplFab',
+            onPressed: () => _toggleAll(categories),
+            child: Icon(allCollapsed ? Icons.unfold_more : Icons.unfold_less),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addTplFab',
+            onPressed: _add,
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
       body: templates.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : (() {
-              final Map<String, List<TrainingPackTemplateModel>> groups = {};
-              for (final t in templates) {
-                groups.putIfAbsent(t.category, () => []).add(t);
-              }
-              for (final g in groups.values) {
-                g.sort(_compare);
-              }
-              final categories = groups.keys.toList()
-                ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-              _cleanupCollapsed(categories);
-              final itemCount = categories.fold<int>(0, (n, c) =>
-                  n + (c.trim().isEmpty ? 0 : 1) + (_collapsed[c] == true ? 0 : groups[c]!.length));
+              final itemCount = categories.fold<int>(
+                  0,
+                  (n, c) =>
+                      n + (c.trim().isEmpty ? 0 : 1) + (_collapsed[c] == true ? 0 : groups[c]!.length));
               return ListView.builder(
                 itemCount: itemCount,
                 itemBuilder: (context, index) {
