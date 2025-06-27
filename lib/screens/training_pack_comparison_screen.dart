@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import "../widgets/progress_chip.dart";
 import 'package:provider/provider.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
@@ -78,6 +79,7 @@ class _PackDataSource extends DataTableSource {
             ? Colors.redAccent
             : null;
     final progress = s.total > 0 ? (s.total - s.mistakes) / s.total : 0.0;
+    final pct = s.pack.pctComplete;
     final progressColor = progress < 0.5
         ? Colors.redAccent
         : progress < 0.8
@@ -133,6 +135,13 @@ class _PackDataSource extends DataTableSource {
                       Expanded(child: Text(s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name)),
                       const SizedBox(width: 4),
                       DifficultyChip(s.pack.difficulty),
+                      const SizedBox(width: 4),
+                      InfoTooltip(
+                        message: pct == 1
+                            ? 'Completed!'
+                            : 'Solved ${s.pack.solved} of ${s.pack.hands.length} hands',
+                        child: ProgressChip(pct),
+                      ),
                     ],
                   ),
                 ),

@@ -9,6 +9,7 @@ import '../helpers/color_utils.dart';
 import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
 import '../theme/app_colors.dart';
+import "../widgets/progress_chip.dart";
 import '../widgets/color_picker_dialog.dart';
 import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
@@ -391,6 +392,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                         itemCount: visible.length,
                         itemBuilder: (context, index) {
                           final pack = visible[index];
+                          final pct = pack.pctComplete;
                           final completed = _isPackCompleted(pack);
                           return ListTile(
                             leading: pack.isBuiltIn
@@ -415,6 +417,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                                 Expanded(child: Text(pack.name)),
                                 const SizedBox(width: 4),
                                 DifficultyChip(pack.difficulty),
+                                const SizedBox(width: 4),
+                                InfoTooltip(
+                                  message: pct == 1
+                                      ? 'Completed!'
+                                      : 'Solved ${pack.solved} of ${pack.hands.length} hands',
+                                  child: ProgressChip(pct),
+                                ),
                               ],
                             ),
                             subtitle: Row(
@@ -489,6 +498,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
           final list = groups[color]!;
           if (index < count + list.length) {
             final pack = list[index - count];
+            final pct = pack.pctComplete;
             final completed = _isPackCompleted(pack);
             return ListTile(
               leading: pack.isBuiltIn
@@ -513,6 +523,13 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                   Expanded(child: Text(pack.name)),
                   const SizedBox(width: 4),
                   DifficultyChip(pack.difficulty),
+                  const SizedBox(width: 4),
+                  InfoTooltip(
+                    message: pct == 1
+                        ? 'Completed!'
+                        : 'Solved ${pack.solved} of ${pack.hands.length} hands',
+                    child: ProgressChip(pct),
+                  ),
                 ],
               ),
               subtitle: Row(

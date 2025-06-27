@@ -1308,6 +1308,7 @@ body { font-family: sans-serif; padding: 16px; }
                     ),
                   ),
           );
+    final pct = _pack.pctComplete;
     return Card(
       color: AppColors.cardBackground,
       margin: const EdgeInsets.all(16),
@@ -1320,16 +1321,32 @@ body { font-family: sans-serif; padding: 16px; }
             DifficultyChip(_pack.difficulty),
           ],
         ),
-        subtitle: Row(
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            InfoTooltip(
-              message: _pack.gameType == GameType.tournament
-                  ? 'Blind levels, ICM pressure.'
-                  : '100 BB deep, no blind escalation.',
-              child: Text(_pack.gameType.label),
+            Row(
+              children: [
+                InfoTooltip(
+                  message: _pack.gameType == GameType.tournament
+                      ? 'Blind levels, ICM pressure.'
+                      : '100 BB deep, no blind escalation.',
+                  child: Text(_pack.gameType.label),
+                ),
+                const Text(' • '),
+                Text(subtitleCount),
+              ],
             ),
-            const Text(' • '),
-            Text(subtitleCount),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: pct,
+              backgroundColor: Colors.white12,
+              color: pct >= 1
+                  ? Colors.green
+                  : pct >= .5
+                      ? Colors.amber
+                      : Colors.red,
+              minHeight: 4,
+            ),
           ],
         ),
       ),
@@ -1686,6 +1703,21 @@ body { font-family: sans-serif; padding: 16px; }
           ),
           centerTitle: true,
           actions: [
+            if (_pack.pctComplete < 1)
+              IconButton(
+                icon: const Icon(Icons.play_arrow),
+                tooltip: 'Resume',
+                onPressed: () async {
+                  await _saveProgress();
+                  setState(() {
+                    _currentIndex = _pack.history.isNotEmpty
+                        ? _pack.history.last.total
+                        : 0;
+                    _sessionHands = _pack.hands;
+                    _isMistakeReviewMode = false;
+                  });
+                },
+              ),
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: _editPack,
