@@ -6,6 +6,7 @@ class TrainingPackTemplateModel {
   final int difficulty;
   final Map<String, dynamic> filters;
   final bool isTournament;
+  final bool isFavorite;
   final DateTime createdAt;
 
   const TrainingPackTemplateModel({
@@ -16,6 +17,7 @@ class TrainingPackTemplateModel {
     this.difficulty = 1,
     Map<String, dynamic>? filters,
     this.isTournament = false,
+    this.isFavorite = false,
     DateTime? createdAt,
   })  : filters = filters ?? const {},
         createdAt = createdAt ?? DateTime.now();
@@ -28,6 +30,7 @@ class TrainingPackTemplateModel {
     int? difficulty,
     Map<String, dynamic>? filters,
     bool? isTournament,
+    bool? isFavorite,
     DateTime? createdAt,
   }) {
     return TrainingPackTemplateModel(
@@ -38,6 +41,7 @@ class TrainingPackTemplateModel {
       difficulty: difficulty ?? this.difficulty,
       filters: filters ?? Map<String, dynamic>.from(this.filters),
       isTournament: isTournament ?? this.isTournament,
+      isFavorite: isFavorite ?? this.isFavorite,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -51,6 +55,7 @@ class TrainingPackTemplateModel {
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 1,
       filters: Map<String, dynamic>.from(json['filters'] as Map? ?? {}),
       isTournament: json['isTournament'] as bool? ?? false,
+      isFavorite: json['isFavorite'] as bool? ?? false,
       createdAt:
           DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     );
@@ -64,6 +69,7 @@ class TrainingPackTemplateModel {
         'difficulty': difficulty,
         'filters': filters,
         'isTournament': isTournament,
+        'isFavorite': isFavorite,
         'createdAt': createdAt.toIso8601String(),
       };
 }

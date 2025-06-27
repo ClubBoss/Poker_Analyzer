@@ -299,6 +299,12 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  int _compareWithFavorites(
+      TrainingPackTemplateModel a, TrainingPackTemplateModel b) {
+    if (a.isFavorite != b.isFavorite) return a.isFavorite ? -1 : 1;
+    return _compare(a, b);
+  }
+
   Color _difficultyColor(int value) {
     switch (value) {
       case 1:
@@ -336,7 +342,7 @@ class _TrainingPackTemplateListScreenState
       groups.putIfAbsent(t.category, () => []).add(t);
     }
     for (final g in groups.values) {
-      g.sort(_compare);
+      g.sort(_compareWithFavorites);
     }
     final categories = groups.keys.toList()
       ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
@@ -514,7 +520,19 @@ class _TrainingPackTemplateListScreenState
                                   .update(model);
                             }
                           },
-                          title: Text(t.name),
+                          title: Row(
+                            children: [
+                              Expanded(child: Text(t.name)),
+                              IconButton(
+                                icon: Icon(t.isFavorite ? Icons.star : Icons.star_border),
+                                color: t.isFavorite ? Colors.amber : Colors.white54,
+                                onPressed: () {
+                                  final updated = t.copyWith(isFavorite: !t.isFavorite);
+                                  context.read<TrainingPackTemplateStorageService>().update(updated);
+                                },
+                              ),
+                            ],
+                          ),
                           subtitle: Text(
                             _counts[t.id] == null
                                 ? 'Невозможно оценить'
