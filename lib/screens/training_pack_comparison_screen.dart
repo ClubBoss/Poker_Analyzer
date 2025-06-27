@@ -20,6 +20,7 @@ import 'training_pack_review_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/pack_next_step_card.dart';
 import '../widgets/difficulty_chip.dart';
+import '../widgets/info_tooltip.dart';
 import '../helpers/color_utils.dart';
 import '../widgets/color_picker_dialog.dart';
 
@@ -112,16 +113,21 @@ class _PackDataSource extends DataTableSource {
                   child: Row(
                     children: [
                       if (!s.pack.isBuiltIn) ...[
-                        s.pack.colorTag.isEmpty
-                            ? const Icon(Icons.circle_outlined, color: Colors.white24)
-                            : Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: colorFromHex(s.pack.colorTag),
-                                  shape: BoxShape.circle,
+                        InfoTooltip(
+                          message: s.pack.colorTag.isEmpty
+                              ? 'No color tag'
+                              : 'Color tag ${s.pack.colorTag} (tap to edit)',
+                          child: s.pack.colorTag.isEmpty
+                              ? const Icon(Icons.circle_outlined, color: Colors.white24)
+                              : Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color: colorFromHex(s.pack.colorTag),
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
-                              ),
+                        ),
                         const SizedBox(width: 4),
                       ],
                       Expanded(child: Text(s.pack.isBuiltIn ? '📦 ${s.pack.name}' : s.pack.name)),
