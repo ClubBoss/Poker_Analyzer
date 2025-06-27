@@ -162,6 +162,8 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
         if (da == null) return 1;
         if (db == null) return -1;
         return db.compareTo(da);
+      case 'category':
+        return a.category.compareTo(b.category);
       default:
         return a.name.compareTo(b.name);
     }
@@ -357,7 +359,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: DropdownButton<String>(
-            value: _tagFilter,
+            value: allTags.contains(_tagFilter) ? _tagFilter : 'All',
             underline: const SizedBox.shrink(),
             onChanged: (v) => _setTagFilter(v ?? 'All'),
             items: [
