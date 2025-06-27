@@ -27,6 +27,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   static const _lastCategoryKey = 'pack_last_category';
   static const _lastPositionKey = 'pack_last_position_filter';
   final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _positionFilter = 'Все';
   bool _onlyWithTags = false;
   double _maxDifficulty = 3;
@@ -62,6 +63,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   void dispose() {
     _name.dispose();
     _categoryController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -301,12 +303,14 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
 
   @override
   Widget build(BuildContext context) {
+    final query = _searchController.text.toLowerCase();
     final filtered = <SavedHand>[
       for (final h in widget.template.hands)
         if ((_positionFilter == 'Все' || h.heroPosition == _positionFilter) &&
             (!_onlyWithTags || h.tags.isNotEmpty) &&
             _estimateDifficulty(h) <= _maxDifficulty &&
-            (!_onlySelectedMode || _selected.contains(h)))
+            (!_onlySelectedMode || _selected.contains(h)) &&
+            (query.isEmpty || h.name.toLowerCase().contains(query)))
           h
     ];
     return Scaffold(
@@ -383,6 +387,12 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
               value: _onlySelectedMode,
               onChanged: (v) => setState(() => _onlySelectedMode = v),
             ),
+            TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(labelText: 'Поиск по названию'),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
