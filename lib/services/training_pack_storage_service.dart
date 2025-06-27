@@ -165,6 +165,31 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setColorTag(TrainingPack pack, String color) async {
+    final index = _packs.indexOf(pack);
+    if (index == -1) return;
+    _packs[index] = TrainingPack(
+      name: pack.name,
+      description: pack.description,
+      category: pack.category,
+      gameType: pack.gameType,
+      colorTag: color,
+      isBuiltIn: pack.isBuiltIn,
+      tags: pack.tags,
+      hands: pack.hands,
+      spots: pack.spots,
+      difficulty: pack.difficulty,
+      history: pack.history,
+    );
+    await _persist();
+    notifyListeners();
+  }
+
+  Future<void> save() async {
+    await _persist();
+    notifyListeners();
+  }
+
   Future<void> duplicatePack(TrainingPack pack) async {
     String base = pack.name;
     String name = '${base}-copy';

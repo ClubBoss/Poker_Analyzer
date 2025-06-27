@@ -8,6 +8,7 @@ import '../models/training_pack.dart';
 import '../theme/app_colors.dart';
 import 'training_pack_screen.dart';
 import '../widgets/difficulty_chip.dart';
+import '../helpers/color_utils.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
   const MyTrainingPacksScreen({super.key});
@@ -21,6 +22,9 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   String _sort = 'name';
   int _diffFilter = 0;
   SharedPreferences? _prefs;
+  final Set<TrainingPack> _selected = {};
+
+  bool get _selectionMode => _selected.isNotEmpty;
 
   @override
   void initState() {
@@ -61,6 +65,58 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
       ..addAll(map));
   }
 
+  void _toggleSelect(TrainingPack pack) {
+    setState(() {
+      if (_selected.contains(pack)) {
+        _selected.remove(pack);
+      } else {
+        _selected.add(pack);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() => _selected.clear());
+  }
+
+  Future<void> _setColorTag() async {
+    final color = await _pickColor();
+    if (color == null) return;
+    final hex = colorToHex(color);
+    final service = context.read<TrainingPackStorageService>();
+    for (final p in _selected) {
+      await service.setColorTag(p, hex);
+    }
+    _clearSelection();
+  }
+
+  Future<Color?> _pickColor() {
+    const colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.orange,
+      Colors.green,
+      Colors.purple,
+      Colors.grey,
+    ];
+    return showDialog<Color>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Color Tag'),
+        content: Wrap(
+          spacing: 8,
+          children: [
+            for (final c in colors)
+              GestureDetector(
+                onTap: () => Navigator.pop(context, c),
+                child: CircleAvatar(backgroundColor: c),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   int _compare(TrainingPack a, TrainingPack b) {
     switch (_sort) {
       case 'date':
@@ -90,6 +146,14 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Мои паки'), centerTitle: true),
       backgroundColor: AppColors.background,
+      bottomNavigationBar: _selectionMode
+          ? BottomAppBar(
+              child: TextButton(
+                onPressed: _setColorTag,
+                child: const Text('🎨 Color Tag'),
+              ),
+            )
+          : null,
       body: Column(
         children: [
           Padding(
@@ -147,6 +211,27 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                     final p = list[index - count];
                     final date = _dates[p.name];
                     return ListTile(
+                      leading: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: colorFromHex(p.colorTag),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      selected: _selected.contains(p),
+                      onLongPress: () => _toggleSelect(p),
+                      onTap: () async {
+                        if (_selectionMode) {
+                          _toggleSelect(p);
+                          return;
+                        }
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: p)),
+                        );
+                        if (mounted) await _loadDates();
+                      },
                       title: Row(
                         children: [
                           Expanded(child: Text(p.name)),
@@ -161,14 +246,12 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                           if (p.tags.isNotEmpty) Text(p.tags.join(', ')),
                         ],
                       ),
-                      trailing: Text(date != null ? formatDate(date) : '-'),
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: p)),
-                        );
-                        if (mounted) await _loadDates();
-                      },
+                      trailing: _selectionMode
+                          ? Checkbox(
+                              value: _selected.contains(p),
+                              onChanged: (_) => _toggleSelect(p),
+                            )
+                          : Text(date != null ? formatDate(date) : '-'),
                     );
                   }
                   count += list.length;
