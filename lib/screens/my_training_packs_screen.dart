@@ -18,10 +18,12 @@ class MyTrainingPacksScreen extends StatefulWidget {
 }
 
 class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
+  static const _groupKey = 'group_by_color';
   final Map<String, DateTime?> _dates = {};
   String _sort = 'name';
   int _diffFilter = 0;
   String _colorFilter = 'All';
+  bool _groupByColor = false;
   SharedPreferences? _prefs;
   final Set<TrainingPack> _selected = {};
 
@@ -40,6 +42,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
       _prefs = prefs;
       _diffFilter = prefs.getInt('pack_diff_filter') ?? 0;
       _colorFilter = prefs.getString('pack_color_filter') ?? 'All';
+      _groupByColor = prefs.getBool(_groupKey) ?? false;
     });
   }
 
@@ -164,12 +167,31 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
         if (hex != null) packs.retainWhere((p) => p.colorTag == hex);
       }
     }
-    packs.sort(_compare);
     final Map<String, List<TrainingPack>> groups = {};
-    for (final p in packs) {
-      groups.putIfAbsent(p.category, () => []).add(p);
+    List<String> categories;
+    if (_groupByColor) {
+      const hexMap = {
+        '#F44336': 'Red',
+        '#2196F3': 'Blue',
+        '#FF9800': 'Orange',
+        '#4CAF50': 'Green',
+        '#9C27B0': 'Purple',
+        '#9E9E9E': 'Grey',
+      };
+      packs.sort((a, b) => a.name.compareTo(b.name));
+      for (final p in packs) {
+        final name = hexMap[p.colorTag] ?? (p.colorTag.isEmpty ? 'None' : 'None');
+        groups.putIfAbsent(name, () => []).add(p);
+      }
+      const order = ['Red', 'Blue', 'Orange', 'Green', 'Purple', 'Grey', 'None'];
+      categories = [for (final c in order) if (groups.containsKey(c)) c];
+    } else {
+      packs.sort(_compare);
+      for (final p in packs) {
+        groups.putIfAbsent(p.category, () => []).add(p);
+      }
+      categories = groups.keys.toList()..sort();
     }
-    final categories = groups.keys.toList()..sort();
     return Scaffold(
       appBar: AppBar(title: const Text('Мои паки'), centerTitle: true),
       backgroundColor: AppColors.background,
@@ -254,6 +276,16 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
               DropdownMenuItem(value: 'None', child: Text('None')),
             ],
           ),
+        ),
+        SwitchListTile(
+          title: const Text('Group by Color'),
+          value: _groupByColor,
+          onChanged: (v) async {
+            setState(() => _groupByColor = v);
+            final prefs = _prefs ?? await SharedPreferences.getInstance();
+            await prefs.setBool(_groupKey, v);
+          },
+          activeColor: Colors.orange,
         ),
         Expanded(
             child: ListView.builder(
