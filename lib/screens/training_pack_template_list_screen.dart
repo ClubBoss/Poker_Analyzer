@@ -11,6 +11,7 @@ import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
 import '../services/training_spot_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
+import 'package:uuid/uuid.dart';
 
 enum _SortOption { name, category, difficulty, createdAt }
 
@@ -338,12 +339,22 @@ class _TrainingPackTemplateListScreenState
                           case 'rename':
                             await _renameTemplate(t);
                             break;
+                          case 'duplicate':
+                            final copy = t.copyWith(
+                              id: const Uuid().v4(),
+                              name: 'Копия ${t.name}',
+                            );
+                            await context
+                                .read<TrainingPackTemplateStorageService>()
+                                .add(copy);
+                            break;
                         }
                       },
                       itemBuilder: (_) => const [
                         PopupMenuItem(value: 'apply', child: Text('Применить шаблон')),
                         PopupMenuItem(value: 'export', child: Text('📤 Экспортировать')),
                         PopupMenuItem(value: 'rename', child: Text('✏️ Переименовать')),
+                        PopupMenuItem(value: 'duplicate', child: Text('📄 Дублировать')),
                       ],
                     ),
                   ),
