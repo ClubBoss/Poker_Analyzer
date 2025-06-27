@@ -226,6 +226,59 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     }
   }
 
+  Future<void> _duplicatePack(TrainingPack pack) async {
+    final copy = await context.read<TrainingPackStorageService>().duplicatePack(pack);
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PackEditorScreen(pack: copy)),
+    );
+    if (mounted) {
+      await _loadDates();
+      setState(() {});
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Копия пакa создана')));
+    }
+  }
+
+  Future<void> _deletePack(TrainingPack pack) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Удалить пак "${pack.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Нет'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Да'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      final result = await context.read<TrainingPackStorageService>().removePack(pack);
+      if (result != null && mounted) {
+        _showUndoDelete(result.$1, result.$2);
+      }
+    }
+  }
+
+  void _showUndoDelete(TrainingPack pack, int index) {
+    final snack = SnackBar(
+      content: const Text('Пак удалён'),
+      action: SnackBarAction(
+        label: 'Undo',
+        onPressed: () => context.read<TrainingPackStorageService>().restorePack(pack, index),
+      ),
+      duration: const Duration(seconds: 5),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snack);
+  }
+
+
 
   int _compare(TrainingPack a, TrainingPack b) {
     switch (_sort) {
@@ -640,6 +693,10 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                                                 content: Text('Файл сохранён в Загрузках')),
                                           );
                                         }
+                                      } else if (v == 'duplicate') {
+                                        await _duplicatePack(p);
+                                      } else if (v == 'delete') {
+                                        await _deletePack(p);
                                       }
                                     },
                                     itemBuilder: (_) => const [
@@ -650,6 +707,26 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                                             Icon(Icons.upload_file),
                                             SizedBox(width: 8),
                                             Text('Экспорт JSON'),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'duplicate',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.copy),
+                                            SizedBox(width: 8),
+                                            Text('Дублировать'),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.delete),
+                                            SizedBox(width: 8),
+                                            Text('Удалить'),
                                           ],
                                         ),
                                       ),
