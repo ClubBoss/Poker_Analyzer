@@ -17,10 +17,12 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
         .toList();
     final Map<String, _CategoryStats> map = {};
     for (final p in packs) {
-      final c = p.category.isNotEmpty ? p.category : 'Uncategorized';
+      final c = p.category.isNotEmpty ? p.category : 'Без категории';
       map.putIfAbsent(c, () => _CategoryStats()).add(p);
     }
-    final stats = map.entries.toList()
+    final stats = map.entries
+        .where((e) => e.value.attempts > 0)
+        .toList()
       ..sort((a, b) => b.value.attempts.compareTo(a.value.attempts));
     return Scaffold(
       appBar: AppBar(
@@ -34,6 +36,12 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final e = stats[index];
           final s = e.value;
+          final progress = s.avgProgress;
+          final color = progress < 0.5
+              ? Colors.redAccent
+              : progress < 0.8
+                  ? Colors.orangeAccent
+                  : Colors.greenAccent;
           return Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -47,7 +55,17 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text('Попыток: ${s.attempts} • Решено: ${s.solved}'),
                 const SizedBox(height: 4),
-                Text('Средний прогресс: ${(s.avgProgress * 100).toStringAsFixed(0)}%'),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    backgroundColor: Colors.white24,
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                    minHeight: 6,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text('Средний прогресс: ${(progress * 100).toStringAsFixed(0)}%'),
               ],
             ),
           );
