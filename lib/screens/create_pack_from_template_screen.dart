@@ -22,7 +22,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   Color _color = Colors.blue;
   final List<SavedHand> _selected = [];
   SharedPreferences? _prefs;
-  static const _colorKey = 'template_last_color';
+  static const _colorKey = 'pack_last_color';
   static const _tagsKey = 'template_add_tags';
   static const _lastCategoryKey = 'pack_last_category';
   static const _lastPositionKey = 'pack_last_position_filter';
@@ -282,8 +282,8 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
     final service = context.read<TrainingPackStorageService>();
     final prefs = _prefs ?? await SharedPreferences.getInstance();
     await prefs.setString(_colorKey, colorToHex(_color));
-    await prefs.setString('pack_last_color', colorToHex(_color));
     await prefs.setBool(_tagsKey, _addTags);
+    await prefs.setString(_lastPositionKey, _positionFilter);
     final cat = _categoryController.text.trim();
     if (cat.isNotEmpty) await prefs.setString(_lastCategoryKey, cat);
     final hands = List<SavedHand>.from(_selected);
