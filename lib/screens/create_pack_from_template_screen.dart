@@ -182,6 +182,14 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   }
 
   Future<void> _create() async {
+    if (_selected.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Выберите хотя бы одну раздачу перед созданием пака'),
+        ),
+      );
+      return;
+    }
     final service = context.read<TrainingPackStorageService>();
     final prefs = _prefs ?? await SharedPreferences.getInstance();
     await prefs.setString(_colorKey, colorToHex(_color));
@@ -278,7 +286,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
             Opacity(
               opacity: _selected.isNotEmpty ? 1 : 0.5,
               child: ElevatedButton(
-                onPressed: _selected.isNotEmpty ? _create : null,
+                onPressed: _create,
                 child: const Text('Создать'),
               ),
             ),
