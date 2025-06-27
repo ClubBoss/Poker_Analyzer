@@ -161,6 +161,19 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Color _difficultyColor(int value) {
+    switch (value) {
+      case 1:
+        return Colors.green.shade400;
+      case 2:
+        return Colors.amber.shade400;
+      case 3:
+        return Colors.red.shade400;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final all = context.watch<TrainingPackTemplateStorageService>().templates;
@@ -237,6 +250,14 @@ class _TrainingPackTemplateListScreenState
                   onDismissed: (_) =>
                       context.read<TrainingPackTemplateStorageService>().remove(t),
                   child: ListTile(
+                    leading: Center(
+                      child: Container(
+                        width: 8,
+                        height: 32,
+                        color: _difficultyColor(t.difficulty),
+                      ),
+                    ),
+                    minLeadingWidth: 8,
                     onTap: () async {
                       final model = await Navigator.push<TrainingPackTemplateModel>(
                         context,
