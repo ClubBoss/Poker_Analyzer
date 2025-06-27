@@ -32,6 +32,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   bool _onlyWithTags = false;
   double _maxDifficulty = 3;
   bool _onlySelectedMode = false;
+  bool _shuffle = false;
 
   double _estimateDifficulty(SavedHand hand) {
     final actions = hand.actions.length;
@@ -286,6 +287,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
     final cat = _categoryController.text.trim();
     if (cat.isNotEmpty) await prefs.setString(_lastCategoryKey, cat);
     final hands = List<SavedHand>.from(_selected);
+    if (_shuffle) hands.shuffle();
     var pack = await service.createFromTemplateWithOptions(
       widget.template,
       hands: hands,
@@ -461,6 +463,11 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
                   ],
                 ),
               ),
+            ),
+            CheckboxListTile(
+              value: _shuffle,
+              onChanged: (v) => setState(() => _shuffle = v ?? false),
+              title: const Text('Перемешать порядок рук'),
             ),
             const SizedBox(height: 16),
             Opacity(
