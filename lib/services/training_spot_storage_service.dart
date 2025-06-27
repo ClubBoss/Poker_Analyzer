@@ -47,4 +47,10 @@ class TrainingSpotStorageService {
       }
     }
   }
+
+  Future<void> addSpot(TrainingSpot spot) async {
+    final spots = await load();
+    spots.add(spot);
+    await save(spots);
+  }
 }
