@@ -130,6 +130,25 @@ class _TrainingPackTemplateListScreenState
                 _ensureCount(t.id, t.filters);
                 return Dismissible(
                   key: ValueKey(t.id),
+                  confirmDismiss: (_) async {
+                    final ok = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Удалить шаблон?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: const Text('Отмена'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: const Text('Удалить'),
+                          ),
+                        ],
+                      ),
+                    );
+                    return ok == true;
+                  },
                   onDismissed: (_) =>
                       context.read<TrainingPackTemplateStorageService>().remove(t),
                   child: ListTile(
