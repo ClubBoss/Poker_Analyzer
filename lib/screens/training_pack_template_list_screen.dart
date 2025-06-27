@@ -11,8 +11,9 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
   State<TrainingPackTemplateListScreen> createState() => _TrainingPackTemplateListScreenState();
 }
 
-class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateListScreen> {
-  List<TrainingPackTemplateModel> _templates = [];
+class _TrainingPackTemplateListScreenState
+    extends State<TrainingPackTemplateListScreen> {
+  final List<TrainingPackTemplateModel> _templates = [];
 
   @override
   void initState() {
@@ -22,7 +23,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
 
   Future<void> _load() async {
     final list = await TrainingPackTemplateRepository.getAll();
-    if (mounted) setState(() => _templates = list);
+    if (mounted) setState(() => _templates.addAll(list));
   }
 
   Future<void> _add() async {
@@ -49,7 +50,9 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                 final t = _templates[i];
                 return ListTile(
                   title: Text(t.name),
-                  subtitle: Text('${t.category} • ${t.difficulty}'),
+                  subtitle: Text(
+                      '${t.category.isEmpty ? 'Без категории' : t.category} • '
+                      'сложность: ${t.difficulty}'),
                 );
               },
             ),
