@@ -12,10 +12,13 @@ class TrainingSpot {
   final List<PlayerType> playerTypes;
   final List<String> positions;
   final List<int> stacks;
+
   /// Optional strategy advice for each player indexed by player position.
   final List<String>? strategyAdvice;
+
   /// Optional equity values for each player as percentages.
   final List<double>? equities;
+
   /// Optional hero range matrix [13x13] with frequencies 0.0-1.0.
   final List<List<double>>? rangeMatrix;
   final String? tournamentId;
@@ -30,6 +33,7 @@ class TrainingSpot {
   final String? userComment;
   final String? actionHistory;
   final String? recommendedAction;
+  final int? recommendedAmount;
   final DateTime createdAt;
 
   TrainingSpot({
@@ -54,6 +58,7 @@ class TrainingSpot {
     this.userComment,
     this.actionHistory,
     this.recommendedAction,
+    this.recommendedAmount,
     this.difficulty = 3,
     this.rating = 0,
     DateTime? createdAt,
@@ -78,8 +83,7 @@ class TrainingSpot {
           hand.playerPositions[i] ?? ''
       ],
       stacks: [
-        for (int i = 0; i < hand.numberOfPlayers; i++)
-          hand.stackSizes[i] ?? 0
+        for (int i = 0; i < hand.numberOfPlayers; i++) hand.stackSizes[i] ?? 0
       ],
       rangeMatrix: null,
       equities: null,
@@ -101,7 +105,9 @@ class TrainingSpot {
   Map<String, dynamic> toJson() => {
         'playerCards': [
           for (final list in playerCards)
-            [for (final c in list) {'rank': c.rank, 'suit': c.suit}]
+            [
+              for (final c in list) {'rank': c.rank, 'suit': c.suit}
+            ]
         ],
         'boardCards': [
           for (final c in boardCards) {'rank': c.rank, 'suit': c.suit}
@@ -137,6 +143,7 @@ class TrainingSpot {
         if (userComment != null) 'userComment': userComment,
         if (actionHistory != null) 'actionHistory': actionHistory,
         if (recommendedAction != null) 'recommendedAction': recommendedAction,
+        if (recommendedAmount != null) 'recommendedAmount': recommendedAmount,
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -157,7 +164,8 @@ class TrainingSpot {
     final board = <CardModel>[];
     for (final c in (json['boardCards'] as List? ?? [])) {
       if (c is Map) {
-        board.add(CardModel(rank: c['rank'] as String, suit: c['suit'] as String));
+        board.add(
+            CardModel(rank: c['rank'] as String, suit: c['suit'] as String));
       }
     }
 
@@ -214,10 +222,8 @@ class TrainingSpot {
       rangeMatrix = [];
       for (final row in rangeData) {
         if (row is List) {
-          rangeMatrix.add([
-            for (final v in row)
-              (v as num?)?.toDouble() ?? 0.0
-          ]);
+          rangeMatrix
+              .add([for (final v in row) (v as num?)?.toDouble() ?? 0.0]);
         }
       }
     }
@@ -246,6 +252,7 @@ class TrainingSpot {
       userComment: json['userComment'] as String?,
       actionHistory: json['actionHistory'] as String?,
       recommendedAction: json['recommendedAction'] as String?,
+      recommendedAmount: (json['recommendedAmount'] as num?)?.toInt(),
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
     );
@@ -259,6 +266,7 @@ class TrainingSpot {
     String? userComment,
     String? actionHistory,
     String? recommendedAction,
+    int? recommendedAmount,
     List<String>? strategyAdvice,
     List<double>? equities,
     List<List<double>>? rangeMatrix,
@@ -288,6 +296,7 @@ class TrainingSpot {
       userComment: userComment ?? this.userComment,
       actionHistory: actionHistory ?? this.actionHistory,
       recommendedAction: recommendedAction ?? this.recommendedAction,
+      recommendedAmount: recommendedAmount ?? this.recommendedAmount,
       createdAt: createdAt ?? this.createdAt,
     );
   }
