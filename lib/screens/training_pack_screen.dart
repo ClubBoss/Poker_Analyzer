@@ -519,6 +519,11 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         history: history,
       );
     });
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Прогресс сброшен')),
+      );
+    }
   }
 
   void _previousHand() {
@@ -1724,7 +1729,7 @@ body { font-family: sans-serif; padding: 16px; }
           ),
           centerTitle: true,
           actions: [
-            if (_pack.pctComplete < 1)
+            if (_pack.pctComplete > 0 && _pack.pctComplete < 1)
               IconButton(
                 icon: const Icon(Icons.play_arrow),
                 tooltip: 'Resume',
@@ -1750,8 +1755,12 @@ body { font-family: sans-serif; padding: 16px; }
               onSelected: (v) {
                 if (v == 'reset') _clearProgress();
               },
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: 'reset', child: Text('Сбросить прогресс')),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: 'reset',
+                  enabled: _pack.history.isNotEmpty,
+                  child: const Text('Сбросить прогресс'),
+                ),
               ],
             ),
           ],
