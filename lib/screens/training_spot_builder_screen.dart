@@ -12,34 +12,42 @@ class TrainingSpotBuilderScreen extends StatefulWidget {
   const TrainingSpotBuilderScreen({super.key});
 
   @override
-  State<TrainingSpotBuilderScreen> createState() => _TrainingSpotBuilderScreenState();
+  State<TrainingSpotBuilderScreen> createState() =>
+      _TrainingSpotBuilderScreenState();
 }
 
 class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   late TrainingSpotStorageService _storage;
   int _tableSize = 6;
   int _heroIndex = 0;
-  final TextEditingController _blindController = TextEditingController(text: '100');
+  final TextEditingController _blindController =
+      TextEditingController(text: '100');
   final TextEditingController _actionsController = TextEditingController();
+  final TextEditingController _recommendedAmountController =
+      TextEditingController();
   final List<TextEditingController> _stackControllers = [];
   final List<CardModel> _boardCards = [];
+  String? _recommendedAction;
 
   List<String> get _positions => getPositionList(_tableSize);
 
   @override
   void initState() {
     super.initState();
-    _storage = TrainingSpotStorageService(cloud: context.read<CloudSyncService>());
+    _storage =
+        TrainingSpotStorageService(cloud: context.read<CloudSyncService>());
     _initStacks();
   }
 
   void _initStacks() {
     _stackControllers
       ..clear()
-      ..addAll(List.generate(_tableSize, (_) => TextEditingController(text: '1000')));
+      ..addAll(List.generate(
+          _tableSize, (_) => TextEditingController(text: '1000')));
   }
 
-  Set<String> _usedCards() => {for (final c in _boardCards) '${c.rank}${c.suit}'};
+  Set<String> _usedCards() =>
+      {for (final c in _boardCards) '${c.rank}${c.suit}'};
 
   void _selectCard(int index, CardModel card) {
     setState(() {
@@ -65,13 +73,21 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
       final p = int.tryParse(parts[0]);
       if (p == null || p < 1 || p > _tableSize) continue;
       final amount = parts.length > 2 ? int.tryParse(parts[2]) : null;
-      actions.add(ActionEntry(0, p - 1, parts[1].toLowerCase(), amount: amount));
+      actions
+          .add(ActionEntry(0, p - 1, parts[1].toLowerCase(), amount: amount));
     }
     return actions;
   }
 
   Future<void> _save() async {
-    final stacks = [for (final c in _stackControllers) int.tryParse(c.text) ?? 0];
+    if (_recommendedAction == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Выберите решение')));
+      return;
+    }
+    final stacks = [
+      for (final c in _stackControllers) int.tryParse(c.text) ?? 0
+    ];
     final spot = TrainingSpot(
       playerCards: List.generate(_tableSize, (_) => <CardModel>[]),
       boardCards: List<CardModel>.from(_boardCards),
@@ -81,6 +97,10 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
       playerTypes: List.filled(_tableSize, PlayerType.unknown),
       positions: List.from(_positions),
       stacks: stacks,
+      recommendedAction: _recommendedAction,
+      recommendedAmount: _recommendedAction == 'raise'
+          ? int.tryParse(_recommendedAmountController.text)
+          : null,
     );
     await _storage.addSpot(spot);
     if (!mounted) return;
@@ -102,9 +122,13 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
           children: [
             DropdownButtonFormField<int>(
               value: _tableSize,
-              decoration: const InputDecoration(labelText: 'Игроков', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                  labelText: 'Игроков', border: OutlineInputBorder()),
               dropdownColor: const Color(0xFF3A3B3E),
-              items: [for (int i = 2; i <= 9; i++) DropdownMenuItem(value: i, child: Text('$i'))],
+              items: [
+                for (int i = 2; i <= 9; i++)
+                  DropdownMenuItem(value: i, child: Text('$i'))
+              ],
               onChanged: (v) {
                 if (v == null) return;
                 setState(() {
@@ -117,15 +141,20 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
               value: _heroIndex,
-              decoration: const InputDecoration(labelText: 'Позиция героя', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                  labelText: 'Позиция героя', border: OutlineInputBorder()),
               dropdownColor: const Color(0xFF3A3B3E),
-              items: [for (int i = 0; i < _positions.length; i++) DropdownMenuItem(value: i, child: Text(_positions[i]))],
+              items: [
+                for (int i = 0; i < _positions.length; i++)
+                  DropdownMenuItem(value: i, child: Text(_positions[i]))
+              ],
               onChanged: (v) => setState(() => _heroIndex = v ?? 0),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _blindController,
-              decoration: const InputDecoration(labelText: 'Блайнд', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                  labelText: 'Блайнд', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
@@ -165,6 +194,30 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _recommendedAction,
+              decoration: const InputDecoration(
+                  labelText: 'Recommended Action',
+                  border: OutlineInputBorder()),
+              dropdownColor: const Color(0xFF3A3B3E),
+              items: const [
+                DropdownMenuItem(value: 'push', child: Text('push')),
+                DropdownMenuItem(value: 'fold', child: Text('fold')),
+                DropdownMenuItem(value: 'call', child: Text('call')),
+                DropdownMenuItem(value: 'raise', child: Text('raise')),
+              ],
+              onChanged: (v) => setState(() => _recommendedAction = v),
+            ),
+            if (_recommendedAction == 'raise') ...[
+              const SizedBox(height: 16),
+              TextField(
+                controller: _recommendedAmountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                    labelText: 'Raise Amount', border: OutlineInputBorder()),
+              ),
+            ],
             const SizedBox(height: 24),
             ElevatedButton(onPressed: _save, child: const Text('Сохранить')),
           ],
@@ -173,4 +226,3 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
     );
   }
 }
-
