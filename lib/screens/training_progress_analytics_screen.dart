@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
+import 'training_activity_by_weekday_screen.dart';
 
 class TrainingProgressAnalyticsScreen extends StatelessWidget {
   static const route = '/training/analytics';
@@ -28,6 +29,21 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Аналитика по категориям'),
         centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const TrainingActivityByWeekdayScreen()),
+              );
+            },
+            child: const Text(
+              'Дни недели',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
