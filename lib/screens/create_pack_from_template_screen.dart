@@ -25,7 +25,11 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   static const _colorKey = 'template_last_color';
   static const _tagsKey = 'template_add_tags';
   static const _lastCategoryKey = 'pack_last_category';
+  static const _lastPositionKey = 'pack_last_position_filter';
   final TextEditingController _categoryController = TextEditingController();
+  String _positionFilter = 'Все';
+  bool _onlyWithTags = false;
+  double _maxDifficulty = 3;
 
   double _estimateDifficulty(SavedHand hand) {
     final actions = hand.actions.length;
@@ -68,6 +72,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
       _addTags = prefs.getBool(_tagsKey) ?? true;
       final cat = prefs.getString(_lastCategoryKey);
       if (cat != null && cat.isNotEmpty) _categoryController.text = cat;
+      _positionFilter = prefs.getString(_lastPositionKey) ?? 'Все';
     });
   }
 
@@ -76,8 +81,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
     if (c != null) setState(() => _color = c);
   }
 
-  void _toggle(int index) {
-    final hand = widget.template.hands[index];
+  void _toggle(SavedHand hand) {
     setState(() {
       if (_selected.contains(hand)) {
         _selected.remove(hand);
@@ -215,6 +219,13 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
 
   @override
   Widget build(BuildContext context) {
+    final filtered = <SavedHand>[
+      for (final h in widget.template.hands)
+        if ((_positionFilter == 'Все' || h.heroPosition == _positionFilter) &&
+            (!_onlyWithTags || h.tags.isNotEmpty) &&
+            _estimateDifficulty(h) <= _maxDifficulty)
+          h
+    ];
     return Scaffold(
       appBar: AppBar(title: Text(widget.template.name)),
       body: Padding(
@@ -239,14 +250,80 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
               title: const Text('Добавить теги шаблона'),
             ),
             const SizedBox(height: 16),
+            SizedBox(
+              height: 36,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  for (final p in ['Все', 'SB', 'BB', 'EP', 'MP', 'CO', 'BTN'])
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(p),
+                        selected: _positionFilter == p,
+                        onSelected: (s) async {
+                          if (!s) return;
+                          final prefs = _prefs ??
+                              await SharedPreferences.getInstance();
+                          await prefs.setString(_lastPositionKey, p);
+                          setState(() => _positionFilter = p);
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  value: _onlyWithTags,
+                  onChanged: (v) => setState(() => _onlyWithTags = v ?? false),
+                ),
+                const Text('Только с тегами'),
+                const SizedBox(width: 12),
+                const Text('Max сложность'),
+                Expanded(
+                  child: Slider(
+                    value: _maxDifficulty,
+                    min: 1,
+                    max: 3,
+                    divisions: 2,
+                    label: _maxDifficulty.round().toString(),
+                    onChanged: (v) => setState(() => _maxDifficulty = v),
+                  ),
+                ),
+                Text(_maxDifficulty.round().toString()),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () => setState(() {
+                    for (final h in filtered) {
+                      if (!_selected.contains(h)) _selected.add(h);
+                    }
+                  }),
+                  child: const Text('Выбрать все'),
+                ),
+                TextButton(
+                  onPressed: () => setState(() {
+                    for (final h in filtered) {
+                      _selected.remove(h);
+                    }
+                  }),
+                  child: const Text('Снять все'),
+                ),
+              ],
+            ),
             Expanded(
               child: ListView.builder(
-                itemCount: widget.template.hands.length,
+                itemCount: filtered.length,
                 itemBuilder: (_, i) {
-                  final h = widget.template.hands[i];
+                  final h = filtered[i];
                   return CheckboxListTile(
                     value: _selected.contains(h),
-                    onChanged: (_) => _toggle(i),
+                    onChanged: (_) => _toggle(h),
                     title: Text(h.name),
                   );
                 },
