@@ -43,14 +43,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
 
   Future<void> _importPack() async {
     final service = context.read<TrainingPackStorageService>();
-    final pack = await service.importPack();
+    final msg = await service.importPackFromFile();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          pack == null ? 'Ошибка загрузки пакета' : 'Пакет "${pack.name}" загружен',
-        ),
-      ),
+      SnackBar(content: Text(msg ?? 'Пак импортирован')),
     );
   }
 

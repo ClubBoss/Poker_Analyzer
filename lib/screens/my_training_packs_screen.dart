@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/training_pack_storage_service.dart';
@@ -203,6 +205,27 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     }
   }
 
+  Future<void> _importPack() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final file = result.files.single;
+    final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+    final msg = await context.read<TrainingPackStorageService>().importPack(bytes);
+    if (!mounted) return;
+    if (msg == null) {
+      await _loadDates();
+      setState(() {});
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Пак импортирован')));
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('⚠ $msg')));
+    }
+  }
+
 
   int _compare(TrainingPack a, TrainingPack b) {
     switch (_sort) {
@@ -305,16 +328,29 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
               ),
             )
           : null,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => const TrainingPackTemplateListScreen()),
-          );
-        },
-        label: const Text('Из шаблона'),
-        icon: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'importPackFab',
+            onPressed: _importPack,
+            child: const Icon(Icons.download),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'createFromTplFab',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const TrainingPackTemplateListScreen()),
+              );
+            },
+            label: const Text('Из шаблона'),
+            icon: const Icon(Icons.add),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -589,6 +625,36 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                                     },
                                   ),
                                 Text(date != null ? formatDate(date) : '-'),
+                                if (!p.isBuiltIn)
+                                  PopupMenuButton<String>(
+                                    padding: EdgeInsets.zero,
+                                    onSelected: (v) async {
+                                      if (v == 'export') {
+                                        final file = await context
+                                            .read<TrainingPackStorageService>()
+                                            .exportPack(p);
+                                        if (!mounted) return;
+                                        if (file != null) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                                content: Text('Файл сохранён в Загрузках')),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    itemBuilder: (_) => const [
+                                      PopupMenuItem(
+                                        value: 'export',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.upload_file),
+                                            SizedBox(width: 8),
+                                            Text('Экспорт JSON'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                               ],
                             ),
                     );

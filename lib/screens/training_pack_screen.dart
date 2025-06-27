@@ -907,17 +907,11 @@ body { font-family: sans-serif; padding: 16px; }
   Future<void> _importPackFromFile() async {
     final service =
         Provider.of<TrainingPackStorageService>(context, listen: false);
-    final pack = await service.importPack();
+    final msg = await service.importPackFromFile();
     if (!mounted) return;
-    if (pack == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ошибка загрузки пакета')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Пакет "${pack.name}" загружен')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg ?? 'Пак импортирован')),
+    );
   }
 
   Future<void> _importSpotsCsv() async {
