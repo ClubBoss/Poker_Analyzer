@@ -15,12 +15,12 @@ class TrainingPackTemplateEditorScreen extends StatefulWidget {
 
 class _TrainingPackTemplateEditorScreenState
     extends State<TrainingPackTemplateEditorScreen> {
+  final _formKey = GlobalKey<FormState>();
   late TextEditingController _name;
   late TextEditingController _desc;
   late TextEditingController _category;
   late TextEditingController _filters;
   int _difficulty = 1;
-  bool _isTournament = false;
 
   @override
   void initState() {
@@ -32,7 +32,6 @@ class _TrainingPackTemplateEditorScreenState
     _filters = TextEditingController(
         text: m != null && m.filters.isNotEmpty ? jsonEncode(m.filters) : '');
     _difficulty = m?.difficulty ?? 1;
-    _isTournament = m?.isTournament ?? false;
   }
 
   @override
@@ -45,8 +44,8 @@ class _TrainingPackTemplateEditorScreenState
   }
 
   void _save() {
+    if (!_formKey.currentState!.validate()) return;
     final name = _name.text.trim();
-    if (name.isEmpty) return;
     Map<String, dynamic> filters = {};
     final fText = _filters.text.trim();
     if (fText.isNotEmpty) {
@@ -70,7 +69,7 @@ class _TrainingPackTemplateEditorScreenState
       category: _category.text.trim(),
       difficulty: _difficulty,
       filters: filters,
-      isTournament: _isTournament,
+      isTournament: widget.initial?.isTournament ?? false,
       createdAt: widget.initial?.createdAt,
     );
     Navigator.pop(context, model);
@@ -82,23 +81,26 @@ class _TrainingPackTemplateEditorScreenState
       appBar: AppBar(title: const Text('Шаблон пака')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _name,
-              decoration: const InputDecoration(labelText: 'Название'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _desc,
-              decoration: const InputDecoration(labelText: 'Описание'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _category,
-              decoration: const InputDecoration(labelText: 'Категория'),
-            ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _name,
+                decoration: const InputDecoration(labelText: 'Название'),
+                validator: (v) => v == null || v.trim().isEmpty ? 'Обязательное поле' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _desc,
+                decoration: const InputDecoration(labelText: 'Описание'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _category,
+                decoration: const InputDecoration(labelText: 'Категория'),
+              ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
               value: _difficulty,
@@ -109,11 +111,6 @@ class _TrainingPackTemplateEditorScreenState
                 DropdownMenuItem(value: 3, child: Text('3')),
               ],
               onChanged: (v) => setState(() => _difficulty = v ?? 1),
-            ),
-            SwitchListTile(
-              value: _isTournament,
-              onChanged: (v) => setState(() => _isTournament = v),
-              title: const Text('Турнирный режим'),
             ),
             TextField(
               controller: _filters,
