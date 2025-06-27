@@ -214,7 +214,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> duplicatePack(TrainingPack pack) async {
+  Future<TrainingPack> duplicatePack(TrainingPack pack) async {
     String base = pack.name;
     String name = '${base}-copy';
     int idx = 1;
@@ -227,6 +227,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     _packs.add(copy);
     await _persist();
     notifyListeners();
+    return copy;
   }
 
   Future<void> createFromTemplate(TrainingPackTemplate template) async {
