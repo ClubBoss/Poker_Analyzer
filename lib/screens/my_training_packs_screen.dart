@@ -7,6 +7,7 @@ import '../helpers/date_utils.dart';
 import '../models/training_pack.dart';
 import '../theme/app_colors.dart';
 import 'training_pack_screen.dart';
+import 'pack_editor_screen.dart';
 import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
 import '../helpers/color_utils.dart';
@@ -535,7 +536,33 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                               value: _selected.contains(p),
                               onChanged: (_) => _toggleSelect(p),
                             )
-                          : Text(date != null ? formatDate(date) : '-'),
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (!p.isBuiltIn)
+                                  IconButton(
+                                    icon: const Icon(Icons.build, size: 18),
+                                    onPressed: () async {
+                                      final saved = await Navigator.push<bool>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              PackEditorScreen(pack: p),
+                                        ),
+                                      );
+                                      if (saved == true && mounted) {
+                                        await _loadDates();
+                                        setState(() {});
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                              content: Text('Пак сохранён')),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                Text(date != null ? formatDate(date) : '-'),
+                              ],
+                            ),
                     );
                   }
                   count += list.length;

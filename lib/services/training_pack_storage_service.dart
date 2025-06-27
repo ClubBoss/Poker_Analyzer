@@ -267,6 +267,14 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updatePack(TrainingPack oldPack, TrainingPack newPack) async {
+    final index = _packs.indexOf(oldPack);
+    if (index == -1) return;
+    _packs[index] = newPack;
+    await _persist();
+    notifyListeners();
+  }
+
   Future<TrainingPack> duplicatePack(TrainingPack pack) async {
     assert(!pack.isBuiltIn);
     String base = pack.name.replaceAll(RegExp(r'(-copy\d*)+\$'), '');
