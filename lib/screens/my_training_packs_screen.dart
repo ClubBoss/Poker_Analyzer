@@ -14,6 +14,7 @@ import '../helpers/color_utils.dart';
 import "../widgets/progress_chip.dart";
 import '../widgets/color_picker_dialog.dart';
 import 'package:intl/intl.dart';
+import '../services/tag_service.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
   const MyTrainingPacksScreen({super.key});
@@ -411,20 +412,35 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: DropdownButton<String>(
-            value: allTags.contains(_tagFilter) ? _tagFilter : 'All',
-            underline: const SizedBox.shrink(),
-            onChanged: (v) => _setTagFilter(v ?? 'All'),
-            items: [
-              const DropdownMenuItem(value: 'All', child: Text('Все тэги')),
-              ...allTags
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                  .toList(),
-            ],
+        if (allTags.isNotEmpty)
+          SizedBox(
+            height: 36,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                for (final t in allTags)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ChoiceChip(
+                      label: Text(t),
+                      selected: _tagFilter == t,
+                      selectedColor:
+                          colorFromHex(context.read<TagService>().colorOf(t)),
+                      onSelected: (_) =>
+                          _setTagFilter(_tagFilter == t ? 'All' : t),
+                    ),
+                  ),
+                if (_tagFilter != 'All')
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 18),
+                    color: Colors.white70,
+                    tooltip: 'Очистить',
+                    onPressed: () => _setTagFilter('All'),
+                  ),
+              ],
+            ),
           ),
-        ),
         SwitchListTile(
           title: const Text('Group by Color'),
           value: _groupByColor,
