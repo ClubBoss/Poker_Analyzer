@@ -52,4 +52,20 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
     await _persist();
     notifyListeners();
   }
+
+  void merge(List<TrainingPackTemplateModel> list) {
+    for (final m in list) {
+      final index = _templates.indexWhere((t) => t.id == m.id);
+      if (index == -1) {
+        _templates.add(m);
+      } else {
+        _templates[index] = m;
+      }
+    }
+  }
+
+  Future<void> saveAll() async {
+    await _persist();
+    notifyListeners();
+  }
 }
