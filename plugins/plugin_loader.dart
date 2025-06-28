@@ -46,8 +46,13 @@ class PluginLoader {
           final port = ReceivePort();
           try {
             await Isolate.spawnUri(entity.uri, <String>[], port.sendPort);
-            await port.first.timeout(const Duration(seconds: 2));
-            print('Plugin loaded: $name');
+            final dynamic plugin = await port.first.timeout(const Duration(seconds: 2));
+            if (plugin is Plugin) {
+              manager.load(plugin);
+              print('Plugin loaded: $name');
+            } else {
+              print('Plugin failed: $name');
+            }
           } catch (_) {
             print('Plugin failed: $name');
           } finally {
