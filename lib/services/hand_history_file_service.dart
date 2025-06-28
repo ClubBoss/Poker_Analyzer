@@ -12,16 +12,17 @@ import 'saved_hand_manager_service.dart';
 
 /// Handles importing external hand history files using available converters.
 class HandHistoryFileService {
-  HandHistoryFileService(this._handManager) {
+  HandHistoryFileService._(this._handManager, this._pipeline);
+
+  static Future<HandHistoryFileService> create(
+      SavedHandManagerService manager) async {
     final loader = PluginLoader();
-    final manager = PluginManager();
+    final pluginManager = PluginManager();
     final registry = ServiceRegistry();
-    for (final plugin in loader.loadBuiltInPlugins()) {
-      manager.load(plugin);
-    }
-    manager.initializeAll(registry);
+    await loader.loadAll(registry, pluginManager);
     final converterRegistry = registry.get<ConverterRegistry>();
-    _pipeline = ConverterPipeline(converterRegistry);
+    final pipeline = ConverterPipeline(converterRegistry);
+    return HandHistoryFileService._(manager, pipeline);
   }
 
   final SavedHandManagerService _handManager;

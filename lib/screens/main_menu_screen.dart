@@ -763,7 +763,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () async {
                 final manager =
                     Provider.of<SavedHandManagerService>(context, listen: false);
-                final service = HandHistoryFileService(manager);
+                final service = await HandHistoryFileService.create(manager);
                 await service.importFromFiles(context);
               },
               child: const Text('Импортировать Hand History'),

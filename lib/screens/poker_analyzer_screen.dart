@@ -3279,13 +3279,14 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   @override
   void initState() {
     super.initState();
+    unawaited(_init());
+  }
+
+  Future<void> _init() async {
     _serviceRegistry = ServiceRegistry();
-    final PluginManager pluginManager = PluginManager();
-    final PluginLoader loader = PluginLoader();
-    for (final Plugin plugin in loader.loadBuiltInPlugins()) {
-      pluginManager.load(plugin);
-    }
-    pluginManager.initializeAll(_serviceRegistry);
+    final pluginManager = PluginManager();
+    final loader = PluginLoader();
+    await loader.loadAll(_serviceRegistry, pluginManager);
 
     _serviceRegistry.register<CurrentHandContextService>(
         widget.handContext ?? CurrentHandContextService());
