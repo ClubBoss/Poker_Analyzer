@@ -62,6 +62,7 @@ import '../models/result_entry.dart';
 import '../widgets/common/training_spot_list.dart';
 import 'markdown_preview_screen.dart';
 import 'package:markdown/markdown.dart' as md;
+import 'training_spot_detail_screen.dart';
 import 'dart:async';
 import '../services/cloud_training_history_service.dart';
 import '../helpers/color_utils.dart';
@@ -1029,6 +1030,14 @@ body { font-family: sans-serif; padding: 16px; }
     if (!mounted) return;
     if (count > 0) {
       await _loadSpots();
+      if (_spots.isNotEmpty) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TrainingSpotDetailScreen(spot: _spots.last),
+          ),
+        );
+      }
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Imported $count spots')),
