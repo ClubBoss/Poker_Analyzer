@@ -19,7 +19,7 @@ class TrainingSessionController {
     var tryCount = 0;
     while (true) {
       try {
-        return _executor.evaluate(context, spot, userAction);
+        return _executor.evaluateSpot(context, spot, userAction);
       } catch (_) {
         if (++tryCount >= attempts) rethrow;
         await Future.delayed(const Duration(milliseconds: 100));

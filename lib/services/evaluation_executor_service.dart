@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:collection';
 import 'package:flutter/material.dart';
 
 import '../models/action_evaluation_request.dart';
 import '../models/evaluation_result.dart';
+import '../models/eval_request.dart';
+import '../models/eval_result.dart';
 import '../models/training_spot.dart';
 import '../models/saved_hand.dart';
 import '../models/summary_result.dart';
@@ -12,7 +15,8 @@ import 'goals_service.dart';
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
   Future<void> execute(ActionEvaluationRequest req);
-  EvaluationResult evaluate(BuildContext context, TrainingSpot spot, String userAction);
+  EvaluationResult evaluateSpot(BuildContext context, TrainingSpot spot, String userAction);
+  Future<EvalResult> evaluate(EvalRequest request);
   SummaryResult summarizeHands(List<SavedHand> hands);
 }
 
@@ -23,6 +27,48 @@ class EvaluationExecutorService implements EvaluationExecutor {
       EvaluationExecutorService._internal();
 
   factory EvaluationExecutorService() => _instance;
+
+  final Queue<_QueueItem> _queue = Queue();
+  final Map<String, EvalResult> _cache = {};
+  bool _processing = false;
+
+  @override
+  Future<EvalResult> evaluate(EvalRequest request) {
+    final cached = _cache[request.hash];
+    if (cached != null) return Future.value(cached);
+    final completer = Completer<EvalResult>();
+    _queue.add(_QueueItem(request, completer));
+    _processQueue();
+    return completer.future.timeout(const Duration(seconds: 3));
+  }
+
+  void _processQueue() {
+    if (_processing || _queue.isEmpty) return;
+    _processing = true;
+    final item = _queue.removeFirst();
+    _evaluate(item.request).then((res) {
+      _cache[item.request.hash] = res;
+      item.completer.complete(res);
+    }).catchError((e) {
+      item.completer
+          .complete(EvalResult(isError: true, reason: '$e', score: 0));
+    }).whenComplete(() {
+      _processing = false;
+      _processQueue();
+    });
+  }
+
+  Future<EvalResult> _evaluate(EvalRequest request) async {
+    final spot = request.spot;
+    final expectedAction =
+        spot.recommendedAction ?? _evaluatePushFold(spot) ?? _heroAction(spot) ?? '-';
+    final normExpected = expectedAction.trim().toLowerCase();
+    final normUser = request.action.trim().toLowerCase();
+    final correct = normUser == normExpected;
+    final reason = correct ? null : 'Expected $expectedAction';
+    final score = correct ? 1.0 : 0.0;
+    return EvalResult(isError: false, reason: reason, score: score);
+  }
 
   /// Executes the evaluation for [req]. Stores the result in
   /// `req.metadata['result']` if spot data is provided.
@@ -36,7 +82,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final spot = TrainingSpot.fromJson(map);
     final ctx = WidgetsBinding.instance.renderViewElement;
     if (ctx == null) throw Exception('No context');
-    final result = evaluate(ctx, spot, action);
+    final result = evaluateSpot(ctx, spot, action);
     req.metadata?['result'] = result.toJson();
   }
 
@@ -45,7 +91,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
   /// The initial implementation simply checks if the action matches the
   /// expected action for the hero at the given training spot.
   @override
-  EvaluationResult evaluate(BuildContext context, TrainingSpot spot, String userAction) {
+  @override
+  EvaluationResult evaluateSpot(BuildContext context, TrainingSpot spot, String userAction) {
     final expectedAction =
         spot.recommendedAction ?? _evaluatePushFold(spot) ?? _heroAction(spot) ?? '-';
     final normExpected = expectedAction.trim().toLowerCase();
@@ -210,4 +257,10 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (mistakeCount >= 4) return MistakeSeverity.medium;
     return MistakeSeverity.low;
   }
+}
+
+class _QueueItem {
+  final EvalRequest request;
+  final Completer<EvalResult> completer;
+  _QueueItem(this.request, this.completer);
 }
