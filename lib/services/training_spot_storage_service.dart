@@ -46,6 +46,11 @@ class TrainingSpotStorageService extends ChangeNotifier {
       flush: true,
     );
     if (cloud != null) {
+      final data = {
+        'spots': [for (final s in spots) s.toJson()],
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
+      await cloud!.queueMutation('training_spots', 'main', data);
       unawaited(cloud!.syncUp());
     }
   }

@@ -9,78 +9,69 @@ import 'package:uuid/uuid.dart';
 class CloudSyncService {
   CloudSyncService();
 
-  final ValueNotifier<double> progress = ValueNotifier(0);
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  SharedPreferences? _prefs;
-  Timer? _timer;
+  late SharedPreferences _prefs;
+  late String uid;
   final List<Map<String, dynamic>> _pending = [];
-  late final String uid;
+  final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    uid = _prefs!.getString('cloud_user') ?? const Uuid().v4();
-    await _prefs!.setString('cloud_user', uid);
-    final list = _prefs!.getStringList('pending_mutations') ?? [];
+    uid = _prefs.getString('cloud_user') ?? const Uuid().v4();
+    await _prefs.setString('cloud_user', uid);
+    _db.settings = const Settings(persistenceEnabled: true);
+    final list = _prefs.getStringList('pending_mutations') ?? [];
     _pending
       ..clear()
       ..addAll(list.map((e) => jsonDecode(e) as Map<String, dynamic>));
-  }
-
-  Future<void> syncDown() async {
-    final doc = await _db.collection('users').doc(uid).get();
-    final data = doc.data();
-    if (data == null) return;
-    for (final entry in data.entries) {
-      await _prefs?.setString(entry.key, jsonEncode(entry.value));
-    }
+    final ts = _prefs.getString('last_sync');
+    if (ts != null) lastSync.value = DateTime.tryParse(ts);
   }
 
   Future<void> syncUp() async {
-    if (_prefs == null) return;
-    final Map<String, dynamic> local = {};
-    for (final key in _prefs!.getKeys()) {
-      if (key == 'pending_mutations') continue;
-      final value = _prefs!.getString(key);
-      if (value != null) {
-        local[key] = jsonDecode(value);
-      }
-    }
-    final doc = _db.collection('users').doc(uid);
-    progress.value = 0.0;
-    await doc.set(local, SetOptions(merge: true));
-    progress.value = 1.0;
+    if (_pending.isEmpty) return;
+    final user = _db.collection('users').doc(uid);
+    final batch = _db.batch();
     for (final m in _pending) {
-      await doc.collection(m['col']).doc(m['id']).set(m['data'], SetOptions(merge: true));
+      final ref = user.collection(m['col'] as String).doc(m['id'] as String);
+      batch.set(ref, m['data'] as Map<String, dynamic>, SetOptions(merge: true));
     }
-    _pending.clear();
-    await _prefs!.setStringList('pending_mutations', []);
+    try {
+      await batch.commit();
+      _pending.clear();
+      await _prefs.setStringList('pending_mutations', []);
+      lastSync.value = DateTime.now();
+      await _prefs.setString('last_sync', lastSync.value!.toIso8601String());
+    } catch (_) {}
   }
 
-  StreamSubscription watchChanges() {
-    return _db.collection('users').doc(uid).snapshots().listen((event) {
-      final data = event.data();
-      if (data == null) return;
-      for (final entry in data.entries) {
-        _prefs?.setString(entry.key, jsonEncode(entry.value));
+  Future<void> syncDown() async {
+    final user = _db.collection('users').doc(uid);
+    for (final col in ['training_spots', 'training_stats', 'preferences']) {
+      final snap = await user.collection(col).doc('main').get();
+      if (!snap.exists) continue;
+      final remote = snap.data()!;
+      final localStr = _prefs.getString('cached_$col');
+      final local = localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
+      final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+      if (remoteAt.isAfter(localAt)) {
+        await _prefs.setString('cached_$col', jsonEncode(remote));
       }
-    });
+    }
+    final ts = _prefs.getString('last_sync');
+    if (ts != null) lastSync.value = DateTime.tryParse(ts);
   }
 
   Future<void> queueMutation(String col, String id, Map<String, dynamic> data) async {
+    _pending.removeWhere((e) => e['col'] == col && e['id'] == id);
     _pending.add({'col': col, 'id': id, 'data': data});
-    await _prefs?.setStringList('pending_mutations', _pending.map(jsonEncode).toList());
-    _timer ??= Timer(const Duration(seconds: 5), () {
-      _timer = null;
-    });
+    await _prefs.setStringList('pending_mutations', _pending.map(jsonEncode).toList());
+    await _prefs.setString('cached_$col', jsonEncode(data));
   }
 
-  Future<List<Map<String, dynamic>>> loadTrainingSessions() async {
-    final jsonStr = _prefs?.getString('training_sessions');
-    if (jsonStr == null) return [];
-    final data = jsonDecode(jsonStr);
-    if (data is List) {
-      return [for (final e in data.whereType<Map>()) Map<String, dynamic>.from(e as Map)];
-    }
-    return [];
+  Map<String, dynamic>? getCached(String col) {
+    final str = _prefs.getString('cached_$col');
+    return str != null ? jsonDecode(str) as Map<String, dynamic> : null;
   }
 }

@@ -80,7 +80,11 @@ Future<void> main() async {
           create: (context) =>
               TrainingSpotStorageService(cloud: context.read<CloudSyncService>()),
         ),
-        ChangeNotifierProvider(create: (_) => TrainingStatsService()..load()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              TrainingStatsService(cloud: context.read<CloudSyncService>())
+                ..load(),
+        ),
         ChangeNotifierProvider(create: (_) => SavedHandStorageService()..load()),
         ChangeNotifierProvider(
           create: (context) => SavedHandManagerService(
@@ -136,8 +140,9 @@ Future<void> main() async {
               allInPlayers: context.read<AllInPlayersService>()),
         ),
         ChangeNotifierProvider(
-          create: (_) {
-            final service = UserPreferencesService();
+          create: (context) {
+            final service =
+                UserPreferencesService(cloud: context.read<CloudSyncService>());
             UserPreferences.init(service);
             service.load();
             return service;
@@ -186,7 +191,6 @@ Future<void> main() async {
           ),
         ),
         Provider(create: (_) => EvaluationExecutorService()),
-        Provider(create: (_) => CloudSyncService()),
         ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
       ],
       child: const PokerAIAnalyzerApp(),

@@ -2,14 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'cloud_sync_service.dart';
 
 class TrainingStatsService extends ChangeNotifier {
   static TrainingStatsService? _instance;
   static TrainingStatsService? get instance => _instance;
 
-  TrainingStatsService() {
+  TrainingStatsService({this.cloud}) {
     _instance = this;
   }
+
+  final CloudSyncService? cloud;
   static const _sessionsKey = 'stats_sessions';
   static const _handsKey = 'stats_hands';
   static const _mistakesKey = 'stats_mistakes';
@@ -199,6 +202,21 @@ class TrainingStatsService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Map<String, dynamic> _toMap() => {
+        'sessions': _sessions,
+        'hands': _hands,
+        'mistakes': _mistakes,
+        'sessionsPerDay': _sessionsPerDay,
+        'handsPerDay': _handsPerDay,
+        'mistakesPerDay': _mistakesPerDay,
+        'currentStreak': _currentStreak,
+        'bestStreak': _bestStreak,
+        'evalTotal': _evalTotal,
+        'evalCorrect': _evalCorrect,
+        'evalHistory': _evalHistory,
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
+
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_sessionsKey, _sessions);
@@ -213,6 +231,11 @@ class TrainingStatsService extends ChangeNotifier {
         _evalHistoryKey, [for (final v in _evalHistory) v.toString()]);
     await prefs.setInt(_currentStreakKey, _currentStreak);
     await prefs.setInt(_bestStreakKey, _bestStreak);
+    if (cloud != null) {
+      final data = _toMap();
+      await cloud!.queueMutation('training_stats', 'main', data);
+      unawaited(cloud!.syncUp());
+    }
   }
 
   Future<void> incrementSessions() async {
