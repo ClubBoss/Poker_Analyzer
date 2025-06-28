@@ -46,7 +46,7 @@ class PluginLoader {
             final port = ReceivePort();
             try {
               await Isolate.spawnUri(entity.uri, <String>[], port.sendPort);
-              await port.first;
+              await port.first.timeout(const Duration(seconds: 2));
               print('Plugin loaded: $name');
             } catch (_) {
               print('Plugin failed: $name');
