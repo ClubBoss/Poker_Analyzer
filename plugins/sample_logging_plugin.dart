@@ -1,6 +1,6 @@
 // Sample plugin demonstrating service registration.
 
-import 'package:poker_ai_analyzer/services/error_logger_service.dart';
+import 'package:poker_ai_analyzer/core/error_logger.dart';
 import 'package:poker_ai_analyzer/services/service_registry.dart';
 
 import 'plugin.dart';
@@ -10,7 +10,7 @@ import 'service_extension.dart';
 class LoggerService {
   /// Logs a message to the console.
   void log(String message) {
-    ErrorLoggerService.instance.logError('LOG: $message');
+    ErrorLogger.instance.logError('LOG: $message');
   }
 }
 
