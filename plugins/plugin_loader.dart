@@ -24,6 +24,51 @@ import 'converters/pokerstars_hand_history_converter.dart';
 class PluginLoader {
   static const String _suffix = 'Plugin.dart';
   Map<String, bool>? _config;
+  Map<String, dynamic>? _cache;
+
+  Future<File> _cacheFile() async {
+    return File(p.join((await getApplicationSupportDirectory()).path, 'plugin_cache.json'));
+  }
+
+  Future<Map<String, dynamic>?> _loadCache() async {
+    if (_cache != null) return _cache;
+    final file = await _cacheFile();
+    if (await file.exists()) {
+      try {
+        _cache = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+      } catch (_) {}
+    }
+    return _cache;
+  }
+
+  Future<void> _saveCache(
+    List<String> files,
+    Map<String, bool> config,
+    List<String> plugins,
+  ) async {
+    final file = await _cacheFile();
+    await file.writeAsString(jsonEncode(<String, dynamic>{
+      'files': files,
+      'config': config,
+      'plugins': plugins,
+    }));
+  }
+
+  bool _listEquals(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  bool _mapEquals(Map<String, bool> a, Map<String, dynamic> b) {
+    if (a.length != b.length) return false;
+    for (final key in a.keys) {
+      if (a[key] != (b[key] == true)) return false;
+    }
+    return true;
+  }
 
   /// Returns all built-in plug-ins included with the application.
   List<Plugin> loadBuiltInPlugins() {
@@ -111,8 +156,8 @@ class PluginLoader {
     void Function(double progress)? onProgress,
   }) async {
     final builtIn = loadBuiltInPlugins();
-    final dir = Directory(
-        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final support = await getApplicationSupportDirectory();
+    final dir = Directory(p.join(support.path, 'plugins'));
     final files = <File>[];
     if (await dir.exists()) {
       await for (final entity in dir.list()) {
@@ -121,18 +166,53 @@ class PluginLoader {
         }
       }
     }
-    final total = builtIn.length + files.length;
+    final config = await loadConfig();
+    final cached = await _loadCache();
+    final cachedFiles =
+        (cached?['files'] as List?)?.cast<String>() ?? <String>[];
+    final cachedConfig =
+        (cached?['config'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+    final match = _listEquals(
+          cachedFiles,
+          [for (final f in files) p.basename(f.path)],
+        ) &&
+        _mapEquals(config, cachedConfig);
+
+    final pluginNames = <String>[];
+    final loadedPlugins = <Plugin>[];
+
+    if (match) {
+      pluginNames.addAll((cached?['plugins'] as List?)?.cast<String>() ?? <String>[]);
+      for (final name in pluginNames) {
+        final plugin = _createByName(name);
+        if (plugin != null) {
+          loadedPlugins.add(plugin);
+        }
+      }
+    } else {
+      for (final file in files) {
+        final plugin = await loadFromFile(file);
+        if (plugin != null) {
+          pluginNames.add(plugin.runtimeType.toString());
+          loadedPlugins.add(plugin);
+        }
+      }
+      await _saveCache(
+        [for (final f in files) p.basename(f.path)],
+        config,
+        pluginNames,
+      );
+    }
+
+    final total = builtIn.length + loadedPlugins.length;
     var done = 0;
     for (final plugin in builtIn) {
       manager.load(plugin);
       done++;
       onProgress?.call(done / total);
     }
-    for (final file in files) {
-      final plugin = await loadFromFile(file);
-      if (plugin != null) {
-        manager.load(plugin);
-      }
+    for (final plugin in loadedPlugins) {
+      manager.load(plugin);
       done++;
       onProgress?.call(done / total);
     }
