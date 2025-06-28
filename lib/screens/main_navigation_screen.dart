@@ -18,6 +18,7 @@ import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
 import '../theme/app_colors.dart';
+import 'plugin_manager_screen.dart';
 import 'package:provider/provider.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -120,6 +121,37 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       const SettingsPlaceholderScreen(),
     ];
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Poker AI Analyzer'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              switch (value) {
+                case 'settings':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingsPlaceholderScreen()),
+                  );
+                  break;
+                case 'plugins':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const PluginManagerScreen()),
+                  );
+                  break;
+                case 'about':
+                  showAboutDialog(context: context);
+                  break;
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'settings', child: Text('⚙️ Settings')),
+              PopupMenuItem(value: 'plugins', child: Text('🧩 Plugins')),
+              PopupMenuItem(value: 'about', child: Text('About')),
+            ],
+          ),
+        ],
+      ),
       body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
