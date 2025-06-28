@@ -47,6 +47,7 @@ import '../services/training_import_export_service.dart';
 import '../services/training_spot_file_service.dart';
 import '../services/training_spot_storage_service.dart';
 import '../services/training_history_export_service.dart';
+import '../services/training_history_import_service.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/training_stats_service.dart';
 import '../services/error_logger_service.dart';
@@ -1016,6 +1017,24 @@ body { font-family: sans-serif; padding: 16px; }
     }
   }
 
+  Future<void> _importHistoryJson() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.any);
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final file = File(path);
+    final service = TrainingHistoryImportService(
+        storage: context.read<TrainingSpotStorageService>());
+    final count = await service.importFromJson(file);
+    if (!mounted) return;
+    if (count > 0) {
+      await _loadSpots();
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Imported $count spots')),
+    );
+  }
+
   void _showSavedResults() {
     if (_previousResults.isEmpty) return;
     showModalBottomSheet(
@@ -1333,6 +1352,11 @@ body { font-family: sans-serif; padding: 16px; }
               ElevatedButton(
                 onPressed: _exportHistoryJson,
                 child: const Text('Export JSON'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _importHistoryJson,
+                child: const Text('Import JSON'),
               ),
               const SizedBox(height: 12),
               ElevatedButton(
