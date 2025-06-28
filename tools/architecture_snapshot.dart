@@ -1,5 +1,6 @@
 import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
 import 'package:poker_ai_analyzer/plugins/sample_logging_plugin.dart';
+import 'package:poker_ai_analyzer/services/error_logger_service.dart';
 import 'package:poker_ai_analyzer/services/service_registry.dart';
 
 /// Dumps a list of service types currently registered in a [ServiceRegistry].
@@ -18,8 +19,9 @@ void main() {
   manager.initializeAll(registry);
 
   final List<Type> services = registry.dumpAll();
-  print('Registered services (${services.length}):');
+  ErrorLoggerService.instance
+      .logError('Registered services (${services.length}):');
   for (final Type type in services) {
-    print(' - $type');
+    ErrorLoggerService.instance.logError(' - $type');
   }
 }
