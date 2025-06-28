@@ -51,6 +51,7 @@ import '../services/training_stats_service.dart';
 import '../models/training_spot.dart';
 import '../models/evaluation_result.dart';
 import '../services/evaluation_executor_service.dart';
+import '../services/training_session_controller.dart';
 import '../services/goals_service.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../models/result_entry.dart';
@@ -313,9 +314,9 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
         }
       }
     }
-    final evaluation = context
-        .read<EvaluationExecutorService>()
-        .evaluate(context, TrainingSpot.fromSavedHand(original), userAct);
+    final evaluation = await context
+        .read<TrainingSessionController>()
+        .evaluateSpot(context, TrainingSpot.fromSavedHand(original), userAct);
     _showQuickFeedback(evaluation);
     final expected = evaluation.expectedAction;
     final matched = evaluation.correct;
@@ -1574,6 +1575,7 @@ body { font-family: sans-serif; padding: 16px; }
                     ChangeNotifierProvider(create: (_) => PlayerProfileService()),
                     ChangeNotifierProvider(create: (_) => PlayerManagerService(context.read<PlayerProfileService>())),
                     Provider.value(value: EvaluationExecutorService()),
+                    Provider(create: (_) => TrainingSessionController()),
                   ],
                   child: Builder(
                     builder: (context) => ChangeNotifierProvider(
