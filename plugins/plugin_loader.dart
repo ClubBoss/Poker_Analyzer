@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -22,6 +23,7 @@ import 'converters/pokerstars_hand_history_converter.dart';
 /// returns the set of plug-ins bundled directly with the application.
 class PluginLoader {
   static const String _suffix = 'Plugin.dart';
+  Map<String, bool>? _config;
 
   /// Returns all built-in plug-ins included with the application.
   List<Plugin> loadBuiltInPlugins() {
@@ -50,8 +52,32 @@ class PluginLoader {
     return null;
   }
 
+  Future<Map<String, bool>> loadConfig() async {
+    if (_config != null) return _config!;
+    final dir = Directory(
+        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final file = File(p.join(dir.path, 'plugin_config.json'));
+    if (await file.exists()) {
+      try {
+        final data = await file.readAsString();
+        final map = jsonDecode(data) as Map<String, dynamic>;
+        _config = map.map((k, v) => MapEntry(k, v == true));
+      } catch (_) {
+        _config = <String, bool>{};
+      }
+    } else {
+      _config = <String, bool>{};
+    }
+    return _config!;
+  }
+
   Future<Plugin?> loadFromFile(File file) async {
     final name = p.basename(file.path);
+    final config = await loadConfig();
+    if (config[name] == false) {
+      ErrorLogger.instance.logError('Plugin skipped: $name');
+      return null;
+    }
     final port = ReceivePort();
     Isolate? isolate;
     try {
