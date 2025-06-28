@@ -37,9 +37,12 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   Future<void> _load() async {
     final service = context.read<CloudSyncService>();
-    final sessions = await service.loadTrainingSessions();
+    final list = await service.loadTrainingSessions();
     setState(() {
-      _sessions = sessions;
+      _sessions = [
+        for (final m in list)
+          CloudTrainingSession.fromJson(m, path: '')
+      ];
       _loading = false;
     });
   }

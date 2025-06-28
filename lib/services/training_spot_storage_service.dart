@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -45,9 +46,7 @@ class TrainingSpotStorageService extends ChangeNotifier {
       flush: true,
     );
     if (cloud != null) {
-      for (final spot in spots) {
-        await cloud!.uploadSpot(spot);
-      }
+      unawaited(cloud!.syncUp());
     }
   }
 

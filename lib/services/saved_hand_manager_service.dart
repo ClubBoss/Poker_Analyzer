@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'dart:async';
 import 'package:path_provider/path_provider.dart';
 import 'package:archive/archive.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -40,7 +41,9 @@ class SavedHandManagerService extends ChangeNotifier {
     }
     final withSession = hand.copyWith(sessionId: sessionId);
     await _storage.add(withSession);
-    await _cloud?.uploadHand(withSession);
+    if (_cloud != null) {
+      unawaited(_cloud!.syncUp());
+    }
     _stats?.incrementHands();
     if (sessionId != last?.sessionId) {
       _stats?.incrementSessions();

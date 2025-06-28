@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 
 import '../services/cloud_sync_service.dart';
-import '../services/saved_hand_manager_service.dart';
-import '../services/training_spot_storage_service.dart';
-import '../models/saved_hand.dart';
-import '../models/training_spot.dart';
 
 class CloudSyncScreen extends StatefulWidget {
   const CloudSyncScreen({super.key});
@@ -15,62 +12,12 @@ class CloudSyncScreen extends StatefulWidget {
 }
 
 class _CloudSyncScreenState extends State<CloudSyncScreen> {
-  late TrainingSpotStorageService _spotStorage;
-  int _cloudSpotCount = 0;
-  int _cloudHandCount = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _spotStorage = TrainingSpotStorageService(
-      cloud: context.read<CloudSyncService>(),
-    );
-    _loadCounts();
-  }
-
-  Future<void> _loadCounts() async {
-    final service = context.read<CloudSyncService>();
-    final spots = await service.downloadSpots();
-    final hands = await service.downloadHands();
-    if (!mounted) return;
-    setState(() {
-      _cloudSpotCount = spots.length;
-      _cloudHandCount = hands.length;
-    });
-  }
-
   Future<void> _uploadAll() async {
-    final cloud = context.read<CloudSyncService>();
-    final handManager = context.read<SavedHandManagerService>();
-    final List<TrainingSpot> localSpots = await _spotStorage.load();
-    final List<SavedHand> localHands = handManager.hands;
-    for (final spot in localSpots) {
-      await cloud.uploadSpot(spot);
-    }
-    for (final hand in localHands) {
-      await cloud.uploadHand(hand);
-    }
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Данные загружены')));
-    }
-    await _loadCounts();
+    unawaited(context.read<CloudSyncService>().syncUp());
   }
 
   Future<void> _download() async {
-    final cloud = context.read<CloudSyncService>();
-    final spots = await cloud.downloadSpots();
-    final hands = await cloud.downloadHands();
-    await _spotStorage.save(spots);
-    final handManager = context.read<SavedHandManagerService>();
-    for (final hand in hands) {
-      await handManager.add(hand);
-    }
-    if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Данные загружены из облака')));
-    }
-    await _loadCounts();
+    await context.read<CloudSyncService>().syncDown();
   }
   @override
   Widget build(BuildContext context) {
@@ -85,9 +32,10 @@ class _CloudSyncScreenState extends State<CloudSyncScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Spots in Cloud: $_cloudSpotCount'),
-            const SizedBox(height: 8),
-            Text('Hands in Cloud: $_cloudHandCount'),
+            ValueListenableBuilder<double>(
+              valueListenable: context.read<CloudSyncService>().progress,
+              builder: (_, value, __) => Text('Progress: ${(value * 100).toInt()}%'),
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _uploadAll,
