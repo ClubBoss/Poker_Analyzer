@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../models/action_evaluation_request.dart';
@@ -25,16 +24,20 @@ class EvaluationExecutorService implements EvaluationExecutor {
 
   factory EvaluationExecutorService() => _instance;
 
-  /// Executes the evaluation for [req].
-  ///
-  /// This stub simulates a delay and introduces a random failure
-  /// for debugging purposes.
+  /// Executes the evaluation for [req]. Stores the result in
+  /// `req.metadata['result']` if spot data is provided.
   @override
   Future<void> execute(ActionEvaluationRequest req) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (Random().nextDouble() < 0.2) {
-      throw Exception('Simulated evaluation failure');
+    final map = req.metadata?['spot'] as Map<String, dynamic>?;
+    final action = req.metadata?['userAction'] as String?;
+    if (map == null || action == null) {
+      throw Exception('Missing evaluation data');
     }
+    final spot = TrainingSpot.fromJson(map);
+    final ctx = WidgetsBinding.instance.renderViewElement;
+    if (ctx == null) throw Exception('No context');
+    final result = evaluate(ctx, spot, action);
+    req.metadata?['result'] = result.toJson();
   }
 
   /// Evaluates [userAction] taken in [spot] and returns an [EvaluationResult].
@@ -43,8 +46,10 @@ class EvaluationExecutorService implements EvaluationExecutor {
   /// expected action for the hero at the given training spot.
   @override
   EvaluationResult evaluate(BuildContext context, TrainingSpot spot, String userAction) {
-    final expectedAction = spot.actions[spot.heroIndex].action;
-    final correct = userAction == expectedAction;
+    final expectedAction = (spot.recommendedAction ?? _heroAction(spot) ?? '-');
+    final normExpected = expectedAction.trim().toLowerCase();
+    final normUser = userAction.trim().toLowerCase();
+    final correct = normUser == normExpected;
     final expectedEquity =
         spot.equities != null && spot.equities!.length > spot.heroIndex
             ? spot.equities![spot.heroIndex].clamp(0.0, 1.0)
@@ -57,7 +62,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
       expectedAction: expectedAction,
       userEquity: userEquity,
       expectedEquity: expectedEquity,
-      hint: correct ? null : 'Подумай о диапазоне оппонента',
+      hint: correct ? null : 'Пересмотри диапазон пуша',
     );
 
     final goals = GoalsService.instance;
@@ -73,6 +78,13 @@ class EvaluationExecutorService implements EvaluationExecutor {
     }
 
     return result;
+  }
+
+  String? _heroAction(TrainingSpot spot) {
+    for (final a in spot.actions) {
+      if (a.playerIndex == spot.heroIndex) return a.action;
+    }
+    return null;
   }
 
   /// Generates a summary for a list of saved hands.
