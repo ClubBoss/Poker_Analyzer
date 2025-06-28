@@ -46,6 +46,7 @@ import '../services/saved_hand_import_export_service.dart';
 import '../services/training_import_export_service.dart';
 import '../services/training_spot_file_service.dart';
 import '../services/training_spot_storage_service.dart';
+import '../services/training_history_export_service.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/training_stats_service.dart';
 import '../services/error_logger_service.dart';
@@ -996,6 +997,25 @@ body { font-family: sans-serif; padding: 16px; }
     }
   }
 
+  Future<void> _exportHistoryJson() async {
+    try {
+      final service = TrainingHistoryExportService(
+          storage: context.read<TrainingSpotStorageService>());
+      final file = await service.exportToJson();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Файл сохранён: ${file.path}')),
+      );
+    } catch (e, st) {
+      ErrorLoggerService.instance
+          .logError('History export failed', e, st);
+      if (mounted) {
+        ErrorLoggerService.instance
+            .reportToUser(context, 'Ошибка экспорта');
+      }
+    }
+  }
+
   void _showSavedResults() {
     if (_previousResults.isEmpty) return;
     showModalBottomSheet(
@@ -1308,6 +1328,11 @@ body { font-family: sans-serif; padding: 16px; }
               ElevatedButton(
                 onPressed: _exportPdf,
                 child: const Text('Экспорт в PDF'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _exportHistoryJson,
+                child: const Text('Export JSON'),
               ),
               const SizedBox(height: 12),
               ElevatedButton(
