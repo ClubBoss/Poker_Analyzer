@@ -3286,7 +3286,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     _serviceRegistry = ServiceRegistry();
     final pluginManager = PluginManager();
     final loader = PluginLoader();
-    await loader.loadAll(_serviceRegistry, pluginManager);
+    await loader.loadAll(_serviceRegistry, pluginManager, context: context);
 
     _serviceRegistry.register<CurrentHandContextService>(
         widget.handContext ?? CurrentHandContextService());

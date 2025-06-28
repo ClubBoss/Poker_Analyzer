@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:poker_ai_analyzer/core/error_logger.dart';
@@ -154,6 +155,7 @@ class PluginLoader {
     ServiceRegistry registry,
     PluginManager manager, {
     void Function(double progress)? onProgress,
+    BuildContext? context,
   }) async {
     final builtIn = loadBuiltInPlugins();
     final support = await getApplicationSupportDirectory();
@@ -204,14 +206,32 @@ class PluginLoader {
       );
     }
 
-    final total = builtIn.length + loadedPlugins.length;
-    var done = 0;
-    for (final plugin in builtIn) {
-      manager.load(plugin);
-      done++;
-      onProgress?.call(done / total);
+    final all = <Plugin>[...builtIn, ...loadedPlugins];
+    final seen = <String>{};
+    final unique = <Plugin>[];
+    final duplicates = <String>[];
+    for (final plugin in all) {
+      final name = plugin.runtimeType.toString();
+      if (seen.add(name)) {
+        unique.add(plugin);
+      } else {
+        duplicates.add(name);
+      }
     }
-    for (final plugin in loadedPlugins) {
+    if (duplicates.isNotEmpty) {
+      for (final name in duplicates) {
+        ErrorLogger.instance.logError('Duplicate plugin: $name');
+      }
+      if (context != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Duplicate plugins: ${duplicates.join(', ')}')),
+        );
+      }
+    }
+
+    final total = unique.length;
+    var done = 0;
+    for (final plugin in unique) {
       manager.load(plugin);
       done++;
       onProgress?.call(done / total);
