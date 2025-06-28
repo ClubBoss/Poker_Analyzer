@@ -66,6 +66,18 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     }
   }
 
+  Future<void> _reset() async {
+    final dir = await getApplicationSupportDirectory();
+    final config = File(p.join(dir.path, 'plugins', 'plugin_config.json'));
+    final cache = File(p.join(dir.path, 'plugin_cache.json'));
+    if (await config.exists()) await config.delete();
+    if (await cache.exists()) await cache.delete();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin config reset')));
+    }
+    await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
@@ -96,9 +108,19 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
           ),
           Padding(
             padding: const EdgeInsets.all(16),
-            child: ElevatedButton(
-              onPressed: _reload,
-              child: const Text('Reload Plugins'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: _reload,
+                  child: const Text('Reload Plugins'),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: _reset,
+                  child: const Text('Reset Plugins'),
+                ),
+              ],
             ),
           ),
         ],
