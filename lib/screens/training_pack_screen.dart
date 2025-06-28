@@ -48,6 +48,7 @@ import '../services/training_spot_file_service.dart';
 import '../services/training_spot_storage_service.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/training_stats_service.dart';
+import '../services/error_logger_service.dart';
 import '../models/training_spot.dart';
 import '../models/evaluation_result.dart';
 import '../services/evaluation_executor_service.dart';
@@ -214,7 +215,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
               ResultEntry.fromJson(Map<String, dynamic>.from(item))
         ];
       }
-    } catch (_) {}
+    } catch (e, st) {
+      ErrorLoggerService.instance
+          .logError('Failed to load training results', e, st);
+    }
     if (mounted) setState(() {});
   }
 
@@ -294,7 +298,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
       try {
         final jsonStr = await state.saveHand() as String;
         played = SavedHandImportExportService.decode(jsonStr);
-      } catch (_) {}
+      } catch (e, st) {
+        ErrorLoggerService.instance
+            .logError('Failed to capture played hand', e, st);
+      }
     }
     final original = _sessionHands[_currentIndex];
     String userAct = '-';
@@ -1073,7 +1080,10 @@ body { font-family: sans-serif; padding: 16px; }
         mistakeHands.add(
           _pack.hands.firstWhere((h) => h.name == m.name),
         );
-      } catch (_) {}
+      } catch (e, st) {
+        ErrorLoggerService.instance
+            .logError('Failed to find hand ${m.name}', e, st);
+      }
     }
 
     setState(() {
@@ -1133,7 +1143,10 @@ body { font-family: sans-serif; padding: 16px; }
                   TrainingPack.fromJson(Map<String, dynamic>.from(item))
             ];
           }
-        } catch (_) {}
+        } catch (e, st) {
+          ErrorLoggerService.instance
+              .logError('Failed to read training packs', e, st);
+        }
       }
 
       final idx = packs.indexWhere((p) => p.name == widget.pack.name);
@@ -1848,10 +1861,11 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
           const SnackBar(content: Text('Файл сохранён: training_analysis.md')),
         );
       }
-    } catch (_) {
+    } catch (e, st) {
+      ErrorLoggerService.instance.logError('Markdown export failed', e, st);
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта')));
+        ErrorLoggerService.instance
+            .reportToUser(context, 'Ошибка экспорта');
       }
     }
   }
@@ -1901,10 +1915,11 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
           const SnackBar(content: Text('Файл сохранён: session_mistakes.pdf')),
         );
       }
-    } catch (_) {
+    } catch (e, st) {
+      ErrorLoggerService.instance.logError('PDF export failed', e, st);
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта')));
+        ErrorLoggerService.instance
+            .reportToUser(context, 'Ошибка экспорта');
       }
     }
   }
