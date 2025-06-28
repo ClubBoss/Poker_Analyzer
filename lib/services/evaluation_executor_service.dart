@@ -93,9 +93,10 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (spot.playerCards.length <= spot.heroIndex) return null;
     final cards = spot.playerCards[spot.heroIndex];
     if (cards.length < 2) return null;
+    final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
+    if (stack > 15) return null;
     final r1 = _rankValue(cards[0].rank);
     final r2 = _rankValue(cards[1].rank);
-    final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
     final pair = cards[0].rank == cards[1].rank;
     final suited = cards[0].suit == cards[1].suit;
     final high = r1 > r2 ? r1 : r2;

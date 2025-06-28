@@ -48,4 +48,25 @@ void main() {
     expect(res.expectedAction, 'fold');
     expect(res.correct, isFalse);
   });
+
+  test('evaluate falls back to hero action when stack is deep', () {
+    final spot = TrainingSpot(
+      playerCards: [
+        [CardModel(rank: '5', suit: '♠'), CardModel(rank: '5', suit: '♦')],
+        [CardModel(rank: '2', suit: '♣'), CardModel(rank: '7', suit: '♦')],
+      ],
+      boardCards: const [],
+      actions: const [ActionEntry(0, 0, 'call')],
+      heroIndex: 0,
+      numberOfPlayers: 2,
+      playerTypes: const [],
+      positions: const ['BTN', 'BB'],
+      stacks: const [20, 20],
+      createdAt: DateTime.now(),
+    );
+    final ctx = TestWidgetsFlutterBinding.instance.renderViewElement!;
+    final res = EvaluationExecutorService().evaluate(ctx, spot, 'call');
+    expect(res.expectedAction, 'call');
+    expect(res.correct, isTrue);
+  });
 }
