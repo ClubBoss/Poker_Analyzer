@@ -91,7 +91,6 @@ class EvaluationExecutorService implements EvaluationExecutor {
   /// The initial implementation simply checks if the action matches the
   /// expected action for the hero at the given training spot.
   @override
-  @override
   EvaluationResult evaluateSpot(BuildContext context, TrainingSpot spot, String userAction) {
     final expectedAction =
         spot.recommendedAction ?? _evaluatePushFold(spot) ?? _heroAction(spot) ?? '-';
