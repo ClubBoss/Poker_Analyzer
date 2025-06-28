@@ -19,6 +19,7 @@ import 'converters/pokerstars_hand_history_converter.dart';
 /// Future iterations may support loading plugins dynamically. For now this
 /// returns the set of plug-ins bundled directly with the application.
 class PluginLoader {
+  static const String _suffix = 'Plugin.dart';
   /// Returns all built-in plug-ins included with the application.
   List<Plugin> loadBuiltInPlugins() {
     final converters = <ConverterPlugin>[
@@ -40,19 +41,17 @@ class PluginLoader {
         p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     if (await dir.exists()) {
       await for (final entity in dir.list()) {
-        if (entity is File) {
+        if (entity is File && entity.path.endsWith(_suffix)) {
           final name = p.basename(entity.path);
-          if (name.endsWith('Plugin.dart')) {
-            final port = ReceivePort();
-            try {
-              await Isolate.spawnUri(entity.uri, <String>[], port.sendPort);
-              await port.first.timeout(const Duration(seconds: 2));
-              print('Plugin loaded: $name');
-            } catch (_) {
-              print('Plugin failed: $name');
-            } finally {
-              port.close();
-            }
+          final port = ReceivePort();
+          try {
+            await Isolate.spawnUri(entity.uri, <String>[], port.sendPort);
+            await port.first.timeout(const Duration(seconds: 2));
+            print('Plugin loaded: $name');
+          } catch (_) {
+            print('Plugin failed: $name');
+          } finally {
+            port.close();
           }
         }
       }
