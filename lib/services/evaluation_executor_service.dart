@@ -46,7 +46,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
   /// expected action for the hero at the given training spot.
   @override
   EvaluationResult evaluate(BuildContext context, TrainingSpot spot, String userAction) {
-    final expectedAction = (spot.recommendedAction ?? _heroAction(spot) ?? '-');
+    final expectedAction =
+        spot.recommendedAction ?? _evaluatePushFold(spot) ?? _heroAction(spot) ?? '-';
     final normExpected = expectedAction.trim().toLowerCase();
     final normUser = userAction.trim().toLowerCase();
     final correct = normUser == normExpected;
@@ -85,6 +86,45 @@ class EvaluationExecutorService implements EvaluationExecutor {
       if (a.playerIndex == spot.heroIndex) return a.action;
     }
     return null;
+  }
+
+  String? _evaluatePushFold(TrainingSpot spot) {
+    if (spot.boardCards.isNotEmpty) return null;
+    if (spot.playerCards.length <= spot.heroIndex) return null;
+    final cards = spot.playerCards[spot.heroIndex];
+    if (cards.length < 2) return null;
+    final r1 = _rankValue(cards[0].rank);
+    final r2 = _rankValue(cards[1].rank);
+    final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
+    final pair = cards[0].rank == cards[1].rank;
+    final suited = cards[0].suit == cards[1].suit;
+    final high = r1 > r2 ? r1 : r2;
+    final low = r1 > r2 ? r2 : r1;
+    if (stack <= 15) {
+      if (pair || high >= 14) return 'push';
+      if (high == 13 && low >= 9) return 'push';
+      if (high >= 11 && low >= 10 && suited) return 'push';
+    }
+    return 'fold';
+  }
+
+  int _rankValue(String r) {
+    const map = {
+      '2': 2,
+      '3': 3,
+      '4': 4,
+      '5': 5,
+      '6': 6,
+      '7': 7,
+      '8': 8,
+      '9': 9,
+      'T': 10,
+      'J': 11,
+      'Q': 12,
+      'K': 13,
+      'A': 14,
+    };
+    return map[r] ?? 0;
   }
 
   /// Generates a summary for a list of saved hands.
