@@ -130,12 +130,34 @@ class _TrainingPackTemplateListScreenState
     });
   }
   Future<void> _add() async {
-    final model = await Navigator.push<TrainingPackTemplateModel>(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingPackTemplateEditorScreen()),
+    final service = context.read<TrainingPackTemplateStorageService>();
+    final base = 'Новый шаблон';
+    final names = service.templates.map((e) => e.name).toSet();
+    var name = base;
+    int i = 1;
+    while (names.contains(name)) {
+      i++;
+      name = '$base $i';
+    }
+    final model = TrainingPackTemplateModel(
+      id: const Uuid().v4(),
+      name: name,
+      description: '',
+      category: '',
+      filters: const {},
+      createdAt: DateTime.now(),
     );
-    if (model != null && mounted) {
-      await context.read<TrainingPackTemplateStorageService>().add(model);
+    await service.add(model);
+    final result = await Navigator.push<TrainingPackTemplateModel>(
+      context,
+      MaterialPageRoute(
+          builder: (_) => TrainingPackTemplateEditorScreen(initial: model)),
+    );
+    if (!mounted) return;
+    if (result != null) {
+      await service.update(result);
+    } else {
+      await service.remove(model);
     }
   }
 
