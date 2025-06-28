@@ -5,6 +5,8 @@ import 'tag_management_screen.dart';
 import 'cloud_sync_screen.dart';
 import '../services/achievement_engine.dart';
 import 'achievements_screen.dart';
+import 'package:provider/provider.dart';
+import '../services/cloud_sync_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -159,6 +161,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Режим тренера (Coach Mode)'),
               onChanged: _toggleCoachMode,
               activeColor: Colors.orange,
+            ),
+            const SizedBox(height: 12),
+            ValueListenableBuilder<DateTime?>(
+              valueListenable: context.read<CloudSyncService>().lastSync,
+              builder: (context, value, child) {
+                final text = value == null
+                    ? 'Sync Now'
+                    : 'Sync Now (last: ${value.toLocal().toString().split('.').first})';
+                return ElevatedButton(
+                  onPressed: () async {
+                    final cloud = context.read<CloudSyncService>();
+                    await cloud.syncUp();
+                    await cloud.syncDown();
+                  },
+                  child: Text(text),
+                );
+              },
             ),
             const SizedBox(height: 20),
             Center(

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'cloud_sync_service.dart';
 
 class UserPreferencesService extends ChangeNotifier {
   static const _potAnimationKey = 'show_pot_animation';
@@ -17,6 +19,9 @@ class UserPreferencesService extends ChangeNotifier {
   bool _coachMode = false;
   bool _demoMode = false;
   bool _tutorialCompleted = false;
+  final CloudSyncService? cloud;
+
+  UserPreferencesService({this.cloud});
 
   bool get showPotAnimation => _showPotAnimation;
   bool get showCardReveal => _showCardReveal;
@@ -38,9 +43,25 @@ class UserPreferencesService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Map<String, dynamic> _toMap() => {
+        'showPotAnimation': _showPotAnimation,
+        'showCardReveal': _showCardReveal,
+        'showWinnerCelebration': _showWinnerCelebration,
+        'showActionHints': _showActionHints,
+        'coachMode': _coachMode,
+        'demoMode': _demoMode,
+        'tutorialCompleted': _tutorialCompleted,
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
+
   Future<void> _save(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+    if (cloud != null) {
+      final data = _toMap();
+      await cloud!.queueMutation('preferences', 'main', data);
+      unawaited(cloud!.syncUp());
+    }
   }
 
   Future<void> setShowPotAnimation(bool value) async {
