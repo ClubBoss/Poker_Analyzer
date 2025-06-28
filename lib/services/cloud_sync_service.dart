@@ -4,21 +4,19 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CloudSyncService {
   CloudSyncService();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   late SharedPreferences _prefs;
-  late String uid;
+  String? get uid => FirebaseAuth.instance.currentUser?.uid;
   final List<Map<String, dynamic>> _pending = [];
   final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    uid = _prefs.getString('cloud_user') ?? const Uuid().v4();
-    await _prefs.setString('cloud_user', uid);
     _db.settings = const Settings(persistenceEnabled: true);
     final list = _prefs.getStringList('pending_mutations') ?? [];
     _pending
@@ -29,7 +27,7 @@ class CloudSyncService {
   }
 
   Future<void> syncUp() async {
-    if (_pending.isEmpty) return;
+    if (_pending.isEmpty || uid == null) return;
     final user = _db.collection('users').doc(uid);
     final batch = _db.batch();
     for (final m in _pending) {
@@ -46,6 +44,7 @@ class CloudSyncService {
   }
 
   Future<void> syncDown() async {
+    if (uid == null) return;
     final user = _db.collection('users').doc(uid);
     for (final col in ['training_spots', 'training_stats', 'preferences']) {
       final snap = await user.collection(col).doc('main').get();
