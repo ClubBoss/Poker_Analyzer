@@ -71,7 +71,7 @@ Future<void> _reload() async {
   final registry = ServiceRegistry();
   final manager = PluginManager();
   final loader = PluginLoader();
-  await loader.loadAll(registry, manager);
+  await loader.loadAll(registry, manager, context: context);
   if (mounted) {
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
