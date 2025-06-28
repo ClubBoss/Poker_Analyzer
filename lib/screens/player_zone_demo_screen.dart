@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../widgets/player_zone_widget.dart';
+import '../widgets/analyzer/player_zone_widget.dart';
 import '../widgets/street_tabs.dart';
 import '../widgets/street_action_list_simple.dart';
 import '../models/card_model.dart';
@@ -44,23 +44,7 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
                   child: PlayerZoneWidget(
                     player: player,
-                    playerName: player.name,
-                    street: kStreetNames[_street],
-                    position: null,
-                    cards: _cards[index],
-                    currentBet: player.bet,
-                    stackSize: player.stack,
-                    playerIndex: index,
-                    remainingStack: player.stack,
                     isHero: index == 0,
-                    isFolded: false,
-                    editMode: true,
-                    onStackChanged: (v) => setState(() => player.stack = v),
-                    onBetChanged: (v) => setState(() => player.bet = v),
-                    onCardsSelected: (i, c) {},
-                    onRevealRequest: (name) {
-                      debugPrint('Reveal requested for ' + name);
-                    },
                   ),
                 );
               },
