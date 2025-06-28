@@ -297,30 +297,46 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _renameTemplate(TrainingPackTemplateModel t) async {
+    final service = context.read<TrainingPackTemplateStorageService>();
     final controller = TextEditingController(text: t.name);
+    String? error;
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Переименовать шаблон'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Переименовать шаблон'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(errorText: error),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                final value = controller.text.trim();
+                final exists = service.templates.any((e) =>
+                    e.id != t.id &&
+                    e.name.toLowerCase() == value.toLowerCase());
+                if (value.isEmpty || exists) {
+                  setState(() =>
+                      error = value.isEmpty ? 'Название обязательно' : 'Уже существует');
+                  return;
+                }
+                Navigator.pop(context, value);
+              },
+              child: const Text('Сохранить'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Сохранить'),
-          ),
-        ],
       ),
     );
-    if (result != null && result.isNotEmpty && result != t.name) {
+    if (result != null && result != t.name) {
       final updated = t.copyWith(name: result);
-      await context.read<TrainingPackTemplateStorageService>().update(updated);
+      await service.update(updated);
     }
   }
 
