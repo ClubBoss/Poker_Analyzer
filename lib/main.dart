@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
@@ -41,11 +42,17 @@ import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  final cloud = CloudSyncService();
+  await cloud.init();
+  await cloud.syncDown();
+  cloud.watchChanges();
   runApp(
     MultiProvider(
       providers: [
-        Provider(create: (_) => CloudSyncService()),
+        Provider<CloudSyncService>.value(value: cloud),
         Provider(create: (_) => CloudTrainingHistoryService()),
         ChangeNotifierProvider(
           create: (context) =>
@@ -180,19 +187,6 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     super.initState();
     _spotStorage = context.read<TrainingSpotStorageService>();
     context.read<UserActionLogger>().log('opened_app');
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initialSync());
-  }
-
-  Future<void> _initialSync() async {
-    final cloud = context.read<CloudSyncService>();
-    final handManager = context.read<SavedHandManagerService>();
-    final spots = await _spotStorage.load();
-    for (final spot in spots) {
-      await cloud.uploadSpot(spot);
-    }
-    for (final hand in handManager.hands) {
-      await cloud.uploadHand(hand);
-    }
   }
 
   @override
