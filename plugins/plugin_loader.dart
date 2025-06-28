@@ -4,7 +4,7 @@ import 'dart:isolate';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:poker_ai_analyzer/services/error_logger_service.dart';
+import 'package:poker_ai_analyzer/core/error_logger.dart';
 import 'package:poker_ai_analyzer/services/service_registry.dart';
 
 import 'converter_discovery_plugin.dart';
@@ -88,14 +88,14 @@ class PluginLoader {
         }
         if (plugin != null) {
           manager.load(plugin);
-          ErrorLoggerService.instance.logError('Plugin loaded: $name');
+          ErrorLogger.instance.logError('Plugin loaded: $name');
         } else {
-          ErrorLoggerService.instance.logError('Plugin failed: $name');
+          ErrorLogger.instance.logError('Plugin failed: $name');
         }
       } on TimeoutException {
-        ErrorLoggerService.instance.logError('Plugin timeout: $name');
+        ErrorLogger.instance.logError('Plugin timeout: $name');
       } catch (e, st) {
-        ErrorLoggerService.instance.logError('Plugin failed: $name', e, st);
+        ErrorLogger.instance.logError('Plugin failed: $name', e, st);
       } finally {
         isolate?.kill(priority: Isolate.immediate);
         port.close();

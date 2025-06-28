@@ -1,26 +1,13 @@
 import 'package:flutter/material.dart';
+import '../core/error_logger.dart';
 
-class ErrorLoggerService {
-  ErrorLoggerService._();
-  static final ErrorLoggerService instance = ErrorLoggerService._();
-  factory ErrorLoggerService() => instance;
+export '../core/error_logger.dart';
 
-  final List<String> recentErrors = [];
+typedef ErrorLoggerService = ErrorLogger;
 
-  void logError(String msg, [Object? error, StackTrace? stack]) {
-    final timestamp = DateTime.now().toIso8601String();
-    var entry = '$timestamp $msg';
-    if (error != null) entry += ': $error';
-    if (stack != null) entry += '\n$stack';
-    recentErrors.add(entry);
-    if (recentErrors.length > 100) {
-      recentErrors.removeRange(0, recentErrors.length - 100);
-    }
-    debugPrint(entry);
-  }
-
-  void reportToUser(BuildContext ctx, String msg) {
-    ScaffoldMessenger.of(ctx)
+extension ErrorLoggerReport on ErrorLogger {
+  void reportToUser(BuildContext context, String msg) {
+    ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(SnackBar(content: Text(msg)));
     logError(msg);

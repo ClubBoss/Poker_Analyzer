@@ -9,8 +9,8 @@ void main() {
     try {
       final script = File('tools/plugin_scaffold.dart');
       await script.copy(p.join(dir.path, 'plugin_scaffold.dart'));
-      final errorSrc = File('lib/services/error_logger_service.dart');
-      final errorDst = File(p.join(dir.path, 'lib', 'services', 'error_logger_service.dart'));
+      final errorSrc = File('lib/core/error_logger.dart');
+      final errorDst = File(p.join(dir.path, 'lib', 'core', 'error_logger.dart'));
       await errorDst.create(recursive: true);
       await errorDst.writeAsString(await errorSrc.readAsString());
       await File(p.join(dir.path, 'pubspec.yaml')).writeAsString('''
