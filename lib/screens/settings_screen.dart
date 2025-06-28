@@ -7,6 +7,7 @@ import '../services/achievement_engine.dart';
 import 'achievements_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/cloud_sync_service.dart';
+import '../services/auth_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -161,6 +162,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Режим тренера (Coach Mode)'),
               onChanged: _toggleCoachMode,
               activeColor: Colors.orange,
+            ),
+            Consumer<AuthService>(
+              builder: (context, auth, child) {
+                final email = auth.email;
+                final text = email != null
+                    ? 'Sign Out ($email)'
+                    : 'Sign In with Google';
+                return ElevatedButton(
+                  onPressed: () async {
+                    if (auth.currentUser == null) {
+                      final ok = await auth.signInWithGoogle();
+                      if (ok) {
+                        await context.read<CloudSyncService>().syncDown();
+                      }
+                    } else {
+                      await auth.signOut();
+                    }
+                  },
+                  child: Text(text),
+                );
+              },
             ),
             const SizedBox(height: 12),
             ValueListenableBuilder<DateTime?>(

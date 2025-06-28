@@ -25,6 +25,7 @@ import 'services/tag_service.dart';
 import 'services/ignored_mistake_service.dart';
 import 'services/goals_service.dart';
 import 'services/cloud_sync_service.dart';
+import 'services/auth_service.dart';
 import 'services/cloud_training_history_service.dart';
 import 'services/training_spot_storage_service.dart';
 import 'services/evaluation_executor_service.dart';
@@ -68,12 +69,14 @@ Future<void> main() async {
   pluginManager.initializeAll(registry);
   await Firebase.initializeApp();
   final cloud = CloudSyncService();
+  final auth = AuthService();
   await cloud.init();
   await cloud.syncDown();
   cloud.watchChanges();
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider<AuthService>.value(value: auth),
         Provider<CloudSyncService>.value(value: cloud),
         Provider(create: (_) => CloudTrainingHistoryService()),
         ChangeNotifierProvider(
