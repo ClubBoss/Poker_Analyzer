@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:poker_ai_analyzer/services/error_logger_service.dart';
 import 'package:poker_ai_analyzer/services/service_registry.dart';
 
 import 'converter_discovery_plugin.dart';
@@ -20,6 +22,7 @@ import 'converters/pokerstars_hand_history_converter.dart';
 /// returns the set of plug-ins bundled directly with the application.
 class PluginLoader {
   static const String _suffix = 'Plugin.dart';
+
   /// Returns all built-in plug-ins included with the application.
   List<Plugin> loadBuiltInPlugins() {
     final converters = <ConverterPlugin>[
@@ -33,33 +36,66 @@ class PluginLoader {
     ];
   }
 
-  Future<void> loadAll(ServiceRegistry registry, PluginManager manager) async {
-    for (final plugin in loadBuiltInPlugins()) {
-      manager.load(plugin);
+  Plugin? _createByName(String name) {
+    switch (name) {
+      case 'SampleLoggingPlugin':
+        return SampleLoggingPlugin();
     }
+    return null;
+  }
+
+  Future<void> loadAll(
+    ServiceRegistry registry,
+    PluginManager manager, {
+    void Function(double progress)? onProgress,
+  }) async {
+    final builtIn = loadBuiltInPlugins();
     final dir = Directory(
         p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final files = <File>[];
     if (await dir.exists()) {
       await for (final entity in dir.list()) {
         if (entity is File && entity.path.endsWith(_suffix)) {
-          final name = p.basename(entity.path);
-          final port = ReceivePort();
-          try {
-            await Isolate.spawnUri(entity.uri, <String>[], port.sendPort);
-            final dynamic plugin = await port.first.timeout(const Duration(seconds: 2));
-            if (plugin is Plugin) {
-              manager.load(plugin);
-              print('Plugin loaded: $name');
-            } else {
-              print('Plugin failed: $name');
-            }
-          } catch (_) {
-            print('Plugin failed: $name');
-          } finally {
-            port.close();
-          }
+          files.add(entity);
         }
       }
+    }
+    final total = builtIn.length + files.length;
+    var done = 0;
+    for (final plugin in builtIn) {
+      manager.load(plugin);
+      done++;
+      onProgress?.call(done / total);
+    }
+    for (final file in files) {
+      final name = p.basename(file.path);
+      final port = ReceivePort();
+      Isolate? isolate;
+      try {
+        isolate = await Isolate.spawnUri(file.uri, <String>[], port.sendPort);
+        final msg = await port.first.timeout(const Duration(seconds: 2));
+        Plugin? plugin;
+        if (msg is Plugin) {
+          plugin = msg;
+        } else if (msg is Map && msg['plugin'] is String) {
+          plugin = _createByName(msg['plugin'] as String);
+        }
+        if (plugin != null) {
+          manager.load(plugin);
+          ErrorLoggerService.instance.logError('Plugin loaded: $name');
+        } else {
+          ErrorLoggerService.instance.logError('Plugin failed: $name');
+        }
+      } on TimeoutException {
+        ErrorLoggerService.instance.logError('Plugin timeout: $name');
+      } catch (e, st) {
+        ErrorLoggerService.instance.logError('Plugin failed: $name', e, st);
+      } finally {
+        isolate?.kill(priority: Isolate.immediate);
+        port.close();
+      }
+      done++;
+      onProgress?.call(done / total);
     }
     manager.initializeAll(registry);
   }
