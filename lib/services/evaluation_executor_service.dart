@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/action_evaluation_request.dart';
 import '../models/evaluation_result.dart';
@@ -23,7 +24,9 @@ abstract class EvaluationExecutor {
 
 /// Handles execution of a single evaluation request.
 class EvaluationExecutorService implements EvaluationExecutor {
-  EvaluationExecutorService._internal();
+  EvaluationExecutorService._internal() {
+    _initFuture;
+  }
   static final EvaluationExecutorService _instance =
       EvaluationExecutorService._internal();
 
@@ -33,8 +36,26 @@ class EvaluationExecutorService implements EvaluationExecutor {
   final Map<String, EvalResult> _cache = {};
   bool _processing = false;
 
+  static const _evaluatedKey = 'eval_total_evaluated';
+  static const _correctKey = 'eval_total_correct';
+  int _totalEvaluated = 0;
+  int _totalCorrect = 0;
+  late final Future<void> _initFuture = _loadStats();
+
+  int get totalEvaluated => _totalEvaluated;
+  int get totalCorrect => _totalCorrect;
+  double get accuracy =>
+      _totalEvaluated == 0 ? 0 : _totalCorrect / _totalEvaluated;
+
+  Future<void> resetAccuracy() async {
+    _totalEvaluated = 0;
+    _totalCorrect = 0;
+    await _saveStats();
+  }
+
   @override
-  Future<EvalResult> evaluate(EvalRequest request) {
+  Future<EvalResult> evaluate(EvalRequest request) async {
+    await _initFuture;
     final cached = _cache[request.hash];
     if (cached != null) {
       TrainingStatsService.instance?.addEvalResult(cached.score);
@@ -58,6 +79,11 @@ class EvaluationExecutorService implements EvaluationExecutor {
     _evaluate(item.request).then((res) {
       _cache[item.request.hash] = res;
       item.completer.complete(res);
+      if (!res.isError) {
+        _totalEvaluated += 1;
+        if (res.score == 1) _totalCorrect += 1;
+        unawaited(_saveStats());
+      }
     }).catchError((e) {
       item.completer
           .complete(EvalResult(isError: true, reason: '$e', score: 0));
@@ -65,6 +91,18 @@ class EvaluationExecutorService implements EvaluationExecutor {
       _processing = false;
       _processQueue();
     });
+  }
+
+  Future<void> _loadStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    _totalEvaluated = prefs.getInt(_evaluatedKey) ?? 0;
+    _totalCorrect = prefs.getInt(_correctKey) ?? 0;
+  }
+
+  Future<void> _saveStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_evaluatedKey, _totalEvaluated);
+    await prefs.setInt(_correctKey, _totalCorrect);
   }
 
   Future<EvalResult> _evaluate(EvalRequest request) async {
