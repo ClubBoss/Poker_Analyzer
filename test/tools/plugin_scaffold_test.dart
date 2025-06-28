@@ -26,6 +26,8 @@ dependencies:
       expect(pub.exitCode, 0);
       final res1 = await Process.run('dart', ['run', 'plugin_scaffold.dart', pluginName], workingDirectory: dir.path);
       expect(res1.exitCode, 0);
+      final output1 = '${res1.stdout}\n${res1.stderr}';
+      expect(output1, contains('Created plugin'));
       final pluginFile = File(p.join(dir.path, 'plugins', '$pluginName.dart'));
       expect(pluginFile.existsSync(), isTrue);
       expect(pluginFile.readAsStringSync(), contains('class $pluginName implements Plugin'));
