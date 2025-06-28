@@ -18,6 +18,9 @@ class TrainingStatsService extends ChangeNotifier {
   static const _mistakesHistKey = 'stats_mistakes_hist';
   static const _currentStreakKey = 'stats_current_streak';
   static const _bestStreakKey = 'stats_best_streak';
+  static const _evalTotalKey = 'stats_eval_total';
+  static const _evalCorrectKey = 'stats_eval_correct';
+  static const _evalHistoryKey = 'stats_eval_history';
 
   int _sessions = 0;
   int _hands = 0;
@@ -25,6 +28,10 @@ class TrainingStatsService extends ChangeNotifier {
 
   int _currentStreak = 0;
   int _bestStreak = 0;
+
+  int _evalTotal = 0;
+  int _evalCorrect = 0;
+  List<double> _evalHistory = [];
 
   Map<String, int> _sessionsPerDay = {};
   Map<String, int> _handsPerDay = {};
@@ -42,6 +49,11 @@ class TrainingStatsService extends ChangeNotifier {
   int get mistakesFixed => _mistakes;
   int get currentStreak => _currentStreak;
   int get bestStreak => _bestStreak;
+  int get evalTotal => _evalTotal;
+  int get evalCorrect => _evalCorrect;
+  double get evalAccuracy =>
+      _evalTotal > 0 ? _evalCorrect / _evalTotal : 0.0;
+  List<double> get evalHistory => List.unmodifiable(_evalHistory);
 
   Stream<int> get sessionsStream => _sessionController.stream;
   Stream<int> get handsStream => _handsController.stream;
@@ -175,6 +187,12 @@ class TrainingStatsService extends ChangeNotifier {
     _sessionsPerDay = _loadMap(prefs, _sessionsHistKey);
     _handsPerDay = _loadMap(prefs, _handsHistKey);
     _mistakesPerDay = _loadMap(prefs, _mistakesHistKey);
+    _evalTotal = prefs.getInt(_evalTotalKey) ?? 0;
+    _evalCorrect = prefs.getInt(_evalCorrectKey) ?? 0;
+    _evalHistory = [
+      for (final s in prefs.getStringList(_evalHistoryKey) ?? [])
+        double.tryParse(s) ?? 0
+    ];
     _currentStreak = prefs.getInt(_currentStreakKey) ?? 0;
     _bestStreak = prefs.getInt(_bestStreakKey) ?? 0;
     await _updateStreaks();
@@ -189,6 +207,10 @@ class TrainingStatsService extends ChangeNotifier {
     await _saveMap(prefs, _sessionsHistKey, _sessionsPerDay);
     await _saveMap(prefs, _handsHistKey, _handsPerDay);
     await _saveMap(prefs, _mistakesHistKey, _mistakesPerDay);
+    await prefs.setInt(_evalTotalKey, _evalTotal);
+    await prefs.setInt(_evalCorrectKey, _evalCorrect);
+    await prefs.setStringList(
+        _evalHistoryKey, [for (final v in _evalHistory) v.toString()]);
     await prefs.setInt(_currentStreakKey, _currentStreak);
     await prefs.setInt(_bestStreakKey, _bestStreak);
   }
@@ -223,6 +245,23 @@ class TrainingStatsService extends ChangeNotifier {
     await _save();
     notifyListeners();
     _mistakeController.add(_mistakes);
+  }
+
+  Future<void> addEvalResult(double score) async {
+    _evalTotal += 1;
+    if (score >= 1) _evalCorrect += 1;
+    _evalHistory.add(score);
+    if (_evalHistory.length > 50) _evalHistory.removeAt(0);
+    await _save();
+    notifyListeners();
+  }
+
+  Future<void> resetEvalStats() async {
+    _evalTotal = 0;
+    _evalCorrect = 0;
+    _evalHistory.clear();
+    await _save();
+    notifyListeners();
   }
 
   @override

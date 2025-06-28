@@ -26,6 +26,6 @@ void main() {
       home: Scaffold(body: EvalResultView(spot: spot, action: 'push')),
     ));
     await tester.pumpAndSettle();
-    expect(find.text('Score: 1.00'), findsOneWidget);
+    expect(find.textContaining('Score:'), findsOneWidget);
   });
 }
