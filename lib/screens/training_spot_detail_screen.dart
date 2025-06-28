@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../models/training_spot.dart';
 import '../widgets/action_history_widget.dart';
 import '../widgets/eval_result_view.dart';
+import 'package:provider/provider.dart';
+import '../services/training_session_controller.dart';
+import 'training_play_screen.dart';
 
 class TrainingSpotDetailScreen extends StatelessWidget {
   final TrainingSpot spot;
@@ -52,6 +55,16 @@ class TrainingSpotDetailScreen extends StatelessWidget {
             EvalResultView(spot: spot, action: user ?? ''),
           ],
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.read<TrainingSessionController>().replaySpot(spot);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TrainingPlayScreen()),
+          );
+        },
+        child: const Icon(Icons.replay),
       ),
     );
   }

@@ -9,6 +9,13 @@ class TrainingSessionController {
       : _executor = executor ?? EvaluationExecutorService();
 
   final EvaluationExecutorService _executor;
+  TrainingSpot? _currentSpot;
+
+  TrainingSpot? get currentSpot => _currentSpot;
+
+  void replaySpot(TrainingSpot spot) {
+    _currentSpot = spot;
+  }
 
   Future<EvaluationResult> evaluateSpot(
     BuildContext context,
