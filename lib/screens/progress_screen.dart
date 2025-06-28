@@ -19,6 +19,7 @@ import '../models/saved_hand.dart';
 import '../theme/app_colors.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/mistake_heatmap.dart';
+import '../widgets/eval_stats_card.dart';
 import 'goals_history_screen.dart';
 import 'daily_spot_screen.dart';
 import 'daily_spot_history_screen.dart';
@@ -853,6 +854,8 @@ class _ProgressScreenState extends State<ProgressScreen>
           ),
           const SizedBox(height: 12),
           _buildPieChart(),
+          const SizedBox(height: 12),
+          const EvalStatsCard(),
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: _dailySpotDone

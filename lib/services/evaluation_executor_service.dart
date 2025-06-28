@@ -11,6 +11,7 @@ import '../models/saved_hand.dart';
 import '../models/summary_result.dart';
 import '../models/mistake_severity.dart';
 import 'goals_service.dart';
+import 'training_stats_service.dart';
 
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
@@ -35,11 +36,19 @@ class EvaluationExecutorService implements EvaluationExecutor {
   @override
   Future<EvalResult> evaluate(EvalRequest request) {
     final cached = _cache[request.hash];
-    if (cached != null) return Future.value(cached);
+    if (cached != null) {
+      TrainingStatsService.instance?.addEvalResult(cached.score);
+      return Future.value(cached);
+    }
     final completer = Completer<EvalResult>();
     _queue.add(_QueueItem(request, completer));
     _processQueue();
-    return completer.future.timeout(const Duration(seconds: 3));
+    return completer.future
+        .timeout(const Duration(seconds: 3))
+        .then((res) {
+      TrainingStatsService.instance?.addEvalResult(res.score);
+      return res;
+    });
   }
 
   void _processQueue() {
