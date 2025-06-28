@@ -36,6 +36,7 @@ class _TrainingPackTemplateListScreenState
   final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
   bool _showFavoritesOnly = false;
+  final Set<String> _selectedIds = {};
 
   @override
   void initState() {
@@ -196,6 +197,70 @@ class _TrainingPackTemplateListScreenState
         content: Text(ok ? 'Шаблоны импортированы' : '⚠️ Ошибка импорта'),
       ),
     );
+  }
+
+  void _toggleSelection(String id) {
+    setState(() {
+      if (_selectedIds.remove(id)) {
+        if (_selectedIds.isEmpty) _selectedIds.clear();
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  Future<void> _exportSelected() async {
+    if (_selectedIds.isEmpty) return;
+    final service = context.read<TrainingPackTemplateStorageService>();
+    final list = [
+      for (final t in service.templates)
+        if (_selectedIds.contains(t.id)) t.toJson()
+    ];
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/selected_templates.json');
+      await file.writeAsString(jsonEncode(list));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Файл экспортирован')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('⚠️ Ошибка экспорта')));
+      }
+    }
+  }
+
+  Future<void> _deleteSelected() async {
+    if (_selectedIds.isEmpty) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить выбранные?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Удалить'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final service = context.read<TrainingPackTemplateStorageService>();
+    for (final id in _selectedIds.toList()) {
+      TrainingPackTemplateModel? t;
+      try {
+        t = service.templates.firstWhere((e) => e.id == id);
+      } catch (_) {}
+      if (t != null) await service.remove(t);
+    }
+    setState(() => _selectedIds.clear());
   }
 
   Future<void> _exportTemplate(TrainingPackTemplateModel t) async {
@@ -368,40 +433,53 @@ class _TrainingPackTemplateListScreenState
         categories.isNotEmpty && categories.every((c) => _collapsed[c] ?? false);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Шаблоны паков'),
-        actions: [
-          IconButton(
-            onPressed: () => _setShowFavoritesOnly(!_showFavoritesOnly),
-            icon: Icon(
-              _showFavoritesOnly ? Icons.star : Icons.star_border,
-              color: _showFavoritesOnly ? Colors.amber : null,
-            ),
-          ),
-          IconButton(onPressed: _export, icon: const Icon(Icons.upload_file)),
-          IconButton(onPressed: _import, icon: const Icon(Icons.download)),
-          PopupMenuButton<String>(
-            onSelected: (v) {
-              if (v == 'delete_all') _deleteAllTemplates();
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(
-                value: 'delete_all',
-                child: Text('🗑️ Удалить все шаблоны'),
+        leading: _selectedIds.isEmpty
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => setState(() => _selectedIds.clear()),
               ),
-            ],
-          ),
-          PopupMenuButton<_SortOption>(
-            icon: const Icon(Icons.sort),
-            padding: EdgeInsets.zero,
-            onSelected: _setSort,
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: _SortOption.name, child: Text('По имени')),
-              PopupMenuItem(value: _SortOption.category, child: Text('По категории')),
-              PopupMenuItem(value: _SortOption.difficulty, child: Text('По сложности')),
-              PopupMenuItem(value: _SortOption.createdAt, child: Text('По дате')),
-            ],
-          ),
-        ],
+        title: _selectedIds.isEmpty
+            ? const Text('Шаблоны паков')
+            : Text('${_selectedIds.length} выбрано'),
+        actions: _selectedIds.isEmpty
+            ? [
+                IconButton(
+                  onPressed: () => _setShowFavoritesOnly(!_showFavoritesOnly),
+                  icon: Icon(
+                    _showFavoritesOnly ? Icons.star : Icons.star_border,
+                    color: _showFavoritesOnly ? Colors.amber : null,
+                  ),
+                ),
+                IconButton(onPressed: _export, icon: const Icon(Icons.upload_file)),
+                IconButton(onPressed: _import, icon: const Icon(Icons.download)),
+                PopupMenuButton<String>(
+                  onSelected: (v) {
+                    if (v == 'delete_all') _deleteAllTemplates();
+                  },
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'delete_all',
+                      child: Text('🗑️ Удалить все шаблоны'),
+                    ),
+                  ],
+                ),
+                PopupMenuButton<_SortOption>(
+                  icon: const Icon(Icons.sort),
+                  padding: EdgeInsets.zero,
+                  onSelected: _setSort,
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(value: _SortOption.name, child: Text('По имени')),
+                    PopupMenuItem(value: _SortOption.category, child: Text('По категории')),
+                    PopupMenuItem(value: _SortOption.difficulty, child: Text('По сложности')),
+                    PopupMenuItem(value: _SortOption.createdAt, child: Text('По дате')),
+                  ],
+                ),
+              ]
+            : [
+                IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
+                IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
+              ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Padding(
@@ -487,134 +565,145 @@ class _TrainingPackTemplateListScreenState
                       _ensureCount(t.id, t.filters);
                       final isActive =
                           t.filters.equals(_spotStorage.activeFilters);
-                      return Dismissible(
-                        key: ValueKey(t.id),
-                        confirmDismiss: (_) async {
-                          final ok = await showDialog<bool>(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('Удалить шаблон?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(ctx, false),
-                                  child: const Text('Отмена'),
+                      final selection = _selectedIds.isNotEmpty;
+                      final selected = _selectedIds.contains(t.id);
+                      Widget tile = ListTile(
+                        tileColor: isActive ? Colors.blueGrey.shade800 : null,
+                        leading: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (selection)
+                              Checkbox(
+                                value: selected,
+                                onChanged: (_) => _toggleSelection(t.id),
+                              ),
+                            SizedBox(
+                              width: 32,
+                              child: Center(
+                                child: Icon(
+                                  _categoryIcon(t.category),
+                                  color: Colors.white,
                                 ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(ctx, true),
-                                  child: const Text('Удалить'),
-                                ),
-                              ],
+                              ),
                             ),
-                          );
-                          return ok == true;
-                        },
-                        onDismissed: (_) =>
-                            context.read<TrainingPackTemplateStorageService>().
-                                remove(t),
-                        child: ListTile(
-                          tileColor:
-                              isActive ? Colors.blueGrey.shade800 : null,
-                          leading: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                width: 32,
-                                child: Center(
-                                  child: Icon(
-                                    _categoryIcon(t.category),
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: 8,
-                                height: 32,
-                                color: _difficultyColor(t.difficulty),
-                              ),
-                            ],
-                          ),
-                          minLeadingWidth: 40,
-                          onTap: () async {
-                            final model = await Navigator.push<
-                                TrainingPackTemplateModel>(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) =>
-                                      TrainingPackTemplateEditorScreen(initial: t)),
-                            );
-                            if (model != null && mounted) {
-                              await context
-                                  .read<TrainingPackTemplateStorageService>()
-                                  .update(model);
-                            }
-                          },
-                          title: Row(
-                            children: [
-                              Expanded(child: Text(t.name)),
-                              IconButton(
-                                icon: Icon(t.isFavorite ? Icons.star : Icons.star_border),
-                                color: t.isFavorite ? Colors.amber : Colors.white54,
-                                onPressed: () {
-                                  final updated = t.copyWith(isFavorite: !t.isFavorite);
-                                  context.read<TrainingPackTemplateStorageService>().update(updated);
-                                },
-                              ),
-                            ],
-                          ),
-                          subtitle: Text(
-                            (_counts[t.id] == null
-                                    ? 'Невозможно оценить'
-                                    : '≈ ${_counts[t.id]} рук') +
-                                (isActive ? ' (активен)' : ''),
-                          ),
-                          trailing: PopupMenuButton<String>(
-                            onSelected: (value) async {
-                              switch (value) {
-                                case 'apply':
-                                  _spotStorage.activeFilters
-                                    ..clear()
-                                    ..addAll(t.filters);
-                                  _spotStorage.notifyListeners();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text('Шаблон применён')));
-                                  break;
-                                case 'export':
-                                  await _exportTemplate(t);
-                                  break;
-                                case 'share':
-                                  await _shareTemplate(t);
-                                  break;
-                                case 'rename':
-                                  await _renameTemplate(t);
-                                  break;
-                                case 'duplicate':
-                                  final copy = t.copyWith(
-                                    id: const Uuid().v4(),
-                                    name: 'Копия ${t.name}',
-                                  );
+                            Container(
+                              width: 8,
+                              height: 32,
+                              color: _difficultyColor(t.difficulty),
+                            ),
+                          ],
+                        ),
+                        minLeadingWidth: 40,
+                        onTap: selection
+                            ? () => _toggleSelection(t.id)
+                            : () async {
+                                final model = await Navigator.push<
+                                    TrainingPackTemplateModel>(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          TrainingPackTemplateEditorScreen(initial: t)),
+                                );
+                                if (model != null && mounted) {
                                   await context
                                       .read<TrainingPackTemplateStorageService>()
-                                      .add(copy);
-                                  break;
-                              }
-                            },
-                            itemBuilder: (_) => const [
-                              PopupMenuItem(
-                                  value: 'apply', child: Text('Применить шаблон')),
-                              PopupMenuItem(
-                                  value: 'export',
-                                  child: Text('📤 Экспортировать')),
-                              PopupMenuItem(
-                                  value: 'share', child: Text('📤 Поделиться')),
-                              PopupMenuItem(
-                                  value: 'rename', child: Text('✏️ Переименовать')),
-                              PopupMenuItem(
-                                  value: 'duplicate', child: Text('📄 Дублировать')),
-                            ],
-                          ),
+                                      .update(model);
+                                }
+                              },
+                        onLongPress: () => _toggleSelection(t.id),
+                        title: Row(
+                          children: [
+                            Expanded(child: Text(t.name)),
+                            IconButton(
+                              icon: Icon(t.isFavorite ? Icons.star : Icons.star_border),
+                              color: t.isFavorite ? Colors.amber : Colors.white54,
+                              onPressed: () {
+                                final updated = t.copyWith(isFavorite: !t.isFavorite);
+                                context.read<TrainingPackTemplateStorageService>().update(updated);
+                              },
+                            ),
+                          ],
                         ),
+                        subtitle: Text(
+                          (_counts[t.id] == null
+                                  ? 'Невозможно оценить'
+                                  : '≈ ${_counts[t.id]} рук') +
+                              (isActive ? ' (активен)' : ''),
+                        ),
+                        trailing: selection
+                            ? null
+                            : PopupMenuButton<String>(
+                                onSelected: (value) async {
+                                  switch (value) {
+                                    case 'apply':
+                                      _spotStorage.activeFilters
+                                        ..clear()
+                                        ..addAll(t.filters);
+                                      _spotStorage.notifyListeners();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Шаблон применён')));
+                                      break;
+                                    case 'export':
+                                      await _exportTemplate(t);
+                                      break;
+                                    case 'share':
+                                      await _shareTemplate(t);
+                                      break;
+                                    case 'rename':
+                                      await _renameTemplate(t);
+                                      break;
+                                    case 'duplicate':
+                                      final copy = t.copyWith(
+                                        id: const Uuid().v4(),
+                                        name: 'Копия ${t.name}',
+                                      );
+                                      await context
+                                          .read<TrainingPackTemplateStorageService>()
+                                          .add(copy);
+                                      break;
+                                  }
+                                },
+                                itemBuilder: (_) => const [
+                                  PopupMenuItem(
+                                      value: 'apply', child: Text('Применить шаблон')),
+                                  PopupMenuItem(
+                                      value: 'export', child: Text('📤 Экспортировать')),
+                                  PopupMenuItem(
+                                      value: 'share', child: Text('📤 Поделиться')),
+                                  PopupMenuItem(
+                                      value: 'rename', child: Text('✏️ Переименовать')),
+                                  PopupMenuItem(
+                                      value: 'duplicate', child: Text('📄 Дублировать')),
+                                ],
+                              ),
                       );
+                      return selection
+                          ? tile
+                          : Dismissible(
+                              key: ValueKey(t.id),
+                              confirmDismiss: (_) async {
+                                final ok = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Удалить шаблон?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx, false),
+                                        child: const Text('Отмена'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx, true),
+                                        child: const Text('Удалить'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                return ok == true;
+                              },
+                              onDismissed: (_) =>
+                                  context.read<TrainingPackTemplateStorageService>().remove(t),
+                              child: tile,
+                            );
                     }
                     if (!collapsed) count += list.length;
                   }
