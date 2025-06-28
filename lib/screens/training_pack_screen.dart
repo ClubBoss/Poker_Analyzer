@@ -55,6 +55,7 @@ import '../services/evaluation_executor_service.dart';
 import '../services/training_session_controller.dart';
 import '../services/goals_service.dart';
 import '../widgets/replay_spot_widget.dart';
+import '../widgets/eval_result_view.dart';
 import '../models/result_entry.dart';
 import '../widgets/common/training_spot_list.dart';
 import 'markdown_preview_screen.dart';
@@ -348,15 +349,19 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
             Text('Вы выбрали: $userAct',
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 12),
-            Text(
-              matched ? 'Верно!' : 'Неверно.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: matched ? Colors.green : Colors.red,
-                fontWeight: FontWeight.bold,
+              Text(
+                matched ? 'Верно!' : 'Неверно.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: matched ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            if (original.feedbackText != null) ...[
+              EvalResultView(
+                spot: TrainingSpot.fromSavedHand(original),
+                action: userAct,
+              ),
+              if (original.feedbackText != null) ...[
               const SizedBox(height: 8),
               Text(
                 original.feedbackText!,
