@@ -63,6 +63,10 @@ import '../models/saved_hand.dart';
 import '../models/player_model.dart';
 import '../models/action_evaluation_request.dart';
 import '../widgets/action_timeline_widget.dart';
+import '../widgets/analyzer/action_timeline_panel.dart';
+import '../widgets/analyzer/stack_display.dart';
+import '../widgets/analyzer/board_editor.dart';
+import '../widgets/analyzer/player_zone.dart';
 import '../services/pot_sync_service.dart';
 import '../widgets/chip_moving_widget.dart';
 import '../widgets/chip_stack_moving_widget.dart';
@@ -272,16 +276,16 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   List<int> _sidePots = [];
   int _currentPot = 0;
   late TransitionLockService lockService;
-  final GlobalKey<_BoardCardsSectionState> _boardKey =
-      GlobalKey<_BoardCardsSectionState>();
+  final GlobalKey<BoardEditorState> _boardKey =
+      GlobalKey<BoardEditorState>();
   late final ScrollController _timelineController;
   bool _animateTimeline = false;
   bool isPerspectiveSwitched = false;
   bool _focusOnHero = false;
 
-  final Map<int, _BetDisplayInfo> _recentBets = {};
-  final Map<int, _BetDisplayInfo> _betDisplays = {};
-  final Map<int, _BetDisplayInfo> _centerBetStacks = {};
+  final Map<int, BetDisplayInfo> _recentBets = {};
+  final Map<int, BetDisplayInfo> _betDisplays = {};
+  final Map<int, BetDisplayInfo> _centerBetStacks = {};
   final Map<int, int> _actionBetStacks = {};
   final Map<int, OverlayEntry> _betSlideOverlays = {};
   final Map<int, Timer> _betTimers = {};
@@ -2599,7 +2603,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final int index = entry.playerIndex;
       _betTimers[index]?.cancel();
       setState(() {
-        final info = _BetDisplayInfo(entry.amount!, color);
+        final info = BetDisplayInfo(entry.amount!, color);
         _recentBets[index] = info;
         _betDisplays[index] = info;
         _centerBetStacks[index] = info;
@@ -5493,7 +5497,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   _TableBackgroundSection(scale: scale),
                   AbsorbPointer(
                     absorbing: lockService.isLocked,
-                    child: _BoardCardsSection(
+                    child: BoardEditor(
                       key: _boardKey,
                       scale: scale,
                       currentStreet: currentStreet,
@@ -5509,7 +5513,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                       showPot: false,
                     ),
                   ),
-                  _PlayerZonesSection(
+                  PlayerZone(
                     numberOfPlayers: numberOfPlayers,
                     scale: scale,
                     playerPositions: playerPositions,
@@ -5539,7 +5543,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     scale: scale,
                     state: this,
                   ),
-                  _PotAndBetsOverlaySection(
+                  StackDisplay(
                     scale: scale,
                     numberOfPlayers: numberOfPlayers,
                     currentStreet: currentStreet,
@@ -5713,22 +5717,20 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                 onDelete: _deleteAction,
               ),
             ),
-            AbsorbPointer(
-              absorbing: lockService.isLocked,
-              child: ActionTimelineWidget(
-                actions: visibleActions,
-                playbackIndex: _playbackManager.playbackIndex,
-                onTap: (index) {
-                  lockService.safeSetState(this, () {
-                    _playbackManager.seek(index);
-                    _playbackManager.updatePlaybackState(); // Перестраиваем экран
-                  });
-                },
-                playerPositions: playerPositions,
-                focusPlayerIndex: _focusOnHero ? heroIndex : null,
-                controller: _timelineController,
-                scale: scale,
-              ),
+            ActionTimelinePanel(
+              actions: visibleActions,
+              playbackIndex: _playbackManager.playbackIndex,
+              onTap: (index) {
+                lockService.safeSetState(this, () {
+                  _playbackManager.seek(index);
+                  _playbackManager.updatePlaybackState();
+                });
+              },
+              playerPositions: playerPositions,
+              focusPlayerIndex: _focusOnHero ? heroIndex : null,
+              controller: _timelineController,
+              scale: scale,
+              locked: lockService.isLocked,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -6527,13 +6529,6 @@ class _PlaybackNarrationOverlayState extends State<_PlaybackNarrationOverlay>
   }
 }
 
-class _BetDisplayInfo {
-  final int amount;
-  final Color color;
-  final String id;
-
-  _BetDisplayInfo(this.amount, this.color) : id = const Uuid().v4();
-}
 
 class _ChipFlightOverlay extends StatelessWidget {
   final List<ChipFlight> flights;
@@ -6695,34 +6690,6 @@ class _DealerButtonIndicatorState extends State<_DealerButtonIndicator>
   }
 }
 
-class _PlayerZonesSection extends StatelessWidget {
-  final int numberOfPlayers;
-  final double scale;
-  final Map<int, String> playerPositions;
-  final Widget opponentCardRow;
-  final List<Widget> Function(int, double) playerBuilder;
-  final List<Widget> Function(int, double) chipTrailBuilder;
-
-  const _PlayerZonesSection({
-    required this.numberOfPlayers,
-    required this.scale,
-    required this.playerPositions,
-    required this.opponentCardRow,
-    required this.playerBuilder,
-    required this.chipTrailBuilder,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        opponentCardRow,
-        for (int i = 0; i < numberOfPlayers; i++) ...playerBuilder(i, scale),
-        for (int i = 0; i < numberOfPlayers; i++) ...chipTrailBuilder(i, scale),
-      ],
-    );
-  }
-}
 
 class _OpponentCardRowSection extends StatelessWidget {
   final double scale;
@@ -6817,249 +6784,6 @@ class _TableBackgroundSection extends StatelessWidget {
   }
 }
 
-class _PotAndBetsOverlaySection extends StatelessWidget {
-  final double scale;
-  final int numberOfPlayers;
-  final int currentStreet;
-  final int viewIndex;
-  final List<ActionEntry> actions;
-  final List<int> pots;
-  final List<int> sidePots;
-  final PlaybackManagerService playbackManager;
-  final ActionEntry? centerChipAction;
-  final bool showCenterChip;
-  final Offset? centerChipOrigin;
-  final Animation<double> centerChipController;
-  final Animation<double> potGrowth;
-  final Animation<int> potCount;
-  final Color Function(String) actionColor;
-  final Map<int, _BetDisplayInfo> centerBets;
-  final int currentPot;
-  final double? sprValue;
-
-  const _PotAndBetsOverlaySection({
-    required this.scale,
-    required this.numberOfPlayers,
-    required this.currentStreet,
-    required this.viewIndex,
-    required this.actions,
-    required this.pots,
-    required this.sidePots,
-    required this.playbackManager,
-    required this.centerChipAction,
-    required this.showCenterChip,
-    required this.centerChipOrigin,
-    required this.centerChipController,
-    required this.potGrowth,
-    required this.potCount,
-    required this.centerBets,
-    required this.actionColor,
-    required this.currentPot,
-    required this.sprValue,
-  });
-
-
-  @override
-  Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final tableWidth = screenSize.width * 0.9;
-    final tableHeight = tableWidth * 0.55;
-    final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 -
-        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
-    final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
-    final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
-    final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
-
-    final List<Widget> items = [];
-
-    final pot = currentPot;
-    if (pot > 0) {
-      items.add(
-        Positioned.fill(
-          child: IgnorePointer(
-            child: Align(
-              alignment: const Alignment(0, -0.05),
-              child: Transform.translate(
-                offset: Offset(0, -12 * scale),
-                child: CentralPotWidget(
-                  text: 'Main Pot: ' +
-                      ActionFormattingHelper.formatAmount(pot),
-                  scale: scale,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      if (sprValue != null) {
-        items.add(
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Align(
-                alignment: const Alignment(0, -0.05),
-                child: Transform.translate(
-                  offset: Offset(0, 16 * scale),
-                  child: CentralSprWidget(
-                    text: 'SPR: ${sprValue!.toStringAsFixed(2)}',
-                    scale: scale * 0.9,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    for (int i = 0; i < sidePots.length; i++) {
-      final offsetY = (-12 + 36 * (i + 1)) * scale;
-      final amount = sidePots[i];
-      items.add(
-        Positioned.fill(
-          child: IgnorePointer(
-            child: Align(
-              alignment: const Alignment(0, -0.05),
-              child: Transform.translate(
-                offset: Offset(0, offsetY),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: ScaleTransition(scale: animation, child: child),
-                  ),
-                  child: CentralPotWidget(
-                    key: ValueKey('side-$i-$amount'),
-                    text: 'Side Pot ${i + 1}: ' +
-                        ActionFormattingHelper.formatAmount(amount),
-                    scale: scale * 0.8,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (centerChipAction != null) {
-      items.add(
-        Positioned.fill(
-          child: IgnorePointer(
-            child: AnimatedOpacity(
-              opacity: showCenterChip ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: AnimatedBuilder(
-                animation: centerChipController,
-                builder: (_, child) {
-                  final start = centerChipOrigin ?? Offset(centerX, centerY);
-                  final pos = Offset.lerp(start, Offset(centerX, centerY),
-                      centerChipController.value)!;
-                  return Transform.translate(
-                    offset: Offset(pos.dx - centerX, pos.dy - centerY),
-                    child: Transform.scale(
-                      scale: centerChipController.value,
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: child,
-                      ),
-                    ),
-                  );
-                },
-                child: ChipAmountWidget(
-                  amount: centerChipAction!.amount!.toDouble(),
-                  color: actionColor(centerChipAction!.action),
-                  scale: scale,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    for (int i = 0; i < numberOfPlayers; i++) {
-      final index = (i + viewIndex) % numberOfPlayers;
-      final playerActions =
-          actions.where((a) => a.playerIndex == index && a.street == currentStreet).toList();
-      if (playerActions.isEmpty) continue;
-      final lastAction = playerActions.last;
-      if (['bet', 'raise', 'call', 'all-in'].contains(lastAction.action) &&
-          lastAction.amount != null) {
-        final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-        final dx = radiusX * cos(angle);
-        final dy = radiusY * sin(angle);
-        final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-        final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-        final end = Offset(centerX, centerY);
-        final animate =
-            playbackManager.shouldAnimatePlayer(currentStreet, index);
-        items.add(
-          Positioned.fill(
-            child: BetChipsOnTable(
-              start: start,
-              end: end,
-              chipCount: (lastAction.amount! / 20).clamp(1, 5).round(),
-              color: actionColor(lastAction.action),
-              scale: scale,
-              animate: animate,
-            ),
-          ),
-        );
-        items.add(
-          Positioned(
-            left: centerX + dx + 40 * scale,
-            top: centerY + dy + bias - 40 * scale,
-            child: PlayerBetIndicator(
-              action: lastAction.action,
-              amount: lastAction.amount!,
-              scale: scale,
-            ),
-          ),
-        );
-        final stackPos = Offset.lerp(start, end, 0.15)!;
-        final stackScale = scale * 0.7;
-        items.add(
-          Positioned(
-            left: stackPos.dx - 6 * stackScale,
-            top: stackPos.dy - 12 * stackScale,
-            child: ChipStackWidget(
-              amount: lastAction.amount!,
-              scale: stackScale,
-              color: actionColor(lastAction.action),
-            ),
-          ),
-        );
-      }
-    }
-
-    centerBets.forEach((player, info) {
-      final i = (player - viewIndex + numberOfPlayers) % numberOfPlayers;
-      final angle = 2 * pi * i / numberOfPlayers + pi / 2;
-      final dx = radiusX * cos(angle);
-      final dy = radiusY * sin(angle);
-      final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
-      final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-      final end = Offset(centerX, centerY);
-      final pos = Offset.lerp(start, end, 0.75)!;
-      final chipScale = scale * 0.8;
-      items.add(Positioned(
-        left: pos.dx - 8 * chipScale,
-        top: pos.dy - 8 * chipScale,
-        child: BetStackIndicator(
-          amount: info.amount,
-          color: info.color,
-          scale: chipScale,
-          duration: const Duration(milliseconds: 1700),
-          onComplete: () {},
-        ),
-      ));
-    });
-
-    return Stack(children: items);
-  }
-}
 
 class _BetStacksOverlaySection extends StatelessWidget {
   final double scale;
@@ -7262,106 +6986,6 @@ class _ActionHistorySection extends StatelessWidget {
 }
 
 
-class _BoardCardsSection extends StatefulWidget {
-  final double scale;
-  final int currentStreet;
-  final List<CardModel> boardCards;
-  final List<CardModel> revealedBoardCards;
-  final PotSyncService potSync;
-  final void Function(int, CardModel) onCardSelected;
-  final void Function(int) onCardLongPress;
-  final bool Function(int index)? canEditBoard;
-  final Set<String> usedCards;
-  final bool editingDisabled;
-  final BoardRevealService boardReveal;
-  final bool showPot;
-
-  const _BoardCardsSection({
-    Key? key,
-    required this.scale,
-    required this.currentStreet,
-    required this.boardCards,
-    required this.revealedBoardCards,
-    required this.onCardSelected,
-    required this.onCardLongPress,
-    required this.potSync,
-    required this.boardReveal,
-    this.canEditBoard,
-    this.usedCards = const {},
-    this.editingDisabled = false,
-    this.showPot = true,
-  }) : super(key: key);
-
-  @override
-  State<_BoardCardsSection> createState() => _BoardCardsSectionState();
-}
-
-class _BoardCardsSectionState extends State<_BoardCardsSection>
-    with TickerProviderStateMixin {
-  late int _prevStreet;
-  late final BoardRevealService _reveal;
-
-  @override
-  void initState() {
-    super.initState();
-    _prevStreet = widget.currentStreet;
-    _reveal = widget.boardReveal;
-    _reveal.attachTicker(this);
-    _reveal.updateAnimations();
-  }
-
-  @override
-  void didUpdateWidget(covariant _BoardCardsSection oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentStreet != widget.currentStreet) {
-      _prevStreet = oldWidget.currentStreet;
-    }
-    _reveal.updateAnimations();
-  }
-
-  void cancelPendingReveals() {
-    _reveal.cancelBoardReveal();
-  }
-
-  @override
-  void dispose() {
-    _reveal.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final reversing = widget.currentStreet < _prevStreet;
-    return AnimatedSwitcher(
-      duration: _boardRevealDuration,
-      transitionBuilder: (child, animation) {
-        final slide = Tween<Offset>(
-          begin: reversing ? const Offset(0, -0.1) : const Offset(0, 0.1),
-          end: Offset.zero,
-        ).animate(animation);
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(position: slide, child: child),
-        );
-      },
-      child: BoardDisplay(
-        key: ValueKey(widget.currentStreet),
-        scale: widget.scale,
-        currentStreet: widget.currentStreet,
-        boardCards: widget.boardCards,
-        revealedBoardCards: widget.revealedBoardCards,
-        revealAnimations: _reveal.animations,
-        onCardSelected: widget.onCardSelected,
-        onCardLongPress: widget.onCardLongPress,
-        canEditBoard: widget.canEditBoard,
-        usedCards: widget.usedCards,
-        editingDisabled: widget.editingDisabled,
-        potSync: widget.potSync,
-        showPot: widget.showPot,
-      ),
-    );
-  }
-}
 class _HudOverlaySection extends StatelessWidget {
   final String streetName;
   final String potText;
