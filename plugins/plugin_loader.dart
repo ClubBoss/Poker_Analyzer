@@ -42,7 +42,7 @@ class PluginLoader {
       await for (final entity in dir.list()) {
         if (entity is File) {
           final name = p.basename(entity.path);
-          if (name.endsWith('.dart') && name.contains('Plugin')) {
+          if (name.endsWith('Plugin.dart')) {
             final port = ReceivePort();
             try {
               await Isolate.spawnUri(entity.uri, <String>[], port.sendPort);
