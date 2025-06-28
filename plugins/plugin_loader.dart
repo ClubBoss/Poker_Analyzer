@@ -40,6 +40,12 @@ class PluginLoader {
     switch (name) {
       case 'SampleLoggingPlugin':
         return SampleLoggingPlugin();
+      case 'ConverterDiscoveryPlugin':
+        return ConverterDiscoveryPlugin(<ConverterPlugin>[
+          PokerAnalyzerJsonConverter(),
+          SimpleHandHistoryConverter(),
+          PokerStarsHandHistoryConverter(),
+        ]);
     }
     return null;
   }
