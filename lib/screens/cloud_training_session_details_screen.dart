@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
@@ -27,6 +28,8 @@ class CloudTrainingSessionDetailsScreen extends StatefulWidget {
 
 class _CloudTrainingSessionDetailsScreenState
     extends State<CloudTrainingSessionDetailsScreen> {
+  static const _mistakesKey = 'cloud_session_mistakes_only';
+  SharedPreferences? _prefs;
   bool _onlyErrors = false;
   late TextEditingController _commentController;
   String _comment = '';
@@ -43,6 +46,21 @@ class _CloudTrainingSessionDetailsScreenState
       _noteControllers[r.name] =
           TextEditingController(text: _handNotes[r.name] ?? '');
     }
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _prefs = prefs;
+      _onlyErrors = prefs.getBool(_mistakesKey) ?? false;
+    });
+  }
+
+  Future<void> _setMistakesOnly(bool v) async {
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    await prefs.setBool(_mistakesKey, v);
+    setState(() => _onlyErrors = v);
   }
 
   @override
@@ -389,7 +407,7 @@ class _CloudTrainingSessionDetailsScreenState
                       ),
                       Switch(
                         value: _onlyErrors,
-                        onChanged: (v) => setState(() => _onlyErrors = v),
+                        onChanged: (v) => _setMistakesOnly(v),
                       ),
                     ],
                   ),
