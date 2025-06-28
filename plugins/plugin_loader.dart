@@ -50,6 +50,35 @@ class PluginLoader {
     return null;
   }
 
+  Future<Plugin?> loadFromFile(File file) async {
+    final name = p.basename(file.path);
+    final port = ReceivePort();
+    Isolate? isolate;
+    try {
+      isolate = await Isolate.spawnUri(file.uri, <String>[], port.sendPort);
+      final msg = await port.first.timeout(const Duration(seconds: 2));
+      Plugin? plugin;
+      if (msg is Plugin) {
+        plugin = msg;
+      } else if (msg is Map && msg['plugin'] is String) {
+        plugin = _createByName(msg['plugin'] as String);
+      }
+      if (plugin != null) {
+        ErrorLogger.instance.logError('Plugin loaded: $name');
+        return plugin;
+      }
+      ErrorLogger.instance.logError('Plugin failed: $name');
+    } on TimeoutException {
+      ErrorLogger.instance.logError('Plugin timeout: $name');
+    } catch (e, st) {
+      ErrorLogger.instance.logError('Plugin failed: $name', e, st);
+    } finally {
+      isolate?.kill(priority: Isolate.immediate);
+      port.close();
+    }
+    return null;
+  }
+
   Future<void> loadAll(
     ServiceRegistry registry,
     PluginManager manager, {
@@ -74,31 +103,9 @@ class PluginLoader {
       onProgress?.call(done / total);
     }
     for (final file in files) {
-      final name = p.basename(file.path);
-      final port = ReceivePort();
-      Isolate? isolate;
-      try {
-        isolate = await Isolate.spawnUri(file.uri, <String>[], port.sendPort);
-        final msg = await port.first.timeout(const Duration(seconds: 2));
-        Plugin? plugin;
-        if (msg is Plugin) {
-          plugin = msg;
-        } else if (msg is Map && msg['plugin'] is String) {
-          plugin = _createByName(msg['plugin'] as String);
-        }
-        if (plugin != null) {
-          manager.load(plugin);
-          ErrorLogger.instance.logError('Plugin loaded: $name');
-        } else {
-          ErrorLogger.instance.logError('Plugin failed: $name');
-        }
-      } on TimeoutException {
-        ErrorLogger.instance.logError('Plugin timeout: $name');
-      } catch (e, st) {
-        ErrorLogger.instance.logError('Plugin failed: $name', e, st);
-      } finally {
-        isolate?.kill(priority: Isolate.immediate);
-        port.close();
+      final plugin = await loadFromFile(file);
+      if (plugin != null) {
+        manager.load(plugin);
       }
       done++;
       onProgress?.call(done / total);

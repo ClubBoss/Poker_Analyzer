@@ -1,8 +1,12 @@
 // lib/main.dart
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import '../plugins/plugin_loader.dart';
+import '../plugins/plugin_manager.dart';
+import 'services/service_registry.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/saved_hand_storage_service.dart';
 import 'services/saved_hand_manager_service.dart';
@@ -44,6 +48,24 @@ import 'services/mistake_review_pack_service.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final registry = ServiceRegistry();
+  final pluginManager = PluginManager();
+  final loader = PluginLoader();
+  final dir = Directory('plugins');
+  if (await dir.exists()) {
+    await for (final entity in dir.list()) {
+      if (entity is File && entity.path.endsWith('.dart')) {
+        final plugin = await loader.loadFromFile(entity);
+        if (plugin != null) {
+          pluginManager.load(plugin);
+        }
+      }
+    }
+  }
+  for (final p in loader.loadBuiltInPlugins()) {
+    pluginManager.load(p);
+  }
+  pluginManager.initializeAll(registry);
   await Firebase.initializeApp();
   final cloud = CloudSyncService();
   await cloud.init();
