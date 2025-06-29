@@ -68,7 +68,9 @@ Future<void> main() async {
     pluginManager.load(p);
   }
   pluginManager.initializeAll(registry);
-  await Firebase.initializeApp();
+  if (!CloudSyncService.isLocal) {
+    await Firebase.initializeApp();
+  }
   final cloud = CloudSyncService();
   final auth = AuthService();
   await cloud.init();
