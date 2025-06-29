@@ -562,11 +562,10 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
   }
 
   Future<void> _sharePack() async {
-    final file = await context.read<TrainingPackStorageService>().exportPack(_pack);
+    final file = await context.read<TrainingPackStorageService>().exportPackTemp(_pack);
     if (!mounted || file == null) return;
-    await Share.shareXFiles([
-      XFile(file.path)
-    ], text: 'Check out my Poker Analyzer pack!');
+    await Share.shareXFiles([XFile(file.path)], text: 'Check out my Poker Analyzer pack!');
+    if (await file.exists()) await file.delete();
   }
 
   Future<void> _addSpot() async {

@@ -138,6 +138,15 @@ class TrainingPackStorageService extends ChangeNotifier {
     return file;
   }
 
+  Future<File?> exportPackTemp(TrainingPack pack) async {
+    if (pack.isBuiltIn) return null;
+    final dir = await getTemporaryDirectory();
+    final safeName = pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final file = File('${dir.path}/$safeName.json');
+    await file.writeAsString(jsonEncode(pack.toJson()));
+    return file;
+  }
+
   Future<String?> importPack(Uint8List data) async {
     try {
       final content = utf8.decode(data);
