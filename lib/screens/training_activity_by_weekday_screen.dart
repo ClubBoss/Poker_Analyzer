@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingActivityByWeekdayScreen extends StatelessWidget {
   static const route = '/training/activity/weekdays';
@@ -29,6 +30,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Активность по дням недели'),
           centerTitle: true,
+          actions: [SyncStatusIcon.of(context)],
         ),
         body: const Padding(
           padding: EdgeInsets.all(16),
@@ -69,6 +71,7 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Активность по дням недели'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

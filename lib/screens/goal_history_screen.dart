@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/goals_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class GoalHistoryScreen extends StatelessWidget {
   final int index;
@@ -22,6 +23,7 @@ class GoalHistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(goal.title),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: history.isEmpty
           ? const Center(child: Text('Нет данных'))

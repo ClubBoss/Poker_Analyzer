@@ -6,6 +6,7 @@ import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../services/training_import_export_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class DailySpotScreen extends StatefulWidget {
   final SavedHand hand;
@@ -50,6 +51,7 @@ class _DailySpotScreenState extends State<DailySpotScreen> {
       appBar: AppBar(
         title: const Text('Спот дня'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: const Color(0xFF121212),
       body: ListView(
@@ -80,6 +82,8 @@ class DailySpotDoneScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Спот дня')),
+      actions: [SyncStatusIcon.of(context)],
+      actions: [SyncStatusIcon.of(context)],
       backgroundColor: const Color(0xFF121212),
       body: const Center(
         child: Text(

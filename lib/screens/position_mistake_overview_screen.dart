@@ -19,6 +19,7 @@ import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
 import 'hand_history_review_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 /// Displays a list of hero positions sorted by mistake count.
 ///
@@ -298,6 +299,7 @@ class _PositionMistakeHandsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(position),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: SavedHandListView(
         hands: hands,

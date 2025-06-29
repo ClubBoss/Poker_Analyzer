@@ -13,6 +13,7 @@ import '../services/goals_service.dart';
 import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../helpers/mistake_advice.dart';
+import '../widgets/sync_status_widget.dart';
 
 /// Displays a saved hand with simple playback controls.
 /// Shows GTO recommendation and range group when available.
@@ -281,7 +282,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
           '${widget.hand.name} \u2022 ${formatLongDate(widget.hand.savedAt)}',
         ),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.share),
             onPressed: _showExportOptions,

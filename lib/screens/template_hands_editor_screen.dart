@@ -5,6 +5,7 @@ import '../models/saved_hand.dart';
 import '../models/training_pack_template.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/template_storage_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TemplateHandsEditorScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -86,7 +87,7 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Редактор шаблона'),
-        actions: [IconButton(onPressed: _save, icon: const Icon(Icons.check))],
+        actions: [SyncStatusIcon.of(context), IconButton(onPressed: _save, icon: const Icon(Icons.check))],
       ),
       body: Column(
         children: [

@@ -19,6 +19,7 @@ import '../helpers/poker_street_helper.dart';
 import 'saved_hands_screen.dart';
 import 'mistake_overview_screen.dart';
 import 'accuracy_mistake_overview_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class SessionStatsScreen extends StatefulWidget {
   const SessionStatsScreen({super.key});
@@ -713,7 +714,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       appBar: AppBar(
         title: const Text('Статистика сессий'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.save_alt),
             tooltip: 'Экспорт',

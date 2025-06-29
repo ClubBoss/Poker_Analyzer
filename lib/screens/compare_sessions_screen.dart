@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/session_note_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class CompareSessionsScreen extends StatelessWidget {
   final int firstId;
@@ -88,6 +89,7 @@ class CompareSessionsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Сравнение сессий'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

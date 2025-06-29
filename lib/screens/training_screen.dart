@@ -10,6 +10,7 @@ import '../widgets/replay_spot_widget.dart';
 import '../services/goals_service.dart';
 import '../models/drill_session_result.dart';
 import '../helpers/poker_street_helper.dart';
+import '../widgets/sync_status_widget.dart';
 
 /// Simple screen that shows a single [TrainingSpot].
 class TrainingScreen extends StatefulWidget {
@@ -153,6 +154,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
         appBar: AppBar(
           title: const Text('Training'),
           centerTitle: true,
+          actions: [SyncStatusIcon.of(context)],
         ),
         backgroundColor: const Color(0xFF121212),
         body: SingleChildScrollView(

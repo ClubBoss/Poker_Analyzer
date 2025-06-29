@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../helpers/poker_street_helper.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'saved_hands_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class StreetMistakeOverviewScreen extends StatelessWidget {
   final String dateFilter;
@@ -42,6 +43,7 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Ошибки по улицам'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

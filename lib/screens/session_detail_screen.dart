@@ -9,6 +9,7 @@ import '../helpers/date_utils.dart';
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import 'training_pack_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class SessionDetailScreen extends StatelessWidget {
   final String packName;
@@ -86,6 +87,7 @@ class SessionDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(packName),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: Column(

@@ -7,6 +7,7 @@ import '../services/ignored_mistake_service.dart';
 import 'tag_mistake_overview_screen.dart';
 import 'position_mistake_overview_screen.dart';
 import 'street_mistake_overview_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class MistakeOverviewScreen extends StatefulWidget {
   const MistakeOverviewScreen({super.key});
@@ -44,7 +45,7 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
       appBar: AppBar(
         title: const Text('Ошибки'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           if (context.watch<IgnoredMistakeService>().ignored.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.restore),

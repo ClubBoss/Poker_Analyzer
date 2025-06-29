@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/error_entry.dart';
 import 'retry_training_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 const _filterOptions = [
   'All',
@@ -79,7 +80,7 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
       appBar: AppBar(
         title: const Text('Ошибки сессии'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           PopupMenuButton<String>(
             onSelected: (v) {
               setState(() {

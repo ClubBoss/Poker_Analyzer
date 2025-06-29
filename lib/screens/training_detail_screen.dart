@@ -7,6 +7,7 @@ import 'package:pie_chart/pie_chart.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingDetailScreen extends StatelessWidget {
   final TrainingResult result;
@@ -132,6 +133,7 @@ class TrainingDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Session Details'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: AppColors.background,
       body: Padding(

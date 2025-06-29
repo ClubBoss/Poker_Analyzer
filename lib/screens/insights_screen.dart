@@ -9,6 +9,7 @@ import '../theme/app_colors.dart';
 import '../widgets/training_calendar_widget.dart';
 import 'streak_calendar_screen.dart';
 import '../widgets/mistake_summary_card.dart';
+import '../widgets/sync_status_widget.dart';
 
 enum _Mode { daily, weekly }
 
@@ -235,7 +236,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Insights'),
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           ToggleButtons(
             isSelected: [_mode == _Mode.daily, _mode == _Mode.weekly],
             onPressed: (i) => setState(() => _mode = _Mode.values[i]),
