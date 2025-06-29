@@ -39,7 +39,7 @@ class PlayerZoneWidget extends StatelessWidget {
   }
 }
 
-class PlayerAvatar extends StatelessWidget {
+class PlayerAvatar extends StatefulWidget {
   final String name;
   final bool isHero;
   final VoidCallback? onTap;
@@ -52,13 +52,70 @@ class PlayerAvatar extends StatelessWidget {
   });
 
   @override
+  State<PlayerAvatar> createState() => _PlayerAvatarState();
+}
+
+class _PlayerAvatarState extends State<PlayerAvatar>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+    _anim = Tween(begin: 1.0, end: 1.2)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    if (widget.isHero) _controller.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant PlayerAvatar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isHero && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.isHero && _controller.isAnimating) {
+      _controller.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final color = isHero ? Colors.purpleAccent : Colors.blueGrey;
+    final color = widget.isHero ? Colors.purpleAccent : Colors.blueGrey;
+    final avatar = CircleAvatar(
+      backgroundColor: color,
+      child: Text(widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?'),
+    );
+    if (!widget.isHero) {
+      return GestureDetector(onTap: widget.onTap, child: avatar);
+    }
     return GestureDetector(
-      onTap: onTap,
-      child: CircleAvatar(
-        backgroundColor: color,
-        child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?'),
+      onTap: widget.onTap,
+      child: AnimatedBuilder(
+        animation: _anim,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _anim.value,
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFFFD700), width: 3),
+              ),
+              child: child,
+            ),
+          );
+        },
+        child: avatar,
       ),
     );
   }
