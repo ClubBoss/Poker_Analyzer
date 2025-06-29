@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -8,6 +10,7 @@ import 'package:pdf/pdf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_saver/file_saver.dart';
 
 import '../services/cloud_training_history_service.dart';
 
@@ -55,8 +58,8 @@ class _CloudTrainingSessionDetailsScreenState
     for (final r in widget.session.results) {
       _noteControllers[r.name] =
           TextEditingController(text: _handNotes[r.name] ?? '');
-      _tagControllers[r.name] = TextEditingController(
-          text: _handTags[r.name]?.join(', ') ?? '');
+      _tagControllers[r.name] =
+          TextEditingController(text: _handTags[r.name]?.join(', ') ?? '');
     }
     _loadPrefs();
   }
@@ -105,7 +108,8 @@ class _CloudTrainingSessionDetailsScreenState
     if (text.trim().isEmpty) {
       notes.remove(name);
       if (notes.isEmpty) {
-        await service.updateSession(widget.session.path, data: {'handNotes': FieldValue.delete()});
+        await service.updateSession(widget.session.path,
+            data: {'handNotes': FieldValue.delete()});
         return;
       }
     } else {
@@ -123,12 +127,14 @@ class _CloudTrainingSessionDetailsScreenState
     _handTags[name] = tags;
     final service = context.read<CloudTrainingHistoryService>();
     final map = {
-      for (final e in widget.session.handTags?.entries ?? {}) e.key: List<String>.from(e.value)
+      for (final e in widget.session.handTags?.entries ?? {})
+        e.key: List<String>.from(e.value)
     };
     if (tags.isEmpty) {
       map.remove(name);
       if (map.isEmpty) {
-        await service.updateSession(widget.session.path, data: {'handTags': FieldValue.delete()});
+        await service.updateSession(widget.session.path,
+            data: {'handTags': FieldValue.delete()});
         return;
       }
     } else {
@@ -143,8 +149,7 @@ class _CloudTrainingSessionDetailsScreenState
       builder: (context) {
         return AlertDialog(
           title: const Text('Delete Session?'),
-          content:
-              const Text('Are you sure you want to delete this session?'),
+          content: const Text('Are you sure you want to delete this session?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -258,6 +263,40 @@ class _CloudTrainingSessionDetailsScreenState
     }
   }
 
+  Future<void> _exportJson(BuildContext context) async {
+    final session = CloudTrainingSession(
+      path: widget.session.path,
+      date: widget.session.date,
+      results: widget.session.results,
+      comment: _comment.trim().isEmpty ? null : _comment.trim(),
+      handNotes: _handNotes.isEmpty ? null : _handNotes,
+      handTags: _handTags.isEmpty ? null : _handTags,
+    );
+    final encoder = const JsonEncoder.withIndent('  ');
+    final bytes = Uint8List.fromList(
+      utf8.encode(encoder.convert(session.toJson())),
+    );
+    final name = 'session_${widget.session.date.millisecondsSinceEpoch}';
+    try {
+      await FileSaver.instance.saveAs(
+        name: name,
+        bytes: bytes,
+        ext: 'json',
+        mimeType: MimeType.other,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Файл сохранён: $name.json')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ошибка экспорта JSON')));
+      }
+    }
+  }
+
   Future<void> _repeatSession(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
     final Map<String, SavedHand> map = {
@@ -359,17 +398,22 @@ class _CloudTrainingSessionDetailsScreenState
           ],
         ),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Экспорт',
-            onPressed:
-                results.isEmpty ? null : () => _exportMarkdown(context),
+            onPressed: results.isEmpty ? null : () => _exportMarkdown(context),
           ),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'PDF',
             onPressed: results.isEmpty ? null : () => _exportPdf(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.data_object),
+            tooltip: 'JSON',
+            onPressed: results.isEmpty ? null : () => _exportJson(context),
           ),
           IconButton(
             icon: const Icon(Icons.delete),
@@ -426,16 +470,14 @@ class _CloudTrainingSessionDetailsScreenState
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
-                        for (final t in {
-                          ..._handTags.values.expand((e) => e)
-                        })
+                        for (final t in {..._handTags.values.expand((e) => e)})
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: ChoiceChip(
                               label: Text(t),
                               selected: _tagFilter == t,
-                              onSelected: (_) =>
-                                  setState(() => _tagFilter = _tagFilter == t ? 'All' : t),
+                              onSelected: (_) => setState(() =>
+                                  _tagFilter = _tagFilter == t ? 'All' : t),
                             ),
                           ),
                         if (_tagFilter != 'All')
@@ -492,9 +534,10 @@ class _CloudTrainingSessionDetailsScreenState
                                       for (final t in _handTags[r.name]!)
                                         Chip(
                                           label: Text(t),
-                                          backgroundColor: const Color(0xFF3A3B3E),
-                                          labelStyle:
-                                              const TextStyle(color: Colors.white),
+                                          backgroundColor:
+                                              const Color(0xFF3A3B3E),
+                                          labelStyle: const TextStyle(
+                                              color: Colors.white),
                                         ),
                                     ],
                                   ),
@@ -512,7 +555,8 @@ class _CloudTrainingSessionDetailsScreenState
                                   }
                                   final gto = hand.gtoAction ?? r.expected;
                                   final group = hand.rangeGroup ?? '-';
-                                  final verdict = r.correct ? 'верное' : 'ошибочное';
+                                  final verdict =
+                                      r.correct ? 'верное' : 'ошибочное';
                                   return 'GTO предлагает $gto, ваша рука из группы $group. Это действие $verdict.';
                                 }(),
                                 style: const TextStyle(color: Colors.white70),
@@ -525,8 +569,7 @@ class _CloudTrainingSessionDetailsScreenState
                                 onChanged: (t) => _saveHandComment(r.name, t),
                                 maxLines: null,
                                 minLines: 2,
-                                style:
-                                    const TextStyle(color: Colors.white),
+                                style: const TextStyle(color: Colors.white),
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: 'Заметка',
