@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -8,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'cloud_sync_service.dart';
 
 import '../models/training_pack.dart';
 import '../models/training_pack_template.dart';
@@ -15,6 +17,17 @@ import '../models/game_type.dart';
 
 class TrainingPackStorageService extends ChangeNotifier {
   static const _storageFile = 'training_packs.json';
+
+  TrainingPackStorageService({this.cloud});
+
+  final CloudSyncService? cloud;
+
+  Future<void> _sync(TrainingPack pack) async {
+    if (cloud != null && !pack.isBuiltIn) {
+      await cloud!.queueMutation('training_packs', pack.id, pack.toJson());
+      unawaited(cloud!.syncUp());
+    }
+  }
 
   final List<TrainingPack> _packs = [];
   List<TrainingPack> get packs => List.unmodifiable(_packs);
@@ -66,6 +79,7 @@ class TrainingPackStorageService extends ChangeNotifier {
   Future<void> addPack(TrainingPack pack) async {
     _packs.add(pack);
     await _persist();
+    await _sync(pack);
     notifyListeners();
   }
 
@@ -85,6 +99,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     );
     _packs.add(newPack);
     await _persist();
+    await _sync(newPack);
     notifyListeners();
   }
 
@@ -100,6 +115,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     if (index == -1) return null;
     final removed = _packs.removeAt(index);
     await _persist();
+    await _sync(removed);
     notifyListeners();
     return (removed, index);
   }
@@ -108,6 +124,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     final insertIndex = index.clamp(0, _packs.length);
     _packs.insert(insertIndex, pack);
     await _persist();
+    await _sync(pack);
     notifyListeners();
   }
 
@@ -187,6 +204,7 @@ class TrainingPackStorageService extends ChangeNotifier {
         history: pack.history,
       );
     await _persist();
+    await _sync(_packs[index]);
     notifyListeners();
   }
 
@@ -207,6 +225,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       history: pack.history,
     );
     await _persist();
+    await _sync(_packs[index]);
     notifyListeners();
   }
 
@@ -227,6 +246,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       history: pack.history,
     );
     await _persist();
+    await _sync(_packs[index]);
     notifyListeners();
   }
 
@@ -250,6 +270,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('training_progress_${pack.name}');
     await _persist();
+    await _sync(_packs[index]);
     notifyListeners();
   }
 
@@ -281,6 +302,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     );
     _packs[index] = updated;
     await _persist();
+    await _sync(updated);
     notifyListeners();
     return updated;
   }
@@ -295,6 +317,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     if (index == -1) return;
     _packs[index] = newPack;
     await _persist();
+    await _sync(newPack);
     notifyListeners();
   }
 
@@ -316,6 +339,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     final copy = TrainingPack.fromJson(map);
     _packs.add(copy);
     await _persist();
+    await _sync(copy);
     notifyListeners();
     return copy;
   }
@@ -350,6 +374,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     );
     _packs.add(pack);
     await save();
+    await _sync(pack);
     return pack;
   }
 
@@ -394,8 +419,20 @@ class TrainingPackStorageService extends ChangeNotifier {
     );
     _packs.add(pack);
     await _persist();
+    await _sync(pack);
     notifyListeners();
     return pack;
+  }
+
+  void merge(List<TrainingPack> list) {
+    for (final p in list) {
+      final index = _packs.indexWhere((e) => e.id == p.id);
+      if (index == -1) {
+        _packs.add(p);
+      } else {
+        _packs[index] = p;
+      }
+    }
   }
 }
 
