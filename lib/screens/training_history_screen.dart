@@ -44,7 +44,7 @@ class TrainingHistoryScreen extends StatefulWidget {
   State<TrainingHistoryScreen> createState() => _TrainingHistoryScreenState();
 }
 
-enum _SortOption { newest, oldest, rating }
+enum _SortOption { newest, oldest, position, mistakes }
 
 enum _RatingFilter { all, pct40, pct60, pct80 }
 
@@ -142,7 +142,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final fromMillis = prefs.getInt(_dateFromKey);
     final toMillis = prefs.getInt(_dateToKey);
     setState(() {
-      _sort = _SortOption.values[sortIndex];
+      final idx = sortIndex.clamp(0, _SortOption.values.length - 1);
+      _sort = _SortOption.values[idx];
       _ratingFilter = _RatingFilter.values[ratingIndex];
       final idx = accuracyRangeIndex.clamp(0, _AccuracyRange.values.length - 1);
       _accuracyRange = _AccuracyRange.values[idx];
@@ -1084,8 +1085,26 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
           return b.date.compareTo(a.date);
         case _SortOption.oldest:
           return a.date.compareTo(b.date);
-        case _SortOption.rating:
-          return b.accuracy.compareTo(a.accuracy);
+        case _SortOption.position:
+          int idx(String? p) {
+            const order = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+            return order.indexOf(p ?? '');
+          }
+          final ap = a.tags.firstWhere(
+              (t) => ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'].contains(t),
+              orElse: () => '');
+          final bp = b.tags.firstWhere(
+              (t) => ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'].contains(t),
+              orElse: () => '');
+          final ai = idx(ap);
+          final bi = idx(bp);
+          if (ai != bi) return ai.compareTo(bi);
+          return b.date.compareTo(a.date);
+        case _SortOption.mistakes:
+          final am = a.total - a.correct;
+          final bm = b.total - b.correct;
+          if (am != bm) return bm.compareTo(am);
+          return b.date.compareTo(a.date);
       }
     }
 
@@ -2461,7 +2480,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         },
                       ),
                       const SizedBox(width: 16),
-                      const Text('Сортировка',
+                      const Text('Sort By',
                           style: TextStyle(color: Colors.white)),
                       const SizedBox(width: 8),
                       DropdownButton<_SortOption>(
@@ -2471,13 +2490,16 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         items: const [
                           DropdownMenuItem(
                               value: _SortOption.newest,
-                              child: Text('Сначала новые')),
+                              child: Text('Newest First')),
                           DropdownMenuItem(
                               value: _SortOption.oldest,
-                              child: Text('Сначала старые')),
+                              child: Text('Oldest First')),
                           DropdownMenuItem(
-                              value: _SortOption.rating,
-                              child: Text('По рейтингу')),
+                              value: _SortOption.position,
+                              child: Text('Hero Position')),
+                          DropdownMenuItem(
+                              value: _SortOption.mistakes,
+                              child: Text('Mistakes First')),
                         ],
                         onChanged: (value) async {
                           if (value == null) return;
