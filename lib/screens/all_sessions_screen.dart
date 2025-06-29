@@ -15,6 +15,7 @@ import '../helpers/accuracy_utils.dart';
 import '../models/training_pack.dart';
 import '../models/game_type.dart';
 import 'session_detail_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class AllSessionsScreen extends StatefulWidget {
   const AllSessionsScreen({super.key});
@@ -1114,6 +1115,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       appBar: AppBar(
         title: const Text('История тренировок'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: Column(

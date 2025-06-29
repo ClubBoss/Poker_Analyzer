@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/goals_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class MyAchievementsScreen extends StatelessWidget {
   const MyAchievementsScreen({super.key});
@@ -13,6 +14,7 @@ class MyAchievementsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Мои достижения'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Builder(
         builder: (context) {

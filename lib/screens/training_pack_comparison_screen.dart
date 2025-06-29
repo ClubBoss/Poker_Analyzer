@@ -24,6 +24,7 @@ import '../widgets/difficulty_chip.dart';
 import '../widgets/info_tooltip.dart';
 import '../helpers/color_utils.dart';
 import '../widgets/color_picker_dialog.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingPackComparisonScreen extends StatefulWidget {
   const TrainingPackComparisonScreen({super.key});
@@ -647,6 +648,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       appBar: AppBar(
         title: const Text('Сравнение паков'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _exportCsv,

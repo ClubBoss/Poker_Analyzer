@@ -11,6 +11,7 @@ import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'hand_history_review_screen.dart';
 import '../widgets/saved_hand_tile.dart';
+import '../widgets/sync_status_widget.dart';
 
 class MistakeRepeatScreen extends StatelessWidget {
   const MistakeRepeatScreen({super.key});
@@ -258,7 +259,7 @@ class MistakeRepeatScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Повторы ошибок'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.save_alt),
             tooltip: 'Экспорт',

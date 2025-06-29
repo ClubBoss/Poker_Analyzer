@@ -13,6 +13,7 @@ import 'create_pack_from_template_screen.dart';
 import 'create_template_screen.dart';
 import 'template_hands_editor_screen.dart';
 import 'template_preview_dialog.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -202,6 +203,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ),
           ),
         ],
+      actions: [SyncStatusIcon.of(context)],
       ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,

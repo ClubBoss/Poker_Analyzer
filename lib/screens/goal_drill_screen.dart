@@ -6,6 +6,7 @@ import '../models/training_spot.dart';
 import '../services/goals_service.dart';
 import '../services/training_pack_storage_service.dart';
 import '../widgets/replay_spot_widget.dart';
+import '../widgets/sync_status_widget.dart';
 
 class GoalDrillScreen extends StatefulWidget {
   const GoalDrillScreen({super.key});
@@ -57,6 +58,7 @@ class _GoalDrillScreenState extends State<GoalDrillScreen> {
         appBar: AppBar(
           title: const Text('Отработка цели'),
           centerTitle: true,
+          actions: [SyncStatusIcon.of(context)],
         ),
         body: const Center(
           child: Text(
@@ -71,6 +73,7 @@ class _GoalDrillScreenState extends State<GoalDrillScreen> {
         appBar: AppBar(
           title: const Text('Отработка цели'),
           centerTitle: true,
+          actions: [SyncStatusIcon.of(context)],
         ),
         body: const Center(
           child: Text(
@@ -87,6 +90,7 @@ class _GoalDrillScreenState extends State<GoalDrillScreen> {
       appBar: AppBar(
         title: Text(_goal!.title),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

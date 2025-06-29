@@ -27,6 +27,7 @@ import 'daily_spot_history_calendar_screen.dart';
 import 'achievements_screen.dart';
 import 'drill_history_screen.dart';
 import 'goal_drill_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -777,7 +778,7 @@ class _ProgressScreenState extends State<ProgressScreen>
       appBar: AppBar(
         title: const Text('Прогресс'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.history),
             tooltip: 'История целей',

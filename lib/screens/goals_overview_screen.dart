@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/goals_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class GoalsOverviewScreen extends StatelessWidget {
   const GoalsOverviewScreen({super.key});
@@ -121,6 +122,7 @@ class GoalsOverviewScreen extends StatelessWidget {
               onEdit: () => _editAccuracy(context),
               percent: true),
         ],
+      actions: [SyncStatusIcon.of(context)],
       ),
     );
   }

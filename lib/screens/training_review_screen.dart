@@ -4,6 +4,7 @@ import '../models/training_spot.dart';
 import '../theme/app_colors.dart';
 import '../widgets/training_spot_diagram.dart';
 import '../models/action_entry.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingReviewScreen extends StatelessWidget {
   final String title;
@@ -126,6 +127,7 @@ class TrainingReviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Spot Review'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(

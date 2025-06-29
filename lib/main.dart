@@ -46,6 +46,7 @@ import 'services/category_usage_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
+import 'widgets/sync_status_widget.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -231,20 +232,24 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      title: 'Poker AI Analyzer',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-        scaffoldBackgroundColor: Colors.black,
-        textTheme: ThemeData.dark().textTheme.apply(
-              fontFamily: 'Roboto',
-              bodyColor: Colors.white,
-              displayColor: Colors.white,
-            ),
+    return SyncStatusWidget(
+      sync: _sync,
+      cloud: context.read<CloudSyncService>(),
+      child: MaterialApp(
+        navigatorKey: navigatorKey,
+        title: 'Poker AI Analyzer',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark().copyWith(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+          scaffoldBackgroundColor: Colors.black,
+          textTheme: ThemeData.dark().textTheme.apply(
+                fontFamily: 'Roboto',
+                bodyColor: Colors.white,
+                displayColor: Colors.white,
+              ),
+        ),
+        home: const MainNavigationScreen(),
       ),
-      home: const MainNavigationScreen(),
     );
   }
 }

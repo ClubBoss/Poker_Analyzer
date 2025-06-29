@@ -12,6 +12,7 @@ import '../widgets/quick_continue_card.dart';
 import '../widgets/progress_summary_box.dart';
 import 'training_progress_analytics_screen.dart';
 import 'template_library_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
   const TrainingHomeScreen({super.key});
@@ -32,7 +33,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training'),
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.analytics),
             onPressed: () {

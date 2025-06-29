@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/tag_service.dart';
 import '../helpers/color_utils.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TagManagementScreen extends StatelessWidget {
   const TagManagementScreen({super.key});
@@ -81,7 +82,7 @@ class TagManagementScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Теги'),
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Экспорт',

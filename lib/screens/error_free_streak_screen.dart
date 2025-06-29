@@ -6,6 +6,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import 'streak_history_screen.dart';
 import 'hand_history_review_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 /// Displays hands from the current error-free streak.
 class ErrorFreeStreakScreen extends StatelessWidget {
@@ -20,7 +21,7 @@ class ErrorFreeStreakScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Серия без ошибок'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {

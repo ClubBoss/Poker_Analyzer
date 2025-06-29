@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../services/goals_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/sync_status_widget.dart';
 
 class DrillHistoryScreen extends StatelessWidget {
   const DrillHistoryScreen({super.key});
@@ -18,6 +19,7 @@ class DrillHistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('История тренировок'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: results.isEmpty
           ? const Center(

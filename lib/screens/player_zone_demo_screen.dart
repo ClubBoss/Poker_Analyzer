@@ -8,6 +8,7 @@ import '../models/card_model.dart';
 import '../services/action_sync_service.dart';
 import '../models/player_model.dart';
 import '../helpers/poker_street_helper.dart';
+import '../widgets/sync_status_widget.dart';
 
 class PlayerZoneDemoScreen extends StatefulWidget {
   const PlayerZoneDemoScreen({super.key});
@@ -71,6 +72,7 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
             ),
           ),
         ],
+      actions: [SyncStatusIcon.of(context)],
       ),
     );
   }

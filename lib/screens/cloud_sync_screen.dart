@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 
 import '../services/cloud_sync_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class CloudSyncScreen extends StatefulWidget {
   const CloudSyncScreen({super.key});
@@ -26,6 +27,7 @@ class _CloudSyncScreenState extends State<CloudSyncScreen> {
       appBar: AppBar(
         title: const Text('Cloud Sync'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

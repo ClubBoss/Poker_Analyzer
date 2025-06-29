@@ -15,6 +15,7 @@ import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
 import 'training_pack_comparison_screen.dart';
 import 'create_pack_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingPacksScreen extends StatefulWidget {
   const TrainingPacksScreen({super.key});
@@ -142,6 +143,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
+          actions: [SyncStatusIcon.of(context)],
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -196,6 +198,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
+          actions: [SyncStatusIcon.of(context)],
         ),
         body: Center(
           child: Column(
@@ -240,6 +243,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Тренировочные споты'),
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Column(
         children: [

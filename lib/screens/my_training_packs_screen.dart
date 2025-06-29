@@ -18,6 +18,7 @@ import '../widgets/color_picker_dialog.dart';
 import 'package:intl/intl.dart';
 import '../services/tag_service.dart';
 import 'training_pack_template_list_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class MyTrainingPacksScreen extends StatefulWidget {
   const MyTrainingPacksScreen({super.key});
@@ -413,6 +414,8 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Мои паки'), centerTitle: true),
+      actions: [SyncStatusIcon.of(context)],
+      actions: [SyncStatusIcon.of(context)],
       backgroundColor: AppColors.background,
       bottomNavigationBar: _selectionMode
           ? BottomAppBar(
