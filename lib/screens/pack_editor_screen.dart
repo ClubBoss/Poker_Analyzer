@@ -984,27 +984,33 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   Future<bool> _onWillPop() async {
     if (!_modified) return true;
-    final save = await showDialog<bool>(
+    final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Сохранить изменения?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Нет'),
+            onPressed: () => Navigator.pop(context, 'cancel'),
+            child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Да'),
+            onPressed: () => Navigator.pop(context, 'discard'),
+            child: const Text('Discard'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'save'),
+            child: const Text('Save'),
           ),
         ],
       ),
     );
-    if (save == true) {
+    if (result == 'save') {
       await _save();
+      setState(() => _modified = false);
       return true;
     }
-    return save ?? false;
+    if (result == 'discard') return true;
+    return false;
   }
 
   Future<void> _save() async {
@@ -1026,7 +1032,16 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
     _packRef = updated;
     _renameUndo.clear();
+  }
+
+  Future<void> _saveAndExit() async {
+    await _save();
     if (mounted) Navigator.pop(context, true);
+  }
+
+  Future<void> _commitChanges() async {
+    await _save();
+    if (mounted) setState(() => _modified = false);
   }
 
   Future<void> _saveSnapshot() async {
@@ -1088,13 +1103,17 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   }
 
   Future<void> _setSort(_SortOption value) async {
-    setState(() => _sort = value);
+    setState(() {
+      _modified = true;
+      _sort = value;
+    });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_sortKey, value.index);
   }
 
   Future<void> _setSearch(String value) async {
     setState(() {
+      _modified = true;
       _rebuildStats();
     });
     final prefs = await SharedPreferences.getInstance();
@@ -1103,6 +1122,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   Future<void> _setTagFilter(String? value) async {
     setState(() {
+      _modified = true;
       _tagFilter = value;
       _rebuildStats();
     });
@@ -1116,6 +1136,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   Future<void> _setMistakeFilter(_MistakeFilter value) async {
     setState(() {
+      _modified = true;
       _mistakeFilter = value;
       _rebuildStats();
     });
@@ -1125,6 +1146,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   Future<void> _setHeroFilter(String? value) async {
     setState(() {
+      _modified = true;
       _heroPosFilter = value;
       _rebuildStats();
     });
@@ -2185,8 +2207,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     onPressed: _toggleFind,
                     icon: const Icon(Icons.search),
                   ),
+                  TextButton(
+                    onPressed: _modified ? _commitChanges : null,
+                    child: const Text('Commit Changes'),
+                  ),
                   IconButton(
-                    onPressed: _hands.isEmpty ? null : _save,
+                    onPressed: _hands.isEmpty ? null : _saveAndExit,
                     icon: const Icon(Icons.check),
                   ),
                   PopupMenuButton<String>(
