@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import '../widgets/poker_table_view.dart';
 import '../models/table_state.dart';
 import '../services/table_edit_history.dart';
@@ -90,6 +92,16 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
     if (s != null) _applyState(s);
   }
 
+  Future<void> _copyJson() async {
+    final jsonStr = jsonEncode(_state.toJson());
+    await Clipboard.setData(ClipboardData(text: jsonStr));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Table copied')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +115,11 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
           IconButton(
             icon: const Icon(Icons.redo),
             onPressed: _history.canRedo ? _redo : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.copy),
+            onPressed: _copyJson,
+            tooltip: 'Copy JSON',
           ),
           IconButton(icon: const Icon(Icons.color_lens), onPressed: _nextTheme),
           IconButton(icon: const Icon(Icons.clear), onPressed: _clear),
