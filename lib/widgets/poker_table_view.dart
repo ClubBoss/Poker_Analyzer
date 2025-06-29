@@ -8,6 +8,8 @@ import 'position_label.dart';
 import 'pot_chip_stack_painter.dart';
 import 'dealer_button_indicator.dart';
 import 'blind_chip_indicator.dart';
+import '../models/table_state.dart';
+import '../services/table_edit_history.dart';
 
 enum PlayerAction { none, fold, push, call, raise }
 
@@ -165,8 +167,22 @@ class _PokerTableViewState extends State<PokerTableView> {
           onTap: () => widget.onHeroSelected(i),
           onDoubleTap: () {
             final current = widget.playerActions[i];
-            final next = PlayerAction.values[
-                (current.index + 1) % PlayerAction.values.length];
+            final next =
+                PlayerAction.values[(current.index + 1) % PlayerAction.values.length];
+            if (next == PlayerAction.push) {
+              TableEditHistory.instance.push(
+                TableState(
+                  playerCount: widget.playerCount,
+                  names: List<String>.from(widget.playerNames),
+                  stacks: List<double>.from(widget.playerStacks),
+                  heroIndex: widget.heroIndex,
+                  pot: widget.potSize,
+                ),
+              );
+              final newPot = widget.potSize + stack;
+              widget.onStackChanged(i, 0);
+              widget.onPotChanged(newPot);
+            }
             widget.onActionChanged(i, next);
             setState(() {});
           },
