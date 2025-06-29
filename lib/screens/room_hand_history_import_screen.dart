@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/training_pack.dart';
@@ -42,6 +43,14 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
     if (text.isEmpty || _importer == null) return;
     final parsed = _importer!.parse(text);
     setState(() => _hands = parsed);
+  }
+
+  Future<void> _paste() async {
+    final data = await Clipboard.getData('text/plain');
+    final text = data?.text ?? '';
+    if (text.isEmpty) return;
+    setState(() => _controller.text = text);
+    _parse();
   }
 
   Future<void> _preview(SavedHand hand) async {
@@ -96,6 +105,10 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
     return Scaffold(
       appBar: AppBar(title: Text(_pack.name), centerTitle: true),
       backgroundColor: AppColors.background,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _paste,
+        label: const Text('📋 Paste'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
