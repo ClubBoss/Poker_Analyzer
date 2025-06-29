@@ -878,6 +878,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   }
 
   void _rebuildStats() {
+    _filterConflict = false;
     final indices = _visibleIndices();
     final Map<String, int> tags = {};
     int m0 = 0;
@@ -906,7 +907,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     _mist3 = m3;
     _posCount = pos;
     _dupCount = _hands.where((h) => h.isDuplicate).length;
-    _filterConflict = _hands.isNotEmpty && indices.isEmpty;
+    _filterConflict =
+        _hands.isNotEmpty && indices.isEmpty && _searchController.text.isEmpty;
   }
 
   Future<bool> _onWillPop() async {
@@ -1541,7 +1543,17 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         _heroPosFilter != null &&
         _mistakeFilter != _MistakeFilter.any) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No hands match current filters')),
+        SnackBar(
+          content: const Text('No hands match current filters'),
+          action: SnackBarAction(
+            label: 'Clear',
+            onPressed: () {
+              _setTagFilter(null);
+              _setHeroFilter(null);
+              _setMistakeFilter(_MistakeFilter.any);
+            },
+          ),
+        ),
       );
     }
   }
@@ -2229,6 +2241,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   ],
                 ),
               ),
+            if (_filterConflict)
+              const Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'No hands match current filters',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
             Expanded(
               child: ReorderableListView.builder(
                 onReorder: (oldIndex, newIndex) {
@@ -2344,14 +2364,6 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 },
               ),
             ),
-            if (_filterConflict)
-              const Padding(
-                padding: EdgeInsets.all(8),
-                child: Text(
-                  'No hands match current filters',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
