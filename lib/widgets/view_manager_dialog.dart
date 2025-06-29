@@ -62,13 +62,16 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
   }
 
   void _reorder(int oldIndex, int newIndex, List<ViewPreset> filtered) {
-    if (newIndex > oldIndex) newIndex--;
     final moved = filtered[oldIndex];
     final oldMainIndex = _views.indexOf(moved);
-    final newMainIndex = newIndex >= filtered.length
-        ? _views.length - 1
+    var newMainIndex = newIndex >= filtered.length
+        ? _views.length
         : _views.indexOf(filtered[newIndex]);
-    setState(() => _views.insert(newMainIndex, _views.removeAt(oldMainIndex)));
+    if (newMainIndex > oldMainIndex) newMainIndex--;
+    setState(() {
+      final item = _views.removeAt(oldMainIndex);
+      _views.insert(newMainIndex, item);
+    });
     widget.onChanged(_views);
   }
 
