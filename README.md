@@ -1,7 +1,7 @@
 # Poker AI Analyzer
 <!-- 30/40 (Advanced Insights) -->
 
-[![Demo APK Build](https://github.com/OWNER/REPO/actions/workflows/demo_build.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/demo_build.yml)
+[![Demo APK Build](https://github.com/ClubBoss/Poker_Analyzer/actions/workflows/demo_build.yml/badge.svg)](https://github.com/ClubBoss/Poker_Analyzer/actions/workflows/demo_build.yml)
 
 Poker AI Analyzer helps analyze and train poker decision making. The app lets you create hands, play training packs and track statistics.
 
