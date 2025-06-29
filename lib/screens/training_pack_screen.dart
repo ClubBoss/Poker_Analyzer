@@ -557,6 +557,14 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     );
   }
 
+  Future<void> _sharePack() async {
+    final file = await context.read<TrainingPackStorageService>().exportPack(_pack);
+    if (!mounted || file == null) return;
+    await Share.shareXFiles([
+      XFile(file.path)
+    ], text: 'Check out my Poker Analyzer pack!');
+  }
+
   Future<void> _addSpot() async {
     final spot = await Navigator.push<TrainingSpot>(
       context,
@@ -1400,6 +1408,11 @@ body { font-family: sans-serif; padding: 16px; }
               ),
               const SizedBox(height: 12),
               ElevatedButton(
+                onPressed: _pack.isBuiltIn ? null : _sharePack,
+                child: const Text('Share Pack'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
                 onPressed: _exportMarkdown,
                 child: const Text('Export to Markdown'),
               ),
@@ -1931,6 +1944,11 @@ body { font-family: sans-serif; padding: 16px; }
               icon: const Icon(Icons.upload_file),
               tooltip: 'Экспорт пакета',
               onPressed: _exportPack,
+            ),
+            IconButton(
+              icon: const Icon(Icons.share),
+              tooltip: 'Share',
+              onPressed: _pack.isBuiltIn ? null : _sharePack,
             ),
             IconButton(
               icon: const Icon(Icons.file_download),
