@@ -12,6 +12,7 @@ class PokerTableView extends StatefulWidget {
   final List<double> playerStacks;
   final void Function(int index) onHeroSelected;
   final void Function(int index, double newStack) onStackChanged;
+  final void Function(int index, String newName) onNameChanged;
   final double scale;
   const PokerTableView({
     super.key,
@@ -21,6 +22,7 @@ class PokerTableView extends StatefulWidget {
     required this.playerStacks,
     required this.onHeroSelected,
     required this.onStackChanged,
+    required this.onNameChanged,
     this.scale = 1.0,
   });
 
@@ -54,6 +56,36 @@ class _PokerTableViewState extends State<PokerTableView> {
         top: offset.dy,
         child: GestureDetector(
           onTap: () => widget.onHeroSelected(i),
+          onLongPress: () async {
+            final controller = TextEditingController(text: widget.playerNames[i]);
+            final result = await showDialog<String>(
+              context: context,
+              builder: (context) => AlertDialog(
+                backgroundColor: Colors.black.withOpacity(0.3),
+                title: const Text('Rename Player', style: TextStyle(color: Colors.white)),
+                content: TextField(
+                  controller: controller,
+                  autofocus: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white10,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    hintText: 'Enter name',
+                    hintStyle: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+                actions: [
+                  TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                  TextButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('OK')),
+                ],
+              ),
+            );
+            if (result != null) {
+              widget.onNameChanged(i, result);
+              setState(() {});
+            }
+          },
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             transitionBuilder: (child, animation) => FadeTransition(
