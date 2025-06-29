@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -8,6 +7,9 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../services/cloud_training_history_service.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
@@ -74,65 +76,29 @@ class _CloudTrainingSessionDetailsScreenState
 
   Future<void> _saveComment(String text) async {
     setState(() => _comment = text);
-    final file = File(widget.session.path);
-    try {
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      Map<String, dynamic> map;
-      if (data is Map<String, dynamic>) {
-        map = Map<String, dynamic>.from(data);
-      } else if (data is List) {
-        map = {
-          'results': data,
-          'date': widget.session.date.toIso8601String(),
-        };
-      } else {
-        return;
-      }
-      if (text.trim().isEmpty) {
-        map.remove('comment');
-      } else {
-        map['comment'] = text.trim();
-      }
-      await file.writeAsString(jsonEncode(map), flush: true);
-    } catch (_) {}
+    final service = context.read<CloudTrainingHistoryService>();
+    await service.updateSession(
+      widget.session.path,
+      text.trim().isEmpty
+          ? {'comment': FieldValue.delete()}
+          : {'comment': text.trim()},
+    );
   }
 
   Future<void> _saveHandComment(String name, String text) async {
     _handNotes[name] = text;
-    final file = File(widget.session.path);
-    try {
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      Map<String, dynamic> map;
-      if (data is Map<String, dynamic>) {
-        map = Map<String, dynamic>.from(data);
-      } else if (data is List) {
-        map = {
-          'results': data,
-          'date': widget.session.date.toIso8601String(),
-        };
-      } else {
+    final service = context.read<CloudTrainingHistoryService>();
+    final notes = {...?widget.session.handNotes};
+    if (text.trim().isEmpty) {
+      notes.remove(name);
+      if (notes.isEmpty) {
+        await service.updateSession(widget.session.path, {'handNotes': FieldValue.delete()});
         return;
       }
-      Map<String, String> notes = {};
-      if (map['handNotes'] is Map) {
-        (map['handNotes'] as Map).forEach((key, value) {
-          if (key is String && value is String) notes[key] = value;
-        });
-      }
-      if (text.trim().isEmpty) {
-        notes.remove(name);
-      } else {
-        notes[name] = text.trim();
-      }
-      if (notes.isEmpty) {
-        map.remove('handNotes');
-      } else {
-        map['handNotes'] = notes;
-      }
-      await file.writeAsString(jsonEncode(map), flush: true);
-    } catch (_) {}
+    } else {
+      notes[name] = text.trim();
+    }
+    await service.updateSession(widget.session.path, {'handNotes': notes});
   }
 
   Future<void> _deleteSession(BuildContext context) async {
@@ -157,10 +123,9 @@ class _CloudTrainingSessionDetailsScreenState
       },
     );
     if (confirm == true) {
-      final file = File(widget.session.path);
-      if (await file.exists()) {
-        await file.delete();
-      }
+      await context
+          .read<CloudTrainingHistoryService>()
+          .deleteSession(widget.session.path);
       if (context.mounted) {
         Navigator.pop(context);
       }
