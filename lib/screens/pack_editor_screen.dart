@@ -2096,8 +2096,20 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             const Text('Tags', style: TextStyle(color: Colors.white70)),
             for (final e in tags)
               ListTile(
+                leading: Checkbox(
+                  value: _tagFilter == e.key,
+                  onChanged: (v) {
+                    _setTagFilter(v == true ? e.key : null);
+                    Navigator.pop(ctx);
+                  },
+                ),
                 title: Chip(
-                  label: Text(e.key),
+                  label: Text(
+                    e.key,
+                    style: _tagFilter == e.key
+                        ? const TextStyle(fontWeight: FontWeight.bold)
+                        : null,
+                  ),
                   backgroundColor: colorFromHex(tagService.colorOf(e.key)),
                 ),
                 trailing: Row(
@@ -2132,10 +2144,6 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     )
                   ],
                 ),
-                onTap: () {
-                  _setTagFilter(e.key);
-                  Navigator.pop(ctx);
-                },
               ),
             const SizedBox(height: 8),
             const Text('Mistakes', style: TextStyle(color: Colors.white70)),
