@@ -9,6 +9,7 @@ class PokerTableView extends StatefulWidget {
   final int heroIndex;
   final int playerCount;
   final List<String> playerNames;
+  final List<double> playerStacks;
   final void Function(int index) onHeroSelected;
   final double scale;
   const PokerTableView({
@@ -16,6 +17,7 @@ class PokerTableView extends StatefulWidget {
     required this.heroIndex,
     required this.playerCount,
     required this.playerNames,
+    required this.playerStacks,
     required this.onHeroSelected,
     this.scale = 1.0,
   });
@@ -44,6 +46,7 @@ class _PokerTableViewState extends State<PokerTableView> {
     for (int i = 0; i < widget.playerCount; i++) {
       final seat = TableGeometryHelper.positionForPlayer(i, widget.playerCount, width, height);
       final offset = Offset(width / 2 + seat.dx - 20 * widget.scale, height / 2 + seat.dy - 20 * widget.scale);
+      final stack = i < widget.playerStacks.length ? widget.playerStacks[i] : 0.0;
       items.add(Positioned(
         left: offset.dx,
         top: offset.dy,
@@ -70,6 +73,18 @@ class _PokerTableViewState extends State<PokerTableView> {
           label: positions[i],
           isHero: i == widget.heroIndex,
           scale: widget.scale,
+        ),
+      ));
+      items.add(Positioned(
+        left: offset.dx,
+        top: offset.dy + 42 * widget.scale,
+        child: Text(
+          '${stack.toStringAsFixed(1)} BB',
+          style: TextStyle(
+            color: i == widget.heroIndex ? Colors.white : Colors.grey,
+            fontWeight: i == widget.heroIndex ? FontWeight.bold : FontWeight.normal,
+            fontSize: 10 * widget.scale,
+          ),
         ),
       ));
     }
