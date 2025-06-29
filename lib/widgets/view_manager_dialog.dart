@@ -101,15 +101,20 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
               child: ReorderableListView(
                 onReorder: (o, n) => _reorder(o, n, filtered),
                 children: [
-                  for (final v in filtered)
+                  for (int i = 0; i < filtered.length; i++)
                     ListTile(
-                      key: ValueKey(v.id),
-                      title: Text(v.name),
+                      key: ValueKey(filtered[i].id),
+                      title: Text(filtered[i].name),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(icon: const Icon(Icons.edit), onPressed: () => _rename(v)),
-                          IconButton(icon: const Icon(Icons.delete), onPressed: () => _delete(v)),
+                          ReorderableDragStartListener(
+                            key: Key(filtered[i].id),
+                            index: i,
+                            child: const Icon(Icons.drag_handle),
+                          ),
+                          IconButton(icon: const Icon(Icons.edit), onPressed: () => _rename(filtered[i])),
+                          IconButton(icon: const Icon(Icons.delete), onPressed: () => _delete(filtered[i])),
                         ],
                       ),
                     ),
