@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../helpers/poker_position_helper.dart';
@@ -5,6 +6,7 @@ import 'poker_table_painter.dart';
 import 'analyzer/player_zone_widget.dart';
 import 'position_label.dart';
 import 'pot_chip_stack_painter.dart';
+import 'dealer_button_indicator.dart';
 
 class PokerTableView extends StatefulWidget {
   final int heroIndex;
@@ -129,6 +131,7 @@ class _PokerTableViewState extends State<PokerTableView> {
     for (int i = 0; i < widget.playerCount; i++) {
       final seat = TableGeometryHelper.positionForPlayer(i, widget.playerCount, width, height);
       final offset = Offset(width / 2 + seat.dx - 20 * widget.scale, height / 2 + seat.dy - 20 * widget.scale);
+      final angle = 2 * pi * i / widget.playerCount + pi / 2;
       final stack = i < widget.playerStacks.length ? widget.playerStacks[i] : 0.0;
       items.add(Positioned(
         left: offset.dx,
@@ -188,6 +191,14 @@ class _PokerTableViewState extends State<PokerTableView> {
           scale: widget.scale,
         ),
       ));
+      if (positions[i] == 'BTN') {
+        final dx = cos(angle) < 0 ? -24 * widget.scale : 24 * widget.scale;
+        items.add(Positioned(
+          left: offset.dx + dx,
+          top: offset.dy - 28 * widget.scale,
+          child: DealerButtonIndicator(scale: widget.scale),
+        ));
+      }
       items.add(Positioned(
         left: offset.dx,
         top: offset.dy + 42 * widget.scale,
