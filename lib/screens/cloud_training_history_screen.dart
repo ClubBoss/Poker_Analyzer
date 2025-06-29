@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
@@ -24,15 +25,24 @@ enum _SortMode { dateDesc, dateAsc, mistakesDesc, accuracyAsc }
 enum _ChartMode { daily, weekly, monthly }
 
 class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
+  static const _tagKey = 'cloud_history_tag';
   List<CloudTrainingSession> _sessions = [];
   bool _loading = true;
   _SortMode _sort = _SortMode.dateDesc;
   _ChartMode _chartMode = _ChartMode.daily;
+  String _tagFilter = 'All';
+  List<String> _tags = [];
 
   @override
   void initState() {
     super.initState();
+    _loadPrefs();
     _load();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _tagFilter = prefs.getString(_tagKey) ?? 'All');
   }
 
   Future<void> _load() async {
@@ -42,6 +52,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       _sessions = list;
       _loading = false;
     });
+    _updateTags();
   }
 
   void _openSession(CloudTrainingSession session) {
@@ -52,6 +63,41 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             CloudTrainingSessionDetailsScreen(session: session),
       ),
     );
+  }
+
+  Future<void> _saveTagFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_tagFilter == 'All') {
+      await prefs.remove(_tagKey);
+    } else {
+      await prefs.setString(_tagKey, _tagFilter);
+    }
+  }
+
+  void _updateTags() {
+    final set = <String>{};
+    for (final s in _sessions) {
+      for (final list in s.handTags?.values ?? []) {
+        set.addAll(list);
+      }
+    }
+    var changed = false;
+    final tags = set.toList()..sort();
+    if (_tagFilter != 'All' && !tags.contains(_tagFilter)) {
+      _tagFilter = 'All';
+      changed = true;
+    }
+    setState(() => _tags = tags);
+    if (changed) _saveTagFilter();
+  }
+
+  List<CloudTrainingSession> _getVisibleSessions() {
+    final list = _getSortedSessions();
+    if (_tagFilter == 'All') return list;
+    return [
+      for (final s in list)
+        if (s.handTags?.values.any((v) => v.contains(_tagFilter)) ?? false) s
+    ];
   }
 
   Future<void> _exportMarkdown() async {
@@ -213,6 +259,39 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                         ],
                       ),
                     ),
+                    if (_tags.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            const Text('Тег',
+                                style: TextStyle(color: Colors.white)),
+                            const SizedBox(width: 8),
+                            DropdownButton<String>(
+                              value: _tagFilter,
+                              dropdownColor: const Color(0xFF2A2B2E),
+                              style: const TextStyle(color: Colors.white),
+                              onChanged: (v) {
+                                if (v == null) return;
+                                setState(() => _tagFilter = v);
+                                _saveTagFilter();
+                              },
+                              items: [
+                                const DropdownMenuItem(
+                                  value: 'All',
+                                  child: Text('Все'),
+                                ),
+                                ..._tags
+                                    .map((t) => DropdownMenuItem(
+                                          value: t,
+                                          child: Text(t),
+                                        ))
+                                    .toList(),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
@@ -253,7 +332,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     Builder(
                       builder: (_) {
                         final grouped =
-                            _groupSessionsForChart(_getSortedSessions());
+                            _groupSessionsForChart(_getVisibleSessions());
                         return AccuracyTrendChart(
                           sessions: grouped,
                           mode: ChartMode.values[_chartMode.index],
@@ -262,10 +341,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                     ),
                     Expanded(
                       child: ListView.separated(
-                        itemCount: _getSortedSessions().length,
+                        itemCount: _getVisibleSessions().length,
                         separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
-                          final s = _getSortedSessions()[index];
+                          final s = _getVisibleSessions()[index];
                           return ListTile(
                             title: Text(
                               formatDateTime(s.date),
@@ -309,6 +388,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                 await context.read<CloudTrainingHistoryService>().deleteSession(s.path);
                                 if (mounted) {
                                   setState(() => _sessions.removeAt(index));
+                                  _updateTags();
                                 }
                               }
                             },
