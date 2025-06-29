@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/poker_table_view.dart';
+import '../models/table_state.dart';
+import '../services/table_edit_history.dart';
 
 class PokerTableDemoScreen extends StatefulWidget {
   const PokerTableDemoScreen({super.key});
@@ -15,11 +17,21 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   int _heroIndex = 0;
   double _pot = 0.0;
   TableTheme _theme = TableTheme.green;
+  final _history = TableEditHistory();
+
+  TableState get _state => TableState(
+        playerCount: _playerCount,
+        names: List<String>.from(_names),
+        stacks: List<double>.from(_stacks),
+        heroIndex: _heroIndex,
+        pot: _pot,
+      );
 
   @override
   void initState() {
     super.initState();
     _reset();
+    _history.clear();
   }
 
   void _reset() {
@@ -30,6 +42,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   }
 
   void _changeCount(int delta) {
+    _history.push(_state);
     setState(() {
       _playerCount = (_playerCount + delta).clamp(2, 10);
       if (_names.length < _playerCount) {
@@ -57,12 +70,40 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
     });
   }
 
+  void _applyState(TableState s) {
+    setState(() {
+      _playerCount = s.playerCount;
+      _names = List<String>.from(s.names);
+      _stacks = List<double>.from(s.stacks);
+      _heroIndex = s.heroIndex;
+      _pot = s.pot;
+    });
+  }
+
+  void _undo() {
+    final s = _history.undo(_state);
+    if (s != null) _applyState(s);
+  }
+
+  void _redo() {
+    final s = _history.redo(_state);
+    if (s != null) _applyState(s);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poker Table Demo'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.undo),
+            onPressed: _history.canUndo ? _undo : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.redo),
+            onPressed: _history.canRedo ? _redo : null,
+          ),
           IconButton(icon: const Icon(Icons.color_lens), onPressed: _nextTheme),
           IconButton(icon: const Icon(Icons.clear), onPressed: _clear),
         ],
@@ -76,11 +117,23 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
               playerCount: _playerCount,
               playerNames: _names,
               playerStacks: _stacks,
-              onHeroSelected: (i) => setState(() => _heroIndex = i),
-              onStackChanged: (i, v) => setState(() => _stacks[i] = v),
-              onNameChanged: (i, v) => setState(() => _names[i] = v),
+              onHeroSelected: (i) {
+                _history.push(_state);
+                setState(() => _heroIndex = i);
+              },
+              onStackChanged: (i, v) {
+                _history.push(_state);
+                setState(() => _stacks[i] = v);
+              },
+              onNameChanged: (i, v) {
+                _history.push(_state);
+                setState(() => _names[i] = v);
+              },
               potSize: _pot,
-              onPotChanged: (v) => setState(() => _pot = v),
+              onPotChanged: (v) {
+                _history.push(_state);
+                setState(() => _pot = v);
+              },
               theme: _theme,
               onThemeChanged: (t) => setState(() => _theme = t),
             ),
