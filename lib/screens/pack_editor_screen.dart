@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +31,19 @@ enum _SortOption { newest, oldest, position, tags, mistakes }
 enum _MistakeFilter { any, zero, oneTwo, threePlus }
 
 enum _QcIssue { duplicateName, noHeroCards, noActions }
+
+class _Command {
+  final String id;
+  final String label;
+  final LogicalKeySet? shortcut;
+  final VoidCallback action;
+  _Command(this.id, this.label, this.shortcut, this.action);
+}
+
+class _CommandIntent extends Intent {
+  final String id;
+  const _CommandIntent(this.id);
+}
 
 class PackEditorScreen extends StatefulWidget {
   final TrainingPack pack;
@@ -81,6 +96,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   };
   int _dupCount = 0;
   List<ViewPreset> _views = [];
+  List<_Command> _commands = [];
+  bool _filtersVisible = true;
 
   @override
   void initState() {
@@ -118,6 +135,75 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         }
       } catch (_) {}
     }
+    setState(_buildCommands);
+  }
+
+  void _buildCommands() {
+    _commands = [
+      _Command(
+        'save',
+        'Save',
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyS),
+        _hands.isEmpty ? () {} : _save,
+      ),
+      _Command(
+        'find',
+        'Toggle Find',
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF),
+        _toggleFind,
+      ),
+      _Command(
+        'export',
+        'Export',
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyE),
+        _exportPack,
+      ),
+      _Command(
+        'auto',
+        'Auto-Tag',
+        LogicalKeySet(
+            LogicalKeyboardKey.control, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyA),
+        () async {
+          final r = await _showAutoTagDialog();
+          if (r != null) _autoTag(r.$1, r.$2);
+        },
+      ),
+      _Command(
+        'quality',
+        'Quality Check',
+        LogicalKeySet(
+            LogicalKeyboardKey.control, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyQ),
+        _qualityCheck,
+      ),
+      _Command(
+        'importhh',
+        'Import HH',
+        LogicalKeySet(
+            LogicalKeyboardKey.control, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyH),
+        _importFromRoom,
+      ),
+      _Command('import', 'Import', null, _addHands),
+      _Command('snapshot', 'Save Snapshot', null, _saveSnapshot),
+      _Command('manageSnaps', 'Manage Snapshots…', null, _manageSnapshots),
+      _Command('stats', 'Stats', null, _showStats),
+      _Command('filters', 'Toggle Filters', null, _toggleFilters),
+      _Command('saveView', 'Save View', null, _saveCurrentView),
+      _Command('manageViews', 'Manage Views…', null, _manageViews),
+      _Command('move', 'Bulk Move', null, () => _bulkTransfer('move')),
+      _Command('copy', 'Bulk Copy', null, () => _bulkTransfer('copy')),
+      _Command(
+        'up',
+        'Move Up',
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowUp),
+        _moveUp,
+      ),
+      _Command(
+        'down',
+        'Move Down',
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowDown),
+        _moveDown,
+      ),
+    ];
   }
 
   List<String> _parseCsvLine(String line) {
@@ -335,6 +421,20 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       _modified = true;
       _rebuildStats();
     });
+  }
+
+  void _moveUp() {
+    if (_selected.length == 1) {
+      final i = _hands.indexOf(_selected.first);
+      if (i > 0) _reorder(i, i - 1);
+    }
+  }
+
+  void _moveDown() {
+    if (_selected.length == 1) {
+      final i = _hands.indexOf(_selected.first);
+      if (i < _hands.length - 1) _reorder(i, i + 1);
+    }
   }
 
   void _toggleSelect(SavedHand hand) {
@@ -1397,6 +1497,114 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     setState(() => _showFind = !_showFind);
   }
 
+  void _toggleFilters() {
+    setState(() => _filtersVisible = !_filtersVisible);
+  }
+
+  Future<void> _showCommandPalette() async {
+    String query = '';
+    int index = 0;
+    final focus = FocusNode();
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setStateDialog) {
+          final list = [
+            for (final c in _commands)
+              if (query.isEmpty || c.label.toLowerCase().contains(query.toLowerCase())) c
+          ];
+          index = index.clamp(0, list.length - 1);
+          return RawKeyboardListener(
+            focusNode: focus,
+            autofocus: true,
+            onKey: (e) {
+              if (e is RawKeyDownEvent) {
+                if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
+                  if (index < list.length - 1) setStateDialog(() => index++);
+                } else if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
+                  if (index > 0) setStateDialog(() => index--);
+                } else if (e.logicalKey == LogicalKeyboardKey.enter && list.isNotEmpty) {
+                  Navigator.pop(ctx);
+                  list[index].action();
+                }
+              }
+            },
+            child: AlertDialog(
+              backgroundColor: Colors.grey[900],
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      autofocus: true,
+                      decoration: const InputDecoration(hintText: 'Command'),
+                      onChanged: (v) => setStateDialog(() {
+                        query = v;
+                        index = 0;
+                      }),
+                      onSubmitted: (_) {
+                        if (list.isNotEmpty) {
+                          Navigator.pop(ctx);
+                          list[index].action();
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: list.length,
+                        itemBuilder: (context, i) {
+                          final c = list[i];
+                          return Container(
+                            color: i == index
+                                ? Colors.blue.withOpacity(0.4)
+                                : Colors.transparent,
+                            child: ListTile(
+                              title: Text(c.label),
+                              trailing: c.shortcut == null
+                                  ? null
+                                  : Text(_shortcutLabel(c.shortcut!)),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                c.action();
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '↑/↓ navigate • Enter run',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  String _shortcutLabel(LogicalKeySet set) {
+    return set.keys
+        .map((k) {
+          if (k == LogicalKeyboardKey.control) return 'Ctrl';
+          if (k == LogicalKeyboardKey.meta) return '⌘';
+          if (k == LogicalKeyboardKey.shift) return 'Shift';
+          if (k == LogicalKeyboardKey.alt) return 'Alt';
+          return k.keyLabel.toUpperCase();
+        })
+        .join(' + ');
+  }
+
   Future<void> _showRenameDialog() async {
     final list = _selected.toList()
       ..sort((a, b) => _hands.indexOf(a).compareTo(_hands.indexOf(b)));
@@ -1630,7 +1838,32 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
+    final enableShortcuts = kIsWeb ||
+        (defaultTargetPlatform != TargetPlatform.android &&
+            defaultTargetPlatform != TargetPlatform.iOS);
+    final shortcutMap = <LogicalKeySet, Intent>{};
+    if (enableShortcuts) {
+      final used = <LogicalKeySet>{};
+      void addShortcut(LogicalKeySet? set, String id) {
+        if (set == null) return;
+        if (used.contains(set)) {
+          assert(() {
+            debugPrint('Duplicate shortcut: $set');
+            return true;
+          }());
+          return;
+        }
+        used.add(set);
+        shortcutMap[set] = _CommandIntent(id);
+      }
+      for (final c in _commands) {
+        addShortcut(c.shortcut, c.id);
+      }
+      addShortcut(const LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyK), 'palette');
+      addShortcut(const LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyK), 'palette');
+    }
+
+    Widget child = WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
@@ -1694,6 +1927,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 ]
               : [
                   SyncStatusIcon.of(context),
+                  IconButton(
+                    onPressed: _showCommandPalette,
+                    icon: const Icon(Icons.settings_suggest),
+                  ),
                   IconButton(
                     onPressed: _qualityCheck,
                     icon: const Icon(Icons.rule),
@@ -1839,19 +2076,20 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   ],
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: DropdownButton<_SortOption>(
-                value: _sort,
-                underline: const SizedBox.shrink(),
-                onChanged: (v) {
-                  if (v != null) _setSort(v);
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: _SortOption.newest,
-                    child: Text('Newest'),
-                  ),
+            if (_filtersVisible)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: DropdownButton<_SortOption>(
+                  value: _sort,
+                  underline: const SizedBox.shrink(),
+                  onChanged: (v) {
+                    if (v != null) _setSort(v);
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: _SortOption.newest,
+                      child: Text('Newest'),
+                    ),
                   DropdownMenuItem(
                     value: _SortOption.oldest,
                     child: Text('Oldest'),
@@ -1871,81 +2109,85 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 36,
-              child: Consumer<TagService>(
-                builder: (context, service, _) {
-                  final tags = service.tags;
-                  return ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ChoiceChip(
-                          label: const Text('All'),
-                          selected: _tagFilter == null,
-                          onSelected: (_) => _setTagFilter(null),
-                        ),
-                      ),
-                      for (final t in tags)
+            if (_filtersVisible)
+              SizedBox(
+                height: 36,
+                child: Consumer<TagService>(
+                  builder: (context, service, _) {
+                    final tags = service.tags;
+                    return ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: ChoiceChip(
-                            label: Text(t),
-                            selected: _tagFilter == t,
-                            selectedColor: colorFromHex(service.colorOf(t)),
-                            onSelected: (_) => _setTagFilter(t),
+                            label: const Text('All'),
+                            selected: _tagFilter == null,
+                            onSelected: (_) => _setTagFilter(null),
                           ),
                         ),
-                    ],
-                  );
-                },
+                        for (final t in tags)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ChoiceChip(
+                              label: Text(t),
+                              selected: _tagFilter == t,
+                              selectedColor: colorFromHex(service.colorOf(t)),
+                              onSelected: (_) => _setTagFilter(t),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(
-              height: 36,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ChoiceChip(
-                      label: const Text('Any'),
-                      selected: _mistakeFilter == _MistakeFilter.any,
-                      onSelected: (_) => _setMistakeFilter(_MistakeFilter.any),
+            if (_filtersVisible)
+              SizedBox(
+                height: 36,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: const Text('Any'),
+                        selected: _mistakeFilter == _MistakeFilter.any,
+                        onSelected: (_) =>
+                            _setMistakeFilter(_MistakeFilter.any),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ChoiceChip(
-                      label: const Text('0'),
-                      selected: _mistakeFilter == _MistakeFilter.zero,
-                      onSelected: (_) => _setMistakeFilter(_MistakeFilter.zero),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: const Text('0'),
+                        selected: _mistakeFilter == _MistakeFilter.zero,
+                        onSelected: (_) =>
+                            _setMistakeFilter(_MistakeFilter.zero),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ChoiceChip(
-                      label: const Text('1-2'),
-                      selected: _mistakeFilter == _MistakeFilter.oneTwo,
-                      onSelected: (_) =>
-                          _setMistakeFilter(_MistakeFilter.oneTwo),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: const Text('1-2'),
+                        selected: _mistakeFilter == _MistakeFilter.oneTwo,
+                        onSelected: (_) =>
+                            _setMistakeFilter(_MistakeFilter.oneTwo),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ChoiceChip(
-                      label: const Text('3+'),
-                      selected: _mistakeFilter == _MistakeFilter.threePlus,
-                      onSelected: (_) =>
-                          _setMistakeFilter(_MistakeFilter.threePlus),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: const Text('3+'),
+                        selected: _mistakeFilter == _MistakeFilter.threePlus,
+                        onSelected: (_) =>
+                            _setMistakeFilter(_MistakeFilter.threePlus),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
             Expanded(
               child: ReorderableListView.builder(
                 onReorder: (oldIndex, newIndex) {
@@ -2078,5 +2320,31 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         ),
       ),
     );
+
+    if (enableShortcuts) {
+      child = Shortcuts(
+        shortcuts: shortcutMap,
+        child: Actions(
+          actions: {
+            _CommandIntent: CallbackAction<_CommandIntent>(onInvoke: (intent) {
+              if (intent.id == 'palette') {
+                _showCommandPalette();
+              } else {
+                for (final c in _commands) {
+                  if (c.id == intent.id) {
+                    c.action();
+                    break;
+                  }
+                }
+              }
+              return null;
+            }),
+          },
+          child: Focus(autofocus: true, child: child),
+        ),
+      );
+    }
+
+    return child;
   }
 }
