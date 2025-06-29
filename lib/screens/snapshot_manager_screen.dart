@@ -6,18 +6,34 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pack_snapshot.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
+import 'snapshot_diff_screen.dart';
 
-class SnapshotManagerScreen extends StatelessWidget {
+class SnapshotManagerScreen extends StatefulWidget {
   final TrainingPack pack;
   const SnapshotManagerScreen({super.key, required this.pack});
 
   @override
+  State<SnapshotManagerScreen> createState() => _SnapshotManagerScreenState();
+}
+
+class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
+  bool _changed = false;
+
+  @override
   Widget build(BuildContext context) {
     final service = context.watch<TrainingPackStorageService>();
-    final snaps = service.snapshotsOf(pack).toList()
+    final snaps = service.snapshotsOf(widget.pack).toList()
       ..sort((a, b) => b.date.compareTo(a.date));
-    return Scaffold(
-      appBar: AppBar(title: const Text('Snapshots')),
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, _changed);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Snapshots'),
+          leading: BackButton(onPressed: () => Navigator.pop(context, _changed)),
+        ),
       body: ListView.builder(
         itemCount: snaps.length,
         itemBuilder: (context, index) {
@@ -72,7 +88,7 @@ class SnapshotManagerScreen extends StatelessWidget {
                 final removed = s;
                 await context
                     .read<TrainingPackStorageService>()
-                    .deleteSnapshot(pack, s);
+                    .deleteSnapshot(widget.pack, s);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -83,7 +99,7 @@ class SnapshotManagerScreen extends StatelessWidget {
                           context
                               .read<TrainingPackStorageService>()
                               .saveSnapshot(
-                                  pack,
+                                  widget.pack,
                                   removed.hands,
                                   removed.tags,
                                   removed.comment);
@@ -99,7 +115,27 @@ class SnapshotManagerScreen extends StatelessWidget {
               title: Text(title),
               subtitle:
                   Text(DateFormat('yyyy-MM-dd HH:mm').format(s.date)),
-              trailing: Text('${s.hands.length}'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.compare),
+                    onPressed: () async {
+                      final result = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SnapshotDiffScreen(
+                            pack: widget.pack,
+                            snapshot: s,
+                          ),
+                        ),
+                      );
+                      if (result == true) setState(() => _changed = true);
+                    },
+                  ),
+                  Text('${s.hands.length}'),
+                ],
+              ),
               onTap: () async {
                 final c = TextEditingController(text: s.comment);
                 final result = await showDialog<String>(
@@ -123,12 +159,13 @@ class SnapshotManagerScreen extends StatelessWidget {
                 if (result != null) {
                   await context
                       .read<TrainingPackStorageService>()
-                      .renameSnapshot(pack, s, result);
+                      .renameSnapshot(widget.pack, s, result);
                 }
               },
             ),
           );
         },
+      ),
       ),
     );
   }

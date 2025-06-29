@@ -549,6 +549,43 @@ class TrainingPackStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
+  TrainingPack applyDiff(
+    TrainingPack pack, {
+    List<SavedHand> added = const [],
+    List<SavedHand> removed = const [],
+    List<SavedHand> modified = const [],
+  }) {
+    final index = _packs.indexOf(pack);
+    if (index == -1) return pack;
+    final prev = _packs[index];
+    final mods = {
+      for (final h in modified) h.savedAt.millisecondsSinceEpoch: h
+    };
+    final updatedHands = <SavedHand>[];
+    for (final h in prev.hands) {
+      if (removed.any((r) => r.savedAt == h.savedAt)) continue;
+      updatedHands.add(mods[h.savedAt.millisecondsSinceEpoch] ?? h);
+    }
+    updatedHands.addAll(added);
+    final updated = TrainingPack(
+      id: prev.id,
+      name: prev.name,
+      description: prev.description,
+      category: prev.category,
+      gameType: prev.gameType,
+      colorTag: prev.colorTag,
+      isBuiltIn: prev.isBuiltIn,
+      tags: prev.tags,
+      hands: updatedHands,
+      spots: prev.spots,
+      difficulty: prev.difficulty,
+      history: prev.history,
+    );
+    _packs[index] = updated;
+    notifyListeners();
+    return prev;
+  }
+
   void merge(List<TrainingPack> list) {
     for (final p in list) {
       final index = _packs.indexWhere((e) => e.id == p.id);

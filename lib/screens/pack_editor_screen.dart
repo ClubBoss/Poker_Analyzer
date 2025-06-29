@@ -37,6 +37,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   late List<SavedHand> _hands;
   late List<String> _packTags;
+  late TrainingPack _packRef;
   bool _modified = false;
   SavedHand? _removed;
   int _removedIndex = -1;
@@ -55,6 +56,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     super.initState();
     _hands = List.from(widget.pack.hands);
     _packTags = List.from(widget.pack.tags);
+    _packRef = widget.pack;
     _loadPrefs();
   }
 
@@ -179,12 +181,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) => RoomHandHistoryImportScreen(pack: widget.pack)),
+          builder: (_) => RoomHandHistoryImportScreen(pack: _packRef)),
     );
     final updated = context
         .read<TrainingPackStorageService>()
         .packs
-        .firstWhere((p) => p.id == widget.pack.id, orElse: () => widget.pack);
+        .firstWhere((p) => p.id == _packRef.id, orElse: () => _packRef);
     setState(() => _hands = List.from(updated.hands));
   }
 
@@ -220,12 +222,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       context,
       MaterialPageRoute(
           builder: (_) =>
-              RoomHandHistoryEditorScreen(pack: widget.pack, hands: [hand])),
+              RoomHandHistoryEditorScreen(pack: _packRef, hands: [hand])),
     );
     final updated = context
         .read<TrainingPackStorageService>()
         .packs
-        .firstWhere((p) => p.id == widget.pack.id, orElse: () => widget.pack);
+        .firstWhere((p) => p.id == _packRef.id, orElse: () => _packRef);
     setState(() => _hands = List.from(updated.hands));
   }
 
@@ -557,7 +559,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
     await context
         .read<TrainingPackStorageService>()
-        .updatePack(widget.pack, updated);
+        .updatePack(_packRef, updated);
+    _packRef = updated;
     if (mounted) Navigator.pop(context, true);
   }
 
@@ -584,7 +587,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (comment == null) return;
     final snap = await context
         .read<TrainingPackStorageService>()
-        .saveSnapshot(widget.pack, _hands, _packTags, comment);
+        .saveSnapshot(_packRef, _hands, _packTags, comment);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -593,19 +596,20 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           label: 'Undo',
           onPressed: () => context
               .read<TrainingPackStorageService>()
-              .deleteSnapshot(widget.pack, snap),
+              .deleteSnapshot(_packRef, snap),
         ),
       ),
     );
   }
 
   Future<void> _manageSnapshots() async {
-    final snap = await Navigator.push<PackSnapshot?>(
+    final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (_) => SnapshotManagerScreen(pack: widget.pack)),
+      MaterialPageRoute(builder: (_) => SnapshotManagerScreen(pack: _packRef)),
     );
-    if (snap != null && mounted) {
+    if (!mounted) return;
+    if (result is PackSnapshot) {
+      final snap = result as PackSnapshot;
       setState(() {
         _hands = [for (final h in snap.hands) h];
         _packTags = List.from(snap.tags);
@@ -613,6 +617,17 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       });
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('pack_editor_last_snapshot_restored', snap.id);
+    } else if (result == true) {
+      final pack = context
+          .read<TrainingPackStorageService>()
+          .packs
+          .firstWhere((p) => p.id == _packRef.id, orElse: () => _packRef);
+      setState(() {
+        _packRef = pack;
+        _hands = List.from(pack.hands);
+        _packTags = List.from(pack.tags);
+        _modified = true;
+      });
     }
   }
 
