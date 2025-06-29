@@ -20,4 +20,12 @@ class TableState {
         heroIndex: heroIndex,
         pot: pot,
       );
+
+  Map<String, dynamic> toJson() => {
+        'playerCount': playerCount,
+        'names': names,
+        'stacks': stacks,
+        'heroIndex': heroIndex,
+        'pot': pot,
+      };
 }
