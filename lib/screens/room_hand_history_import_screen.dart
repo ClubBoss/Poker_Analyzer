@@ -33,8 +33,10 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
   RoomHandHistoryImporter? _importer;
   final Set<SavedHand> _selected = {};
   _Filter _filter = _Filter.newOnly;
+  List<SavedHand>? _undoHands;
 
   bool get _selectionMode => _selected.isNotEmpty;
+  bool get _undoActive => _undoHands != null;
 
   void _toggleSelect(SavedHand hand) {
     setState(() {
@@ -116,6 +118,7 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
   }
 
   Future<void> _add(SavedHand hand) async {
+    if (_undoActive) return;
     final updated = TrainingPack(
       name: _pack.name,
       description: _pack.description,
@@ -138,7 +141,31 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
     );
   }
 
+  Future<void> _undoAdd() async {
+    final hands = _undoHands;
+    if (hands == null || hands.isEmpty) return;
+    final updatedHands = List<SavedHand>.from(_pack.hands)
+      ..removeWhere((h) => hands.any((u) => u.name == h.name));
+    final updated = TrainingPack(
+      name: _pack.name,
+      description: _pack.description,
+      category: _pack.category,
+      gameType: _pack.gameType,
+      colorTag: _pack.colorTag,
+      isBuiltIn: _pack.isBuiltIn,
+      tags: _pack.tags,
+      hands: updatedHands,
+      spots: _pack.spots,
+      difficulty: _pack.difficulty,
+      history: _pack.history,
+    );
+    await context.read<TrainingPackStorageService>().updatePack(_pack, updated);
+    if (mounted) setState(() => _pack = updated);
+    _undoHands = null;
+  }
+
   Future<void> _addSelected() async {
+    if (_undoActive) return;
     final unique =
         _selected.where((h) => !_pack.hands.any((e) => e.name == h.name)).toList();
     final count = unique.length;
@@ -161,9 +188,17 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
     setState(() {
       _pack = updated;
       _selected.clear();
+      _undoHands = unique;
     });
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Added $count hands to pack')));
+    final snack = SnackBar(
+      content: Text('Added $count hands to pack'),
+      action: SnackBarAction(label: 'Undo', onPressed: _undoAdd),
+      duration: const Duration(seconds: 5),
+    );
+    final controller = ScaffoldMessenger.of(context).showSnackBar(snack);
+    controller.closed.then((_) {
+      if (mounted && _undoHands != null) setState(() => _undoHands = null);
+    });
   }
 
   List<_Entry> _filteredHands() {
