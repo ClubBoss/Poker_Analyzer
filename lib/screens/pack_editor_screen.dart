@@ -694,6 +694,44 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (tag != null && tag.isNotEmpty) _removeTagFromSelected(tag);
   }
 
+  Future<void> _editComment(SavedHand hand) async {
+    final idx = _hands.indexOf(hand);
+    if (idx == -1) return;
+    final c = TextEditingController(text: hand.comment ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Comment'),
+        content: TextField(controller: c, maxLines: null),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
+        ],
+      ),
+    );
+    c.dispose();
+    if (!mounted || result == null) return;
+    final old = _hands[idx].comment;
+    setState(() {
+      _hands[idx] = _hands[idx].copyWith(comment: result.isNotEmpty ? result : null);
+      _modified = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Comment updated'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              _hands[idx] = _hands[idx].copyWith(comment: old);
+              _modified = true;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   Future<TrainingPack?> _pickTargetPack() async {
     final service = context.read<TrainingPackStorageService>();
     final packs = [
@@ -2578,6 +2616,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                         children: [
                           if (hand.isDuplicate)
                             const Icon(Icons.warning, color: Colors.orangeAccent),
+                          IconButton(
+                            icon: const Text('✏️'),
+                            onPressed: () => _editComment(hand),
+                          ),
                           Container(
                             width: 24,
                             height: 24,
