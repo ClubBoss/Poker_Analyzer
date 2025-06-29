@@ -430,6 +430,20 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (tag != null && tag.isNotEmpty) _removeTagFromSelected(tag);
   }
 
+  int _mistakeCount(SavedHand hand) {
+    int total = 0;
+    int correct = 0;
+    for (final session in widget.pack.history) {
+      for (final task in session.tasks) {
+        if (task.question == hand.name) {
+          total += 1;
+          if (task.correct) correct += 1;
+        }
+      }
+    }
+    return total - correct;
+  }
+
   List<int> _visibleIndices() {
     final query = _searchController.text.toLowerCase();
     final list = <int>[for (int i = 0; i < _hands.length; i++) i];
@@ -460,8 +474,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           if (c != 0) return c;
           return B.savedAt.compareTo(A.savedAt);
         case _SortOption.mistakes:
-          final am = A.actions.length;
-          final bm = B.actions.length;
+          final am = _mistakeCount(A);
+          final bm = _mistakeCount(B);
           if (am != bm) return bm.compareTo(am);
           return B.savedAt.compareTo(A.savedAt);
       }
@@ -618,6 +632,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   final indices = _visibleIndices();
                   final hand = _hands[indices[index]];
                   final title = hand.name.isEmpty ? 'Без названия' : hand.name;
+                  final mistakes = _mistakeCount(hand);
                   return Dismissible(
                     key: ValueKey(hand.savedAt.toIso8601String()),
                     direction: DismissDirection.endToStart,
@@ -638,6 +653,22 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                       title: Text(title),
                       subtitle:
                           hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
+                      trailing: Container(
+                        width: 24,
+                        height: 24,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: mistakes > 0 ? Colors.red : Colors.grey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$mistakes',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                       onTap: () {
                         if (_selectionMode) {
                           _toggleSelect(hand);
