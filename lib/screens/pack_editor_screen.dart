@@ -2288,6 +2288,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                             padding: EdgeInsets.zero,
                             onSelected: (p) async {
                               final idx = _hands.indexOf(hand);
+                              if (idx == -1) return;
                               if (p == 'comment') {
                                 final c = TextEditingController(text: hand.comment ?? '');
                                 final result = await showDialog<String>(
@@ -2311,15 +2312,34 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                                   ),
                                 );
                                 c.dispose();
-                                if (result != null && idx != -1) {
+                                if (!mounted) return;
+                                if (result != null) {
+                                  final old = _hands[idx].comment;
+                                  final trimmed = result.trim();
                                   setState(() {
-                                    _hands[idx] = hand.copyWith(comment: result.isEmpty ? null : result);
+                                    _hands[idx] = _hands[idx].copyWith(
+                                      comment: trimmed.isNotEmpty ? trimmed : null,
+                                    );
                                     _modified = true;
                                   });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text('Comment updated'),
+                                      action: SnackBarAction(
+                                        label: 'Undo',
+                                        onPressed: () {
+                                          setState(() {
+                                            _hands[idx] = _hands[idx].copyWith(comment: old);
+                                            _modified = true;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  );
                                 }
-                              } else if (idx != -1) {
+                              } else if (['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'].contains(p)) {
                                 setState(() {
-                                  _hands[idx] = hand.copyWith(heroPosition: p);
+                                  _hands[idx] = _hands[idx].copyWith(heroPosition: p);
                                   _modified = true;
                                   _rebuildStats();
                                 });
@@ -2359,8 +2379,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                               children: [
                                 if (hand.tags.isNotEmpty)
                                   Text(hand.tags.join(', ')),
+                                if (hand.tags.isNotEmpty && hand.comment != null)
+                                  const SizedBox(height: 4),
                                 if (hand.comment != null)
-                                  Text(hand.comment!),
+                                  Text(
+                                    hand.comment!,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                               ],
                             ),
                       trailing: Row(
