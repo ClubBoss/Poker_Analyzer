@@ -2374,6 +2374,33 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                         ),
                     ],
                   ),
+                  PopupMenuButton<_MistakeFilter>(
+                    icon: Icon(
+                      _mistakeFilter == _MistakeFilter.any
+                          ? Icons.bug_report_outlined
+                          : Icons.bug_report,
+                    ),
+                    initialValue: _mistakeFilter,
+                    onSelected: _setMistakeFilter,
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(
+                        value: _MistakeFilter.any,
+                        child: Text('All'),
+                      ),
+                      PopupMenuItem(
+                        value: _MistakeFilter.zero,
+                        child: Text('0'),
+                      ),
+                      PopupMenuItem(
+                        value: _MistakeFilter.oneTwo,
+                        child: Text('1-2'),
+                      ),
+                      PopupMenuItem(
+                        value: _MistakeFilter.threePlus,
+                        child: Text('3+'),
+                      ),
+                    ],
+                  ),
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.star),
                     onSelected: (v) {
