@@ -18,6 +18,8 @@ import '../models/game_type.dart';
 class TrainingPackStorageService extends ChangeNotifier {
   static const _storageFile = 'training_packs.json';
 
+  Timer? _persistTimer;
+
   TrainingPackStorageService({this.cloud});
 
   final CloudSyncService? cloud;
@@ -75,6 +77,15 @@ class TrainingPackStorageService extends ChangeNotifier {
     final file = await _getStorageFile();
     await file.writeAsString(jsonEncode([for (final p in _packs) p.toJson()]));
   }
+
+  void _persistDebounced() {
+    _persistTimer?.cancel();
+    _persistTimer = Timer(const Duration(seconds: 1), () {
+      unawaited(_persist());
+    });
+  }
+
+  void schedulePersist() => _persistDebounced();
 
   Future<void> addPack(TrainingPack pack) async {
     _packs.add(pack);
@@ -433,6 +444,12 @@ class TrainingPackStorageService extends ChangeNotifier {
         _packs[index] = p;
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _persistTimer?.cancel();
+    super.dispose();
   }
 }
 
