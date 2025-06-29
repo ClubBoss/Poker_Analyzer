@@ -1519,7 +1519,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             autofocus: true,
             onKey: (e) {
               if (e is RawKeyDownEvent) {
-                if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
+                if (e.logicalKey == LogicalKeyboardKey.escape) {
+                  Navigator.of(ctx).pop();
+                } else if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
                   if (index < list.length - 1) setStateDialog(() => index++);
                 } else if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
                   if (index > 0) setStateDialog(() => index--);
