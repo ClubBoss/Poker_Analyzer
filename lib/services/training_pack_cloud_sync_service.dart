@@ -47,7 +47,8 @@ class TrainingPackCloudSyncService {
   Future<void> syncDown(TrainingPackStorageService storage) async {
     final remote = await loadPacks();
     storage.merge(remote);
-    await storage.save();
+    storage.notifyListeners();
+    storage.schedulePersist();
   }
 
   StreamSubscription? watch(TrainingPackStorageService storage) {
@@ -64,7 +65,8 @@ class TrainingPackCloudSyncService {
           TrainingPack.fromJson({...d.data(), 'id': d.id})
       ];
       storage.merge(list);
-      storage.save();
+      storage.notifyListeners();
+      storage.schedulePersist();
     });
     return _sub;
   }
