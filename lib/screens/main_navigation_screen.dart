@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'analyzer_tab.dart';
 import 'spot_of_the_day_screen.dart';
@@ -31,7 +32,24 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  static const _indexKey = 'main_nav_index';
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIndex();
+  }
+
+  Future<void> _loadIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _currentIndex = prefs.getInt(_indexKey) ?? 0);
+  }
+
+  Future<void> _saveIndex(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_indexKey, value);
+  }
 
   Future<void> _setDailyGoal() async {
     final service = context.read<DailyTargetService>();
@@ -110,6 +128,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     setState(() {
       _currentIndex = index;
     });
+    _saveIndex(index);
   }
 
   @override
