@@ -2063,6 +2063,40 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     onPressed: _saveCurrentView,
                     icon: const Icon(Icons.star_outline),
                   ),
+                  PopupMenuButton<_SortOption>(
+                    icon: const Icon(Icons.sort),
+                    initialValue: _sort,
+                    onSelected: _setSort,
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(
+                        value: _SortOption.newest,
+                        child: Text('Newest'),
+                      ),
+                      PopupMenuItem(
+                        value: _SortOption.oldest,
+                        child: Text('Oldest'),
+                      ),
+                      PopupMenuItem(
+                        value: _SortOption.mistakes,
+                        child: Text('Most Mistakes'),
+                      ),
+                    ],
+                  ),
+                  PopupMenuButton<String?>(
+                    icon: const Icon(Icons.filter_list),
+                    onSelected: _setHeroFilter,
+                    itemBuilder: (_) => [
+                      const PopupMenuItem<String?>(
+                        value: null,
+                        child: Text('All'),
+                      ),
+                      for (final p in ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'])
+                        PopupMenuItem<String?>(
+                          value: p,
+                          child: Text(p),
+                        ),
+                    ],
+                  ),
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.star),
                     onSelected: (v) {
