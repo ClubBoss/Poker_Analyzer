@@ -12,6 +12,7 @@ class ViewManagerDialog extends StatefulWidget {
 
 class _ViewManagerDialogState extends State<ViewManagerDialog> {
   late List<ViewPreset> _views;
+  String _filter = '';
 
   @override
   void initState() {
@@ -19,8 +20,10 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
     _views = List.from(widget.views);
   }
 
-  Future<void> _rename(int index) async {
-    final c = TextEditingController(text: _views[index].name);
+  Future<void> _rename(ViewPreset view) async {
+    final index = _views.indexOf(view);
+    if (index == -1) return;
+    final c = TextEditingController(text: view.name);
     final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -38,7 +41,7 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
     }
   }
 
-  Future<void> _delete(int index) async {
+  Future<void> _delete(ViewPreset view) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -50,42 +53,69 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
       ),
     );
     if (confirm == true) {
-      setState(() => _views.removeAt(index));
-      widget.onChanged(_views);
+      final index = _views.indexOf(view);
+      if (index != -1) {
+        setState(() => _views.removeAt(index));
+        widget.onChanged(_views);
+      }
     }
   }
 
-  void _reorder(int oldIndex, int newIndex) {
+  void _reorder(int oldIndex, int newIndex, List<ViewPreset> filtered) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final moved = filtered[oldIndex];
+    final oldMainIndex = _views.indexOf(moved);
+    int newMainIndex;
+    if (newIndex >= filtered.length) {
+      newMainIndex = _views.length - 1;
+    } else {
+      final target = filtered[newIndex];
+      newMainIndex = _views.indexOf(target);
+    }
     setState(() {
-      if (newIndex > oldIndex) newIndex -= 1;
-      final v = _views.removeAt(oldIndex);
-      _views.insert(newIndex, v);
-      widget.onChanged(_views);
+      final item = _views.removeAt(oldMainIndex);
+      _views.insert(newMainIndex, item);
     });
+    widget.onChanged(_views);
   }
 
   @override
   Widget build(BuildContext context) {
+    final filtered = [
+      for (final v in _views)
+        if (v.name.toLowerCase().contains(_filter.toLowerCase())) v
+    ];
     return AlertDialog(
       title: const Text('Views'),
       content: SizedBox(
         width: double.maxFinite,
         height: 400,
-        child: ReorderableListView(
-          onReorder: _reorder,
+        child: Column(
           children: [
-            for (int i = 0; i < _views.length; i++)
-              ListTile(
-                key: ValueKey(_views[i].id),
-                title: Text(_views[i].name),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(icon: const Icon(Icons.edit), onPressed: () => _rename(i)),
-                    IconButton(icon: const Icon(Icons.delete), onPressed: () => _delete(i)),
-                  ],
-                ),
+            TextField(
+              decoration: const InputDecoration(hintText: 'Search'),
+              onChanged: (v) => setState(() => _filter = v),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ReorderableListView(
+                onReorder: (o, n) => _reorder(o, n, filtered),
+                children: [
+                  for (final v in filtered)
+                    ListTile(
+                      key: ValueKey(v.id),
+                      title: Text(v.name),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(icon: const Icon(Icons.edit), onPressed: () => _rename(v)),
+                          IconButton(icon: const Icon(Icons.delete), onPressed: () => _delete(v)),
+                        ],
+                      ),
+                    ),
+                ],
               ),
+            ),
           ],
         ),
       ),
