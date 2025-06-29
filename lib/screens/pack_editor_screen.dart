@@ -98,6 +98,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   List<ViewPreset> _views = [];
   List<_Command> _commands = [];
   bool _filtersVisible = true;
+  bool _filterConflict = false;
 
   @override
   void setState(VoidCallback fn) {
@@ -905,6 +906,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     _mist3 = m3;
     _posCount = pos;
     _dupCount = _hands.where((h) => h.isDuplicate).length;
+    _filterConflict = _hands.isNotEmpty && indices.isEmpty;
   }
 
   Future<bool> _onWillPop() async {
@@ -1534,6 +1536,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   void _toggleFilters() {
     setState(() => _filtersVisible = !_filtersVisible);
+    if (_filterConflict &&
+        _tagFilter != null &&
+        _heroPosFilter != null &&
+        _mistakeFilter != _MistakeFilter.any) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hands match current filters')),
+      );
+    }
   }
 
   Future<void> _showCommandPalette() async {
@@ -2334,6 +2344,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 },
               ),
             ),
+            if (_filterConflict)
+              const Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'No hands match current filters',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
