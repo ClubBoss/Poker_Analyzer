@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import '../services/tag_service.dart';
 import '../helpers/color_utils.dart';
+import '../theme/app_colors.dart';
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
 import '../models/pack_snapshot.dart';
@@ -19,7 +20,9 @@ import '../widgets/sync_status_widget.dart';
 import 'snapshot_manager_screen.dart';
 
 enum _SortOption { newest, oldest, position, tags, mistakes }
+
 enum _MistakeFilter { any, zero, oneTwo, threePlus }
+
 enum _QcIssue { duplicateName, noHeroCards, noActions }
 
 class PackEditorScreen extends StatefulWidget {
@@ -56,6 +59,20 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   bool _regex = false;
   bool _matchCase = false;
   List<(int, String)> _renameUndo = [];
+  String? _heroPosFilter;
+  Map<String, int> _tagsCount = {};
+  int _mist0 = 0;
+  int _mist12 = 0;
+  int _mist3 = 0;
+  Map<String, int> _posCount = {
+    'UTG': 0,
+    'MP': 0,
+    'CO': 0,
+    'BTN': 0,
+    'SB': 0,
+    'BB': 0,
+  };
+  int _dupCount = 0;
 
   @override
   void initState() {
@@ -73,7 +90,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       _searchController.text = prefs.getString(_searchKey) ?? '';
       _tagFilter = prefs.getString(_tagKey);
       final m = prefs.getInt(_mistakeKey) ?? 0;
-      _mistakeFilter = _MistakeFilter.values[m.clamp(0, _MistakeFilter.values.length - 1)];
+      _mistakeFilter =
+          _MistakeFilter.values[m.clamp(0, _MistakeFilter.values.length - 1)];
+      _rebuildStats();
     });
   }
 
@@ -180,6 +199,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           _modified = true;
         }
       }
+      _rebuildStats();
     });
   }
 
@@ -187,13 +207,17 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) => RoomHandHistoryImportScreen(pack: _packRef)),
+        builder: (_) => RoomHandHistoryImportScreen(pack: _packRef),
+      ),
     );
-    final updated = context
-        .read<TrainingPackStorageService>()
-        .packs
-        .firstWhere((p) => p.id == _packRef.id, orElse: () => _packRef);
-    setState(() => _hands = List.from(updated.hands));
+    final updated = context.read<TrainingPackStorageService>().packs.firstWhere(
+      (p) => p.id == _packRef.id,
+      orElse: () => _packRef,
+    );
+    setState(() {
+      _hands = List.from(updated.hands);
+      _rebuildStats();
+    });
   }
 
   Future<void> _previewHand(SavedHand hand) async {
@@ -201,22 +225,31 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       context: context,
       backgroundColor: Colors.grey[900],
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(hand.name.isEmpty ? 'Без названия' : hand.name,
-                style:
-                    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(
+              hand.name.isEmpty ? 'Без названия' : hand.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text('${hand.heroPosition} • ${hand.numberOfPlayers}p',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              '${hand.heroPosition} • ${hand.numberOfPlayers}p',
+              style: const TextStyle(color: Colors.white70),
+            ),
             const SizedBox(height: 8),
-            Text('Actions: ${hand.actions.length}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Actions: ${hand.actions.length}',
+              style: const TextStyle(color: Colors.white70),
+            ),
           ],
         ),
       ),
@@ -227,14 +260,18 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) =>
-              RoomHandHistoryEditorScreen(pack: _packRef, hands: [hand])),
+        builder: (_) =>
+            RoomHandHistoryEditorScreen(pack: _packRef, hands: [hand]),
+      ),
     );
-    final updated = context
-        .read<TrainingPackStorageService>()
-        .packs
-        .firstWhere((p) => p.id == _packRef.id, orElse: () => _packRef);
-    setState(() => _hands = List.from(updated.hands));
+    final updated = context.read<TrainingPackStorageService>().packs.firstWhere(
+      (p) => p.id == _packRef.id,
+      orElse: () => _packRef,
+    );
+    setState(() {
+      _hands = List.from(updated.hands);
+      _rebuildStats();
+    });
   }
 
   void _remove(int index) {
@@ -244,6 +281,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       _removed = hand;
       _removedIndex = index;
       _modified = true;
+      _rebuildStats();
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -256,6 +294,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 _hands.insert(_removedIndex.clamp(0, _hands.length), _removed!);
                 _removed = null;
                 _modified = true;
+                _rebuildStats();
               });
             }
           },
@@ -270,6 +309,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       final item = _hands.removeAt(oldIndex);
       _hands.insert(newIndex, item);
       _modified = true;
+      _rebuildStats();
     });
   }
 
@@ -299,6 +339,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         }
       }
       _selected.clear();
+      _rebuildStats();
     });
     if (removed.isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -312,6 +353,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 _hands.insert(r.$2.clamp(0, _hands.length), r.$1);
               }
               _modified = true;
+              _rebuildStats();
             });
           },
         ),
@@ -329,6 +371,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           _modified = true;
         }
       }
+      _rebuildStats();
     });
   }
 
@@ -344,6 +387,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           }
         }
       }
+      _rebuildStats();
     });
   }
 
@@ -365,10 +409,13 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 children: [
                   for (final t in allTags)
                     ChoiceChip(
-                      label: Text(t, style: const TextStyle(color: Colors.white)),
+                      label: Text(
+                        t,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                       selected: selected == t,
-                      selectedColor:
-                          Colors.primaries[t.hashCode % Colors.primaries.length],
+                      selectedColor: Colors
+                          .primaries[t.hashCode % Colors.primaries.length],
                       onSelected: (_) => setStateDialog(() => selected = t),
                     ),
                 ],
@@ -405,7 +452,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () => Navigator.pop(context, selected ?? c.text.trim()),
+              onPressed: () =>
+                  Navigator.pop(context, selected ?? c.text.trim()),
               child: const Text('OK'),
             ),
           ],
@@ -424,7 +472,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
           backgroundColor: Colors.grey[900],
-          title: const Text('Remove Tag', style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Remove Tag',
+            style: TextStyle(color: Colors.white),
+          ),
           content: Wrap(
             spacing: 4,
             children: [
@@ -458,7 +509,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     final service = context.read<TrainingPackStorageService>();
     final packs = [
       for (final p in service.packs)
-        if (!p.isBuiltIn && p.id != _packRef.id) p
+        if (!p.isBuiltIn && p.id != _packRef.id) p,
     ];
     String filter = '';
     TrainingPack? selected;
@@ -468,12 +519,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         builder: (context, setStateDialog) {
           final visible = [
             for (final p in packs)
-              if (p.name.toLowerCase().contains(filter.toLowerCase())) p
+              if (p.name.toLowerCase().contains(filter.toLowerCase())) p,
           ];
           return AlertDialog(
             backgroundColor: Colors.grey[900],
-            title: const Text('Select Pack',
-                style: TextStyle(color: Colors.white)),
+            title: const Text(
+              'Select Pack',
+              style: TextStyle(color: Colors.white),
+            ),
             content: SizedBox(
               width: double.maxFinite,
               child: Column(
@@ -492,9 +545,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                           RadioListTile<TrainingPack>(
                             value: p,
                             groupValue: selected,
-                            onChanged: (v) => setStateDialog(() => selected = v),
-                            title: Text(p.name,
-                                style: const TextStyle(color: Colors.white)),
+                            onChanged: (v) =>
+                                setStateDialog(() => selected = v),
+                            title: Text(
+                              p.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           ),
                       ],
                     ),
@@ -526,15 +582,17 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (target == null) return;
     final selected = _selected.toList();
     final service = context.read<TrainingPackStorageService>();
-    var pack = service.packs.firstWhere((p) => p.id == target.id,
-        orElse: () => target);
+    var pack = service.packs.firstWhere(
+      (p) => p.id == target.id,
+      orElse: () => target,
+    );
     final existing = {
-      for (final h in pack.hands) h.savedAt.millisecondsSinceEpoch
+      for (final h in pack.hands) h.savedAt.millisecondsSinceEpoch,
     };
     final toAdd = [
       for (final h in selected)
         if (!existing.contains(h.savedAt.millisecondsSinceEpoch))
-          (action == 'copy' ? h.copyWith() : h)
+          (action == 'copy' ? h.copyWith() : h),
     ];
     final removed = <(SavedHand, int)>[];
     setState(() {
@@ -560,8 +618,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           label: 'Undo',
           onPressed: () {
             final svc = context.read<TrainingPackStorageService>();
-            final tgt = svc.packs.firstWhere((p) => p.id == pack.id,
-                orElse: () => pack);
+            final tgt = svc.packs.firstWhere(
+              (p) => p.id == pack.id,
+              orElse: () => pack,
+            );
             svc.applyDiff(tgt, removed: toAdd);
             if (action == 'move') {
               setState(() {
@@ -615,10 +675,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         }
       });
     }
+    if (_heroPosFilter != null) {
+      list.retainWhere((i) => _hands[i].heroPosition == _heroPosFilter);
+    }
     int posIdx(String p) {
       const order = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
       return order.indexOf(p);
     }
+
     list.sort((a, b) {
       final A = _hands[a];
       final B = _hands[b];
@@ -646,6 +710,42 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       }
     });
     return list;
+  }
+
+  void _rebuildStats() {
+    final indices = _visibleIndices();
+    final Map<String, int> tags = {};
+    int m0 = 0;
+    int m12 = 0;
+    int m3 = 0;
+    final pos = {'UTG': 0, 'MP': 0, 'CO': 0, 'BTN': 0, 'SB': 0, 'BB': 0};
+    for (final i in indices) {
+      final h = _hands[i];
+      for (final t in h.tags) {
+        tags[t] = (tags[t] ?? 0) + 1;
+      }
+      final m = _mistakeCount(h);
+      if (m == 0) {
+        m0++;
+      } else if (m <= 2) {
+        m12++;
+      } else {
+        m3++;
+      }
+      final p = h.heroPosition;
+      if (pos.containsKey(p)) pos[p] = pos[p]! + 1;
+    }
+    final seen = <String>{};
+    int dup = 0;
+    for (final h in _hands) {
+      if (!seen.add(h.name)) dup++;
+    }
+    _tagsCount = tags;
+    _mist0 = m0;
+    _mist12 = m12;
+    _mist3 = m3;
+    _posCount = pos;
+    _dupCount = dup;
   }
 
   Future<bool> _onWillPop() async {
@@ -686,9 +786,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       spots: widget.pack.spots,
       difficulty: widget.pack.difficulty,
     );
-    await context
-        .read<TrainingPackStorageService>()
-        .updatePack(_packRef, updated);
+    await context.read<TrainingPackStorageService>().updatePack(
+      _packRef,
+      updated,
+    );
     _packRef = updated;
     _renameUndo.clear();
     if (mounted) Navigator.pop(context, true);
@@ -715,9 +816,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       ),
     );
     if (comment == null) return;
-    final snap = await context
-        .read<TrainingPackStorageService>()
-        .saveSnapshot(_packRef, _hands, _packTags, comment);
+    final snap = await context.read<TrainingPackStorageService>().saveSnapshot(
+      _packRef,
+      _hands,
+      _packTags,
+      comment,
+    );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -748,10 +852,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('pack_editor_last_snapshot_restored', snap.id);
     } else if (result == true) {
-      final pack = context
-          .read<TrainingPackStorageService>()
-          .packs
-          .firstWhere((p) => p.id == _packRef.id, orElse: () => _packRef);
+      final pack = context.read<TrainingPackStorageService>().packs.firstWhere(
+        (p) => p.id == _packRef.id,
+        orElse: () => _packRef,
+      );
       setState(() {
         _packRef = pack;
         _hands = List.from(pack.hands);
@@ -768,13 +872,18 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   }
 
   Future<void> _setSearch(String value) async {
-    setState(() {});
+    setState(() {
+      _rebuildStats();
+    });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_searchKey, value);
   }
 
   Future<void> _setTagFilter(String? value) async {
-    setState(() => _tagFilter = value);
+    setState(() {
+      _tagFilter = value;
+      _rebuildStats();
+    });
     final prefs = await SharedPreferences.getInstance();
     if (value == null) {
       await prefs.remove(_tagKey);
@@ -784,7 +893,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   }
 
   Future<void> _setMistakeFilter(_MistakeFilter value) async {
-    setState(() => _mistakeFilter = value);
+    setState(() {
+      _mistakeFilter = value;
+      _rebuildStats();
+    });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_mistakeKey, value.index);
   }
@@ -804,14 +916,18 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
               CheckboxListTile(
                 value: hero,
                 onChanged: (v) => setStateDialog(() => hero = v ?? false),
-                title: const Text('Hero Position',
-                    style: TextStyle(color: Colors.white)),
+                title: const Text(
+                  'Hero Position',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               CheckboxListTile(
                 value: severity,
                 onChanged: (v) => setStateDialog(() => severity = v ?? false),
-                title: const Text('Mistake Severity',
-                    style: TextStyle(color: Colors.white)),
+                title: const Text(
+                  'Mistake Severity',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -847,8 +963,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           final tag = m == 0
               ? 'Clean'
               : m <= 2
-                  ? 'Minor'
-                  : 'Major';
+              ? 'Minor'
+              : 'Major';
           set.add(tag);
         }
         if (!set.containsAll(before) || set.length != before.length) {
@@ -861,6 +977,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           }
         }
       }
+      _rebuildStats();
     });
     for (final t in newTags) {
       await tagService.addTag(t);
@@ -877,6 +994,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 _hands[r.$1] = _hands[r.$1].copyWith(tags: r.$2);
               }
               _modified = true;
+              _rebuildStats();
             });
           },
         ),
@@ -916,6 +1034,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           return 'No Actions';
       }
     }
+
     String desc(_QcIssue t) {
       switch (t) {
         case _QcIssue.duplicateName:
@@ -926,11 +1045,15 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           return 'No actions';
       }
     }
+
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
-        title: const Text('Quality Check', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Quality Check',
+          style: TextStyle(color: Colors.white),
+        ),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView(
@@ -939,8 +1062,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
               for (final t in _QcIssue.values)
                 if (issues[t]!.isNotEmpty)
                   Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
+                    data: Theme.of(
+                      context,
+                    ).copyWith(dividerColor: Colors.transparent),
                     child: ExpansionTile(
                       iconColor: Colors.white,
                       collapsedIconColor: Colors.white,
@@ -959,8 +1083,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                                   : _hands[i].name,
                               style: const TextStyle(color: Colors.white),
                             ),
-                            subtitle: Text(desc(t),
-                                style: const TextStyle(color: Colors.white70)),
+                            subtitle: Text(
+                              desc(t),
+                              style: const TextStyle(color: Colors.white70),
+                            ),
                             onLongPress: () => _previewHand(_hands[i]),
                           ),
                       ],
@@ -1019,6 +1145,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           _modified = true;
         }
       }
+      _rebuildStats();
     });
     if (changed == 0) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1032,6 +1159,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 _hands[e.$1] = _hands[e.$1].copyWith(name: e.$2);
               }
               _modified = true;
+              _rebuildStats();
             });
           },
         ),
@@ -1047,6 +1175,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         _hands.removeAt(i);
         _modified = true;
       }
+      _rebuildStats();
     });
     if (removed.isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1060,6 +1189,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 _hands.insert(r.$2.clamp(0, _hands.length), r.$1);
               }
               _modified = true;
+              _rebuildStats();
             });
           },
         ),
@@ -1084,7 +1214,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             for (int i = 0; i < list.length && i < 3; i++)
               c.text
                   .replaceAll('{index}', '${i + 1}')
-                  .replaceAll('{old}', list[i].name)
+                  .replaceAll('{old}', list[i].name),
           ];
           return AlertDialog(
             title: const Text('Rename'),
@@ -1132,6 +1262,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           _modified = true;
         }
       }
+      _rebuildStats();
     });
     if (_renameUndo.isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1145,6 +1276,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 _hands[r.$1] = _hands[r.$1].copyWith(name: r.$2);
               }
               _modified = true;
+              _rebuildStats();
             });
           },
         ),
@@ -1156,7 +1288,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     final indices = _visibleIndices();
     final pattern = _regex
         ? RegExp(_findController.text, caseSensitive: _matchCase)
-        : RegExp(RegExp.escape(_findController.text), caseSensitive: _matchCase);
+        : RegExp(
+            RegExp.escape(_findController.text),
+            caseSensitive: _matchCase,
+          );
     _renameUndo = [];
     setState(() {
       for (final i in indices) {
@@ -1168,6 +1303,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           _modified = true;
         }
       }
+      _rebuildStats();
     });
     if (_renameUndo.isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1181,10 +1317,113 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 _hands[r.$1] = _hands[r.$1].copyWith(name: r.$2);
               }
               _modified = true;
+              _rebuildStats();
             });
           },
         ),
       ),
+    );
+  }
+
+  void _showStats() {
+    _rebuildStats();
+    final tagService = context.read<TagService>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.cardBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        final tags = _tagsCount.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          shrinkWrap: true,
+          children: [
+            const Text('Tags', style: TextStyle(color: Colors.white70)),
+            for (final e in tags)
+              ListTile(
+                title: Chip(
+                  label: Text(e.key),
+                  backgroundColor: colorFromHex(tagService.colorOf(e.key)),
+                ),
+                trailing: Text(
+                  '${e.value}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  _setTagFilter(e.key);
+                  Navigator.pop(ctx);
+                },
+              ),
+            const SizedBox(height: 8),
+            const Text('Mistakes', style: TextStyle(color: Colors.white70)),
+            ListTile(
+              title: const Text('0', style: TextStyle(color: Colors.white)),
+              trailing: Text(
+                '$_mist0',
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                _setMistakeFilter(_MistakeFilter.zero);
+                Navigator.pop(ctx);
+              },
+            ),
+            ListTile(
+              title: const Text('1-2', style: TextStyle(color: Colors.white)),
+              trailing: Text(
+                '$_mist12',
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                _setMistakeFilter(_MistakeFilter.oneTwo);
+                Navigator.pop(ctx);
+              },
+            ),
+            ListTile(
+              title: const Text('3+', style: TextStyle(color: Colors.white)),
+              trailing: Text(
+                '$_mist3',
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                _setMistakeFilter(_MistakeFilter.threePlus);
+                Navigator.pop(ctx);
+              },
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Hero Position',
+              style: TextStyle(color: Colors.white70),
+            ),
+            for (final p in ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'])
+              ListTile(
+                title: Text(p, style: const TextStyle(color: Colors.white)),
+                trailing: Text(
+                  '${_posCount[p] ?? 0}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  _setSearch('');
+                  _setTagFilter(null);
+                  setState(() {
+                    _heroPosFilter = p;
+                    _rebuildStats();
+                  });
+                  Navigator.pop(ctx);
+                },
+              ),
+            const Divider(),
+            ListTile(
+              title: Text(
+                'Duplicates: $_dupCount',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1209,26 +1448,44 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 )
               : null,
           title: Text(
-              _selectionMode ? '${_selected.length}' : widget.pack.name),
+            _selectionMode ? '${_selected.length}' : widget.pack.name,
+          ),
           actions: _selectionMode
               ? [
-                  IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
-                  IconButton(onPressed: _addTagDialog, icon: const Icon(Icons.label)),
-                  IconButton(onPressed: _removeTagDialog, icon: const Icon(Icons.label_off)),
+                  IconButton(
+                    onPressed: _deleteSelected,
+                    icon: const Icon(Icons.delete),
+                  ),
+                  IconButton(
+                    onPressed: _addTagDialog,
+                    icon: const Icon(Icons.label),
+                  ),
+                  IconButton(
+                    onPressed: _removeTagDialog,
+                    icon: const Icon(Icons.label_off),
+                  ),
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.forward),
                     onSelected: _bulkTransfer,
                     itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'move', child: Text('Move to Pack…')),
-                      PopupMenuItem(value: 'copy', child: Text('Copy to Pack…')),
+                      PopupMenuItem(
+                        value: 'move',
+                        child: Text('Move to Pack…'),
+                      ),
+                      PopupMenuItem(
+                        value: 'copy',
+                        child: Text('Copy to Pack…'),
+                      ),
                     ],
                   ),
                   PopupMenuButton<String>(
                     onSelected: (v) {
                       if (v == 'all') {
-                        setState(() => _selected
-                          ..clear()
-                          ..addAll(_hands));
+                        setState(
+                          () => _selected
+                            ..clear()
+                            ..addAll(_hands),
+                        );
                       } else if (v == 'rename') {
                         _showRenameDialog();
                       } else {
@@ -1248,6 +1505,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     onPressed: _qualityCheck,
                     icon: const Icon(Icons.rule),
                     tooltip: 'Quality Check',
+                  ),
+                  IconButton(
+                    onPressed: _showStats,
+                    icon: const Icon(Icons.bar_chart),
                   ),
                   IconButton(
                     onPressed: _importFromRoom,
@@ -1270,17 +1531,22 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                       }
                     },
                     itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'snap', child: Text('Save Snapshot')),
                       PopupMenuItem(
-                          value: 'manage', child: Text('Manage Snapshots…')),
+                        value: 'snap',
+                        child: Text('Save Snapshot'),
+                      ),
+                      PopupMenuItem(
+                        value: 'manage',
+                        child: Text('Manage Snapshots…'),
+                      ),
                     ],
-                  )
+                  ),
                 ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             final result = await _showAutoTagDialog();
-            if (result != null) _autoTag(result.\$1, result.\$2);
+            if (result != null) _autoTag(result.$1, result.$2);
           },
           child: const Icon(Icons.auto_fix_high),
         ),
@@ -1304,16 +1570,16 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                         Expanded(
                           child: TextField(
                             controller: _findController,
-                            decoration:
-                                const InputDecoration(hintText: 'Find'),
+                            decoration: const InputDecoration(hintText: 'Find'),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
                             controller: _replaceController,
-                            decoration:
-                                const InputDecoration(hintText: 'Replace'),
+                            decoration: const InputDecoration(
+                              hintText: 'Replace',
+                            ),
                           ),
                         ),
                       ],
@@ -1323,7 +1589,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                         Expanded(
                           child: CheckboxListTile(
                             value: _regex,
-                            onChanged: (v) => setState(() => _regex = v ?? false),
+                            onChanged: (v) =>
+                                setState(() => _regex = v ?? false),
                             title: const Text('Regex'),
                             dense: true,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -1348,7 +1615,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                           child: const Text('Close'),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -1361,11 +1628,26 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   if (v != null) _setSort(v);
                 },
                 items: const [
-                  DropdownMenuItem(value: _SortOption.newest, child: Text('Newest')),
-                  DropdownMenuItem(value: _SortOption.oldest, child: Text('Oldest')),
-                  DropdownMenuItem(value: _SortOption.position, child: Text('Hero Pos')),
-                  DropdownMenuItem(value: _SortOption.tags, child: Text('Tags')),
-                  DropdownMenuItem(value: _SortOption.mistakes, child: Text('Mistakes')),
+                  DropdownMenuItem(
+                    value: _SortOption.newest,
+                    child: Text('Newest'),
+                  ),
+                  DropdownMenuItem(
+                    value: _SortOption.oldest,
+                    child: Text('Oldest'),
+                  ),
+                  DropdownMenuItem(
+                    value: _SortOption.position,
+                    child: Text('Hero Pos'),
+                  ),
+                  DropdownMenuItem(
+                    value: _SortOption.tags,
+                    child: Text('Tags'),
+                  ),
+                  DropdownMenuItem(
+                    value: _SortOption.mistakes,
+                    child: Text('Mistakes'),
+                  ),
                 ],
               ),
             ),
@@ -1428,7 +1710,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     child: ChoiceChip(
                       label: const Text('1-2'),
                       selected: _mistakeFilter == _MistakeFilter.oneTwo,
-                      onSelected: (_) => _setMistakeFilter(_MistakeFilter.oneTwo),
+                      onSelected: (_) =>
+                          _setMistakeFilter(_MistakeFilter.oneTwo),
                     ),
                   ),
                   Padding(
@@ -1436,7 +1719,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     child: ChoiceChip(
                       label: const Text('3+'),
                       selected: _mistakeFilter == _MistakeFilter.threePlus,
-                      onSelected: (_) => _setMistakeFilter(_MistakeFilter.threePlus),
+                      onSelected: (_) =>
+                          _setMistakeFilter(_MistakeFilter.threePlus),
                     ),
                   ),
                 ],
@@ -1447,7 +1731,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 onReorder: (oldIndex, newIndex) {
                   final indices = _visibleIndices();
                   final oldGlobal = indices[oldIndex];
-                  final newGlobal = indices[(newIndex > oldIndex ? newIndex - 1 : newIndex)];
+                  final newGlobal =
+                      indices[(newIndex > oldIndex ? newIndex - 1 : newIndex)];
                   _reorder(oldGlobal, newGlobal);
                 },
                 itemCount: _visibleIndices().length,
@@ -1474,8 +1759,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                             )
                           : const Icon(Icons.drag_handle),
                       title: Text(title),
-                      subtitle:
-                          hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
+                      subtitle: hand.tags.isEmpty
+                          ? null
+                          : Text(hand.tags.join(', ')),
                       trailing: Container(
                         width: 24,
                         height: 24,
@@ -1530,7 +1816,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
