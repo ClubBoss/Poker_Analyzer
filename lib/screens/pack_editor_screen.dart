@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -901,6 +903,95 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await prefs.setInt(_mistakeKey, value.index);
   }
 
+  Future<(String, bool)?> _showExportDialog() {
+    String format = 'json';
+    bool visible = false;
+    return showDialog<(String, bool)>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title:
+              const Text('Export Pack', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                value: 'json',
+                groupValue: format,
+                onChanged: (v) => setStateDialog(() => format = v ?? 'json'),
+                title: const Text('JSON', style: TextStyle(color: Colors.white)),
+              ),
+              RadioListTile<String>(
+                value: 'csv',
+                groupValue: format,
+                onChanged: (v) => setStateDialog(() => format = v ?? 'json'),
+                title: const Text('CSV', style: TextStyle(color: Colors.white)),
+              ),
+              CheckboxListTile(
+                value: visible,
+                onChanged: (v) => setStateDialog(() => visible = v ?? false),
+                title: const Text('Only visible hands',
+                    style: TextStyle(color: Colors.white)),
+                controlAffinity: ListTileControlAffinity.leading,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, (format, visible)),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportPack() async {
+    final result = await _showExportDialog();
+    if (result == null) return;
+    final format = result.$1;
+    final onlyVisible = result.$2;
+    final indices =
+        onlyVisible ? _visibleIndices() : [for (int i = 0; i < _hands.length; i++) i];
+    final list = [for (final i in indices) _hands[i]];
+    final dir = await getTemporaryDirectory();
+    final path = '${dir.path}/export.$format';
+    final file = File(path);
+    if (format == 'json') {
+      final map = {
+        'name': widget.pack.name,
+        'hands': [for (final h in list) h.toJson()]
+      };
+      await file.writeAsString(jsonEncode(map), encoding: utf8);
+    } else {
+      final rows = <List<dynamic>>[];
+      rows.add(['name', 'heroPosition', 'tags', 'actions']);
+      for (final h in list) {
+        rows.add([
+          h.name,
+          h.heroPosition,
+          h.tags.join('|'),
+          h.actions.length
+        ]);
+      }
+      final csv = const ListToCsvConverter().convert(rows);
+      await file.writeAsString(csv, encoding: utf8);
+    }
+    await Share.shareXFiles([XFile(file.path)]);
+    if (mounted) {
+      final msg =
+          'Exported ${list.length} hands as ${format.toUpperCase()}';
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
   Future<(bool, bool)?> _showAutoTagDialog() {
     bool hero = true;
     bool severity = true;
@@ -1513,6 +1604,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   IconButton(
                     onPressed: _importFromRoom,
                     icon: const Icon(Icons.playlist_add),
+                  ),
+                  IconButton(
+                    onPressed: _exportPack,
+                    icon: const Icon(Icons.share),
                   ),
                   IconButton(
                     onPressed: _toggleFind,
