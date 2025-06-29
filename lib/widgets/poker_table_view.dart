@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../helpers/table_geometry_helper.dart';
 import '../helpers/poker_position_helper.dart';
@@ -68,7 +69,9 @@ class _PokerTableViewState extends State<PokerTableView> {
   void didUpdateWidget(covariant PokerTableView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.heroIndex != oldWidget.heroIndex ||
-        widget.theme != oldWidget.theme) {
+        widget.theme != oldWidget.theme ||
+        widget.potSize != oldWidget.potSize ||
+        !listEquals(widget.playerStacks, oldWidget.playerStacks)) {
       setState(() {});
     }
     if (widget.theme != oldWidget.theme) {
@@ -81,6 +84,10 @@ class _PokerTableViewState extends State<PokerTableView> {
     final positions = getPositionList(widget.playerCount);
     final width = 220.0 * widget.scale;
     final height = width * 0.55;
+    final positiveStacks =
+        widget.playerStacks.where((s) => s > 0).toList(growable: false);
+    final effectiveStack =
+        positiveStacks.isEmpty ? 0.0 : positiveStacks.reduce(min);
     final items = <Widget>[
       Positioned.fill(child: CustomPaint(painter: PokerTablePainter(theme: widget.theme))),
       Positioned.fill(
@@ -142,15 +149,30 @@ class _PokerTableViewState extends State<PokerTableView> {
                 setState(() {});
               }
             },
-                child: Padding(
-                  padding: EdgeInsets.only(top: 12 * widget.scale),
-                  child: Text(
-                    'Pot: ${widget.potSize.toStringAsFixed(1)} BB',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 12 * widget.scale),
+                      child: Text(
+                        'Pot: ${widget.potSize.toStringAsFixed(1)} BB',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 2 * widget.scale),
+                      child: Text(
+                        'Eff: ${effectiveStack.toStringAsFixed(1)} BB | SPR: ${(effectiveStack / max(widget.potSize, 0.1)).toStringAsFixed(2)}',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 8 * widget.scale,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
