@@ -1457,13 +1457,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   }
 
   Future<void> _autoTag(bool hero, bool severity) async {
-    final indices = _visibleIndices();
     final tagService = context.read<TagService>();
     final previous = <(int, List<String>)>[];
     final newTags = <String>{};
     int count = 0;
     setState(() {
-      for (final i in indices) {
+      for (int i = 0; i < _hands.length; i++) {
         final hand = _hands[i];
         final before = List<String>.from(hand.tags);
         final set = {...hand.tags};
@@ -1471,10 +1470,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         if (severity) {
           final m = _mistakeCount(hand);
           final tag = m == 0
-              ? 'Clean'
+              ? 'mistake:0'
               : m <= 2
-              ? 'Minor'
-              : 'Major';
+                  ? 'mistake:1-2'
+                  : 'mistake:3+';
           set.add(tag);
         }
         if (!set.containsAll(before) || set.length != before.length) {
