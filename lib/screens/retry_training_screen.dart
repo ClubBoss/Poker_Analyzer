@@ -8,6 +8,7 @@ import '../widgets/common/summary_card.dart';
 
 import '../models/error_entry.dart';
 import '../models/training_result.dart';
+import '../widgets/sync_status_widget.dart';
 
 class RetryTrainingScreen extends StatefulWidget {
   final List<ErrorEntry> errors;
@@ -210,6 +211,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
       appBar: AppBar(
         title: const Text('Retry Mistakes'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: AppColors.background,
       body: Padding(

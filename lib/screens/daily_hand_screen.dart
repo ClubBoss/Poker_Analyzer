@@ -5,6 +5,7 @@ import '../services/daily_hand_service.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../widgets/saved_hand_detail_sheet.dart';
 import '../helpers/date_utils.dart';
+import '../widgets/sync_status_widget.dart';
 
 class DailyHandScreen extends StatelessWidget {
   const DailyHandScreen({super.key});
@@ -17,7 +18,7 @@ class DailyHandScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Ежедневная раздача'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
@@ -72,6 +73,7 @@ class PastDailyHandsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('История ежедневных раздач'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: const Color(0xFF121212),
       body: history.isEmpty

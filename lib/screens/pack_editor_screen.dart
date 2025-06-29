@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class PackEditorScreen extends StatefulWidget {
   final TrainingPack pack;
@@ -221,7 +222,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.pack.name),
-          actions: [
+          actions: [SyncStatusIcon.of(context), 
             IconButton(
               onPressed: _hands.isEmpty ? null : _save,
               icon: const Icon(Icons.check),

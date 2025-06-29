@@ -32,6 +32,7 @@ import '../models/training_session.dart';
 import '../helpers/date_utils.dart';
 import '../helpers/accuracy_utils.dart';
 import '../tutorial/tutorial_flow.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
   final TutorialFlow? tutorial;
@@ -2181,7 +2182,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       appBar: AppBar(
         title: const Text('Training History'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.upload),
             tooltip: 'Import',

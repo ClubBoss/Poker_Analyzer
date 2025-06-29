@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../helpers/poker_street_helper.dart';
+import '../widgets/sync_status_widget.dart';
 
 /// Shows accuracy percentages grouped by tag, street and hero position.
 ///
@@ -73,6 +74,7 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Точность по группам'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

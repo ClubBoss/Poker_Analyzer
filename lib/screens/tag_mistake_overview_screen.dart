@@ -29,6 +29,7 @@ import '../widgets/common/mistake_trend_chart.dart';
 enum _ChartMode { daily, weekly }
 import 'hand_history_review_screen.dart';
 import '../widgets/saved_hand_tile.dart';
+import '../widgets/sync_status_widget.dart';
 
 /// Displays a list of tags sorted by mistake count.
 ///
@@ -1069,6 +1070,7 @@ class _TagMistakeHandsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(tag),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: SavedHandListView(
         hands: hands,
@@ -1227,6 +1229,7 @@ class _DailySeverityHandsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(formatLongDate(day)),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

@@ -9,6 +9,7 @@ import '../models/action_entry.dart';
 import '../services/user_preferences_service.dart';
 import 'package:provider/provider.dart';
 import '../helpers/poker_street_helper.dart';
+import '../widgets/sync_status_widget.dart';
 
 /// Displays actions for a [TrainingSpot] grouped by street in collapsible sections.
 class TrainingSpotAnalysisScreen extends StatefulWidget {
@@ -120,6 +121,7 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
       appBar: AppBar(
         title: const Text('Spot Analysis'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: Colors.black,
       body: ListView(

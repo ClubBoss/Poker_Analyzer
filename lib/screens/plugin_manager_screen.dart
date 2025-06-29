@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../plugins/plugin_loader.dart';
 import '../../plugins/plugin_manager.dart';
 import '../services/service_registry.dart';
+import '../widgets/sync_status_widget.dart';
 
 class PluginManagerScreen extends StatefulWidget {
   const PluginManagerScreen({super.key});
@@ -86,6 +87,7 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
       appBar: AppBar(
         title: const Text('Plugins'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Column(
         children: [

@@ -20,6 +20,7 @@ import '../services/daily_target_service.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
 import 'package:provider/provider.dart';
+import '../widgets/sync_status_widget.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -123,7 +124,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poker AI Analyzer'),
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           PopupMenuButton<String>(
             onSelected: (value) {
               switch (value) {

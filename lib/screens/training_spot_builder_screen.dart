@@ -10,6 +10,7 @@ import '../services/training_spot_storage_service.dart';
 import '../services/template_storage_service.dart';
 import '../widgets/board_cards_widget.dart';
 import '../widgets/template_selection_dialog.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingSpotBuilderScreen extends StatefulWidget {
   const TrainingSpotBuilderScreen({super.key});
@@ -179,6 +180,8 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Создание спота'), centerTitle: true),
+      actions: [SyncStatusIcon.of(context)],
+      actions: [SyncStatusIcon.of(context)],
       backgroundColor: const Color(0xFF1B1C1E),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

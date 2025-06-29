@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TopMistakesOverviewScreen extends StatelessWidget {
   static const route = '/training/analytics/top-mistakes';
@@ -58,6 +59,7 @@ class TopMistakesOverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Частые ошибки'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: entries.isEmpty
           ? const Center(child: Text('Нет данных', style: TextStyle(color: Colors.white70)))

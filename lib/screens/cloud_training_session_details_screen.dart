@@ -17,6 +17,7 @@ import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
 import '../services/saved_hand_manager_service.dart';
 import 'training_pack_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class CloudTrainingSessionDetailsScreen extends StatefulWidget {
   final CloudTrainingSession session;
@@ -358,7 +359,7 @@ class _CloudTrainingSessionDetailsScreenState
           ],
         ),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Экспорт',

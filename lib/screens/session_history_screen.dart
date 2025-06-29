@@ -10,6 +10,7 @@ import '../helpers/date_utils.dart';
 import '../theme/constants.dart';
 import 'session_hands_screen.dart';
 import 'compare_sessions_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class SessionHistoryScreen extends StatefulWidget {
   const SessionHistoryScreen({super.key});
@@ -246,7 +247,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
       appBar: AppBar(
         title: const Text('История сессий'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           if (_selectionMode)
             IconButton(
               icon: const Icon(Icons.close),
