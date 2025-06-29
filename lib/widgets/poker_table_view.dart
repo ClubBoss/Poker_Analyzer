@@ -36,13 +36,12 @@ class PokerTableView extends StatelessWidget {
       items.add(Positioned(
         left: offset.dx,
         top: offset.dy - 18 * scale,
-        child: AnimatedOpacity(
-          opacity: i == heroIndex ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: Text(
-            positions[i],
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+        child: Text(
+          positions[i],
+          style: TextStyle(
+            color: i == heroIndex ? Colors.white : Colors.grey,
+            fontSize: (i == heroIndex ? 12 : 10) * scale,
+            fontWeight: i == heroIndex ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ));
