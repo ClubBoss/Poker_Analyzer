@@ -2315,9 +2315,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                                 if (!mounted) return;
                                 if (result != null) {
                                   final old = _hands[idx].comment;
+                                  final trimmed = result.trim();
                                   setState(() {
                                     _hands[idx] = _hands[idx].copyWith(
-                                      comment: result.isNotEmpty ? result : null,
+                                      comment: trimmed.isNotEmpty ? trimmed : null,
                                     );
                                     _modified = true;
                                   });
