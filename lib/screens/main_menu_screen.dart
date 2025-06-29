@@ -8,6 +8,7 @@ import 'cloud_training_history_screen.dart';
 import 'my_training_history_screen.dart';
 import 'cloud_training_history_service_screen.dart';
 import 'player_zone_demo_screen.dart';
+import 'poker_table_demo_screen.dart';
 import 'settings_screen.dart';
 import 'daily_hand_screen.dart';
 import 'spot_of_the_day_screen.dart';
@@ -147,49 +148,49 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          Row(
-            children: [
-              const Icon(Icons.local_fire_department, color: Colors.white),
-              const SizedBox(width: 8),
-              Text(
-                'Стрик: $streak \u0434\u043D\u0435\u0439 \u043F\u043E\u0434\u0440\u044F\u0434',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              Row(
+                children: [
+                  const Icon(Icons.local_fire_department, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Стрик: $streak \u0434\u043D\u0435\u0439 \u043F\u043E\u0434\u0440\u044F\u0434',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: progress),
+                      duration: const Duration(milliseconds: 300),
+                      builder: (context, value, _) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: value,
+                            backgroundColor: Colors.white24,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                highlight ? Colors.white : accent),
+                            minHeight: 6,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$progressDays/$threshold',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: progress),
-                  duration: const Duration(milliseconds: 300),
-                  builder: (context, value, _) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: value,
-                        backgroundColor: Colors.white24,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(highlight ? Colors.white : accent),
-                        minHeight: 6,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '$progressDays/$threshold',
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-        ],
           ),
         ),
         if (_showStreakPopup)
@@ -310,7 +311,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const GoalsOverviewScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const GoalsOverviewScreen()),
                 );
               },
               child: const Text('Перейти'),
@@ -368,7 +370,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 500),
         transitionBuilder: (child, animation) {
-          final curved = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
+          final curved =
+              CurvedAnimation(parent: animation, curve: Curves.easeInOut);
           final scale = Tween<double>(begin: 0.95, end: 1.0).animate(curved);
           return FadeTransition(
             opacity: curved,
@@ -386,9 +389,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     final executor = EvaluationExecutorService();
     final total = executor.summarizeHands(hands).totalHands;
     final cutoff = DateTime.now().subtract(const Duration(days: 7));
-    final recent = [for (final h in hands) if (h.date.isAfter(cutoff)) h];
+    final recent = [
+      for (final h in hands)
+        if (h.date.isAfter(cutoff)) h
+    ];
     final recentSummary = executor.summarizeHands(recent);
-    final accuracy = recentSummary.totalHands > 0 ? recentSummary.accuracy : null;
+    final accuracy =
+        recentSummary.totalHands > 0 ? recentSummary.accuracy : null;
     final completed = goals.goals.where((g) => g.completed).length;
     final streak = goals.errorFreeStreak;
     final show = total > 0 || accuracy != null || completed > 0 || streak > 0;
@@ -424,8 +431,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           if (total > 0) line(Icons.stacked_bar_chart, '$total раздач'),
           if (accuracy != null)
             line(Icons.check, 'Точность: ${accuracy.toStringAsFixed(0)}%'),
-          if (completed > 0)
-            line(Icons.flag, 'Целей достигнуто: $completed'),
+          if (completed > 0) line(Icons.flag, 'Целей достигнуто: $completed'),
           if (streak > 0) line(Icons.flash_on, 'Стрик: $streak рук'),
         ],
       ),
@@ -504,7 +510,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       appBar: AppBar(
         title: const Text('Poker AI Analyzer'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           _buildStreakIndicator(context),
           if (!_tutorialCompleted)
             IconButton(
@@ -525,7 +532,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const GoalsOverviewScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const GoalsOverviewScreen()),
                 );
               },
               child: const Text('🎯 Мои цели'),
@@ -545,7 +553,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const MistakeRepeatScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const MistakeRepeatScreen()),
                 );
               },
               child: const Text('🔁 Повторы ошибок'),
@@ -598,7 +607,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const TrainingPacksScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const TrainingPacksScreen()),
                 );
               },
               child: const Text('🎯 Тренировка'),
@@ -688,8 +698,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const SessionStatsScreen()),
+                  MaterialPageRoute(builder: (_) => const SessionStatsScreen()),
                 );
               },
               child: const Text('📊 Статистика сессий'),
@@ -742,6 +751,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
+                  MaterialPageRoute(
+                      builder: (_) => const PokerTableDemoScreen()),
+                );
+              },
+              child: const Text('🧪 Poker Table Demo'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 );
               },
@@ -762,8 +782,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                final manager =
-                    Provider.of<SavedHandManagerService>(context, listen: false);
+                final manager = Provider.of<SavedHandManagerService>(context,
+                    listen: false);
                 final service = await HandHistoryFileService.create(manager);
                 await service.importFromFiles(context);
               },
@@ -772,8 +792,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                final manager =
-                    Provider.of<SavedHandManagerService>(context, listen: false);
+                final manager = Provider.of<SavedHandManagerService>(context,
+                    listen: false);
                 final path = await manager.exportAllHandsMarkdown();
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -789,8 +809,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                final manager =
-                    Provider.of<SavedHandManagerService>(context, listen: false);
+                final manager = Provider.of<SavedHandManagerService>(context,
+                    listen: false);
                 final path = await manager.exportAllHandsPdf();
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
