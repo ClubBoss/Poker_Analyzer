@@ -138,24 +138,31 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     setState(_buildCommands);
   }
 
+  LogicalKeySet _primaryCmd(LogicalKeyboardKey key) {
+    final isMac = defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    return LogicalKeySet(
+        isMac ? LogicalKeyboardKey.meta : LogicalKeyboardKey.control, key);
+  }
+
   void _buildCommands() {
     _commands = [
       _Command(
         'save',
         'Save',
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyS),
+        _primaryCmd(LogicalKeyboardKey.keyS),
         _hands.isEmpty ? () {} : _save,
       ),
       _Command(
         'find',
         'Toggle Find',
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF),
+        _primaryCmd(LogicalKeyboardKey.keyF),
         _toggleFind,
       ),
       _Command(
         'export',
         'Export',
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyE),
+        _primaryCmd(LogicalKeyboardKey.keyE),
         _exportPack,
       ),
       _Command(
@@ -194,13 +201,13 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       _Command(
         'up',
         'Move Up',
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowUp),
+        _primaryCmd(LogicalKeyboardKey.arrowUp),
         _moveUp,
       ),
       _Command(
         'down',
         'Move Down',
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.arrowDown),
+        _primaryCmd(LogicalKeyboardKey.arrowDown),
         _moveDown,
       ),
     ];
@@ -1845,24 +1852,18 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             defaultTargetPlatform != TargetPlatform.iOS);
     final shortcutMap = <LogicalKeySet, Intent>{};
     if (enableShortcuts) {
-      final used = <LogicalKeySet>{};
+      final shortcutToId = <LogicalKeySet, String>{};
       void addShortcut(LogicalKeySet? set, String id) {
         if (set == null) return;
-        if (used.contains(set)) {
-          assert(() {
-            debugPrint('Duplicate shortcut: $set');
-            return true;
-          }());
-          return;
-        }
-        used.add(set);
-        shortcutMap[set] = _CommandIntent(id);
-      }
-      for (final c in _commands) {
-        addShortcut(c.shortcut, c.id);
+        shortcutToId[set] = id;
       }
       addShortcut(const LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyK), 'palette');
       addShortcut(const LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyK), 'palette');
+      for (final c in _commands) addShortcut(c.shortcut, c.id);
+      shortcutMap
+        ..clear()
+        ..addEntries(shortcutToId.entries
+            .map((e) => MapEntry(e.key, _CommandIntent(e.value))));
     }
 
     Widget child = WillPopScope(
