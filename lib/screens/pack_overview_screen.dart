@@ -22,6 +22,19 @@ class PackOverviewScreen extends StatefulWidget {
 
 class _PackOverviewScreenState extends State<PackOverviewScreen> {
 
+  double _calcAverage(List<TrainingPack> packs) {
+    var sum = 0.0;
+    var count = 0;
+    for (final p in packs) {
+      if (p.history.isEmpty) continue;
+      final h = p.history.last;
+      if (h.total == 0) continue;
+      sum += h.correct * 100 / h.total;
+      count++;
+    }
+    return count > 0 ? sum / count : 0.0;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -171,18 +184,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         .where((p) => !p.isBuiltIn)
         .toList()
       ..sort((a, b) => a.name.compareTo(b.name));
-    double avg = 0;
-    int count = 0;
-    for (final p in packs) {
-      if (p.history.isNotEmpty) {
-        final h = p.history.last;
-        if (h.total > 0) {
-          avg += h.correct * 100 / h.total;
-          count++;
-        }
-      }
-    }
-    if (count > 0) avg /= count;
+    final avg = _calcAverage(packs);
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Packs'),
