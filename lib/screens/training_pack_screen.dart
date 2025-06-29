@@ -63,6 +63,7 @@ import '../widgets/common/training_spot_list.dart';
 import 'markdown_preview_screen.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'training_spot_detail_screen.dart';
+import 'spot_editor_screen.dart';
 import 'dart:async';
 import '../services/cloud_training_history_service.dart';
 import '../helpers/color_utils.dart';
@@ -546,6 +547,30 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Копия «${copy.name}» создана')),
     );
+  }
+
+  Future<void> _addSpot() async {
+    final spot = await Navigator.push<TrainingSpot>(
+      context,
+      MaterialPageRoute(builder: (_) => const SpotEditorScreen()),
+    );
+    if (spot == null) return;
+    final newSpots = List<TrainingSpot>.from(_pack.spots)..add(spot);
+    final updated = TrainingPack(
+      name: _pack.name,
+      description: _pack.description,
+      category: _pack.category,
+      gameType: _pack.gameType,
+      colorTag: _pack.colorTag,
+      isBuiltIn: _pack.isBuiltIn,
+      tags: _pack.tags,
+      hands: _pack.hands,
+      spots: newSpots,
+      difficulty: _pack.difficulty,
+      history: _pack.history,
+    );
+    await context.read<TrainingPackStorageService>().updatePack(_pack, updated);
+    setState(() => _pack = updated);
   }
 
   void _previousHand() {
@@ -1860,6 +1885,10 @@ body { font-family: sans-serif; padding: 16px; }
           ],
         ),
         backgroundColor: const Color(0xFF1B1C1E),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _addSpot,
+          label: const Text('＋ Spot'),
+        ),
       ),
     );
   }
