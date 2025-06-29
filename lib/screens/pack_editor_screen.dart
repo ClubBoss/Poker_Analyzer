@@ -9,17 +9,20 @@ import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import '../services/tag_service.dart';
 import '../helpers/color_utils.dart';
 import '../theme/app_colors.dart';
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
 import '../models/pack_snapshot.dart';
+import '../models/view_preset.dart';
 import '../services/training_pack_storage_service.dart';
 import 'room_hand_history_import_screen.dart';
 import 'room_hand_history_editor_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import 'snapshot_manager_screen.dart';
+import 'view_manager_screen.dart';
 
 enum _SortOption { newest, oldest, position, tags, mistakes }
 
@@ -53,6 +56,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   _SortOption _sort = _SortOption.newest;
   static const _tagKey = 'pack_editor_tag_filter';
   static const _mistakeKey = 'pack_editor_mistake_filter';
+  static const _heroKey = 'pack_editor_hero_filter';
+  static const _viewsKey = 'pack_editor_views';
   String? _tagFilter;
   _MistakeFilter _mistakeFilter = _MistakeFilter.any;
   bool _showFind = false;
@@ -75,6 +80,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     'BB': 0,
   };
   int _dupCount = 0;
+  List<ViewPreset> _views = [];
 
   @override
   void initState() {
@@ -94,8 +100,24 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       final m = prefs.getInt(_mistakeKey) ?? 0;
       _mistakeFilter =
           _MistakeFilter.values[m.clamp(0, _MistakeFilter.values.length - 1)];
+      _heroPosFilter = prefs.getString(_heroKey);
       _rebuildStats();
     });
+    final raw = prefs.getString(_viewsKey);
+    if (raw != null) {
+      try {
+        final data = jsonDecode(raw) as Map<String, dynamic>;
+        final list = data[widget.pack.id];
+        if (list is List) {
+          setState(() {
+            _views = [
+              for (final v in list)
+                ViewPreset.fromJson(Map<String, dynamic>.from(v as Map))
+            ];
+          });
+        }
+      } catch (_) {}
+    }
   }
 
   List<String> _parseCsvLine(String line) {
@@ -903,6 +925,89 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await prefs.setInt(_mistakeKey, value.index);
   }
 
+  Future<void> _setHeroFilter(String? value) async {
+    setState(() {
+      _heroPosFilter = value;
+      _rebuildStats();
+    });
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_heroKey);
+    } else {
+      await prefs.setString(_heroKey, value);
+    }
+  }
+
+  Future<void> _saveViews() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_viewsKey);
+    Map<String, dynamic> data = {};
+    if (raw != null) {
+      try {
+        data = jsonDecode(raw) as Map<String, dynamic>;
+      } catch (_) {}
+    }
+    data[widget.pack.id] = [for (final v in _views) v.toJson()];
+    await prefs.setString(_viewsKey, jsonEncode(data));
+  }
+
+  Future<void> _saveCurrentView() async {
+    if (_views.length >= 20) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Too many views')));
+      return;
+    }
+    final c = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('View Name'),
+        content: TextField(controller: c, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, c.text.trim()), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (name == null || name.isEmpty) return;
+    final view = ViewPreset(
+      name: name,
+      sort: _sort.index,
+      tagFilter: _tagFilter,
+      mistakeFilter: _mistakeFilter.index,
+      heroPosFilter: _heroPosFilter,
+      search: _searchController.text,
+    );
+    setState(() => _views.add(view));
+    await _saveViews();
+  }
+
+  Future<void> _applyView(ViewPreset view) async {
+    await _setSort(_SortOption.values[view.sort]);
+    await _setTagFilter(view.tagFilter);
+    await _setMistakeFilter(_MistakeFilter.values[view.mistakeFilter]);
+    await _setHeroFilter(view.heroPosFilter);
+    _searchController.text = view.search;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_searchKey, view.search);
+    setState(() => _rebuildStats());
+  }
+
+  Future<void> _manageViews() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ViewManagerScreen(
+          views: _views,
+          onChanged: (v) async {
+            setState(() => _views = List.from(v));
+            await _saveViews();
+          },
+        ),
+      ),
+    );
+  }
+
   Future<(String, bool)?> _showExportDialog() {
     String format = 'json';
     bool visible = false;
@@ -1498,10 +1603,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 onTap: () {
                   _setSearch('');
                   _setTagFilter(null);
-                  setState(() {
-                    _heroPosFilter = p;
-                    _rebuildStats();
-                  });
+                  _setHeroFilter(p);
                   Navigator.pop(ctx);
                 },
               ),
@@ -1608,6 +1710,29 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   IconButton(
                     onPressed: _exportPack,
                     icon: const Icon(Icons.share),
+                  ),
+                  IconButton(
+                    onPressed: _saveCurrentView,
+                    icon: const Icon(Icons.star_outline),
+                  ),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.star),
+                    onSelected: (v) {
+                      if (v == 'manage') {
+                        _manageViews();
+                      } else {
+                        final view = _views.firstWhere(
+                          (e) => e.id == v,
+                          orElse: () => ViewPreset(name: '', sort: 0, mistakeFilter: 0, search: ''),
+                        );
+                        if (view.name.isNotEmpty) _applyView(view);
+                      }
+                    },
+                    itemBuilder: (_) => [
+                      for (final v in _views)
+                        PopupMenuItem(value: v.id, child: Text(v.name)),
+                      const PopupMenuItem(value: 'manage', child: Text('Manage Views…')),
+                    ],
                   ),
                   IconButton(
                     onPressed: _toggleFind,
