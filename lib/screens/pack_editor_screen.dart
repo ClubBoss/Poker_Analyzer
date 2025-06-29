@@ -50,6 +50,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   static const _mistakeKey = 'pack_editor_mistake_filter';
   String? _tagFilter;
   _MistakeFilter _mistakeFilter = _MistakeFilter.any;
+  bool _showFind = false;
+  final TextEditingController _findController = TextEditingController();
+  final TextEditingController _replaceController = TextEditingController();
+  bool _regex = false;
+  bool _matchCase = false;
+  List<(int, String)> _renameUndo = [];
 
   @override
   void initState() {
@@ -684,6 +690,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         .read<TrainingPackStorageService>()
         .updatePack(_packRef, updated);
     _packRef = updated;
+    _renameUndo.clear();
     if (mounted) Navigator.pop(context, true);
   }
 
@@ -1060,9 +1067,132 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
   }
 
+  void _toggleFind() {
+    setState(() => _showFind = !_showFind);
+  }
+
+  Future<void> _showRenameDialog() async {
+    final list = _selected.toList()
+      ..sort((a, b) => _hands.indexOf(a).compareTo(_hands.indexOf(b)));
+    String template = '#{index} – {old}';
+    final c = TextEditingController(text: template);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) {
+          List<String> preview = [
+            for (int i = 0; i < list.length && i < 3; i++)
+              c.text
+                  .replaceAll('{index}', '${i + 1}')
+                  .replaceAll('{old}', list[i].name)
+          ];
+          return AlertDialog(
+            title: const Text('Rename'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: c,
+                  onChanged: (_) => setStateDialog(() {}),
+                ),
+                const SizedBox(height: 8),
+                for (final p in preview) Text(p),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, c.text),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (result != null) _applyRename(result, list);
+    c.dispose();
+  }
+
+  void _applyRename(String template, List<SavedHand> list) {
+    _renameUndo = [];
+    setState(() {
+      for (int i = 0; i < list.length; i++) {
+        final h = list[i];
+        final idx = _hands.indexOf(h);
+        final newName = template
+            .replaceAll('{index}', '${i + 1}')
+            .replaceAll('{old}', h.name);
+        if (_hands[idx].name != newName) {
+          _renameUndo.add((idx, _hands[idx].name));
+          _hands[idx] = _hands[idx].copyWith(name: newName);
+          _modified = true;
+        }
+      }
+    });
+    if (_renameUndo.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Renamed ${_renameUndo.length} hands'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in _renameUndo) {
+                _hands[r.$1] = _hands[r.$1].copyWith(name: r.$2);
+              }
+              _modified = true;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _replaceAll() {
+    final indices = _visibleIndices();
+    final pattern = _regex
+        ? RegExp(_findController.text, caseSensitive: _matchCase)
+        : RegExp(RegExp.escape(_findController.text), caseSensitive: _matchCase);
+    _renameUndo = [];
+    setState(() {
+      for (final i in indices) {
+        final h = _hands[i];
+        final newName = h.name.replaceAll(pattern, _replaceController.text);
+        if (newName != h.name) {
+          _renameUndo.add((i, h.name));
+          _hands[i] = h.copyWith(name: newName);
+          _modified = true;
+        }
+      }
+    });
+    if (_renameUndo.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Renamed ${_renameUndo.length} hands'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in _renameUndo) {
+                _hands[r.$1] = _hands[r.$1].copyWith(name: r.$2);
+              }
+              _modified = true;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
+    _findController.dispose();
+    _replaceController.dispose();
     super.dispose();
   }
 
@@ -1097,13 +1227,16 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     onSelected: (v) {
                       if (v == 'all') {
                         setState(() => _selected
-                            ..clear()
-                            ..addAll(_hands));
+                          ..clear()
+                          ..addAll(_hands));
+                      } else if (v == 'rename') {
+                        _showRenameDialog();
                       } else {
                         _clearSelection();
                       }
                     },
                     itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'rename', child: Text('Rename…')),
                       PopupMenuItem(value: 'all', child: Text('Select All')),
                       PopupMenuItem(value: 'none', child: Text('Select None')),
                     ],
@@ -1119,6 +1252,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   IconButton(
                     onPressed: _importFromRoom,
                     icon: const Icon(Icons.playlist_add),
+                  ),
+                  IconButton(
+                    onPressed: _toggleFind,
+                    icon: const Icon(Icons.search),
                   ),
                   IconButton(
                     onPressed: _hands.isEmpty ? null : _save,
@@ -1157,6 +1294,64 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 onChanged: _setSearch,
               ),
             ),
+            if (_showFind)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _findController,
+                            decoration:
+                                const InputDecoration(hintText: 'Find'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _replaceController,
+                            decoration:
+                                const InputDecoration(hintText: 'Replace'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CheckboxListTile(
+                            value: _regex,
+                            onChanged: (v) => setState(() => _regex = v ?? false),
+                            title: const Text('Regex'),
+                            dense: true,
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                        ),
+                        Expanded(
+                          child: CheckboxListTile(
+                            value: _matchCase,
+                            onChanged: (v) =>
+                                setState(() => _matchCase = v ?? false),
+                            title: const Text('Match case'),
+                            dense: true,
+                            controlAffinity: ListTileControlAffinity.leading,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _replaceAll,
+                          child: const Text('Replace All'),
+                        ),
+                        TextButton(
+                          onPressed: _toggleFind,
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: DropdownButton<_SortOption>(
