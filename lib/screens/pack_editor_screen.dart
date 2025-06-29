@@ -81,6 +81,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   bool _regex = false;
   bool _matchCase = false;
   List<(int, String)> _renameUndo = [];
+  List<(int, List<String>)> _tagsUndo = [];
   String? _heroPosFilter;
   Map<String, int> _tagsCount = {};
   int _mist0 = 0;
@@ -1070,6 +1071,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
     _packRef = updated;
     _renameUndo.clear();
+    _tagsUndo.clear();
   }
 
   Future<void> _saveAndExit() async {
@@ -1961,6 +1963,82 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
   }
 
+  Future<(String, String)?> _showReplaceTagsDialog() {
+    final f = TextEditingController();
+    final r = TextEditingController();
+    return showDialog<(String, String)>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Replace Tags'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: f,
+              decoration: const InputDecoration(hintText: 'Find'),
+            ),
+            TextField(
+              controller: r,
+              decoration: const InputDecoration(hintText: 'Replace'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(context, (f.text.trim(), r.text.trim())),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    ).whenComplete(() {
+      f.dispose();
+      r.dispose();
+    });
+  }
+
+  void _replaceTags(String find, String replace) {
+    _tagsUndo = [];
+    int count = 0;
+    setState(() {
+      for (int i = 0; i < _hands.length; i++) {
+        final h = _hands[i];
+        if (h.tags.contains(find)) {
+          final old = List<String>.from(h.tags);
+          final set = {...h.tags}..remove(find);
+          if (replace.isNotEmpty) set.add(replace);
+          _hands[i] = h.copyWith(tags: set.toList());
+          _tagsUndo.add((i, old));
+          _modified = true;
+          count++;
+        }
+      }
+      _rebuildStats();
+    });
+    if (count == 0) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Updated $count hands'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in _tagsUndo) {
+                _hands[r.$1] = _hands[r.$1].copyWith(tags: r.$2);
+              }
+              _modified = true;
+              _rebuildStats();
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   void _showStats() {
     _rebuildStats();
     final tagService = context.read<TagService>();
@@ -2259,6 +2337,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                         _saveSnapshot();
                       } else if (v == 'manage') {
                         _manageSnapshots();
+                      } else if (v == 'tags') {
+                        _showReplaceTagsDialog().then((r) {
+                          if (r != null && r.$1.isNotEmpty) {
+                            _replaceTags(r.$1, r.$2);
+                          }
+                        });
                       }
                     },
                     itemBuilder: (_) => const [
@@ -2269,6 +2353,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                       PopupMenuItem(
                         value: 'manage',
                         child: Text('Manage Snapshots…'),
+                      ),
+                      PopupMenuItem(
+                        value: 'tags',
+                        child: Text('Replace Tags…'),
                       ),
                     ],
                   ),
