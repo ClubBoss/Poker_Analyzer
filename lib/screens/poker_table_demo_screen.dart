@@ -14,6 +14,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   late List<double> _stacks;
   int _heroIndex = 0;
   double _pot = 0.0;
+  TableTheme _theme = TableTheme.green;
 
   @override
   void initState() {
@@ -49,12 +50,22 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
 
   void _clear() => setState(_reset);
 
+  void _nextTheme() {
+    setState(() {
+      final values = TableTheme.values;
+      _theme = values[(_theme.index + 1) % values.length];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poker Table Demo'),
-        actions: [IconButton(icon: const Icon(Icons.clear), onPressed: _clear)],
+        actions: [
+          IconButton(icon: const Icon(Icons.color_lens), onPressed: _nextTheme),
+          IconButton(icon: const Icon(Icons.clear), onPressed: _clear),
+        ],
       ),
       body: Center(
         child: Column(
@@ -70,6 +81,8 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
               onNameChanged: (i, v) => setState(() => _names[i] = v),
               potSize: _pot,
               onPotChanged: (v) => setState(() => _pot = v),
+              theme: _theme,
+              onThemeChanged: (t) => setState(() => _theme = t),
             ),
             const SizedBox(height: 8),
             Row(

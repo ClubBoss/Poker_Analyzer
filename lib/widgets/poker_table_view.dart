@@ -9,6 +9,8 @@ import 'pot_chip_stack_painter.dart';
 import 'dealer_button_indicator.dart';
 import 'blind_chip_indicator.dart';
 
+enum TableTheme { green, carbon, blue }
+
 class PokerTableView extends StatefulWidget {
   final int heroIndex;
   final int playerCount;
@@ -20,6 +22,8 @@ class PokerTableView extends StatefulWidget {
   final double potSize;
   final void Function(double newPot) onPotChanged;
   final double scale;
+  final TableTheme theme;
+  final void Function(TableTheme)? onThemeChanged;
   const PokerTableView({
     super.key,
     required this.heroIndex,
@@ -32,6 +36,8 @@ class PokerTableView extends StatefulWidget {
     required this.potSize,
     required this.onPotChanged,
     this.scale = 1.0,
+    this.theme = TableTheme.green,
+    this.onThemeChanged,
   });
 
   @override
@@ -42,8 +48,12 @@ class _PokerTableViewState extends State<PokerTableView> {
   @override
   void didUpdateWidget(covariant PokerTableView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.heroIndex != oldWidget.heroIndex) {
+    if (widget.heroIndex != oldWidget.heroIndex ||
+        widget.theme != oldWidget.theme) {
       setState(() {});
+    }
+    if (widget.theme != oldWidget.theme) {
+      widget.onThemeChanged?.call(widget.theme);
     }
   }
 
@@ -53,7 +63,7 @@ class _PokerTableViewState extends State<PokerTableView> {
     final width = 220.0 * widget.scale;
     final height = width * 0.55;
     final items = <Widget>[
-      Positioned.fill(child: CustomPaint(painter: PokerTablePainter())),
+      Positioned.fill(child: CustomPaint(painter: PokerTablePainter(theme: widget.theme))),
       Positioned.fill(
         child: Center(
           child: Stack(
