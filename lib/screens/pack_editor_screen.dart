@@ -100,11 +100,20 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   bool _filtersVisible = true;
 
   @override
+  void setState(VoidCallback fn) {
+    super.setState(() {
+      fn();
+      _detectDuplicates();
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
     _hands = List.from(widget.pack.hands);
     _packTags = List.from(widget.pack.tags);
     _packRef = widget.pack;
+    _detectDuplicates();
     _loadPrefs();
   }
 
@@ -843,6 +852,30 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     return list;
   }
 
+  void _detectDuplicates() {
+    final map = <String, List<int>>{};
+    for (int i = 0; i < _hands.length; i++) {
+      final h = _hands[i];
+      final key = '${h.heroPosition}-${h.playerCards.map((p) => p.map((c) => c.toString()).join()).join('/')}-${h.actions.map((a) => '${a.playerIndex}${a.action}${a.amount ?? 0}').join()}';
+      map.putIfAbsent(key, () => []).add(i);
+    }
+    final list = List<SavedHand>.from(_hands);
+    int dup = 0;
+    for (final entry in map.values) {
+      if (entry.length > 1) {
+        dup += entry.length;
+        for (final i in entry) {
+          list[i] = list[i].copyWith(isDuplicate: true);
+        }
+      } else {
+        final i = entry.first;
+        list[i] = list[i].copyWith(isDuplicate: false);
+      }
+    }
+    _hands = list;
+    _dupCount = dup;
+  }
+
   void _rebuildStats() {
     final indices = _visibleIndices();
     final Map<String, int> tags = {};
@@ -866,17 +899,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       final p = h.heroPosition;
       if (pos.containsKey(p)) pos[p] = pos[p]! + 1;
     }
-    final seen = <String>{};
-    int dup = 0;
-    for (final h in _hands) {
-      if (!seen.add(h.name)) dup++;
-    }
     _tagsCount = tags;
     _mist0 = m0;
     _mist12 = m12;
     _mist3 = m3;
     _posCount = pos;
-    _dupCount = dup;
+    _dupCount = _hands.where((h) => h.isDuplicate).length;
   }
 
   Future<bool> _onWillPop() async {
@@ -2264,21 +2292,28 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                       subtitle: hand.tags.isEmpty
                           ? null
                           : Text(hand.tags.join(', ')),
-                      trailing: Container(
-                        width: 24,
-                        height: 24,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: mistakes > 0 ? Colors.red : Colors.grey,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '$mistakes',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (hand.isDuplicate)
+                            const Icon(Icons.warning, color: Colors.orangeAccent),
+                          Container(
+                            width: 24,
+                            height: 24,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: mistakes > 0 ? Colors.red : Colors.grey,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '$mistakes',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                       onTap: () {
                         if (_selectionMode) {
