@@ -165,7 +165,7 @@ class _PokerTableViewState extends State<PokerTableView> {
         top: offset.dy,
         child: GestureDetector(
           onTap: () => widget.onHeroSelected(i),
-          onDoubleTap: () {
+          onDoubleTap: () async {
             final current = widget.playerActions[i];
             final next =
                 PlayerAction.values[(current.index + 1) % PlayerAction.values.length];
@@ -181,6 +181,57 @@ class _PokerTableViewState extends State<PokerTableView> {
               );
               final newPot = widget.potSize + stack;
               widget.onStackChanged(i, 0);
+              widget.onPotChanged(newPot);
+            } else if (next == PlayerAction.call || next == PlayerAction.raise) {
+              final controller = TextEditingController(text: '0');
+              final result = await showDialog<double>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.black.withOpacity(0.3),
+                  title: Text(next.name.toUpperCase(),
+                      style: const TextStyle(color: Colors.white)),
+                  content: TextField(
+                    controller: controller,
+                    autofocus: true,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white10,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      hintText: 'Enter amount in BB',
+                      hintStyle: const TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel')),
+                    TextButton(
+                      onPressed: () {
+                        final value = double.tryParse(controller.text);
+                        Navigator.pop(context, value);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+              if (result == null) return;
+              TableEditHistory.instance.push(
+                TableState(
+                  playerCount: widget.playerCount,
+                  names: List<String>.from(widget.playerNames),
+                  stacks: List<double>.from(widget.playerStacks),
+                  heroIndex: widget.heroIndex,
+                  pot: widget.potSize,
+                ),
+              );
+              final newStack = widget.playerStacks[i] - result;
+              final newPot = widget.potSize + result;
+              widget.onStackChanged(i, newStack);
               widget.onPotChanged(newPot);
             }
             widget.onActionChanged(i, next);
