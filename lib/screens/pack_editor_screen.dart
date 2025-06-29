@@ -448,6 +448,129 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (tag != null && tag.isNotEmpty) _removeTagFromSelected(tag);
   }
 
+  Future<TrainingPack?> _pickTargetPack() async {
+    final service = context.read<TrainingPackStorageService>();
+    final packs = [
+      for (final p in service.packs)
+        if (!p.isBuiltIn && p.id != _packRef.id) p
+    ];
+    String filter = '';
+    TrainingPack? selected;
+    return showDialog<TrainingPack>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) {
+          final visible = [
+            for (final p in packs)
+              if (p.name.toLowerCase().contains(filter.toLowerCase())) p
+          ];
+          return AlertDialog(
+            backgroundColor: Colors.grey[900],
+            title: const Text('Select Pack',
+                style: TextStyle(color: Colors.white)),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(hintText: 'Search'),
+                    onChanged: (v) => setStateDialog(() => filter = v),
+                  ),
+                  const SizedBox(height: 8),
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (final p in visible)
+                          RadioListTile<TrainingPack>(
+                            value: p,
+                            groupValue: selected,
+                            onChanged: (v) => setStateDialog(() => selected = v),
+                            title: Text(p.name,
+                                style: const TextStyle(color: Colors.white)),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: selected == null
+                    ? null
+                    : () => Navigator.pop(context, selected),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _bulkTransfer(String action) async {
+    if (_selected.isEmpty) return;
+    final target = await _pickTargetPack();
+    if (target == null) return;
+    final selected = _selected.toList();
+    final service = context.read<TrainingPackStorageService>();
+    var pack = service.packs.firstWhere((p) => p.id == target.id,
+        orElse: () => target);
+    final existing = {
+      for (final h in pack.hands) h.savedAt.millisecondsSinceEpoch
+    };
+    final toAdd = [
+      for (final h in selected)
+        if (!existing.contains(h.savedAt.millisecondsSinceEpoch))
+          (action == 'copy' ? h.copyWith() : h)
+    ];
+    final removed = <(SavedHand, int)>[];
+    setState(() {
+      if (action == 'move') {
+        for (final h in selected) {
+          final i = _hands.indexOf(h);
+          if (i != -1) {
+            removed.add((h, i));
+            _hands.removeAt(i);
+          }
+        }
+        _modified = true;
+      }
+      _selected.clear();
+    });
+    service.applyDiff(pack, added: toAdd);
+    final msg =
+        '${action == 'move' ? 'Moved' : 'Copied'} ${selected.length} hands to "${pack.name}"';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            final svc = context.read<TrainingPackStorageService>();
+            final tgt = svc.packs.firstWhere((p) => p.id == pack.id,
+                orElse: () => pack);
+            svc.applyDiff(tgt, removed: toAdd);
+            if (action == 'move') {
+              setState(() {
+                for (final r in removed.reversed) {
+                  _hands.insert(r.$2.clamp(0, _hands.length), r.$1);
+                }
+                _modified = true;
+              });
+            }
+          },
+        ),
+      ),
+    );
+  }
+
   int _mistakeCount(SavedHand hand) {
     int total = 0;
     int correct = 0;
@@ -962,6 +1085,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
                   IconButton(onPressed: _addTagDialog, icon: const Icon(Icons.label)),
                   IconButton(onPressed: _removeTagDialog, icon: const Icon(Icons.label_off)),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.forward),
+                    onSelected: _bulkTransfer,
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'move', child: Text('Move to Pack…')),
+                      PopupMenuItem(value: 'copy', child: Text('Copy to Pack…')),
+                    ],
+                  ),
                   PopupMenuButton<String>(
                     onSelected: (v) {
                       if (v == 'all') {
