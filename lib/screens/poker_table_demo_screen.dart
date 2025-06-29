@@ -13,6 +13,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   late List<String> _names;
   late List<double> _stacks;
   int _heroIndex = 0;
+  double _pot = 0.0;
 
   @override
   void initState() {
@@ -24,6 +25,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
     _names = List.generate(_playerCount, (i) => 'Player ${i + 1}');
     _stacks = List.filled(_playerCount, 0.0);
     _heroIndex = 0;
+    _pot = 0.0;
   }
 
   void _changeCount(int delta) {
@@ -66,6 +68,8 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
               onHeroSelected: (i) => setState(() => _heroIndex = i),
               onStackChanged: (i, v) => setState(() => _stacks[i] = v),
               onNameChanged: (i, v) => setState(() => _names[i] = v),
+              potSize: _pot,
+              onPotChanged: (v) => setState(() => _pot = v),
             ),
             const SizedBox(height: 8),
             Row(
