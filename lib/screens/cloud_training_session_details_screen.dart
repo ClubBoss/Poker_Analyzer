@@ -36,7 +36,10 @@ class _CloudTrainingSessionDetailsScreenState
   late TextEditingController _commentController;
   String _comment = '';
   final Map<String, TextEditingController> _noteControllers = {};
+  final Map<String, TextEditingController> _tagControllers = {};
   Map<String, String> _handNotes = {};
+  Map<String, List<String>> _handTags = {};
+  String _tagFilter = 'All';
 
   @override
   void initState() {
@@ -44,9 +47,15 @@ class _CloudTrainingSessionDetailsScreenState
     _comment = widget.session.comment ?? '';
     _commentController = TextEditingController(text: _comment);
     _handNotes = Map<String, String>.from(widget.session.handNotes ?? {});
+    _handTags = {
+      for (final e in widget.session.handTags?.entries ?? {})
+        e.key: List<String>.from(e.value)
+    };
     for (final r in widget.session.results) {
       _noteControllers[r.name] =
           TextEditingController(text: _handNotes[r.name] ?? '');
+      _tagControllers[r.name] = TextEditingController(
+          text: _handTags[r.name]?.join(', ') ?? '');
     }
     _loadPrefs();
   }
@@ -71,6 +80,9 @@ class _CloudTrainingSessionDetailsScreenState
     for (final c in _noteControllers.values) {
       c.dispose();
     }
+    for (final c in _tagControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -79,7 +91,7 @@ class _CloudTrainingSessionDetailsScreenState
     final service = context.read<CloudTrainingHistoryService>();
     await service.updateSession(
       widget.session.path,
-      text.trim().isEmpty
+      data: text.trim().isEmpty
           ? {'comment': FieldValue.delete()}
           : {'comment': text.trim()},
     );
@@ -92,13 +104,36 @@ class _CloudTrainingSessionDetailsScreenState
     if (text.trim().isEmpty) {
       notes.remove(name);
       if (notes.isEmpty) {
-        await service.updateSession(widget.session.path, {'handNotes': FieldValue.delete()});
+        await service.updateSession(widget.session.path, data: {'handNotes': FieldValue.delete()});
         return;
       }
     } else {
       notes[name] = text.trim();
     }
-    await service.updateSession(widget.session.path, {'handNotes': notes});
+    await service.updateSession(widget.session.path, handNotes: notes);
+  }
+
+  Future<void> _saveHandTags(String name, String text) async {
+    final tags = text
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    _handTags[name] = tags;
+    final service = context.read<CloudTrainingHistoryService>();
+    final map = {
+      for (final e in widget.session.handTags?.entries ?? {}) e.key: List<String>.from(e.value)
+    };
+    if (tags.isEmpty) {
+      map.remove(name);
+      if (map.isEmpty) {
+        await service.updateSession(widget.session.path, data: {'handTags': FieldValue.delete()});
+        return;
+      }
+    } else {
+      map[name] = tags;
+    }
+    await service.updateSession(widget.session.path, handTags: map);
   }
 
   Future<void> _deleteSession(BuildContext context) async {
@@ -295,9 +330,15 @@ class _CloudTrainingSessionDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final results = _onlyErrors
+    var results = _onlyErrors
         ? widget.session.results.where((r) => !r.correct).toList()
         : widget.session.results;
+    if (_tagFilter != 'All') {
+      results = [
+        for (final r in results)
+          if (_handTags[r.name]?.contains(_tagFilter) ?? false) r
+      ];
+    }
     final handMap = {
       for (final h in context.watch<SavedHandManagerService>().hands) h.name: h
     };
@@ -377,6 +418,34 @@ class _CloudTrainingSessionDetailsScreenState
                     ],
                   ),
                 ),
+                if (_handTags.values.expand((e) => e).isNotEmpty)
+                  SizedBox(
+                    height: 36,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      children: [
+                        for (final t in {
+                          ..._handTags.values.expand((e) => e)
+                        })
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: ChoiceChip(
+                              label: Text(t),
+                              selected: _tagFilter == t,
+                              onSelected: (_) =>
+                                  setState(() => _tagFilter = _tagFilter == t ? 'All' : t),
+                            ),
+                          ),
+                        if (_tagFilter != 'All')
+                          IconButton(
+                            icon: const Icon(Icons.close, size: 18),
+                            color: Colors.white70,
+                            onPressed: () => setState(() => _tagFilter = 'All'),
+                          ),
+                      ],
+                    ),
+                  ),
                 const Divider(color: Colors.white12, height: 1),
                 Expanded(
                   child: ListView.builder(
@@ -413,6 +482,22 @@ class _CloudTrainingSessionDetailsScreenState
                               Text('Ожидалось: ${r.expected}',
                                   style:
                                       const TextStyle(color: Colors.white70)),
+                              if (_handTags[r.name]?.isNotEmpty ?? false)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Wrap(
+                                    spacing: 4,
+                                    children: [
+                                      for (final t in _handTags[r.name]!)
+                                        Chip(
+                                          label: Text(t),
+                                          backgroundColor: const Color(0xFF3A3B3E),
+                                          labelStyle:
+                                              const TextStyle(color: Colors.white),
+                                        ),
+                                    ],
+                                  ),
+                                ),
                             ],
                           ),
                           children: [
@@ -444,6 +529,19 @@ class _CloudTrainingSessionDetailsScreenState
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: 'Заметка',
+                                  labelStyle: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: TextField(
+                                controller: _tagControllers[r.name],
+                                onChanged: (t) => _saveHandTags(r.name, t),
+                                style: const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Теги',
                                   labelStyle: TextStyle(color: Colors.white),
                                 ),
                               ),
