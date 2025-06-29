@@ -11,6 +11,7 @@ import '../services/training_pack_cloud_sync_service.dart';
 import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
+import 'pack_editor_screen.dart';
 import 'training_pack_screen.dart';
 
 class PackOverviewScreen extends StatefulWidget {
@@ -51,6 +52,33 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     );
   }
 
+  Future<void> _renamePack(TrainingPack pack) async {
+    final controller = TextEditingController(text: pack.name);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename'),
+        content: TextField(controller: controller, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (result != null && result.isNotEmpty && result != pack.name) {
+      await context.read<TrainingPackStorageService>().renamePack(pack, result);
+    }
+  }
+
+  Future<void> _duplicatePack(TrainingPack pack) async {
+    final copy = await context.read<TrainingPackStorageService>().duplicatePack(pack);
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PackEditorScreen(pack: copy)),
+    );
+  }
+
   Future<void> _deletePack(TrainingPack pack) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -82,19 +110,35 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                 await _sharePack(pack);
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.upload_file, color: Colors.white),
-              title: const Text('Export', style: TextStyle(color: Colors.white)),
-              onTap: () async {
-                Navigator.pop(context);
-                await _exportPack(pack);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.white),
-              title: const Text('Delete', style: TextStyle(color: Colors.white)),
-              onTap: () async {
-                Navigator.pop(context);
+          ListTile(
+            leading: const Icon(Icons.upload_file, color: Colors.white),
+            title: const Text('Export', style: TextStyle(color: Colors.white)),
+            onTap: () async {
+              Navigator.pop(context);
+              await _exportPack(pack);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.drive_file_rename_outline, color: Colors.white),
+            title: const Text('Rename', style: TextStyle(color: Colors.white)),
+            onTap: () async {
+              Navigator.pop(context);
+              await _renamePack(pack);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.copy, color: Colors.white),
+            title: const Text('Duplicate', style: TextStyle(color: Colors.white)),
+            onTap: () async {
+              Navigator.pop(context);
+              await _duplicatePack(pack);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.white),
+            title: const Text('Delete', style: TextStyle(color: Colors.white)),
+            onTap: () async {
+              Navigator.pop(context);
                 await _deletePack(pack);
               },
             ),
