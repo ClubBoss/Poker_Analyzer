@@ -28,9 +28,11 @@ class PokerTableView extends StatefulWidget {
   final List<String> playerNames;
   final List<double> playerStacks;
   final List<PlayerAction> playerActions;
+  final List<double> playerBets;
   final void Function(int index) onHeroSelected;
   final void Function(int index, double newStack) onStackChanged;
   final void Function(int index, String newName) onNameChanged;
+  final void Function(int index, double bet) onBetChanged;
   final void Function(int index, PlayerAction action) onActionChanged;
   final double potSize;
   final void Function(double newPot) onPotChanged;
@@ -44,9 +46,11 @@ class PokerTableView extends StatefulWidget {
     required this.playerNames,
     required this.playerStacks,
     required this.playerActions,
+    required this.playerBets,
     required this.onHeroSelected,
     required this.onStackChanged,
     required this.onNameChanged,
+    required this.onBetChanged,
     required this.onActionChanged,
     required this.potSize,
     required this.onPotChanged,
@@ -167,8 +171,18 @@ class _PokerTableViewState extends State<PokerTableView> {
           onTap: () => widget.onHeroSelected(i),
           onDoubleTap: () async {
             final current = widget.playerActions[i];
+            final bet = widget.playerBets[i];
             final next =
                 PlayerAction.values[(current.index + 1) % PlayerAction.values.length];
+            double stackValue = widget.playerStacks[i];
+            double potValue = widget.potSize;
+            if (bet > 0) {
+              stackValue += bet;
+              potValue -= bet;
+              widget.onStackChanged(i, stackValue);
+              widget.onPotChanged(potValue);
+              widget.onBetChanged(i, 0);
+            }
             if (next == PlayerAction.push) {
               TableEditHistory.instance.push(
                 TableState(
@@ -179,9 +193,10 @@ class _PokerTableViewState extends State<PokerTableView> {
                   pot: widget.potSize,
                 ),
               );
-              final newPot = widget.potSize + stack;
+              potValue += stackValue;
               widget.onStackChanged(i, 0);
-              widget.onPotChanged(newPot);
+              widget.onPotChanged(potValue);
+              widget.onBetChanged(i, stackValue);
             } else if (next == PlayerAction.call || next == PlayerAction.raise) {
               final controller = TextEditingController(text: '0');
               final result = await showDialog<double>(
@@ -229,10 +244,11 @@ class _PokerTableViewState extends State<PokerTableView> {
                   pot: widget.potSize,
                 ),
               );
-              final newStack = widget.playerStacks[i] - result;
-              final newPot = widget.potSize + result;
-              widget.onStackChanged(i, newStack);
-              widget.onPotChanged(newPot);
+              stackValue = stackValue - result;
+              potValue = potValue + result;
+              widget.onStackChanged(i, stackValue);
+              widget.onPotChanged(potValue);
+              widget.onBetChanged(i, result);
             }
             widget.onActionChanged(i, next);
             setState(() {});
@@ -284,26 +300,43 @@ class _PokerTableViewState extends State<PokerTableView> {
       final action = i < widget.playerActions.length
           ? widget.playerActions[i]
           : PlayerAction.none;
+      final bet = i < widget.playerBets.length ? widget.playerBets[i] : 0.0;
       if (action != PlayerAction.none) {
         items.add(Positioned(
           left: offset.dx + 30 * widget.scale,
           top: offset.dy - 4 * widget.scale,
-          child: Container(
-            width: 10 * widget.scale,
-            height: 10 * widget.scale,
-            decoration: BoxDecoration(
-              color: playerActionColors[action],
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              action.name[0].toUpperCase(),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 6 * widget.scale,
-                fontWeight: FontWeight.bold,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 10 * widget.scale,
+                height: 10 * widget.scale,
+                decoration: BoxDecoration(
+                  color: playerActionColors[action],
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  action.name[0].toUpperCase(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 6 * widget.scale,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
+              if (bet > 0)
+                Padding(
+                  padding: EdgeInsets.only(top: 2 * widget.scale),
+                  child: Text(
+                    bet.toStringAsFixed(1),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 6 * widget.scale,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ));
       }
