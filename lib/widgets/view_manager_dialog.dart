@@ -38,9 +38,21 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
     }
   }
 
-  void _delete(int index) {
-    setState(() => _views.removeAt(index));
-    widget.onChanged(_views);
+  Future<void> _delete(int index) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete View?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      setState(() => _views.removeAt(index));
+      widget.onChanged(_views);
+    }
   }
 
   void _reorder(int oldIndex, int newIndex) {
