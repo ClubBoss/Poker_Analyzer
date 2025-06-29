@@ -13,6 +13,8 @@ import 'cloud_sync_service.dart';
 
 import '../models/training_pack.dart';
 import '../models/training_pack_template.dart';
+import '../models/pack_snapshot.dart';
+import '../models/saved_hand.dart';
 import '../models/game_type.dart';
 
 class TrainingPackStorageService extends ChangeNotifier {
@@ -34,6 +36,10 @@ class TrainingPackStorageService extends ChangeNotifier {
   final List<TrainingPack> _packs = [];
   List<TrainingPack> get packs => List.unmodifiable(_packs);
 
+  final Map<String, List<PackSnapshot>> _snapshots = {};
+  List<PackSnapshot> snapshotsOf(TrainingPack pack) =>
+      List.unmodifiable(_snapshots[pack.id] ?? const []);
+
 
   Future<File> _getStorageFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -51,6 +57,27 @@ class TrainingPackStorageService extends ChangeNotifier {
             ..clear()
             ..addAll(data.whereType<Map>().map((e) =>
                 TrainingPack.fromJson(Map<String, dynamic>.from(e))));
+        } else if (data is Map) {
+          final packsJson = data['packs'];
+          if (packsJson is List) {
+            _packs
+              ..clear()
+              ..addAll(packsJson.whereType<Map>().map((e) =>
+                  TrainingPack.fromJson(Map<String, dynamic>.from(e))));
+          }
+          final snapsJson = data['snapshots'];
+          if (snapsJson is Map) {
+            _snapshots.clear();
+            snapsJson.forEach((key, value) {
+              if (value is List) {
+                _snapshots[key] = [
+                  for (final s in value.whereType<Map>())
+                    PackSnapshot.fromJson(
+                        Map<String, dynamic>.from(s as Map))
+                ];
+              }
+            });
+          }
         }
       } catch (_) {}
     }
@@ -75,7 +102,15 @@ class TrainingPackStorageService extends ChangeNotifier {
 
   Future<void> _persist() async {
     final file = await _getStorageFile();
-    await file.writeAsString(jsonEncode([for (final p in _packs) p.toJson()]));
+    final data = {
+      'packs': [for (final p in _packs) p.toJson()],
+      if (_snapshots.isNotEmpty)
+        'snapshots': {
+          for (final e in _snapshots.entries)
+            e.key: [for (final s in e.value) s.toJson()]
+        }
+    };
+    await file.writeAsString(jsonEncode(data));
   }
 
   void _persistDebounced() {
@@ -444,6 +479,76 @@ class TrainingPackStorageService extends ChangeNotifier {
     return pack;
   }
 
+  Future<TrainingPack?> restoreSnapshot(
+      TrainingPack pack, PackSnapshot snap) async {
+    final index = _packs.indexOf(pack);
+    if (index == -1) return null;
+    final updated = TrainingPack(
+      name: pack.name,
+      description: pack.description,
+      category: pack.category,
+      gameType: pack.gameType,
+      colorTag: pack.colorTag,
+      isBuiltIn: pack.isBuiltIn,
+      tags: snap.tags,
+      hands: snap.hands,
+      spots: pack.spots,
+      difficulty: pack.difficulty,
+      history: pack.history,
+      id: pack.id,
+    );
+    _packs[index] = updated;
+    await _persist();
+    await _sync(updated);
+    notifyListeners();
+    return updated;
+  }
+
+  Future<PackSnapshot> saveSnapshot(
+    TrainingPack pack,
+    List<SavedHand> hands,
+    List<String> tags,
+    String comment,
+  ) async {
+    final list = _snapshots.putIfAbsent(pack.id, () => []);
+    final snapshot = PackSnapshot(
+      comment: comment,
+      hands: [for (final h in hands) h.copyWith()],
+      tags: List.from(tags),
+      orderHash: calcOrderHash(hands),
+    );
+    list.add(snapshot);
+    await _persist();
+    notifyListeners();
+    return snapshot;
+  }
+
+  Future<void> deleteSnapshot(TrainingPack pack, PackSnapshot snap) async {
+    final list = _snapshots[pack.id];
+    if (list == null) return;
+    list.removeWhere((e) => e.id == snap.id);
+    await _persist();
+    notifyListeners();
+  }
+
+  Future<void> renameSnapshot(
+      TrainingPack pack, PackSnapshot snap, String comment) async {
+    final list = _snapshots[pack.id];
+    if (list == null) return;
+    final idx = list.indexWhere((e) => e.id == snap.id);
+    if (idx == -1) return;
+    list[idx] = PackSnapshot(
+      id: snap.id,
+      comment: comment,
+      date: snap.date,
+      hands: snap.hands,
+      tags: snap.tags,
+      orderHash: snap.orderHash,
+    );
+    await _persist();
+    notifyListeners();
+  }
+
   void merge(List<TrainingPack> list) {
     for (final p in list) {
       final index = _packs.indexWhere((e) => e.id == p.id);
@@ -465,4 +570,10 @@ class TrainingPackStorageService extends ChangeNotifier {
 extension PackProgress on TrainingPack {
   double get pctComplete =>
       (hands.isEmpty ? 0 : solved / hands.length).clamp(0, 1);
+}
+
+int calcOrderHash(List<SavedHand> hands) {
+  return hands
+      .map((e) => e.savedAt.millisecondsSinceEpoch)
+      .fold(0, (a, b) => a * 31 + b.hashCode);
 }

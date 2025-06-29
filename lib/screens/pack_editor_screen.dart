@@ -6,14 +6,17 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import '../services/tag_service.dart';
 import '../helpers/color_utils.dart';
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
+import '../models/pack_snapshot.dart';
 import '../services/training_pack_storage_service.dart';
 import 'room_hand_history_import_screen.dart';
 import 'room_hand_history_editor_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import 'snapshot_manager_screen.dart';
 
 enum _SortOption { newest, oldest, position, tags, mistakes }
 enum _MistakeFilter { any, zero, oneTwo, threePlus }
@@ -33,6 +36,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   static const _lastCheckKey = 'pack_editor_last_quality_check';
 
   late List<SavedHand> _hands;
+  late List<String> _packTags;
   bool _modified = false;
   SavedHand? _removed;
   int _removedIndex = -1;
@@ -50,6 +54,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   void initState() {
     super.initState();
     _hands = List.from(widget.pack.hands);
+    _packTags = List.from(widget.pack.tags);
     _loadPrefs();
   }
 
@@ -545,7 +550,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       gameType: widget.pack.gameType,
       colorTag: widget.pack.colorTag,
       isBuiltIn: widget.pack.isBuiltIn,
-      tags: widget.pack.tags,
+      tags: _packTags,
       hands: _hands,
       spots: widget.pack.spots,
       difficulty: widget.pack.difficulty,
@@ -554,6 +559,61 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         .read<TrainingPackStorageService>()
         .updatePack(widget.pack, updated);
     if (mounted) Navigator.pop(context, true);
+  }
+
+  Future<void> _saveSnapshot() async {
+    final df = DateFormat('dd.MM HH:mm');
+    final c = TextEditingController(text: df.format(DateTime.now()));
+    final comment = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Save Snapshot'),
+        content: TextField(controller: c, autofocus: true),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, c.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (comment == null) return;
+    final snap = await context
+        .read<TrainingPackStorageService>()
+        .saveSnapshot(widget.pack, _hands, _packTags, comment);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Snapshot saved'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () => context
+              .read<TrainingPackStorageService>()
+              .deleteSnapshot(widget.pack, snap),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _manageSnapshots() async {
+    final snap = await Navigator.push<PackSnapshot?>(
+      context,
+      MaterialPageRoute(
+          builder: (_) => SnapshotManagerScreen(pack: widget.pack)),
+    );
+    if (snap != null && mounted) {
+      setState(() {
+        _hands = [for (final h in snap.hands) h];
+        _packTags = List.from(snap.tags);
+        _modified = true;
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('pack_editor_last_snapshot_restored', snap.id);
+    }
   }
 
   Future<void> _setSort(_SortOption value) async {
@@ -917,6 +977,20 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   IconButton(
                     onPressed: _hands.isEmpty ? null : _save,
                     icon: const Icon(Icons.check),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (v) {
+                      if (v == 'snap') {
+                        _saveSnapshot();
+                      } else if (v == 'manage') {
+                        _manageSnapshots();
+                      }
+                    },
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'snap', child: Text('Save Snapshot')),
+                      PopupMenuItem(
+                          value: 'manage', child: Text('Manage Snapshots…')),
+                    ],
                   )
                 ],
         ),
