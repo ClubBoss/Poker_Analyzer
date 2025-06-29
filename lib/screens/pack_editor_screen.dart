@@ -67,6 +67,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   final Set<SavedHand> _selected = {};
   bool get _selectionMode => _selected.isNotEmpty;
   final TextEditingController _searchController = TextEditingController();
+  bool _showSearch = false;
 
   _SortOption _sort = _SortOption.newest;
   static const _tagKey = 'pack_editor_tag_filter';
@@ -129,6 +130,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     setState(() {
       _sort = _SortOption.values[prefs.getInt(_sortKey) ?? 0];
       _searchController.text = prefs.getString(_searchKey) ?? '';
+      _showSearch = _searchController.text.isNotEmpty;
       _tagFilter = prefs.getString(_tagKey);
       final m = prefs.getInt(_mistakeKey) ?? 0;
       _mistakeFilter =
@@ -826,7 +828,11 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     final query = _searchController.text.toLowerCase();
     final list = <int>[for (int i = 0; i < _hands.length; i++) i];
     if (query.isNotEmpty) {
-      list.retainWhere((i) => _hands[i].name.toLowerCase().contains(query));
+      list.retainWhere((i) {
+        final h = _hands[i];
+        if (h.name.toLowerCase().contains(query)) return true;
+        return h.tags.any((t) => t.toLowerCase().contains(query));
+      });
     }
     if (_tagFilter != null) {
       list.retainWhere((i) => _hands[i].tags.contains(_tagFilter));
@@ -1582,7 +1588,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   }
 
   void _toggleFind() {
-    setState(() => _showFind = !_showFind);
+    setState(() => _showSearch = !_showSearch);
   }
 
   void _toggleFilters() {
@@ -2154,14 +2160,15 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         ),
         body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(hintText: 'Поиск'),
-                onChanged: _setSearch,
+            if (_showSearch)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: const InputDecoration(hintText: 'Поиск'),
+                  onChanged: _setSearch,
+                ),
               ),
-            ),
             if (_showFind)
               Padding(
                 padding: const EdgeInsets.all(16),
