@@ -151,17 +151,21 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
             ),
           ),
           Expanded(
-            child: ListView.separated(
-              itemCount: packs.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final p = packs[index];
-                final color = p.colorTag.isEmpty ? Colors.white24 : colorFromHex(p.colorTag);
-                final progress = p.pctComplete;
-                final date = p.lastAttempted > 0 ? formatDate(p.lastAttemptDate) : '-';
-                return GestureDetector(
-                  onLongPress: () => _showMenu(p),
-                  child: ListTile(
+            child: RefreshIndicator(
+              onRefresh: () => context
+                  .read<TrainingPackCloudSyncService>()
+                  .syncDown(context.read<TrainingPackStorageService>()),
+              child: ListView.separated(
+                itemCount: packs.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  final p = packs[index];
+                  final color = p.colorTag.isEmpty ? Colors.white24 : colorFromHex(p.colorTag);
+                  final progress = p.pctComplete;
+                  final date = p.lastAttempted > 0 ? formatDate(p.lastAttemptDate) : '-';
+                  return GestureDetector(
+                    onLongPress: () => _showMenu(p),
+                    child: ListTile(
                     onTap: () {
                       Navigator.push(
                         context,
@@ -193,7 +197,8 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                     ),
                   ),
                 );
-              },
+                },
+              ),
             ),
           ),
         ],
