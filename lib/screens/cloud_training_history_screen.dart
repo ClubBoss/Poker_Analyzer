@@ -8,7 +8,7 @@ import 'package:file_saver/file_saver.dart';
 import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
 import '../models/training_result.dart';
-import '../services/cloud_sync_service.dart';
+import '../services/cloud_training_history_service.dart';
 import '../widgets/common/accuracy_trend_chart.dart';
 import 'cloud_training_session_details_screen.dart';
 
@@ -36,13 +36,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   }
 
   Future<void> _load() async {
-    final service = context.read<CloudSyncService>();
-    final list = await service.loadTrainingSessions();
+    final service = context.read<CloudTrainingHistoryService>();
+    final list = await service.loadSessions();
     setState(() {
-      _sessions = [
-        for (final m in list)
-          CloudTrainingSession.fromJson(m, path: '')
-      ];
+      _sessions = list;
       _loading = false;
     });
   }
@@ -288,9 +285,33 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                   ),
                               ],
                             ),
-                            trailing:
-                                const Icon(Icons.chevron_right, color: Colors.white70),
+                            trailing: const Icon(Icons.chevron_right, color: Colors.white70),
                             onTap: () => _openSession(s),
+                            onLongPress: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Delete Session?'),
+                                  content: const Text('Are you sure you want to delete this session?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context, false),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context, true),
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              if (confirm == true) {
+                                await context.read<CloudTrainingHistoryService>().deleteSession(s.path);
+                                if (mounted) {
+                                  setState(() => _sessions.removeAt(index));
+                                }
+                              }
+                            },
                           );
                         },
                       ),

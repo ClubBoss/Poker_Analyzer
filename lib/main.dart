@@ -27,6 +27,7 @@ import 'services/goals_service.dart';
 import 'services/cloud_sync_service.dart';
 import 'services/auth_service.dart';
 import 'services/cloud_training_history_service.dart';
+import 'services/connectivity_sync_controller.dart';
 import 'services/training_spot_storage_service.dart';
 import 'services/evaluation_executor_service.dart';
 import "services/training_stats_service.dart";
@@ -210,12 +211,20 @@ class PokerAIAnalyzerApp extends StatefulWidget {
 
 class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   late final TrainingSpotStorageService _spotStorage;
+  late final ConnectivitySyncController _sync;
 
   @override
   void initState() {
     super.initState();
     _spotStorage = context.read<TrainingSpotStorageService>();
+    _sync = ConnectivitySyncController(cloud: context.read<CloudSyncService>());
     context.read<UserActionLogger>().log('opened_app');
+  }
+
+  @override
+  void dispose() {
+    _sync.dispose();
+    super.dispose();
   }
 
   @override
