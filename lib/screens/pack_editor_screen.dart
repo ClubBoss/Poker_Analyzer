@@ -2286,12 +2286,40 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                           Expanded(child: Text(title)),
                           PopupMenuButton<String>(
                             padding: EdgeInsets.zero,
-                            onSelected: (p) {
+                            onSelected: (p) async {
                               final idx = _hands.indexOf(hand);
-                              if (idx != -1) {
+                              if (p == 'comment') {
+                                final c = TextEditingController(text: hand.comment ?? '');
+                                final result = await showDialog<String>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Comment'),
+                                    content: TextField(
+                                      controller: c,
+                                      maxLines: null,
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, c.text.trim()),
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                c.dispose();
+                                if (result != null && idx != -1) {
+                                  setState(() {
+                                    _hands[idx] = hand.copyWith(comment: result.isEmpty ? null : result);
+                                    _modified = true;
+                                  });
+                                }
+                              } else if (idx != -1) {
                                 setState(() {
-                                  _hands[idx] =
-                                      hand.copyWith(heroPosition: p);
+                                  _hands[idx] = hand.copyWith(heroPosition: p);
                                   _modified = true;
                                   _rebuildStats();
                                 });
@@ -2315,13 +2343,26 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                                     ],
                                   ),
                                 ),
+                              const PopupMenuDivider(),
+                              const PopupMenuItem(
+                                value: 'comment',
+                                child: Text('📝 Comment'),
+                              ),
                             ],
                           ),
                         ],
                       ),
-                      subtitle: hand.tags.isEmpty
+                      subtitle: hand.tags.isEmpty && hand.comment == null
                           ? null
-                          : Text(hand.tags.join(', ')),
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (hand.tags.isNotEmpty)
+                                  Text(hand.tags.join(', ')),
+                                if (hand.comment != null)
+                                  Text(hand.comment!),
+                              ],
+                            ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
