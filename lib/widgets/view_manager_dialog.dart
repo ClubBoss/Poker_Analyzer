@@ -62,28 +62,22 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
   }
 
   void _reorder(int oldIndex, int newIndex, List<ViewPreset> filtered) {
-    if (newIndex > oldIndex) newIndex -= 1;
+    if (newIndex > oldIndex) newIndex--;
     final moved = filtered[oldIndex];
     final oldMainIndex = _views.indexOf(moved);
-    int newMainIndex;
-    if (newIndex >= filtered.length) {
-      newMainIndex = _views.length - 1;
-    } else {
-      final target = filtered[newIndex];
-      newMainIndex = _views.indexOf(target);
-    }
-    setState(() {
-      final item = _views.removeAt(oldMainIndex);
-      _views.insert(newMainIndex, item);
-    });
+    final newMainIndex = newIndex >= filtered.length
+        ? _views.length - 1
+        : _views.indexOf(filtered[newIndex]);
+    setState(() => _views.insert(newMainIndex, _views.removeAt(oldMainIndex)));
     widget.onChanged(_views);
   }
 
   @override
   Widget build(BuildContext context) {
+    final query = _filter.toLowerCase();
     final filtered = [
       for (final v in _views)
-        if (v.name.toLowerCase().contains(_filter.toLowerCase())) v
+        if (v.name.toLowerCase().contains(query)) v
     ];
     return AlertDialog(
       title: const Text('Views'),
