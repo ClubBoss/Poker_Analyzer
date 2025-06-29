@@ -11,6 +11,7 @@ class PokerTableView extends StatefulWidget {
   final List<String> playerNames;
   final List<double> playerStacks;
   final void Function(int index) onHeroSelected;
+  final void Function(int index, double newStack) onStackChanged;
   final double scale;
   const PokerTableView({
     super.key,
@@ -19,6 +20,7 @@ class PokerTableView extends StatefulWidget {
     required this.playerNames,
     required this.playerStacks,
     required this.onHeroSelected,
+    required this.onStackChanged,
     this.scale = 1.0,
   });
 
@@ -78,12 +80,54 @@ class _PokerTableViewState extends State<PokerTableView> {
       items.add(Positioned(
         left: offset.dx,
         top: offset.dy + 42 * widget.scale,
-        child: Text(
-          '${stack.toStringAsFixed(1)} BB',
-          style: TextStyle(
-            color: i == widget.heroIndex ? Colors.white : Colors.grey,
-            fontWeight: i == widget.heroIndex ? FontWeight.bold : FontWeight.normal,
-            fontSize: 10 * widget.scale,
+        child: GestureDetector(
+          onTap: () async {
+            final controller = TextEditingController(text: stack.toString());
+            final result = await showDialog<double>(
+              context: context,
+              builder: (context) => AlertDialog(
+                backgroundColor: Colors.black.withOpacity(0.3),
+                title: const Text('Edit Stack', style: TextStyle(color: Colors.white)),
+                content: TextField(
+                  controller: controller,
+                  autofocus: true,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white10,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    hintText: 'Enter stack in BB',
+                    hintStyle: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final value = double.tryParse(controller.text);
+                      Navigator.pop(context, value);
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+            if (result != null) {
+              widget.onStackChanged(i, result);
+              setState(() {});
+            }
+          },
+          child: Text(
+            '${stack.toStringAsFixed(1)} BB',
+            style: TextStyle(
+              color: i == widget.heroIndex ? Colors.white : Colors.grey,
+              fontWeight: i == widget.heroIndex ? FontWeight.bold : FontWeight.normal,
+              fontSize: 10 * widget.scale,
+            ),
           ),
         ),
       ));
