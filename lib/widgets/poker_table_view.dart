@@ -45,7 +45,18 @@ class _PokerTableViewState extends State<PokerTableView> {
       items.add(Positioned(
         left: offset.dx,
         top: offset.dy,
-        child: PlayerAvatar(name: widget.playerNames[i], isHero: i == widget.heroIndex),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(scale: animation, child: child),
+          ),
+          child: PlayerAvatar(
+            key: ValueKey('avatar_${widget.playerNames[i]}_${i == widget.heroIndex}'),
+            name: widget.playerNames[i],
+            isHero: i == widget.heroIndex,
+          ),
+        ),
       ));
       items.add(Positioned(
         left: offset.dx,
