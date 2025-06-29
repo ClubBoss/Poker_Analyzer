@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -7,6 +9,7 @@ import 'training_pack_storage_service.dart';
 class TrainingPackCloudSyncService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   String? get _uid => FirebaseAuth.instance.currentUser?.uid;
+  StreamSubscription? _sub;
 
   Future<List<TrainingPack>> loadPacks() async {
     if (_uid == null) return [];
@@ -45,5 +48,29 @@ class TrainingPackCloudSyncService {
     final remote = await loadPacks();
     storage.merge(remote);
     await storage.save();
+  }
+
+  StreamSubscription? watch(TrainingPackStorageService storage) {
+    _sub?.cancel();
+    if (_uid == null) return null;
+    _sub = _db
+        .collection('users')
+        .doc(_uid)
+        .collection('training_packs')
+        .snapshots()
+        .listen((snap) {
+      final list = [
+        for (final d in snap.docs)
+          TrainingPack.fromJson({...d.data(), 'id': d.id})
+      ];
+      storage.merge(list);
+      storage.save();
+    });
+    return _sub;
+  }
+
+  void cancelWatch() {
+    _sub?.cancel();
+    _sub = null;
   }
 }
