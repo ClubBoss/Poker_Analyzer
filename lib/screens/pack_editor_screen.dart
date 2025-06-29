@@ -4,9 +4,12 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
+import 'room_hand_history_import_screen.dart';
+import 'room_hand_history_editor_screen.dart';
 import '../widgets/sync_status_widget.dart';
 
 class PackEditorScreen extends StatefulWidget {
@@ -135,6 +138,60 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     });
   }
 
+  Future<void> _importFromRoom() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => RoomHandHistoryImportScreen(pack: widget.pack)),
+    );
+    final updated = context
+        .read<TrainingPackStorageService>()
+        .packs
+        .firstWhere((p) => p.id == widget.pack.id, orElse: () => widget.pack);
+    setState(() => _hands = List.from(updated.hands));
+  }
+
+  Future<void> _previewHand(SavedHand hand) async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(hand.name.isEmpty ? 'Без названия' : hand.name,
+                style:
+                    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('${hand.heroPosition} • ${hand.numberOfPlayers}p',
+                style: const TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            Text('Actions: ${hand.actions.length}',
+                style: const TextStyle(color: Colors.white70)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _editHand(SavedHand hand) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) =>
+              RoomHandHistoryEditorScreen(pack: widget.pack, hands: [hand])),
+    );
+    final updated = context
+        .read<TrainingPackStorageService>()
+        .packs
+        .firstWhere((p) => p.id == widget.pack.id, orElse: () => widget.pack);
+    setState(() => _hands = List.from(updated.hands));
+  }
+
   void _remove(int index) {
     if (index < 0 || index >= _hands.length) return;
     final hand = _hands.removeAt(index);
@@ -222,7 +279,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.pack.name),
-          actions: [SyncStatusIcon.of(context), 
+          actions: [
+            SyncStatusIcon.of(context),
+            IconButton(
+              onPressed: _importFromRoom,
+              icon: const Icon(Icons.playlist_add),
+            ),
             IconButton(
               onPressed: _hands.isEmpty ? null : _save,
               icon: const Icon(Icons.check),
@@ -253,6 +315,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                       title: Text(title),
                       subtitle:
                           hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
+                      onTap: () => _editHand(hand),
+                      onLongPress: () => _previewHand(hand),
                     ),
                   );
                 },
@@ -260,9 +324,22 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: _addHands,
-                child: const Text('Добавить раздачи'),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _addHands,
+                      child: const Text('Файл'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _importFromRoom,
+                      child: const Text('Импорт HH'),
+                    ),
+                  ),
+                ],
               ),
             )
           ],
