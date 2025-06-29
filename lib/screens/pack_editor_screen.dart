@@ -2406,6 +2406,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     onSelected: (v) {
                       if (v == 'manage') {
                         _manageViews();
+                      } else if (v == 'save') {
+                        _saveCurrentView();
                       } else {
                         final view = _views.firstWhere(
                           (e) => e.id == v,
@@ -2415,6 +2417,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                       }
                     },
                     itemBuilder: (_) => [
+                      const PopupMenuItem(value: 'save', child: Text('Save Current View')),
                       for (final v in _views)
                         PopupMenuItem(value: v.id, child: Text(v.name)),
                       const PopupMenuItem(value: 'manage', child: Text('Manage Views…')),
