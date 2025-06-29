@@ -25,7 +25,7 @@ class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('dd MMM', 'en').format(date);
+    return DateFormat('dd MMM', Intl.getCurrentLocale()).format(date);
   }
 
   @override

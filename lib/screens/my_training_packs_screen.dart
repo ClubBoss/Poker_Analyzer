@@ -15,7 +15,6 @@ import '../widgets/info_tooltip.dart';
 import '../helpers/color_utils.dart';
 import "../widgets/progress_chip.dart";
 import '../widgets/color_picker_dialog.dart';
-import 'package:intl/intl.dart';
 import '../services/tag_service.dart';
 import 'training_pack_template_list_screen.dart';
 import '../widgets/sync_status_widget.dart';
@@ -706,7 +705,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                                 Text('Решено: ${p.solved} / ${p.lastAttempted}'),
                                 const SizedBox(width: 12),
                                 Text('Последняя попытка: '
-                                    '${DateFormat('dd.MM.yy').format(p.lastAttemptDate)}'),
+                                    '${formatDate(p.lastAttemptDate)}'),
                               ],
                             ),
                           Text('${p.category} • ${p.spots.isNotEmpty ? '${p.spots.length} spots' : '${p.hands.length} hands'}'),

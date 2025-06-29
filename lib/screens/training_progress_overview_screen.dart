@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
@@ -51,7 +50,7 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
                   children: [
                     Text('Решено: ${p.solved}/${p.hands.length}'),
                     const Spacer(),
-                    Text(DateFormat('dd.MM.yy').format(p.lastAttemptDate),
+                    Text(formatDate(p.lastAttemptDate),
                         style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
