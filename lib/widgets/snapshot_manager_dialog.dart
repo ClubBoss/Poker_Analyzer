@@ -17,7 +17,7 @@ class _SnapshotManagerDialogState extends State<SnapshotManagerDialog> {
   @override
   void initState() {
     super.initState();
-    _snaps = List.from(widget.snapshots);
+    _snaps = [for (final s in widget.snapshots) if (!s.isAuto) s];
   }
 
   Future<void> _rename(int index) async {

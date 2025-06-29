@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -96,6 +97,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   int _dupCount = 0;
   List<ViewPreset> _views = [];
   List<PackEditorSnapshot> _snapshots = [];
+  Timer? _autoTimer;
   List<_Command> _commands = [];
   bool _filtersVisible = true;
   bool _filterConflict = false;
@@ -165,6 +167,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       } catch (_) {}
     }
     setState(_buildCommands);
+    await _maybeRestoreAutoSnapshot(prefs);
+    _autoTimer ??=
+        Timer.periodic(const Duration(seconds: 60), (_) => _autoSaveSnapshot());
   }
 
   LogicalKeySet _primaryCmd(LogicalKeyboardKey key) {
@@ -1060,9 +1065,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   }
 
   Future<void> _manageSnapshots() async {
+    final manual = [for (final s in _snapshots) if (!s.isAuto) s];
     final result = await showDialog<dynamic>(
       context: context,
-      builder: (_) => SnapshotManagerDialog(snapshots: _snapshots),
+      builder: (_) => SnapshotManagerDialog(snapshots: manual),
     );
     if (!mounted) return;
     if (result is PackEditorSnapshot) {
@@ -1075,7 +1081,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       await _applySnapshotFilters(snap.filters);
       await _saveViews();
     } else if (result is List<PackEditorSnapshot>) {
-      setState(() => _snapshots = result);
+      final autos = [for (final s in _snapshots) if (s.isAuto) s];
+      setState(() => _snapshots = [...autos, ...result]);
       await _saveSnapshots();
     }
   }
@@ -1148,6 +1155,71 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       'snapshots_${widget.pack.id}',
       jsonEncode([for (final s in _snapshots) s.toJson()]),
     );
+  }
+
+  Future<void> _autoSaveSnapshot() async {
+    final snap = PackEditorSnapshot(
+      name: 'Auto ${DateFormat('HH:mm').format(DateTime.now())}',
+      hands: [for (final h in _hands) h],
+      views: [for (final v in _views) v],
+      filters: {
+        'sort': _sort.index,
+        'tag': _tagFilter,
+        'mistake': _mistakeFilter.index,
+        'hero': _heroPosFilter,
+        'search': _searchController.text,
+      },
+      isAuto: true,
+    );
+    _skipHistory = true;
+    setState(() {
+      _snapshots.add(snap);
+      final autos = [for (final s in _snapshots) if (s.isAuto) s]
+        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      while (autos.length > 10) {
+        _snapshots.remove(autos.removeAt(0));
+      }
+    });
+    _skipHistory = false;
+    await _saveSnapshots();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'last_auto_snapshot_${widget.pack.id}', jsonEncode(snap.toJson()));
+  }
+
+  Future<void> _maybeRestoreAutoSnapshot([SharedPreferences? prefs]) async {
+    prefs ??= await SharedPreferences.getInstance();
+    final raw = prefs.getString('last_auto_snapshot_${widget.pack.id}');
+    if (raw == null) return;
+    try {
+      final data = jsonDecode(raw);
+      final snap =
+          PackEditorSnapshot.fromJson(Map<String, dynamic>.from(data as Map));
+      final restore = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Restore Auto Snapshot?'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('No')),
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Yes')),
+          ],
+        ),
+      );
+      await prefs.remove('last_auto_snapshot_${widget.pack.id}');
+      if (restore == true) {
+        setState(() {
+          _hands = [for (final h in snap.hands) h];
+          _views = [for (final v in snap.views) v];
+          _modified = true;
+        });
+        await _applySnapshotFilters(snap.filters);
+        await _saveViews();
+      }
+    } catch (_) {}
   }
 
   Future<void> _applySnapshotFilters(Map<String, dynamic> f) async {
@@ -1930,6 +2002,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   @override
   void dispose() {
+    _autoTimer?.cancel();
     _searchController.dispose();
     _findController.dispose();
     _replaceController.dispose();

@@ -9,6 +9,7 @@ class PackEditorSnapshot {
   final List<SavedHand> hands;
   final List<ViewPreset> views;
   final Map<String, dynamic> filters;
+  final bool isAuto;
 
   PackEditorSnapshot({
     String? id,
@@ -17,6 +18,7 @@ class PackEditorSnapshot {
     required this.hands,
     required this.views,
     required this.filters,
+    this.isAuto = false,
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
@@ -27,6 +29,7 @@ class PackEditorSnapshot {
         'hands': [for (final h in hands) h.toJson()],
         'views': [for (final v in views) v.toJson()],
         'filters': filters,
+        'isAuto': isAuto,
       };
 
   factory PackEditorSnapshot.fromJson(Map<String, dynamic> json) =>
@@ -44,6 +47,7 @@ class PackEditorSnapshot {
             ViewPreset.fromJson(Map<String, dynamic>.from(v as Map))
         ],
         filters: Map<String, dynamic>.from(json['filters'] as Map? ?? {}),
+        isAuto: json['isAuto'] as bool? ?? false,
       );
 
   PackEditorSnapshot copyWith({String? name}) => PackEditorSnapshot(
@@ -53,5 +57,6 @@ class PackEditorSnapshot {
         hands: hands,
         views: views,
         filters: filters,
+        isAuto: isAuto,
       );
 }
