@@ -49,6 +49,7 @@ class SavedHand {
   /// Cursor offset within the tags field when the hand was saved.
   final int? tagsCursor;
   final bool isFavorite;
+  final bool isDuplicate;
   final int sessionId;
   final DateTime savedAt;
   final DateTime date;
@@ -111,6 +112,7 @@ class SavedHand {
     this.commentCursor,
     this.tagsCursor,
     this.isFavorite = false,
+    this.isDuplicate = false,
     this.sessionId = 0,
     DateTime? savedAt,
     DateTime? date,
@@ -171,6 +173,7 @@ class SavedHand {
     int? commentCursor,
     int? tagsCursor,
     bool? isFavorite,
+    bool? isDuplicate,
     DateTime? savedAt,
     DateTime? date,
     String? expectedAction,
@@ -232,6 +235,7 @@ class SavedHand {
       commentCursor: commentCursor ?? this.commentCursor,
       tagsCursor: tagsCursor ?? this.tagsCursor,
       isFavorite: isFavorite ?? this.isFavorite,
+      isDuplicate: isDuplicate ?? this.isDuplicate,
       sessionId: sessionId ?? this.sessionId,
       savedAt: savedAt ?? this.savedAt,
       date: date ?? this.date,
@@ -346,6 +350,7 @@ class SavedHand {
         if (commentCursor != null) 'commentCursor': commentCursor,
         if (tagsCursor != null) 'tagsCursor': tagsCursor,
         'isFavorite': isFavorite,
+        'isDuplicate': isDuplicate,
         'sessionId': sessionId,
         'savedAt': savedAt.toIso8601String(),
         'date': date.toIso8601String(),
@@ -454,6 +459,7 @@ class SavedHand {
     final tags = [for (final t in (json['tags'] as List? ?? [])) t as String];
     final rating = (json['rating'] as num?)?.toInt() ?? 0;
     final isFavorite = json['isFavorite'] as bool? ?? false;
+    final isDuplicate = json['isDuplicate'] as bool? ?? false;
     final sessionId = json['sessionId'] as int? ?? 0;
     final savedAt =
         DateTime.tryParse(json['savedAt'] as String? ?? '') ?? DateTime.now();
@@ -568,6 +574,7 @@ class SavedHand {
       commentCursor: commentCursor,
       tagsCursor: tagsCursor,
       isFavorite: isFavorite,
+      isDuplicate: isDuplicate,
       savedAt: savedAt,
       date: date,
       expectedAction: json['expectedAction'] as String?,
