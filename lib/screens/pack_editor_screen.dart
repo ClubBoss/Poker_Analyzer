@@ -2040,6 +2040,43 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
   }
 
+  void _removeTagEverywhere(String tag) {
+    _tagsUndo = [];
+    int count = 0;
+    setState(() {
+      for (int i = 0; i < _hands.length; i++) {
+        final h = _hands[i];
+        if (h.tags.contains(tag)) {
+          final old = List<String>.from(h.tags);
+          final list = List<String>.from(h.tags)..remove(tag);
+          _hands[i] = h.copyWith(tags: list);
+          _tagsUndo.add((i, old));
+          _modified = true;
+          count++;
+        }
+      }
+      _rebuildStats();
+    });
+    if (count == 0) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Updated $count hands'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in _tagsUndo) {
+                _hands[r.$1] = _hands[r.$1].copyWith(tags: r.$2);
+              }
+              _modified = true;
+              _rebuildStats();
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   void _showStats() {
     _rebuildStats();
     final tagService = context.read<TagService>();
@@ -2063,9 +2100,37 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   label: Text(e.key),
                   backgroundColor: colorFromHex(tagService.colorOf(e.key)),
                 ),
-                trailing: Text(
-                  '${e.value}',
-                  style: const TextStyle(color: Colors.white),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${e.value}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.white70, size: 20),
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        final ok = await showDialog<bool>(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: Text("Remove tag '${e.key}' from all hands?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(c, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(c, true),
+                                child: const Text('Remove'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (ok == true) _removeTagEverywhere(e.key);
+                      },
+                    )
+                  ],
                 ),
                 onTap: () {
                   _setTagFilter(e.key);
