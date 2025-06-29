@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/goal_engine.dart';
 import '../models/user_goal.dart';
+import '../widgets/sync_status_widget.dart';
 
 class GoalEditorScreen extends StatefulWidget {
   final UserGoal? goal;
@@ -78,7 +79,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.goal == null ? 'Новая цель' : 'Редактирование цели'),
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(onPressed: _save, icon: const Icon(Icons.check))
         ],
       ),

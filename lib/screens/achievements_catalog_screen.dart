@@ -5,6 +5,7 @@ import '../services/goals_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/streak_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class AchievementsCatalogScreen extends StatelessWidget {
   const AchievementsCatalogScreen({super.key});
@@ -16,6 +17,7 @@ class AchievementsCatalogScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Каталог достижений'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Builder(
         builder: (context) {

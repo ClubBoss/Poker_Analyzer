@@ -14,6 +14,7 @@ import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
 import '../widgets/color_picker_dialog.dart';
 import 'my_training_packs_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class CreateCustomPackScreen extends StatefulWidget {
   const CreateCustomPackScreen({super.key});
@@ -221,7 +222,7 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Новый кастомный пак'),
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             onPressed: _hands.isEmpty ? null : _save,
             icon: const Icon(Icons.check),

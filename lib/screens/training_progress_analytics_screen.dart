@@ -5,6 +5,7 @@ import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
 import 'training_activity_by_weekday_screen.dart';
 import 'top_mistakes_overview_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingProgressAnalyticsScreen extends StatelessWidget {
   static const route = '/training/analytics';
@@ -30,7 +31,7 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Аналитика по категориям'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           TextButton(
             onPressed: () {
               Navigator.push(

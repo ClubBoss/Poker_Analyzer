@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import '../helpers/date_utils.dart';
 import '../models/cloud_history_entry.dart';
 import '../services/cloud_training_history_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 enum _SortOption { newest, oldest, accuracyDesc, accuracyAsc }
 
@@ -82,7 +83,7 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
       appBar: AppBar(
         title: const Text('Cloud History'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Export',

@@ -6,6 +6,7 @@ import '../widgets/eval_result_view.dart';
 import 'package:provider/provider.dart';
 import '../services/training_session_controller.dart';
 import 'training_play_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingSpotDetailScreen extends StatelessWidget {
   final TrainingSpot spot;
@@ -31,6 +32,7 @@ class TrainingSpotDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Spot Details'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: Colors.black,
       body: ListView(

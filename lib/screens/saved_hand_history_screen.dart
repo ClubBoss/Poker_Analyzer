@@ -7,6 +7,7 @@ import '../theme/app_colors.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_list_view.dart';
 import 'hand_history_review_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class SavedHandHistoryScreen extends StatefulWidget {
   const SavedHandHistoryScreen({super.key});
@@ -150,6 +151,7 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
             ),
           ),
         ),
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Column(
         children: [

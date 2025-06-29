@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:math' as math;
 
 import '../services/streak_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class Goal {
   final String title;
@@ -286,6 +287,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
       appBar: AppBar(
         title: const Text('Мои цели'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

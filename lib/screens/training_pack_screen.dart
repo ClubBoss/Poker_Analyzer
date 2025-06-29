@@ -67,6 +67,7 @@ import 'dart:async';
 import '../services/cloud_training_history_service.dart';
 import '../helpers/color_utils.dart';
 import '../theme/app_colors.dart';
+import '../widgets/sync_status_widget.dart';
 
 
 class _SessionSummary {
@@ -1809,7 +1810,7 @@ body { font-family: sans-serif; padding: 16px; }
             ],
           ),
           centerTitle: true,
-          actions: [
+          actions: [SyncStatusIcon.of(context), 
             if (_pack.pctComplete > 0 && _pack.pctComplete < 1)
               IconButton(
                 icon: const Icon(Icons.play_arrow),
@@ -2028,7 +2029,7 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
       appBar: AppBar(
         title: const Text('Анализ тренировки'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.save_alt),
             tooltip: 'Экспорт',

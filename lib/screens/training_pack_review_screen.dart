@@ -22,6 +22,7 @@ import '../models/training_pack_template_model.dart';
 import '../services/training_pack_template_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
 import 'package:uuid/uuid.dart';
+import '../widgets/sync_status_widget.dart';
 
 /// Displays all spots from [pack] with option to show only mistaken ones.
 class TrainingPackReviewScreen extends StatefulWidget {
@@ -521,7 +522,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
       appBar: AppBar(
         title: Text(widget.pack.name),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Export to PDF',

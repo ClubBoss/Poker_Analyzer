@@ -11,6 +11,7 @@ import '../services/weekly_challenge_service.dart';
 import '../theme/app_colors.dart';
 import 'daily_progress_history_screen.dart';
 import 'achievements_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class GoalOverviewScreen extends StatefulWidget {
   const GoalOverviewScreen({super.key});
@@ -60,7 +61,7 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
       appBar: AppBar(
         title: const Text('Goal'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: () {

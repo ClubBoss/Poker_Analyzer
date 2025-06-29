@@ -16,6 +16,7 @@ import '../services/saved_hand_manager_service.dart';
 import 'training_pack_screen.dart';
 import '../widgets/common/accuracy_trend_chart.dart';
 import 'cloud_training_session_details_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingHistoryScreen extends StatefulWidget {
   const TrainingHistoryScreen({super.key});
@@ -243,7 +244,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       appBar: AppBar(
         title: const Text('История тренировок'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Экспорт',

@@ -12,6 +12,7 @@ import '../services/reminder_service.dart';
 import '../services/daily_reminder_service.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
@@ -67,6 +68,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Ещё'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: ListView(
         children: [

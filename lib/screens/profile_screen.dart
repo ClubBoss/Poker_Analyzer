@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/streak_service.dart';
 import '../services/evaluation_executor_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,6 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text('Profile'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

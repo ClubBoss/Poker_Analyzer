@@ -8,6 +8,7 @@ import 'achievements_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/auth_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -66,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: const Text('Settings'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.cloud),
             tooltip: 'Cloud Sync',

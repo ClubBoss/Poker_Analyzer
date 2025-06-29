@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/goals_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 enum _GoalFilter { all, completed, active }
 
@@ -43,6 +44,7 @@ class _GoalsHistoryScreenState extends State<GoalsHistoryScreen> {
       appBar: AppBar(
         title: const Text('История целей'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Column(
         children: [

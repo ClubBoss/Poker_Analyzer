@@ -7,15 +7,17 @@ class ConnectivitySyncController with WidgetsBindingObserver {
   ConnectivitySyncController({required this.cloud}) {
     WidgetsBinding.instance.addObserver(this);
     _sub = Connectivity().onConnectivityChanged.listen(_onResult);
+    Connectivity().checkConnectivity().then(_onResult);
   }
 
   final CloudSyncService cloud;
   late final StreamSubscription<ConnectivityResult> _sub;
+  final ValueNotifier<bool> online = ValueNotifier(true);
 
   void _onResult(ConnectivityResult result) {
-    if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
-      _sync();
-    }
+    final on = result == ConnectivityResult.mobile || result == ConnectivityResult.wifi;
+    online.value = on;
+    if (on) _sync();
   }
 
   @override

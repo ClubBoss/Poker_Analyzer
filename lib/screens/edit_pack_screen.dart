@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
 import 'create_pack_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class EditPackScreen extends StatelessWidget {
   const EditPackScreen({super.key});
@@ -23,6 +24,7 @@ class EditPackScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Редактировать тренировку'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: packs.isEmpty

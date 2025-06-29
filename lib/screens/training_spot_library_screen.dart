@@ -13,6 +13,7 @@ import '../services/training_spot_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
 import 'training_spot_builder_screen.dart';
 import 'package:uuid/uuid.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingSpotLibraryScreen extends StatefulWidget {
   const TrainingSpotLibraryScreen({super.key});
@@ -226,7 +227,7 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Spots'),
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           if (context.watch<TrainingSpotStorageService>().activeFilters.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.filter_alt_off),

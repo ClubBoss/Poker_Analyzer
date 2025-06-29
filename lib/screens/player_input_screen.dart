@@ -20,6 +20,7 @@ import '../services/transition_lock_service.dart';
 import '../services/board_reveal_service.dart';
 import '../services/all_in_players_service.dart';
 import '../services/folded_players_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class PlayerInputScreen extends StatefulWidget {
   const PlayerInputScreen({super.key});
@@ -40,7 +41,7 @@ class _PlayerInputScreenState extends State<PlayerInputScreen> {
         backgroundColor: Colors.black,
         title: const Text('Poker AI Analyzer'),
         centerTitle: true,
-        actions: [
+        actions: [SyncStatusIcon.of(context), 
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {

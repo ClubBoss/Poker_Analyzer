@@ -7,6 +7,7 @@ import '../models/training_pack_template.dart';
 import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
 import 'training_pack_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class CreatePackFromTemplateScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -479,6 +480,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
             ),
           ],
         ),
+      actions: [SyncStatusIcon.of(context)],
       ),
     );
   }

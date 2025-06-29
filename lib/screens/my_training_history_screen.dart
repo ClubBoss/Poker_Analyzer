@@ -9,6 +9,7 @@ import '../models/session_summary.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
 import 'training_pack_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class MyTrainingHistoryScreen extends StatefulWidget {
   const MyTrainingHistoryScreen({super.key});
@@ -69,6 +70,7 @@ class _MyTrainingHistoryScreenState extends State<MyTrainingHistoryScreen> {
       appBar: AppBar(
         title: const Text('Мои тренировки'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: _entries.isEmpty

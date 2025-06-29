@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/action_entry.dart';
+import '../widgets/sync_status_widget.dart';
 
 class ResultScreen extends StatelessWidget {
   final int winnerIndex;
@@ -25,6 +26,7 @@ class ResultScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Результат раздачи'),
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/training_pack_template.dart';
+import '../widgets/sync_status_widget.dart';
 
 class CreateTemplateScreen extends StatefulWidget {
   const CreateTemplateScreen({super.key});
@@ -46,6 +47,7 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Создать шаблон'),
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

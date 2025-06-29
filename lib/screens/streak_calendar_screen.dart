@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/training_stats_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class StreakCalendarScreen extends StatelessWidget {
   const StreakCalendarScreen({super.key});
@@ -59,6 +60,7 @@ class StreakCalendarScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Календарь тренировок'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),

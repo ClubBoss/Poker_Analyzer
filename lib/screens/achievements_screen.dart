@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/achievement_engine.dart';
 import '../services/user_action_logger.dart';
+import '../widgets/sync_status_widget.dart';
 
 class AchievementsScreen extends StatefulWidget {
   const AchievementsScreen({super.key});
@@ -28,6 +29,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       appBar: AppBar(
         title: const Text('Achievements'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),

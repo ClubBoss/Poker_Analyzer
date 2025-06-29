@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingProgressOverviewScreen extends StatelessWidget {
   static const route = '/training/progress';
@@ -21,6 +22,7 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Прогресс по тренировкам'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),

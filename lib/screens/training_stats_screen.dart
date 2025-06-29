@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
 import 'saved_hands_screen.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingStatsScreen extends StatefulWidget {
   const TrainingStatsScreen({super.key});
@@ -214,7 +215,7 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Stats'),
-        actions: [IconButton(icon: Icon(Icons.share), onPressed: _exportPdf)],
+        actions: [SyncStatusIcon.of(context), IconButton(icon: Icon(Icons.share), onPressed: _exportPdf)],
         centerTitle: true,
       ),
       body: ListView(

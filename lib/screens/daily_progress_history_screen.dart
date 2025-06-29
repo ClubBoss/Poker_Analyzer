@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class DailyProgressHistoryScreen extends StatelessWidget {
   const DailyProgressHistoryScreen({super.key});
@@ -20,6 +21,7 @@ class DailyProgressHistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Daily Progress'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),

@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 const _validStreets = ['preflop', 'flop', 'turn', 'river'];
 
 import '../models/training_pack_template_model.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplateModel? initial;
@@ -155,6 +156,7 @@ class _TrainingPackTemplateEditorScreenState
           ],
         ),
       ),
+      actions: [SyncStatusIcon.of(context)],
     );
   }
 }

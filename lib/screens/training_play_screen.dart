@@ -5,6 +5,7 @@ import '../models/evaluation_result.dart';
 import '../services/training_session_controller.dart';
 import '../widgets/training_spot_diagram.dart';
 import '../widgets/replay_spot_widget.dart';
+import '../widgets/sync_status_widget.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   const TrainingPlayScreen({super.key});
@@ -33,6 +34,7 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
       appBar: AppBar(
         title: const Text('Training'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: const Color(0xFF121212),
       body: SingleChildScrollView(

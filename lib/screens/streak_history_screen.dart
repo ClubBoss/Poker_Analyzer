@@ -6,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../services/training_stats_service.dart';
 import '../services/daily_target_service.dart';
 import '../theme/app_colors.dart';
+import '../widgets/sync_status_widget.dart';
 
 class StreakHistoryScreen extends StatelessWidget {
   const StreakHistoryScreen({super.key});
@@ -52,6 +53,7 @@ class StreakHistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Streak History'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

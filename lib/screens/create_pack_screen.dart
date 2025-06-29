@@ -5,6 +5,7 @@ import '../models/training_pack.dart';
 import '../models/training_spot.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/training_spot_storage_service.dart';
+import '../widgets/sync_status_widget.dart';
 
 class CreatePackScreen extends StatefulWidget {
   const CreatePackScreen({super.key});
@@ -68,6 +69,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Новый пакет'),
+        actions: [SyncStatusIcon.of(context)],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _save,

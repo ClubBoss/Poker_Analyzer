@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:markdown/markdown.dart' as md;
+import '../widgets/sync_status_widget.dart';
 
 class MarkdownPreviewScreen extends StatefulWidget {
   final String path;
@@ -58,6 +59,7 @@ body { font-family: sans-serif; padding: 16px; }
       appBar: AppBar(
         title: const Text('Markdown Preview'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: WebViewWidget(controller: _controller),
       backgroundColor: const Color(0xFF1B1C1E),

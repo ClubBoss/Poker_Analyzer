@@ -10,6 +10,7 @@ import '../theme/constants.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../screens/hand_history_review_screen.dart';
 import '../helpers/poker_street_helper.dart';
+import '../widgets/sync_status_widget.dart';
 
 class SavedHandsScreen extends StatefulWidget {
   final String? initialTag;
@@ -98,6 +99,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
       appBar: AppBar(
         title: const Text('Сохранённые раздачи'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: Column(
         children: [

@@ -8,6 +8,7 @@ import '../models/saved_hand.dart';
 import 'saved_hand_list_view.dart';
 import '../screens/hand_history_review_screen.dart';
 import '../screens/training_screen.dart';
+import 'sync_status_widget.dart';
 
 class FocusOfTheWeekCard extends StatelessWidget {
   const FocusOfTheWeekCard({super.key});
@@ -134,6 +135,7 @@ class _FocusMistakeHandsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('$position • $street'),
         centerTitle: true,
+        actions: [SyncStatusIcon.of(context)],
       ),
       body: SavedHandListView(
         hands: filtered,

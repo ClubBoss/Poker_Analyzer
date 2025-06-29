@@ -21,6 +21,7 @@ class CloudSyncService {
   String? get uid => FirebaseAuth.instance.currentUser?.uid;
   final List<Map<String, dynamic>> _pending = [];
   final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
+  final ValueNotifier<double> progress = ValueNotifier(0);
 
   Future<void> init() async {
     if (_local) {
@@ -46,6 +47,7 @@ class CloudSyncService {
 
   Future<void> syncUp() async {
     if (_pending.isEmpty || uid == null) return;
+    progress.value = 1;
     if (_local) {
       for (final m in _pending) {
         _box!.put('${m['col']}_${m['id']}', m['data']);
@@ -69,31 +71,43 @@ class CloudSyncService {
       await _prefs.setStringList('pending_mutations', []);
       lastSync.value = DateTime.now();
       await _prefs.setString('last_sync', lastSync.value!.toIso8601String());
-    } catch (_) {}
+    } catch (_) {
+      progress.value = -1;
+      return;
+    }
+    progress.value = 0;
   }
 
   Future<void> syncDown() async {
     if (uid == null) return;
+    progress.value = 1;
     if (_local) {
       final ts = _box!.get('last_sync') as String?;
       if (ts != null) lastSync.value = DateTime.tryParse(ts);
+      progress.value = 0;
       return;
     }
-    final user = _db.collection('users').doc(uid);
-    for (final col in ['training_spots', 'training_stats', 'preferences']) {
-      final snap = await user.collection(col).doc('main').get();
-      if (!snap.exists) continue;
-      final remote = snap.data()!;
-      final localStr = _prefs.getString('cached_$col');
-      final local = localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
-      final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-      final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-      if (remoteAt.isAfter(localAt)) {
-        await _prefs.setString('cached_$col', jsonEncode(remote));
+    try {
+      final user = _db.collection('users').doc(uid);
+      for (final col in ['training_spots', 'training_stats', 'preferences']) {
+        final snap = await user.collection(col).doc('main').get();
+        if (!snap.exists) continue;
+        final remote = snap.data()!;
+        final localStr = _prefs.getString('cached_$col');
+        final local = localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
+        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        if (remoteAt.isAfter(localAt)) {
+          await _prefs.setString('cached_$col', jsonEncode(remote));
+        }
       }
+      final ts = _prefs.getString('last_sync');
+      if (ts != null) lastSync.value = DateTime.tryParse(ts);
+    } catch (_) {
+      progress.value = -1;
+      return;
     }
-    final ts = _prefs.getString('last_sync');
-    if (ts != null) lastSync.value = DateTime.tryParse(ts);
+    progress.value = 0;
   }
 
   Future<void> queueMutation(String col, String id, Map<String, dynamic> data) async {

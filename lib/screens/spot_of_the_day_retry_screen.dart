@@ -9,6 +9,7 @@ import '../widgets/board_cards_widget.dart';
 import '../widgets/player_info_widget.dart';
 import '../widgets/poker_table_painter.dart';
 import '../helpers/table_geometry_helper.dart';
+import '../widgets/sync_status_widget.dart';
 
 class SpotOfTheDayRetryScreen extends StatefulWidget {
   const SpotOfTheDayRetryScreen({super.key});
@@ -74,6 +75,7 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
         appBar: AppBar(
           title: const Text('Повтор ошибок'),
           centerTitle: true,
+          actions: [SyncStatusIcon.of(context)],
         ),
         backgroundColor: const Color(0xFF121212),
         body: const Center(
@@ -102,6 +104,7 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
           appBar: AppBar(
             title: const Text('Повтор ошибок'),
             centerTitle: true,
+            actions: [SyncStatusIcon.of(context)],
           ),
           backgroundColor: const Color(0xFF121212),
           body: LayoutBuilder(
