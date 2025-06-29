@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,19 +20,22 @@ class PackOverviewScreen extends StatefulWidget {
 }
 
 class _PackOverviewScreenState extends State<PackOverviewScreen> {
-  StreamSubscription? _sub;
 
   @override
   void initState() {
     super.initState();
     final storage = context.read<TrainingPackStorageService>();
-    final cloud = context.read<TrainingPackCloudSyncService>();
-    _sub = cloud.watch(storage);
+    context
+        .read<TrainingPackCloudSyncService>()
+        .watch(storage)
+        ?.onData((_) {
+          if (mounted) setState(() {});
+        });
   }
 
   @override
   void dispose() {
-    _sub?.cancel();
+    context.read<TrainingPackCloudSyncService>().cancelWatch();
     super.dispose();
   }
 
