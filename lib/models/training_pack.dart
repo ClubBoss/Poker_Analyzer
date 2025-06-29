@@ -2,6 +2,7 @@ import 'saved_hand.dart';
 import 'training_spot.dart';
 import 'session_task_result.dart';
 import 'game_type.dart';
+import 'package:uuid/uuid.dart';
 
 GameType parseGameType(dynamic v) {
   final s = (v as String? ?? '').toLowerCase();
@@ -43,6 +44,7 @@ class TrainingSessionResult {
 }
 
 class TrainingPack {
+  final String id;
   final String name;
   final String description;
   final String category;
@@ -56,6 +58,7 @@ class TrainingPack {
   final List<TrainingSessionResult> history;
 
   TrainingPack({
+    String? id,
     required this.name,
     required this.description,
     this.category = 'Uncategorized',
@@ -67,7 +70,8 @@ class TrainingPack {
     List<TrainingSpot>? spots,
     this.difficulty = 1,
     List<TrainingSessionResult>? history,
-  })  : tags = tags ?? const [],
+  })  : id = id ?? const Uuid().v4(),
+        tags = tags ?? const [],
         spots = spots ?? const [],
         history = history ?? [];
 
@@ -77,6 +81,7 @@ class TrainingPack {
       history.isNotEmpty ? history.last.date : DateTime.fromMillisecondsSinceEpoch(0);
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'name': name,
         'description': description,
         'category': category,
@@ -91,6 +96,7 @@ class TrainingPack {
       };
 
   factory TrainingPack.fromJson(Map<String, dynamic> json) => TrainingPack(
+        id: json['id'] as String?,
         name: json['name'] as String? ?? '',
         description: json['description'] as String? ?? '',
         category: json['category'] as String? ?? 'Uncategorized',

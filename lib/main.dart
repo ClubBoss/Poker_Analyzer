@@ -13,6 +13,7 @@ import 'services/saved_hand_manager_service.dart';
 import 'services/session_note_service.dart';
 import 'services/session_pin_service.dart';
 import 'services/training_pack_storage_service.dart';
+import 'services/training_pack_cloud_sync_service.dart';
 import 'services/template_storage_service.dart';
 import 'services/training_pack_template_storage_service.dart';
 import 'services/daily_hand_service.dart';
@@ -77,6 +78,10 @@ Future<void> main() async {
   await cloud.init();
   await cloud.syncDown();
   cloud.watchChanges();
+  final packStorage = TrainingPackStorageService(cloud: cloud);
+  await packStorage.load();
+  final packCloud = TrainingPackCloudSyncService();
+  await packCloud.syncDown(packStorage);
   runApp(
     MultiProvider(
       providers: [
@@ -111,7 +116,8 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) => SessionPinService()..load(),
         ),
-        ChangeNotifierProvider(create: (_) => TrainingPackStorageService()..load()),
+        ChangeNotifierProvider<TrainingPackStorageService>.value(value: packStorage),
+        Provider<TrainingPackCloudSyncService>.value(value: packCloud),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
         ChangeNotifierProvider(create: (_) => TrainingPackTemplateStorageService()..load()),
         ChangeNotifierProvider(
