@@ -549,6 +549,14 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
     );
   }
 
+  Future<void> _exportPack() async {
+    final file = await context.read<TrainingPackStorageService>().exportPack(_pack);
+    if (!mounted || file == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Файл сохранён: ${file.path}')),
+    );
+  }
+
   Future<void> _addSpot() async {
     final spot = await Navigator.push<TrainingSpot>(
       context,
@@ -938,11 +946,33 @@ body { font-family: sans-serif; padding: 16px; }
 ''';
   }
 
-  Future<void> _importPackFromFile() async {
-    final service =
-        Provider.of<TrainingPackStorageService>(context, listen: false);
-    final msg = await service.importPackFromFile();
+  Future<void> _importPack() async {
+    final before = {
+      for (final p in context.read<TrainingPackStorageService>().packs) p.id
+    };
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final file = result.files.single;
+    final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+    final msg = await context.read<TrainingPackStorageService>().importPack(bytes);
     if (!mounted) return;
+    final packs = context.read<TrainingPackStorageService>().packs;
+    TrainingPack? imported;
+    for (final p in packs) {
+      if (!before.contains(p.id)) {
+        imported = p;
+        break;
+      }
+    }
+    if (msg == null && imported != null) {
+      await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: imported)),
+      );
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg ?? 'Пак импортирован')),
     );
@@ -1898,9 +1928,14 @@ body { font-family: sans-serif; padding: 16px; }
               onPressed: _editPack,
             ),
             IconButton(
+              icon: const Icon(Icons.upload_file),
+              tooltip: 'Экспорт пакета',
+              onPressed: _exportPack,
+            ),
+            IconButton(
               icon: const Icon(Icons.file_download),
               tooltip: 'Импорт пакета',
-              onPressed: _importPackFromFile,
+              onPressed: _importPack,
             ),
             PopupMenuButton<String>(
               onSelected: (v) {
