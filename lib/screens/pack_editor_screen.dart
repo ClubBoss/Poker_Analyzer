@@ -17,6 +17,7 @@ import '../widgets/sync_status_widget.dart';
 
 enum _SortOption { newest, oldest, position, tags, mistakes }
 enum _MistakeFilter { any, zero, oneTwo, threePlus }
+enum _QcIssue { duplicateName, noHeroCards, noActions }
 
 class PackEditorScreen extends StatefulWidget {
   final TrainingPack pack;
@@ -29,6 +30,7 @@ class PackEditorScreen extends StatefulWidget {
 class _PackEditorScreenState extends State<PackEditorScreen> {
   static const _sortKey = 'pack_editor_sort';
   static const _searchKey = 'pack_editor_search';
+  static const _lastCheckKey = 'pack_editor_last_quality_check';
 
   late List<SavedHand> _hands;
   bool _modified = false;
@@ -677,6 +679,189 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
   }
 
+  Future<void> _qualityCheck() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_lastCheckKey, DateTime.now().millisecondsSinceEpoch);
+    final indices = _visibleIndices();
+    final issues = {
+      _QcIssue.duplicateName: <int>[],
+      _QcIssue.noHeroCards: <int>[],
+      _QcIssue.noActions: <int>[],
+    };
+    final nameMap = <String, List<int>>{};
+    for (final i in indices) {
+      final h = _hands[i];
+      nameMap.putIfAbsent(h.name, () => []).add(i);
+      if (h.playerCards.length <= h.heroIndex ||
+          h.playerCards[h.heroIndex].isEmpty) {
+        issues[_QcIssue.noHeroCards]!.add(i);
+      }
+      if (h.actions.isEmpty) issues[_QcIssue.noActions]!.add(i);
+    }
+    for (final e in nameMap.entries) {
+      if (e.value.length > 1) issues[_QcIssue.duplicateName]!.addAll(e.value);
+    }
+    String title(_QcIssue t) {
+      switch (t) {
+        case _QcIssue.duplicateName:
+          return 'Duplicate Name';
+        case _QcIssue.noHeroCards:
+          return 'No Hero Cards';
+        case _QcIssue.noActions:
+          return 'No Actions';
+      }
+    }
+    String desc(_QcIssue t) {
+      switch (t) {
+        case _QcIssue.duplicateName:
+          return 'Duplicate name';
+        case _QcIssue.noHeroCards:
+          return 'Missing hero cards';
+        case _QcIssue.noActions:
+          return 'No actions';
+      }
+    }
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text('Quality Check', style: TextStyle(color: Colors.white)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final t in _QcIssue.values)
+                if (issues[t]!.isNotEmpty)
+                  Theme(
+                    data: Theme.of(context)
+                        .copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      iconColor: Colors.white,
+                      collapsedIconColor: Colors.white,
+                      textColor: Colors.white,
+                      collapsedTextColor: Colors.white,
+                      title: Text(
+                        '${title(t)} (${issues[t]!.length})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      children: [
+                        for (final i in issues[t]!)
+                          ListTile(
+                            title: Text(
+                              _hands[i].name.isEmpty
+                                  ? '(no name)'
+                                  : _hands[i].name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Text(desc(t),
+                                style: const TextStyle(color: Colors.white70)),
+                            onLongPress: () => _previewHand(_hands[i]),
+                          ),
+                      ],
+                    ),
+                  ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: issues[_QcIssue.duplicateName]!.isEmpty
+                ? null
+                : () => Navigator.pop(context, 'dup'),
+            child: const Text('Fix duplicates'),
+          ),
+          TextButton(
+            onPressed: issues[_QcIssue.noActions]!.isEmpty
+                ? null
+                : () => Navigator.pop(context, 'empty'),
+            child: const Text('Remove empty'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (result == 'dup') {
+      _fixDuplicates(issues[_QcIssue.duplicateName]!);
+    } else if (result == 'empty') {
+      _removeEmptyHands(issues[_QcIssue.noActions]!);
+    }
+  }
+
+  void _fixDuplicates(List<int> indices) {
+    final previous = <(int, String)>[];
+    final counts = <String, int>{};
+    int changed = 0;
+    setState(() {
+      for (final i in indices) {
+        final name = _hands[i].name;
+        final c = (counts[name] ?? 0) + 1;
+        counts[name] = c;
+        if (c > 1) {
+          var suffix = c;
+          var newName = '${name}_$suffix';
+          while (_hands.any((h) => h.name == newName)) {
+            suffix++;
+            newName = '${name}_$suffix';
+          }
+          previous.add((i, name));
+          _hands[i] = _hands[i].copyWith(name: newName);
+          changed++;
+          _modified = true;
+        }
+      }
+    });
+    if (changed == 0) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Fixed $changed issues'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final e in previous) {
+                _hands[e.$1] = _hands[e.$1].copyWith(name: e.$2);
+              }
+              _modified = true;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _removeEmptyHands(List<int> indices) {
+    final removed = <(SavedHand, int)>[];
+    setState(() {
+      for (final i in indices.toList()..sort().reversed) {
+        removed.add((_hands[i], i));
+        _hands.removeAt(i);
+        _modified = true;
+      }
+    });
+    if (removed.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Fixed ${removed.length} issues'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in removed.reversed) {
+                _hands.insert(r.$2.clamp(0, _hands.length), r.$1);
+              }
+              _modified = true;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -720,6 +905,11 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 ]
               : [
                   SyncStatusIcon.of(context),
+                  IconButton(
+                    onPressed: _qualityCheck,
+                    icon: const Icon(Icons.rule),
+                    tooltip: 'Quality Check',
+                  ),
                   IconButton(
                     onPressed: _importFromRoom,
                     icon: const Icon(Icons.playlist_add),
