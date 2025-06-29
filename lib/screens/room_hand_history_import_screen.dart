@@ -133,6 +133,72 @@ class _RoomHandHistoryImportScreenState
     );
   }
 
+  void _replaceHand(SavedHand oldHand, SavedHand newHand) {
+    final i = _hands.indexWhere((e) => e.hand == oldHand);
+    if (i != -1) {
+      final dup = _hands[i].duplicate;
+      setState(() {
+        _hands[i] = _Entry(newHand, dup);
+        if (_selected.remove(oldHand)) _selected.add(newHand);
+      });
+    }
+  }
+
+  Future<void> _editTags(SavedHand hand) async {
+    final tags = hand.tags.toSet();
+    final controller = TextEditingController();
+    final result = await showDialog<List<String>>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          backgroundColor: AppColors.cardBackground,
+          title: const Text('Tags', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Wrap(
+                spacing: 4,
+                children: [
+                  for (final tag in tags)
+                    Chip(
+                      label: Text(tag, style: const TextStyle(color: Colors.white)),
+                      onDeleted: () => setStateDialog(() => tags.remove(tag)),
+                    ),
+                ],
+              ),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: const InputDecoration(hintText: 'Add tag'),
+                onSubmitted: (value) {
+                  final t = value.trim();
+                  if (t.isNotEmpty) {
+                    setStateDialog(() => tags.add(t));
+                    controller.clear();
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, tags.toList()),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+    if (result != null) {
+      _replaceHand(hand, hand.copyWith(tags: result));
+    }
+  }
+
   Future<void> _add(SavedHand hand) async {
     if (_undoActive) return;
     final updated = TrainingPack(
@@ -373,12 +439,25 @@ class _RoomHandHistoryImportScreenState
                                       ),
                                     ),
                                     title: Text(h.name,
-                                        style: const TextStyle(
-                                            color: Colors.white)),
-                                    subtitle: Text(
-                                        '${h.heroPosition} • ${h.numberOfPlayers}p',
-                                        style: const TextStyle(
-                                            color: Colors.white70)),
+                                        style: const TextStyle(color: Colors.white)),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('${h.heroPosition} • ${h.numberOfPlayers}p',
+                                            style: const TextStyle(color: Colors.white70)),
+                                        if (h.tags.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 4),
+                                            child: Wrap(
+                                              spacing: 4,
+                                              children: [
+                                                for (final t in h.tags)
+                                                  Chip(label: Text(t, style: const TextStyle(color: Colors.white)))
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
                                     trailing: IgnorePointer(
                                       ignoring: _undoActive,
                                       child: Row(
@@ -389,6 +468,10 @@ class _RoomHandHistoryImportScreenState
                                                 Icons.remove_red_eye,
                                                 color: Colors.white70),
                                             onPressed: () => _preview(h),
+                                          ),
+                                          IconButton(
+                                            icon: const Text('🏷️', style: TextStyle(fontSize: 20)),
+                                            onPressed: () => _editTags(h),
                                           ),
                                           IconButton(
                                             icon: const Icon(Icons.add,
