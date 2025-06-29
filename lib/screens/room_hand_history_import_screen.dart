@@ -327,7 +327,7 @@ class _RoomHandHistoryImportScreenState
                   ? const Center(child: Text('No hands'))
                   : Builder(builder: (context) {
                       final list = _filteredHands();
-                      return list.isEmpty
+                      final content = list.isEmpty
                           ? const Center(child: Text('No hands found'))
                           : ListView.builder(
                               itemCount: list.length,
@@ -378,6 +378,16 @@ class _RoomHandHistoryImportScreenState
                                 );
                               },
                             );
+                      return Stack(
+                        children: [
+                          content,
+                          if (_undoActive)
+                            Positioned.fill(
+                              child: Container(
+                                  color: Colors.black.withOpacity(0.05)),
+                            ),
+                        ],
+                      );
                     }),
             ),
           ],
