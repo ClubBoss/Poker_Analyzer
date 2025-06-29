@@ -1501,11 +1501,55 @@ body { font-family: sans-serif; padding: 16px; }
         TrainingSpotList(
           key: _spotListKey,
           spots: _spots,
-          onRemove: (index) {
+          onEdit: (index) async {
+            final spot = _spots[index];
+            final updated = await Navigator.push<TrainingSpot>(
+              context,
+              MaterialPageRoute(builder: (_) => SpotEditorScreen(initial: spot)),
+            );
+            if (updated == null) return;
+            setState(() => _spots[index] = updated);
+            await _saveSpots();
+            final newPack = TrainingPack(
+              name: _pack.name,
+              description: _pack.description,
+              category: _pack.category,
+              gameType: _pack.gameType,
+              colorTag: _pack.colorTag,
+              isBuiltIn: _pack.isBuiltIn,
+              tags: _pack.tags,
+              hands: _pack.hands,
+              spots: _spots,
+              difficulty: _pack.difficulty,
+              history: _pack.history,
+            );
+            await context
+                .read<TrainingPackStorageService>()
+                .updatePack(_pack, newPack);
+            setState(() => _pack = newPack);
+          },
+          onRemove: (index) async {
             setState(() {
               _spots.removeAt(index);
             });
-            _saveSpots();
+            await _saveSpots();
+            final newPack = TrainingPack(
+              name: _pack.name,
+              description: _pack.description,
+              category: _pack.category,
+              gameType: _pack.gameType,
+              colorTag: _pack.colorTag,
+              isBuiltIn: _pack.isBuiltIn,
+              tags: _pack.tags,
+              hands: _pack.hands,
+              spots: _spots,
+              difficulty: _pack.difficulty,
+              history: _pack.history,
+            );
+            await context
+                .read<TrainingPackStorageService>()
+                .updatePack(_pack, newPack);
+            setState(() => _pack = newPack);
           },
           onChanged: _saveSpots,
           onReorder: (oldIndex, newIndex) {
