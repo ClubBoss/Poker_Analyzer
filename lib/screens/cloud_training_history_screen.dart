@@ -10,6 +10,10 @@ import '../helpers/date_utils.dart';
 import '../models/cloud_training_session.dart';
 import '../models/training_result.dart';
 import '../services/cloud_training_history_service.dart';
+import '../models/training_pack.dart';
+import '../models/saved_hand.dart';
+import '../services/saved_hand_manager_service.dart';
+import 'training_pack_screen.dart';
 import '../widgets/common/accuracy_trend_chart.dart';
 import 'cloud_training_session_details_screen.dart';
 
@@ -129,6 +133,42 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
   }
 
+  Future<void> _drillTag() async {
+    final manager = context.read<SavedHandManagerService>();
+    final Map<String, SavedHand> map = {for (final h in manager.hands) h.name: h};
+    final Set<String> names = {};
+    for (final s in _getVisibleSessions()) {
+      for (final r in s.results) {
+        if (s.handTags?[r.name]?.contains(_tagFilter) ?? false) {
+          names.add(r.name);
+        }
+      }
+    }
+    final hands = [for (final n in names) if (map[n] != null) map[n]!];
+    if (hands.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Раздачи не найдены')));
+      }
+      return;
+    }
+    final pack = TrainingPack(
+      name: 'Tag Drill — $_tagFilter',
+      description: '',
+      gameType: 'Cash Game',
+      tags: const [],
+      hands: hands,
+      spots: const [],
+      difficulty: 1,
+    );
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackScreen(pack: pack, hands: hands),
+      ),
+    );
+  }
+
   List<CloudTrainingSession> _getSortedSessions() {
     final list = [..._sessions];
     switch (_sort) {
@@ -212,6 +252,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
+      floatingActionButton: _tagFilter == 'All'
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: _drillTag,
+              label: const Text('Drill Tag'),
+              icon: const Icon(Icons.fitness_center),
+            ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _sessions.isEmpty
