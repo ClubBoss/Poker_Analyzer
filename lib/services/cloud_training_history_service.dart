@@ -42,13 +42,21 @@ class CloudTrainingHistoryService {
         .delete();
   }
 
-  Future<void> updateSession(String id, Map<String, dynamic> data) async {
+  Future<void> updateSession(
+    String id, {
+    Map<String, dynamic>? data,
+    Map<String, String>? handNotes,
+    Map<String, List<String>>? handTags,
+  }) async {
     if (_uid == null) return;
+    final payload = <String, dynamic>{...?data};
+    if (handNotes != null) payload['handNotes'] = handNotes;
+    if (handTags != null) payload['handTags'] = handTags;
     await _db
         .collection('users')
         .doc(_uid)
         .collection('training_sessions')
         .doc(id)
-        .set(data, SetOptions(merge: true));
+        .set(payload, SetOptions(merge: true));
   }
 }
