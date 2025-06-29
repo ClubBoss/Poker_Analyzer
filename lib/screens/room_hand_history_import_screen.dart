@@ -214,7 +214,9 @@ class _RoomHandHistoryImportScreenState
       action: SnackBarAction(label: 'Undo', onPressed: _undoAdd),
       duration: const Duration(seconds: 5),
     );
-    final controller = ScaffoldMessenger.of(context).showSnackBar(snack);
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    final controller = messenger.showSnackBar(snack);
     controller.closed.then((_) {
       if (mounted && _undoHands != null) setState(() => _undoHands = null);
     });
