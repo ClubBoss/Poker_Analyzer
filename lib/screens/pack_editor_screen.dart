@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/tag_service.dart';
+import '../helpers/color_utils.dart';
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
@@ -15,6 +16,7 @@ import 'room_hand_history_editor_screen.dart';
 import '../widgets/sync_status_widget.dart';
 
 enum _SortOption { newest, oldest, position, tags, mistakes }
+enum _MistakeFilter { any, zero, oneTwo, threePlus }
 
 class PackEditorScreen extends StatefulWidget {
   final TrainingPack pack;
@@ -37,6 +39,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   _SortOption _sort = _SortOption.newest;
+  static const _tagKey = 'pack_editor_tag_filter';
+  static const _mistakeKey = 'pack_editor_mistake_filter';
+  String? _tagFilter;
+  _MistakeFilter _mistakeFilter = _MistakeFilter.any;
 
   @override
   void initState() {
@@ -50,6 +56,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     setState(() {
       _sort = _SortOption.values[prefs.getInt(_sortKey) ?? 0];
       _searchController.text = prefs.getString(_searchKey) ?? '';
+      _tagFilter = prefs.getString(_tagKey);
+      final m = prefs.getInt(_mistakeKey) ?? 0;
+      _mistakeFilter = _MistakeFilter.values[m.clamp(0, _MistakeFilter.values.length - 1)];
     });
   }
 
@@ -450,6 +459,24 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (query.isNotEmpty) {
       list.retainWhere((i) => _hands[i].name.toLowerCase().contains(query));
     }
+    if (_tagFilter != null) {
+      list.retainWhere((i) => _hands[i].tags.contains(_tagFilter));
+    }
+    if (_mistakeFilter != _MistakeFilter.any) {
+      list.retainWhere((i) {
+        final m = _mistakeCount(_hands[i]);
+        switch (_mistakeFilter) {
+          case _MistakeFilter.zero:
+            return m == 0;
+          case _MistakeFilter.oneTwo:
+            return m >= 1 && m <= 2;
+          case _MistakeFilter.threePlus:
+            return m >= 3;
+          case _MistakeFilter.any:
+            return true;
+        }
+      });
+    }
     int posIdx(String p) {
       const order = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
       return order.indexOf(p);
@@ -539,6 +566,22 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await prefs.setString(_searchKey, value);
   }
 
+  Future<void> _setTagFilter(String? value) async {
+    setState(() => _tagFilter = value);
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null) {
+      await prefs.remove(_tagKey);
+    } else {
+      await prefs.setString(_tagKey, value);
+    }
+  }
+
+  Future<void> _setMistakeFilter(_MistakeFilter value) async {
+    setState(() => _mistakeFilter = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_mistakeKey, value.index);
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -616,6 +659,79 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   DropdownMenuItem(value: _SortOption.position, child: Text('Hero Pos')),
                   DropdownMenuItem(value: _SortOption.tags, child: Text('Tags')),
                   DropdownMenuItem(value: _SortOption.mistakes, child: Text('Mistakes')),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 36,
+              child: Consumer<TagService>(
+                builder: (context, service, _) {
+                  final tags = service.tags;
+                  return ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ChoiceChip(
+                          label: const Text('All'),
+                          selected: _tagFilter == null,
+                          onSelected: (_) => _setTagFilter(null),
+                        ),
+                      ),
+                      for (final t in tags)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: ChoiceChip(
+                            label: Text(t),
+                            selected: _tagFilter == t,
+                            selectedColor: colorFromHex(service.colorOf(t)),
+                            onSelected: (_) => _setTagFilter(t),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            SizedBox(
+              height: 36,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ChoiceChip(
+                      label: const Text('Any'),
+                      selected: _mistakeFilter == _MistakeFilter.any,
+                      onSelected: (_) => _setMistakeFilter(_MistakeFilter.any),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ChoiceChip(
+                      label: const Text('0'),
+                      selected: _mistakeFilter == _MistakeFilter.zero,
+                      onSelected: (_) => _setMistakeFilter(_MistakeFilter.zero),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ChoiceChip(
+                      label: const Text('1-2'),
+                      selected: _mistakeFilter == _MistakeFilter.oneTwo,
+                      onSelected: (_) => _setMistakeFilter(_MistakeFilter.oneTwo),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ChoiceChip(
+                      label: const Text('3+'),
+                      selected: _mistakeFilter == _MistakeFilter.threePlus,
+                      onSelected: (_) => _setMistakeFilter(_MistakeFilter.threePlus),
+                    ),
+                  ),
                 ],
               ),
             ),
