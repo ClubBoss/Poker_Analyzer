@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -22,13 +23,16 @@ class RoomHandHistoryImportScreen extends StatefulWidget {
   const RoomHandHistoryImportScreen({super.key, required this.pack});
 
   @override
-  State<RoomHandHistoryImportScreen> createState() => _RoomHandHistoryImportScreenState();
+  State<RoomHandHistoryImportScreen> createState() =>
+      _RoomHandHistoryImportScreenState();
 }
 
-class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScreen> {
+class _RoomHandHistoryImportScreenState
+    extends State<RoomHandHistoryImportScreen> {
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
-  final List<_Entry> _hands = [];
+  Timer? _searchDebounce;
+  late List<_Entry> _hands;
   late TrainingPack _pack;
   RoomHandHistoryImporter? _importer;
   final Set<SavedHand> _selected = {};
@@ -37,6 +41,7 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
 
   bool get _selectionMode => _selected.isNotEmpty;
   bool get _undoActive => _undoHands != null;
+  bool get _canAdd => _selectionMode && !_undoActive;
 
   void _toggleSelect(SavedHand hand) {
     setState(() {
@@ -52,6 +57,7 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
   void initState() {
     super.initState();
     _pack = widget.pack;
+    _hands = [];
     RoomHandHistoryImporter.create().then((i) {
       if (mounted) setState(() => _importer = i);
     });
@@ -61,7 +67,15 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
   void dispose() {
     _controller.dispose();
     _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 200), () {
+      if (mounted) setState(() {});
+    });
   }
 
   void _parse() {
@@ -76,9 +90,7 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
       items.add(_Entry(h, dup));
     }
     setState(() {
-      _hands
-        ..clear()
-        ..addAll(items);
+      _hands = items;
       _selected.clear();
       _searchController.clear();
       _filter = items.every((e) => e.duplicate) ? _Filter.dup : _Filter.newOnly;
@@ -106,11 +118,15 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(hand.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(hand.name,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('${hand.heroPosition} • ${hand.numberOfPlayers}p', style: const TextStyle(color: Colors.white70)),
+            Text('${hand.heroPosition} • ${hand.numberOfPlayers}p',
+                style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            Text('Actions: ${hand.actions.length}', style: const TextStyle(color: Colors.white70)),
+            Text('Actions: ${hand.actions.length}',
+                style: const TextStyle(color: Colors.white70)),
           ],
         ),
       ),
@@ -137,7 +153,9 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
     if (!mounted) return;
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => RoomHandHistoryEditorScreen(pack: _pack, hands: [hand])),
+      MaterialPageRoute(
+          builder: (_) =>
+              RoomHandHistoryEditorScreen(pack: _pack, hands: [hand])),
     );
   }
 
@@ -166,8 +184,9 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
 
   Future<void> _addSelected() async {
     if (_undoActive) return;
-    final unique =
-        _selected.where((h) => !_pack.hands.any((e) => e.name == h.name)).toList();
+    final unique = _selected
+        .where((h) => !_pack.hands.any((e) => e.name == h.name))
+        .toList();
     final count = unique.length;
     if (count == 0) return;
     final updated = TrainingPack(
@@ -227,10 +246,11 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
 
   @override
   Widget build(BuildContext context) {
+    final hidden = _filter == _Filter.dup ? 0 : _hiddenDupCount;
     return Scaffold(
       appBar: AppBar(title: Text(_pack.name), centerTitle: true),
       backgroundColor: AppColors.background,
-      bottomNavigationBar: _selectionMode || _hiddenDupCount > 0
+      bottomNavigationBar: _selectionMode || hidden > 0
           ? BottomAppBar(
               child: Padding(
                 padding: const EdgeInsets.all(8),
@@ -239,13 +259,13 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
                     if (_selectionMode)
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _addSelected,
+                          onPressed: _canAdd ? _addSelected : null,
                           child: const Text('Add Selected'),
                         ),
                       ),
-                    if (_hiddenDupCount > 0) ...[
+                    if (hidden > 0) ...[
                       if (_selectionMode) const SizedBox(width: 12),
-                      Text('Hidden duplicates: $_hiddenDupCount'),
+                      Text('Hidden duplicates: $hidden'),
                     ]
                   ],
                 ),
@@ -281,7 +301,8 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
                   ChoiceChip(
                     label: const Text('New'),
                     selected: _filter == _Filter.newOnly,
-                    onSelected: (_) => setState(() => _filter = _Filter.newOnly),
+                    onSelected: (_) =>
+                        setState(() => _filter = _Filter.newOnly),
                   ),
                   const SizedBox(width: 8),
                   ChoiceChip(
@@ -293,8 +314,9 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
                   Expanded(
                     child: TextField(
                       controller: _searchController,
-                      decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Search'),
-                      onChanged: (_) => setState(() {}),
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search), hintText: 'Search'),
+                      onChanged: (_) => _onSearchChanged(),
                     ),
                   ),
                 ],
@@ -313,32 +335,47 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
                                 final entry = list[i];
                                 final h = entry.hand;
                                 return Card(
-                          color: entry.duplicate
-                              ? AppColors.errorBg
-                              : AppColors.cardBackground,
-                          margin: const EdgeInsets.symmetric(vertical: 6),
-                          child: ListTile(
-                            leading: Checkbox(
-                              value: _selected.contains(h),
-                              onChanged: (_) => _toggleSelect(h),
-                            ),
-                            title: Text(h.name, style: const TextStyle(color: Colors.white)),
-                            subtitle: Text('${h.heroPosition} • ${h.numberOfPlayers}p', style: const TextStyle(color: Colors.white70)),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove_red_eye, color: Colors.white70),
-                                  onPressed: () => _preview(h),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add, color: Colors.white70),
-                                  onPressed: () => _add(h),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+                                  color: entry.duplicate
+                                      ? AppColors.errorBg
+                                      : AppColors.cardBackground,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 6),
+                                  child: ListTile(
+                                    leading: IgnorePointer(
+                                      ignoring: _undoActive,
+                                      child: Checkbox(
+                                        value: _selected.contains(h),
+                                        onChanged: (_) => _toggleSelect(h),
+                                      ),
+                                    ),
+                                    title: Text(h.name,
+                                        style: const TextStyle(
+                                            color: Colors.white)),
+                                    subtitle: Text(
+                                        '${h.heroPosition} • ${h.numberOfPlayers}p',
+                                        style: const TextStyle(
+                                            color: Colors.white70)),
+                                    trailing: IgnorePointer(
+                                      ignoring: _undoActive,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                                Icons.remove_red_eye,
+                                                color: Colors.white70),
+                                            onPressed: () => _preview(h),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.add,
+                                                color: Colors.white70),
+                                            onPressed: () => _add(h),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
                               },
                             );
                     }),
