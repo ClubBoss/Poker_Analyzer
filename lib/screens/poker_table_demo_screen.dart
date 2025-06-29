@@ -16,6 +16,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   int _playerCount = 6;
   late List<String> _names;
   late List<double> _stacks;
+  late List<PlayerAction> _actions;
   int _heroIndex = 0;
   double _pot = 0.0;
   TableTheme _theme = TableTheme.green;
@@ -39,6 +40,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   void _reset() {
     _names = List.generate(_playerCount, (i) => 'Player ${i + 1}');
     _stacks = List.filled(_playerCount, 0.0);
+    _actions = List.filled(_playerCount, PlayerAction.none);
     _heroIndex = 0;
     _pot = 0.0;
   }
@@ -59,6 +61,12 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
       } else if (_stacks.length > _playerCount) {
         _stacks = _stacks.sublist(0, _playerCount);
       }
+      if (_actions.length < _playerCount) {
+        _actions.addAll(
+            List.filled(_playerCount - _actions.length, PlayerAction.none));
+      } else if (_actions.length > _playerCount) {
+        _actions = _actions.sublist(0, _playerCount);
+      }
       if (_heroIndex >= _playerCount) _heroIndex = _playerCount - 1;
     });
   }
@@ -77,6 +85,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
       _playerCount = s.playerCount;
       _names = List<String>.from(s.names);
       _stacks = List<double>.from(s.stacks);
+      _actions = List.filled(_playerCount, PlayerAction.none);
       _heroIndex = s.heroIndex;
       _pot = s.pot;
     });
@@ -164,6 +173,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
               playerCount: _playerCount,
               playerNames: _names,
               playerStacks: _stacks,
+              playerActions: _actions,
               onHeroSelected: (i) {
                 _history.push(_state);
                 setState(() => _heroIndex = i);
@@ -176,6 +186,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
                 _history.push(_state);
                 setState(() => _names[i] = v);
               },
+              onActionChanged: (i, a) => setState(() => _actions[i] = a),
               potSize: _pot,
               onPotChanged: (v) {
                 _history.push(_state);
