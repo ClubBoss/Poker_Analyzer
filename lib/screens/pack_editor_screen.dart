@@ -146,11 +146,11 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         final data = jsonDecode(raw) as Map<String, dynamic>;
         final list = data[widget.pack.id];
         if (list is List) {
+          final order = [
+            for (final v in list) Map<String, dynamic>.from(v as Map)
+          ];
           setState(() {
-            _views = [
-              for (final v in list)
-                ViewPreset.fromJson(Map<String, dynamic>.from(v as Map))
-            ];
+            _views = [for (final m in order) ViewPreset.fromJson(m)];
           });
         }
       } catch (_) {}
@@ -1207,7 +1207,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         data = jsonDecode(raw) as Map<String, dynamic>;
       } catch (_) {}
     }
-    data[widget.pack.id] = [for (final v in _views) v.toJson()];
+    data[widget.pack.id] = _views.map((e) => e.toJson()).toList();
     await prefs.setString(_viewsKey, jsonEncode(data));
   }
 

@@ -60,8 +60,8 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
       if (newIndex > oldIndex) newIndex -= 1;
       final v = _views.removeAt(oldIndex);
       _views.insert(newIndex, v);
+      widget.onChanged(_views);
     });
-    widget.onChanged(_views);
   }
 
   @override
