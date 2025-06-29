@@ -93,7 +93,19 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
       ),
     );
     if (confirm == true) {
-      await context.read<TrainingPackStorageService>().removePack(pack);
+      final result = await context.read<TrainingPackStorageService>().removePack(pack);
+      if (result != null && mounted) {
+        final snack = SnackBar(
+          content: const Text('Пак удалён'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () =>
+                context.read<TrainingPackStorageService>().restorePack(result.\$1, result.\$2),
+          ),
+          duration: const Duration(seconds: 5),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snack);
+      }
     }
   }
 
