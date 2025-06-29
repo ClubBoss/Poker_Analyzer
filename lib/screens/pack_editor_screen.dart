@@ -2445,6 +2445,51 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         ),
         body: Column(
           children: [
+            if (_tagFilter != null ||
+                _heroPosFilter != null ||
+                _mistakeFilter != _MistakeFilter.any)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    if (_tagFilter != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Chip(
+                          label: Text(_tagFilter!),
+                          backgroundColor: colorFromHex(
+                              context.read<TagService>().colorOf(_tagFilter!)),
+                          onDeleted: () => _setTagFilter(null),
+                        ),
+                      ),
+                    if (_heroPosFilter != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Chip(
+                          label: Text(_heroPosFilter!),
+                          onDeleted: () => _setHeroFilter(null),
+                        ),
+                      ),
+                    if (_mistakeFilter != _MistakeFilter.any)
+                      Chip(
+                        label: Text(() {
+                          switch (_mistakeFilter) {
+                            case _MistakeFilter.zero:
+                              return '0';
+                            case _MistakeFilter.oneTwo:
+                              return '1-2';
+                            case _MistakeFilter.threePlus:
+                              return '3+';
+                            case _MistakeFilter.any:
+                              return 'Any';
+                          }
+                        }()),
+                        onDeleted: () =>
+                            _setMistakeFilter(_MistakeFilter.any),
+                      ),
+                  ],
+                ),
+              ),
             if (_showSearch)
               Padding(
                 padding: const EdgeInsets.all(16),
