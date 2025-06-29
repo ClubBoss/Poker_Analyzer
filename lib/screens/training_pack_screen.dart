@@ -117,7 +117,8 @@ class TrainingPackScreen extends StatefulWidget {
   State<TrainingPackScreen> createState() => _TrainingPackScreenState();
 }
 
-class _TrainingPackScreenState extends State<TrainingPackScreen> {
+class _TrainingPackScreenState extends State<TrainingPackScreen>
+    with SingleTickerProviderStateMixin {
   final GlobalKey _analyzerKey = GlobalKey();
   final GlobalKey<TrainingSpotListState> _spotListKey =
       GlobalKey<TrainingSpotListState>();
@@ -140,6 +141,8 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   List<_SessionSummary> _history = [];
   String? _sessionComment;
 
+  late TabController _tabs;
+
   final TrainingImportExportService _importExportService =
       const TrainingImportExportService();
   final TrainingSpotFileService _spotFileService =
@@ -150,6 +153,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen> {
   @override
   void initState() {
     super.initState();
+    _tabs = TabController(length: 3, vsync: this);
     _spotStorageService = TrainingSpotStorageService(
       cloud: context.read<CloudSyncService>(),
     );
@@ -1663,6 +1667,111 @@ body { font-family: sans-serif; padding: 16px; }
     );
   }
 
+  Widget _buildStats() {
+    final data = [..._pack.history]..sort((a, b) => a.date.compareTo(b.date));
+    if (data.isEmpty) {
+      return const Center(child: Text('No stats'));
+    }
+    final spots = <FlSpot>[];
+    double sum = 0;
+    for (var i = 0; i < data.length; i++) {
+      final acc = data[i].total == 0
+          ? 0.0
+          : data[i].correct * 100 / data[i].total;
+      sum += acc;
+      spots.add(FlSpot(i.toDouble(), acc));
+    }
+    final avg = sum / data.length;
+    final step = (data.length / 6).ceil();
+    final line = LineChartBarData(
+      spots: spots,
+      isCurved: true,
+      color: Colors.greenAccent,
+      barWidth: 2,
+      dotData: FlDotData(show: false),
+    );
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.greenAccent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${avg.toStringAsFixed(1)}%',
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: LineChart(
+              LineChartData(
+                minY: 0,
+                maxY: 100,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 20,
+                  getDrawingHorizontalLine: (value) =>
+                      FlLine(color: Colors.white24, strokeWidth: 1),
+                ),
+                titlesData: FlTitlesData(
+                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 20,
+                      reservedSize: 30,
+                      getTitlesWidget: (value, meta) => Text(
+                        value.toInt().toString(),
+                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                      ),
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        final i = value.toInt();
+                        if (i < 0 || i >= data.length) return const SizedBox.shrink();
+                        if (i % step != 0 && i != data.length - 1) {
+                          return const SizedBox.shrink();
+                        }
+                        final d = data[i].date;
+                        final label =
+                            '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                        return Text(
+                          label,
+                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: const Border(
+                    left: BorderSide(color: Colors.white24),
+                    bottom: BorderSide(color: Colors.white24),
+                  ),
+                ),
+                lineBarsData: [line],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hands = _sessionHands;
@@ -1922,7 +2031,7 @@ body { font-family: sans-serif; padding: 16px; }
             ],
           ),
           centerTitle: true,
-          actions: [SyncStatusIcon.of(context), 
+          actions: [SyncStatusIcon.of(context),
             if (_pack.pctComplete > 0 && _pack.pctComplete < 1)
               IconButton(
                 icon: const Icon(Icons.play_arrow),
@@ -1974,20 +2083,69 @@ body { font-family: sans-serif; padding: 16px; }
               ],
             ),
           ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(48),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBackground,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TabBar(
+                  controller: _tabs,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.white70,
+                  indicator: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicatorPadding: EdgeInsets.zero,
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                  tabs: const [
+                    Tab(text: 'Play'),
+                    Tab(text: 'History'),
+                    Tab(text: 'Stats'),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
-        body: Column(
+        body: TabBarView(
+          controller: _tabs,
           children: [
-            _buildInfoCard(),
-            Expanded(child: content),
+            Column(
+              children: [
+                _buildInfoCard(),
+                Expanded(child: content),
+              ],
+            ),
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: _buildHistory(),
+            ),
+            _buildStats(),
           ],
         ),
         backgroundColor: const Color(0xFF1B1C1E),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _addSpot,
-          label: const Text('＋ Spot'),
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _addSpot,
+        label: const Text('＋ Spot'),
+      ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _tabs.dispose();
+    super.dispose();
   }
 }
 
