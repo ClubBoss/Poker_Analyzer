@@ -109,6 +109,11 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
     if (s != null) _applyState(s);
   }
 
+  void _resetActions() => setState(() {
+        _actions = List.filled(_playerCount, PlayerAction.none);
+        _bets = List.filled(_playerCount, 0.0);
+      });
+
   Future<void> _copyJson() async {
     final jsonStr = jsonEncode(_state.toJson());
     await Clipboard.setData(ClipboardData(text: jsonStr));
@@ -168,6 +173,7 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
             onPressed: _pasteJson,
             tooltip: 'Paste JSON',
           ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _resetActions),
           IconButton(icon: const Icon(Icons.color_lens), onPressed: _nextTheme),
           IconButton(icon: const Icon(Icons.clear), onPressed: _clear),
         ],
@@ -220,6 +226,11 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
                   icon: const Icon(Icons.add),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _resetActions,
+              child: const Text('Reset Actions'),
             ),
           ],
         ),
