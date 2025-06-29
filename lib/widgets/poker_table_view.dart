@@ -4,6 +4,7 @@ import '../helpers/poker_position_helper.dart';
 import 'poker_table_painter.dart';
 import 'analyzer/player_zone_widget.dart';
 import 'position_label.dart';
+import 'pot_chip_stack_painter.dart';
 
 class PokerTableView extends StatefulWidget {
   final int heroIndex;
@@ -52,13 +53,25 @@ class _PokerTableViewState extends State<PokerTableView> {
       Positioned.fill(child: CustomPaint(painter: PokerTablePainter())),
       Positioned.fill(
         child: Center(
-          child: GestureDetector(
-            onTap: () async {
-              final controller =
-                  TextEditingController(text: widget.potSize.toString());
-              final result = await showDialog<double>(
-                context: context,
-                builder: (context) => AlertDialog(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 24 * widget.scale,
+                height:
+                    24 * widget.scale + 3 * 24 * widget.scale * 0.35,
+                child: CustomPaint(
+                  painter:
+                      PotChipStackPainter(chipCount: 4, color: Colors.orange),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  final controller =
+                      TextEditingController(text: widget.potSize.toString());
+                  final result = await showDialog<double>(
+                    context: context,
+                    builder: (context) => AlertDialog(
                   backgroundColor: Colors.black.withOpacity(0.3),
                   title:
                       const Text('Edit Pot', style: TextStyle(color: Colors.white)),
@@ -97,13 +110,18 @@ class _PokerTableViewState extends State<PokerTableView> {
                 setState(() {});
               }
             },
-            child: Text(
-              'Pot: ${widget.potSize.toStringAsFixed(1)} BB',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 12 * widget.scale),
+                  child: Text(
+                    'Pot: ${widget.potSize.toStringAsFixed(1)} BB',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
