@@ -9,12 +9,14 @@ class PokerTableView extends StatefulWidget {
   final int heroIndex;
   final int playerCount;
   final List<String> playerNames;
+  final void Function(int index) onHeroSelected;
   final double scale;
   const PokerTableView({
     super.key,
     required this.heroIndex,
     required this.playerCount,
     required this.playerNames,
+    required this.onHeroSelected,
     this.scale = 1.0,
   });
 
@@ -45,16 +47,19 @@ class _PokerTableViewState extends State<PokerTableView> {
       items.add(Positioned(
         left: offset.dx,
         top: offset.dy,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: ScaleTransition(scale: animation, child: child),
-          ),
-          child: PlayerAvatar(
-            key: ValueKey('avatar_${widget.playerNames[i]}_${i == widget.heroIndex}'),
-            name: widget.playerNames[i],
-            isHero: i == widget.heroIndex,
+        child: GestureDetector(
+          onTap: () => widget.onHeroSelected(i),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(scale: animation, child: child),
+            ),
+            child: PlayerAvatar(
+              key: ValueKey('avatar_${widget.playerNames[i]}_${i == widget.heroIndex}'),
+              name: widget.playerNames[i],
+              isHero: i == widget.heroIndex,
+            ),
           ),
         ),
       ));
