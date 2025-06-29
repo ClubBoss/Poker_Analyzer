@@ -16,9 +16,11 @@ void main() {
           playerNames: const ['A', 'B'],
           playerStacks: const [0.0, 0.0],
           playerActions: actions,
+          playerBets: const [0.0, 0.0],
           onHeroSelected: (_) {},
           onStackChanged: (_, __) {},
           onNameChanged: (_, __) {},
+          onBetChanged: (_, __) {},
           onActionChanged: (i, a) {
             actions[i] = a;
             changed = a;
