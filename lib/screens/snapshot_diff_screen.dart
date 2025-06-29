@@ -76,6 +76,42 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
     return parts.join(', ');
   }
 
+  Future<void> _previewHand(SavedHand hand) async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              hand.name.isEmpty ? 'Untitled' : hand.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${hand.heroPosition} • ${hand.numberOfPlayers}p',
+              style: const TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Actions: ${hand.actions.length}',
+              style: const TextStyle(color: Colors.white70),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _apply() async {
     final add = _selAdd.toList();
     final rem = _selRem.toList();
@@ -162,6 +198,7 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
                           _selAdd.remove(h);
                         }
                       }),
+                      onLongPress: () => _previewHand(h),
                       title: Text(h.name.isEmpty ? 'Untitled' : h.name),
                     ),
                 ],
@@ -178,6 +215,7 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
                           _selRem.remove(h);
                         }
                       }),
+                      onLongPress: () => _previewHand(h),
                       title: Text(h.name.isEmpty ? 'Untitled' : h.name),
                     ),
                 ],
@@ -194,6 +232,7 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
                           _selMod.remove(m);
                         }
                       }),
+                      onLongPress: () => _previewHand(m.newHand),
                       title: Text(m.newHand.name.isEmpty ? 'Untitled' : m.newHand.name),
                       subtitle: Text(_sub(m)),
                     ),
