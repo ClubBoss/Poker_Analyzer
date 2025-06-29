@@ -99,12 +99,16 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   List<_Command> _commands = [];
   bool _filtersVisible = true;
   bool _filterConflict = false;
+  List<List<SavedHand>> _history = [];
+  int _historyIndex = 0;
+  bool _skipHistory = false;
 
   @override
   void setState(VoidCallback fn) {
     super.setState(() {
       fn();
       _detectDuplicates();
+      if (!_skipHistory) _pushHistory();
     });
   }
 
@@ -115,6 +119,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     _packTags = List.from(widget.pack.tags);
     _packRef = widget.pack;
     _detectDuplicates();
+    _history = [List.from(_hands)];
+    _historyIndex = 0;
     _loadPrefs();
   }
 
@@ -451,6 +457,30 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (_selected.length == 1) {
       final i = _hands.indexOf(_selected.first);
       if (i < _hands.length - 1) _reorder(i, i + 1);
+    }
+  }
+
+  void _undo() {
+    if (_historyIndex > 0) {
+      _skipHistory = true;
+      setState(() {
+        _historyIndex--;
+        _hands = [for (final h in _history[_historyIndex]) h];
+        _rebuildStats();
+      });
+      _skipHistory = false;
+    }
+  }
+
+  void _redo() {
+    if (_historyIndex < _history.length - 1) {
+      _skipHistory = true;
+      setState(() {
+        _historyIndex++;
+        _hands = [for (final h in _history[_historyIndex]) h];
+        _rebuildStats();
+      });
+      _skipHistory = false;
     }
   }
 
@@ -875,6 +905,25 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     }
     _hands = list;
     _dupCount = dup;
+  }
+
+  bool _handsEqual(List<SavedHand> a, List<SavedHand> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (!mapEquals(a[i].toJson(), b[i].toJson())) return false;
+    }
+    return true;
+  }
+
+  void _pushHistory() {
+    final snap = [for (final h in _hands) h];
+    if (_history.isNotEmpty && _handsEqual(_history[_historyIndex], snap)) return;
+    if (_historyIndex < _history.length - 1) {
+      _history.removeRange(_historyIndex + 1, _history.length);
+    }
+    _history.add(snap);
+    if (_history.length > 20) _history.removeAt(0);
+    _historyIndex = _history.length - 1;
   }
 
   void _rebuildStats() {
@@ -1980,6 +2029,15 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 ]
               : [
                   SyncStatusIcon.of(context),
+                  IconButton(
+                    onPressed: _historyIndex > 0 ? _undo : null,
+                    icon: const Icon(Icons.undo),
+                  ),
+                  IconButton(
+                    onPressed:
+                        _historyIndex < _history.length - 1 ? _redo : null,
+                    icon: const Icon(Icons.redo),
+                  ),
                   IconButton(
                     onPressed: _showCommandPalette,
                     icon: const Icon(Icons.settings_suggest),
