@@ -104,15 +104,14 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
                   for (int i = 0; i < filtered.length; i++)
                     ListTile(
                       key: ValueKey(filtered[i].id),
+                      leading: ReorderableDragStartListener(
+                        index: i,
+                        child: const Icon(Icons.drag_handle),
+                      ),
                       title: Text(filtered[i].name),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          ReorderableDragStartListener(
-                            key: Key(filtered[i].id),
-                            index: i,
-                            child: const Icon(Icons.drag_handle),
-                          ),
                           IconButton(icon: const Icon(Icons.edit), onPressed: () => _rename(filtered[i])),
                           IconButton(icon: const Icon(Icons.delete), onPressed: () => _delete(filtered[i])),
                         ],
