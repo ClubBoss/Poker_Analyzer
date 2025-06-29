@@ -5,12 +5,16 @@ import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/tag_service.dart';
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
 import 'room_hand_history_import_screen.dart';
 import 'room_hand_history_editor_screen.dart';
 import '../widgets/sync_status_widget.dart';
+
+enum _SortOption { newest, oldest, position, tags, mistakes }
 
 class PackEditorScreen extends StatefulWidget {
   final TrainingPack pack;
@@ -21,15 +25,32 @@ class PackEditorScreen extends StatefulWidget {
 }
 
 class _PackEditorScreenState extends State<PackEditorScreen> {
+  static const _sortKey = 'pack_editor_sort';
+  static const _searchKey = 'pack_editor_search';
+
   late List<SavedHand> _hands;
   bool _modified = false;
   SavedHand? _removed;
   int _removedIndex = -1;
+  final Set<SavedHand> _selected = {};
+  bool get _selectionMode => _selected.isNotEmpty;
+  final TextEditingController _searchController = TextEditingController();
+
+  _SortOption _sort = _SortOption.newest;
 
   @override
   void initState() {
     super.initState();
     _hands = List.from(widget.pack.hands);
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _sort = _SortOption.values[prefs.getInt(_sortKey) ?? 0];
+      _searchController.text = prefs.getString(_searchKey) ?? '';
+    });
   }
 
   List<String> _parseCsvLine(String line) {
@@ -228,6 +249,226 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     });
   }
 
+  void _toggleSelect(SavedHand hand) {
+    setState(() {
+      if (_selected.contains(hand)) {
+        _selected.remove(hand);
+      } else {
+        _selected.add(hand);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() => _selected.clear());
+  }
+
+  void _deleteSelected() {
+    final removed = <(SavedHand, int)>[];
+    setState(() {
+      for (final h in _selected) {
+        final i = _hands.indexOf(h);
+        if (i != -1) {
+          removed.add((h, i));
+          _hands.removeAt(i);
+          _modified = true;
+        }
+      }
+      _selected.clear();
+    });
+    if (removed.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Раздачи удалены'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in removed.reversed) {
+                _hands.insert(r.$2.clamp(0, _hands.length), r.$1);
+              }
+              _modified = true;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _applyTagToSelected(String tag) {
+    setState(() {
+      for (final h in _selected) {
+        final set = {...h.tags, tag};
+        final idx = _hands.indexOf(h);
+        if (idx != -1) {
+          _hands[idx] = h.copyWith(tags: set.toList());
+          _modified = true;
+        }
+      }
+    });
+  }
+
+  void _removeTagFromSelected(String tag) {
+    setState(() {
+      for (final h in _selected) {
+        if (h.tags.contains(tag)) {
+          final list = List<String>.from(h.tags)..remove(tag);
+          final idx = _hands.indexOf(h);
+          if (idx != -1) {
+            _hands[idx] = h.copyWith(tags: list);
+            _modified = true;
+          }
+        }
+      }
+    });
+  }
+
+  Future<void> _addTagDialog() async {
+    final allTags = context.read<TagService>().tags;
+    final c = TextEditingController();
+    String? selected;
+    final tag = await showDialog<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text('Add Tag', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Wrap(
+                spacing: 4,
+                children: [
+                  for (final t in allTags)
+                    ChoiceChip(
+                      label: Text(t, style: const TextStyle(color: Colors.white)),
+                      selected: selected == t,
+                      selectedColor:
+                          Colors.primaries[t.hashCode % Colors.primaries.length],
+                      onSelected: (_) => setStateDialog(() => selected = t),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Autocomplete<String>(
+                optionsBuilder: (v) {
+                  final input = v.text.toLowerCase();
+                  if (input.isEmpty) return allTags;
+                  return allTags.where((e) => e.toLowerCase().contains(input));
+                },
+                onSelected: (s) => setStateDialog(() => selected = s),
+                fieldViewBuilder: (context, controller, focusNode, _) {
+                  controller.text = c.text;
+                  controller.selection = c.selection;
+                  controller.addListener(() {
+                    if (c.text != controller.text) c.value = controller.value;
+                  });
+                  c.addListener(() {
+                    if (controller.text != c.text) controller.value = c.value;
+                  });
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(hintText: 'Tag'),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, selected ?? c.text.trim()),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    c.dispose();
+    if (tag != null && tag.isNotEmpty) _applyTagToSelected(tag);
+  }
+
+  Future<void> _removeTagDialog() async {
+    final allTags = context.read<TagService>().tags;
+    String? selected;
+    final tag = await showDialog<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text('Remove Tag', style: TextStyle(color: Colors.white)),
+          content: Wrap(
+            spacing: 4,
+            children: [
+              for (final t in allTags)
+                ChoiceChip(
+                  label: Text(t, style: const TextStyle(color: Colors.white)),
+                  selected: selected == t,
+                  selectedColor:
+                      Colors.primaries[t.hashCode % Colors.primaries.length],
+                  onSelected: (_) => setStateDialog(() => selected = t),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, selected),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (tag != null && tag.isNotEmpty) _removeTagFromSelected(tag);
+  }
+
+  List<int> _visibleIndices() {
+    final query = _searchController.text.toLowerCase();
+    final list = <int>[for (int i = 0; i < _hands.length; i++) i];
+    if (query.isNotEmpty) {
+      list.retainWhere((i) => _hands[i].name.toLowerCase().contains(query));
+    }
+    int posIdx(String p) {
+      const order = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
+      return order.indexOf(p);
+    }
+    list.sort((a, b) {
+      final A = _hands[a];
+      final B = _hands[b];
+      switch (_sort) {
+        case _SortOption.newest:
+          return B.savedAt.compareTo(A.savedAt);
+        case _SortOption.oldest:
+          return A.savedAt.compareTo(B.savedAt);
+        case _SortOption.position:
+          final ai = posIdx(A.heroPosition);
+          final bi = posIdx(B.heroPosition);
+          if (ai != bi) return ai.compareTo(bi);
+          return B.savedAt.compareTo(A.savedAt);
+        case _SortOption.tags:
+          final at = A.tags.isEmpty ? '' : A.tags.first;
+          final bt = B.tags.isEmpty ? '' : B.tags.first;
+          final c = at.compareTo(bt);
+          if (c != 0) return c;
+          return B.savedAt.compareTo(A.savedAt);
+        case _SortOption.mistakes:
+          final am = A.actions.length;
+          final bm = B.actions.length;
+          if (am != bm) return bm.compareTo(am);
+          return B.savedAt.compareTo(A.savedAt);
+      }
+    });
+    return list;
+  }
+
   Future<bool> _onWillPop() async {
     if (!_modified) return true;
     final save = await showDialog<bool>(
@@ -272,33 +513,110 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (mounted) Navigator.pop(context, true);
   }
 
+  Future<void> _setSort(_SortOption value) async {
+    setState(() => _sort = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_sortKey, value.index);
+  }
+
+  Future<void> _setSearch(String value) async {
+    setState(() {});
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_searchKey, value);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.pack.name),
-          actions: [
-            SyncStatusIcon.of(context),
-            IconButton(
-              onPressed: _importFromRoom,
-              icon: const Icon(Icons.playlist_add),
-            ),
-            IconButton(
-              onPressed: _hands.isEmpty ? null : _save,
-              icon: const Icon(Icons.check),
-            )
-          ],
+          leading: _selectionMode
+              ? IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: _clearSelection,
+                )
+              : null,
+          title: Text(
+              _selectionMode ? '${_selected.length}' : widget.pack.name),
+          actions: _selectionMode
+              ? [
+                  IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
+                  IconButton(onPressed: _addTagDialog, icon: const Icon(Icons.label)),
+                  IconButton(onPressed: _removeTagDialog, icon: const Icon(Icons.label_off)),
+                  PopupMenuButton<String>(
+                    onSelected: (v) {
+                      if (v == 'all') {
+                        setState(() => _selected
+                            ..clear()
+                            ..addAll(_hands));
+                      } else {
+                        _clearSelection();
+                      }
+                    },
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'all', child: Text('Select All')),
+                      PopupMenuItem(value: 'none', child: Text('Select None')),
+                    ],
+                  ),
+                ]
+              : [
+                  SyncStatusIcon.of(context),
+                  IconButton(
+                    onPressed: _importFromRoom,
+                    icon: const Icon(Icons.playlist_add),
+                  ),
+                  IconButton(
+                    onPressed: _hands.isEmpty ? null : _save,
+                    icon: const Icon(Icons.check),
+                  )
+                ],
         ),
         body: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                controller: _searchController,
+                decoration: const InputDecoration(hintText: 'Поиск'),
+                onChanged: _setSearch,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DropdownButton<_SortOption>(
+                value: _sort,
+                underline: const SizedBox.shrink(),
+                onChanged: (v) {
+                  if (v != null) _setSort(v);
+                },
+                items: const [
+                  DropdownMenuItem(value: _SortOption.newest, child: Text('Newest')),
+                  DropdownMenuItem(value: _SortOption.oldest, child: Text('Oldest')),
+                  DropdownMenuItem(value: _SortOption.position, child: Text('Hero Pos')),
+                  DropdownMenuItem(value: _SortOption.tags, child: Text('Tags')),
+                  DropdownMenuItem(value: _SortOption.mistakes, child: Text('Mistakes')),
+                ],
+              ),
+            ),
             Expanded(
               child: ReorderableListView.builder(
-                onReorder: _reorder,
-                itemCount: _hands.length,
+                onReorder: (oldIndex, newIndex) {
+                  final indices = _visibleIndices();
+                  final oldGlobal = indices[oldIndex];
+                  final newGlobal = indices[(newIndex > oldIndex ? newIndex - 1 : newIndex)];
+                  _reorder(oldGlobal, newGlobal);
+                },
+                itemCount: _visibleIndices().length,
                 itemBuilder: (context, index) {
-                  final hand = _hands[index];
+                  final indices = _visibleIndices();
+                  final hand = _hands[indices[index]];
                   final title = hand.name.isEmpty ? 'Без названия' : hand.name;
                   return Dismissible(
                     key: ValueKey(hand.savedAt.toIso8601String()),
@@ -309,14 +627,31 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: const Icon(Icons.delete, color: Colors.white),
                     ),
-                    onDismissed: (_) => _remove(index),
+                    onDismissed: (_) => _remove(indices[index]),
                     child: ListTile(
-                      leading: const Icon(Icons.drag_handle),
+                      leading: _selectionMode
+                          ? Checkbox(
+                              value: _selected.contains(hand),
+                              onChanged: (_) => _toggleSelect(hand),
+                            )
+                          : const Icon(Icons.drag_handle),
                       title: Text(title),
                       subtitle:
                           hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
-                      onTap: () => _editHand(hand),
-                      onLongPress: () => _previewHand(hand),
+                      onTap: () {
+                        if (_selectionMode) {
+                          _toggleSelect(hand);
+                        } else {
+                          _editHand(hand);
+                        }
+                      },
+                      onLongPress: () {
+                        if (_selectionMode) {
+                          _toggleSelect(hand);
+                        } else {
+                          _toggleSelect(hand);
+                        }
+                      },
                     ),
                   );
                 },
