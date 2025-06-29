@@ -38,10 +38,17 @@ class _RoomHandHistoryImportScreenState
   final Set<SavedHand> _selected = {};
   _Filter _filter = _Filter.newOnly;
   List<SavedHand>? _undoHands;
+  String? _tagFilter;
 
   bool get _selectionMode => _selected.isNotEmpty;
   bool get _undoActive => _undoHands != null;
   bool get _canAdd => _selectionMode && !_undoActive;
+  Set<String> get _allTags {
+    final tags = <String>{};
+    for (final h in _pack.hands) tags.addAll(h.tags);
+    for (final e in _hands) tags.addAll(e.hand.tags);
+    return tags;
+  }
 
   void _toggleSelect(SavedHand hand) {
     setState(() {
@@ -94,6 +101,7 @@ class _RoomHandHistoryImportScreenState
       _selected.clear();
       _searchController.clear();
       _filter = items.every((e) => e.duplicate) ? _Filter.dup : _Filter.newOnly;
+      _tagFilter = null;
     });
   }
 
@@ -146,7 +154,6 @@ class _RoomHandHistoryImportScreenState
 
   Future<void> _editTags(SavedHand hand) async {
     final tags = hand.tags.toSet();
-    final controller = TextEditingController();
     final result = await showDialog<List<String>>(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -162,20 +169,34 @@ class _RoomHandHistoryImportScreenState
                   for (final tag in tags)
                     Chip(
                       label: Text(tag, style: const TextStyle(color: Colors.white)),
+                      backgroundColor:
+                          Colors.primaries[tag.hashCode % Colors.primaries.length],
                       onDeleted: () => setStateDialog(() => tags.remove(tag)),
                     ),
                 ],
               ),
-              TextField(
-                controller: controller,
-                autofocus: true,
-                decoration: const InputDecoration(hintText: 'Add tag'),
-                onSubmitted: (value) {
-                  final t = value.trim();
-                  if (t.isNotEmpty) {
-                    setStateDialog(() => tags.add(t));
-                    controller.clear();
-                  }
+              const SizedBox(height: 8),
+              Autocomplete<String>(
+                optionsBuilder: (v) {
+                  final input = v.text.toLowerCase();
+                  if (input.isEmpty) return _allTags;
+                  return _allTags.where((t) => t.toLowerCase().contains(input));
+                },
+                onSelected: (s) => setStateDialog(() => tags.add(s)),
+                fieldViewBuilder: (context, controller, focusNode, _) {
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    autofocus: true,
+                    decoration: const InputDecoration(hintText: 'Add tag'),
+                    onSubmitted: (v) {
+                      final t = v.trim();
+                      if (t.isNotEmpty) {
+                        setStateDialog(() => tags.add(t));
+                        controller.clear();
+                      }
+                    },
+                  );
                 },
               ),
             ],
@@ -193,7 +214,6 @@ class _RoomHandHistoryImportScreenState
         ),
       ),
     );
-    controller.dispose();
     if (result != null) {
       _replaceHand(hand, hand.copyWith(tags: result));
     }
@@ -288,9 +308,21 @@ class _RoomHandHistoryImportScreenState
     });
   }
 
+  void _applyTagToSelected(String tag) {
+    setState(() {
+      for (final hand in _selected.toList()) {
+        final tags = {...hand.tags, tag};
+        _replaceHand(hand, hand.copyWith(tags: tags.toList()));
+      }
+    });
+  }
+
   List<_Entry> _filteredHands() {
     final query = _searchController.text.toLowerCase();
     return _hands.where((e) {
+      if (_tagFilter != null && !_tagFilter!.isEmpty) {
+        if (!e.hand.tags.contains(_tagFilter)) return false;
+      }
       switch (_filter) {
         case _Filter.newOnly:
           if (e.duplicate) return false;
@@ -346,13 +378,55 @@ class _RoomHandHistoryImportScreenState
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
-                    if (_selectionMode)
+                    if (_selectionMode) ...[
                       Expanded(
                         child: ElevatedButton(
                           onPressed: _canAdd ? _addSelected : null,
                           child: const Text('Add Selected'),
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      PopupMenuButton<String>(
+                        icon: const Icon(Icons.label, color: Colors.white),
+                        onSelected: (tag) async {
+                          if (tag == '__new__') {
+                            final c = TextEditingController();
+                            final newTag = await showDialog<String>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: AppColors.cardBackground,
+                                title: const Text('New Tag',
+                                    style: TextStyle(color: Colors.white)),
+                                content: TextField(
+                                  controller: c,
+                                  autofocus: true,
+                                ),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Cancel')),
+                                  TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, c.text.trim()),
+                                      child: const Text('OK')),
+                                ],
+                              ),
+                            );
+                            c.dispose();
+                            if (newTag != null && newTag.isNotEmpty) {
+                              _applyTagToSelected(newTag);
+                            }
+                          } else {
+                            _applyTagToSelected(tag);
+                          }
+                        },
+                        itemBuilder: (_) => [
+                          for (final t in (_allTags.toList()..sort()))
+                            PopupMenuItem(value: t, child: Text(t)),
+                          const PopupMenuItem(value: '__new__', child: Text('New…')),
+                        ],
+                      ),
+                    ],
                     if (hidden > 0) ...[
                       if (_selectionMode) const SizedBox(width: 12),
                       Text('Hidden duplicates: $hidden'),
@@ -378,6 +452,34 @@ class _RoomHandHistoryImportScreenState
             ),
             const SizedBox(height: 12),
             ElevatedButton(onPressed: _parse, child: const Text('Parse')),
+            const SizedBox(height: 12),
+            if (_hands.isNotEmpty)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    ChoiceChip(
+                      label: const Text('All'),
+                      selected: _tagFilter == null,
+                      onSelected: (_) => setState(() => _tagFilter = null),
+                    ),
+                    const SizedBox(width: 8),
+                    for (final tag in (_allTags.toList()..sort())) ...[
+                      ChoiceChip(
+                        label: Text(tag),
+                        selected: _tagFilter == tag,
+                        backgroundColor: Colors
+                            .primaries[tag.hashCode % Colors.primaries.length]
+                            .withOpacity(0.3),
+                        selectedColor:
+                            Colors.primaries[tag.hashCode % Colors.primaries.length],
+                        onSelected: (_) => setState(() => _tagFilter = tag),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ],
+                ),
+              ),
             const SizedBox(height: 12),
             if (_hands.isNotEmpty)
               Row(
@@ -452,7 +554,12 @@ class _RoomHandHistoryImportScreenState
                                               spacing: 4,
                                               children: [
                                                 for (final t in h.tags)
-                                                  Chip(label: Text(t, style: const TextStyle(color: Colors.white)))
+                                                  Chip(
+                                                    label: Text(t,
+                                                        style: const TextStyle(color: Colors.white)),
+                                                    backgroundColor: Colors.primaries[
+                                                        t.hashCode % Colors.primaries.length],
+                                                  )
                                               ],
                                             ),
                                           ),
