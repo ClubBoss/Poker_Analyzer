@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/cloud_history_entry.dart';
 import '../services/cloud_training_history_service.dart';
+import '../services/cloud_training_session_import_service.dart';
 import '../widgets/sync_status_widget.dart';
 
 enum _SortOption { newest, oldest, accuracyDesc, accuracyAsc }
@@ -77,13 +79,44 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
     }
   }
 
+  Future<void> _importJson() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final path = result.files.single.path;
+    if (path == null) return;
+    final file = File(path);
+    final service = CloudTrainingSessionImportService();
+    final session = await service.importFromJson(file);
+    if (session == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid file')));
+      }
+      return;
+    }
+    await _load();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Imported ${formatDateTime(session.date)}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cloud History'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [SyncStatusIcon.of(context),
+          IconButton(
+            icon: const Icon(Icons.upload_file),
+            tooltip: 'Import JSON',
+            onPressed: _importJson,
+          ),
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Export',
