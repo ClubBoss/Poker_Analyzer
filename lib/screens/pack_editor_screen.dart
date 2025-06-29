@@ -15,14 +15,14 @@ import '../helpers/color_utils.dart';
 import '../theme/app_colors.dart';
 import '../models/saved_hand.dart';
 import '../models/training_pack.dart';
-import '../models/pack_snapshot.dart';
 import '../models/view_preset.dart';
 import '../services/training_pack_storage_service.dart';
 import 'room_hand_history_import_screen.dart';
 import 'room_hand_history_editor_screen.dart';
 import '../widgets/sync_status_widget.dart';
-import 'snapshot_manager_screen.dart';
 import '../widgets/view_manager_dialog.dart';
+import '../models/pack_editor_snapshot.dart';
+import '../widgets/snapshot_manager_dialog.dart';
 
 enum _SortOption { newest, oldest, position, tags, mistakes }
 
@@ -95,6 +95,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   };
   int _dupCount = 0;
   List<ViewPreset> _views = [];
+  List<PackEditorSnapshot> _snapshots = [];
   List<_Command> _commands = [];
   bool _filtersVisible = true;
   bool _filterConflict = false;
@@ -149,6 +150,18 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             ];
           });
         }
+      } catch (_) {}
+    }
+    final snapsRaw = prefs.getString('snapshots_${widget.pack.id}');
+    if (snapsRaw != null) {
+      try {
+        final list = jsonDecode(snapsRaw) as List;
+        setState(() {
+          _snapshots = [
+            for (final s in list)
+              PackEditorSnapshot.fromJson(Map<String, dynamic>.from(s as Map))
+          ];
+        });
       } catch (_) {}
     }
     setState(_buildCommands);
@@ -1014,70 +1027,56 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   Future<void> _saveSnapshot() async {
     final df = DateFormat('dd.MM HH:mm');
     final c = TextEditingController(text: df.format(DateTime.now()));
-    final comment = await showDialog<String>(
+    final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Save Snapshot'),
         content: TextField(controller: c, autofocus: true),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, c.text.trim()),
-            child: const Text('Save'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, c.text.trim()), child: const Text('Save')),
         ],
       ),
     );
-    if (comment == null) return;
-    final snap = await context.read<TrainingPackStorageService>().saveSnapshot(
-      _packRef,
-      _hands,
-      _packTags,
-      comment,
+    if (name == null) return;
+    final snap = PackEditorSnapshot(
+      name: name,
+      hands: [for (final h in _hands) h],
+      views: [for (final v in _views) v],
+      filters: {
+        'sort': _sort.index,
+        'tag': _tagFilter,
+        'mistake': _mistakeFilter.index,
+        'hero': _heroPosFilter,
+        'search': _searchController.text,
+      },
     );
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Snapshot saved'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () => context
-              .read<TrainingPackStorageService>()
-              .deleteSnapshot(_packRef, snap),
-        ),
-      ),
-    );
+    setState(() => _snapshots.add(snap));
+    await _saveSnapshots();
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Snapshot saved')));
+    }
   }
 
   Future<void> _manageSnapshots() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => SnapshotManagerScreen(pack: _packRef)),
+    final result = await showDialog<dynamic>(
+      context: context,
+      builder: (_) => SnapshotManagerDialog(snapshots: _snapshots),
     );
     if (!mounted) return;
-    if (result is PackSnapshot) {
-      final snap = result as PackSnapshot;
+    if (result is PackEditorSnapshot) {
+      final snap = result as PackEditorSnapshot;
       setState(() {
         _hands = [for (final h in snap.hands) h];
-        _packTags = List.from(snap.tags);
+        _views = [for (final v in snap.views) v];
         _modified = true;
       });
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('pack_editor_last_snapshot_restored', snap.id);
-    } else if (result == true) {
-      final pack = context.read<TrainingPackStorageService>().packs.firstWhere(
-        (p) => p.id == _packRef.id,
-        orElse: () => _packRef,
-      );
-      setState(() {
-        _packRef = pack;
-        _hands = List.from(pack.hands);
-        _packTags = List.from(pack.tags);
-        _modified = true;
-      });
+      await _applySnapshotFilters(snap.filters);
+      await _saveViews();
+    } else if (result is List<PackEditorSnapshot>) {
+      setState(() => _snapshots = result);
+      await _saveSnapshots();
     }
   }
 
@@ -1143,6 +1142,26 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await prefs.setString(_viewsKey, jsonEncode(data));
   }
 
+  Future<void> _saveSnapshots() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'snapshots_${widget.pack.id}',
+      jsonEncode([for (final s in _snapshots) s.toJson()]),
+    );
+  }
+
+  Future<void> _applySnapshotFilters(Map<String, dynamic> f) async {
+    await _setSort(_SortOption.values[(f['sort'] as num?)?.toInt() ?? 0]);
+    await _setTagFilter(f['tag'] as String?);
+    await _setMistakeFilter(
+        _MistakeFilter.values[(f['mistake'] as num?)?.toInt() ?? 0]);
+    await _setHeroFilter(f['hero'] as String?);
+    _searchController.text = f['search'] as String? ?? '';
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_searchKey, _searchController.text);
+    setState(() => _rebuildStats());
+  }
+
   Future<void> _saveCurrentView() async {
     if (_views.length >= 20) {
       ScaffoldMessenger.of(context)
@@ -1200,45 +1219,36 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
 
   Future<void> _exportPack() async {
-    String format = 'json';
-    final selected = await showDialog<String>(
+    final action = await showModalBottomSheet<String>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateDialog) => AlertDialog(
-          backgroundColor: Colors.grey[900],
-          title: const Text('Export Format', style: TextStyle(color: Colors.white)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<String>(
-                value: 'json',
-                groupValue: format,
-                onChanged: (v) => setStateDialog(() => format = v ?? 'json'),
-                title: const Text('JSON', style: TextStyle(color: Colors.white)),
-              ),
-              RadioListTile<String>(
-                value: 'csv',
-                groupValue: format,
-                onChanged: (v) => setStateDialog(() => format = v ?? 'json'),
-                title: const Text('CSV', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Text('📸', style: TextStyle(fontSize: 20)),
+              title: const Text('Save Snapshot'),
+              onTap: () => Navigator.pop(ctx, 'snapshot'),
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, format),
-              child: const Text('OK'),
+            ListTile(
+              leading: const Icon(Icons.code),
+              title: const Text('Export JSON'),
+              onTap: () => Navigator.pop(ctx, 'json'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart),
+              title: const Text('Export CSV'),
+              onTap: () => Navigator.pop(ctx, 'csv'),
             ),
           ],
         ),
       ),
     );
-    if (selected == null) return;
-    format = selected;
+    if (action == null) return;
+    if (action == 'snapshot') {
+      await _saveSnapshot();
+      return;
+    }
+    var format = action;
     final savePath = await FilePicker.platform.saveFile(
       dialogTitle: 'Save Pack',
       fileName: format == 'json' ? 'pack_export.json' : 'pack_export.csv',
