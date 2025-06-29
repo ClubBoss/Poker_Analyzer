@@ -87,7 +87,7 @@ class _MyTrainingHistoryScreenState extends State<MyTrainingHistoryScreen> {
                     style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
-                    '${formatDateTime(summary.date)} \u2022 ${summary.correct}/${summary.total} \u2022 ${summary.accuracy.toStringAsFixed(1)}%',
+                    '${formatDateTime(summary.date, context: context)} \u2022 ${summary.correct}/${summary.total} \u2022 ${summary.accuracy.toStringAsFixed(1)}%',
                     style: const TextStyle(color: Colors.white70),
                   ),
                   trailing: ElevatedButton(

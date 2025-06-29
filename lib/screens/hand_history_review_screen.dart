@@ -279,7 +279,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${widget.hand.name} \u2022 ${formatLongDate(widget.hand.savedAt)}',
+          '${widget.hand.name} \u2022 ${formatLongDate(widget.hand.savedAt, context: context)}',
         ),
         centerTitle: true,
         actions: [SyncStatusIcon.of(context), 

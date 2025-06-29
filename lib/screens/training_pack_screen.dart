@@ -687,7 +687,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
     final buffer = StringBuffer()
       ..writeln('# Training Session')
       ..writeln()
-      ..writeln('- **Date:** ${formatDateTime(date)}')
+      ..writeln('- **Date:** ${formatDateTime(date, context: context)}')
       ..writeln('- **Total hands:** $total')
       ..writeln('- **Correct answers:** $correct')
       ..writeln('- **Accuracy:** $percent%')
@@ -770,7 +770,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
     final buffer = StringBuffer()
       ..writeln('# Training Session')
       ..writeln()
-      ..writeln('- **Date:** ${formatDateTime(date)}')
+      ..writeln('- **Date:** ${formatDateTime(date, context: context)}')
       ..writeln('- **Total hands:** $total')
       ..writeln('- **Correct answers:** $correct')
       ..writeln('- **Accuracy:** $percent%')
@@ -877,7 +877,7 @@ class _TrainingPackScreenState extends State<TrainingPackScreen>
             pw.Text('Training Session',
                 style: pw.TextStyle(font: boldFont, fontSize: 24)),
             pw.SizedBox(height: 16),
-            pw.Text('Date: ${formatDateTime(date)}',
+            pw.Text('Date: ${formatDateTime(date, context: context)}',
                 style: pw.TextStyle(font: regularFont)),
             pw.Text('Total hands: $total',
                 style: pw.TextStyle(font: regularFont)),
@@ -1169,7 +1169,7 @@ body { font-family: sans-serif; padding: 16px; }
                   children: [
                     Expanded(
                       child: Text(
-                        formatDateTime(h.date),
+                        formatDateTime(h.date, context: context),
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -1645,7 +1645,7 @@ body { font-family: sans-serif; padding: 16px; }
                 children: [
                   Expanded(
                     child: Text(
-                      formatDateTime(r.date),
+                      formatDateTime(r.date, context: context),
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),

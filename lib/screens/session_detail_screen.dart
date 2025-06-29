@@ -108,7 +108,7 @@ class SessionDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  formatDateTime(result.date),
+                  formatDateTime(result.date, context: context),
                   style: const TextStyle(color: Colors.white70),
                 ),
                 if (hasMistakes) ...[

@@ -197,16 +197,16 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
 
   String get _rangeLabel {
     if (_range == null) return 'Период';
-    final start = formatDate(_range!.start);
-    final end = formatDate(_range!.end);
+    final start = formatDate(_range!.start, context: context);
+    final end = formatDate(_range!.end, context: context);
     return start == end ? start : '$start – $end';
   }
 
   String get _compareLabel {
     if (_comparePrevious) return 'Предыдущий период';
     if (_compareRange == null) return 'Сравнить периоды';
-    final s = formatDate(_compareRange!.start);
-    final e = formatDate(_compareRange!.end);
+    final s = formatDate(_compareRange!.start, context: context);
+    final e = formatDate(_compareRange!.end, context: context);
     return s == e ? s : '$s – $e';
   }
 
@@ -386,7 +386,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
     final pdf = pw.Document();
-    final date = formatDateTime(DateTime.now());
+    final date = formatDateTime(DateTime.now(), context: context);
     final service = context.read<EvaluationExecutorService>();
     final rows = [
       for (final e in entries)
@@ -1227,7 +1227,7 @@ class _DailySeverityHandsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(formatLongDate(day)),
+        title: Text(formatLongDate(day, context: context)),
         centerTitle: true,
         actions: [SyncStatusIcon.of(context)],
       ),

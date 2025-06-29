@@ -50,7 +50,7 @@ class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewS
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
     final pdf = pw.Document();
-    final date = formatDateTime(DateTime.now());
+    final date = formatDateTime(DateTime.now(), context: context);
 
     final service = context.read<EvaluationExecutorService>();
     final rows = [

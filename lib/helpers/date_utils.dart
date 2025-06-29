@@ -1,13 +1,20 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-String formatDateTime(DateTime date) {
-  return DateFormat('dd.MM.yyyy HH:mm').format(date);
+String _locale(BuildContext? context) {
+  return context != null
+      ? Localizations.localeOf(context).toLanguageTag()
+      : Intl.getCurrentLocale();
 }
 
-String formatDate(DateTime date) {
-  return DateFormat('dd.MM.yyyy').format(date);
+String formatDateTime(DateTime date, {BuildContext? context}) {
+  return DateFormat('dd.MM.yyyy HH:mm', _locale(context)).format(date);
 }
 
-String formatLongDate(DateTime date) {
-  return DateFormat('d MMMM y', 'ru').format(date);
+String formatDate(DateTime date, {BuildContext? context}) {
+  return DateFormat('dd.MM.yyyy', _locale(context)).format(date);
+}
+
+String formatLongDate(DateTime date, {BuildContext? context}) {
+  return DateFormat('d MMMM y', _locale(context)).format(date);
 }

@@ -440,7 +440,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                                   pins.setPinned(s.id, !pins.isPinned(s.id)),
                             ),
                             title: Text(
-                              formatDateTime(s.end),
+                              formatDateTime(s.end, context: context),
                               style: const TextStyle(color: Colors.white),
                             ),
                             subtitle: Column(

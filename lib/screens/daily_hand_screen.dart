@@ -89,7 +89,7 @@ class PastDailyHandsScreen extends StatelessWidget {
                 final entry = history[index];
                 return ListTile(
                   title: Text(
-                    formatDate(entry.date),
+                    formatDate(entry.date, context: context),
                     style: const TextStyle(color: Colors.white),
                   ),
                   trailing: Icon(

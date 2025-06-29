@@ -388,7 +388,7 @@ class _CloudTrainingSessionDetailsScreenState
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '${formatDate(widget.session.date)} • ${widget.session.accuracy.toStringAsFixed(1)}%',
+              '${formatDate(widget.session.date, context: context)} • ${widget.session.accuracy.toStringAsFixed(1)}%',
               style: const TextStyle(color: Colors.white),
             ),
             Text(

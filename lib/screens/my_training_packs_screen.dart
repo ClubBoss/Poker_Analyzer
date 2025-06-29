@@ -742,7 +742,7 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                                       }
                                     },
                                   ),
-                                Text(date != null ? formatDate(date) : '-'),
+                                Text(date != null ? formatDate(date, context: context) : '-'),
                                 if (!p.isBuiltIn)
                                   PopupMenuButton<String>(
                                     padding: EdgeInsets.zero,

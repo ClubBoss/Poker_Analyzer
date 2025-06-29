@@ -60,7 +60,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     final dismissed = reminder.lastDismissed;
     final status = reminder.enabled ? 'Включены' : 'Выключены';
     final info = dismissed != null
-        ? '$status, последний отказ: ${formatDateTime(dismissed)}'
+        ? '$status, последний отказ: ${formatDateTime(dismissed, context: context)}'
         : status;
     final drInfo = '${dailyReminder.hour.toString().padLeft(2, '0')}:00';
     return Scaffold(

@@ -64,7 +64,7 @@ class TrainingDetailScreen extends StatelessWidget {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Date: ${formatDateTime(result.date)}',
+              pw.Text('Date: ${formatDateTime(result.date, context: context)}',
                   style: pw.TextStyle(font: regularFont)),
               pw.SizedBox(height: 16),
               if (result.total > 0)
@@ -142,7 +142,7 @@ class TrainingDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Date: ${formatDateTime(result.date)}',
+              'Date: ${formatDateTime(result.date, context: context)}',
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 16),

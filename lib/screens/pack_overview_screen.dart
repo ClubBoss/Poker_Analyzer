@@ -156,7 +156,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                 final p = packs[index];
                 final color = p.colorTag.isEmpty ? Colors.white24 : colorFromHex(p.colorTag);
                 final progress = p.pctComplete;
-                final date = p.lastAttempted > 0 ? formatDate(p.lastAttemptDate) : '-';
+                final date = p.lastAttempted > 0 ? formatDate(p.lastAttemptDate, context: context) : '-';
                 return GestureDetector(
                   onLongPress: () => _showMenu(p),
                   child: ListTile(

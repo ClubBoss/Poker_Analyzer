@@ -65,7 +65,7 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
     for (final s in _sessions) {
       final sum = s.summary;
       buffer.writeln(
-          '- ${formatDateTime(sum.date)}: ${sum.correct}/${sum.total} (${sum.accuracy.toStringAsFixed(1)}%)');
+          '- ${formatDateTime(sum.date, context: context)}: ${sum.correct}/${sum.total} (${sum.accuracy.toStringAsFixed(1)}%)');
     }
 
     final dir = await getApplicationDocumentsDirectory();
@@ -100,7 +100,7 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
     await _load();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Imported ${formatDateTime(session.date)}')),
+        SnackBar(content: Text('Imported ${formatDateTime(session.date, context: context)}')),
       );
     }
   }
@@ -162,7 +162,7 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
                 final s = entry.summary;
                 return ListTile(
                   title: Text(
-                    formatDateTime(s.date),
+                    formatDateTime(s.date, context: context),
                     style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(

@@ -110,7 +110,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final buffer = StringBuffer();
     for (final s in _getSortedSessions()) {
       buffer.writeln(
-          '- ${formatDateTime(s.date)}: ${s.accuracy.toStringAsFixed(1)}% — Ошибок: ${s.mistakes}');
+          '- ${formatDateTime(s.date, context: context)}: ${s.accuracy.toStringAsFixed(1)}% — Ошибок: ${s.mistakes}');
     }
     final bytes = Uint8List.fromList(utf8.encode(buffer.toString()));
     try {
@@ -395,7 +395,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                           final s = _getVisibleSessions()[index];
                           return ListTile(
                             title: Text(
-                              formatDateTime(s.date),
+                              formatDateTime(s.date, context: context),
                               style: const TextStyle(color: Colors.white),
                             ),
                             subtitle: Column(

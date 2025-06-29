@@ -9348,7 +9348,7 @@ class _CenterChipDiagnosticsSection extends StatelessWidget {
             _vGap,
             debugDiag('Players at table', hand.numberOfPlayers),
             _vGap,
-            debugDiag('Saved', formatDateTime(hand.date)),
+            debugDiag('Saved', formatDateTime(hand.date, context: context)),
             _vGap,
             if (hand.expectedAction != null) ...[
               debugDiag('Expected Action', hand.expectedAction),

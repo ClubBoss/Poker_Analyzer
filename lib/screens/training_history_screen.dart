@@ -238,7 +238,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     ]);
     for (final r in sessions) {
       rows.add([
-        formatDateTime(r.date),
+        formatDateTime(r.date, context: context),
         r.total,
         r.correct,
         r.accuracy.toStringAsFixed(1),
@@ -275,7 +275,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       final tags = r.tags.join(', ');
       final notes = r.notes ?? '';
       final comment = r.comment ?? '';
-      buffer.writeln('### ${formatDateTime(r.date)}');
+      buffer.writeln('### ${formatDateTime(r.date, context: context)}');
       buffer.writeln('- Accuracy: ${r.accuracy.toStringAsFixed(1)}%');
       if (tags.isNotEmpty) buffer.writeln('- Tags: $tags');
       if (comment.isNotEmpty) buffer.writeln('- Comment: $comment');
@@ -329,7 +329,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       final tags = r.tags.join(', ');
       final notes = r.notes ?? '';
       final comment = r.comment ?? '';
-      buffer.writeln('<h3>${formatDateTime(r.date)}</h3>');
+      buffer.writeln('<h3>${formatDateTime(r.date, context: context)}</h3>');
       buffer.writeln('<ul>');
       buffer.writeln('<li>Accuracy: ${r.accuracy.toStringAsFixed(1)}%</li>');
       if (tags.isNotEmpty) {
@@ -395,7 +395,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             data: [
               for (final r in sessions)
                 [
-                  formatDateTime(r.date),
+                  formatDateTime(r.date, context: context),
                   r.total,
                   r.correct,
                   r.accuracy.toStringAsFixed(1),
@@ -415,7 +415,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   child: pw.Chart(
                     grid: pw.CartesianGrid(
                       xAxis: pw.FixedAxis.fromStrings(
-                        [for (final r in chartData) formatDate(r.date)],
+                        [for (final r in chartData) formatDate(r.date, context: context)],
                         marginStart: 30,
                       ),
                       yAxis: pw.FixedAxis(
@@ -508,7 +508,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     rows.add(['Date', 'Total', 'Correct', 'Accuracy']);
     for (final r in grouped) {
       rows.add([
-        formatDate(r.date),
+        formatDate(r.date, context: context),
         r.total,
         r.correct,
         r.accuracy.toStringAsFixed(1),
@@ -554,7 +554,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       final notes = r.notes ?? '';
       final comment = r.comment ?? '';
       lines.add(
-          '${formatDateTime(r.date)} - ${r.accuracy.toStringAsFixed(1)}% - '
+          '${formatDateTime(r.date, context: context)} - ${r.accuracy.toStringAsFixed(1)}% - '
           '${r.correct}/${r.total}'
           '${tags.isNotEmpty ? ' - Tags: $tags' : ''}'
           '${comment.isNotEmpty ? ' - Comment: $comment' : ''}'
@@ -586,7 +586,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     ]);
     for (final r in sessions) {
       rows.add([
-        formatDateTime(r.date),
+        formatDateTime(r.date, context: context),
         r.accuracy.toStringAsFixed(1),
         r.total,
         r.correct,
@@ -639,7 +639,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             data: [
               for (final r in sessions)
                 [
-                  formatDateTime(r.date),
+                  formatDateTime(r.date, context: context),
                   r.accuracy.toStringAsFixed(1),
                   r.total,
                   r.correct,
@@ -659,7 +659,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                   child: pw.Chart(
                     grid: pw.CartesianGrid(
                       xAxis: pw.FixedAxis.fromStrings(
-                        [for (final r in chartData) formatDate(r.date)],
+                        [for (final r in chartData) formatDate(r.date, context: context)],
                         marginStart: 30,
                       ),
                       yAxis: pw.FixedAxis(
@@ -1517,8 +1517,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       if (label.isNotEmpty) lines.add('Session length: $label');
     }
     if (_dateFrom != null || _dateTo != null) {
-      final fromStr = _dateFrom != null ? formatDate(_dateFrom!) : '';
-      final toStr = _dateTo != null ? formatDate(_dateTo!) : '';
+      final fromStr = _dateFrom != null ? formatDate(_dateFrom!, context: context) : '';
+      final toStr = _dateTo != null ? formatDate(_dateTo!, context: context) : '';
       lines.add('Date range: ${fromStr.isEmpty ? '...' : fromStr} - '
           '${toStr.isEmpty ? '...' : toStr}');
     }
@@ -2137,8 +2137,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   String _dateRangeLabel() {
     if (_dateFrom == null && _dateTo == null) return '';
-    final fromStr = _dateFrom != null ? formatDate(_dateFrom!) : '...';
-    final toStr = _dateTo != null ? formatDate(_dateTo!) : '...';
+    final fromStr = _dateFrom != null ? formatDate(_dateFrom!, context: context) : '...';
+    final toStr = _dateTo != null ? formatDate(_dateTo!, context: context) : '...';
     return '$fromStr - $toStr';
   }
 

@@ -61,7 +61,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
   }
 
 
-  String _formatDay(DateTime d) => formatDate(d);
+  String _formatDay(DateTime d) => formatDate(d, context: context);
 
   String get _dateFilterText {
     if (_dateRange == null) return 'Все даты';
@@ -298,7 +298,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           ? (calculateAccuracy(e.result.correct, e.result.total)).toStringAsFixed(0)
           : '0';
       buffer.writeln(
-          '- ${e.packName} — ${formatDateTime(e.result.date)} — ${e.result.correct}/${e.result.total} (${percent}%)');
+          '- ${e.packName} — ${formatDateTime(e.result.date, context: context)} — ${e.result.correct}/${e.result.total} (${percent}%)');
     }
 
     final fileName =
@@ -337,7 +337,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
       ..writeln(
           'Date,Pack name,Correct answers,Total questions,Success percentage');
     for (final e in _entries) {
-      final date = formatDateTime(e.result.date);
+      final date = formatDateTime(e.result.date, context: context);
       final percent = e.result.total > 0
           ? (calculateAccuracy(e.result.correct, e.result.total)).round()
           : 0;
@@ -484,7 +484,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                           pw.Padding(
                             padding: const pw.EdgeInsets.all(4),
                             child: pw.Text(
-                              formatDateTime(e.result.date),
+                              formatDateTime(e.result.date, context: context),
                               style: pw.TextStyle(font: regularFont),
                             ),
                           ),
@@ -1451,7 +1451,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
                                   ],
                                   const SizedBox(height: 4),
                                   Text(
-                                    formatDateTime(e.result.date),
+                                    formatDateTime(e.result.date, context: context),
                                     style: const TextStyle(color: Colors.white70),
                                   ),
                                 ],
