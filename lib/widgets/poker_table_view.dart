@@ -3,6 +3,7 @@ import '../helpers/table_geometry_helper.dart';
 import '../helpers/poker_position_helper.dart';
 import 'poker_table_painter.dart';
 import 'analyzer/player_zone_widget.dart';
+import 'position_label.dart';
 
 class PokerTableView extends StatefulWidget {
   final int heroIndex;
@@ -49,13 +50,10 @@ class _PokerTableViewState extends State<PokerTableView> {
       items.add(Positioned(
         left: offset.dx,
         top: offset.dy - 18 * widget.scale,
-        child: Text(
-          positions[i],
-          style: TextStyle(
-            color: i == widget.heroIndex ? Colors.white : Colors.grey,
-            fontSize: (i == widget.heroIndex ? 12 : 10) * widget.scale,
-            fontWeight: i == widget.heroIndex ? FontWeight.bold : FontWeight.normal,
-          ),
+        child: PositionLabel(
+          label: positions[i],
+          isHero: i == widget.heroIndex,
+          scale: widget.scale,
         ),
       ));
     }
