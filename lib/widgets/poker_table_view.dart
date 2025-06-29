@@ -9,6 +9,15 @@ import 'pot_chip_stack_painter.dart';
 import 'dealer_button_indicator.dart';
 import 'blind_chip_indicator.dart';
 
+enum PlayerAction { none, fold, push, call, raise }
+
+const playerActionColors = {
+  PlayerAction.fold: Colors.grey,
+  PlayerAction.push: Colors.orange,
+  PlayerAction.call: Colors.blueAccent,
+  PlayerAction.raise: Colors.redAccent,
+};
+
 enum TableTheme { green, carbon, blue }
 
 class PokerTableView extends StatefulWidget {
@@ -16,9 +25,11 @@ class PokerTableView extends StatefulWidget {
   final int playerCount;
   final List<String> playerNames;
   final List<double> playerStacks;
+  final List<PlayerAction> playerActions;
   final void Function(int index) onHeroSelected;
   final void Function(int index, double newStack) onStackChanged;
   final void Function(int index, String newName) onNameChanged;
+  final void Function(int index, PlayerAction action) onActionChanged;
   final double potSize;
   final void Function(double newPot) onPotChanged;
   final double scale;
@@ -30,9 +41,11 @@ class PokerTableView extends StatefulWidget {
     required this.playerCount,
     required this.playerNames,
     required this.playerStacks,
+    required this.playerActions,
     required this.onHeroSelected,
     required this.onStackChanged,
     required this.onNameChanged,
+    required this.onActionChanged,
     required this.potSize,
     required this.onPotChanged,
     this.scale = 1.0,
@@ -150,6 +163,13 @@ class _PokerTableViewState extends State<PokerTableView> {
         top: offset.dy,
         child: GestureDetector(
           onTap: () => widget.onHeroSelected(i),
+          onDoubleTap: () {
+            final current = widget.playerActions[i];
+            final next = PlayerAction.values[
+                (current.index + 1) % PlayerAction.values.length];
+            widget.onActionChanged(i, next);
+            setState(() {});
+          },
           onLongPress: () async {
             final controller = TextEditingController(text: widget.playerNames[i]);
             final result = await showDialog<String>(
@@ -194,6 +214,32 @@ class _PokerTableViewState extends State<PokerTableView> {
           ),
         ),
       ));
+      final action = i < widget.playerActions.length
+          ? widget.playerActions[i]
+          : PlayerAction.none;
+      if (action != PlayerAction.none) {
+        items.add(Positioned(
+          left: offset.dx + 30 * widget.scale,
+          top: offset.dy - 4 * widget.scale,
+          child: Container(
+            width: 10 * widget.scale,
+            height: 10 * widget.scale,
+            decoration: BoxDecoration(
+              color: playerActionColors[action],
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              action.name[0].toUpperCase(),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 6 * widget.scale,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ));
+      }
       items.add(Positioned(
         left: offset.dx,
         top: offset.dy - 18 * widget.scale,
