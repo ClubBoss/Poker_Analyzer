@@ -419,7 +419,8 @@ class _ProgressScreenState extends State<ProgressScreen>
               getTooltipItems: (spots) {
                 return spots.map((s) {
                   final entry = _dailyEvLoss[s.spotIndex];
-                  final date = DateFormat('d MMM', 'ru').format(entry.key);
+                  final date =
+                      DateFormat('d MMM', Intl.getCurrentLocale()).format(entry.key);
                   return LineTooltipItem(
                     '$date: ${entry.value.toStringAsFixed(1)} bb',
                     const TextStyle(color: Colors.white, fontSize: 12),

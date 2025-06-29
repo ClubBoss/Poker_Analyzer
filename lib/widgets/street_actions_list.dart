@@ -273,13 +273,13 @@ class StreetActionsList extends StatelessWidget {
         return '+${diff}s';
       }
     }
-    return '⏱ ${DateFormat('HH:mm').format(a.timestamp)}';
+    return '⏱ ${DateFormat('HH:mm', Intl.getCurrentLocale()).format(a.timestamp)}';
   }
 
   String _buildTooltipMessage(
       ActionEntry a, int index, String? qualityLabel) {
     final buffer = StringBuffer(
-        'Время: ${DateFormat('HH:mm:ss').format(a.timestamp)}');
+        'Время: ${DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp)}');
     if (index > 0) {
       final prev = actions[index - 1];
       final diffMs =

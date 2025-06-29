@@ -10,6 +10,7 @@ import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import '../helpers/date_utils.dart';
 import '../models/game_type.dart';
 
 import '../services/training_pack_storage_service.dart';
@@ -194,10 +195,10 @@ class _PackDataSource extends DataTableSource {
         DataCell(Tooltip(
           message: s.lastSession != null
               ? 'Последняя сессия: '
-                  '${DateFormat('d MMMM yyyy', 'ru').format(s.lastSession!)}'
+                  '${DateFormat('d MMMM yyyy', Intl.getCurrentLocale()).format(s.lastSession!)}'
               : 'Нет данных',
           child: Text(s.lastSession != null
-              ? DateFormat('dd.MM').format(s.lastSession!)
+              ? DateFormat('dd.MM', Intl.getCurrentLocale()).format(s.lastSession!)
               : '-'),
         )),
         DataCell(
@@ -438,7 +439,9 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         s.mistakes,
         '–${s.totalEvLoss.toStringAsFixed(1)} bb',
         s.rating.toStringAsFixed(1),
-        s.lastSession != null ? DateFormat('dd.MM').format(s.lastSession!) : '-',
+        s.lastSession != null
+            ? DateFormat('dd.MM', Intl.getCurrentLocale()).format(s.lastSession!)
+            : '-',
       ]);
       sumTotal += s.total;
       sumMistakes += s.mistakes;
@@ -1262,7 +1265,7 @@ class _BarTooltipState extends State<_BarTooltip> {
     final percent = s.total > 0 ? completed * 100 / s.total : 0.0;
     final remain = s.total - completed;
     final last = s.lastSession != null
-        ? DateFormat('dd.MM.yyyy').format(s.lastSession!)
+        ? formatDate(s.lastSession!)
         : 'нет данных';
     return Positioned(
       left: widget.position.dx,

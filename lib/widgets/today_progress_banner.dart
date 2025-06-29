@@ -163,7 +163,8 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
                       DateTime(last.year, last.month, last.day))
                   .inDays;
               if (diff > 1) {
-                final date = DateFormat('d MMM', 'ru').format(last);
+                final date =
+                    DateFormat('d MMM', Intl.getCurrentLocale()).format(last);
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(

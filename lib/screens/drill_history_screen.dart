@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../helpers/date_utils.dart';
 import 'package:provider/provider.dart';
 
 import '../services/goals_service.dart';
@@ -9,7 +9,7 @@ import '../widgets/sync_status_widget.dart';
 class DrillHistoryScreen extends StatelessWidget {
   const DrillHistoryScreen({super.key});
 
-  String _fmt(DateTime d) => DateFormat('d MMMM yyyy', 'ru').format(d);
+  String _fmt(DateTime d) => formatLongDate(d);
 
   @override
   Widget build(BuildContext context) {
