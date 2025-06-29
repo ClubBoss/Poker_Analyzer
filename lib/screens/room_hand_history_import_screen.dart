@@ -22,6 +22,19 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
   List<SavedHand> _hands = [];
   late TrainingPack _pack;
   RoomHandHistoryImporter? _importer;
+  final Set<SavedHand> _selected = {};
+
+  bool get _selectionMode => _selected.isNotEmpty;
+
+  void _toggleSelect(SavedHand hand) {
+    setState(() {
+      if (_selected.contains(hand)) {
+        _selected.remove(hand);
+      } else {
+        _selected.add(hand);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -100,11 +113,48 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
     );
   }
 
+  Future<void> _addSelected() async {
+    final count = _selected.length;
+    if (count == 0) return;
+    final updated = TrainingPack(
+      name: _pack.name,
+      description: _pack.description,
+      category: _pack.category,
+      gameType: _pack.gameType,
+      colorTag: _pack.colorTag,
+      isBuiltIn: _pack.isBuiltIn,
+      tags: _pack.tags,
+      hands: [..._pack.hands, ..._selected],
+      spots: _pack.spots,
+      difficulty: _pack.difficulty,
+      history: _pack.history,
+    );
+    await context.read<TrainingPackStorageService>().updatePack(_pack, updated);
+    if (!mounted) return;
+    setState(() {
+      _pack = updated;
+      _selected.clear();
+    });
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Added $count hands to pack')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(_pack.name), centerTitle: true),
       backgroundColor: AppColors.background,
+      bottomNavigationBar: _selectionMode
+          ? BottomAppBar(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: ElevatedButton(
+                  onPressed: _addSelected,
+                  child: const Text('Add Selected'),
+                ),
+              ),
+            )
+          : null,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _paste,
         label: const Text('📋 Paste'),
@@ -127,12 +177,16 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
                   ? const Center(child: Text('No hands'))
                   : ListView.builder(
                       itemCount: _hands.length,
-                      itemBuilder: (_, i) {
+                  itemBuilder: (_, i) {
                         final h = _hands[i];
                         return Card(
                           color: AppColors.cardBackground,
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           child: ListTile(
+                            leading: Checkbox(
+                              value: _selected.contains(h),
+                              onChanged: (_) => _toggleSelect(h),
+                            ),
                             title: Text(h.name, style: const TextStyle(color: Colors.white)),
                             subtitle: Text('${h.heroPosition} • ${h.numberOfPlayers}p', style: const TextStyle(color: Colors.white70)),
                             trailing: Row(
