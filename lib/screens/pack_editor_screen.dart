@@ -1466,7 +1466,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         final hand = _hands[i];
         final before = List<String>.from(hand.tags);
         final set = {...hand.tags};
-        if (hero) set.add(hand.heroPosition);
+        if (hero && !set.contains(hand.heroPosition)) {
+          set.add(hand.heroPosition);
+        }
         if (severity) {
           final m = _mistakeCount(hand);
           final tag = m == 0
@@ -1476,7 +1478,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   : 'mistake:3+';
           set.add(tag);
         }
-        if (!set.containsAll(before) || set.length != before.length) {
+        if (!setEquals(before.toSet(), set)) {
           _hands[i] = hand.copyWith(tags: set.toList());
           previous.add((i, before));
           count++;
