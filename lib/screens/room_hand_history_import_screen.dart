@@ -317,6 +317,17 @@ class _RoomHandHistoryImportScreenState
     });
   }
 
+  void _removeTagFromSelected(String tag) {
+    setState(() {
+      for (final hand in _selected.toList()) {
+        if (hand.tags.contains(tag)) {
+          final tags = List<String>.from(hand.tags)..remove(tag);
+          _replaceHand(hand, hand.copyWith(tags: tags));
+        }
+      }
+    });
+  }
+
   List<_Entry> _filteredHands() {
     final query = _searchController.text.toLowerCase();
     return _hands.where((e) {
@@ -387,43 +398,51 @@ class _RoomHandHistoryImportScreenState
                       ),
                       const SizedBox(width: 8),
                       PopupMenuButton<String>(
-                        icon: const Icon(Icons.label, color: Colors.white),
-                        onSelected: (tag) async {
-                          if (tag == '__new__') {
-                            final c = TextEditingController();
-                            final newTag = await showDialog<String>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                backgroundColor: AppColors.cardBackground,
-                                title: const Text('New Tag',
-                                    style: TextStyle(color: Colors.white)),
-                                content: TextField(
-                                  controller: c,
-                                  autofocus: true,
+                        icon: const Icon(Icons.label_outline, color: Colors.white),
+                        onSelected: (value) async {
+                          if (value.startsWith('add:')) {
+                            final tag = value.substring(4);
+                            if (tag == '__new__') {
+                              final c = TextEditingController();
+                              final newTag = await showDialog<String>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: AppColors.cardBackground,
+                                  title: const Text('New Tag', style: TextStyle(color: Colors.white)),
+                                  content: TextField(controller: c, autofocus: true),
+                                  actions: [
+                                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                                    TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
+                                  ],
                                 ),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Cancel')),
-                                  TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, c.text.trim()),
-                                      child: const Text('OK')),
-                                ],
-                              ),
-                            );
-                            c.dispose();
-                            if (newTag != null && newTag.isNotEmpty) {
-                              _applyTagToSelected(newTag);
+                              );
+                              c.dispose();
+                              if (newTag != null && newTag.isNotEmpty) {
+                                _applyTagToSelected(newTag);
+                              }
+                            } else {
+                              _applyTagToSelected(tag);
                             }
-                          } else {
-                            _applyTagToSelected(tag);
+                          } else if (value.startsWith('remove:')) {
+                            final tag = value.substring(7);
+                            _removeTagFromSelected(tag);
                           }
                         },
                         itemBuilder: (_) => [
+                          const PopupMenuItem<String>(
+                            enabled: false,
+                            child: Text('Add Tag', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
                           for (final t in (_allTags.toList()..sort()))
-                            PopupMenuItem(value: t, child: Text(t)),
-                          const PopupMenuItem(value: '__new__', child: Text('New…')),
+                            PopupMenuItem(value: 'add:$t', child: Text(t)),
+                          const PopupMenuItem(value: 'add:__new__', child: Text('New…')),
+                          const PopupMenuDivider(),
+                          const PopupMenuItem<String>(
+                            enabled: false,
+                            child: Text('Remove Tag', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          for (final t in (_allTags.toList()..sort()))
+                            PopupMenuItem(value: 'remove:$t', child: Text(t)),
                         ],
                       ),
                     ],
