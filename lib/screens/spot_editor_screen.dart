@@ -17,6 +17,7 @@ class SpotEditorScreen extends StatefulWidget {
 }
 
 class _SpotEditorScreenState extends State<SpotEditorScreen> {
+  late int _playerCount;
   late int _heroIndex;
   late TextEditingController _stack;
   late List<CardModel> _cards;
@@ -27,15 +28,16 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
   void initState() {
     super.initState();
     final m = widget.initial;
+    _playerCount = m?.numberOfPlayers ?? 6;
     _heroIndex = m?.heroIndex ?? 0;
+    if (_heroIndex >= _playerCount) _heroIndex = 0;
     _stack = TextEditingController(
         text: (m?.stacks.isNotEmpty == true ? m!.stacks[m.heroIndex] : 100).toString());
     _cards = m?.heroIndex != null && m!.playerCards.length > m.heroIndex
         ? List<CardModel>.from(m.playerCards[m.heroIndex])
         : <CardModel>[];
     _actions = List<ActionEntry>.from(m?.actions ?? []);
-    final size = m?.numberOfPlayers ?? 6;
-    _positions = getPositionList(size);
+    _positions = getPositionList(_playerCount);
   }
 
   @override
@@ -47,7 +49,8 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
   Future<void> _save() async {
     final stack = int.tryParse(_stack.text) ?? 0;
     if (stack <= 0 || _cards.length < 2) return;
-    final size = _positions.length;
+    final size = _playerCount;
+    _actions.removeWhere((a) => a.playerIndex >= size);
     final spot = TrainingSpot(
       playerCards: List.generate(size, (i) => i == _heroIndex ? List.from(_cards) : <CardModel>[]),
       boardCards: const [],
@@ -72,6 +75,25 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            DropdownButtonFormField<int>(
+              value: _playerCount,
+              decoration: const InputDecoration(labelText: 'Players'),
+              dropdownColor: const Color(0xFF3A3B3E),
+              items: [
+                for (int i = 2; i <= 6; i++)
+                  DropdownMenuItem(value: i, child: Text('$i'))
+              ],
+              onChanged: (v) {
+                if (v == null) return;
+                setState(() {
+                  _playerCount = v;
+                  _positions = getPositionList(_playerCount);
+                  if (_heroIndex >= _playerCount) _heroIndex = 0;
+                  _actions.removeWhere((a) => a.playerIndex >= _playerCount);
+                });
+              },
+            ),
+            const SizedBox(height: 12),
             DropdownButtonFormField<int>(
               value: _heroIndex,
               decoration: const InputDecoration(labelText: 'Hero position'),
@@ -99,7 +121,7 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
               child: SingleChildScrollView(
                 child: ActionEditorList(
                   initial: _actions,
-                  players: _positions.length,
+                  players: _playerCount,
                   positions: _positions,
                   onChanged: (v) {
                     _actions = v;
