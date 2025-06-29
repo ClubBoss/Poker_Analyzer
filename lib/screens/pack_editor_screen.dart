@@ -24,7 +24,7 @@ import 'room_hand_history_import_screen.dart';
 import 'room_hand_history_editor_screen.dart';
 import '../widgets/sync_status_widget.dart';
 import 'snapshot_manager_screen.dart';
-import 'view_manager_screen.dart';
+import '../widgets/view_manager_dialog.dart';
 
 enum _SortOption { newest, oldest, position, tags, mistakes }
 
@@ -1188,16 +1188,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   }
 
   Future<void> _manageViews() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ViewManagerScreen(
-          views: _views,
-          onChanged: (v) async {
-            setState(() => _views = List.from(v));
-            await _saveViews();
-          },
-        ),
+    await showDialog(
+      context: context,
+      builder: (_) => ViewManagerDialog(
+        views: _views,
+        onChanged: (v) async {
+          setState(() => _views = List.from(v));
+          await _saveViews();
+        },
       ),
     );
   }

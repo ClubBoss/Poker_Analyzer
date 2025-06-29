@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import '../models/view_preset.dart';
 
-class ViewManagerScreen extends StatefulWidget {
+class ViewManagerDialog extends StatefulWidget {
   final List<ViewPreset> views;
   final ValueChanged<List<ViewPreset>> onChanged;
-  const ViewManagerScreen({super.key, required this.views, required this.onChanged});
+  const ViewManagerDialog({super.key, required this.views, required this.onChanged});
 
   @override
-  State<ViewManagerScreen> createState() => _ViewManagerScreenState();
+  State<ViewManagerDialog> createState() => _ViewManagerDialogState();
 }
 
-class _ViewManagerScreenState extends State<ViewManagerScreen> {
+class _ViewManagerDialogState extends State<ViewManagerDialog> {
   late List<ViewPreset> _views;
 
   @override
@@ -54,17 +54,12 @@ class _ViewManagerScreenState extends State<ViewManagerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context);
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Views'),
-          leading: BackButton(onPressed: () => Navigator.pop(context)),
-        ),
-        body: ReorderableListView(
+    return AlertDialog(
+      title: const Text('Views'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 400,
+        child: ReorderableListView(
           onReorder: _reorder,
           children: [
             for (int i = 0; i < _views.length; i++)
@@ -82,6 +77,9 @@ class _ViewManagerScreenState extends State<ViewManagerScreen> {
           ],
         ),
       ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+      ],
     );
   }
 }
