@@ -582,6 +582,101 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await prefs.setInt(_mistakeKey, value.index);
   }
 
+  Future<(bool, bool)?> _showAutoTagDialog() {
+    bool hero = true;
+    bool severity = true;
+    return showDialog<(bool, bool)>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text('Auto-Tag', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CheckboxListTile(
+                value: hero,
+                onChanged: (v) => setStateDialog(() => hero = v ?? false),
+                title: const Text('Hero Position',
+                    style: TextStyle(color: Colors.white)),
+              ),
+              CheckboxListTile(
+                value: severity,
+                onChanged: (v) => setStateDialog(() => severity = v ?? false),
+                title: const Text('Mistake Severity',
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, (hero, severity)),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _autoTag(bool hero, bool severity) async {
+    final indices = _visibleIndices();
+    final tagService = context.read<TagService>();
+    final previous = <(int, List<String>)>[];
+    final newTags = <String>{};
+    int count = 0;
+    setState(() {
+      for (final i in indices) {
+        final hand = _hands[i];
+        final before = List<String>.from(hand.tags);
+        final set = {...hand.tags};
+        if (hero) set.add(hand.heroPosition);
+        if (severity) {
+          final m = _mistakeCount(hand);
+          final tag = m == 0
+              ? 'Clean'
+              : m <= 2
+                  ? 'Minor'
+                  : 'Major';
+          set.add(tag);
+        }
+        if (!set.containsAll(before) || set.length != before.length) {
+          _hands[i] = hand.copyWith(tags: set.toList());
+          previous.add((i, before));
+          count++;
+          _modified = true;
+          for (final t in set) {
+            if (!tagService.tags.contains(t)) newTags.add(t);
+          }
+        }
+      }
+    });
+    for (final t in newTags) {
+      await tagService.addTag(t);
+    }
+    if (count == 0) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Auto-tagged $count hands'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in previous) {
+                _hands[r.$1] = _hands[r.$1].copyWith(tags: r.$2);
+              }
+              _modified = true;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -634,6 +729,13 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     icon: const Icon(Icons.check),
                   )
                 ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            final result = await _showAutoTagDialog();
+            if (result != null) _autoTag(result.\$1, result.\$2);
+          },
+          child: const Icon(Icons.auto_fix_high),
         ),
         body: Column(
           children: [
