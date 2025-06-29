@@ -248,7 +248,29 @@ class _RoomHandHistoryImportScreenState
   Widget build(BuildContext context) {
     final hidden = _filter == _Filter.dup ? 0 : _hiddenDupCount;
     return Scaffold(
-      appBar: AppBar(title: Text(_pack.name), centerTitle: true),
+      appBar: AppBar(
+        title: Text(_pack.name),
+        centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              setState(() {
+                if (v == 'select_all') {
+                  _selected
+                    ..clear()
+                    ..addAll(_filteredHands().map((e) => e.hand));
+                } else if (v == 'clear_selection') {
+                  _selected.clear();
+                }
+              });
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'select_all', child: Text('Select all')),
+              PopupMenuItem(value: 'clear_selection', child: Text('Clear selection')),
+            ],
+          )
+        ],
+      ),
       backgroundColor: AppColors.background,
       bottomNavigationBar: _selectionMode || hidden > 0
           ? BottomAppBar(
