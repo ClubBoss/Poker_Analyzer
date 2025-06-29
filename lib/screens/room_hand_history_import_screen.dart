@@ -28,7 +28,7 @@ class RoomHandHistoryImportScreen extends StatefulWidget {
 class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScreen> {
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
-  List<_Entry> _hands = [];
+  final List<_Entry> _hands = [];
   late TrainingPack _pack;
   RoomHandHistoryImporter? _importer;
   final Set<SavedHand> _selected = {};
@@ -74,7 +74,9 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
       items.add(_Entry(h, dup));
     }
     setState(() {
-      _hands = items;
+      _hands
+        ..clear()
+        ..addAll(items);
       _selected.clear();
       _searchController.clear();
       _filter = items.every((e) => e.duplicate) ? _Filter.dup : _Filter.newOnly;
@@ -137,7 +139,9 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
   }
 
   Future<void> _addSelected() async {
-    final count = _selected.length;
+    final unique =
+        _selected.where((h) => !_pack.hands.any((e) => e.name == h.name)).toList();
+    final count = unique.length;
     if (count == 0) return;
     final updated = TrainingPack(
       name: _pack.name,
@@ -147,7 +151,7 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
       colorTag: _pack.colorTag,
       isBuiltIn: _pack.isBuiltIn,
       tags: _pack.tags,
-      hands: [..._pack.hands, ..._selected],
+      hands: [..._pack.hands, ...unique],
       spots: _pack.spots,
       difficulty: _pack.difficulty,
       history: _pack.history,
@@ -274,7 +278,9 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
                                 final entry = list[i];
                                 final h = entry.hand;
                                 return Card(
-                          color: AppColors.cardBackground,
+                          color: entry.duplicate
+                              ? AppColors.errorBg
+                              : AppColors.cardBackground,
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           child: ListTile(
                             leading: Checkbox(
