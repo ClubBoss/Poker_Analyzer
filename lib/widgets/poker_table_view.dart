@@ -13,6 +13,8 @@ class PokerTableView extends StatefulWidget {
   final void Function(int index) onHeroSelected;
   final void Function(int index, double newStack) onStackChanged;
   final void Function(int index, String newName) onNameChanged;
+  final double potSize;
+  final void Function(double newPot) onPotChanged;
   final double scale;
   const PokerTableView({
     super.key,
@@ -23,6 +25,8 @@ class PokerTableView extends StatefulWidget {
     required this.onHeroSelected,
     required this.onStackChanged,
     required this.onNameChanged,
+    required this.potSize,
+    required this.onPotChanged,
     this.scale = 1.0,
   });
 
@@ -46,6 +50,63 @@ class _PokerTableViewState extends State<PokerTableView> {
     final height = width * 0.55;
     final items = <Widget>[
       Positioned.fill(child: CustomPaint(painter: PokerTablePainter())),
+      Positioned.fill(
+        child: Center(
+          child: GestureDetector(
+            onTap: () async {
+              final controller =
+                  TextEditingController(text: widget.potSize.toString());
+              final result = await showDialog<double>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.black.withOpacity(0.3),
+                  title:
+                      const Text('Edit Pot', style: TextStyle(color: Colors.white)),
+                  content: TextField(
+                    controller: controller,
+                    autofocus: true,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white10,
+                      border:
+                          OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      hintText: 'Enter pot in BB',
+                      hintStyle: const TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        final value = double.tryParse(controller.text);
+                        Navigator.pop(context, value);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+              if (result != null) {
+                widget.onPotChanged(result);
+                setState(() {});
+              }
+            },
+            child: Text(
+              'Pot: ${widget.potSize.toStringAsFixed(1)} BB',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
     ];
     for (int i = 0; i < widget.playerCount; i++) {
       final seat = TableGeometryHelper.positionForPlayer(i, widget.playerCount, width, height);
