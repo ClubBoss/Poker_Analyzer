@@ -140,9 +140,10 @@ class _PokerTableViewState extends State<PokerTableView> {
       ),
     ];
     for (int i = 0; i < widget.playerCount; i++) {
-      final seat = TableGeometryHelper.positionForPlayer(i, widget.playerCount, width, height);
+      final seatIndex = (i - widget.heroIndex + widget.playerCount) % widget.playerCount;
+      final seat = TableGeometryHelper.positionForPlayer(seatIndex, widget.playerCount, width, height);
       final offset = Offset(width / 2 + seat.dx - 20 * widget.scale, height / 2 + seat.dy - 20 * widget.scale);
-      final angle = 2 * pi * i / widget.playerCount + pi / 2;
+      final angle = 2 * pi * seatIndex / widget.playerCount + pi / 2;
       final stack = i < widget.playerStacks.length ? widget.playerStacks[i] : 0.0;
       items.add(Positioned(
         left: offset.dx,
@@ -197,12 +198,12 @@ class _PokerTableViewState extends State<PokerTableView> {
         left: offset.dx,
         top: offset.dy - 18 * widget.scale,
         child: PositionLabel(
-          label: positions[i],
+          label: positions[seatIndex],
           isHero: i == widget.heroIndex,
           scale: widget.scale,
         ),
       ));
-      if (positions[i] == 'BTN') {
+      if (positions[seatIndex] == 'BTN') {
         final dx = cos(angle) < 0 ? -24 * widget.scale : 24 * widget.scale;
         items.add(Positioned(
           left: offset.dx + dx,
@@ -210,13 +211,13 @@ class _PokerTableViewState extends State<PokerTableView> {
           child: DealerButtonIndicator(scale: widget.scale),
         ));
       }
-      if (positions[i] == 'SB' || positions[i] == 'BB') {
+      if (positions[seatIndex] == 'SB' || positions[seatIndex] == 'BB') {
         final dx = cos(angle) < 0 ? -24 * widget.scale : 24 * widget.scale;
-        final color = positions[i] == 'SB' ? Colors.blueAccent : Colors.redAccent;
+        final color = positions[seatIndex] == 'SB' ? Colors.blueAccent : Colors.redAccent;
         items.add(Positioned(
           left: offset.dx + dx,
           top: offset.dy - 28 * widget.scale,
-          child: BlindChipIndicator(label: positions[i], color: color, scale: widget.scale),
+          child: BlindChipIndicator(label: positions[seatIndex], color: color, scale: widget.scale),
         ));
       }
       items.add(Positioned(
