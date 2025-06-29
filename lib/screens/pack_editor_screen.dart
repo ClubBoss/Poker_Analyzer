@@ -1758,7 +1758,44 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                               onChanged: (_) => _toggleSelect(hand),
                             )
                           : const Icon(Icons.drag_handle),
-                      title: Text(title),
+                      title: Row(
+                        children: [
+                          Expanded(child: Text(title)),
+                          PopupMenuButton<String>(
+                            padding: EdgeInsets.zero,
+                            onSelected: (p) {
+                              final idx = _hands.indexOf(hand);
+                              if (idx != -1) {
+                                setState(() {
+                                  _hands[idx] =
+                                      hand.copyWith(heroPosition: p);
+                                  _modified = true;
+                                  _rebuildStats();
+                                });
+                              }
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(hand.heroPosition),
+                            ),
+                            itemBuilder: (_) => [
+                              for (final pos
+                                  in ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'])
+                                PopupMenuItem(
+                                  value: pos,
+                                  child: Row(
+                                    children: [
+                                      Expanded(child: Text(pos)),
+                                      if (hand.heroPosition == pos)
+                                        const Icon(Icons.check, size: 16),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
                       subtitle: hand.tags.isEmpty
                           ? null
                           : Text(hand.tags.join(', ')),
