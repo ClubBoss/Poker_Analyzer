@@ -7,6 +7,7 @@ import 'analyzer/player_zone_widget.dart';
 import 'position_label.dart';
 import 'pot_chip_stack_painter.dart';
 import 'dealer_button_indicator.dart';
+import 'blind_chip_indicator.dart';
 
 class PokerTableView extends StatefulWidget {
   final int heroIndex;
@@ -197,6 +198,15 @@ class _PokerTableViewState extends State<PokerTableView> {
           left: offset.dx + dx,
           top: offset.dy - 28 * widget.scale,
           child: DealerButtonIndicator(scale: widget.scale),
+        ));
+      }
+      if (positions[i] == 'SB' || positions[i] == 'BB') {
+        final dx = cos(angle) < 0 ? -24 * widget.scale : 24 * widget.scale;
+        final color = positions[i] == 'SB' ? Colors.blueAccent : Colors.redAccent;
+        items.add(Positioned(
+          left: offset.dx + dx,
+          top: offset.dy - 28 * widget.scale,
+          child: BlindChipIndicator(label: positions[i], color: color, scale: widget.scale),
         ));
       }
       items.add(Positioned(
