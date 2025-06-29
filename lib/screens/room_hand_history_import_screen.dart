@@ -9,6 +9,14 @@ import '../services/training_pack_storage_service.dart';
 import '../theme/app_colors.dart';
 import 'room_hand_history_editor_screen.dart';
 
+enum _Filter { all, newOnly, dup }
+
+class _Entry {
+  final SavedHand hand;
+  final bool duplicate;
+  _Entry(this.hand, this.duplicate);
+}
+
 class RoomHandHistoryImportScreen extends StatefulWidget {
   final TrainingPack pack;
   const RoomHandHistoryImportScreen({super.key, required this.pack});
@@ -19,10 +27,12 @@ class RoomHandHistoryImportScreen extends StatefulWidget {
 
 class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScreen> {
   final TextEditingController _controller = TextEditingController();
-  List<SavedHand> _hands = [];
+  final TextEditingController _searchController = TextEditingController();
+  List<_Entry> _hands = [];
   late TrainingPack _pack;
   RoomHandHistoryImporter? _importer;
   final Set<SavedHand> _selected = {};
+  _Filter _filter = _Filter.newOnly;
 
   bool get _selectionMode => _selected.isNotEmpty;
 
@@ -48,6 +58,7 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
   @override
   void dispose() {
     _controller.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -55,7 +66,19 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
     final text = _controller.text.trim();
     if (text.isEmpty || _importer == null) return;
     final parsed = _importer!.parse(text);
-    setState(() => _hands = parsed);
+    final existing = <String>{for (final h in _pack.hands) h.name};
+    final items = <_Entry>[];
+    for (final h in parsed) {
+      final dup = existing.contains(h.name);
+      existing.add(h.name);
+      items.add(_Entry(h, dup));
+    }
+    setState(() {
+      _hands = items;
+      _selected.clear();
+      _searchController.clear();
+      _filter = items.every((e) => e.duplicate) ? _Filter.dup : _Filter.newOnly;
+    });
   }
 
   Future<void> _paste() async {
@@ -139,18 +162,53 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
         .showSnackBar(SnackBar(content: Text('Added $count hands to pack')));
   }
 
+  List<_Entry> _filteredHands() {
+    final query = _searchController.text.toLowerCase();
+    return _hands.where((e) {
+      switch (_filter) {
+        case _Filter.newOnly:
+          if (e.duplicate) return false;
+          break;
+        case _Filter.dup:
+          if (!e.duplicate) return false;
+          break;
+        case _Filter.all:
+          break;
+      }
+      if (query.isEmpty) return true;
+      return e.hand.name.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  int get _hiddenDupCount {
+    final visible = _filteredHands().where((e) => e.duplicate).length;
+    final total = _hands.where((e) => e.duplicate).length;
+    return total - visible;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(_pack.name), centerTitle: true),
       backgroundColor: AppColors.background,
-      bottomNavigationBar: _selectionMode
+      bottomNavigationBar: _selectionMode || _hiddenDupCount > 0
           ? BottomAppBar(
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: ElevatedButton(
-                  onPressed: _addSelected,
-                  child: const Text('Add Selected'),
+                child: Row(
+                  children: [
+                    if (_selectionMode)
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _addSelected,
+                          child: const Text('Add Selected'),
+                        ),
+                      ),
+                    if (_hiddenDupCount > 0) ...[
+                      if (_selectionMode) const SizedBox(width: 12),
+                      Text('Hidden duplicates: $_hiddenDupCount'),
+                    ]
+                  ],
                 ),
               ),
             )
@@ -172,14 +230,50 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
             const SizedBox(height: 12),
             ElevatedButton(onPressed: _parse, child: const Text('Parse')),
             const SizedBox(height: 12),
+            if (_hands.isNotEmpty)
+              Row(
+                children: [
+                  ChoiceChip(
+                    label: const Text('All'),
+                    selected: _filter == _Filter.all,
+                    onSelected: (_) => setState(() => _filter = _Filter.all),
+                  ),
+                  const SizedBox(width: 8),
+                  ChoiceChip(
+                    label: const Text('New'),
+                    selected: _filter == _Filter.newOnly,
+                    onSelected: (_) => setState(() => _filter = _Filter.newOnly),
+                  ),
+                  const SizedBox(width: 8),
+                  ChoiceChip(
+                    label: const Text('Duplicates'),
+                    selected: _filter == _Filter.dup,
+                    onSelected: (_) => setState(() => _filter = _Filter.dup),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Search'),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 12),
             Expanded(
               child: _hands.isEmpty
                   ? const Center(child: Text('No hands'))
-                  : ListView.builder(
-                      itemCount: _hands.length,
-                  itemBuilder: (_, i) {
-                        final h = _hands[i];
-                        return Card(
+                  : Builder(builder: (context) {
+                      final list = _filteredHands();
+                      return list.isEmpty
+                          ? const Center(child: Text('No hands found'))
+                          : ListView.builder(
+                              itemCount: list.length,
+                              itemBuilder: (_, i) {
+                                final entry = list[i];
+                                final h = entry.hand;
+                                return Card(
                           color: AppColors.cardBackground,
                           margin: const EdgeInsets.symmetric(vertical: 6),
                           child: ListTile(
@@ -204,8 +298,9 @@ class _RoomHandHistoryImportScreenState extends State<RoomHandHistoryImportScree
                             ),
                           ),
                         );
-                      },
-                    ),
+                              },
+                            );
+                    }),
             ),
           ],
         ),
