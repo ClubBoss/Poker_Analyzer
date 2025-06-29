@@ -60,6 +60,7 @@ class _FilterState {
 class TrainingSpotList extends StatefulWidget {
   final List<TrainingSpot> spots;
   final ValueChanged<int>? onRemove;
+  final ValueChanged<int>? onEdit;
   final VoidCallback? onChanged;
   final ReorderCallback? onReorder;
   final bool icmOnly;
@@ -68,6 +69,7 @@ class TrainingSpotList extends StatefulWidget {
     super.key,
     required this.spots,
     this.onRemove,
+    this.onEdit,
     this.onChanged,
     this.onReorder,
     this.icmOnly = false,
@@ -2839,6 +2841,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                             ],
                                           ),
                                         ),
+                                        if (widget.onEdit != null)
+                                          IconButton(
+                                            icon: const Icon(Icons.edit_square,
+                                                color: Colors.white70),
+                                            onPressed: () => widget.onEdit!(
+                                                widget.spots.indexOf(spot)),
+                                          ),
                                         IconButton(
                                           icon: const Icon(Icons.edit,
                                               color: Colors.white70),
@@ -3059,6 +3068,13 @@ class TrainingSpotListState extends State<TrainingSpotList>
                                           ],
                                         ),
                                       ),
+                                      if (widget.onEdit != null)
+                                        IconButton(
+                                          icon: const Icon(Icons.edit_square,
+                                              color: Colors.white70),
+                                          onPressed: () => widget.onEdit!(
+                                              widget.spots.indexOf(spot)),
+                                        ),
                                       IconButton(
                                         icon: const Icon(Icons.edit,
                                             color: Colors.white70),
@@ -3317,31 +3333,37 @@ class TrainingSpotListState extends State<TrainingSpotList>
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
                               ),
-                              child: const Text(
-                                '+Тег',
-                                style: TextStyle(color: Colors.white70),
-                              ),
-                            ),
-                          ],
+                        child: const Text(
+                          '+Тег',
+                          style: TextStyle(color: Colors.white70),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.white70),
-                        onPressed: () => _editComment(spot),
-                      ),
+                    ],
+                  ),
+                ),
+                if (widget.onEdit != null)
+                  IconButton(
+                    icon: const Icon(Icons.edit_square, color: Colors.white70),
+                    onPressed: () =>
+                        widget.onEdit!(widget.spots.indexOf(spot)),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white70),
+                  onPressed: () => _editComment(spot),
+                ),
                       IconButton(
                         icon: const Icon(Icons.history, color: Colors.white70),
                         onPressed: () => _editActionHistory(spot),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.copy, color: Colors.white70),
-                        onPressed: () => _duplicateSpot(spot),
-                      ),
-                      if (widget.onRemove != null)
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteSpot(spot),
-                        ),
+                          IconButton(
+                            icon: const Icon(Icons.copy, color: Colors.white70),
+                            onPressed: () => _duplicateSpot(spot),
+                          ),
+                          if (widget.onRemove != null)
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteSpot(spot),
+                            ),
                     ],
                   ),
                   );
