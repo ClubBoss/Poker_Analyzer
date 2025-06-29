@@ -49,8 +49,8 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
       _playerCount = (_playerCount + delta).clamp(2, 10);
       if (_names.length < _playerCount) {
         final start = _names.length;
-        _names.addAll(
-            List.generate(_playerCount - start, (i) => 'Player ${start + i + 1}'));
+        _names.addAll(List.generate(
+            _playerCount - start, (i) => 'Player ${start + i + 1}'));
       } else if (_names.length > _playerCount) {
         _names = _names.sublist(0, _playerCount);
       }
@@ -102,6 +102,31 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
     }
   }
 
+  Future<void> _pasteJson() async {
+    final data = await Clipboard.getData('text/plain');
+    final text = data?.text ?? '';
+    if (text.isEmpty) return;
+    try {
+      final json = jsonDecode(text);
+      final state = TableState.fromJson(Map<String, dynamic>.from(json as Map));
+      _applyState(state);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Table pasted')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Invalid JSON'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,6 +145,11 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
             icon: const Icon(Icons.copy),
             onPressed: _copyJson,
             tooltip: 'Copy JSON',
+          ),
+          IconButton(
+            icon: const Icon(Icons.paste),
+            onPressed: _pasteJson,
+            tooltip: 'Paste JSON',
           ),
           IconButton(icon: const Icon(Icons.color_lens), onPressed: _nextTheme),
           IconButton(icon: const Icon(Icons.clear), onPressed: _clear),
@@ -162,7 +192,8 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
                   onPressed: () => _changeCount(-1),
                   icon: const Icon(Icons.remove),
                 ),
-                Text('$_playerCount', style: const TextStyle(color: Colors.white)),
+                Text('$_playerCount',
+                    style: const TextStyle(color: Colors.white)),
                 IconButton(
                   onPressed: () => _changeCount(1),
                   icon: const Icon(Icons.add),

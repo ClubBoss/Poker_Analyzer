@@ -28,4 +28,14 @@ class TableState {
         'heroIndex': heroIndex,
         'pot': pot,
       };
+
+  factory TableState.fromJson(Map<String, dynamic> json) => TableState(
+        playerCount: json['playerCount'] as int? ?? 0,
+        names: [for (final n in (json['names'] as List? ?? [])) n as String],
+        stacks: [
+          for (final s in (json['stacks'] as List? ?? [])) (s as num).toDouble()
+        ],
+        heroIndex: json['heroIndex'] as int? ?? 0,
+        pot: (json['pot'] as num?)?.toDouble() ?? 0.0,
+      );
 }
