@@ -167,6 +167,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() => _selectedSpotIds.clear());
   }
 
+  Future<void> _bulkTogglePin() async {
+    final spots = [for (final s in widget.template.spots) if (_selectedSpotIds.contains(s.id)) s];
+    if (spots.isEmpty) return;
+    final newState = spots.any((s) => !s.pinned);
+    setState(() {
+      for (final s in spots) {
+        s.pinned = newState;
+      }
+      if (_autoSortEv) _sortSpots();
+    });
+    await TrainingPackStorage.save(widget.templates);
+    setState(() => _selectedSpotIds.clear());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${newState ? 'Pinned' : 'Unpinned'} ${spots.length} spot(s)')),
+    );
+  }
+
   double _spotEv(TrainingPackSpot s) {
     final acts = s.hand.actions[0] ?? [];
     for (final a in acts) {
@@ -251,6 +268,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   TextButton(
                     onPressed: _bulkRemoveTag,
                     child: const Text('Remove Tag'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: _bulkTogglePin,
+                    child: const Text('Pin / Unpin'),
                   ),
                   const SizedBox(width: 12),
                   TextButton.icon(
