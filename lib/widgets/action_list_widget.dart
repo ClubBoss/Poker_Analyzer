@@ -281,6 +281,23 @@ class _ActionListWidgetState extends State<ActionListWidget> {
     _notify();
   }
 
+  void _duplicateAction(int index) {
+    final a = _actions[index];
+    setState(() {
+      final clone = ActionEntry(
+        a.street,
+        a.playerIndex,
+        a.action,
+        amount: a.amount,
+        customLabel: a.customLabel,
+        equity: a.equity,
+      );
+      _actions.insert(index + 1, clone);
+      _recalcErrors();
+    });
+    _notify();
+  }
+
   void _clearAllActions() {
     setState(() {
       _actions.clear();
@@ -413,6 +430,11 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () => _deleteAction(index),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy, color: Colors.white70),
+                    tooltip: 'Duplicate action',
+                    onPressed: () => _duplicateAction(index),
                   ),
                 ],
               ),
