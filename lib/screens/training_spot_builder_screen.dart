@@ -90,7 +90,7 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
       if (parts.length < 2) continue;
       final p = int.tryParse(parts[0]);
       if (p == null || p < 1 || p > _tableSize) continue;
-      final amount = parts.length > 2 ? int.tryParse(parts[2]) : null;
+      final amount = parts.length > 2 ? double.tryParse(parts[2]) : null;
       actions
           .add(ActionEntry(0, p - 1, parts[1].toLowerCase(), amount: amount));
     }

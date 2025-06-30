@@ -176,7 +176,7 @@ class TrainingSpot {
           a['street'] as int,
           a['playerIndex'] as int,
           a['action'] as String,
-          amount: (a['amount'] as num?)?.toInt(),
+          amount: (a['amount'] as num?)?.toDouble(),
           manualEvaluation: a['manualEvaluation'] as String?,
         ));
       }

@@ -412,7 +412,7 @@ class SavedHand {
           a['street'] as int,
           a['playerIndex'] as int,
           a['action'] as String,
-          amount: a['amount'] as int?,
+          amount: (a['amount'] as num?)?.toDouble(),
           generated: a['generated'] as bool? ?? false,
           timestamp:
               DateTime.tryParse(a['timestamp'] as String? ?? '') ?? DateTime.now(),

@@ -100,7 +100,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         if (idx != null) {
           final amt = _parseAmount(m.group(2)!);
           final amount =
-              bigBlind != null && bigBlind > 0 ? (amt / bigBlind).round() : amt.round();
+              bigBlind != null && bigBlind > 0 ? (amt / bigBlind) : amt;
           final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
           final action = isAllIn ? 'all-in' : 'call';
           actions.add(ActionEntry(street, idx, action, amount: amount));
@@ -117,7 +117,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         if (idx != null) {
           final amt = _parseAmount(m.group(3)!);
           final amount =
-              bigBlind != null && bigBlind > 0 ? (amt / bigBlind).round() : amt.round();
+              bigBlind != null && bigBlind > 0 ? (amt / bigBlind) : amt;
           final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
           final action = isAllIn ? 'all-in' : 'raise';
           actions.add(ActionEntry(street, idx, action, amount: amount));

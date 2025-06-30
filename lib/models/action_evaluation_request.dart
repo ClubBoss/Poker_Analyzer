@@ -6,7 +6,7 @@ class ActionEvaluationRequest {
   final int street;
   final int playerIndex;
   final String action;
-  final int? amount;
+  final double? amount;
   final Map<String, dynamic>? metadata;
   int attempts;
 
@@ -37,7 +37,7 @@ class ActionEvaluationRequest {
       street: json['street'] as int? ?? 0,
       playerIndex: json['playerIndex'] as int? ?? 0,
       action: json['action'] as String? ?? '',
-      amount: json['amount'] as int?,
+      amount: (json['amount'] as num?)?.toDouble(),
       metadata: json['metadata'] != null
           ? Map<String, dynamic>.from(json['metadata'] as Map)
           : null,
