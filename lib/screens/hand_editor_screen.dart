@@ -12,6 +12,9 @@ import '../models/action_entry.dart';
 import '../helpers/poker_position_helper.dart';
 import '../services/hand_evaluator.dart';
 
+class UndoIntent extends Intent { const UndoIntent(); }
+class RedoIntent extends Intent { const RedoIntent(); }
+
 class HandEditorScreen extends StatefulWidget {
   const HandEditorScreen({super.key});
 
@@ -788,10 +791,24 @@ class _HandEditorScreenState extends State<HandEditorScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Hand Editor'),
-        actions: [
+    return Shortcuts(
+      shortcuts: <LogicalKeySet, Intent>{
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ): const UndoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ): const UndoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyZ): const RedoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.shift, LogicalKeyboardKey.keyZ): const RedoIntent(),
+      },
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          UndoIntent: CallbackAction<UndoIntent>(onInvoke: (_) => _undoAction()),
+          RedoIntent: CallbackAction<RedoIntent>(onInvoke: (_) => _redoAction()),
+        },
+        child: Focus(
+          autofocus: true,
+          child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Hand Editor'),
+            actions: [
           IconButton(
             icon: const Icon(Icons.undo),
             onPressed: _canUndo ? _undoAction : null,
@@ -995,6 +1012,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }
