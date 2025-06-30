@@ -544,13 +544,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       break;
                   }
                   final sorted = [...pinned, ...rest];
+                },
                   return ReorderableListView.builder(
                     controller: _scrollCtrl,
                     itemCount: sorted.length,
                     itemBuilder: (context, index) {
                       final spot = sorted[index];
                       final selected = _selectedSpotIds.contains(spot.id);
-                      return ReorderableDragStartListener(
+                      final content = ReorderableDragStartListener(
                         key: ValueKey(spot.id),
                         index: index,
                         child: InkWell(
@@ -560,9 +561,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             child: AnimatedContainer(
                               key: _itemKeys.putIfAbsent(spot.id, () => GlobalKey()),
                               duration: const Duration(milliseconds: 500),
-                              color: spot.id == _highlightId
-                                  ? Colors.yellow.withOpacity(0.3)
-                                  : null,
+                              color: spot.id == _highlightId ? Colors.yellow.withOpacity(0.3) : null,
                               padding: const EdgeInsets.all(8),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -591,117 +590,125 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                PopupMenuButton<String>(
-                                  onSelected: (v) {
-                                    if (v == 'copy') {
-                                      _copiedSpot = spot.copyWith(
-                                        id: const Uuid().v4(),
-                                        editedAt: DateTime.now(),
-                                        hand: HandData.fromJson(spot.hand.toJson()),
-                                        tags: List.from(spot.tags),
-                                      );
-                                    } else if (v == 'paste' && _copiedSpot != null) {
-                                      final i = widget.template.spots.indexOf(spot);
-                                      final s = _copiedSpot!.copyWith(
-                                        id: const Uuid().v4(),
-                                        editedAt: DateTime.now(),
-                                        hand: HandData.fromJson(_copiedSpot!.hand.toJson()),
-                                        tags: List.from(_copiedSpot!.tags),
-                                      );
-                                      setState(() => widget.template.spots.insert(i + 1, s));
-                                      TrainingPackStorage.save(widget.templates);
-                                    } else if (v == 'dup') {
-                                      final i = widget.template.spots.indexOf(spot);
-                                      final copy = spot.copyWith(
-                                        id: const Uuid().v4(),
-                                        editedAt: DateTime.now(),
-                                        hand: HandData.fromJson(spot.hand.toJson()),
-                                        tags: List.from(spot.tags),
-                                      );
-                                      setState(() {
-                                        widget.template.spots.insert(i + 1, copy);
-                                        _highlightId = copy.id;
-                                      });
-                                      TrainingPackStorage.save(widget.templates);
-                                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                                        final ctx = _itemKeys[copy.id]?.currentContext;
-                                        if (ctx != null) {
-                                          Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300));
-                                        } else {
-                                          _scrollCtrl.animateTo(
-                                            _scrollCtrl.position.maxScrollExtent,
-                                            duration: const Duration(milliseconds: 300),
-                                            curve: Curves.easeOut,
-                                          );
-                                        }
-                                      });
-                                      Future.delayed(const Duration(milliseconds: 700), () {
-                                        if (mounted && _highlightId == copy.id) {
-                                          setState(() => _highlightId = null);
-                                        }
-                                      });
-                                    } else if (v == 'pin') {
-                                      setState(() {
-                                        spot.pinned = !spot.pinned;
-                                        if (_autoSortEv) _sortSpots();
-                                      });
-                                      TrainingPackStorage.save(widget.templates);
-                                    }
-                                  },
-                                  itemBuilder: (_) => [
-                                    PopupMenuItem(value: 'pin', child: Text(spot.pinned ? '📌 Unpin' : '📌 Pin')),
-                                    const PopupMenuItem(value: 'copy', child: Text('📋 Copy')),
-                                    if (_copiedSpot != null)
-                                      const PopupMenuItem(value: 'paste', child: Text('📥 Paste')),
-                                    const PopupMenuItem(value: 'dup', child: Text('📄 Duplicate')),
-                                  ],
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
-                                    );
-                                    setState(() {});
-                                    TrainingPackStorage.save(widget.templates);
-                                  },
-                                  child: const Text('📝 Edit'),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () async {
-                                    final ok = await showDialog<bool>(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        title: const Text('Delete spot?'),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () => Navigator.pop(context, false),
-                                              child: const Text('Cancel')),
-                                          TextButton(
-                                              onPressed: () => Navigator.pop(context, true),
-                                              child: const Text('Delete')),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      PopupMenuButton<String>(
+                                        onSelected: (v) {
+                                          if (v == 'copy') {
+                                            _copiedSpot = spot.copyWith(
+                                              id: const Uuid().v4(),
+                                              editedAt: DateTime.now(),
+                                              hand: HandData.fromJson(spot.hand.toJson()),
+                                              tags: List.from(spot.tags),
+                                            );
+                                          } else if (v == 'paste' && _copiedSpot != null) {
+                                            final i = widget.template.spots.indexOf(spot);
+                                            final s = _copiedSpot!.copyWith(
+                                              id: const Uuid().v4(),
+                                              editedAt: DateTime.now(),
+                                              hand: HandData.fromJson(_copiedSpot!.hand.toJson()),
+                                              tags: List.from(_copiedSpot!.tags),
+                                            );
+                                            setState(() => widget.template.spots.insert(i + 1, s));
+                                            TrainingPackStorage.save(widget.templates);
+                                          } else if (v == 'dup') {
+                                            _duplicateSpot(spot);
+                                          } else if (v == 'pin') {
+                                            setState(() {
+                                              spot.pinned = !spot.pinned;
+                                              if (_autoSortEv) _sortSpots();
+                                            });
+                                            TrainingPackStorage.save(widget.templates);
+                                          }
+                                        },
+                                        itemBuilder: (_) => [
+                                          PopupMenuItem(value: 'pin', child: Text(spot.pinned ? '📌 Unpin' : '📌 Pin')),
+                                          const PopupMenuItem(value: 'copy', child: Text('📋 Copy')),
+                                          if (_copiedSpot != null) const PopupMenuItem(value: 'paste', child: Text('📥 Paste')),
+                                          const PopupMenuItem(value: 'dup', child: Text('📄 Duplicate')),
                                         ],
                                       ),
-                                    );
-                                    if (ok ?? false) {
-                                      setState(() => widget.template.spots.removeAt(index));
-                                      TrainingPackStorage.save(widget.templates);
-                                    }
+                                      TextButton(
+                                        onPressed: () async {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
+                                          );
+                                          setState(() {});
+                                          TrainingPackStorage.save(widget.templates);
+                                        },
+                                        child: const Text('📝 Edit'),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete, color: Colors.red),
+                                        onPressed: () async {
+                                          final ok = await showDialog<bool>(
+                                            context: context,
+                                            builder: (_) => AlertDialog(
+                                              title: const Text('Delete spot?'),
+                                              actions: [
+                                                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                                TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                                              ],
+                                            ),
+                                          );
+                                          if (ok ?? false) {
+                                            setState(() => widget.template.spots.removeAt(index));
+                                            TrainingPackStorage.save(widget.templates);
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                      return Dismissible(
+                        key: ValueKey(spot.id),
+                        background: Container(
+                          color: Colors.green,
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: const Icon(Icons.copy, color: Colors.white),
+                        ),
+                        secondaryBackground: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: const Icon(Icons.delete, color: Colors.white),
+                        ),
+                        confirmDismiss: (dir) async {
+                          if (dir == DismissDirection.startToEnd) {
+                            _duplicateSpot(spot);
+                          } else {
+                            _lastRemoved = [spot];
+                            setState(() => widget.template.spots.remove(spot));
+                            TrainingPackStorage.save(widget.templates);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Deleted'),
+                                action: SnackBarAction(
+                                  label: 'UNDO',
+                                  onPressed: () {
+                                    setState(() {
+                                      widget.template.spots.addAll(_lastRemoved!);
+                                      if (_autoSortEv) _sortSpots();
+                                    });
+                                    TrainingPackStorage.save(widget.templates);
                                   },
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                              ),
+                            );
+                          }
+                          return false;
+                        },
+                        child: content,
+                      );
+                    },
                 onReorder: (o, n) {
                   final spot = sorted[o];
                   final oldIndex = widget.template.spots.indexOf(spot);
