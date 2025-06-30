@@ -9,6 +9,8 @@ import 'package:file_picker/file_picker.dart';
 import '../helpers/color_utils.dart';
 import '../services/template_storage_service.dart';
 import '../models/training_pack_template.dart';
+import '../services/training_session_service.dart';
+import 'training_session_screen.dart';
 import 'create_pack_from_template_screen.dart';
 import 'create_template_screen.dart';
 import 'template_hands_editor_screen.dart';
@@ -203,6 +205,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     title: Text(t.name),
                     subtitle: Text(
                         '${t.category ?? 'Без категории'} • ${t.hands.length} рук • v$version'),
+                    trailing: TextButton(
+                      onPressed: () {
+                        context.read<TrainingSessionService>().startSession(t);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const TrainingSessionScreen()),
+                        );
+                      },
+                      child: const Text('▶️ Train'),
+                    ),
                     onTap: () async {
                       final create = await showDialog<bool>(
                         context: context,
