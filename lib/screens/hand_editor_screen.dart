@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../widgets/poker_table_view.dart';
 import '../widgets/card_picker_widget.dart';
 import '../widgets/action_list_widget.dart';
@@ -211,6 +213,102 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     _skipHistory = false;
   }
 
+  Map<String, dynamic> _toJson() => {
+        'heroIndex': _heroIndex,
+        'names': _names,
+        'initialStacks': _initialStacks,
+        'heroCards': [
+          for (final c in _heroCards) {'r': c.rank, 's': c.suit}
+        ],
+        'boardCards': [
+          for (final c in _boardCards) {'r': c.rank, 's': c.suit}
+        ],
+        'preflop': [_forJson(_preflopActions)],
+        'flop': [_forJson(_flopActions)],
+        'turn': [_forJson(_turnActions)],
+        'river': [_forJson(_riverActions)],
+      };
+
+  List<Map<String, dynamic>> _forJson(List<ActionEntry> list) => [
+        for (final a in list)
+          {
+            'st': a.street,
+            'p': a.playerIndex,
+            'a': a.action,
+            if (a.amount != null) 'amt': a.amount,
+            if (a.customLabel != null) 'lbl': a.customLabel,
+          }
+      ];
+
+  void _applyFromJson(Map<String, dynamic> json) {
+    _heroCards
+      ..clear()
+      ..addAll([
+        for (final c in (json['heroCards'] as List? ?? []))
+          if (c is Map)
+            CardModel(rank: c['r'] as String, suit: c['s'] as String)
+      ]);
+    _boardCards
+      ..clear()
+      ..addAll([
+        for (final c in (json['boardCards'] as List? ?? []))
+          if (c is Map)
+            CardModel(rank: c['r'] as String, suit: c['s'] as String)
+      ]);
+    _heroIndex = json['heroIndex'] as int? ?? 0;
+    _names
+      ..clear()
+      ..addAll([for (final n in (json['names'] as List? ?? [])) n as String]);
+    _initialStacks = [
+      for (final s in (json['initialStacks'] as List? ?? []))
+        (s as num).toDouble()
+    ];
+    List<ActionEntry> parse(List? list) => [
+          for (final a in (list ?? []))
+            if (a is Map)
+              ActionEntry(
+                a['st'] as int? ?? 0,
+                a['p'] as int? ?? 0,
+                a['a'] as String? ?? '',
+                amount: (a['amt'] as num?)?.toDouble(),
+                customLabel: a['lbl'] as String?,
+              )
+        ];
+    _preflopActions = parse(json['preflop']);
+    _flopActions = parse(json['flop']);
+    _turnActions = parse(json['turn']);
+    _riverActions = parse(json['river']);
+    setState(() {
+      _recompute(pushHistory: false);
+    });
+    _undo.clear();
+    _redo.clear();
+    _pushHistory();
+  }
+
+  Future<void> _exportJson() async {
+    final jsonStr = jsonEncode(_toJson());
+    await Clipboard.setData(ClipboardData(text: jsonStr));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Hand copied to clipboard')),
+    );
+  }
+
+  Future<void> _importJson() async {
+    final data = await Clipboard.getData('text/plain');
+    if (data?.text == null || data!.text!.trim().isEmpty) return;
+    try {
+      _applyFromJson(Map<String, dynamic>.from(jsonDecode(data.text!)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Hand loaded')),
+      );
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid JSON')),
+      );
+    }
+  }
+
   void _onPreflopChanged(List<ActionEntry> list) {
     setState(() {
       _preflopActions = list;
@@ -418,6 +516,17 @@ class _HandEditorScreenState extends State<HandEditorScreen>
           TextButton(
             onPressed: _editPlayers,
             child: const Text('📝 Players'),
+          ),
+          IconButton(icon: const Icon(Icons.download), onPressed: _exportJson),
+          FutureBuilder<ClipboardData?>(
+            future: Clipboard.getData('text/plain'),
+            builder: (context, snapshot) {
+              final hasText = snapshot.data?.text?.trim().isNotEmpty ?? false;
+              return IconButton(
+                icon: const Icon(Icons.upload),
+                onPressed: hasText ? _importJson : null,
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.arrow_forward),
