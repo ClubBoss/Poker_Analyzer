@@ -50,8 +50,25 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
     }
   }
 
+  bool _validateStacks() {
+    final stacks = widget.spot.hand.stacks;
+    final hero = stacks['${widget.spot.hand.heroIndex}'];
+    if (hero == null || hero <= 0) return false;
+    int count = 0;
+    for (final v in stacks.values) {
+      if (v > 0) count++;
+    }
+    return count >= 2;
+  }
+
   Future<void> _save(BuildContext context) async {
     _update();
+    if (!_validateStacks()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ошибка: стеков недостаточно для розыгрыша')),
+      );
+      return;
+    }
     final templates = await TrainingPackStorage.load();
     for (final t in templates) {
       for (var i = 0; i < t.spots.length; i++) {
