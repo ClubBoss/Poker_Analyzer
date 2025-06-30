@@ -30,6 +30,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   String? _tagFilter;
   late TextEditingController _searchCtrl;
   Set<String> _selectedTags = {};
+  Set<String> _selectedSpotIds = {};
+  bool get _isMultiSelect => _selectedSpotIds.isNotEmpty;
   SortBy _sortBy = SortBy.edited;
 
   void _addSpot() async {
@@ -86,6 +88,67 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _bulkAddTag() async {
+    final c = TextEditingController();
+    final tag = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Add Tag'),
+        content: TextField(controller: c, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
+        ],
+      ),
+    );
+    c.dispose();
+    if (tag == null || tag.isEmpty) return;
+    setState(() {
+      for (final id in _selectedSpotIds) {
+        final s = widget.template.spots.firstWhere((e) => e.id == id);
+        if (!s.tags.contains(tag)) s.tags.add(tag);
+      }
+    });
+    await TrainingPackStorage.save(widget.templates);
+    setState(() => _selectedSpotIds.clear());
+  }
+
+  Future<void> _bulkRemoveTag() async {
+    final spots = [for (final s in widget.template.spots) if (_selectedSpotIds.contains(s.id)) s];
+    if (spots.isEmpty) return;
+    Set<String> tags = Set.from(spots.first.tags);
+    for (final s in spots.skip(1)) {
+      tags = tags.intersection(s.tags.toSet());
+    }
+    String? selected = tags.isNotEmpty ? tags.first : null;
+    final tag = await showDialog<String>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: const Text('Remove Tag'),
+          content: DropdownButton<String>(
+            value: selected,
+            items: [for (final t in tags) DropdownMenuItem(value: t, child: Text(t))],
+            onChanged: (v) => setStateDialog(() => selected = v),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(context, selected), child: const Text('OK')),
+          ],
+        ),
+      ),
+    );
+    if (tag == null || tag.isEmpty) return;
+    setState(() {
+      for (final id in _selectedSpotIds) {
+        final s = widget.template.spots.firstWhere((e) => e.id == id);
+        s.tags.remove(tag);
+      }
+    });
+    await TrainingPackStorage.save(widget.templates);
+    setState(() => _selectedSpotIds.clear());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,6 +174,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ),
       floatingActionButton:
           FloatingActionButton(onPressed: _addSpot, child: const Icon(Icons.add)),
+      bottomNavigationBar: _isMultiSelect
+          ? BottomAppBar(
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: _bulkAddTag,
+                    child: const Text('Add Tag'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: _bulkRemoveTag,
+                    child: const Text('Remove Tag'),
+                  ),
+                ],
+              ),
+            )
+          : null,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -221,30 +301,44 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     itemCount: shown.length,
                     itemBuilder: (context, index) {
                       final spot = shown[index];
+                      final selected = _selectedSpotIds.contains(spot.id);
                       return ReorderableDragStartListener(
                         key: ValueKey(spot.id),
                         index: index,
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: TrainingPackSpotPreviewCard(
-                                spot: spot,
-                                onHandEdited: () {
-                                  setState(() {});
-                                  TrainingPackStorage.save(widget.templates);
-                                },
-                                onTagTap: (tag) => setState(() => _tagFilter = tag),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
+                        child: InkWell(
+                          onLongPress: () => setState(() => _selectedSpotIds.add(spot.id)),
+                          child: Card(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (_isMultiSelect)
+                                    Checkbox(
+                                      value: selected,
+                                      onChanged: (_) => setState(() {
+                                        if (selected) {
+                                          _selectedSpotIds.remove(spot.id);
+                                        } else {
+                                          _selectedSpotIds.add(spot.id);
+                                        }
+                                      }),
+                                    ),
+                                  Expanded(
+                                    child: TrainingPackSpotPreviewCard(
+                                      spot: spot,
+                                      onHandEdited: () {
+                                        setState(() {});
+                                        TrainingPackStorage.save(widget.templates);
+                                      },
+                                      onTagTap: (tag) => setState(() => _tagFilter = tag),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
                                 PopupMenuButton<String>(
                                   onSelected: (v) {
                                     if (v == 'copy') {
