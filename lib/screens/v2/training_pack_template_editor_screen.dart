@@ -176,7 +176,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   void _sortSpots() {
-    widget.template.spots.sort((a, b) => _spotEv(b).compareTo(_spotEv(a)));
+    final pinned = widget.template.spots.where((s) => s.pinned).toList();
+    final others = widget.template.spots.where((s) => !s.pinned).toList();
+    others.sort((a, b) => _spotEv(b).compareTo(_spotEv(a)));
+    widget.template.spots
+      ..clear()
+      ..addAll(pinned)
+      ..addAll(others);
   }
 
   @override
@@ -382,9 +388,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     return s.title.toLowerCase().contains(_query) ||
                         s.tags.any((t) => t.toLowerCase().contains(_query));
                   }).toList();
+                  final pinned = [for (final s in shown) if (s.pinned) s];
+                  final rest = [for (final s in shown) if (!s.pinned) s];
                   switch (_sortBy) {
                     case SortBy.title:
-                      shown.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+                      rest.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
                       break;
                     case SortBy.evDesc:
                       double ev(TrainingPackSpot s) {
@@ -394,19 +402,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         }
                         return double.negativeInfinity;
                       }
-                      shown.sort((a, b) => ev(b).compareTo(ev(a)));
+                      rest.sort((a, b) => ev(b).compareTo(ev(a)));
                       break;
                     case SortBy.edited:
-                      shown.sort((a, b) => b.editedAt.compareTo(a.editedAt));
+                      rest.sort((a, b) => b.editedAt.compareTo(a.editedAt));
                       break;
                     case SortBy.autoEv:
                       break;
                   }
+                  final sorted = [...pinned, ...rest];
                   return ReorderableListView.builder(
                     controller: _scrollCtrl,
-                    itemCount: shown.length,
+                    itemCount: sorted.length,
                     itemBuilder: (context, index) {
-                      final spot = shown[index];
+                      final spot = sorted[index];
                       final selected = _selectedSpotIds.contains(spot.id);
                       return ReorderableDragStartListener(
                         key: ValueKey(spot.id),
@@ -501,9 +510,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                           setState(() => _highlightId = null);
                                         }
                                       });
+                                    } else if (v == 'pin') {
+                                      setState(() {
+                                        spot.pinned = !spot.pinned;
+                                        if (_autoSortEv) _sortSpots();
+                                      });
+                                      TrainingPackStorage.save(widget.templates);
                                     }
                                   },
                                   itemBuilder: (_) => [
+                                    PopupMenuItem(value: 'pin', child: Text(spot.pinned ? '📌 Unpin' : '📌 Pin')),
                                     const PopupMenuItem(value: 'copy', child: Text('📋 Copy')),
                                     if (_copiedSpot != null)
                                       const PopupMenuItem(value: 'paste', child: Text('📥 Paste')),
@@ -554,10 +570,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   );
                 },
                 onReorder: (o, n) {
-                  final spot = shown[o];
+                  final spot = sorted[o];
                   final oldIndex = widget.template.spots.indexOf(spot);
-                  final newIndex = n < shown.length
-                      ? widget.template.spots.indexOf(shown[n])
+                  final newIndex = n < sorted.length
+                      ? widget.template.spots.indexOf(sorted[n])
                       : widget.template.spots.length;
                   setState(() {
                     final s = widget.template.spots.removeAt(oldIndex);

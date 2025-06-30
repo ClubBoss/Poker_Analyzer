@@ -60,9 +60,16 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
           child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              spot.title.isEmpty ? 'Untitled spot' : spot.title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                if (spot.pinned) const Text('📌 '),
+                Expanded(
+                  child: Text(
+                    spot.title.isEmpty ? 'Untitled spot' : spot.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
           if (hero.isNotEmpty || pos != HeroPosition.unknown || legacy)
             Padding(
