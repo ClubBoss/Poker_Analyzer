@@ -22,6 +22,8 @@ class TrainingPackTemplateEditorScreen extends StatefulWidget {
 class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateEditorScreen> {
   late final TextEditingController _nameCtr;
   late final TextEditingController _descCtr;
+  String _query = '';
+  late TextEditingController _searchCtrl;
 
   void _addSpot() async {
     final spot = TrainingPackSpot(id: const Uuid().v4(), title: 'New spot');
@@ -40,12 +42,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     super.initState();
     _nameCtr = TextEditingController(text: widget.template.name);
     _descCtr = TextEditingController(text: widget.template.description);
+    _searchCtrl = TextEditingController();
   }
 
   @override
   void dispose() {
     _nameCtr.dispose();
     _descCtr.dispose();
+    _searchCtrl.dispose();
     super.dispose();
   }
 
@@ -115,14 +119,44 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               },
             ),
             const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: TextField(
+                controller: _searchCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Search by tag or title',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _query.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () => setState(() {
+                            _query = '';
+                            _searchCtrl.clear();
+                          }),
+                        ),
+                ),
+                onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+              ),
+            ),
             Expanded(
-              child: ReorderableListView.builder(
-                itemCount: widget.template.spots.length,
-                itemBuilder: (context, index) {
-                  final spot = widget.template.spots[index];
-                  return ReorderableDragStartListener(
-                    key: ValueKey(spot.id),
-                    index: index,
+              child: Builder(
+                builder: (context) {
+                  final shown = _query.isEmpty
+                      ? widget.template.spots
+                      : widget.template.spots
+                          .where((s) =>
+                              s.title.toLowerCase().contains(_query) ||
+                              s.tags
+                                  .any((t) => t.toLowerCase().contains(_query)))
+                          .toList();
+                  return ReorderableListView.builder(
+                    itemCount: shown.length,
+                    itemBuilder: (context, index) {
+                      final spot = shown[index];
+                      return ReorderableDragStartListener(
+                        key: ValueKey(spot.id),
+                        index: index,
                     child: Card(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       child: Container(
@@ -192,6 +226,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     widget.template.spots.insert(n > o ? n - 1 : n, s);
                   });
                   TrainingPackStorage.save(widget.templates);
+                },
+              );
                 },
               ),
             ),
