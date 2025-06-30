@@ -47,6 +47,34 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     TrainingPackStorage.save(_templates);
   }
 
+  Future<void> _rename(TrainingPackTemplate template) async {
+    final ctrl = TextEditingController(text: template.name);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Rename template'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ctrl.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (result != null && result.isNotEmpty && result != template.name) {
+      setState(() => template.name = result);
+      TrainingPackStorage.save(_templates);
+    }
+  }
+
   void _add() {
     final template = TrainingPackTemplate(id: const Uuid().v4(), name: 'New Pack');
     setState(() => _templates.add(template));
@@ -176,6 +204,17 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            PopupMenuButton<String>(
+                              onSelected: (v) {
+                                if (v == 'rename') _rename(t);
+                              },
+                              itemBuilder: (_) => const [
+                                PopupMenuItem(
+                                  value: 'rename',
+                                  child: Text('✏️ Rename'),
+                                ),
+                              ],
+                            ),
                             TextButton(
                               onPressed: () => _edit(t),
                               child: const Text('📝 Edit'),
