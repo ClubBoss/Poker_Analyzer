@@ -6,6 +6,8 @@ import '../../helpers/training_pack_storage.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
 
+enum SortBy { title, evDesc, edited }
+
 TrainingPackSpot? _copiedSpot;
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
@@ -28,6 +30,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   String? _tagFilter;
   late TextEditingController _searchCtrl;
   Set<String> _selectedTags = {};
+  SortBy _sortBy = SortBy.edited;
 
   void _addSpot() async {
     final spot = TrainingPackSpot(id: const Uuid().v4(), title: 'New spot');
@@ -89,6 +92,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       appBar: AppBar(
         title: const Text('Edit pack'),
         actions: [
+          PopupMenuButton<SortBy>(
+            icon: const Icon(Icons.sort),
+            onSelected: (v) => setState(() => _sortBy = v),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: SortBy.title, child: Text('Title')),
+              PopupMenuItem(value: SortBy.evDesc, child: Text('EV')),
+              PopupMenuItem(value: SortBy.edited, child: Text('Edited')),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.delete_sweep),
             tooltip: 'Clear All Spots',
@@ -187,6 +199,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     return s.title.toLowerCase().contains(_query) ||
                         s.tags.any((t) => t.toLowerCase().contains(_query));
                   }).toList();
+                  switch (_sortBy) {
+                    case SortBy.title:
+                      shown.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+                      break;
+                    case SortBy.evDesc:
+                      double ev(TrainingPackSpot s) {
+                        final acts = s.hand.actions[0] ?? [];
+                        for (final a in acts) {
+                          if (a.playerIndex == s.hand.heroIndex) return a.ev ?? double.negativeInfinity;
+                        }
+                        return double.negativeInfinity;
+                      }
+                      shown.sort((a, b) => ev(b).compareTo(ev(a)));
+                      break;
+                    case SortBy.edited:
+                      shown.sort((a, b) => b.editedAt.compareTo(a.editedAt));
+                      break;
+                  }
                   return ReorderableListView.builder(
                     itemCount: shown.length,
                     itemBuilder: (context, index) {
@@ -218,10 +248,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                 PopupMenuButton<String>(
                                   onSelected: (v) {
                                     if (v == 'copy') {
-                                      _copiedSpot = spot.copyWith(id: const Uuid().v4());
+                                      _copiedSpot =
+                                          spot.copyWith(id: const Uuid().v4(), editedAt: DateTime.now());
                                     } else if (v == 'paste' && _copiedSpot != null) {
                                       final i = widget.template.spots.indexOf(spot);
-                                      final s = _copiedSpot!.copyWith(id: const Uuid().v4());
+                                      final s = _copiedSpot!
+                                          .copyWith(id: const Uuid().v4(), editedAt: DateTime.now());
                                       setState(() => widget.template.spots.insert(i + 1, s));
                                       TrainingPackStorage.save(widget.templates);
                                     }
@@ -276,9 +308,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   );
                 },
                 onReorder: (o, n) {
+                  final spot = shown[o];
+                  final oldIndex = widget.template.spots.indexOf(spot);
+                  final newIndex = n < shown.length
+                      ? widget.template.spots.indexOf(shown[n])
+                      : widget.template.spots.length;
                   setState(() {
-                    final s = widget.template.spots.removeAt(o);
-                    widget.template.spots.insert(n > o ? n - 1 : n, s);
+                    final s = widget.template.spots.removeAt(oldIndex);
+                    widget.template.spots.insert(
+                        newIndex > oldIndex ? newIndex - 1 : newIndex, s);
                   });
                   TrainingPackStorage.save(widget.templates);
                 },

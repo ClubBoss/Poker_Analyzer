@@ -52,6 +52,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title is required')));
       return;
     }
+    widget.spot.editedAt = DateTime.now();
     final templates = await TrainingPackStorage.load();
     for (final t in templates) {
       for (var i = 0; i < t.spots.length; i++) {

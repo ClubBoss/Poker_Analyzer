@@ -7,6 +7,7 @@ class TrainingPackSpot {
   String note;
   HandData hand;
   List<String> tags;
+  DateTime editedAt;
 
   TrainingPackSpot({
     required this.id,
@@ -14,8 +15,10 @@ class TrainingPackSpot {
     this.note = '',
     HandData? hand,
     List<String>? tags,
+    DateTime? editedAt,
   })  : hand = hand ?? HandData(),
-        tags = tags ?? [];
+        tags = tags ?? [],
+        editedAt = editedAt ?? DateTime.now();
 
   TrainingPackSpot copyWith({
     String? id,
@@ -23,6 +26,7 @@ class TrainingPackSpot {
     String? note,
     HandData? hand,
     List<String>? tags,
+    DateTime? editedAt,
   }) =>
       TrainingPackSpot(
         id: id ?? this.id,
@@ -30,6 +34,7 @@ class TrainingPackSpot {
         note: note ?? this.note,
         hand: hand ?? this.hand,
         tags: tags ?? List<String>.from(this.tags),
+        editedAt: editedAt ?? this.editedAt,
       );
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
@@ -40,6 +45,8 @@ class TrainingPackSpot {
             ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
             : HandData(),
         tags: [for (final t in (j['tags'] as List? ?? [])) t as String],
+        editedAt:
+            DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -48,6 +55,7 @@ class TrainingPackSpot {
         'note': note,
         'hand': hand.toJson(),
         if (tags.isNotEmpty) 'tags': tags,
+        'editedAt': editedAt.toIso8601String(),
       };
 
   @override
