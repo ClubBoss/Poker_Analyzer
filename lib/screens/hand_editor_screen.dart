@@ -51,10 +51,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   int _heroIndex = 0;
   final List<String> _names = [];
   late List<double> _initialStacks;
-  List<ActionEntry> _preflopActions = [
-    ActionEntry(0, 0, 'post', amount: 1),
-    ActionEntry(0, 1, 'post', amount: 2),
-  ];
+  List<ActionEntry> _preflopActions = [];
   List<ActionEntry> _flopActions = [];
   List<ActionEntry> _turnActions = [];
   List<ActionEntry> _riverActions = [];

@@ -92,6 +92,14 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   void initState() {
     super.initState();
     _actions = List<ActionEntry>.from(widget.initial ?? []);
+    if (_actions.isEmpty) {
+      _actions
+        ..add(ActionEntry(0, 0, 'post', amount: 0.5))
+        ..add(ActionEntry(0, 1, 'post', amount: 1.0));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => widget.onChanged(List<ActionEntry>.from(_actions)),
+      );
+    }
     _recalcErrors();
   }
 
