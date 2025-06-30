@@ -13,6 +13,23 @@ class HandEditorScreen extends StatefulWidget {
   State<HandEditorScreen> createState() => _HandEditorScreenState();
 }
 
+class _HandSnapshot {
+  final List<ActionEntry> pre, flop, turn, river;
+  final List<double> stacks, bets;
+  final double pot;
+  final List<PlayerAction> actions;
+  const _HandSnapshot({
+    required this.pre,
+    required this.flop,
+    required this.turn,
+    required this.river,
+    required this.stacks,
+    required this.bets,
+    required this.pot,
+    required this.actions,
+  });
+}
+
 class _HandEditorScreenState extends State<HandEditorScreen>
     with SingleTickerProviderStateMixin {
   final List<CardModel> _heroCards = [];
@@ -33,6 +50,9 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   late List<double> _bets;
   double _pot = 0;
   late TabController _tabController;
+  final List<_HandSnapshot> _undo = [];
+  final List<_HandSnapshot> _redo = [];
+  bool _skipHistory = false;
 
   @override
   void initState() {
@@ -52,7 +72,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     super.dispose();
   }
 
-  void _recompute() {
+  void _recompute({bool pushHistory = true}) {
     final stacks = List<double>.from(_initialStacks);
     final actions = List.filled(_playerCount, PlayerAction.none);
     final bets = List.filled(_playerCount, 0.0);
@@ -120,6 +140,75 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       _bets = bets;
       _pot = pot;
     });
+    if (pushHistory && !_skipHistory) _pushHistory();
+  }
+
+  _HandSnapshot _makeSnapshot() => _HandSnapshot(
+        pre: [for (final a in _preflopActions) _copyAction(a)],
+        flop: [for (final a in _flopActions) _copyAction(a)],
+        turn: [for (final a in _turnActions) _copyAction(a)],
+        river: [for (final a in _riverActions) _copyAction(a)],
+        stacks: List<double>.from(_stacks),
+        bets: List<double>.from(_bets),
+        pot: _pot,
+        actions: List<PlayerAction>.from(_actions),
+      );
+
+  ActionEntry _copyAction(ActionEntry a) => ActionEntry(
+        a.street,
+        a.playerIndex,
+        a.action,
+        amount: a.amount,
+        generated: a.generated,
+        manualEvaluation: a.manualEvaluation,
+        customLabel: a.customLabel,
+        timestamp: a.timestamp,
+        potAfter: a.potAfter,
+      );
+
+  void _pushHistory() {
+    _undo.add(_makeSnapshot());
+    _redo.clear();
+    if (_undo.length > 50) _undo.removeAt(0);
+  }
+
+  bool get _canUndo => _undo.isNotEmpty;
+  bool get _canRedo => _redo.isNotEmpty;
+
+  void _undoAction() {
+    if (_canUndo) {
+      _redo.add(_makeSnapshot());
+      _applySnapshot(_undo.removeLast());
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Undo')),
+      );
+    }
+  }
+
+  void _redoAction() {
+    if (_canRedo) {
+      _undo.add(_makeSnapshot());
+      _applySnapshot(_redo.removeLast());
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Redo')),
+      );
+    }
+  }
+
+  void _applySnapshot(_HandSnapshot s) {
+    _skipHistory = true;
+    setState(() {
+      _preflopActions = [for (final a in s.pre) _copyAction(a)];
+      _flopActions = [for (final a in s.flop) _copyAction(a)];
+      _turnActions = [for (final a in s.turn) _copyAction(a)];
+      _riverActions = [for (final a in s.river) _copyAction(a)];
+      _stacks = List<double>.from(s.stacks);
+      _bets = List<double>.from(s.bets);
+      _pot = s.pot;
+      _actions = List<PlayerAction>.from(s.actions);
+      _recompute(pushHistory: false);
+    });
+    _skipHistory = false;
   }
 
   void _onPreflopChanged(List<ActionEntry> list) {
@@ -318,6 +407,14 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       appBar: AppBar(
         title: const Text('Hand Editor'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.undo),
+            onPressed: _canUndo ? _undoAction : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.redo),
+            onPressed: _canRedo ? _redoAction : null,
+          ),
           TextButton(
             onPressed: _editPlayers,
             child: const Text('📝 Players'),
