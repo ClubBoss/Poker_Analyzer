@@ -19,6 +19,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
   final int _playerCount = 6;
   int _heroIndex = 0;
   final List<String> _names = [];
+  late List<double> _initialStacks;
   List<ActionEntry> _preflopActions = [
     ActionEntry(0, 0, 'post', amount: 1),
     ActionEntry(0, 1, 'post', amount: 2),
@@ -35,14 +36,15 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
   void initState() {
     super.initState();
     _names.addAll(List.generate(_playerCount, (i) => 'Player ${i + 1}'));
-    _stacks = List.filled(_playerCount, 100.0);
+    _initialStacks = List.filled(_playerCount, 100.0);
+    _stacks = List.from(_initialStacks);
     _actions = List.filled(_playerCount, PlayerAction.none);
     _bets = List.filled(_playerCount, 0.0);
     _recompute();
   }
 
   void _recompute() {
-    final stacks = List.filled(_playerCount, 100.0);
+    final stacks = List<double>.from(_initialStacks);
     final actions = List.filled(_playerCount, PlayerAction.none);
     final bets = List.filled(_playerCount, 0.0);
     double pot = 0;
@@ -208,6 +210,78 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
     );
   }
 
+  void _editPlayers() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: _playerCount,
+          separatorBuilder: (_, __) => const Divider(color: Colors.white24),
+          itemBuilder: (context, i) {
+            final nameController = TextEditingController(text: _names[i]);
+            final stackController =
+                TextEditingController(text: _initialStacks[i].toString());
+            return Row(
+              children: [
+                SizedBox(width: 20, child: Text('$i', style: const TextStyle(color: Colors.white))),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: nameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(labelText: 'Name'),
+                    onChanged: (v) {
+                      setState(() {
+                        _names[i] = v;
+                      });
+                      _recompute();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    controller: stackController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(labelText: 'Stack BB'),
+                    onChanged: (v) {
+                      final val = double.tryParse(v);
+                      if (val == null || val < 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Enter valid stack')),
+                        );
+                        return;
+                      }
+                      setState(() {
+                        _initialStacks[i] = val;
+                      });
+                      _recompute();
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -215,6 +289,12 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Hand Editor'),
+          actions: [
+            TextButton(
+              onPressed: _editPlayers,
+              child: const Text('📝 Players'),
+            )
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Preflop'),
