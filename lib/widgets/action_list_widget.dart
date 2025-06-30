@@ -28,8 +28,8 @@ class _ActionListWidgetState extends State<ActionListWidget> {
 
   void _addAction() {
     setState(() {
-      _actions.add(ActionEntry(0, 0, 'call', amount: 0));
-      _controllers.add(TextEditingController(text: '0'));
+      _actions.add(ActionEntry(0, 0, 'call', amount: 0.0));
+      _controllers.add(TextEditingController(text: '0.0'));
     });
     _notify();
   }
@@ -51,7 +51,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
 
   void _updateAmount(int index, String value) {
     final a = _actions[index];
-    final amt = int.tryParse(value);
+    final amt = double.tryParse(value);
     setState(() => _actions[index] = ActionEntry(a.street, a.playerIndex, a.action, amount: amt));
     _notify();
   }
@@ -105,7 +105,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         width: 60,
                         child: TextField(
                           controller: _controllers[i],
-                          keyboardType: TextInputType.number,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           enabled: _actions[i].action != 'fold',
                           onChanged: (v) => _updateAmount(i, v),
                           decoration: const InputDecoration(isDense: true),

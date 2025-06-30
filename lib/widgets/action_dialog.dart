@@ -39,17 +39,17 @@ class _ActionDialogState extends State<ActionDialog> {
     );
   }
 
-  void _selectBetAmount(int amount) {
+  void _selectBetAmount(double amount) {
     Navigator.pop(
       context,
       ActionEntry(widget.street, widget.playerIndex, _selected!.name,
-          amount: amount.clamp(1, widget.stackSize)),
+          amount: amount.clamp(1, widget.stackSize.toDouble())),
     );
   }
 
   void _onSliderChange(double value) {
     setState(() => _slider = value);
-    final amt = value.round();
+    final amt = value;
     if (amt > 0) {
       _selectBetAmount(amt);
     }
@@ -88,7 +88,7 @@ class _ActionDialogState extends State<ActionDialog> {
             for (final f in [1 / 3, 0.5, 0.75, 1.0])
               OutlinedButton(
                 onPressed: () {
-                  final amount = (widget.pot * f).round();
+                  final amount = widget.pot * f;
                   _selectBetAmount(amount);
                 },
                 child: Text('${(f * 100).round()}%'),

@@ -683,7 +683,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               start: start,
               end: end,
               control: control,
-              amount: entry.amount!,
+              amount: entry.amount!.round(),
               scale: scale,
               onCompleted: () {
                 overlayEntry.remove();
@@ -694,7 +694,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               start: start,
               end: end,
               control: control,
-              amount: entry.amount!,
+              amount: entry.amount!.round(),
               color: color,
               scale: scale,
               fadeStart: 0.8,
@@ -751,7 +751,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         start: start,
         end: end,
         control: control,
-        amount: entry.amount!,
+        amount: entry.amount!.round(),
         scale: scale * 1.2,
         duration: const Duration(milliseconds: 300),
         glowColor: Colors.redAccent,
@@ -770,7 +770,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         entry.amount == null ||
         entry.amount! <= 0 ||
         entry.generated) return;
-    _playFoldRefundAnimation(entry.playerIndex, entry.amount!);
+    _playFoldRefundAnimation(entry.playerIndex, entry.amount!.round());
   }
 
   void _startChipFlight(ActionEntry entry) {
@@ -802,7 +802,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         key: key,
         start: start,
         end: end,
-        amount: entry.amount!,
+        amount: entry.amount!.round(),
         color: color,
         scale: scale,
       ));
@@ -930,7 +930,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         start: start,
         end: end,
         control: control,
-        amount: entry.amount!,
+        amount: entry.amount!.round(),
         color: ActionFormattingHelper.actionColor(entry.action),
         scale: scale,
         onCompleted: () {
@@ -942,7 +942,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       child = BetChipAnimation(
         start: start,
         end: end,
-        amount: entry.amount!,
+        amount: entry.amount!.round(),
         scale: scale,
         onCompleted: () {
           overlayEntry.remove();
@@ -1389,7 +1389,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         start: start,
         end: end,
         control: control,
-        amount: entry.amount!,
+        amount: entry.amount!.round(),
         color: color,
         scale: scale,
         onCompleted: () => overlayEntry.remove(),
@@ -2397,7 +2397,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action)) return;
     final current = _displayedStacks[entry.playerIndex] ??
         _stackService.getStackForPlayer(entry.playerIndex);
-    final newValue = (current - entry.amount!).clamp(0, current);
+    final newValue = (current - entry.amount!.round()).clamp(0, current);
     lockService.safeSetState(this, () {
       _displayedStacks[entry.playerIndex] = newValue;
     });
@@ -2407,7 +2407,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     if (entry.amount == null) return;
     if (!['bet', 'raise', 'call', 'all-in'].contains(entry.action)) return;
     lockService.safeSetState(this, () {
-      _currentPot += entry.amount!;
+      _currentPot += entry.amount!.round();
     });
   }
 
@@ -2603,11 +2603,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
       final int index = entry.playerIndex;
       _betTimers[index]?.cancel();
       setState(() {
-        final info = BetDisplayInfo(entry.amount!, color);
+        final info = BetDisplayInfo(entry.amount!.round(), color);
         _recentBets[index] = info;
         _betDisplays[index] = info;
         _centerBetStacks[index] = info;
-        _actionBetStacks[index] = entry.amount!;
+        _actionBetStacks[index] = entry.amount!.round();
       });
       final overlay = Overlay.of(context);
       if (overlay != null) {
@@ -2649,7 +2649,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
             start: start,
             end: end,
             control: control,
-            amount: entry.amount!,
+            amount: entry.amount!.round(),
             color: color,
             scale: tableScale,
             fadeStart: 0.8,
@@ -2672,7 +2672,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           builder: (_) => BetSlideChips(
             start: start,
             end: mid,
-            amount: entry.amount!,
+            amount: entry.amount!.round(),
             color: color,
             scale: tableScale,
             onCompleted: () {
@@ -3699,9 +3699,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _sizeButton('50%', (pot / 2).round(), ctx, selected!),
-                      _sizeButton('66%', (pot * 2 / 3).round(), ctx, selected!),
-                      _sizeButton('Pot', pot, ctx, selected!),
+                      _sizeButton('50%', pot / 2, ctx, selected!),
+                      _sizeButton('66%', pot * 2 / 3, ctx, selected!),
+                      _sizeButton('Pot', pot.toDouble(), ctx, selected!),
                     ],
                   ),
                   Slider(
@@ -3712,11 +3712,11 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                     label: sliderValue.round().toString(),
                     onChanged: (v) =>
                         setModal(() => sliderValue = v),
-                    onChangeEnd: (v) => _submitSize(v.round(), ctx, selected!),
+                    onChangeEnd: (v) => _submitSize(v, ctx, selected!),
                   ),
                   TextField(
                     controller: controller,
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.white10,
@@ -3731,7 +3731,7 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
                   const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: () {
-                      final int? amt = int.tryParse(controller.text);
+                      final double? amt = double.tryParse(controller.text);
                       if (amt != null) {
                         _submitSize(amt, ctx, selected!);
                       }
@@ -3752,17 +3752,17 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
   }
 
   Widget _sizeButton(
-      String label, int amount, BuildContext ctx, String action) {
+      String label, double amount, BuildContext ctx, String action) {
     return OutlinedButton(
       onPressed: () => _submitSize(amount, ctx, action),
       child: Text(label),
     );
   }
 
-  void _submitSize(int amount, BuildContext ctx, String action) {
+  void _submitSize(double amount, BuildContext ctx, String action) {
     Navigator.pop(ctx, {
       'action': action,
-      'amount': amount.clamp(1, _stackService.getStackForPlayer(activePlayerIndex ?? 0)),
+      'amount': amount.clamp(1, _stackService.getStackForPlayer(activePlayerIndex ?? 0).toDouble()),
     });
   }
 
@@ -3772,9 +3772,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
     final result = await _showActionPicker();
     if (result == null) return;
     String action = result['action'] as String;
-    int? amount = result['amount'] as int?;
+    double? amount = result['amount'] as double?;
     if (action == 'all-in') {
-      amount = _stackService.getStackForPlayer(index);
+      amount = _stackService.getStackForPlayer(index).toDouble();
     }
     final entry = ActionEntry(currentStreet, index, action, amount: amount);
     handlePlayerAction(entry);
@@ -8392,7 +8392,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
   }
 
   void _add() {
-    final amount = _needAmount ? int.tryParse(_controller.text) : null;
+    final amount = _needAmount ? double.tryParse(_controller.text) : null;
     widget.onAdd(ActionEntry(widget.currentStreet, _player, _action,
         amount: amount));
     _controller.clear();
@@ -8458,7 +8458,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
                 onPressed: () {
                   final amt =
                       (act == 'bet' || act == 'raise' || act == 'call')
-                          ? int.tryParse(c.text)
+                          ? double.tryParse(c.text)
                           : null;
                   widget.onEdit(index,
                       ActionEntry(widget.currentStreet, p, act, amount: amt));

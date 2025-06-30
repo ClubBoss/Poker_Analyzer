@@ -2702,7 +2702,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final result = await _showActionSheet();
     if (result == null) return;
     final String action = result['action'] as String;
-    final int? amount = result['amount'] as int?;
+    final double? amount = result['amount'] as double?;
     setState(() {
       _actionTagText = amount != null
           ? '${_capitalize(action)} $amount'
@@ -2724,7 +2724,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     final result = await _showAddActionDialog();
     if (result == null) return;
     final String action = result['action'] as String;
-    final int? amount = result['amount'] as int?;
+    final double? amount = result['amount'] as double?;
     final text = amount != null
         ? '${_capitalize(action)} $amount'
         : _capitalize(action);

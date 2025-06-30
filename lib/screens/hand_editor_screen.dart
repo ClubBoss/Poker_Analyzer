@@ -29,20 +29,20 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
   void initState() {
     super.initState();
     _names.addAll(List.generate(_playerCount, (i) => 'Player ${i + 1}'));
-    _stacks = List.filled(_playerCount, 100);
+    _stacks = List.filled(_playerCount, 100.0);
     _actions = List.filled(_playerCount, PlayerAction.none);
-    _bets = List.filled(_playerCount, 0);
+    _bets = List.filled(_playerCount, 0.0);
     _preflopActions = [
-      ActionEntry(0, 0, 'post', amount: 1),
-      ActionEntry(0, 1, 'post', amount: 2),
+      ActionEntry(0, 0, 'post', amount: 0.5),
+      ActionEntry(0, 1, 'post', amount: 1.0),
     ];
     _recompute();
   }
 
   void _recompute() {
-    _stacks = List.filled(_playerCount, 100);
+    _stacks = List.filled(_playerCount, 100.0);
     _actions = List.filled(_playerCount, PlayerAction.none);
-    _bets = List.filled(_playerCount, 0);
+    _bets = List.filled(_playerCount, 0.0);
     _pot = 0;
     for (final a in _preflopActions) {
       switch (a.action) {

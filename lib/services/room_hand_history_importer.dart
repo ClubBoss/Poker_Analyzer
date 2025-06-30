@@ -131,7 +131,7 @@ class RoomHandHistoryImporter {
       if (mCall != null) {
         final idx = nameToIndex[mCall.group(1)!.toLowerCase()];
         if (idx != null) {
-          final amt = double.tryParse(mCall.group(2)!.replaceAll(',', ''))?.round();
+          final amt = double.tryParse(mCall.group(2)!.replaceAll(',', ''));
           actions.add(ActionEntry(street, idx, 'call', amount: amt));
         }
         continue;
@@ -140,7 +140,7 @@ class RoomHandHistoryImporter {
       if (mBet != null) {
         final idx = nameToIndex[mBet.group(1)!.toLowerCase()];
         if (idx != null) {
-          final amt = double.tryParse(mBet.group(2)!.replaceAll(',', ''))?.round();
+          final amt = double.tryParse(mBet.group(2)!.replaceAll(',', ''));
           actions.add(ActionEntry(street, idx, 'bet', amount: amt));
         }
         continue;
@@ -149,7 +149,7 @@ class RoomHandHistoryImporter {
       if (mRaise != null) {
         final idx = nameToIndex[mRaise.group(1)!.toLowerCase()];
         if (idx != null) {
-          final amt = double.tryParse(mRaise.group(2)!.replaceAll(',', ''))?.round();
+          final amt = double.tryParse(mRaise.group(2)!.replaceAll(',', ''));
           actions.add(ActionEntry(street, idx, 'raise', amount: amt));
         }
         continue;

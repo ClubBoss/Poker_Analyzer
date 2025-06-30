@@ -9,7 +9,7 @@ class ActionEntry {
   final String action;
 
   /// Размер ставки в фишках, если применимо
-  final int? amount;
+  final double? amount;
 
   /// Флаг, указывающий, что запись сгенерирована автоматически
   final bool generated;

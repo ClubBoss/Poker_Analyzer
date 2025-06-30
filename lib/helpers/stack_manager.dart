@@ -28,9 +28,9 @@ class StackManager {
           a.action == 'bet' ||
           a.action == 'raise' ||
           a.action == 'all-in') {
-        final int? amount = a.amount;
+        final double? amount = a.amount;
         if (amount != null) {
-          _currentStacks[a.playerIndex]?.addInvestment(a.street, amount);
+          _currentStacks[a.playerIndex]?.addInvestment(a.street, amount.round());
         }
       }
     }
