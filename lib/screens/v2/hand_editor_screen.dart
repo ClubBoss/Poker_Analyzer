@@ -99,6 +99,23 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
               onChanged: onChanged,
             ),
             const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Hero index'),
+                const SizedBox(width: 16),
+                DropdownButton<int>(
+                  value: widget.spot.hand.heroIndex,
+                  items: [for (int i = 0; i < 6; i++) DropdownMenuItem(value: i, child: Text('$i'))],
+                  onChanged: (v) => setState(() => widget.spot.hand.heroIndex = v ?? 0),
+                ),
+                const SizedBox(width: 8),
+                const Tooltip(
+                  message: '0 — SB, 1 — BB, 2 — UTG, 3 — MP, 4 — CO, 5 — BTN',
+                  child: Icon(Icons.info_outline, size: 16, color: Colors.white54),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             DropdownButton<int>(
               value: _street,
               items: [
@@ -111,7 +128,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
             Expanded(
               child: ActionListWidget(
                 playerCount: 6,
-                heroIndex: 0,
+                heroIndex: widget.spot.hand.heroIndex,
                 initial: widget.spot.hand.actions[_street],
                 onChanged: (list) => widget.spot.hand.actions[_street] = list,
               ),
