@@ -102,7 +102,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: TrainingPackSpotPreviewCard(spot: spot)),
+                        Expanded(
+                          child: TrainingPackSpotPreviewCard(
+                            spot: spot,
+                            onHandEdited: () {
+                              setState(() {});
+                              TrainingPackStorage.save(widget.templates);
+                            },
+                          ),
+                        ),
                         const SizedBox(width: 8),
                         Column(
                           mainAxisSize: MainAxisSize.min,
