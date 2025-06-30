@@ -46,4 +46,35 @@ class ActionEntry {
       this.equity,
       this.ev})
       : timestamp = timestamp ?? DateTime.now();
+
+  factory ActionEntry.fromJson(Map<String, dynamic> j) => ActionEntry(
+        j['street'] as int? ?? 0,
+        j['playerIndex'] as int? ?? 0,
+        j['action'] as String? ?? '',
+        amount: (j['amount'] as num?)?.toDouble(),
+        generated: j['generated'] as bool? ?? false,
+        manualEvaluation: j['manualEvaluation'] as String?,
+        customLabel: j['customLabel'] as String?,
+        timestamp:
+            DateTime.tryParse(j['timestamp'] as String? ?? '') ?? DateTime.now(),
+        potAfter: (j['potAfter'] as num?)?.toDouble() ?? 0,
+        potOdds: (j['potOdds'] as num?)?.toDouble(),
+        equity: (j['equity'] as num?)?.toDouble(),
+        ev: (j['ev'] as num?)?.toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'street': street,
+        'playerIndex': playerIndex,
+        'action': action,
+        if (amount != null) 'amount': amount,
+        'generated': generated,
+        'timestamp': timestamp.toIso8601String(),
+        if (manualEvaluation != null) 'manualEvaluation': manualEvaluation,
+        if (customLabel != null) 'customLabel': customLabel,
+        'potAfter': potAfter,
+        if (potOdds != null) 'potOdds': potOdds,
+        if (equity != null) 'equity': equity,
+        if (ev != null) 'ev': ev,
+      };
 }

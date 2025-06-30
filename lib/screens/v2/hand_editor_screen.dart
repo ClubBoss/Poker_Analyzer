@@ -2,39 +2,52 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
+import '../../widgets/action_list_widget.dart';
 
-class HandEditorScreen extends StatelessWidget {
+class HandEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
-  final TextEditingController _cardsCtr;
-  final TextEditingController _posCtr;
-  final TextEditingController _stacksCtr;
-  final TextEditingController _actionsCtr;
+  const HandEditorScreen({super.key, required this.spot});
 
-  HandEditorScreen({super.key, required this.spot})
-      : _cardsCtr = TextEditingController(text: spot.hand.heroCards),
-        _posCtr = TextEditingController(text: spot.hand.position),
-        _stacksCtr = TextEditingController(
-            text: spot.hand.stacks.isEmpty
-                ? ''
-                : jsonEncode(spot.hand.stacks)),
-        _actionsCtr = TextEditingController(
-            text: spot.hand.streetActions.isNotEmpty
-                ? spot.hand.streetActions.first
-                : '');
+  @override
+  State<HandEditorScreen> createState() => _HandEditorScreenState();
+}
+
+class _HandEditorScreenState extends State<HandEditorScreen> {
+  late TextEditingController _cardsCtr;
+  late TextEditingController _posCtr;
+  late TextEditingController _stacksCtr;
+  int _street = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _cardsCtr = TextEditingController(text: widget.spot.hand.heroCards);
+    _posCtr = TextEditingController(text: widget.spot.hand.position);
+    _stacksCtr = TextEditingController(
+        text: widget.spot.hand.stacks.isEmpty
+            ? ''
+            : jsonEncode(widget.spot.hand.stacks));
+  }
+
+  @override
+  void dispose() {
+    _cardsCtr.dispose();
+    _posCtr.dispose();
+    _stacksCtr.dispose();
+    super.dispose();
+  }
 
   void _update() {
-    spot.hand.heroCards = _cardsCtr.text;
-    spot.hand.position = _posCtr.text;
+    widget.spot.hand.heroCards = _cardsCtr.text;
+    widget.spot.hand.position = _posCtr.text;
     try {
       final m = jsonDecode(_stacksCtr.text) as Map<String, dynamic>;
-      spot.hand.stacks = {
+      widget.spot.hand.stacks = {
         for (final e in m.entries) e.key: (e.value as num).toDouble()
       };
     } catch (_) {
-      spot.hand.stacks = {};
+      widget.spot.hand.stacks = {};
     }
-    spot.hand.streetActions =
-        _actionsCtr.text.trim().isEmpty ? [] : [_actionsCtr.text];
   }
 
   Future<void> _save(BuildContext context) async {
@@ -42,19 +55,20 @@ class HandEditorScreen extends StatelessWidget {
     final templates = await TrainingPackStorage.load();
     for (final t in templates) {
       for (var i = 0; i < t.spots.length; i++) {
-        if (t.spots[i].id == spot.id) {
-          t.spots[i] = spot;
+        if (t.spots[i].id == widget.spot.id) {
+          t.spots[i] = widget.spot;
           break;
         }
       }
     }
     await TrainingPackStorage.save(templates);
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     void onChanged(String _) => _update();
+    const names = ['Preflop', 'Flop', 'Turn', 'River'];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Hand'),
@@ -85,10 +99,22 @@ class HandEditorScreen extends StatelessWidget {
               onChanged: onChanged,
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _actionsCtr,
-              decoration: const InputDecoration(labelText: 'Action line'),
-              onChanged: onChanged,
+            DropdownButton<int>(
+              value: _street,
+              items: [
+                for (int i = 0; i < 4; i++)
+                  DropdownMenuItem(value: i, child: Text(names[i]))
+              ],
+              onChanged: (v) => setState(() => _street = v ?? 0),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ActionListWidget(
+                playerCount: 6,
+                heroIndex: 0,
+                initial: widget.spot.hand.actions[_street],
+                onChanged: (list) => widget.spot.hand.actions[_street] = list,
+              ),
             ),
           ],
         ),
@@ -96,3 +122,4 @@ class HandEditorScreen extends StatelessWidget {
     );
   }
 }
+
