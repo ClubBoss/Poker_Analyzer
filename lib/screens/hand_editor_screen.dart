@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/poker_table_view.dart';
 import '../widgets/card_picker_widget.dart';
+import '../widgets/action_list_widget.dart';
 import '../models/card_model.dart';
+import '../models/action_entry.dart';
 
 class HandEditorScreen extends StatefulWidget {
   const HandEditorScreen({super.key});
@@ -13,6 +15,65 @@ class HandEditorScreen extends StatefulWidget {
 class _HandEditorScreenState extends State<HandEditorScreen> {
   final List<CardModel> _heroCards = [];
   final List<CardModel> _boardCards = [];
+  final int _playerCount = 6;
+  final List<String> _names = [];
+  List<ActionEntry> _preflopActions = [];
+  late List<double> _stacks;
+  late List<PlayerAction> _actions;
+  late List<double> _bets;
+  double _pot = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _names.addAll(List.generate(_playerCount, (i) => 'Player ${i + 1}'));
+    _stacks = List.filled(_playerCount, 100);
+    _actions = List.filled(_playerCount, PlayerAction.none);
+    _bets = List.filled(_playerCount, 0);
+    _recompute();
+  }
+
+  void _recompute() {
+    _stacks = List.filled(_playerCount, 100);
+    _actions = List.filled(_playerCount, PlayerAction.none);
+    _bets = List.filled(_playerCount, 0);
+    _pot = 0;
+    for (final a in _preflopActions) {
+      switch (a.action) {
+        case 'fold':
+          _actions[a.playerIndex] = PlayerAction.fold;
+          break;
+        case 'call':
+          final amt = (a.amount ?? 0).toDouble();
+          _stacks[a.playerIndex] -= amt;
+          _bets[a.playerIndex] += amt;
+          _pot += amt;
+          _actions[a.playerIndex] = PlayerAction.call;
+          break;
+        case 'raise':
+          final amt = (a.amount ?? 0).toDouble();
+          _stacks[a.playerIndex] -= amt;
+          _bets[a.playerIndex] += amt;
+          _pot += amt;
+          _actions[a.playerIndex] = PlayerAction.raise;
+          break;
+        case 'push':
+          final amt = (a.amount ?? 0).toDouble();
+          _stacks[a.playerIndex] -= amt;
+          _bets[a.playerIndex] += amt;
+          _pot += amt;
+          _actions[a.playerIndex] = PlayerAction.push;
+          break;
+      }
+    }
+  }
+
+  void _onActionsChanged(List<ActionEntry> list) {
+    setState(() {
+      _preflopActions = list;
+      _recompute();
+    });
+  }
 
   Set<String> get _usedCards => {
         for (final c in _heroCards) '${c.rank}${c.suit}',
@@ -85,10 +146,6 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final names = List.generate(6, (i) => 'Player ${i + 1}');
-    final stacks = List.filled(6, 0.0);
-    final actions = List.filled(6, PlayerAction.none);
-    final bets = List.filled(6, 0.0);
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -108,17 +165,17 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
             IgnorePointer(
               child: PokerTableView(
                 heroIndex: 0,
-                playerCount: 6,
-                playerNames: names,
-                playerStacks: stacks,
-                playerActions: actions,
-                playerBets: bets,
+                playerCount: _playerCount,
+                playerNames: _names,
+                playerStacks: _stacks,
+                playerActions: _actions,
+                playerBets: _bets,
                 onHeroSelected: (_) {},
                 onStackChanged: (_, __) {},
                 onNameChanged: (_, __) {},
                 onBetChanged: (_, __) {},
                 onActionChanged: (_, __) {},
-                potSize: 0,
+                potSize: _pot,
                 onPotChanged: (_) {},
                 heroCards: _heroCards,
               ),
@@ -143,6 +200,11 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                             });
                           },
                           disabledCards: _usedCards,
+                        ),
+                        const SizedBox(height: 12),
+                        ActionListWidget(
+                          playerCount: _playerCount,
+                          onChanged: _onActionsChanged,
                         ),
                       ],
                     ),
