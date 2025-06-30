@@ -140,33 +140,67 @@ class _ActionListWidgetState extends State<ActionListWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_actions.isEmpty) {
+      return TextButton(
+        onPressed: _addAction,
+        child: const Text('＋ Add action'),
+      );
+    }
+
     return Column(
       children: [
-        for (int i = 0; i < _actions.length; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Expanded(child: Text(_format(_actions[i]))),
-                if (widget.showPot)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Text(
-                      'Pot: ${_actions[i].potAfter.toStringAsFixed(1)} BB',
-                      style: const TextStyle(color: Colors.grey),
+        ReorderableListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          buildDefaultDragHandles: false,
+          itemCount: _actions.length,
+          onReorder: (oldIndex, newIndex) {
+            setState(() {
+              final moved = _actions.removeAt(oldIndex);
+              _actions.insert(
+                  newIndex > oldIndex ? newIndex - 1 : newIndex, moved);
+            });
+            _notify();
+          },
+          itemBuilder: (context, index) {
+            final a = _actions[index];
+            final isBlind = index < 2 && a.action == 'post';
+            return Padding(
+              key: ValueKey(a),
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  if (isBlind)
+                    const SizedBox(width: 24)
+                  else
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: const Icon(Icons.drag_indicator,
+                          color: Colors.white70),
                     ),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(_format(a))),
+                  if (widget.showPot)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(
+                        'Pot: ${a.potAfter.toStringAsFixed(1)} BB',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.white70),
+                    onPressed: () => _editAction(index),
                   ),
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white70),
-                  onPressed: () => _editAction(i),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteAction(i),
-                ),
-              ],
-            ),
-          ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteAction(index),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
         TextButton(
           onPressed: _addAction,
           child: const Text('＋ Add action'),
