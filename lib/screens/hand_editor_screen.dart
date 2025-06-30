@@ -320,6 +320,10 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             'a': a.action,
             if (a.amount != null) 'amt': a.amount,
             if (a.customLabel != null) 'lbl': a.customLabel,
+            'pa': a.potAfter,
+            if (a.potOdds != null) 'po': a.potOdds,
+            if (a.equity != null) 'eq': a.equity,
+            if (a.ev != null) 'ev': a.ev,
           }
       ];
 
@@ -355,6 +359,10 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                 a['a'] as String? ?? '',
                 amount: (a['amt'] as num?)?.toDouble(),
                 customLabel: a['lbl'] as String?,
+                potAfter: (a['pa'] as num?)?.toDouble() ?? 0,
+                potOdds: (a['po'] as num?)?.toDouble(),
+                equity: (a['eq'] as num?)?.toDouble(),
+                ev: (a['ev'] as num?)?.toDouble(),
               )
         ];
     _preflopActions = parse(json['preflop']);
