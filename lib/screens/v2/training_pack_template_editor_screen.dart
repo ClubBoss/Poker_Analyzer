@@ -35,6 +35,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool get _isMultiSelect => _selectedSpotIds.isNotEmpty;
   SortBy _sortBy = SortBy.edited;
   bool _autoSortEv = false;
+  List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
 
   void _addSpot() async {
@@ -256,12 +257,31 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         ),
                       );
                       if (ok ?? false) {
+                        _lastRemoved = widget.template.spots
+                            .where((s) => _selectedSpotIds.contains(s.id))
+                            .toList();
                         setState(() {
-                          widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
+                          widget.template.spots
+                              .removeWhere((s) => _selectedSpotIds.contains(s.id));
                           _selectedSpotIds.clear();
                           if (_autoSortEv) _sortSpots();
                         });
                         TrainingPackStorage.save(widget.templates);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Removed ${_lastRemoved!.length} spot(s)'),
+                            action: SnackBarAction(
+                              label: 'UNDO',
+                              onPressed: () {
+                                setState(() {
+                                  widget.template.spots.addAll(_lastRemoved!);
+                                  if (_autoSortEv) _sortSpots();
+                                });
+                                TrainingPackStorage.save(widget.templates);
+                              },
+                            ),
+                          ),
+                        );
                       }
                     },
                   ),
