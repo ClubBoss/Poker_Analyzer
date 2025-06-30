@@ -30,6 +30,10 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
     _stacks = List.filled(_playerCount, 100);
     _actions = List.filled(_playerCount, PlayerAction.none);
     _bets = List.filled(_playerCount, 0);
+    _preflopActions = [
+      ActionEntry(0, 0, 'post', amount: 1),
+      ActionEntry(0, 1, 'post', amount: 2),
+    ];
     _recompute();
   }
 
@@ -42,6 +46,13 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
       switch (a.action) {
         case 'fold':
           _actions[a.playerIndex] = PlayerAction.fold;
+          break;
+        case 'post':
+          final amt = (a.amount ?? 0).toDouble();
+          _stacks[a.playerIndex] -= amt;
+          _bets[a.playerIndex] += amt;
+          _pot += amt;
+          _actions[a.playerIndex] = PlayerAction.post;
           break;
         case 'call':
           final amt = (a.amount ?? 0).toDouble();
@@ -205,6 +216,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                         ActionListWidget(
                           playerCount: _playerCount,
                           onChanged: _onActionsChanged,
+                          initial: _preflopActions,
                         ),
                       ],
                     ),

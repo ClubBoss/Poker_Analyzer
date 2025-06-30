@@ -13,13 +13,14 @@ import '../models/table_state.dart';
 import '../services/table_edit_history.dart';
 import '../models/card_model.dart';
 
-enum PlayerAction { none, fold, push, call, raise }
+enum PlayerAction { none, fold, push, call, raise, post }
 
 const playerActionColors = {
   PlayerAction.fold: Colors.grey,
   PlayerAction.push: Colors.orange,
   PlayerAction.call: Colors.blueAccent,
   PlayerAction.raise: Colors.redAccent,
+  PlayerAction.post: Colors.grey,
 };
 
 enum TableTheme { green, carbon, blue }
