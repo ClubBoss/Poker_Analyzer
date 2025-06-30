@@ -18,11 +18,17 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hero = spot.hand.heroCards;
     final pos = spot.hand.position;
-    final pre = spot.hand.actions[0];
-    final first = pre.isEmpty ? null : pre.first.customLabel ?? pre.first.action;
-    final act = first == null
+    final h = spot.hand.heroIndex;
+    final pre = spot.hand.actions[0] ?? [];
+    final act = pre.firstWhere(
+      (a) => a.playerIndex == h,
+      orElse: () => null,
+    );
+    final label = act == null
         ? null
-        : (first.length > 40 ? first.substring(0, 40) : first);
+        : (act.customLabel?.isNotEmpty == true
+            ? act.customLabel!
+            : '${act.action}${act.amount != null && act.amount! > 0 ? ' ${act.amount} BB' : ''}');
     final legacy = hero.isEmpty && spot.note.trim().isNotEmpty;
     return Card(
       margin: EdgeInsets.zero,
@@ -44,13 +50,13 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 16),
               ),
             ),
-          if (act != null)
+          if (label != null)
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
-                act,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                label,
+                style:
+                    const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
               ),
             ),
           if (spot.tags.isNotEmpty)
