@@ -26,6 +26,7 @@ class ActionListWidget extends StatefulWidget {
 class _ActionListWidgetState extends State<ActionListWidget> {
   late List<ActionEntry> _actions;
   List<String?> _errors = [];
+  final ScrollController _scroll = ScrollController();
 
   double? _breakevenEquity({
     required double prevBet,
@@ -264,6 +265,12 @@ class _ActionListWidgetState extends State<ActionListWidget> {
         _recalcErrors();
       });
       _notify();
+      await Future.delayed(const Duration(milliseconds: 50));
+      _scroll.animateTo(
+        _scroll.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -286,7 +293,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
     _notify();
   }
 
-  void _duplicateAction(int index) {
+  Future<void> _duplicateAction(int index) async {
     final a = _actions[index];
     setState(() {
       final clone = ActionEntry(
@@ -302,6 +309,12 @@ class _ActionListWidgetState extends State<ActionListWidget> {
       _recalcErrors();
     });
     _notify();
+    await Future.delayed(const Duration(milliseconds: 50));
+    _scroll.animateTo(
+      _scroll.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   void _clearAllActions() {
@@ -327,6 +340,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
     return Column(
       children: [
         ReorderableListView.builder(
+          controller: _scroll,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           buildDefaultDragHandles: false,
@@ -486,5 +500,11 @@ class _ActionListWidgetState extends State<ActionListWidget> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
   }
 }
