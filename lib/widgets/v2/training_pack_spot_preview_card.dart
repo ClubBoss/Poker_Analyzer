@@ -29,6 +29,7 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
         break;
       }
     }
+    final double? heroEv = heroAct?.ev;
 
     final String? heroLabel = heroAct == null
         ? null
@@ -77,6 +78,20 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
               child: Wrap(
                 spacing: 6,
                 children: [for (final c in board) Text(c)],
+              ),
+            ),
+          if (heroEv != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                heroEv >= 0
+                    ? '+${heroEv.toStringAsFixed(2)} BB EV'
+                    : '${heroEv.toStringAsFixed(2)} BB EV',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: heroEv >= 0 ? Colors.greenAccent : Colors.redAccent,
+                ),
               ),
             ),
           if (spot.tags.isNotEmpty)
