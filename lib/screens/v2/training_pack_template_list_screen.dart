@@ -16,10 +16,13 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateListScreen> {
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
+  String _query = '';
+  late TextEditingController _searchCtrl;
 
   @override
   void initState() {
     super.initState();
+    _searchCtrl = TextEditingController();
     _loading = true;
     TrainingPackStorage.load().then((list) {
       if (!mounted) return;
@@ -101,7 +104,21 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
   }
 
   @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final shown = _query.isEmpty
+        ? _templates
+        : [
+            for (final t in _templates)
+              if (t.name.toLowerCase().contains(_query) ||
+                  t.description.toLowerCase().contains(_query))
+                t
+          ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Packs'),
@@ -120,54 +137,82 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-        itemCount: _templates.length,
-        itemBuilder: (context, index) {
-          final t = _templates[index];
-          return ListTile(
-            title: Text(t.name),
-            subtitle: t.description.trim().isEmpty
-                ? null
-                : Text(
-                    t.description.split('\n').first,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
+          : Column(
               children: [
-                TextButton(
-                  onPressed: () => _edit(t),
-                  child: const Text('📝 Edit'),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Search packs',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _query.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () => setState(() {
+                                _searchCtrl.clear();
+                                _query = '';
+                              }),
+                            ),
+                    ),
+                    onChanged: (v) =>
+                        setState(() => _query = v.trim().toLowerCase()),
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () async {
-                    final ok = await showDialog<bool>(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: const Text('Delete pack?'),
-                        content: Text('“${t.name}” will be removed.'),
-                        actions: [
-                          TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Cancel')),
-                          TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Delete')),
-                        ],
-                      ),
-                    );
-                    if (ok ?? false) {
-                      setState(() => _templates.removeAt(index));
-                      TrainingPackStorage.save(_templates);
-                    }
-                  },
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: shown.length,
+                    itemBuilder: (context, index) {
+                      final t = shown[index];
+                      return ListTile(
+                        title: Text(t.name),
+                        subtitle: t.description.trim().isEmpty
+                            ? null
+                            : Text(
+                                t.description.split('\n').first,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                              onPressed: () => _edit(t),
+                              child: const Text('📝 Edit'),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                final ok = await showDialog<bool>(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    title: const Text('Delete pack?'),
+                                    content: Text('“${t.name}” will be removed.'),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: const Text('Cancel')),
+                                      TextButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          child: const Text('Delete')),
+                                    ],
+                                  ),
+                                );
+                                if (ok ?? false) {
+                                  setState(() => _templates.remove(t));
+                                  TrainingPackStorage.save(_templates);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _add,
         child: const Icon(Icons.add),
