@@ -111,6 +111,16 @@ class _ActionListWidgetState extends State<ActionListWidget> {
           final needLabel = act == 'custom';
           final needEquity =
               player == widget.heroIndex && (act == 'call' || act == 'push');
+          final threshold = needEquity
+              ? (() {
+                  final pa = entry.potAfter;
+                  final po = entry.potOdds;
+                  if (pa == 0 || po == null) return null;
+                  final tc = pa * po / 100;
+                  if (tc == 0) return null;
+                  return 100 * tc / pa;
+                })()
+              : null;
           return AlertDialog(
             title: const Text('Edit action'),
             content: Column(
@@ -153,6 +163,14 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         const TextInputType.numberWithOptions(decimal: true),
                     decoration: const InputDecoration(labelText: 'Equity %'),
                   ),
+                  if (threshold != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        'EV=0 at ~${threshold!.toStringAsFixed(1)}%',
+                        style: const TextStyle(fontSize: 12, color: Colors.white54),
+                      ),
+                    ),
                 ],
                 if (needLabel) ...[
                   const SizedBox(height: 8),
