@@ -50,7 +50,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final expected = _expectedAction(spot);
     final ok =
         expected != null && action.toLowerCase() == expected.toLowerCase();
-    service.submitResult(spot.id, ok);
+    service.submitResult(spot.id, action, ok);
     setState(() {
       _selected = action;
       _correct = ok;
