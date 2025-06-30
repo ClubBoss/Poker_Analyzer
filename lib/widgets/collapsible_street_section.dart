@@ -53,6 +53,8 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
       case 'raise':
       case 'bet':
         return Colors.green;
+      case 'custom':
+        return Colors.purple;
       default:
         return Colors.white;
     }
@@ -61,8 +63,11 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
   String _buildSummary(List<ActionEntry> actions) {
     if (actions.isEmpty) return 'Нет действий';
     return actions
-        .map((a) =>
-            '${_capitalize(a.action)}${a.amount != null ? ' ${a.amount}' : ''}')
+        .map((a) {
+          final label =
+              a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+          return '${_capitalize(label)}${a.amount != null ? ' ${a.amount}' : ''}';
+        })
         .join(' – ');
   }
 

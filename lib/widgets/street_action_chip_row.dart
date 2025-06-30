@@ -5,8 +5,8 @@ class StreetActionChipRow extends StatelessWidget {
   final List<ActionEntry> actions;
   const StreetActionChipRow({super.key, required this.actions});
 
-  Color _colorForAction(String action) {
-    switch (action) {
+  Color _colorForAction(ActionEntry a) {
+    switch (a.action) {
       case 'fold':
         return Colors.grey;
       case 'call':
@@ -15,12 +15,15 @@ class StreetActionChipRow extends StatelessWidget {
         return Colors.green;
       case 'raise':
         return Colors.orange;
+      case 'custom':
+        return Colors.purple;
       default:
         return Colors.white;
     }
   }
 
-  String _labelForAction(String action) {
+  String _labelForAction(ActionEntry a) {
+    final action = a.action;
     switch (action) {
       case 'fold':
         return 'F';
@@ -30,6 +33,11 @@ class StreetActionChipRow extends StatelessWidget {
         return 'B';
       case 'raise':
         return 'R';
+      case 'custom':
+        final label = a.customLabel;
+        return label != null && label.isNotEmpty
+            ? label[0].toUpperCase()
+            : 'C';
       default:
         return action.isNotEmpty ? action[0].toUpperCase() : '?';
     }
@@ -54,12 +62,12 @@ class StreetActionChipRow extends StatelessWidget {
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: _colorForAction(a.action),
+                  color: _colorForAction(a),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  _labelForAction(a.action),
+                  _labelForAction(a),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,

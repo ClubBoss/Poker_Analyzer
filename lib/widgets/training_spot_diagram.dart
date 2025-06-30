@@ -37,7 +37,8 @@ class TrainingSpotDiagram extends StatelessWidget {
     final actions = List.filled(spot.numberOfPlayers, '');
     for (final a in spot.actions) {
       if (a.playerIndex >= 0 && a.playerIndex < spot.numberOfPlayers) {
-        final label = a.amount != null ? '${a.action.toUpperCase()} ${a.amount}' : a.action.toUpperCase();
+        final lab = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+        final label = a.amount != null ? '${lab.toUpperCase()} ${a.amount}' : lab.toUpperCase();
         actions[a.playerIndex] = label;
       }
     }

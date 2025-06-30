@@ -32,6 +32,8 @@ class ActionFormattingHelper {
         return Colors.purpleAccent;
       case 'check':
         return Colors.grey[700]!;
+      case 'custom':
+        return Colors.purple;
       default:
         return Colors.black;
     }
@@ -62,6 +64,8 @@ class ActionFormattingHelper {
         return Icons.flash_on;
       case 'check':
         return Icons.remove;
+      case 'custom':
+        return Icons.edit;
       default:
         return null;
     }
@@ -69,8 +73,12 @@ class ActionFormattingHelper {
 
   /// Formats the last action label for display.
   static String formatLastAction(ActionEntry entry) {
-    final String a = entry.action;
-    final String cap = a.isNotEmpty ? a[0].toUpperCase() + a.substring(1) : a;
+    final label = entry.action == 'custom'
+        ? (entry.customLabel ?? 'custom')
+        : entry.action;
+    final cap = label.isNotEmpty
+        ? label[0].toUpperCase() + label.substring(1)
+        : label;
     return entry.amount != null ? '$cap ${entry.amount}' : cap;
   }
 }

@@ -61,12 +61,15 @@ class StreetActionsList extends StatelessWidget {
       case 'check':
         color = Colors.grey;
         break;
+      case 'custom':
+        color = Colors.purple;
+        break;
       default:
         color = Colors.white;
     }
-    final pos =
-        playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-    final baseTitle = '$pos — ${a.action}';
+    final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
+    final actLabel = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+    final baseTitle = '$pos — $actLabel';
     final title = a.generated ? '$baseTitle (auto)' : baseTitle;
 
     Color? qualityColor;

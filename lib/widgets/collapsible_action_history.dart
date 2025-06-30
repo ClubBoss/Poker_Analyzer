@@ -34,6 +34,8 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
         return '❌';
       case 'all-in':
         return '💀';
+      case 'custom':
+        return '✏️';
       default:
         return '';
     }
@@ -86,7 +88,9 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
             Text(_iconForAction(a.action), style: style),
             const SizedBox(width: 4),
             Expanded(
-              child: Text('$pos ${a.action}$size', style: style),
+              child: Text(
+                  '$pos ${a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action}$size',
+                  style: style),
             ),
           ],
         );
