@@ -46,6 +46,8 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
       case 'raise':
       case 'bet':
         return Colors.green;
+      case 'custom':
+        return Colors.purple;
       default:
         return Colors.white;
     }
@@ -64,8 +66,10 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
     final last = actions.last;
     final pos =
         widget.playerPositions[last.playerIndex] ?? 'P${last.playerIndex + 1}';
+    final label =
+        last.action == 'custom' ? (last.customLabel ?? 'custom') : last.action;
     final actionText =
-        '${_capitalize(last.action)}${last.amount != null ? ' ${last.amount}' : ''}';
+        '${_capitalize(label)}${last.amount != null ? ' ${last.amount}' : ''}';
     return Text(
       '$pos $actionText',
       style: TextStyle(color: _colorForAction(last.action)),

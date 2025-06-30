@@ -40,7 +40,7 @@ class StreetActionSummaryBar extends StatelessWidget {
                     backgroundColor: Colors.black54,
                     label: Text(
                       '${playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}'}: '
-                      '${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
+                      '${a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action}${a.amount != null ? ' ${a.amount}' : ''}',
                       style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),

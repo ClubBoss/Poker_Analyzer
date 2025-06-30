@@ -322,6 +322,7 @@ class SavedHand {
               'timestamp': a.timestamp.toIso8601String(),
               if (a.manualEvaluation != null)
                 'manualEvaluation': a.manualEvaluation,
+              if (a.customLabel != null) 'customLabel': a.customLabel,
             }
         ],
         'stackSizes': stackSizes.map((k, v) => MapEntry(k.toString(), v)),
@@ -417,6 +418,7 @@ class SavedHand {
           timestamp:
               DateTime.tryParse(a['timestamp'] as String? ?? '') ?? DateTime.now(),
           manualEvaluation: a['manualEvaluation'] as String?,
+          customLabel: a['customLabel'] as String?,
         )
     ];
     final stack = <int, int>{};

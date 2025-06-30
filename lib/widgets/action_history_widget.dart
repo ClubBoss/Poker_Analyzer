@@ -71,7 +71,8 @@ class ActionHistoryWidget extends StatelessWidget {
 
   String _actionLine(ActionEntry a) {
     final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-    final act = '${a.action}${a.amount != null ? ' ${a.amount}' : ''}';
+    final label = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+    final act = '$label${a.amount != null ? ' ${a.amount}' : ''}';
     return '$pos — $act';
   }
 }

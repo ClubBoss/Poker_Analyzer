@@ -114,7 +114,7 @@ class SavedHandDetailSheet extends StatelessWidget {
               const SizedBox(height: 4),
               for (final a in hand.actions)
                 Text(
-                  'S${a.street}: P${a.playerIndex} ${a.action}${a.amount != null ? ' • ${a.amount}' : ''}',
+                  'S${a.street}: P${a.playerIndex} ${a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action}${a.amount != null ? ' • ${a.amount}' : ''}',
                   style: const TextStyle(color: Colors.white70),
                 ),
             ],

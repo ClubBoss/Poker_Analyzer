@@ -17,6 +17,9 @@ class ActionEntry {
   /// Пользовательская оценка качества действия, заданная вручную
   String? manualEvaluation;
 
+  /// Пользовательская метка действия при типе 'custom'
+  String? customLabel;
+
   /// Размер банка после применения действия
   double potAfter;
 
@@ -30,6 +33,7 @@ class ActionEntry {
       {this.amount,
       this.generated = false,
       this.manualEvaluation,
+      this.customLabel,
       DateTime? timestamp,
       this.potAfter = 0})
       : timestamp = timestamp ?? DateTime.now();

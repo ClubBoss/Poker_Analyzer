@@ -55,7 +55,7 @@ class ActionHistoryOverlay extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              '$pos: ${a.action}',
+              '$pos: ${a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action}',
               style: TextStyle(
                 color: ActionFormattingHelper.actionTextColor(a.action),
                 fontSize: 11 * scale,

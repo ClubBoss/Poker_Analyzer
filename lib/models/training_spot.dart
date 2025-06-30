@@ -121,6 +121,7 @@ class TrainingSpot {
               if (a.amount != null) 'amount': a.amount,
               if (a.manualEvaluation != null)
                 'manualEvaluation': a.manualEvaluation,
+              if (a.customLabel != null) 'customLabel': a.customLabel,
             }
         ],
         'heroIndex': heroIndex,
@@ -178,6 +179,7 @@ class TrainingSpot {
           a['action'] as String,
           amount: (a['amount'] as num?)?.toDouble(),
           manualEvaluation: a['manualEvaluation'] as String?,
+          customLabel: a['customLabel'] as String?,
         ));
       }
     }

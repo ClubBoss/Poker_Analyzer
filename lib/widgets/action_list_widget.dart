@@ -21,6 +21,7 @@ class ActionListWidget extends StatefulWidget {
 class _ActionListWidgetState extends State<ActionListWidget> {
   late List<ActionEntry> _actions;
   late List<TextEditingController> _controllers;
+  late List<TextEditingController> _labelControllers;
 
   @override
   void initState() {
@@ -28,6 +29,9 @@ class _ActionListWidgetState extends State<ActionListWidget> {
     _actions = List<ActionEntry>.from(widget.initial ?? []);
     _controllers = [
       for (final a in _actions) TextEditingController(text: '${a.amount ?? 0}')
+    ];
+    _labelControllers = [
+      for (final a in _actions) TextEditingController(text: a.customLabel ?? '')
     ];
   }
 
@@ -37,20 +41,25 @@ class _ActionListWidgetState extends State<ActionListWidget> {
     setState(() {
       _actions.add(ActionEntry(0, 0, 'call', amount: 0.0));
       _controllers.add(TextEditingController(text: '0.0'));
+      _labelControllers.add(TextEditingController());
     });
     _notify();
   }
 
   void _updatePlayer(int index, int value) {
     final a = _actions[index];
-    setState(() => _actions[index] = ActionEntry(a.street, value, a.action, amount: a.amount));
+    setState(() =>
+        _actions[index] = ActionEntry(a.street, value, a.action,
+            amount: a.amount, customLabel: a.customLabel));
     _notify();
   }
 
   void _updateAction(int index, String value) {
     final a = _actions[index];
     setState(() {
-      _actions[index] = ActionEntry(a.street, a.playerIndex, value, amount: a.amount);
+      _actions[index] = ActionEntry(a.street, a.playerIndex, value,
+          amount: a.amount,
+          customLabel: value == 'custom' ? a.customLabel : null);
       if (value == 'fold') _controllers[index].text = '';
     });
     _notify();
@@ -59,13 +68,25 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   void _updateAmount(int index, String value) {
     final a = _actions[index];
     final amt = double.tryParse(value);
-    setState(() => _actions[index] = ActionEntry(a.street, a.playerIndex, a.action, amount: amt));
+    setState(() =>
+        _actions[index] = ActionEntry(a.street, a.playerIndex, a.action,
+            amount: amt, customLabel: a.customLabel));
+    _notify();
+  }
+
+  void _updateLabel(int index, String value) {
+    final a = _actions[index];
+    setState(() => _actions[index] = ActionEntry(a.street, a.playerIndex, a.action,
+        amount: a.amount, customLabel: value));
     _notify();
   }
 
   @override
   void dispose() {
     for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final c in _labelControllers) {
       c.dispose();
     }
     super.dispose();
@@ -111,6 +132,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           DropdownMenuItem(value: 'call', child: Text('call')),
                           DropdownMenuItem(value: 'raise', child: Text('raise')),
                           DropdownMenuItem(value: 'push', child: Text('push')),
+                          DropdownMenuItem(value: 'custom', child: Text('custom')),
                         ],
                         onChanged: (v) => _updateAction(i, v ?? 'call'),
                       ),
@@ -125,6 +147,18 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           decoration: const InputDecoration(isDense: true),
                         ),
                       ),
+                      if (_actions[i].action == 'custom') ...[
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 80,
+                          child: TextField(
+                            controller: _labelControllers[i],
+                            onChanged: (v) => _updateLabel(i, v),
+                            decoration:
+                                const InputDecoration(isDense: true, hintText: 'label'),
+                          ),
+                        ),
+                      ],
                       if (widget.showPot) ...[
                         const SizedBox(width: 8),
                         Text(

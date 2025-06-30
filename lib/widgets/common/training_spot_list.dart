@@ -422,7 +422,8 @@ class TrainingSpotListState extends State<TrainingSpotList>
         final comment = spot.userComment?.toLowerCase() ?? '';
         final history = spot.actionHistory?.toLowerCase() ?? '';
         final actions = spot.actions
-            .map((a) => '${a.action} ${a.amount ?? ''} ${a.street} ${a.playerIndex}')
+            .map((a) =>
+                '${a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action} ${a.amount ?? ''} ${a.street} ${a.playerIndex}')
             .join(' ')
             .toLowerCase();
         matchesQuery =
