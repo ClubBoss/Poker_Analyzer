@@ -16,6 +16,10 @@ class TrainingSessionService extends ChangeNotifier {
           ? _spots[_session!.index]
           : null;
 
+  Map<String, bool> get results => _session?.results ?? {};
+  int get correctCount => results.values.where((e) => e).length;
+  int get totalCount => results.length;
+
   Future<void> _openBox() async {
     if (!Hive.isBoxOpen('sessions')) {
       await Hive.initFlutter();
