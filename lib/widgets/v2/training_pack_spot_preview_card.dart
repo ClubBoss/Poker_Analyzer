@@ -36,6 +36,22 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+          if (spot.tags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Wrap(
+                spacing: 6,
+                children: [
+                  for (final tag in spot.tags)
+                    Chip(
+                      label: Text(
+                        tag,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
