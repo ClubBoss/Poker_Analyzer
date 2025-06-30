@@ -48,7 +48,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   void _choose(String action, service, spot) {
     if (_selected != null) return;
     final expected = _expectedAction(spot);
-    final ok = expected != null && action.toLowerCase() == expected.toLowerCase();
+    final ok =
+        expected != null && action.toLowerCase() == expected.toLowerCase();
     service.submitResult(spot.id, ok);
     setState(() {
       _selected = action;
@@ -105,7 +106,15 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         }
         final expected = _expectedAction(spot);
         return Scaffold(
-          appBar: AppBar(title: const Text('Training')),
+          appBar: AppBar(
+            title: const Text('Training'),
+            actions: [
+              IconButton(
+                onPressed: service.isPaused ? service.resume : service.pause,
+                icon: Icon(service.isPaused ? Icons.play_arrow : Icons.pause),
+              )
+            ],
+          ),
           backgroundColor: const Color(0xFF1B1C1E),
           body: Padding(
             padding: const EdgeInsets.all(16),
@@ -125,9 +134,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(child: SpotQuizWidget(spot: spot)),
-                if (_selected == null) ...[
+                if (service.isPaused) ...[
                   const SizedBox(height: 16),
-                  const Text('Ваше действие?', style: TextStyle(color: Colors.white70)),
+                  const Text('Сессия на паузе',
+                      style: TextStyle(color: Colors.white54)),
+                ] else if (_selected == null) ...[
+                  const SizedBox(height: 16),
+                  const Text('Ваше действие?',
+                      style: TextStyle(color: Colors.white70)),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -140,7 +154,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         ),
                     ],
                   ),
-                  if (service.session?.index != null && service.session!.index > 0)
+                  if (service.session?.index != null &&
+                      service.session!.index > 0)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Align(
@@ -164,7 +179,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (service.session?.index != null && service.session!.index > 0)
+                      if (service.session?.index != null &&
+                          service.session!.index > 0)
                         ElevatedButton(
                           onPressed: () => _prev(service),
                           child: const Text('Prev'),

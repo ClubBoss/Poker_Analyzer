@@ -13,12 +13,27 @@ class TrainingSessionService extends ChangeNotifier {
   TrainingSession? _session;
   List<TrainingPackSpot> _spots = [];
   Timer? _timer;
+  bool _paused = false;
+  DateTime? _resumedAt;
+  Duration _accumulated = Duration.zero;
+
+  bool get isPaused => _paused;
+
+  void _startTicker() {
+    _timer?.cancel();
+    _timer =
+        Timer.periodic(const Duration(seconds: 1), (_) => notifyListeners());
+  }
 
   TrainingSession? get session => _session;
-  Duration get elapsedTime => _session == null
-      ? Duration.zero
-      : (_session!.completedAt ?? DateTime.now())
-          .difference(_session!.startedAt);
+  Duration get elapsedTime {
+    if (_session == null) return Duration.zero;
+    var d = _accumulated;
+    if (!_paused && _resumedAt != null) {
+      d += (_session!.completedAt ?? DateTime.now()).difference(_resumedAt!);
+    }
+    return d;
+  }
 
   TrainingPackSpot? get currentSpot =>
       _session != null && _session!.index < _spots.length
@@ -51,14 +66,13 @@ class TrainingSessionService extends ChangeNotifier {
       final s = data['session'];
       final spots = data['spots'];
       if (s is Map) {
-        final session =
-            TrainingSession.fromJson(Map<String, dynamic>.from(s));
+        final session = TrainingSession.fromJson(Map<String, dynamic>.from(s));
         if (session.completedAt == null) {
           _session = session;
-          _timer = Timer.periodic(
-            const Duration(seconds: 1),
-            (_) => notifyListeners(),
-          );
+          _paused = false;
+          _accumulated = Duration.zero;
+          _resumedAt = DateTime.now();
+          _startTicker();
           _spots = [
             for (final e in (spots as List? ?? []))
               TrainingPackSpot.fromJson(Map<String, dynamic>.from(e))
@@ -83,6 +97,26 @@ class TrainingSessionService extends ChangeNotifier {
     }
   }
 
+  void pause() {
+    if (_paused) return;
+    if (_resumedAt != null) {
+      _accumulated += DateTime.now().difference(_resumedAt!);
+      _resumedAt = null;
+    }
+    _paused = true;
+    _timer?.cancel();
+    _saveActive();
+    notifyListeners();
+  }
+
+  void resume() {
+    if (!_paused) return;
+    _paused = false;
+    _resumedAt = DateTime.now();
+    _startTicker();
+    notifyListeners();
+  }
+
   Future<void> startSession(TrainingPackTemplate template) async {
     await _openBox();
     _spots = List<TrainingPackSpot>.from(template.spots);
@@ -90,11 +124,10 @@ class TrainingSessionService extends ChangeNotifier {
       id: const Uuid().v4(),
       templateId: template.id,
     );
-    _timer?.cancel();
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) => notifyListeners(),
-    );
+    _paused = false;
+    _accumulated = Duration.zero;
+    _resumedAt = DateTime.now();
+    _startTicker();
     await _box!.put(_session!.id, _session!.toJson());
     _saveActive();
     notifyListeners();
@@ -112,6 +145,10 @@ class TrainingSessionService extends ChangeNotifier {
     _session!.index += 1;
     if (_session!.index >= _spots.length) {
       _session!.completedAt = DateTime.now();
+      if (!_paused && _resumedAt != null) {
+        _accumulated += DateTime.now().difference(_resumedAt!);
+        _resumedAt = null;
+      }
       _timer?.cancel();
     }
     _box?.put(_session!.id, _session!.toJson());
