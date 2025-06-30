@@ -96,63 +96,69 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 itemCount: widget.template.spots.length,
                 itemBuilder: (context, index) {
                   final spot = widget.template.spots[index];
-                  return Container(
+                  return ReorderableDragStartListener(
                     key: ValueKey(spot.id),
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TrainingPackSpotPreviewCard(
-                            spot: spot,
-                            onHandEdited: () {
-                              setState(() {});
-                              TrainingPackStorage.save(widget.templates);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
+                    index: index,
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TextButton(
-                              onPressed: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
-                                );
-                                setState(() {});
-                                TrainingPackStorage.save(widget.templates);
-                              },
-                              child: const Text('📝 Edit'),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () async {
-                                final ok = await showDialog<bool>(
-                                  context: context,
-                                  builder: (_) => AlertDialog(
-                                    title: const Text('Delete spot?'),
-                                    actions: [
-                                      TextButton(
-                                          onPressed: () => Navigator.pop(context, false),
-                                          child: const Text('Cancel')),
-                                      TextButton(
-                                          onPressed: () => Navigator.pop(context, true),
-                                          child: const Text('Delete')),
-                                    ],
-                                  ),
-                                );
-                                if (ok ?? false) {
-                                  setState(() => widget.template.spots.removeAt(index));
+                            Expanded(
+                              child: TrainingPackSpotPreviewCard(
+                                spot: spot,
+                                onHandEdited: () {
+                                  setState(() {});
                                   TrainingPackStorage.save(widget.templates);
-                                }
-                              },
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextButton(
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
+                                    );
+                                    setState(() {});
+                                    TrainingPackStorage.save(widget.templates);
+                                  },
+                                  child: const Text('📝 Edit'),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () async {
+                                    final ok = await showDialog<bool>(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text('Delete spot?'),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: const Text('Cancel')),
+                                          TextButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              child: const Text('Delete')),
+                                        ],
+                                      ),
+                                    );
+                                    if (ok ?? false) {
+                                      setState(() => widget.template.spots.removeAt(index));
+                                      TrainingPackStorage.save(widget.templates);
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   );
                 },
