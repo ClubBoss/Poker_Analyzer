@@ -19,7 +19,13 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
   final int _playerCount = 6;
   int _heroIndex = 0;
   final List<String> _names = [];
-  List<ActionEntry> _preflopActions = [];
+  List<ActionEntry> _preflopActions = [
+    ActionEntry(0, 0, 'post', amount: 1),
+    ActionEntry(0, 1, 'post', amount: 2),
+  ];
+  List<ActionEntry> _flopActions = [];
+  List<ActionEntry> _turnActions = [];
+  List<ActionEntry> _riverActions = [];
   late List<double> _stacks;
   late List<PlayerAction> _actions;
   late List<double> _bets;
@@ -32,67 +38,102 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
     _stacks = List.filled(_playerCount, 100.0);
     _actions = List.filled(_playerCount, PlayerAction.none);
     _bets = List.filled(_playerCount, 0.0);
-    _preflopActions = [
-      ActionEntry(0, 0, 'post', amount: 0.5),
-      ActionEntry(0, 1, 'post', amount: 1.0),
-    ];
     _recompute();
   }
 
   void _recompute() {
-    _stacks = List.filled(_playerCount, 100.0);
-    _actions = List.filled(_playerCount, PlayerAction.none);
-    _bets = List.filled(_playerCount, 0.0);
-    _pot = 0;
-    for (final a in _preflopActions) {
-      switch (a.action) {
-        case 'fold':
-          _actions[a.playerIndex] = PlayerAction.fold;
-          break;
-        case 'post':
-          final amt = (a.amount ?? 0).toDouble();
-          _stacks[a.playerIndex] -= amt;
-          _bets[a.playerIndex] = amt;
-          _pot += amt;
-          _actions[a.playerIndex] = PlayerAction.post;
-          break;
-        case 'call':
-          final amt = (a.amount ?? 0).toDouble();
-          final diff = amt - _bets[a.playerIndex];
-          if (diff > 0) {
-            _stacks[a.playerIndex] -= diff;
-            _pot += diff;
-          }
-          _bets[a.playerIndex] = amt;
-          _actions[a.playerIndex] = PlayerAction.call;
-          break;
-        case 'raise':
-          final amt = (a.amount ?? 0).toDouble();
-          final diff = amt - _bets[a.playerIndex];
-          if (diff > 0) {
-            _stacks[a.playerIndex] -= diff;
-            _pot += diff;
-          }
-          _bets[a.playerIndex] = amt;
-          _actions[a.playerIndex] = PlayerAction.raise;
-          break;
-        case 'push':
-          final amt = (a.amount ?? 0).toDouble();
-          final diff = amt - _bets[a.playerIndex];
-          if (diff > 0) {
-            _stacks[a.playerIndex] -= diff;
-            _pot += diff;
-          }
-          _bets[a.playerIndex] = amt;
-          _actions[a.playerIndex] = PlayerAction.push;
-          break;
+    final stacks = List.filled(_playerCount, 100.0);
+    final actions = List.filled(_playerCount, PlayerAction.none);
+    final bets = List.filled(_playerCount, 0.0);
+    double pot = 0;
+    void apply(List<ActionEntry> list) {
+      for (final a in list) {
+        switch (a.action) {
+          case 'fold':
+            actions[a.playerIndex] = PlayerAction.fold;
+            break;
+          case 'post':
+            final amt = (a.amount ?? 0).toDouble();
+            stacks[a.playerIndex] -= amt;
+            bets[a.playerIndex] = amt;
+            pot += amt;
+            actions[a.playerIndex] = PlayerAction.post;
+            break;
+          case 'call':
+            final amt = (a.amount ?? 0).toDouble();
+            final diff = amt - bets[a.playerIndex];
+            if (diff > 0) {
+              stacks[a.playerIndex] -= diff;
+              pot += diff;
+            }
+            bets[a.playerIndex] = amt;
+            actions[a.playerIndex] = PlayerAction.call;
+            break;
+          case 'raise':
+            final amt = (a.amount ?? 0).toDouble();
+            final diff = amt - bets[a.playerIndex];
+            if (diff > 0) {
+              stacks[a.playerIndex] -= diff;
+              pot += diff;
+            }
+            bets[a.playerIndex] = amt;
+            actions[a.playerIndex] = PlayerAction.raise;
+            break;
+          case 'push':
+            final amt = (a.amount ?? 0).toDouble();
+            final diff = amt - bets[a.playerIndex];
+            if (diff > 0) {
+              stacks[a.playerIndex] -= diff;
+              pot += diff;
+            }
+            bets[a.playerIndex] = amt;
+            actions[a.playerIndex] = PlayerAction.push;
+            break;
+        }
       }
     }
+
+    for (final list in [
+      _preflopActions,
+      _flopActions,
+      _turnActions,
+      _riverActions
+    ]) {
+      apply(list);
+    }
+
+    setState(() {
+      _stacks = stacks;
+      _actions = actions;
+      _bets = bets;
+      _pot = pot;
+    });
   }
 
-  void _onActionsChanged(List<ActionEntry> list) {
+  void _onPreflopChanged(List<ActionEntry> list) {
     setState(() {
       _preflopActions = list;
+      _recompute();
+    });
+  }
+
+  void _onFlopChanged(List<ActionEntry> list) {
+    setState(() {
+      _flopActions = list;
+      _recompute();
+    });
+  }
+
+  void _onTurnChanged(List<ActionEntry> list) {
+    setState(() {
+      _turnActions = list;
+      _recompute();
+    });
+  }
+
+  void _onRiverChanged(List<ActionEntry> list) {
+    setState(() {
+      _riverActions = list;
       _recompute();
     });
   }
@@ -198,7 +239,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                 ],
                 onChanged: (v) {
                   if (v == null) return;
-                  setState(() => _heroIndex = v);
+                  _heroIndex = v;
                   _recompute();
                 },
               ),
@@ -245,23 +286,53 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                         const SizedBox(height: 12),
                         ActionListWidget(
                           playerCount: _playerCount,
-                          onChanged: _onActionsChanged,
                           initial: _preflopActions,
+                          onChanged: _onPreflopChanged,
                         ),
                       ],
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: _buildStreetPicker(0, 3),
+                    child: Column(
+                      children: [
+                        _buildStreetPicker(0, 3),
+                        const SizedBox(height: 12),
+                        ActionListWidget(
+                          playerCount: _playerCount,
+                          initial: _flopActions,
+                          onChanged: _onFlopChanged,
+                        ),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: _buildStreetPicker(3, 1),
+                    child: Column(
+                      children: [
+                        _buildStreetPicker(3, 1),
+                        const SizedBox(height: 12),
+                        ActionListWidget(
+                          playerCount: _playerCount,
+                          initial: _turnActions,
+                          onChanged: _onTurnChanged,
+                        ),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: _buildStreetPicker(4, 1),
+                    child: Column(
+                      children: [
+                        _buildStreetPicker(4, 1),
+                        const SizedBox(height: 12),
+                        ActionListWidget(
+                          playerCount: _playerCount,
+                          initial: _riverActions,
+                          onChanged: _onRiverChanged,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
