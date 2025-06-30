@@ -27,6 +27,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   String _query = '';
   String? _tagFilter;
   late TextEditingController _searchCtrl;
+  Set<String> _selectedTags = {};
 
   void _addSpot() async {
     final spot = TrainingPackSpot(id: const Uuid().v4(), title: 'New spot');
@@ -149,10 +150,35 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
               ),
             ),
+            Builder(
+              builder: (context) {
+                final allTags = widget.template.spots
+                    .expand((s) => s.tags)
+                    .toSet()
+                    .toList();
+                return Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final tag in allTags)
+                      FilterChip(
+                        label: Text(tag),
+                        selected: _selectedTags.contains(tag),
+                        onSelected: (v) => setState(() {
+                          v ? _selectedTags.add(tag) : _selectedTags.remove(tag);
+                        }),
+                      ),
+                  ],
+                );
+              },
+            ),
             Expanded(
               child: Builder(
                 builder: (context) {
                   final shown = widget.template.spots.where((s) {
+                    if (_selectedTags.isNotEmpty &&
+                        !s.tags.any(_selectedTags.contains)) {
+                      return false;
+                    }
                     if (_tagFilter != null &&
                         !s.tags.any((t) => t.toLowerCase() == _tagFilter)) {
                       return false;
