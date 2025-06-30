@@ -24,21 +24,29 @@ class TemplateLibraryScreen extends StatefulWidget {
 
 class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _key = 'template_filter_game_type';
-  static const _sortKey = 'template_sort_order';
+  static const _sortKey = 'lib_sort';
+  final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
-  String _sort = 'updatedAt';
+  String _sort = 'edited';
 
   @override
   void initState() {
     super.initState();
+    _searchCtrl.addListener(() => setState(() {}));
     _load();
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _filter = prefs.getString(_key) ?? 'all';
-      _sort = prefs.getString(_sortKey) ?? 'updatedAt';
+      _sort = prefs.getString(_sortKey) ?? 'edited';
     });
   }
 
@@ -64,7 +72,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       case 'name':
         copy.sort((a, b) => a.name.compareTo(b.name));
         break;
-      case 'hands':
+      case 'spots':
         copy.sort((a, b) {
           final cmp = b.hands.length.compareTo(a.hands.length);
           return cmp == 0 ? a.name.compareTo(b.name) : cmp;
@@ -131,40 +139,48 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (t.gameType.toLowerCase().contains('cash')) t
       ];
     }
+    final query = _searchCtrl.text.trim().toLowerCase();
+    if (query.isNotEmpty) {
+      visible = [
+        for (final t in visible)
+          if (t.name.toLowerCase().contains(query) ||
+              t.tags.any((tag) => tag.toLowerCase().contains(query)))
+            t
+      ];
+    }
     visible = _applySorting(visible);
     return Scaffold(
-      appBar: AppBar(title: const Text('Шаблоны')),
+      appBar: AppBar(
+        title: TextField(
+          controller: _searchCtrl,
+          decoration: const InputDecoration(hintText: 'Поиск', border: InputBorder.none),
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: _setSort,
+            initialValue: _sort,
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'name', child: Text('Name')),
+              PopupMenuItem(value: 'spots', child: Text('Spots')),
+              PopupMenuItem(value: 'edited', child: Text('Edited')),
+            ],
+          ),
+          SyncStatusIcon.of(context),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownButton<String>(
-                    value: _filter,
-                    underline: const SizedBox.shrink(),
-                    onChanged: (v) => v != null ? _setFilter(v) : null,
-                    items: const [
-                      DropdownMenuItem(value: 'all', child: Text('Все')),
-                      DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
-                      DropdownMenuItem(value: 'cash', child: Text('Cash')),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: DropdownButton<String>(
-                    value: _sort,
-                    underline: const SizedBox.shrink(),
-                    onChanged: (v) => v != null ? _setSort(v) : null,
-                    items: const [
-                      DropdownMenuItem(value: 'updatedAt', child: Text('По дате')),
-                      DropdownMenuItem(value: 'name', child: Text('По имени')),
-                      DropdownMenuItem(value: 'hands', child: Text('По рукам')),
-                    ],
-                  ),
-                ),
+            child: DropdownButton<String>(
+              value: _filter,
+              underline: const SizedBox.shrink(),
+              onChanged: (v) => v != null ? _setFilter(v) : null,
+              items: const [
+                DropdownMenuItem(value: 'all', child: Text('Все')),
+                DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
+                DropdownMenuItem(value: 'cash', child: Text('Cash')),
               ],
             ),
           ),
@@ -203,7 +219,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ),
           ),
         ],
-      actions: [SyncStatusIcon.of(context)],
       ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
