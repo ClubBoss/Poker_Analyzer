@@ -5,10 +5,12 @@ class HandData {
   Map<int, List<ActionEntry>> actions;
   String position;
   Map<String, double> stacks;
+  int heroIndex;
 
   HandData({
     this.heroCards = '',
     this.position = '',
+    this.heroIndex = 0,
     Map<int, List<ActionEntry>>? actions,
     Map<String, double>? stacks,
   })  : actions =
@@ -36,6 +38,7 @@ class HandData {
     return HandData(
       heroCards: j['heroCards'] as String? ?? '',
       position: j['position'] as String? ?? '',
+      heroIndex: j['heroIndex'] as int? ?? 0,
       actions: acts,
       stacks: Map<String, double>.from(j['stacks'] ?? {}),
     );
@@ -44,6 +47,7 @@ class HandData {
   Map<String, dynamic> toJson() => {
         'heroCards': heroCards,
         'position': position,
+        'heroIndex': heroIndex,
         if (actions.values.any((l) => l.isNotEmpty))
           'actions': {
             for (final kv in actions.entries)
