@@ -11,6 +11,7 @@ import 'dealer_button_indicator.dart';
 import 'blind_chip_indicator.dart';
 import '../models/table_state.dart';
 import '../services/table_edit_history.dart';
+import '../models/card_model.dart';
 
 enum PlayerAction { none, fold, push, call, raise }
 
@@ -37,6 +38,7 @@ class PokerTableView extends StatefulWidget {
   final void Function(int index, PlayerAction action) onActionChanged;
   final double potSize;
   final void Function(double newPot) onPotChanged;
+  final List<CardModel> heroCards;
   final double scale;
   final TableTheme theme;
   final void Function(TableTheme)? onThemeChanged;
@@ -55,6 +57,7 @@ class PokerTableView extends StatefulWidget {
     required this.onActionChanged,
     required this.potSize,
     required this.onPotChanged,
+    this.heroCards = const [],
     this.scale = 1.0,
     this.theme = TableTheme.green,
     this.onThemeChanged,
@@ -386,6 +389,44 @@ class _PokerTableViewState extends State<PokerTableView> {
           left: offset.dx + dx,
           top: offset.dy - 28 * widget.scale,
           child: BlindChipIndicator(label: positions[seatIndex], color: color, scale: widget.scale),
+        ));
+      }
+      if (i == widget.heroIndex && widget.heroCards.isNotEmpty) {
+        final dx = cos(angle) < 0 ? -40 * widget.scale : 40 * widget.scale;
+        items.add(Positioned(
+          left: offset.dx + dx,
+          top: offset.dy - 18 * widget.scale,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: widget.heroCards.take(2).map((c) {
+              final isRed = c.suit == '♥' || c.suit == '♦';
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 2 * widget.scale),
+                width: 18 * widget.scale,
+                height: 26 * widget.scale,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 3,
+                      offset: const Offset(1, 2),
+                    )
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '${c.rank}${c.suit}',
+                  style: TextStyle(
+                    color: isRed ? Colors.red : Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12 * widget.scale,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
         ));
       }
       items.add(Positioned(
