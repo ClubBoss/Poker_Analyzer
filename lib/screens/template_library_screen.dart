@@ -16,6 +16,7 @@ import 'create_template_screen.dart';
 import 'template_hands_editor_screen.dart';
 import 'template_preview_dialog.dart';
 import '../widgets/sync_status_widget.dart';
+import 'session_history_screen.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -176,6 +177,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SessionHistoryScreen()),
+              );
+            },
+          ),
           PopupMenuButton<String>(
             onSelected: _setSort,
             initialValue: _sort,
