@@ -36,6 +36,13 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
             ? heroAct.customLabel!
             : '${heroAct.action}${heroAct.amount != null && heroAct.amount! > 0 ? ' ${heroAct.amount!.toStringAsFixed(1)} BB' : ''}');
     final legacy = hero.isEmpty && spot.note.trim().isNotEmpty;
+    final actions = spot.hand.actions;
+    final board = [
+      for (final street in [1, 2, 3])
+        for (final a in actions[street] ?? [])
+          if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
+            ...a.customLabel!.split(' ')
+    ];
     return Card(
       margin: EdgeInsets.zero,
       elevation: 2,
@@ -62,6 +69,14 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
               child: Text(
                 heroLabel.length > 40 ? heroLabel.substring(0, 40) : heroLabel,
                 style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+              ),
+            ),
+          if (board.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Wrap(
+                spacing: 6,
+                children: [for (final c in board) Text(c)],
               ),
             ),
           if (spot.tags.isNotEmpty)
