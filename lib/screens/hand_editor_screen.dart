@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:math' as math;
 import '../widgets/poker_table_view.dart';
 import '../widgets/card_picker_widget.dart';
 import '../widgets/action_list_widget.dart';
 import '../widgets/showdown_tab.dart';
+import '../widgets/street_hud_bar.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../helpers/poker_position_helper.dart';
@@ -24,6 +26,7 @@ class _HandSnapshot {
   final List<PlayerAction> actions;
   final List<List<CardModel>> revealed;
   final List<double> winnings;
+  final List<double> spr, eff;
   const _HandSnapshot({
     required this.pre,
     required this.flop,
@@ -35,6 +38,8 @@ class _HandSnapshot {
     required this.actions,
     required this.revealed,
     required this.winnings,
+    required this.spr,
+    required this.eff,
   });
 }
 
@@ -60,6 +65,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   late List<double> _winnings;
   late List<List<double>> _winParts;
   late List<double> _playerAllInAt;
+  List<double> _streetSpr = List.filled(4, 0);
+  List<double> _streetEff = List.filled(4, 0);
   double _pot = 0;
   late TabController _tabController;
   final List<_HandSnapshot> _undo = [];
@@ -94,6 +101,9 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     final bets = List.filled(_playerCount, 0.0);
     final allInAt = List<double>.filled(_playerCount, double.infinity);
     double pot = 0;
+    final spr = List<double>.filled(4, 0);
+    final eff = List<double>.filled(4, 0);
+    int street = 0;
     void apply(List<ActionEntry> list) {
       for (final a in list) {
         switch (a.action) {
@@ -150,6 +160,16 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       _riverActions
     ]) {
       apply(list);
+      final active = [
+        for (int i = 0; i < _playerCount; i++)
+          if (actions[i] != PlayerAction.fold) i
+      ];
+      if (active.isNotEmpty) {
+        final effStack = active.map((i) => stacks[i]).reduce(math.min);
+        eff[street] = effStack;
+        spr[street] = effStack / math.max(pot, 0.01);
+      }
+      street++;
     }
 
     setState(() {
@@ -158,6 +178,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       _bets = bets;
       _pot = pot;
       _playerAllInAt = allInAt;
+      _streetSpr = spr;
+      _streetEff = eff;
     });
     if (pushHistory && !_skipHistory) _pushHistory();
   }
@@ -176,6 +198,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             [for (final c in r) CardModel(rank: c.rank, suit: c.suit)]
         ],
         winnings: List<double>.from(_winnings),
+        spr: List<double>.from(_streetSpr),
+        eff: List<double>.from(_streetEff),
       );
 
   ActionEntry _copyAction(ActionEntry a) => ActionEntry(
@@ -230,6 +254,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       _bets = List<double>.from(s.bets);
       _pot = s.pot;
       _actions = List<PlayerAction>.from(s.actions);
+      _streetSpr = List<double>.from(s.spr);
+      _streetEff = List<double>.from(s.eff);
       _revealedCards = [
         for (final r in s.revealed)
           [for (final c in r) CardModel(rank: c.rank, suit: c.suit)]
@@ -835,6 +861,11 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             ),
             ),
             _buildBoardRow(),
+            StreetHudBar(
+              spr: _streetSpr,
+              eff: _streetEff,
+              currentStreet: _tabController.index.clamp(0, 3),
+            ),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
