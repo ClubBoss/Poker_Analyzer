@@ -37,7 +37,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
         final amount = a.amount;
         if (amount != null && amount < 0) {
           err = 'amount < 0';
-        } else if ((a.action == 'call' || a.action == 'raise' || a.action == 'push') && amount == null) {
+        } else if ((a.action == 'call' ||
+                a.action == 'raise' ||
+                a.action == 'push') &&
+            amount == null) {
           err = 'нет размера';
         } else {
           final maxBet = bets.fold<double>(0, math.max);
@@ -97,12 +100,22 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   Future<ActionEntry?> _showDialog(ActionEntry entry) {
     int player = entry.playerIndex;
     String act = entry.action;
-    final amountController =
-        TextEditingController(text: entry.amount?.toString() ?? '');
-    final labelController =
-        TextEditingController(text: entry.customLabel ?? '');
-    final equityController =
-        TextEditingController(text: entry.equity?.toString() ?? '');
+    final amountController = TextEditingController(
+      text: entry.amount?.toString() ?? '',
+    );
+    final labelController = TextEditingController(
+      text: entry.customLabel ?? '',
+    );
+    final equityController = TextEditingController(
+      text: entry.equity?.toString() ?? '',
+    );
+    final pa = entry.potAfter;
+    final po = entry.potOdds;
+    final origAmount = entry.amount ?? 0;
+    final baseToCall = po == null ? 0 : pa * po / 100;
+    final currentPot = pa - baseToCall;
+    final prevBet = origAmount - baseToCall;
+    bool listenerAdded = false;
     return showDialog<ActionEntry>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -111,15 +124,17 @@ class _ActionListWidgetState extends State<ActionListWidget> {
           final needLabel = act == 'custom';
           final needEquity =
               player == widget.heroIndex && (act == 'call' || act == 'push');
-          final threshold = needEquity
-              ? (() {
-                  final pa = entry.potAfter;
-                  final po = entry.potOdds;
-                  if (pa == 0 || po == null) return null;
-                  if (po == 0) return null;
-                  return 100 * po / (po + 100);
-                })()
-              : null;
+          if (!listenerAdded) {
+            amountController.addListener(() => setState(() {}));
+            listenerAdded = true;
+          }
+          double? threshold;
+          if (needEquity) {
+            final amount = double.tryParse(amountController.text) ?? 0;
+            final toCall = math.max(0, amount - prevBet);
+            final potAfter = currentPot + toCall;
+            if (potAfter > 0) threshold = 100 * toCall / potAfter;
+          }
           return AlertDialog(
             title: const Text('Edit action'),
             content: Column(
@@ -149,8 +164,9 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                   const SizedBox(height: 8),
                   TextField(
                     controller: amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: const InputDecoration(labelText: 'Amount'),
                   ),
                 ],
@@ -158,8 +174,9 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                   const SizedBox(height: 8),
                   TextField(
                     controller: equityController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: const InputDecoration(labelText: 'Equity %'),
                   ),
                   if (threshold != null)
@@ -167,7 +184,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
                         'EV=0 at ~${threshold!.toStringAsFixed(1)}%',
-                        style: const TextStyle(fontSize: 12, color: Colors.white54),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white54,
+                        ),
                       ),
                     ),
                 ],
@@ -189,14 +209,18 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                 onPressed: () {
                   Navigator.pop(
                     ctx,
-                    ActionEntry(entry.street, player, act,
-                        amount: needAmount
-                            ? double.tryParse(amountController.text)
-                            : null,
-                        customLabel: needLabel ? labelController.text : null,
-                        equity: needEquity
-                            ? double.tryParse(equityController.text)
-                            : null),
+                    ActionEntry(
+                      entry.street,
+                      player,
+                      act,
+                      amount: needAmount
+                          ? double.tryParse(amountController.text)
+                          : null,
+                      customLabel: needLabel ? labelController.text : null,
+                      equity: needEquity
+                          ? double.tryParse(equityController.text)
+                          : null,
+                    ),
                   );
                 },
                 child: const Text('OK'),
@@ -258,7 +282,9 @@ class _ActionListWidgetState extends State<ActionListWidget> {
             setState(() {
               final moved = _actions.removeAt(oldIndex);
               _actions.insert(
-                  newIndex > oldIndex ? newIndex - 1 : newIndex, moved);
+                newIndex > oldIndex ? newIndex - 1 : newIndex,
+                moved,
+              );
               _recalcErrors();
             });
             _notify();
@@ -268,10 +294,11 @@ class _ActionListWidgetState extends State<ActionListWidget> {
             final isBlind = index < 2 && a.action == 'post';
             final heroBg = (a.playerIndex == widget.heroIndex && a.ev != null)
                 ? (a.ev! >= 0
-                    ? Colors.green.withOpacity(0.1)
-                    : Colors.red.withOpacity(0.1))
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.red.withOpacity(0.1))
                 : null;
-            final bg = heroBg ??
+            final bg =
+                heroBg ??
                 (_errors[index] == null
                     ? Colors.transparent
                     : Colors.red.withOpacity(0.15));
@@ -286,8 +313,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                   else
                     ReorderableDragStartListener(
                       index: index,
-                      child: const Icon(Icons.drag_indicator,
-                          color: Colors.white70),
+                      child: const Icon(
+                        Icons.drag_indicator,
+                        color: Colors.white70,
+                      ),
                     ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -298,12 +327,18 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(_format(a)),
-                            if (a.playerIndex == widget.heroIndex && a.ev != null)
+                            if (a.playerIndex == widget.heroIndex &&
+                                a.ev != null)
                               Container(
                                 margin: const EdgeInsets.only(left: 4),
-                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: a.ev! >= 0 ? Colors.greenAccent : Colors.redAccent,
+                                  color: a.ev! >= 0
+                                      ? Colors.greenAccent
+                                      : Colors.redAccent,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -320,7 +355,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         if (a.potOdds != null)
                           Text(
                             'Pot odds: ${a.potOdds!.toStringAsFixed(1)} %',
-                            style: const TextStyle(color: Colors.white54, fontSize: 12),
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 12,
+                            ),
                           ),
                       ],
                     ),
@@ -351,10 +389,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
             );
           },
         ),
-        TextButton(
-          onPressed: _addAction,
-          child: const Text('＋ Add action'),
-        ),
+        TextButton(onPressed: _addAction, child: const Text('＋ Add action')),
       ],
     );
   }
