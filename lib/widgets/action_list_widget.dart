@@ -281,6 +281,17 @@ class _ActionListWidgetState extends State<ActionListWidget> {
     _notify();
   }
 
+  void _clearAllActions() {
+    setState(() {
+      _actions.clear();
+      _recalcErrors();
+    });
+    _notify();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('All actions cleared')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_actions.isEmpty) {
@@ -408,7 +419,18 @@ class _ActionListWidgetState extends State<ActionListWidget> {
             );
           },
         ),
-        TextButton(onPressed: _addAction, child: const Text('＋ Add action')),
+        Row(
+          children: [
+            TextButton(
+              onPressed: _addAction,
+              child: const Text('＋ Add action'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.clear_all),
+              onPressed: _clearAllActions,
+            ),
+          ],
+        ),
       ],
     );
   }
