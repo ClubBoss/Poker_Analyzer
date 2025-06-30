@@ -13,7 +13,8 @@ class HandEditorScreen extends StatefulWidget {
   State<HandEditorScreen> createState() => _HandEditorScreenState();
 }
 
-class _HandEditorScreenState extends State<HandEditorScreen> {
+class _HandEditorScreenState extends State<HandEditorScreen>
+    with SingleTickerProviderStateMixin {
   final List<CardModel> _heroCards = [];
   final List<CardModel> _boardCards = [];
   final int _playerCount = 6;
@@ -31,16 +32,24 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
   late List<PlayerAction> _actions;
   late List<double> _bets;
   double _pot = 0;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 4, vsync: this);
     _names.addAll(List.generate(_playerCount, (i) => 'Player ${i + 1}'));
     _initialStacks = List.filled(_playerCount, 100.0);
     _stacks = List.from(_initialStacks);
     _actions = List.filled(_playerCount, PlayerAction.none);
     _bets = List.filled(_playerCount, 0.0);
     _recompute();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   void _recompute() {
@@ -154,6 +163,27 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
         _boardCards.add(card);
       }
     });
+  }
+
+  void _nextStreet() {
+    final current = _tabController.index;
+    if (current < 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Stakes committed — moving to ${['Flop', 'Turn', 'River', 'Showdown'][current + 1]}'),
+        ),
+      );
+      setState(() {
+        for (int i = 0; i < _playerCount; i++) {
+          _pot += _bets[i];
+          _bets[i] = 0;
+        }
+        _actions = List.filled(_playerCount, PlayerAction.none);
+        _recompute();
+      });
+      _tabController.animateTo(current + 1);
+    }
   }
 
   Widget _buildBoardRow() {
@@ -284,27 +314,30 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Hand Editor'),
-          actions: [
-            TextButton(
-              onPressed: _editPlayers,
-              child: const Text('📝 Players'),
-            )
-          ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Preflop'),
-              Tab(text: 'Flop'),
-              Tab(text: 'Turn'),
-              Tab(text: 'River'),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Hand Editor'),
+        actions: [
+          TextButton(
+            onPressed: _editPlayers,
+            child: const Text('📝 Players'),
           ),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward),
+            onPressed: _tabController.index == 3 ? null : _nextStreet,
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Preflop'),
+            Tab(text: 'Flop'),
+            Tab(text: 'Turn'),
+            Tab(text: 'River'),
+          ],
         ),
-        body: Column(
+      ),
+      body: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(8),
@@ -346,6 +379,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
             _buildBoardRow(),
             Expanded(
               child: TabBarView(
+                controller: _tabController,
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16),
