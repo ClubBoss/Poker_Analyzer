@@ -8,6 +8,7 @@ class TrainingPackSpot {
   HandData hand;
   List<String> tags;
   DateTime editedAt;
+  bool pinned;
 
   TrainingPackSpot({
     required this.id,
@@ -16,6 +17,7 @@ class TrainingPackSpot {
     HandData? hand,
     List<String>? tags,
     DateTime? editedAt,
+    this.pinned = false,
   })  : hand = hand ?? HandData(),
         tags = tags ?? [],
         editedAt = editedAt ?? DateTime.now();
@@ -27,6 +29,7 @@ class TrainingPackSpot {
     HandData? hand,
     List<String>? tags,
     DateTime? editedAt,
+    bool? pinned,
   }) =>
       TrainingPackSpot(
         id: id ?? this.id,
@@ -35,6 +38,7 @@ class TrainingPackSpot {
         hand: hand ?? this.hand,
         tags: tags ?? List<String>.from(this.tags),
         editedAt: editedAt ?? this.editedAt,
+        pinned: pinned ?? this.pinned,
       );
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
@@ -47,6 +51,7 @@ class TrainingPackSpot {
         tags: [for (final t in (j['tags'] as List? ?? [])) t as String],
         editedAt:
             DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
+        pinned: j['pinned'] == true,
       );
 
   Map<String, dynamic> toJson() => {
@@ -56,6 +61,7 @@ class TrainingPackSpot {
         'hand': hand.toJson(),
         if (tags.isNotEmpty) 'tags': tags,
         'editedAt': editedAt.toIso8601String(),
+        if (pinned) 'pinned': true,
       };
 
   @override
@@ -67,9 +73,10 @@ class TrainingPackSpot {
           title == other.title &&
           note == other.note &&
           hand == other.hand &&
-          const ListEquality().equals(tags, other.tags);
+          const ListEquality().equals(tags, other.tags) &&
+          pinned == other.pinned;
 
   @override
   int get hashCode =>
-      Object.hash(id, title, note, hand, const ListEquality().hash(tags));
+      Object.hash(id, title, note, hand, const ListEquality().hash(tags), pinned);
 }
