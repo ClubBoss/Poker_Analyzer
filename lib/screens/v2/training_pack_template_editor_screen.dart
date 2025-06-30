@@ -188,6 +188,78 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  Future<void> _renameTag() async {
+    final tags = widget.template.spots.expand((s) => s.tags).toSet().toList()
+      ..sort((a, b) => a.compareTo(b));
+    if (tags.isEmpty) return;
+    String? selected = tags.first;
+    final searchCtr = TextEditingController();
+    final newCtr = TextEditingController();
+    final result = await showDialog<List<String>?>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) {
+          final filtered = tags
+              .where((t) => t
+                  .toLowerCase()
+                  .contains(searchCtr.text.toLowerCase()))
+              .toList();
+          if (!filtered.contains(selected)) selected = filtered.isEmpty ? null : filtered.first;
+          return AlertDialog(
+            title: const Text('Rename Tag'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: searchCtr,
+                  decoration: const InputDecoration(labelText: 'Search'),
+                  onChanged: (_) => setStateDialog(() {}),
+                ),
+                const SizedBox(height: 8),
+                DropdownButton<String>(
+                  value: selected,
+                  isExpanded: true,
+                  items: [for (final t in filtered) DropdownMenuItem(value: t, child: Text(t))],
+                  onChanged: (v) => setStateDialog(() => selected = v),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: newCtr,
+                  decoration: const InputDecoration(labelText: 'New tag'),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+              TextButton(
+                onPressed: () => Navigator.pop(context, [selected ?? '', newCtr.text.trim()]),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    searchCtr.dispose();
+    newCtr.dispose();
+    if (result == null) return;
+    final oldTag = result[0];
+    final newTag = result[1];
+    if (oldTag.isEmpty || newTag.isEmpty || oldTag == newTag) return;
+    setState(() {
+      for (final s in widget.template.spots) {
+        if (s.tags.remove(oldTag) && !s.tags.contains(newTag)) {
+          s.tags.add(newTag);
+        } else {
+          while (s.tags.remove(oldTag)) {}
+          if (!s.tags.contains(newTag)) s.tags.add(newTag);
+        }
+      }
+    });
+    await TrainingPackStorage.save(widget.templates);
+    setState(() {});
+  }
+
   double _spotEv(TrainingPackSpot s) {
     final acts = s.hand.actions[0] ?? [];
     for (final a in acts) {
@@ -248,6 +320,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   ],
                 ),
               ),
+            ],
+          ),
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              if (v == 'rename') _renameTag();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'rename', child: Text('Rename Tag')),
             ],
           ),
           IconButton(
