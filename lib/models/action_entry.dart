@@ -25,6 +25,10 @@ class ActionEntry {
 
   double? potOdds;
 
+  double? equity;
+
+  double? ev;
+
   /// Время, когда было совершено действие
   final DateTime timestamp;
 
@@ -38,6 +42,8 @@ class ActionEntry {
       this.customLabel,
       DateTime? timestamp,
       this.potAfter = 0,
-      this.potOdds})
+      this.potOdds,
+      this.equity,
+      this.ev})
       : timestamp = timestamp ?? DateTime.now();
 }
