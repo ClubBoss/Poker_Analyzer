@@ -277,20 +277,33 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_format(a)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(_format(a)),
+                            if (a.playerIndex == widget.heroIndex && a.ev != null)
+                              Container(
+                                margin: const EdgeInsets.only(left: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: a.ev! >= 0 ? Colors.greenAccent : Colors.redAccent,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  a.ev! >= 0 ? ' +EV ' : ' –EV ',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                         if (a.potOdds != null)
                           Text(
                             'Pot odds: ${a.potOdds!.toStringAsFixed(1)} %',
                             style: const TextStyle(color: Colors.white54, fontSize: 12),
-                          ),
-                        if (a.ev != null)
-                          Text(
-                            'EV: ${a.ev!.toStringAsFixed(2)} BB',
-                            style: TextStyle(
-                                color: a.ev! >= 0
-                                    ? Colors.lightGreenAccent
-                                    : Colors.redAccent,
-                                fontSize: 12),
                           ),
                       ],
                     ),
