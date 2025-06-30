@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../models/v2/training_pack_spot.dart';
+import '../../models/v2/hero_position.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../widgets/action_list_widget.dart';
 
@@ -14,15 +15,15 @@ class HandEditorScreen extends StatefulWidget {
 
 class _HandEditorScreenState extends State<HandEditorScreen> {
   late TextEditingController _cardsCtr;
-  late TextEditingController _posCtr;
   late TextEditingController _stacksCtr;
+  late HeroPosition _position;
   int _street = 0;
 
   @override
   void initState() {
     super.initState();
     _cardsCtr = TextEditingController(text: widget.spot.hand.heroCards);
-    _posCtr = TextEditingController(text: widget.spot.hand.position);
+    _position = widget.spot.hand.position;
     _stacksCtr = TextEditingController(
         text: widget.spot.hand.stacks.isEmpty
             ? ''
@@ -32,14 +33,13 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
   @override
   void dispose() {
     _cardsCtr.dispose();
-    _posCtr.dispose();
     _stacksCtr.dispose();
     super.dispose();
   }
 
   void _update() {
     widget.spot.hand.heroCards = _cardsCtr.text;
-    widget.spot.hand.position = _posCtr.text;
+    widget.spot.hand.position = _position;
     try {
       final m = jsonDecode(_stacksCtr.text) as Map<String, dynamic>;
       widget.spot.hand.stacks = {
@@ -90,10 +90,19 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
               onChanged: onChanged,
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _posCtr,
-              decoration: const InputDecoration(labelText: 'Position'),
-              onChanged: onChanged,
+            DropdownButton<HeroPosition>(
+              value: _position,
+              items: [
+                for (final p in HeroPosition.values)
+                  DropdownMenuItem(value: p, child: Text(p.label))
+              ],
+              onChanged: (v) {
+                if (v == null) return;
+                setState(() {
+                  _position = v;
+                  _update();
+                });
+              },
             ),
             const SizedBox(height: 16),
             TextField(

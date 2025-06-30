@@ -1,16 +1,17 @@
 import '../action_entry.dart';
+import 'hero_position.dart';
 
 class HandData {
   String heroCards;
   Map<int, List<ActionEntry>> actions;
-  String position;
+  HeroPosition position;
   Map<String, double> stacks;
   int heroIndex;
   int playerCount;
 
   HandData({
     this.heroCards = '',
-    this.position = '',
+    this.position = HeroPosition.unknown,
     this.heroIndex = 0,
     this.playerCount = 6,
     Map<int, List<ActionEntry>>? actions,
@@ -38,7 +39,10 @@ class HandData {
     }
     return HandData(
       heroCards: j['heroCards'] as String? ?? '',
-      position: j['position'] as String? ?? '',
+      position: HeroPosition.values.firstWhere(
+        (e) => e.name == j['position'],
+        orElse: () => HeroPosition.unknown,
+      ),
       heroIndex: j['heroIndex'] as int? ?? 0,
       playerCount: j['playerCount'] as int? ?? 6,
       actions: acts,
@@ -48,7 +52,7 @@ class HandData {
 
   Map<String, dynamic> toJson() => {
         'heroCards': heroCards,
-        'position': position,
+        'position': position.name,
         'heroIndex': heroIndex,
         'playerCount': playerCount,
         if (actions.values.any((l) => l.isNotEmpty))

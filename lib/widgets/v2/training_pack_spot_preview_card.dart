@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/v2/training_pack_spot.dart';
+import '../../models/v2/hero_position.dart';
 import '../../screens/v2/hand_editor_screen.dart';
 
 class TrainingPackSpotPreviewCard extends StatelessWidget {
@@ -35,11 +36,11 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
               spot.title.isEmpty ? 'Untitled spot' : spot.title,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          if (hero.isNotEmpty || pos.isNotEmpty || legacy)
+          if (hero.isNotEmpty || pos != HeroPosition.unknown || legacy)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                legacy ? '(legacy)' : '$hero $pos'.trim(),
+                legacy ? '(legacy)' : '$hero ${pos.label}'.trim(),
                 style: const TextStyle(fontSize: 16),
               ),
             ),
