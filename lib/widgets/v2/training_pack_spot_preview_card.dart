@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../models/v2/hero_position.dart';
+import '../../models/action_entry.dart';
 import '../../screens/v2/hand_editor_screen.dart';
 
 class TrainingPackSpotPreviewCard extends StatelessWidget {
@@ -20,15 +21,20 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
     final pos = spot.hand.position;
     final h = spot.hand.heroIndex;
     final pre = spot.hand.actions[0] ?? [];
-    final act = pre.firstWhere(
-      (a) => a.playerIndex == h,
-      orElse: () => null,
-    );
-    final label = act == null
+
+    ActionEntry? heroAct;
+    for (final a in pre) {
+      if (a.playerIndex == h) {
+        heroAct = a;
+        break;
+      }
+    }
+
+    final String? heroLabel = heroAct == null
         ? null
-        : (act.customLabel?.isNotEmpty == true
-            ? act.customLabel!
-            : '${act.action}${act.amount != null && act.amount! > 0 ? ' ${act.amount} BB' : ''}');
+        : (heroAct.customLabel?.isNotEmpty == true
+            ? heroAct.customLabel!
+            : '${heroAct.action}${heroAct.amount != null && heroAct.amount! > 0 ? ' ${heroAct.amount} BB' : ''}');
     final legacy = hero.isEmpty && spot.note.trim().isNotEmpty;
     return Card(
       margin: EdgeInsets.zero,
@@ -50,13 +56,12 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 16),
               ),
             ),
-          if (label != null)
+          if (heroLabel != null)
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
-                label,
-                style:
-                    const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                heroLabel.length > 40 ? heroLabel.substring(0, 40) : heroLabel,
+                style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
               ),
             ),
           if (spot.tags.isNotEmpty)
