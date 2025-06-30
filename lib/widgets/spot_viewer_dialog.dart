@@ -70,6 +70,7 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       }
     }
     if (spot.note.isNotEmpty) lines.add('Note: ${spot.note}');
+    if (spot.tags.isNotEmpty) lines.add('Tags: ${spot.tags.join(', ')}');
     return lines.join('\n');
   }
 
@@ -118,6 +119,13 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
             if (spot.note.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(spot.note, style: const TextStyle(color: Colors.white70)),
+            ],
+            if (spot.tags.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 4,
+                children: [for (final t in spot.tags) Chip(label: Text(t))],
+              ),
             ],
             const SizedBox(height: 8),
             ActionHistoryWidget(actions: _actions(), playerPositions: _posMap()),
