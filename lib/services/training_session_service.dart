@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -11,8 +12,13 @@ class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _activeBox;
   TrainingSession? _session;
   List<TrainingPackSpot> _spots = [];
+  Timer? _timer;
 
   TrainingSession? get session => _session;
+  Duration get elapsedTime => _session == null
+      ? Duration.zero
+      : (_session!.completedAt ?? DateTime.now())
+          .difference(_session!.startedAt);
 
   TrainingPackSpot? get currentSpot =>
       _session != null && _session!.index < _spots.length
@@ -49,6 +55,10 @@ class TrainingSessionService extends ChangeNotifier {
             TrainingSession.fromJson(Map<String, dynamic>.from(s));
         if (session.completedAt == null) {
           _session = session;
+          _timer = Timer.periodic(
+            const Duration(seconds: 1),
+            (_) => notifyListeners(),
+          );
           _spots = [
             for (final e in (spots as List? ?? []))
               TrainingPackSpot.fromJson(Map<String, dynamic>.from(e))
@@ -80,6 +90,11 @@ class TrainingSessionService extends ChangeNotifier {
       id: const Uuid().v4(),
       templateId: template.id,
     );
+    _timer?.cancel();
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => notifyListeners(),
+    );
     await _box!.put(_session!.id, _session!.toJson());
     _saveActive();
     notifyListeners();
@@ -97,6 +112,7 @@ class TrainingSessionService extends ChangeNotifier {
     _session!.index += 1;
     if (_session!.index >= _spots.length) {
       _session!.completedAt = DateTime.now();
+      _timer?.cancel();
     }
     _box?.put(_session!.id, _session!.toJson());
     _saveActive();
@@ -113,5 +129,11 @@ class TrainingSessionService extends ChangeNotifier {
       notifyListeners();
     }
     return currentSpot;
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }
