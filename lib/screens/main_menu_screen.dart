@@ -9,6 +9,7 @@ import 'my_training_history_screen.dart';
 import 'cloud_training_history_service_screen.dart';
 import 'player_zone_demo_screen.dart';
 import 'poker_table_demo_screen.dart';
+import 'hand_editor_screen.dart';
 import 'settings_screen.dart';
 import 'daily_hand_screen.dart';
 import 'spot_of_the_day_screen.dart';
@@ -756,6 +757,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('🧪 Poker Table Demo'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HandEditorScreen()),
+                );
+              },
+              child: const Text('✍️ Hand Editor'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
