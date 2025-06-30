@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../helpers/training_pack_storage.dart';
@@ -49,10 +51,73 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     _edit(template);
   }
 
+  Future<void> _export() async {
+    final json = jsonEncode([for (final t in _templates) t.toJson()]);
+    await Clipboard.setData(ClipboardData(text: json));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Templates copied to clipboard')),
+    );
+  }
+
+  Future<void> _import() async {
+    final clip = await Clipboard.getData('text/plain');
+    if (clip?.text == null || clip!.text!.trim().isEmpty) return;
+    List? raw;
+    try {
+      raw = jsonDecode(clip.text!);
+    } catch (_) {}
+    if (raw is! List) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Invalid JSON')));
+      return;
+    }
+    final imported = [
+      for (final m in raw)
+        TrainingPackTemplate.fromJson(Map<String, dynamic>.from(m))
+    ];
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Import templates?'),
+        content:
+            Text('This will add ${imported.length} template(s) to your list.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Import')),
+        ],
+      ),
+    );
+    if (ok ?? false) {
+      setState(() => _templates.addAll(imported));
+      TrainingPackStorage.save(_templates);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${imported.length} template(s) imported')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Training Packs')),
+      appBar: AppBar(
+        title: const Text('Training Packs'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.upload),
+            tooltip: 'Import',
+            onPressed: _import,
+          ),
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Export',
+            onPressed: _export,
+          ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
