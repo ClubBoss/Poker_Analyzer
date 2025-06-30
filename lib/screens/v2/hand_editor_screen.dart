@@ -72,6 +72,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
       );
       return;
     }
+    widget.spot.editedAt = DateTime.now();
     final templates = await TrainingPackStorage.load();
     for (final t in templates) {
       for (var i = 0; i < t.spots.length; i++) {
