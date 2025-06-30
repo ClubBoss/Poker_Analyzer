@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
+import 'dart:math' as math;
 
 class ActionListWidget extends StatefulWidget {
   final int playerCount;
   final ValueChanged<List<ActionEntry>> onChanged;
   final List<ActionEntry>? initial;
   final bool showPot;
+  final List<double>? currentStacks;
   const ActionListWidget({
     super.key,
     required this.playerCount,
     required this.onChanged,
     this.initial,
     this.showPot = false,
+    this.currentStacks,
   });
 
   @override
@@ -20,6 +23,47 @@ class ActionListWidget extends StatefulWidget {
 
 class _ActionListWidgetState extends State<ActionListWidget> {
   late List<ActionEntry> _actions;
+  List<String?> _errors = [];
+
+  void _recalcErrors() {
+    final bets = List<double>.filled(widget.playerCount, 0);
+    _errors = List<String?>.filled(_actions.length, null);
+    for (int i = 0; i < _actions.length; i++) {
+      final a = _actions[i];
+      String? err;
+      if (a.action != 'post') {
+        final amount = a.amount;
+        if (amount != null && amount < 0) {
+          err = 'amount < 0';
+        } else if ((a.action == 'call' || a.action == 'raise' || a.action == 'push') && amount == null) {
+          err = 'нет размера';
+        } else {
+          final maxBet = bets.fold<double>(0, math.max);
+          if (a.action == 'raise' && amount != null && amount <= maxBet) {
+            err = 'raise ≤ текущего бет-сайза';
+          } else if (a.action == 'call' && amount != null && amount < maxBet) {
+            err = 'call < текущего бет-сайза';
+          } else if (a.action == 'push') {
+            final stack = widget.currentStacks?[a.playerIndex];
+            if (stack != null && amount != stack) {
+              err = 'push ≠ стеку';
+            }
+          }
+        }
+      }
+      _errors[i] = err;
+      switch (a.action) {
+        case 'post':
+        case 'call':
+        case 'raise':
+        case 'push':
+          bets[a.playerIndex] = a.amount ?? bets[a.playerIndex];
+          break;
+        default:
+          break;
+      }
+    }
+  }
 
   String _format(ActionEntry a) {
     var text = 'P${a.playerIndex} ${a.action}';
@@ -32,9 +76,21 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   void initState() {
     super.initState();
     _actions = List<ActionEntry>.from(widget.initial ?? []);
+    _recalcErrors();
   }
 
-  void _notify() => widget.onChanged(List<ActionEntry>.from(_actions));
+  @override
+  void didUpdateWidget(covariant ActionListWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentStacks != widget.currentStacks) {
+      setState(() => _recalcErrors());
+    }
+  }
+
+  void _notify() {
+    setState(() => _recalcErrors());
+    widget.onChanged(List<ActionEntry>.from(_actions));
+  }
 
   Future<ActionEntry?> _showDialog(ActionEntry entry) {
     int player = entry.playerIndex;
@@ -120,7 +176,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   Future<void> _addAction() async {
     final entry = await _showDialog(ActionEntry(0, 0, 'call', amount: 0));
     if (entry != null) {
-      setState(() => _actions.add(entry));
+      setState(() {
+        _actions.add(entry);
+        _recalcErrors();
+      });
       _notify();
     }
   }
@@ -128,13 +187,19 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   Future<void> _editAction(int index) async {
     final edited = await _showDialog(_actions[index]);
     if (edited != null) {
-      setState(() => _actions[index] = edited);
+      setState(() {
+        _actions[index] = edited;
+        _recalcErrors();
+      });
       _notify();
     }
   }
 
   void _deleteAction(int index) {
-    setState(() => _actions.removeAt(index));
+    setState(() {
+      _actions.removeAt(index);
+      _recalcErrors();
+    });
     _notify();
   }
 
@@ -159,14 +224,18 @@ class _ActionListWidgetState extends State<ActionListWidget> {
               final moved = _actions.removeAt(oldIndex);
               _actions.insert(
                   newIndex > oldIndex ? newIndex - 1 : newIndex, moved);
+              _recalcErrors();
             });
             _notify();
           },
           itemBuilder: (context, index) {
             final a = _actions[index];
             final isBlind = index < 2 && a.action == 'post';
-            return Padding(
+            final bg =
+                _errors[index] == null ? Colors.transparent : Colors.red.withOpacity(0.15);
+            return Container(
               key: ValueKey(a),
+              color: bg,
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
@@ -187,6 +256,11 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         'Pot: ${a.potAfter.toStringAsFixed(1)} BB',
                         style: const TextStyle(color: Colors.grey),
                       ),
+                    ),
+                  if (_errors[index] != null)
+                    Tooltip(
+                      message: _errors[index]!,
+                      child: const Icon(Icons.error, color: Colors.redAccent),
                     ),
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.white70),
