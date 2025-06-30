@@ -66,6 +66,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           builder: (_) => SessionResultScreen(
             total: service.totalCount,
             correct: service.correctCount,
+            elapsed: service.elapsedTime,
           ),
         ),
       );
