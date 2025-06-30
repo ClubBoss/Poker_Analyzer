@@ -518,6 +518,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               },
             ),
             const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: widget.template.gameType,
+              decoration: const InputDecoration(labelText: 'Game Type'),
+              items: const [
+                DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
+                DropdownMenuItem(value: 'cash', child: Text('Cash')),
+              ],
+              onChanged: (v) {
+                setState(() => widget.template.gameType = v ?? 'tournament');
+                TrainingPackStorage.save(widget.templates);
+              },
+            ),
+            const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: TextField(
