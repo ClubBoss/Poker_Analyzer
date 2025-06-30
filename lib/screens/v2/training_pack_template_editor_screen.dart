@@ -31,6 +31,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   String _query = '';
   String? _tagFilter;
   late TextEditingController _searchCtrl;
+  late TextEditingController _tagSearchCtrl;
+  String _tagSearch = '';
   Set<String> _selectedTags = {};
   Set<String> _selectedSpotIds = {};
   bool get _isMultiSelect => _selectedSpotIds.isNotEmpty;
@@ -60,6 +62,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _nameCtr = TextEditingController(text: widget.template.name);
     _descCtr = TextEditingController(text: widget.template.description);
     _searchCtrl = TextEditingController();
+    _tagSearchCtrl = TextEditingController();
     SharedPreferences.getInstance().then((prefs) {
       final val = prefs.getBool(_prefsAutoSortKey) ?? false;
       if (mounted) {
@@ -76,6 +79,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _nameCtr.dispose();
     _descCtr.dispose();
     _searchCtrl.dispose();
+    _tagSearchCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
@@ -378,18 +382,45 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 final allTags = widget.template.spots
                     .expand((s) => s.tags)
                     .toSet()
+                    .where((t) => t
+                        .toLowerCase()
+                        .contains(_tagSearch.toLowerCase()))
                     .toList();
-                return Wrap(
-                  spacing: 8,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final tag in allTags)
-                      FilterChip(
-                        label: Text(tag),
-                        selected: _selectedTags.contains(tag),
-                        onSelected: (v) => setState(() {
-                          v ? _selectedTags.add(tag) : _selectedTags.remove(tag);
-                        }),
+                    TextField(
+                      controller: _tagSearchCtrl,
+                      decoration: InputDecoration(
+                        labelText: 'Search tags',
+                        suffixIcon: _tagSearch.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () => setState(() {
+                                  _tagSearch = '';
+                                  _tagSearchCtrl.clear();
+                                }),
+                              )
+                            : null,
                       ),
+                      onChanged: (v) => setState(() => _tagSearch = v),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        for (final tag in allTags)
+                          FilterChip(
+                            label: Text(tag),
+                            selected: _selectedTags.contains(tag),
+                            onSelected: (v) => setState(() {
+                              v
+                                  ? _selectedTags.add(tag)
+                                  : _selectedTags.remove(tag);
+                            }),
+                          ),
+                      ],
+                    ),
                   ],
                 );
               },
