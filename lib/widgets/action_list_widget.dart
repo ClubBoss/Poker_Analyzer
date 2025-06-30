@@ -248,7 +248,19 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           color: Colors.white70),
                     ),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(_format(a))),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_format(a)),
+                        if (a.potOdds != null)
+                          Text(
+                            'Pot odds: ${a.potOdds!.toStringAsFixed(1)} %',
+                            style: const TextStyle(color: Colors.white54, fontSize: 12),
+                          ),
+                      ],
+                    ),
+                  ),
                   if (widget.showPot)
                     Padding(
                       padding: const EdgeInsets.only(right: 8),

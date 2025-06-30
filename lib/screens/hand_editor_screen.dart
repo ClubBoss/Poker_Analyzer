@@ -67,6 +67,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   late List<double> _playerAllInAt;
   List<double> _streetSpr = List.filled(4, 0);
   List<double> _streetEff = List.filled(4, 0);
+  List<double?> _streetPotOdds = List.filled(4, null);
   double _pot = 0;
   late TabController _tabController;
   final List<_HandSnapshot> _undo = [];
@@ -103,9 +104,11 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     double pot = 0;
     final spr = List<double>.filled(4, 0);
     final eff = List<double>.filled(4, 0);
+    final heroPo = List<double?>.filled(4, null);
     int street = 0;
     void apply(List<ActionEntry> list) {
       for (final a in list) {
+        final prevBet = bets[a.playerIndex];
         switch (a.action) {
           case 'fold':
             actions[a.playerIndex] = PlayerAction.fold;
@@ -150,6 +153,14 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             break;
         }
         a.potAfter = pot;
+        if (a.playerIndex == _heroIndex &&
+            (a.action == 'call' || a.action == 'push')) {
+          final toCall = (bets[a.playerIndex] - prevBet).clamp(0, double.infinity);
+          a.potOdds = toCall == 0 ? null : (toCall / pot * 100);
+          heroPo[street] = a.potOdds;
+        } else {
+          a.potOdds = null;
+        }
       }
     }
 
@@ -180,6 +191,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       _playerAllInAt = allInAt;
       _streetSpr = spr;
       _streetEff = eff;
+      _streetPotOdds = heroPo;
     });
     if (pushHistory && !_skipHistory) _pushHistory();
   }
@@ -212,6 +224,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
         customLabel: a.customLabel,
         timestamp: a.timestamp,
         potAfter: a.potAfter,
+        potOdds: a.potOdds,
       );
 
   void _pushHistory() {
@@ -864,6 +877,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             StreetHudBar(
               spr: _streetSpr,
               eff: _streetEff,
+              potOdds: _streetPotOdds,
               currentStreet: _tabController.index.clamp(0, 3),
             ),
             Expanded(

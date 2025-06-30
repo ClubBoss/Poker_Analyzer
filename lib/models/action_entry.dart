@@ -23,6 +23,8 @@ class ActionEntry {
   /// Размер банка после применения действия
   double potAfter;
 
+  double? potOdds;
+
   /// Время, когда было совершено действие
   final DateTime timestamp;
 
@@ -35,6 +37,7 @@ class ActionEntry {
       this.manualEvaluation,
       this.customLabel,
       DateTime? timestamp,
-      this.potAfter = 0})
+      this.potAfter = 0,
+      this.potOdds})
       : timestamp = timestamp ?? DateTime.now();
 }
