@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 class ActionListWidget extends StatefulWidget {
   final int playerCount;
+  final int heroIndex;
   final ValueChanged<List<ActionEntry>> onChanged;
   final List<ActionEntry>? initial;
   final bool showPot;
@@ -11,6 +12,7 @@ class ActionListWidget extends StatefulWidget {
   const ActionListWidget({
     super.key,
     required this.playerCount,
+    required this.heroIndex,
     required this.onChanged,
     this.initial,
     this.showPot = false,
@@ -99,12 +101,16 @@ class _ActionListWidgetState extends State<ActionListWidget> {
         TextEditingController(text: entry.amount?.toString() ?? '');
     final labelController =
         TextEditingController(text: entry.customLabel ?? '');
+    final equityController =
+        TextEditingController(text: entry.equity?.toString() ?? '');
     return showDialog<ActionEntry>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) {
           final needAmount = act != 'fold';
           final needLabel = act == 'custom';
+          final needEquity =
+              player == widget.heroIndex && (act == 'call' || act == 'push');
           return AlertDialog(
             title: const Text('Edit action'),
             content: Column(
@@ -139,6 +145,15 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                     decoration: const InputDecoration(labelText: 'Amount'),
                   ),
                 ],
+                if (needEquity) ...[
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: equityController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(labelText: 'Equity %'),
+                  ),
+                ],
                 if (needLabel) ...[
                   const SizedBox(height: 8),
                   TextField(
@@ -161,7 +176,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         amount: needAmount
                             ? double.tryParse(amountController.text)
                             : null,
-                        customLabel: needLabel ? labelController.text : null),
+                        customLabel: needLabel ? labelController.text : null,
+                        equity: needEquity
+                            ? double.tryParse(equityController.text)
+                            : null),
                   );
                 },
                 child: const Text('OK'),
@@ -257,6 +275,15 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           Text(
                             'Pot odds: ${a.potOdds!.toStringAsFixed(1)} %',
                             style: const TextStyle(color: Colors.white54, fontSize: 12),
+                          ),
+                        if (a.ev != null)
+                          Text(
+                            'EV: ${a.ev!.toStringAsFixed(2)} BB',
+                            style: TextStyle(
+                                color: a.ev! >= 0
+                                    ? Colors.lightGreenAccent
+                                    : Colors.redAccent,
+                                fontSize: 12),
                           ),
                       ],
                     ),

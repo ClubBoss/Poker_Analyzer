@@ -68,6 +68,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   List<double> _streetSpr = List.filled(4, 0);
   List<double> _streetEff = List.filled(4, 0);
   List<double?> _streetPotOdds = List.filled(4, null);
+  List<double?> _streetEv = List.filled(4, null);
   double _pot = 0;
   late TabController _tabController;
   final List<_HandSnapshot> _undo = [];
@@ -105,6 +106,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     final spr = List<double>.filled(4, 0);
     final eff = List<double>.filled(4, 0);
     final heroPo = List<double?>.filled(4, null);
+    final heroEv = List<double?>.filled(4, null);
     int street = 0;
     void apply(List<ActionEntry> list) {
       for (final a in list) {
@@ -158,8 +160,14 @@ class _HandEditorScreenState extends State<HandEditorScreen>
           final toCall = (bets[a.playerIndex] - prevBet).clamp(0, double.infinity);
           a.potOdds = toCall == 0 ? null : (toCall / pot * 100);
           heroPo[street] = a.potOdds;
+          final potAfter = pot;
+          a.ev = a.equity == null
+              ? null
+              : (a.equity! / 100) * (potAfter) - toCall;
+          heroEv[street] = a.ev;
         } else {
           a.potOdds = null;
+          a.ev = null;
         }
       }
     }
@@ -192,6 +200,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       _streetSpr = spr;
       _streetEff = eff;
       _streetPotOdds = heroPo;
+      _streetEv = heroEv;
     });
     if (pushHistory && !_skipHistory) _pushHistory();
   }
@@ -225,6 +234,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
         timestamp: a.timestamp,
         potAfter: a.potAfter,
         potOdds: a.potOdds,
+        equity: a.equity,
+        ev: a.ev,
       );
 
   void _pushHistory() {
@@ -878,6 +889,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
               spr: _streetSpr,
               eff: _streetEff,
               potOdds: _streetPotOdds,
+              ev: _streetEv,
               currentStreet: _tabController.index.clamp(0, 3),
             ),
             Expanded(
@@ -904,6 +916,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                         const SizedBox(height: 12),
                         ActionListWidget(
                           playerCount: _playerCount,
+                          heroIndex: _heroIndex,
                           initial: _preflopActions,
                           showPot: true,
                           currentStacks: _stacks,
@@ -920,6 +933,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                         const SizedBox(height: 12),
                         ActionListWidget(
                           playerCount: _playerCount,
+                          heroIndex: _heroIndex,
                           initial: _flopActions,
                           showPot: true,
                           currentStacks: _stacks,
@@ -936,6 +950,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                         const SizedBox(height: 12),
                         ActionListWidget(
                           playerCount: _playerCount,
+                          heroIndex: _heroIndex,
                           initial: _turnActions,
                           showPot: true,
                           currentStacks: _stacks,
@@ -952,6 +967,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                     const SizedBox(height: 12),
                     ActionListWidget(
                       playerCount: _playerCount,
+                      heroIndex: _heroIndex,
                       initial: _riverActions,
                       showPot: true,
                       currentStacks: _stacks,
