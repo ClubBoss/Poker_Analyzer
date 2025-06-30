@@ -54,6 +54,22 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     }
   }
 
+  void _prev(service) {
+    final prev = service.prevSpot();
+    if (prev != null) {
+      final res = service.results[prev.id];
+      setState(() {
+        if (res != null) {
+          _selected = '';
+          _correct = res;
+        } else {
+          _selected = null;
+          _correct = null;
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TrainingSessionService>(
@@ -89,6 +105,17 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                         ),
                     ],
                   ),
+                  if (service.session?.index != null && service.session!.index > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: ElevatedButton(
+                          onPressed: () => _prev(service),
+                          child: const Text('Prev'),
+                        ),
+                      ),
+                    ),
                 ] else ...[
                   const SizedBox(height: 16),
                   Text(
@@ -99,9 +126,19 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () => _next(service),
-                    child: const Text('Next'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (service.session?.index != null && service.session!.index > 0)
+                        ElevatedButton(
+                          onPressed: () => _prev(service),
+                          child: const Text('Prev'),
+                        ),
+                      ElevatedButton(
+                        onPressed: () => _next(service),
+                        child: const Text('Next'),
+                      ),
+                    ],
                   ),
                 ],
               ],
