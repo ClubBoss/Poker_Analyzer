@@ -89,6 +89,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${(service.session?.index ?? 0) + 1} / ${service.totalCount}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Expanded(child: SpotQuizWidget(spot: spot)),
                 if (_selected == null) ...[
                   const SizedBox(height: 16),
