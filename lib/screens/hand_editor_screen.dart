@@ -4,6 +4,7 @@ import '../widgets/card_picker_widget.dart';
 import '../widgets/action_list_widget.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
+import '../helpers/poker_position_helper.dart';
 
 class HandEditorScreen extends StatefulWidget {
   const HandEditorScreen({super.key});
@@ -16,6 +17,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
   final List<CardModel> _heroCards = [];
   final List<CardModel> _boardCards = [];
   final int _playerCount = 6;
+  int _heroIndex = 0;
   final List<String> _names = [];
   List<ActionEntry> _preflopActions = [];
   late List<double> _stacks;
@@ -182,9 +184,24 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
         ),
         body: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: DropdownButton<int>(
+                value: _heroIndex,
+                underline: const SizedBox.shrink(),
+                items: [
+                  for (int i = 0; i < _playerCount; i++)
+                    DropdownMenuItem(
+                      value: i,
+                      child: Text(getPositionList(_playerCount)[i]),
+                    )
+                ],
+                onChanged: (v) => setState(() => _heroIndex = v ?? 0),
+              ),
+            ),
             IgnorePointer(
               child: PokerTableView(
-                heroIndex: 0,
+                heroIndex: _heroIndex,
                 playerCount: _playerCount,
                 playerNames: _names,
                 playerStacks: _stacks,
