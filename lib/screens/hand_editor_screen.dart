@@ -58,6 +58,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   late List<double> _bets;
   late List<List<CardModel>> _revealedCards;
   late List<double> _winnings;
+  late List<List<double>> _winParts;
+  late List<double> _playerAllInAt;
   double _pot = 0;
   late TabController _tabController;
   final List<_HandSnapshot> _undo = [];
@@ -75,6 +77,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     _bets = List.filled(_playerCount, 0.0);
     _revealedCards = List.generate(_playerCount, (_) => []);
     _winnings = List.filled(_playerCount, 0.0);
+    _winParts = List.generate(_playerCount, (_) => []);
+    _playerAllInAt = List.filled(_playerCount, double.infinity);
     _recompute();
   }
 
@@ -88,6 +92,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     final stacks = List<double>.from(_initialStacks);
     final actions = List.filled(_playerCount, PlayerAction.none);
     final bets = List.filled(_playerCount, 0.0);
+    final allInAt = List<double>.filled(_playerCount, double.infinity);
     double pot = 0;
     void apply(List<ActionEntry> list) {
       for (final a in list) {
@@ -124,6 +129,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             break;
           case 'push':
             final amt = (a.amount ?? 0).toDouble();
+            allInAt[a.playerIndex] = bets[a.playerIndex] + stacks[a.playerIndex];
             final diff = amt - bets[a.playerIndex];
             if (diff > 0) {
               stacks[a.playerIndex] -= diff;
@@ -151,6 +157,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       _actions = actions;
       _bets = bets;
       _pot = pot;
+      _playerAllInAt = allInAt;
     });
     if (pushHistory && !_skipHistory) _pushHistory();
   }
@@ -228,6 +235,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
           [for (final c in r) CardModel(rank: c.rank, suit: c.suit)]
       ];
       _winnings = List<double>.from(s.winnings);
+      _winParts = List.generate(_playerCount, (_) => []);
       _recompute(pushHistory: false);
     });
     _skipHistory = false;
@@ -526,6 +534,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
           _winnings[i] = result[i];
           _stacks[i] += _winnings[i];
         }
+        _winParts = List.generate(_playerCount, (_) => []);
         _pot = 0;
       });
       _pushHistory();
@@ -533,19 +542,64 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   }
 
   void _autoShowdown() {
-    final winners = HandEvaluator.evaluateShowdown(
-      _revealedCards,
-      _boardCards,
+    final hands = HandEvaluator.buildHands(_revealedCards, _boardCards);
+    if (hands.length < 2) return;
+    final wins = HandEvaluator.splitWithSidePots(
+      showdownHands: hands,
+      bets: _bets,
+      allInAt: _playerAllInAt,
+      mainPot: _pot,
     );
-    if (winners.isEmpty) return;
-    final share = _pot / winners.length;
-    setState(() {
-      for (int i = 0; i < _playerCount; i++) {
-        _winnings[i] = winners.contains(i) ? share : 0;
-        if (winners.contains(i)) {
-          _stacks[i] += share;
+    final breakdown = List.generate(_playerCount, (_) => <double>[]);
+    final levels = [
+      for (final v in _playerAllInAt)
+        if (v.isFinite) v
+    ]..sort();
+    double remaining = _pot;
+    double prev = 0;
+    Set<int> active = hands.keys.toSet();
+    for (final level in levels) {
+      final participants = [
+        for (int i = 0; i < _playerCount; i++)
+          if (_playerAllInAt[i] >= level || !_playerAllInAt[i].isFinite) i
+      ];
+      double pot = (level - prev) * participants.length;
+      if (pot > remaining) pot = remaining;
+      final eligibles = [
+        for (final p in participants)
+          if (hands.containsKey(p)) p
+      ];
+      if (pot > 0 && eligibles.isNotEmpty) {
+        final hs = {for (final p in eligibles) p: hands[p]!};
+        final winners = Hand.winners(hs.values.toList());
+        final share = pot / winners.length;
+        for (final e in hs.entries) {
+          if (winners.contains(e.value)) {
+            breakdown[e.key].add(share);
+          }
         }
       }
+      remaining -= pot;
+      active.removeWhere((p) => _playerAllInAt[p] == level);
+      prev = level;
+      if (remaining <= 0) break;
+    }
+    if (remaining > 0 && active.isNotEmpty) {
+      final hs = {for (final p in active) p: hands[p]!};
+      final winners = Hand.winners(hs.values.toList());
+      final share = remaining / winners.length;
+      for (final e in hs.entries) {
+        if (winners.contains(e.value)) {
+          breakdown[e.key].add(share);
+        }
+      }
+    }
+    setState(() {
+      for (int i = 0; i < _playerCount; i++) {
+        _winnings[i] = wins[i] ?? 0;
+        _stacks[i] += _winnings[i];
+      }
+      _winParts = breakdown;
       _pot = 0;
     });
     _pushHistory();
@@ -866,6 +920,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                 revealed: _revealedCards,
                 stacks: _stacks,
                 winnings: _winnings,
+                parts: _winParts,
                 pot: _pot,
               ),
             ],
