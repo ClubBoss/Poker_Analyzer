@@ -11,6 +11,8 @@ class TrainingSessionService extends ChangeNotifier {
   TrainingSession? _session;
   List<TrainingPackSpot> _spots = [];
 
+  TrainingSession? get session => _session;
+
   TrainingPackSpot? get currentSpot =>
       _session != null && _session!.index < _spots.length
           ? _spots[_session!.index]

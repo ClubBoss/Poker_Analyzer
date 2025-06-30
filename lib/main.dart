@@ -43,6 +43,7 @@ import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
 import 'services/weekly_challenge_service.dart';
+import 'services/session_log_service.dart';
 import 'services/category_usage_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
@@ -204,6 +205,11 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider(create: (_) => TrainingSessionService()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              SessionLogService(sessions: context.read<TrainingSessionService>())
+                ..load(),
+        ),
         Provider(create: (_) => EvaluationExecutorService()),
         ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
       ],
