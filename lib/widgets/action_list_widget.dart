@@ -291,6 +291,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
         amount: a.amount,
         customLabel: a.customLabel,
         equity: a.equity,
+        potAfter: 0,
       );
       _actions.insert(index + 1, clone);
       _recalcErrors();
