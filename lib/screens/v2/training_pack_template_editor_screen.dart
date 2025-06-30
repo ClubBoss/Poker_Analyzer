@@ -58,12 +58,36 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     Navigator.pop(context);
   }
 
+  Future<void> _clearAll() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Remove all spots from this template?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Remove')),
+        ],
+      ),
+    );
+    if (ok ?? false) {
+      setState(() => widget.template.spots.clear());
+      TrainingPackStorage.save(widget.templates);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit pack'),
-        actions: [IconButton(icon: const Icon(Icons.save), onPressed: _save)],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_sweep),
+            tooltip: 'Clear All Spots',
+            onPressed: _clearAll,
+          ),
+          IconButton(icon: const Icon(Icons.save), onPressed: _save)
+        ],
       ),
       floatingActionButton:
           FloatingActionButton(onPressed: _addSpot, child: const Icon(Icons.add)),
