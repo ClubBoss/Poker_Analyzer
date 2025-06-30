@@ -210,11 +210,30 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                   ),
                 ),
                 Expanded(
-                  child: ListView.builder(
+                  child: ReorderableListView.builder(
+                    buildDefaultDragHandles: false,
                     itemCount: shown.length,
+                    onReorder: (oldIndex, newIndex) {
+                      final item = shown[oldIndex];
+                      final oldPos = _templates.indexOf(item);
+                      int newPos;
+                      if (newIndex >= shown.length) {
+                        newPos = _templates.length;
+                      } else {
+                        newPos = _templates.indexOf(shown[newIndex]);
+                      }
+                      setState(() {
+                        _templates.removeAt(oldPos);
+                        _templates.insert(
+                          newPos > oldPos ? newPos - 1 : newPos,
+                          item,
+                        );
+                      });
+                      TrainingPackStorage.save(_templates);
+                    },
                     itemBuilder: (context, index) {
                       final t = shown[index];
-                      return ListTile(
+                      final tile = ListTile(
                         onLongPress: () => _duplicate(t),
                         title: Text(t.name),
                         subtitle: t.description.trim().isEmpty
@@ -270,6 +289,19 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                                 }
                               },
                             ),
+                          ],
+                        ),
+                      );
+                      return Container(
+                        key: ValueKey(t.id),
+                        child: Row(
+                          children: [
+                            if (!_loading)
+                              ReorderableDragStartListener(
+                                index: index,
+                                child: const Icon(Icons.drag_handle),
+                              ),
+                            Expanded(child: tile),
                           ],
                         ),
                       );
