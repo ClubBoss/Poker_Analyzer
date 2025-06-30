@@ -192,6 +192,57 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  Future<void> _bulkTransfer(bool move) async {
+    final targets = [for (final t in widget.templates) if (t.id != widget.template.id) t];
+    if (targets.isEmpty) return;
+    TrainingPackTemplate? selected = targets.first;
+    final dest = await showDialog<TrainingPackTemplate>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          title: Text(move ? 'Move To…' : 'Copy To…'),
+          content: DropdownButton<TrainingPackTemplate>(
+            value: selected,
+            isExpanded: true,
+            items: [for (final t in targets) DropdownMenuItem(value: t, child: Text(t.name))],
+            onChanged: (v) => setStateDialog(() => selected = v),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(context, selected), child: const Text('OK')),
+          ],
+        ),
+      ),
+    );
+    if (dest == null) return;
+    final spots = [for (final s in widget.template.spots) if (_selectedSpotIds.contains(s.id)) s];
+    if (spots.isEmpty) return;
+    final copies = [
+      for (final s in spots)
+        s.copyWith(
+          id: const Uuid().v4(),
+          editedAt: DateTime.now(),
+          hand: HandData.fromJson(s.hand.toJson()),
+          tags: List.from(s.tags),
+        )
+    ];
+    setState(() {
+      dest.spots.addAll(copies);
+      if (move) {
+        widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
+        if (_autoSortEv) _sortSpots();
+      }
+    });
+    await TrainingPackStorage.save(widget.templates);
+    setState(() => _selectedSpotIds.clear());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${move ? 'Moved' : 'Copied'} ${copies.length} spot(s)')),
+    );
+  }
+
+  Future<void> _bulkMove() => _bulkTransfer(true);
+  Future<void> _bulkCopy() => _bulkTransfer(false);
+
   Future<void> _renameTag() async {
     final tags = widget.template.spots.expand((s) => s.tags).toSet().toList()
       ..sort((a, b) => a.compareTo(b));
@@ -361,6 +412,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   TextButton(
                     onPressed: _bulkTogglePin,
                     child: const Text('Pin / Unpin'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: _bulkMove,
+                    child: const Text('Move To…'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: _bulkCopy,
+                    child: const Text('Copy To…'),
                   ),
                   const SizedBox(width: 12),
                   TextButton.icon(
