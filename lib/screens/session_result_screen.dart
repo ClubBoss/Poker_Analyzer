@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_session_service.dart';
 import '../widgets/training_action_log_dialog.dart';
+import '../widgets/spot_viewer_dialog.dart';
 import '../widgets/common/action_accuracy_chart.dart';
 import '../theme/app_colors.dart';
 import '../models/v2/training_pack_template.dart';
@@ -65,7 +66,8 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
   @override
   Widget build(BuildContext context) {
     final rate = widget.total == 0 ? 0 : widget.correct * 100 / widget.total;
-    final actions = context.watch<TrainingSessionService>().actionLog;
+    final service = context.watch<TrainingSessionService>();
+    final actions = service.actionLog;
     return Scaffold(
       appBar: AppBar(title: const Text('Session Result')),
       backgroundColor: const Color(0xFF1B1C1E),
@@ -103,27 +105,35 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                         final a = actions[index];
                         final color = a.isCorrect ? AppColors.cardBackground : AppColors.errorBg;
                         final time = DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp);
-                        return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Text('${index + 1}', style: const TextStyle(color: Colors.white)),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(a.chosenAction,
-                                    style: TextStyle(color: a.isCorrect ? Colors.white : Colors.red)),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(a.isCorrect ? Icons.check : Icons.close,
-                                  color: a.isCorrect ? Colors.green : Colors.red, size: 16),
-                              const SizedBox(width: 8),
-                              Text(time, style: const TextStyle(color: Colors.white70)),
-                            ],
+                        return InkWell(
+                          onTap: () {
+                            try {
+                              final spot = service.spots.firstWhere((s) => s.id == a.spotId);
+                              showSpotViewerDialog(context, spot);
+                            } catch (_) {}
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Text('${index + 1}', style: const TextStyle(color: Colors.white)),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(a.chosenAction,
+                                      style: TextStyle(color: a.isCorrect ? Colors.white : Colors.red)),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(a.isCorrect ? Icons.check : Icons.close,
+                                    color: a.isCorrect ? Colors.green : Colors.red, size: 16),
+                                const SizedBox(width: 8),
+                                Text(time, style: const TextStyle(color: Colors.white70)),
+                              ],
+                            ),
                           ),
                         );
                       },
