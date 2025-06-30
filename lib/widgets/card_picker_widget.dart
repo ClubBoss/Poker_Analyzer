@@ -6,23 +6,30 @@ class CardPickerWidget extends StatelessWidget {
   final List<CardModel> cards;
   final void Function(int, CardModel) onChanged;
   final double scale;
+  final int count;
+  final Set<String> disabledCards;
   const CardPickerWidget({
     super.key,
     required this.cards,
     required this.onChanged,
     this.scale = 1,
+    this.count = 2,
+    this.disabledCards = const {},
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(2, (i) {
+      children: List.generate(count, (i) {
         final card = i < cards.length ? cards[i] : null;
         final isRed = card?.suit == '♥' || card?.suit == '♦';
         return GestureDetector(
           onTap: () async {
-            final disabled = <String>{for (final c in cards) '${c.rank}${c.suit}'};
+            final disabled = {
+              ...disabledCards,
+              for (final c in cards) '${c.rank}${c.suit}'
+            };
             if (card != null) disabled.remove('${card.rank}${card.suit}');
             final selected = await showCardSelector(context, disabledCards: disabled);
             if (selected != null) onChanged(i, selected);
