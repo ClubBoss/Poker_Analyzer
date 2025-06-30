@@ -249,8 +249,15 @@ class _ActionListWidgetState extends State<ActionListWidget> {
           itemBuilder: (context, index) {
             final a = _actions[index];
             final isBlind = index < 2 && a.action == 'post';
-            final bg =
-                _errors[index] == null ? Colors.transparent : Colors.red.withOpacity(0.15);
+            final heroBg = (a.playerIndex == widget.heroIndex && a.ev != null)
+                ? (a.ev! >= 0
+                    ? Colors.green.withOpacity(0.1)
+                    : Colors.red.withOpacity(0.1))
+                : null;
+            final bg = heroBg ??
+                (_errors[index] == null
+                    ? Colors.transparent
+                    : Colors.red.withOpacity(0.15));
             return Container(
               key: ValueKey(a),
               color: bg,
