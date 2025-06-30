@@ -27,6 +27,8 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   late List<ActionEntry> _actions;
   List<String?> _errors = [];
   final ScrollController _scroll = ScrollController();
+  List<double> _potsBefore = [];
+  List<double> _prevBets = [];
 
   double? _breakevenEquity({
     required double prevBet,
@@ -42,8 +44,12 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   void _recalcErrors() {
     final bets = List<double>.filled(widget.playerCount, 0);
     _errors = List<String?>.filled(_actions.length, null);
+    _potsBefore = List<double>.filled(_actions.length, 0);
+    _prevBets = List<double>.filled(_actions.length, 0);
     for (int i = 0; i < _actions.length; i++) {
       final a = _actions[i];
+      _potsBefore[i] = i == 0 ? 0 : _actions[i - 1].potAfter;
+      _prevBets[i] = bets[a.playerIndex];
       if (a.action == 'custom') {
         _errors[i] = null;
         continue;
@@ -180,7 +186,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                     ),
                     decoration: const InputDecoration(labelText: 'Amount'),
                   ),
-                  if (['post', 'call', 'raise', 'push'].contains(act))
+                  if (['post', 'call', 'raise', 'push'].contains(act)) ...[
                     ValueListenableBuilder(
                       valueListenable: amountController,
                       builder: (_, __, ___) {
@@ -202,6 +208,29 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         );
                       },
                     ),
+                    ValueListenableBuilder(
+                      valueListenable: amountController,
+                      builder: (_, __, ___) {
+                        if (currentPot <= 0) return const SizedBox.shrink();
+                        final amt = double.tryParse(amountController.text);
+                        if (amt == null || amt < 0) {
+                          return const SizedBox.shrink();
+                        }
+                        final diff = math.max(0, amt - prevBet);
+                        final pct = 100 * diff / currentPot;
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            'Size: ${pct.toStringAsFixed(0)} % pot',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ],
                 if (needEquity) ...[
                   const SizedBox(height: 8),
@@ -416,6 +445,30 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(_format(a)),
+                            if (['post', 'call', 'raise', 'push']
+                                    .contains(a.action) &&
+                                a.amount != null)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 4),
+                                child: Builder(
+                                  builder: (_) {
+                                    final pb = _potsBefore[index];
+                                    if (pb <= 0) return const SizedBox();
+                                    final toCall = math.max(
+                                      0,
+                                      a.amount! - _prevBets[index],
+                                    );
+                                    final pct = 100 * toCall / pb;
+                                    return Text(
+                                      '(${pct.toStringAsFixed(0)} % pot)',
+                                      style: const TextStyle(
+                                        color: Colors.white54,
+                                        fontSize: 12,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             if (a.playerIndex == widget.heroIndex &&
                                 a.ev != null &&
                                 a.action != 'custom')
