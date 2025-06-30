@@ -180,6 +180,28 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                     ),
                     decoration: const InputDecoration(labelText: 'Amount'),
                   ),
+                  if (['post', 'call', 'raise', 'push'].contains(act))
+                    ValueListenableBuilder(
+                      valueListenable: amountController,
+                      builder: (_, __, ___) {
+                        final amt = double.tryParse(amountController.text);
+                        if (amt == null || amt < 0) {
+                          return const SizedBox.shrink();
+                        }
+                        final diff = math.max(0, amt - prevBet);
+                        final potAfterLive = currentPot + diff;
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            'Pot after action: ${potAfterLive.toStringAsFixed(1)} BB',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white54,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                 ],
                 if (needEquity) ...[
                   const SizedBox(height: 8),
