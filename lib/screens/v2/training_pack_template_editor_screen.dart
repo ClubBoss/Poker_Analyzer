@@ -4,6 +4,7 @@ import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
 import 'training_pack_spot_editor_screen.dart';
+import '../../widgets/v2/training_pack_spot_preview_card.dart';
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -95,52 +96,53 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 itemCount: widget.template.spots.length,
                 itemBuilder: (context, index) {
                   final spot = widget.template.spots[index];
-                  return ListTile(
+                  return Container(
                     key: ValueKey(spot.id),
-                    title: Text(spot.title.isEmpty ? 'Untitled spot' : spot.title),
-                    subtitle: spot.note.trim().isEmpty
-                        ? null
-                        : Text(
-                            spot.note.split('\n').first,
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextButton(
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
-                            );
-                            setState(() {});
-                            TrainingPackStorage.save(widget.templates);
-                          },
-                          child: const Text('📝 Edit'),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () async {
-                            final ok = await showDialog<bool>(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                title: const Text('Delete spot?'),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () => Navigator.pop(context, false),
-                                      child: const Text('Cancel')),
-                                  TextButton(
-                                      onPressed: () => Navigator.pop(context, true),
-                                      child: const Text('Delete')),
-                                ],
-                              ),
-                            );
-                            if (ok ?? false) {
-                              setState(() => widget.template.spots.removeAt(index));
-                              TrainingPackStorage.save(widget.templates);
-                            }
-                          },
+                        Expanded(child: TrainingPackSpotPreviewCard(spot: spot)),
+                        const SizedBox(width: 8),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                              onPressed: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
+                                );
+                                setState(() {});
+                                TrainingPackStorage.save(widget.templates);
+                              },
+                              child: const Text('📝 Edit'),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                final ok = await showDialog<bool>(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    title: const Text('Delete spot?'),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () => Navigator.pop(context, false),
+                                          child: const Text('Cancel')),
+                                      TextButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          child: const Text('Delete')),
+                                    ],
+                                  ),
+                                );
+                                if (ok ?? false) {
+                                  setState(() => widget.template.spots.removeAt(index));
+                                  TrainingPackStorage.save(widget.templates);
+                                }
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
