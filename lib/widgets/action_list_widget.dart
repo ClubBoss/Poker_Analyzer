@@ -116,9 +116,8 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                   final pa = entry.potAfter;
                   final po = entry.potOdds;
                   if (pa == 0 || po == null) return null;
-                  final tc = pa * po / 100;
-                  if (tc == 0) return null;
-                  return 100 * tc / pa;
+                  if (po == 0) return null;
+                  return 100 * po / (po + 100);
                 })()
               : null;
           return AlertDialog(
