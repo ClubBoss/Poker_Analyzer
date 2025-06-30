@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
+import '../../models/v2/hand_data.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
 
@@ -37,6 +38,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _autoSortEv = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
+  final ScrollController _scrollCtrl = ScrollController();
+  final Map<String, GlobalKey> _itemKeys = {};
+  String? _highlightId;
 
   void _addSpot() async {
     final spot = TrainingPackSpot(id: const Uuid().v4(), title: 'New spot');
@@ -72,6 +76,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _nameCtr.dispose();
     _descCtr.dispose();
     _searchCtrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
@@ -398,6 +403,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       break;
                   }
                   return ReorderableListView.builder(
+                    controller: _scrollCtrl,
                     itemCount: shown.length,
                     itemBuilder: (context, index) {
                       final spot = shown[index];
@@ -409,7 +415,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           onLongPress: () => setState(() => _selectedSpotIds.add(spot.id)),
                           child: Card(
                             margin: const EdgeInsets.symmetric(vertical: 4),
-                            child: Container(
+                            child: AnimatedContainer(
+                              key: _itemKeys.putIfAbsent(spot.id, () => GlobalKey()),
+                              duration: const Duration(milliseconds: 500),
+                              color: spot.id == _highlightId
+                                  ? Colors.yellow.withOpacity(0.3)
+                                  : null,
                               padding: const EdgeInsets.all(8),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,20 +455,59 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                 PopupMenuButton<String>(
                                   onSelected: (v) {
                                     if (v == 'copy') {
-                                      _copiedSpot =
-                                          spot.copyWith(id: const Uuid().v4(), editedAt: DateTime.now());
+                                      _copiedSpot = spot.copyWith(
+                                        id: const Uuid().v4(),
+                                        editedAt: DateTime.now(),
+                                        hand: HandData.fromJson(spot.hand.toJson()),
+                                        tags: List.from(spot.tags),
+                                      );
                                     } else if (v == 'paste' && _copiedSpot != null) {
                                       final i = widget.template.spots.indexOf(spot);
-                                      final s = _copiedSpot!
-                                          .copyWith(id: const Uuid().v4(), editedAt: DateTime.now());
+                                      final s = _copiedSpot!.copyWith(
+                                        id: const Uuid().v4(),
+                                        editedAt: DateTime.now(),
+                                        hand: HandData.fromJson(_copiedSpot!.hand.toJson()),
+                                        tags: List.from(_copiedSpot!.tags),
+                                      );
                                       setState(() => widget.template.spots.insert(i + 1, s));
                                       TrainingPackStorage.save(widget.templates);
+                                    } else if (v == 'dup') {
+                                      final i = widget.template.spots.indexOf(spot);
+                                      final copy = spot.copyWith(
+                                        id: const Uuid().v4(),
+                                        editedAt: DateTime.now(),
+                                        hand: HandData.fromJson(spot.hand.toJson()),
+                                        tags: List.from(spot.tags),
+                                      );
+                                      setState(() {
+                                        widget.template.spots.insert(i + 1, copy);
+                                        _highlightId = copy.id;
+                                      });
+                                      TrainingPackStorage.save(widget.templates);
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        final ctx = _itemKeys[copy.id]?.currentContext;
+                                        if (ctx != null) {
+                                          Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300));
+                                        } else {
+                                          _scrollCtrl.animateTo(
+                                            _scrollCtrl.position.maxScrollExtent,
+                                            duration: const Duration(milliseconds: 300),
+                                            curve: Curves.easeOut,
+                                          );
+                                        }
+                                      });
+                                      Future.delayed(const Duration(milliseconds: 700), () {
+                                        if (mounted && _highlightId == copy.id) {
+                                          setState(() => _highlightId = null);
+                                        }
+                                      });
                                     }
                                   },
                                   itemBuilder: (_) => [
                                     const PopupMenuItem(value: 'copy', child: Text('📋 Copy')),
                                     if (_copiedSpot != null)
                                       const PopupMenuItem(value: 'paste', child: Text('📥 Paste')),
+                                    const PopupMenuItem(value: 'dup', child: Text('📄 Duplicate')),
                                   ],
                                 ),
                                 TextButton(
