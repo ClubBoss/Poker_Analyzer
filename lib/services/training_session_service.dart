@@ -8,6 +8,7 @@ import '../models/v2/training_session.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
+  Box<dynamic>? _activeBox;
   TrainingSession? _session;
   List<TrainingPackSpot> _spots = [];
 
@@ -29,6 +30,47 @@ class TrainingSessionService extends ChangeNotifier {
     } else {
       _box = Hive.box('sessions');
     }
+    if (!Hive.isBoxOpen('active_session')) {
+      _activeBox = await Hive.openBox('active_session');
+    } else {
+      _activeBox = Hive.box('active_session');
+    }
+  }
+
+  Future<void> load() async {
+    await _openBox();
+    final raw = _activeBox!.get('session');
+    if (raw is Map) {
+      final data = Map<String, dynamic>.from(raw);
+      final s = data['session'];
+      final spots = data['spots'];
+      if (s is Map) {
+        final session =
+            TrainingSession.fromJson(Map<String, dynamic>.from(s));
+        if (session.completedAt == null) {
+          _session = session;
+          _spots = [
+            for (final e in (spots as List? ?? []))
+              TrainingPackSpot.fromJson(Map<String, dynamic>.from(e))
+          ];
+        } else {
+          _activeBox!.delete('session');
+        }
+      }
+    }
+    notifyListeners();
+  }
+
+  void _saveActive() {
+    if (_session == null) return;
+    if (_session!.completedAt != null) {
+      _activeBox?.delete('session');
+    } else {
+      _activeBox?.put('session', {
+        'session': _session!.toJson(),
+        'spots': [for (final s in _spots) s.toJson()]
+      });
+    }
   }
 
   Future<void> startSession(TrainingPackTemplate template) async {
@@ -39,6 +81,7 @@ class TrainingSessionService extends ChangeNotifier {
       templateId: template.id,
     );
     await _box!.put(_session!.id, _session!.toJson());
+    _saveActive();
     notifyListeners();
   }
 
@@ -46,6 +89,7 @@ class TrainingSessionService extends ChangeNotifier {
     if (_session == null) return;
     _session!.results[spotId] = isCorrect;
     await _box!.put(_session!.id, _session!.toJson());
+    _saveActive();
   }
 
   TrainingPackSpot? nextSpot() {
@@ -55,6 +99,7 @@ class TrainingSessionService extends ChangeNotifier {
       _session!.completedAt = DateTime.now();
     }
     _box?.put(_session!.id, _session!.toJson());
+    _saveActive();
     notifyListeners();
     return currentSpot;
   }
@@ -64,6 +109,7 @@ class TrainingSessionService extends ChangeNotifier {
     if (_session!.index > 0) {
       _session!.index -= 1;
       _box?.put(_session!.id, _session!.toJson());
+      _saveActive();
       notifyListeners();
     }
     return currentSpot;

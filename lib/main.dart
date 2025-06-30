@@ -204,7 +204,7 @@ Future<void> main() async {
             packs: context.read<TrainingPackStorageService>(),
           ),
         ),
-        ChangeNotifierProvider(create: (_) => TrainingSessionService()),
+        ChangeNotifierProvider(create: (_) => TrainingSessionService()..load()),
         ChangeNotifierProvider(
           create: (context) =>
               SessionLogService(sessions: context.read<TrainingSessionService>())
