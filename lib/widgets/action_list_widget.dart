@@ -5,7 +5,14 @@ class ActionListWidget extends StatefulWidget {
   final int playerCount;
   final ValueChanged<List<ActionEntry>> onChanged;
   final List<ActionEntry>? initial;
-  const ActionListWidget({super.key, required this.playerCount, required this.onChanged, this.initial});
+  final bool showPot;
+  const ActionListWidget({
+    super.key,
+    required this.playerCount,
+    required this.onChanged,
+    this.initial,
+    this.showPot = false,
+  });
 
   @override
   State<ActionListWidget> createState() => _ActionListWidgetState();
@@ -79,6 +86,13 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                       const Text('post'),
                       const SizedBox(width: 8),
                       Text('${_actions[i].amount}'),
+                      if (widget.showPot) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          'Pot: ${_actions[i].potAfter.toStringAsFixed(1)} BB',
+                          style: const TextStyle(color: Colors.grey),
+                        )
+                      ]
                     ]
                   : [
                       DropdownButton<int>(
@@ -111,6 +125,13 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           decoration: const InputDecoration(isDense: true),
                         ),
                       ),
+                      if (widget.showPot) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          'Pot: ${_actions[i].potAfter.toStringAsFixed(1)} BB',
+                          style: const TextStyle(color: Colors.grey),
+                        )
+                      ]
                     ],
             ),
           ),

@@ -90,6 +90,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
             actions[a.playerIndex] = PlayerAction.push;
             break;
         }
+        a.potAfter = pot;
       }
     }
 
@@ -287,6 +288,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                         ActionListWidget(
                           playerCount: _playerCount,
                           initial: _preflopActions,
+                          showPot: true,
                           onChanged: _onPreflopChanged,
                         ),
                       ],
@@ -301,6 +303,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                         ActionListWidget(
                           playerCount: _playerCount,
                           initial: _flopActions,
+                          showPot: true,
                           onChanged: _onFlopChanged,
                         ),
                       ],
@@ -315,6 +318,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                         ActionListWidget(
                           playerCount: _playerCount,
                           initial: _turnActions,
+                          showPot: true,
                           onChanged: _onTurnChanged,
                         ),
                       ],
@@ -329,6 +333,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                         ActionListWidget(
                           playerCount: _playerCount,
                           initial: _riverActions,
+                          showPot: true,
                           onChanged: _onRiverChanged,
                         ),
                       ],
