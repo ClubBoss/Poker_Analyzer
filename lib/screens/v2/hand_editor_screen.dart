@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../models/v2/hero_position.dart';
@@ -15,7 +14,7 @@ class HandEditorScreen extends StatefulWidget {
 
 class _HandEditorScreenState extends State<HandEditorScreen> {
   late TextEditingController _cardsCtr;
-  late TextEditingController _stacksCtr;
+  List<TextEditingController> _stackCtr = [];
   late HeroPosition _position;
   int _street = 0;
 
@@ -24,30 +23,34 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
     super.initState();
     _cardsCtr = TextEditingController(text: widget.spot.hand.heroCards);
     _position = widget.spot.hand.position;
-    _stacksCtr = TextEditingController(
-        text: widget.spot.hand.stacks.isEmpty
-            ? ''
-            : jsonEncode(widget.spot.hand.stacks));
+    _stackCtr = [
+      for (var i = 0; i < widget.spot.hand.playerCount; i++)
+        TextEditingController(
+          text: widget.spot.hand.stacks['$i']?.toString() ?? '',
+        )
+    ];
   }
 
   @override
   void dispose() {
     _cardsCtr.dispose();
-    _stacksCtr.dispose();
+    for (final c in _stackCtr) c.dispose();
     super.dispose();
   }
 
   void _update() {
+    _updateStacks();
     widget.spot.hand.heroCards = _cardsCtr.text;
     widget.spot.hand.position = _position;
-    try {
-      final m = jsonDecode(_stacksCtr.text) as Map<String, dynamic>;
-      widget.spot.hand.stacks = {
-        for (final e in m.entries) e.key: (e.value as num).toDouble()
-      };
-    } catch (_) {
-      widget.spot.hand.stacks = {};
+  }
+
+  void _updateStacks() {
+    final m = <String, double>{};
+    for (var i = 0; i < _stackCtr.length; i++) {
+      final v = double.tryParse(_stackCtr[i].text) ?? 0;
+      m['$i'] = v;
     }
+    widget.spot.hand.stacks = m;
   }
 
   bool _validateStacks() {
@@ -122,12 +125,6 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
               },
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _stacksCtr,
-              decoration: const InputDecoration(labelText: 'Stacks'),
-              onChanged: onChanged,
-            ),
-            const SizedBox(height: 16),
             Row(
               children: [
                 const Text('Player count'),
@@ -141,19 +138,53 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                   onChanged: (v) {
                     if (v == null) return;
                     setState(() {
+                      for (var i = _stackCtr.length; i < v; i++) {
+                        _stackCtr
+                            .add(TextEditingController(text: widget.spot.hand.stacks['$i']?.toString() ?? ''));
+                      }
+                      while (_stackCtr.length > v) {
+                        _stackCtr.removeLast().dispose();
+                      }
                       widget.spot.hand.playerCount = v;
                       if (widget.spot.hand.heroIndex >= v) {
                         widget.spot.hand.heroIndex = 0;
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'Hero index выходит за пределы — сброшен в 0')),
+                          const SnackBar(content: Text('Hero index выходит за пределы — сброшен в 0')),
                         );
                       }
+                      _updateStacks();
                     });
                   },
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            const Text('Stacks (BB)'),
+            const SizedBox(height: 8),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: widget.spot.hand.playerCount,
+              itemBuilder: (_, i) {
+                final ctrl = _stackCtr[i];
+                return Row(
+                  children: [
+                    SizedBox(width: 32, child: Text('P$i')),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: ctrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(
+                          labelText: 'BB',
+                          contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        ),
+                        onChanged: (_) => _updateStacks(),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 16),
             Row(
