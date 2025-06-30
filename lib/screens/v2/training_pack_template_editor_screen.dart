@@ -40,6 +40,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _autoSortEv = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
+  static const _prefsEvFilterKey = 'ev_filter';
+  String _evFilter = 'all';
   final ScrollController _scrollCtrl = ScrollController();
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
@@ -64,10 +66,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _searchCtrl = TextEditingController();
     _tagSearchCtrl = TextEditingController();
     SharedPreferences.getInstance().then((prefs) {
-      final val = prefs.getBool(_prefsAutoSortKey) ?? false;
+      final auto = prefs.getBool(_prefsAutoSortKey) ?? false;
+      final filter = prefs.getString(_prefsEvFilterKey) ?? 'all';
       if (mounted) {
         setState(() {
-          _autoSortEv = val;
+          _autoSortEv = auto;
+          _evFilter = filter;
           if (_autoSortEv) _sortSpots();
         });
       }
@@ -501,6 +505,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           ),
                       ],
                     ),
+                    const SizedBox(height: 12),
+                    SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'all', label: Text('All')),
+                        ButtonSegment(value: 'mistakes', label: Text('Mistakes')),
+                        ButtonSegment(value: 'profitable', label: Text('Profitable')),
+                      ],
+                      selected: {_evFilter},
+                      onSelectionChanged: (v) async {
+                        final prefs = await SharedPreferences.getInstance();
+                        final val = v.first;
+                        setState(() => _evFilter = val);
+                        prefs.setString(_prefsEvFilterKey, val);
+                      },
+                    ),
                   ],
                 );
               },
@@ -509,6 +528,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               child: Builder(
                 builder: (context) {
                   final shown = widget.template.spots.where((s) {
+                    final ev = _spotEv(s);
+                    if (_evFilter == 'mistakes' && ev >= 0) return false;
+                    if (_evFilter == 'profitable' && ev < 0) return false;
                     if (_selectedTags.isNotEmpty &&
                         !s.tags.any(_selectedTags.contains)) {
                       return false;
