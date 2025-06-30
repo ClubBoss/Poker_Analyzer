@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../services/spot_of_the_day_service.dart';
 import '../widgets/spot_of_the_day_card.dart';
@@ -66,6 +67,16 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
           );
         },
         child: const Icon(Icons.auto_awesome_motion),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(8),
+        child: TextButton.icon(
+          onPressed: () => launchUrl(
+            Uri.parse('https://www.youtube.com/watch?v=6H8YJYyK3n8'),
+          ),
+          icon: const Icon(Icons.music_note),
+          label: const Text('Play Chill Mix'),
+        ),
       ),
     );
   }
