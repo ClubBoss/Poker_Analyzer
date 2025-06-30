@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import '../widgets/poker_table_view.dart';
+import '../widgets/card_picker_widget.dart';
+import '../models/card_model.dart';
 
-class HandEditorScreen extends StatelessWidget {
+class HandEditorScreen extends StatefulWidget {
   const HandEditorScreen({super.key});
+
+  @override
+  State<HandEditorScreen> createState() => _HandEditorScreenState();
+}
+
+class _HandEditorScreenState extends State<HandEditorScreen> {
+  final List<CardModel> _heroCards = [];
 
   @override
   Widget build(BuildContext context) {
@@ -41,15 +50,34 @@ class HandEditorScreen extends StatelessWidget {
                 onActionChanged: (_, __) {},
                 potSize: 0,
                 onPotChanged: (_) {},
+                heroCards: _heroCards,
               ),
             ),
-            const Expanded(
+            Expanded(
               child: TabBarView(
                 children: [
-                  Center(child: Text('Coming soon')),
-                  Center(child: Text('Coming soon')),
-                  Center(child: Text('Coming soon')),
-                  Center(child: Text('Coming soon')),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        CardPickerWidget(
+                          cards: _heroCards,
+                          onChanged: (i, c) {
+                            setState(() {
+                              if (_heroCards.length > i) {
+                                _heroCards[i] = c;
+                              } else {
+                                _heroCards.add(c);
+                              }
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Center(child: Text('Coming soon')),
+                  const Center(child: Text('Coming soon')),
+                  const Center(child: Text('Coming soon')),
                 ],
               ),
             ),
