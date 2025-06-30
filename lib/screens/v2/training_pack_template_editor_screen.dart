@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
 
-enum SortBy { title, evDesc, edited }
+enum SortBy { title, evDesc, edited, autoEv }
 
 TrainingPackSpot? _copiedSpot;
 
@@ -33,6 +34,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Set<String> _selectedSpotIds = {};
   bool get _isMultiSelect => _selectedSpotIds.isNotEmpty;
   SortBy _sortBy = SortBy.edited;
+  bool _autoSortEv = false;
+  static const _prefsAutoSortKey = 'auto_sort_ev';
 
   void _addSpot() async {
     final spot = TrainingPackSpot(id: const Uuid().v4(), title: 'New spot');
@@ -52,6 +55,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _nameCtr = TextEditingController(text: widget.template.name);
     _descCtr = TextEditingController(text: widget.template.description);
     _searchCtrl = TextEditingController();
+    SharedPreferences.getInstance().then((prefs) {
+      final val = prefs.getBool(_prefsAutoSortKey) ?? false;
+      if (mounted) {
+        setState(() {
+          _autoSortEv = val;
+          if (_autoSortEv) _sortSpots();
+        });
+      }
+    });
   }
 
   @override
@@ -149,19 +161,60 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() => _selectedSpotIds.clear());
   }
 
+  double _spotEv(TrainingPackSpot s) {
+    final acts = s.hand.actions[0] ?? [];
+    for (final a in acts) {
+      if (a.playerIndex == s.hand.heroIndex) return a.ev ?? double.negativeInfinity;
+    }
+    return double.negativeInfinity;
+  }
+
+  void _sortSpots() {
+    widget.template.spots.sort((a, b) => _spotEv(b).compareTo(_spotEv(a)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit pack'),
+        leading: _isMultiSelect
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => setState(() => _selectedSpotIds.clear()),
+              )
+            : null,
+        title: _isMultiSelect
+            ? Text('${_selectedSpotIds.length} selected')
+            : const Text('Edit pack'),
         actions: [
           PopupMenuButton<SortBy>(
             icon: const Icon(Icons.sort),
-            onSelected: (v) => setState(() => _sortBy = v),
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: SortBy.title, child: Text('Title')),
-              PopupMenuItem(value: SortBy.evDesc, child: Text('EV')),
-              PopupMenuItem(value: SortBy.edited, child: Text('Edited')),
+            onSelected: (v) async {
+              if (v == SortBy.autoEv) {
+                final prefs = await SharedPreferences.getInstance();
+                setState(() {
+                  _autoSortEv = !_autoSortEv;
+                  if (_autoSortEv) _sortSpots();
+                });
+                prefs.setBool(_prefsAutoSortKey, _autoSortEv);
+              } else {
+                setState(() => _sortBy = v);
+              }
+            },
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: SortBy.title, child: Text('Title')),
+              const PopupMenuItem(value: SortBy.evDesc, child: Text('EV')),
+              const PopupMenuItem(value: SortBy.edited, child: Text('Edited')),
+              PopupMenuItem(
+                value: SortBy.autoEv,
+                child: Row(
+                  children: [
+                    Checkbox(value: _autoSortEv, onChanged: null),
+                    const SizedBox(width: 8),
+                    const Text('Auto sort by EV'),
+                  ],
+                ),
+              ),
             ],
           ),
           IconButton(
@@ -186,6 +239,31 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   TextButton(
                     onPressed: _bulkRemoveTag,
                     child: const Text('Remove Tag'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton.icon(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    label: const Text('Delete'),
+                    onPressed: () async {
+                      final ok = await showDialog<bool>(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text('Delete ${_selectedSpotIds.length} spots?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                          ],
+                        ),
+                      );
+                      if (ok ?? false) {
+                        setState(() {
+                          widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
+                          _selectedSpotIds.clear();
+                          if (_autoSortEv) _sortSpots();
+                        });
+                        TrainingPackStorage.save(widget.templates);
+                      }
+                    },
                   ),
                 ],
               ),
@@ -296,6 +374,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     case SortBy.edited:
                       shown.sort((a, b) => b.editedAt.compareTo(a.editedAt));
                       break;
+                    case SortBy.autoEv:
+                      break;
                   }
                   return ReorderableListView.builder(
                     itemCount: shown.length,
@@ -329,7 +409,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                     child: TrainingPackSpotPreviewCard(
                                       spot: spot,
                                       onHandEdited: () {
-                                        setState(() {});
+                                        setState(() {
+                                          if (_autoSortEv) _sortSpots();
+                                        });
                                         TrainingPackStorage.save(widget.templates);
                                       },
                                       onTagTap: (tag) => setState(() => _tagFilter = tag),
