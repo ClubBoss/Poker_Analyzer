@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/v2/training_pack_template.dart';
+import '../../models/v2/hand_data.dart';
 import '../../helpers/training_pack_storage.dart';
 import 'training_pack_template_editor_screen.dart';
 
@@ -73,6 +74,26 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
       setState(() => template.name = result);
       TrainingPackStorage.save(_templates);
     }
+  }
+
+  void _duplicate(TrainingPackTemplate template) {
+    final index = _templates.indexOf(template);
+    if (index == -1) return;
+    final copy = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: '${template.name} (copy)',
+      description: template.description,
+      spots: [
+        for (final s in template.spots)
+          s.copyWith(
+            id: const Uuid().v4(),
+            hand: HandData.fromJson(s.hand.toJson()),
+            tags: List<String>.from(s.tags),
+          )
+      ],
+    );
+    setState(() => _templates.insert(index + 1, copy));
+    TrainingPackStorage.save(_templates);
   }
 
   void _add() {
@@ -194,6 +215,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                     itemBuilder: (context, index) {
                       final t = shown[index];
                       return ListTile(
+                        onLongPress: () => _duplicate(t),
                         title: Text(t.name),
                         subtitle: t.description.trim().isEmpty
                             ? null
@@ -218,6 +240,10 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                             TextButton(
                               onPressed: () => _edit(t),
                               child: const Text('📝 Edit'),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.copy),
+                              onPressed: () => _duplicate(t),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
