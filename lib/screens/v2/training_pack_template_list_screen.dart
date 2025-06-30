@@ -19,6 +19,8 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
   bool _loading = false;
   String _query = '';
   late TextEditingController _searchCtrl;
+  TrainingPackTemplate? _lastRemoved;
+  int _lastIndex = 0;
 
   @override
   void initState() {
@@ -284,8 +286,27 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                                   ),
                                 );
                                 if (ok ?? false) {
-                                  setState(() => _templates.remove(t));
+                                  final index = _templates.indexOf(t);
+                                  setState(() {
+                                    _lastRemoved = t;
+                                    _lastIndex = index;
+                                    _templates.removeAt(index);
+                                  });
                                   TrainingPackStorage.save(_templates);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text('Deleted'),
+                                      action: SnackBarAction(
+                                        label: 'UNDO',
+                                        onPressed: () {
+                                          if (_lastRemoved != null) {
+                                            setState(() => _templates.insert(_lastIndex, _lastRemoved!));
+                                            TrainingPackStorage.save(_templates);
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  );
                                 }
                               },
                             ),
