@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../services/training_session_service.dart';
 import '../widgets/training_action_log_dialog.dart';
+import '../widgets/common/action_accuracy_chart.dart';
 import '../theme/app_colors.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
@@ -88,6 +89,8 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            ActionAccuracyChart(actions: actions),
             const SizedBox(height: 16),
             Expanded(
               child: actions.isEmpty
