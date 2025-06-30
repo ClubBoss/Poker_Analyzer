@@ -96,8 +96,31 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<TrainingSessionService>(
-      builder: (context, service, _) {
+    return WillPopScope(
+      onWillPop: () async {
+        final service = context.read<TrainingSessionService>();
+        if (service.session?.completedAt != null) return true;
+        final confirm = await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title:
+                const Text('Exit training? Unsaved progress will be lost.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Exit'),
+              ),
+            ],
+          ),
+        );
+        return confirm ?? false;
+      },
+      child: Consumer<TrainingSessionService>(
+        builder: (context, service, _) {
         final spot = service.currentSpot;
         if (spot == null) {
           return const Scaffold(
@@ -198,6 +221,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           ),
         );
       },
-    );
+    ),
+  );
   }
 }
