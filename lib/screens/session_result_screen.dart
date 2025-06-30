@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import '../services/training_session_service.dart';
 import '../widgets/training_action_log_dialog.dart';
 import '../theme/app_colors.dart';
+import '../models/v2/training_pack_template.dart';
+import 'training_session_screen.dart';
+import 'package:uuid/uuid.dart';
 
 class SessionResultScreen extends StatefulWidget {
   final int total;
@@ -17,6 +20,28 @@ class SessionResultScreen extends StatefulWidget {
 }
 
 class _SessionResultScreenState extends State<SessionResultScreen> {
+
+  Future<void> _retryMistakes() async {
+    final service = context.read<TrainingSessionService>();
+    final missed = service.actionLog
+        .where((e) => !e.isCorrect)
+        .map((e) => e.spotId)
+        .toSet();
+    if (missed.isEmpty) return;
+    final spots = service.spots.where((s) => missed.contains(s.id)).toList();
+    if (spots.isEmpty) return;
+    final t = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Retry mistakes',
+      spots: spots,
+    );
+    await service.startSession(t);
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
 
   @override
   void initState() {
@@ -103,9 +128,20 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
             ),
             const SizedBox(height: 16),
             Center(
-              child: ElevatedButton(
-                onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
-                child: const Text('Done'),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: _retryMistakes,
+                    child: const Text('Retry mistakes'),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () =>
+                        Navigator.of(context).popUntil((r) => r.isFirst),
+                    child: const Text('Done'),
+                  ),
+                ],
               ),
             ),
           ],

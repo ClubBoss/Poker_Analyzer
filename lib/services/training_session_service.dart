@@ -46,6 +46,7 @@ class TrainingSessionService extends ChangeNotifier {
   int get correctCount => results.values.where((e) => e).length;
   int get totalCount => results.length;
   List<TrainingAction> get actionLog => List.unmodifiable(_actions);
+  List<TrainingPackSpot> get spots => List.unmodifiable(_spots);
 
   Future<void> _openBox() async {
     if (!Hive.isBoxOpen('sessions')) {
