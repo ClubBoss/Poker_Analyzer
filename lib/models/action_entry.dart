@@ -17,6 +17,9 @@ class ActionEntry {
   /// Пользовательская оценка качества действия, заданная вручную
   String? manualEvaluation;
 
+  /// Размер банка после применения действия
+  double potAfter;
+
   /// Время, когда было совершено действие
   final DateTime timestamp;
 
@@ -27,6 +30,7 @@ class ActionEntry {
       {this.amount,
       this.generated = false,
       this.manualEvaluation,
-      DateTime? timestamp})
+      DateTime? timestamp,
+      this.potAfter = 0})
       : timestamp = timestamp ?? DateTime.now();
 }
