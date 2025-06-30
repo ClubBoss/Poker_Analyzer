@@ -20,76 +20,122 @@ class ActionListWidget extends StatefulWidget {
 
 class _ActionListWidgetState extends State<ActionListWidget> {
   late List<ActionEntry> _actions;
-  late List<TextEditingController> _controllers;
-  late List<TextEditingController> _labelControllers;
+
+  String _format(ActionEntry a) {
+    var text = 'P${a.playerIndex} ${a.action}';
+    if (a.amount != null) text += ' ${a.amount}';
+    if (a.customLabel != null) text += ' ${a.customLabel}';
+    return text;
+  }
 
   @override
   void initState() {
     super.initState();
     _actions = List<ActionEntry>.from(widget.initial ?? []);
-    _controllers = [
-      for (final a in _actions) TextEditingController(text: '${a.amount ?? 0}')
-    ];
-    _labelControllers = [
-      for (final a in _actions) TextEditingController(text: a.customLabel ?? '')
-    ];
   }
 
   void _notify() => widget.onChanged(List<ActionEntry>.from(_actions));
 
-  void _addAction() {
-    setState(() {
-      _actions.add(ActionEntry(0, 0, 'call', amount: 0.0));
-      _controllers.add(TextEditingController(text: '0.0'));
-      _labelControllers.add(TextEditingController());
-    });
-    _notify();
+  Future<ActionEntry?> _showDialog(ActionEntry entry) {
+    int player = entry.playerIndex;
+    String act = entry.action;
+    final amountController =
+        TextEditingController(text: entry.amount?.toString() ?? '');
+    final labelController =
+        TextEditingController(text: entry.customLabel ?? '');
+    return showDialog<ActionEntry>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) {
+          final needAmount = act != 'fold';
+          final needLabel = act == 'custom';
+          return AlertDialog(
+            title: const Text('Edit action'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButton<int>(
+                  value: player,
+                  items: [
+                    for (int p = 0; p < widget.playerCount; p++)
+                      DropdownMenuItem(value: p, child: Text('$p')),
+                  ],
+                  onChanged: (v) => setState(() => player = v ?? player),
+                ),
+                const SizedBox(height: 8),
+                DropdownButton<String>(
+                  value: act,
+                  items: const [
+                    DropdownMenuItem(value: 'fold', child: Text('fold')),
+                    DropdownMenuItem(value: 'call', child: Text('call')),
+                    DropdownMenuItem(value: 'raise', child: Text('raise')),
+                    DropdownMenuItem(value: 'push', child: Text('push')),
+                    DropdownMenuItem(value: 'custom', child: Text('custom')),
+                  ],
+                  onChanged: (v) => setState(() => act = v ?? act),
+                ),
+                if (needAmount) ...[
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: amountController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(labelText: 'Amount'),
+                  ),
+                ],
+                if (needLabel) ...[
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: labelController,
+                    decoration: const InputDecoration(labelText: 'Label'),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(
+                    ctx,
+                    ActionEntry(entry.street, player, act,
+                        amount: needAmount
+                            ? double.tryParse(amountController.text)
+                            : null,
+                        customLabel: needLabel ? labelController.text : null),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
-  void _updatePlayer(int index, int value) {
-    final a = _actions[index];
-    setState(() =>
-        _actions[index] = ActionEntry(a.street, value, a.action,
-            amount: a.amount, customLabel: a.customLabel));
-    _notify();
-  }
-
-  void _updateAction(int index, String value) {
-    final a = _actions[index];
-    setState(() {
-      _actions[index] = ActionEntry(a.street, a.playerIndex, value,
-          amount: a.amount,
-          customLabel: value == 'custom' ? a.customLabel : null);
-      if (value == 'fold') _controllers[index].text = '';
-    });
-    _notify();
-  }
-
-  void _updateAmount(int index, String value) {
-    final a = _actions[index];
-    final amt = double.tryParse(value);
-    setState(() =>
-        _actions[index] = ActionEntry(a.street, a.playerIndex, a.action,
-            amount: amt, customLabel: a.customLabel));
-    _notify();
-  }
-
-  void _updateLabel(int index, String value) {
-    final a = _actions[index];
-    setState(() => _actions[index] = ActionEntry(a.street, a.playerIndex, a.action,
-        amount: a.amount, customLabel: value));
-    _notify();
-  }
-
-  @override
-  void dispose() {
-    for (final c in _controllers) {
-      c.dispose();
+  Future<void> _addAction() async {
+    final entry = await _showDialog(ActionEntry(0, 0, 'call', amount: 0));
+    if (entry != null) {
+      setState(() => _actions.add(entry));
+      _notify();
     }
-    for (final c in _labelControllers) {
-      c.dispose();
+  }
+
+  Future<void> _editAction(int index) async {
+    final edited = await _showDialog(_actions[index]);
+    if (edited != null) {
+      setState(() => _actions[index] = edited);
+      _notify();
     }
-    super.dispose();
+  }
+
+  void _deleteAction(int index) {
+    setState(() => _actions.removeAt(index));
+    _notify();
   }
 
   @override
@@ -100,73 +146,25 @@ class _ActionListWidgetState extends State<ActionListWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
-              children: _actions[i].action == 'post'
-                  ? [
-                      Text('${_actions[i].playerIndex}'),
-                      const SizedBox(width: 8),
-                      const Text('post'),
-                      const SizedBox(width: 8),
-                      Text('${_actions[i].amount}'),
-                      if (widget.showPot) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          'Pot: ${_actions[i].potAfter.toStringAsFixed(1)} BB',
-                          style: const TextStyle(color: Colors.grey),
-                        )
-                      ]
-                    ]
-                  : [
-                      DropdownButton<int>(
-                        value: _actions[i].playerIndex,
-                        items: [
-                          for (int p = 0; p < widget.playerCount; p++)
-                            DropdownMenuItem(value: p, child: Text('$p')),
-                        ],
-                        onChanged: (v) => _updatePlayer(i, v ?? 0),
-                      ),
-                      const SizedBox(width: 8),
-                      DropdownButton<String>(
-                        value: _actions[i].action,
-                        items: const [
-                          DropdownMenuItem(value: 'fold', child: Text('fold')),
-                          DropdownMenuItem(value: 'call', child: Text('call')),
-                          DropdownMenuItem(value: 'raise', child: Text('raise')),
-                          DropdownMenuItem(value: 'push', child: Text('push')),
-                          DropdownMenuItem(value: 'custom', child: Text('custom')),
-                        ],
-                        onChanged: (v) => _updateAction(i, v ?? 'call'),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 60,
-                        child: TextField(
-                          controller: _controllers[i],
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          enabled: _actions[i].action != 'fold',
-                          onChanged: (v) => _updateAmount(i, v),
-                          decoration: const InputDecoration(isDense: true),
-                        ),
-                      ),
-                      if (_actions[i].action == 'custom') ...[
-                        const SizedBox(width: 8),
-                        SizedBox(
-                          width: 80,
-                          child: TextField(
-                            controller: _labelControllers[i],
-                            onChanged: (v) => _updateLabel(i, v),
-                            decoration:
-                                const InputDecoration(isDense: true, hintText: 'label'),
-                          ),
-                        ),
-                      ],
-                      if (widget.showPot) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          'Pot: ${_actions[i].potAfter.toStringAsFixed(1)} BB',
-                          style: const TextStyle(color: Colors.grey),
-                        )
-                      ]
-                    ],
+              children: [
+                Expanded(child: Text(_format(_actions[i]))),
+                if (widget.showPot)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(
+                      'Pot: ${_actions[i].potAfter.toStringAsFixed(1)} BB',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white70),
+                  onPressed: () => _editAction(i),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _deleteAction(i),
+                ),
+              ],
             ),
           ),
         TextButton(
