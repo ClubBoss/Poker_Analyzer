@@ -8,6 +8,7 @@ import '../widgets/showdown_tab.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../helpers/poker_position_helper.dart';
+import '../services/hand_evaluator.dart';
 
 class HandEditorScreen extends StatefulWidget {
   const HandEditorScreen({super.key});
@@ -531,6 +532,25 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     }
   }
 
+  void _autoShowdown() {
+    final winners = HandEvaluator.evaluateShowdown(
+      _revealedCards,
+      _boardCards,
+    );
+    if (winners.isEmpty) return;
+    final share = _pot / winners.length;
+    setState(() {
+      for (int i = 0; i < _playerCount; i++) {
+        _winnings[i] = winners.contains(i) ? share : 0;
+        if (winners.contains(i)) {
+          _stacks[i] += share;
+        }
+      }
+      _pot = 0;
+    });
+    _pushHistory();
+  }
+
   Widget _buildBoardRow() {
     final cards =
         List.generate(5, (i) => i < _boardCards.length ? _boardCards[i] : null);
@@ -690,6 +710,14 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             icon: const Icon(Icons.visibility),
             onPressed:
                 _tabController.index == 4 ? _revealCards : null,
+          ),
+          TextButton(
+            onPressed: _tabController.index == 4 &&
+                    _boardCards.length >= 5 &&
+                    _revealedCards.where((c) => c.length == 2).length >= 2
+                ? _autoShowdown
+                : null,
+            child: const Text('🧠 Auto'),
           ),
           IconButton(
             icon: const Icon(Icons.paid),
