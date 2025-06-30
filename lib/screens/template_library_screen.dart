@@ -23,7 +23,7 @@ class TemplateLibraryScreen extends StatefulWidget {
 }
 
 class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
-  static const _key = 'template_filter_game_type';
+  static const _key = 'lib_game_type';
   static const _sortKey = 'lib_sort';
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
@@ -151,10 +151,27 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     visible = _applySorting(visible);
     return Scaffold(
       appBar: AppBar(
-        title: TextField(
-          controller: _searchCtrl,
-          decoration: const InputDecoration(hintText: 'Поиск', border: InputBorder.none),
-          style: const TextStyle(color: Colors.white),
+        title: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _searchCtrl,
+                decoration: const InputDecoration(hintText: 'Поиск', border: InputBorder.none),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+            const SizedBox(width: 8),
+            DropdownButton<String>(
+              value: _filter,
+              underline: const SizedBox.shrink(),
+              onChanged: (v) => v != null ? _setFilter(v) : null,
+              items: const [
+                DropdownMenuItem(value: 'all', child: Text('All')),
+                DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
+                DropdownMenuItem(value: 'cash', child: Text('Cash')),
+              ],
+            ),
+          ],
         ),
         actions: [
           PopupMenuButton<String>(
@@ -171,19 +188,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: DropdownButton<String>(
-              value: _filter,
-              underline: const SizedBox.shrink(),
-              onChanged: (v) => v != null ? _setFilter(v) : null,
-              items: const [
-                DropdownMenuItem(value: 'all', child: Text('Все')),
-                DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
-                DropdownMenuItem(value: 'cash', child: Text('Cash')),
-              ],
-            ),
-          ),
           Expanded(
             child: ListView.builder(
               itemCount: visible.length,
