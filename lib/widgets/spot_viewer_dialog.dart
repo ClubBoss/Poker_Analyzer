@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../widgets/spot_quiz_widget.dart';
 import '../widgets/action_history_widget.dart';
 import '../models/action_entry.dart';
+import '../services/training_session_service.dart';
 import 'share_dialog.dart';
 
-class SpotViewerDialog extends StatelessWidget {
+class SpotViewerDialog extends StatefulWidget {
   final TrainingPackSpot spot;
   const SpotViewerDialog({super.key, required this.spot});
+
+  @override
+  State<SpotViewerDialog> createState() => _SpotViewerDialogState();
+}
+
+class _SpotViewerDialogState extends State<SpotViewerDialog> {
+  late TrainingPackSpot spot;
+
+  @override
+  void initState() {
+    super.initState();
+    spot = widget.spot;
+  }
 
   Map<int, String> _posMap() {
     return {
@@ -58,6 +73,39 @@ class SpotViewerDialog extends StatelessWidget {
     return lines.join('\n');
   }
 
+  Future<void> _editNote() async {
+    final controller = TextEditingController(text: spot.note);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.black.withOpacity(0.8),
+        title: const Text('Note', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: 3,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white10,
+            hintText: 'Enter notes',
+            hintStyle: const TextStyle(color: Colors.white54),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (result != null) {
+      final updated = spot.copyWith(note: result.trim());
+      await context.read<TrainingSessionService>().updateSpot(updated);
+      setState(() => spot = updated);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -77,6 +125,10 @@ class SpotViewerDialog extends StatelessWidget {
         ),
       ),
       actions: [
+        TextButton(
+          onPressed: _editNote,
+          child: const Text('Edit'),
+        ),
         TextButton(
           onPressed: () => showShareDialog(context, _summary()),
           child: const Text('Share'),

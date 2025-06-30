@@ -193,6 +193,17 @@ class TrainingSessionService extends ChangeNotifier {
     return currentSpot;
   }
 
+  Future<void> updateSpot(TrainingPackSpot spot) async {
+    final index = _spots.indexWhere((s) => s.id == spot.id);
+    if (index == -1) return;
+    _spots[index] = spot;
+    if (_session != null) {
+      await _box?.put(_session!.id, _session!.toJson());
+      _saveActive();
+    }
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _timer?.cancel();

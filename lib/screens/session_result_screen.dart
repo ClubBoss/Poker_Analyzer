@@ -7,6 +7,7 @@ import '../widgets/training_action_log_dialog.dart';
 import '../widgets/spot_viewer_dialog.dart';
 import '../widgets/common/action_accuracy_chart.dart';
 import '../theme/app_colors.dart';
+import '../widgets/player_note_button.dart';
 import '../models/v2/training_pack_template.dart';
 import 'training_session_screen.dart';
 import 'package:uuid/uuid.dart';
@@ -63,6 +64,38 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
     return h > 0 ? '$h:$m:$s' : '$m:$s';
   }
 
+  Future<void> _editSpotNote(TrainingPackSpot spot) async {
+    final c = TextEditingController(text: spot.note);
+    final res = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.black.withOpacity(0.8),
+        title: const Text('Note', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: c,
+          autofocus: true,
+          maxLines: 3,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white10,
+            hintText: 'Enter notes',
+            hintStyle: const TextStyle(color: Colors.white54),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, c.text), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (res != null) {
+      final updated = spot.copyWith(note: res.trim());
+      await context.read<TrainingSessionService>().updateSpot(updated);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final rate = widget.total == 0 ? 0 : widget.correct * 100 / widget.total;
@@ -105,12 +138,14 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                         final a = actions[index];
                         final color = a.isCorrect ? AppColors.cardBackground : AppColors.errorBg;
                         final time = DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp);
+                        TrainingPackSpot? spot;
+                        try {
+                          spot = service.spots.firstWhere((s) => s.id == a.spotId);
+                        } catch (_) {}
+                        if (spot == null) return const SizedBox.shrink();
                         return InkWell(
                           onTap: () {
-                            try {
-                              final spot = service.spots.firstWhere((s) => s.id == a.spotId);
-                              showSpotViewerDialog(context, spot);
-                            } catch (_) {}
+                            showSpotViewerDialog(context, spot);
                           },
                           child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 4),
@@ -132,6 +167,11 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                                     color: a.isCorrect ? Colors.green : Colors.red, size: 16),
                                 const SizedBox(width: 8),
                                 Text(time, style: const TextStyle(color: Colors.white70)),
+                                const SizedBox(width: 8),
+                                PlayerNoteButton(
+                                  note: spot.note,
+                                  onPressed: () => _editSpotNote(spot),
+                                ),
                               ],
                             ),
                           ),
