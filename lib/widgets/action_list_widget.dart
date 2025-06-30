@@ -27,6 +27,17 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   late List<ActionEntry> _actions;
   List<String?> _errors = [];
 
+  double? _breakevenEquity({
+    required double prevBet,
+    required double pot,
+    required String amountStr,
+  }) {
+    final amount = double.tryParse(amountStr) ?? 0;
+    final toCall = math.max(0, amount - prevBet);
+    final potAfter = pot + toCall;
+    return potAfter > 0 ? 100 * toCall / potAfter : null;
+  }
+
   void _recalcErrors() {
     final bets = List<double>.filled(widget.playerCount, 0);
     _errors = List<String?>.filled(_actions.length, null);
@@ -100,22 +111,18 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   Future<ActionEntry?> _showDialog(ActionEntry entry) {
     int player = entry.playerIndex;
     String act = entry.action;
-    final amountController = TextEditingController(
-      text: entry.amount?.toString() ?? '',
-    );
-    final labelController = TextEditingController(
-      text: entry.customLabel ?? '',
-    );
-    final equityController = TextEditingController(
-      text: entry.equity?.toString() ?? '',
-    );
+    final amountController =
+        TextEditingController(text: entry.amount?.toString() ?? '');
+    final labelController =
+        TextEditingController(text: entry.customLabel ?? '');
+    final equityController =
+        TextEditingController(text: entry.equity?.toString() ?? '');
     final pa = entry.potAfter;
     final po = entry.potOdds;
     final origAmount = entry.amount ?? 0;
     final baseToCall = po == null ? 0 : pa * po / 100;
     final currentPot = pa - baseToCall;
     final prevBet = origAmount - baseToCall;
-    bool listenerAdded = false;
     return showDialog<ActionEntry>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -124,17 +131,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
           final needLabel = act == 'custom';
           final needEquity =
               player == widget.heroIndex && (act == 'call' || act == 'push');
-          if (!listenerAdded) {
-            amountController.addListener(() => setState(() {}));
-            listenerAdded = true;
-          }
-          double? threshold;
-          if (needEquity) {
-            final amount = double.tryParse(amountController.text) ?? 0;
-            final toCall = math.max(0, amount - prevBet);
-            final potAfter = currentPot + toCall;
-            if (potAfter > 0) threshold = 100 * toCall / potAfter;
-          }
+          
           return AlertDialog(
             title: const Text('Edit action'),
             content: Column(
@@ -179,17 +176,31 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                     ),
                     decoration: const InputDecoration(labelText: 'Equity %'),
                   ),
-                  if (threshold != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        'EV=0 at ~${threshold!.toStringAsFixed(1)}%',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white54,
-                        ),
-                      ),
-                    ),
+                  ValueListenableBuilder(
+                    valueListenable: amountController,
+                    builder: (_, __, ___) {
+                      final t = _breakevenEquity(
+                        prevBet: prevBet,
+                        pot: currentPot,
+                        amountStr: amountController.text,
+                      );
+                      return t != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Tooltip(
+                                message: 'Break-even equity for this call/push',
+                                child: Text(
+                                  'EV=0 at ~${t.toStringAsFixed(1)}%',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white54,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink();
+                    },
+                  ),
                 ],
                 if (needLabel) ...[
                   const SizedBox(height: 8),
