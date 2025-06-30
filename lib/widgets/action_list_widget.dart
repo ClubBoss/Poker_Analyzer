@@ -82,9 +82,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   }
 
   String _format(ActionEntry a) {
-    var text = 'P${a.playerIndex} ${a.action}';
+    final label =
+        a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+    var text = 'P${a.playerIndex} $label';
     if (a.amount != null) text += ' ${a.amount}';
-    if (a.customLabel != null) text += ' ${a.customLabel}';
     return text;
   }
 
@@ -135,7 +136,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) {
-          final needAmount = act != 'fold';
+          final needAmount = act != 'fold' && act != 'custom';
           final needLabel = act == 'custom';
           final needEquity =
               player == widget.heroIndex && (act == 'call' || act == 'push');
@@ -252,7 +253,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   }
 
   Future<void> _addAction() async {
-    final entry = await _showDialog(ActionEntry(0, 0, 'call', amount: 0));
+    final entry = await _showDialog(ActionEntry(0, 0, 'custom'));
     if (entry != null) {
       setState(() {
         _actions.add(entry);
@@ -376,7 +377,8 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           children: [
                             Text(_format(a)),
                             if (a.playerIndex == widget.heroIndex &&
-                                a.ev != null)
+                                a.ev != null &&
+                                a.action != 'custom')
                               Container(
                                 margin: const EdgeInsets.only(left: 4),
                                 padding: const EdgeInsets.symmetric(
@@ -400,7 +402,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                               ),
                           ],
                         ),
-                        if (a.potOdds != null)
+                        if (a.potOdds != null && a.action != 'custom')
                           Text(
                             'Pot odds: ${a.potOdds!.toStringAsFixed(1)} %',
                             style: const TextStyle(
@@ -411,7 +413,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                       ],
                     ),
                   ),
-                  if (widget.showPot)
+                  if (widget.showPot && a.action != 'custom')
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
