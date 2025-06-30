@@ -6,6 +6,8 @@ import '../../helpers/training_pack_storage.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
 
+TrainingPackSpot? _copiedSpot;
+
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplate template;
   final List<TrainingPackTemplate> templates;
@@ -177,6 +179,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                PopupMenuButton<String>(
+                                  onSelected: (v) {
+                                    if (v == 'copy') {
+                                      _copiedSpot = spot.copyWith(id: const Uuid().v4());
+                                    } else if (v == 'paste' && _copiedSpot != null) {
+                                      final i = widget.template.spots.indexOf(spot);
+                                      final s = _copiedSpot!.copyWith(id: const Uuid().v4());
+                                      setState(() => widget.template.spots.insert(i + 1, s));
+                                      TrainingPackStorage.save(widget.templates);
+                                    }
+                                  },
+                                  itemBuilder: (_) => [
+                                    const PopupMenuItem(value: 'copy', child: Text('📋 Copy')),
+                                    if (_copiedSpot != null)
+                                      const PopupMenuItem(value: 'paste', child: Text('📥 Paste')),
+                                  ],
+                                ),
                                 TextButton(
                                   onPressed: () async {
                                     await Navigator.push(
