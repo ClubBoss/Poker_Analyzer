@@ -6,12 +6,14 @@ import 'package:uuid/uuid.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_session.dart';
+import '../models/v2/training_action.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
   Box<dynamic>? _activeBox;
   TrainingSession? _session;
   List<TrainingPackSpot> _spots = [];
+  final List<TrainingAction> _actions = [];
   Timer? _timer;
   bool _paused = false;
   DateTime? _resumedAt;
@@ -43,6 +45,7 @@ class TrainingSessionService extends ChangeNotifier {
   Map<String, bool> get results => _session?.results ?? {};
   int get correctCount => results.values.where((e) => e).length;
   int get totalCount => results.length;
+  List<TrainingAction> get actionLog => List.unmodifiable(_actions);
 
   Future<void> _openBox() async {
     if (!Hive.isBoxOpen('sessions')) {
@@ -60,11 +63,13 @@ class TrainingSessionService extends ChangeNotifier {
 
   Future<void> load() async {
     await _openBox();
+    _actions.clear();
     final raw = _activeBox!.get('session');
     if (raw is Map) {
       final data = Map<String, dynamic>.from(raw);
       final s = data['session'];
       final spots = data['spots'];
+      final actions = data['actions'];
       if (s is Map) {
         final session = TrainingSession.fromJson(Map<String, dynamic>.from(s));
         if (session.completedAt == null) {
@@ -77,6 +82,12 @@ class TrainingSessionService extends ChangeNotifier {
             for (final e in (spots as List? ?? []))
               TrainingPackSpot.fromJson(Map<String, dynamic>.from(e))
           ];
+          _actions
+            ..clear()
+            ..addAll([
+              for (final a in (actions as List? ?? []))
+                TrainingAction.fromJson(Map<String, dynamic>.from(a))
+            ]);
         } else {
           _activeBox!.delete('session');
         }
@@ -92,7 +103,8 @@ class TrainingSessionService extends ChangeNotifier {
     } else {
       _activeBox?.put('session', {
         'session': _session!.toJson(),
-        'spots': [for (final s in _spots) s.toJson()]
+        'spots': [for (final s in _spots) s.toJson()],
+        'actions': [for (final a in _actions) a.toJson()]
       });
     }
   }
@@ -120,6 +132,7 @@ class TrainingSessionService extends ChangeNotifier {
   Future<void> startSession(TrainingPackTemplate template) async {
     await _openBox();
     _spots = List<TrainingPackSpot>.from(template.spots);
+    _actions.clear();
     _session = TrainingSession(
       id: const Uuid().v4(),
       templateId: template.id,
@@ -133,9 +146,20 @@ class TrainingSessionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> submitResult(String spotId, bool isCorrect) async {
+  Future<void> submitResult(
+    String spotId,
+    String action,
+    bool isCorrect,
+  ) async {
     if (_session == null) return;
     _session!.results[spotId] = isCorrect;
+    _actions.add(
+      TrainingAction(
+        spotId: spotId,
+        chosenAction: action,
+        isCorrect: isCorrect,
+      ),
+    );
     await _box!.put(_session!.id, _session!.toJson());
     _saveActive();
   }
