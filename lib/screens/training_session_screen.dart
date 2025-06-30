@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/training_session_service.dart';
@@ -14,6 +15,27 @@ class TrainingSessionScreen extends StatefulWidget {
 class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   String? _selected;
   bool? _correct;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _format(Duration d) {
+    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
 
   String? _expectedAction(spot) {
     final acts = spot.hand.actions[0] ?? [];
@@ -95,6 +117,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                     '${(service.session?.index ?? 0) + 1} / ${service.totalCount}',
                     style: const TextStyle(color: Colors.white70),
                   ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Elapsed: ${_format(service.elapsedTime)}',
+                  style: const TextStyle(color: Colors.white70),
                 ),
                 const SizedBox(height: 8),
                 Expanded(child: SpotQuizWidget(spot: spot)),
