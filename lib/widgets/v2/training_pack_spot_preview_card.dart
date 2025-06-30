@@ -30,6 +30,9 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
       }
     }
     final double? heroEv = heroAct?.ev;
+    final borderColor = heroEv == null
+        ? Colors.grey
+        : (heroEv >= 0 ? Colors.green : Colors.red);
 
     final String? heroLabel = heroAct == null
         ? null
@@ -44,12 +47,17 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
           if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
             ...a.customLabel!.split(' ')
     ];
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: borderColor, width: 1.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
