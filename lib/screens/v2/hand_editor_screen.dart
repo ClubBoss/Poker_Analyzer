@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
@@ -10,27 +11,30 @@ class HandEditorScreen extends StatelessWidget {
   final TextEditingController _actionsCtr;
 
   HandEditorScreen({super.key, required this.spot})
-      : _cardsCtr = TextEditingController(text: _val(spot.note, 'Cards')),
-        _posCtr = TextEditingController(text: _val(spot.note, 'Position')),
-        _stacksCtr = TextEditingController(text: _val(spot.note, 'Stacks')),
-        _actionsCtr = TextEditingController(text: _val(spot.note, 'Actions'));
-
-  static String _val(String note, String key) {
-    for (final line in note.split('\n')) {
-      if (line.trim().startsWith('$key:')) {
-        return line.split(':').skip(1).join(':').trim();
-      }
-    }
-    return '';
-  }
+      : _cardsCtr = TextEditingController(text: spot.hand.heroCards),
+        _posCtr = TextEditingController(text: spot.hand.position),
+        _stacksCtr = TextEditingController(
+            text: spot.hand.stacks.isEmpty
+                ? ''
+                : jsonEncode(spot.hand.stacks)),
+        _actionsCtr = TextEditingController(
+            text: spot.hand.streetActions.isNotEmpty
+                ? spot.hand.streetActions.first
+                : '');
 
   void _update() {
-    spot.note = [
-      'Cards: ${_cardsCtr.text}',
-      'Position: ${_posCtr.text}',
-      'Stacks: ${_stacksCtr.text}',
-      'Actions: ${_actionsCtr.text}',
-    ].join('\n');
+    spot.hand.heroCards = _cardsCtr.text;
+    spot.hand.position = _posCtr.text;
+    try {
+      final m = jsonDecode(_stacksCtr.text) as Map<String, dynamic>;
+      spot.hand.stacks = {
+        for (final e in m.entries) e.key: (e.value as num).toDouble()
+      };
+    } catch (_) {
+      spot.hand.stacks = {};
+    }
+    spot.hand.streetActions =
+        _actionsCtr.text.trim().isEmpty ? [] : [_actionsCtr.text];
   }
 
   Future<void> _save(BuildContext context) async {

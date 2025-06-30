@@ -15,8 +15,11 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final note = spot.note.trim();
-    final first = note.isEmpty ? null : note.split('\n').first;
+    final hero = spot.hand.heroCards;
+    final pos = spot.hand.position;
+    final act =
+        spot.hand.streetActions.isNotEmpty ? spot.hand.streetActions.first : null;
+    final legacy = hero.isEmpty && spot.note.trim().isNotEmpty;
     return Card(
       margin: EdgeInsets.zero,
       elevation: 2,
@@ -29,11 +32,19 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
               spot.title.isEmpty ? 'Untitled spot' : spot.title,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          if (first != null)
+          if (hero.isNotEmpty || pos.isNotEmpty || legacy)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                first,
+                legacy ? '(legacy)' : '$hero $pos'.trim(),
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          if (act != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                act,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
