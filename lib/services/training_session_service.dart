@@ -58,4 +58,14 @@ class TrainingSessionService extends ChangeNotifier {
     notifyListeners();
     return currentSpot;
   }
+
+  TrainingPackSpot? prevSpot() {
+    if (_session == null) return null;
+    if (_session!.index > 0) {
+      _session!.index -= 1;
+      _box?.put(_session!.id, _session!.toJson());
+      notifyListeners();
+    }
+    return currentSpot;
+  }
 }
