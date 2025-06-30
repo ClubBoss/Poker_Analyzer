@@ -57,24 +57,30 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   }
 
   @override
+  void dispose() {
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         for (int i = 0; i < _actions.length; i++)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
-            child: _actions[i].action == 'post'
-                ? Row(
-                    children: [
+            child: Row(
+              children: _actions[i].action == 'post'
+                  ? [
                       Text('${_actions[i].playerIndex}'),
                       const SizedBox(width: 8),
                       const Text('post'),
                       const SizedBox(width: 8),
                       Text('${_actions[i].amount}'),
-                    ],
-                  )
-                : Row(
-                    children: [
+                    ]
+                  : [
                       DropdownButton<int>(
                         value: _actions[i].playerIndex,
                         items: [
@@ -106,7 +112,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         ),
                       ),
                     ],
-                  ),
+            ),
           ),
         TextButton(
           onPressed: _addAction,
