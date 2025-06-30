@@ -25,6 +25,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   late final TextEditingController _nameCtr;
   late final TextEditingController _descCtr;
   String _query = '';
+  String? _tagFilter;
   late TextEditingController _searchCtrl;
 
   void _addSpot() async {
@@ -128,15 +129,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 decoration: InputDecoration(
                   labelText: 'Search by tag or title',
                   prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _query.isEmpty
-                      ? null
-                      : IconButton(
+                  fillColor: _tagFilter == null ? null : Colors.yellow[50],
+                  filled: _tagFilter != null,
+                  suffixIcon: _tagFilter != null
+                      ? IconButton(
                           icon: const Icon(Icons.clear),
-                          onPressed: () => setState(() {
-                            _query = '';
-                            _searchCtrl.clear();
-                          }),
-                        ),
+                          onPressed: () => setState(() => _tagFilter = null),
+                        )
+                      : _query.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () => setState(() {
+                                _query = '';
+                                _searchCtrl.clear();
+                              }),
+                            ),
                 ),
                 onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
               ),
@@ -144,14 +152,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             Expanded(
               child: Builder(
                 builder: (context) {
-                  final shown = _query.isEmpty
-                      ? widget.template.spots
-                      : widget.template.spots
-                          .where((s) =>
-                              s.title.toLowerCase().contains(_query) ||
-                              s.tags
-                                  .any((t) => t.toLowerCase().contains(_query)))
-                          .toList();
+                  final shown = widget.template.spots.where((s) {
+                    if (_tagFilter != null &&
+                        !s.tags.any((t) => t.toLowerCase() == _tagFilter)) {
+                      return false;
+                    }
+                    if (_query.isEmpty) return true;
+                    return s.title.toLowerCase().contains(_query) ||
+                        s.tags.any((t) => t.toLowerCase().contains(_query));
+                  }).toList();
                   return ReorderableListView.builder(
                     itemCount: shown.length,
                     itemBuilder: (context, index) {
@@ -173,6 +182,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                   setState(() {});
                                   TrainingPackStorage.save(widget.templates);
                                 },
+                                onTagTap: (tag) => setState(() => _tagFilter = tag),
                               ),
                             ),
                             const SizedBox(width: 8),

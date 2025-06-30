@@ -5,10 +5,12 @@ import '../../screens/v2/hand_editor_screen.dart';
 class TrainingPackSpotPreviewCard extends StatelessWidget {
   final TrainingPackSpot spot;
   final VoidCallback? onHandEdited;
+  final ValueChanged<String>? onTagTap;
   const TrainingPackSpotPreviewCard({
     super.key,
     required this.spot,
     this.onHandEdited,
+    this.onTagTap,
   });
 
   @override
@@ -43,11 +45,9 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                 spacing: 6,
                 children: [
                   for (final tag in spot.tags)
-                    Chip(
-                      label: Text(
-                        tag,
-                        style: const TextStyle(fontSize: 12),
-                      ),
+                    InputChip(
+                      label: Text(tag, style: const TextStyle(fontSize: 12)),
+                      onPressed: () => onTagTap?.call(tag.toLowerCase()),
                     ),
                 ],
               ),
