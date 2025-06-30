@@ -196,7 +196,11 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                       child: Text(getPositionList(_playerCount)[i]),
                     )
                 ],
-                onChanged: (v) => setState(() => _heroIndex = v ?? 0),
+                onChanged: (v) {
+                  if (v == null) return;
+                  setState(() => _heroIndex = v);
+                  _recompute();
+                },
               ),
             ),
             IgnorePointer(
