@@ -43,6 +43,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
     _errors = List<String?>.filled(_actions.length, null);
     for (int i = 0; i < _actions.length; i++) {
       final a = _actions[i];
+      if (a.action == 'custom') {
+        _errors[i] = null;
+        continue;
+      }
       String? err;
       if (a.action != 'post') {
         final amount = a.amount;
@@ -445,15 +449,28 @@ class _ActionListWidgetState extends State<ActionListWidget> {
           },
         ),
         if (_actions.isNotEmpty)
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4, right: 8),
-              child: Text(
-                'Total pot: ${_actions.last.potAfter.toStringAsFixed(1)} BB',
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ),
+          Builder(
+            builder: (context) {
+              ActionEntry? pot;
+              for (final a in _actions.reversed) {
+                if (a.potAfter > 0) {
+                  pot = a;
+                  break;
+                }
+              }
+              return pot != null
+                  ? Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 4, right: 8),
+                        child: Text(
+                          'Total pot: ${pot.potAfter.toStringAsFixed(1)} BB',
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink();
+            },
           ),
         Row(
           children: [
