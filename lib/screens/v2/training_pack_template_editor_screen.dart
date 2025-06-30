@@ -243,6 +243,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _bulkMove() => _bulkTransfer(true);
   Future<void> _bulkCopy() => _bulkTransfer(false);
 
+  void _selectAll() {
+    setState(() {
+      _selectedSpotIds
+        ..clear()
+        ..addAll(widget.template.spots.map((e) => e.id));
+    });
+  }
+
+  void _invertSelection() {
+    final all = widget.template.spots.map((e) => e.id).toSet();
+    setState(() => _selectedSpotIds = all.difference(_selectedSpotIds));
+  }
+
   Future<void> _renameTag() async {
     final tags = widget.template.spots.expand((s) => s.tags).toSet().toList()
       ..sort((a, b) => a.compareTo(b));
@@ -399,6 +412,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ? BottomAppBar(
               child: Row(
                 children: [
+                  TextButton(
+                    onPressed: _selectAll,
+                    child: const Text('Select All'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: _invertSelection,
+                    child: const Text('Invert Selection'),
+                  ),
+                  const SizedBox(width: 12),
                   TextButton(
                     onPressed: _bulkAddTag,
                     child: const Text('Add Tag'),
