@@ -33,6 +33,12 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
     final borderColor = heroEv == null
         ? Colors.grey
         : (heroEv >= 0 ? Colors.green : Colors.red);
+    final badgeColor = heroEv == null
+        ? Colors.grey
+        : (heroEv >= 0 ? Colors.green : Colors.red);
+    final badgeText = heroEv == null
+        ? '--'
+        : '${heroEv >= 0 ? '+' : ''}${heroEv.toStringAsFixed(1)} BB';
 
     final String? heroLabel = heroAct == null
         ? null
@@ -67,6 +73,21 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                   child: Text(
                     spot.title.isEmpty ? 'Untitled spot' : spot.title,
                     style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: badgeColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    badgeText,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
