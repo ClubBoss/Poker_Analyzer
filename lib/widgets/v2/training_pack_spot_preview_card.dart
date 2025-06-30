@@ -34,7 +34,7 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
         ? null
         : (heroAct.customLabel?.isNotEmpty == true
             ? heroAct.customLabel!
-            : '${heroAct.action}${heroAct.amount != null && heroAct.amount! > 0 ? ' ${heroAct.amount} BB' : ''}');
+            : '${heroAct.action}${heroAct.amount != null && heroAct.amount! > 0 ? ' ${heroAct.amount!.toStringAsFixed(1)} BB' : ''}');
     final legacy = hero.isEmpty && spot.note.trim().isNotEmpty;
     return Card(
       margin: EdgeInsets.zero,
