@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../widgets/poker_table_view.dart';
 import '../widgets/card_picker_widget.dart';
 import '../widgets/action_list_widget.dart';
+import '../widgets/showdown_tab.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../helpers/poker_position_helper.dart';
@@ -20,6 +21,8 @@ class _HandSnapshot {
   final List<double> stacks, bets;
   final double pot;
   final List<PlayerAction> actions;
+  final List<List<CardModel>> revealed;
+  final List<double> winnings;
   const _HandSnapshot({
     required this.pre,
     required this.flop,
@@ -29,6 +32,8 @@ class _HandSnapshot {
     required this.bets,
     required this.pot,
     required this.actions,
+    required this.revealed,
+    required this.winnings,
   });
 }
 
@@ -50,6 +55,8 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   late List<double> _stacks;
   late List<PlayerAction> _actions;
   late List<double> _bets;
+  late List<List<CardModel>> _revealedCards;
+  late List<double> _winnings;
   double _pot = 0;
   late TabController _tabController;
   final List<_HandSnapshot> _undo = [];
@@ -59,12 +66,14 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _names.addAll(List.generate(_playerCount, (i) => 'Player ${i + 1}'));
     _initialStacks = List.filled(_playerCount, 100.0);
     _stacks = List.from(_initialStacks);
     _actions = List.filled(_playerCount, PlayerAction.none);
     _bets = List.filled(_playerCount, 0.0);
+    _revealedCards = List.generate(_playerCount, (_) => []);
+    _winnings = List.filled(_playerCount, 0.0);
     _recompute();
   }
 
@@ -154,6 +163,11 @@ class _HandEditorScreenState extends State<HandEditorScreen>
         bets: List<double>.from(_bets),
         pot: _pot,
         actions: List<PlayerAction>.from(_actions),
+        revealed: [
+          for (final r in _revealedCards)
+            [for (final c in r) CardModel(rank: c.rank, suit: c.suit)]
+        ],
+        winnings: List<double>.from(_winnings),
       );
 
   ActionEntry _copyAction(ActionEntry a) => ActionEntry(
@@ -208,6 +222,11 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       _bets = List<double>.from(s.bets);
       _pot = s.pot;
       _actions = List<PlayerAction>.from(s.actions);
+      _revealedCards = [
+        for (final r in s.revealed)
+          [for (final c in r) CardModel(rank: c.rank, suit: c.suit)]
+      ];
+      _winnings = List<double>.from(s.winnings);
       _recompute(pushHistory: false);
     });
     _skipHistory = false;
@@ -227,6 +246,11 @@ class _HandEditorScreenState extends State<HandEditorScreen>
         'flop': [_forJson(_flopActions)],
         'turn': [_forJson(_turnActions)],
         'river': [_forJson(_riverActions)],
+        'revealed': [
+          for (final r in _revealedCards)
+            [for (final c in r) {'r': c.rank, 's': c.suit}]
+        ],
+        'winnings': _winnings,
       };
 
   List<Map<String, dynamic>> _forJson(List<ActionEntry> list) => [
@@ -278,6 +302,23 @@ class _HandEditorScreenState extends State<HandEditorScreen>
     _flopActions = parse(json['flop']);
     _turnActions = parse(json['turn']);
     _riverActions = parse(json['river']);
+    _revealedCards = [
+      for (final r in (json['revealed'] as List? ?? []))
+        [
+          for (final c in (r as List? ?? []))
+            if (c is Map) CardModel(rank: c['r'] as String, suit: c['s'] as String)
+        ]
+    ];
+    if (_revealedCards.length < _playerCount) {
+      _revealedCards.addAll(
+          List.generate(_playerCount - _revealedCards.length, (_) => []));
+    }
+    _winnings = [
+      for (final w in (json['winnings'] as List? ?? [])) (w as num).toDouble()
+    ];
+    if (_winnings.length < _playerCount) {
+      _winnings.addAll(List.filled(_playerCount - _winnings.length, 0.0));
+    }
     setState(() {
       _recompute(pushHistory: false);
     });
@@ -340,6 +381,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
   Set<String> get _usedCards => {
         for (final c in _heroCards) '${c.rank}${c.suit}',
         for (final c in _boardCards) '${c.rank}${c.suit}',
+        for (final r in _revealedCards) for (final c in r) '${c.rank}${c.suit}',
       };
 
   void _setBoardCard(int index, CardModel card) {
@@ -354,7 +396,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
 
   void _nextStreet() {
     final current = _tabController.index;
-    if (current < 3) {
+    if (current < 4) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -370,6 +412,122 @@ class _HandEditorScreenState extends State<HandEditorScreen>
         _recompute();
       });
       _tabController.animateTo(current + 1);
+    }
+  }
+
+  Future<void> _revealCards() async {
+    int idx = 0;
+    List<CardModel> cards = List.from(_revealedCards[0]);
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: Colors.black.withOpacity(0.3),
+          title: const Text('Reveal', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton<int>(
+                value: idx,
+                dropdownColor: const Color(0xFF2A2B2E),
+                underline: const SizedBox.shrink(),
+                items: [
+                  for (int i = 0; i < _playerCount; i++)
+                    DropdownMenuItem(value: i, child: Text('Player ${i + 1}'))
+                ],
+                onChanged: (v) => setState(() {
+                  idx = v ?? 0;
+                  cards = List.from(_revealedCards[idx]);
+                }),
+              ),
+              const SizedBox(height: 8),
+              CardPickerWidget(
+                cards: cards,
+                count: 2,
+                onChanged: (i, c) => setState(() {
+                  if (cards.length > i) {
+                    cards[i] = c;
+                  } else if (cards.length == i) {
+                    cards.add(c);
+                  }
+                }),
+                disabledCards: _usedCards,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.pop(context, {'idx': idx, 'cards': cards}),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        _revealedCards[result['idx'] as int] =
+            List<CardModel>.from(result['cards'] as List<CardModel>);
+      });
+      _pushHistory();
+    }
+  }
+
+  Future<void> _distributePot() async {
+    final controllers =
+        List.generate(_playerCount, (i) => TextEditingController(text: '0'));
+    final result = await showDialog<List<double>>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.black.withOpacity(0.3),
+        title: const Text('Distribute', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(_playerCount, (i) {
+            return TextField(
+              controller: controllers[i],
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Player ${i + 1}',
+                labelStyle: const TextStyle(color: Colors.white54),
+              ),
+            );
+          }),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(
+              context,
+              [
+                for (final c in controllers)
+                  double.tryParse(c.text) ?? 0.0
+              ],
+            ),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        for (int i = 0; i < _playerCount; i++) {
+          _winnings[i] = result[i];
+          _stacks[i] += _winnings[i];
+        }
+        _pot = 0;
+      });
+      _pushHistory();
     }
   }
 
@@ -529,8 +687,18 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             },
           ),
           IconButton(
+            icon: const Icon(Icons.visibility),
+            onPressed:
+                _tabController.index == 4 ? _revealCards : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.paid),
+            onPressed:
+                _tabController.index == 4 ? _distributePot : null,
+          ),
+          IconButton(
             icon: const Icon(Icons.arrow_forward),
-            onPressed: _tabController.index == 3 ? null : _nextStreet,
+            onPressed: _tabController.index >= 4 ? null : _nextStreet,
           ),
         ],
         bottom: TabBar(
@@ -540,6 +708,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
             Tab(text: 'Flop'),
             Tab(text: 'Turn'),
             Tab(text: 'River'),
+            Tab(text: 'Showdown'),
           ],
         ),
       ),
@@ -578,9 +747,10 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                 onBetChanged: (_, __) {},
                 onActionChanged: (_, __) {},
                 potSize: _pot,
-                onPotChanged: (_) {},
-                heroCards: _heroCards,
-              ),
+              onPotChanged: (_) {},
+              heroCards: _heroCards,
+              revealedCards: _revealedCards,
+            ),
             ),
             _buildBoardRow(),
             Expanded(
@@ -649,22 +819,29 @@ class _HandEditorScreenState extends State<HandEditorScreen>
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        _buildStreetPicker(4, 1),
-                        const SizedBox(height: 12),
-                        ActionListWidget(
-                          playerCount: _playerCount,
-                          initial: _riverActions,
-                          showPot: true,
-                          currentStacks: _stacks,
-                          onChanged: _onRiverChanged,
-                        ),
-                      ],
+                child: Column(
+                  children: [
+                    _buildStreetPicker(4, 1),
+                    const SizedBox(height: 12),
+                    ActionListWidget(
+                      playerCount: _playerCount,
+                      initial: _riverActions,
+                      showPot: true,
+                      currentStacks: _stacks,
+                      onChanged: _onRiverChanged,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              ShowdownTab(
+                names: _names,
+                revealed: _revealedCards,
+                stacks: _stacks,
+                winnings: _winnings,
+                pot: _pot,
+              ),
+            ],
+          ),
             ),
           ],
         ),

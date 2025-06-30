@@ -40,6 +40,7 @@ class PokerTableView extends StatefulWidget {
   final double potSize;
   final void Function(double newPot) onPotChanged;
   final List<CardModel> heroCards;
+  final List<List<CardModel>> revealedCards;
   final double scale;
   final TableTheme theme;
   final void Function(TableTheme)? onThemeChanged;
@@ -59,6 +60,7 @@ class PokerTableView extends StatefulWidget {
     required this.potSize,
     required this.onPotChanged,
     this.heroCards = const [],
+    this.revealedCards = const [],
     this.scale = 1.0,
     this.theme = TableTheme.green,
     this.onThemeChanged,
@@ -400,6 +402,44 @@ class _PokerTableViewState extends State<PokerTableView> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: widget.heroCards.take(2).map((c) {
+              final isRed = c.suit == '♥' || c.suit == '♦';
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 2 * widget.scale),
+                width: 18 * widget.scale,
+                height: 26 * widget.scale,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 3,
+                      offset: const Offset(1, 2),
+                    )
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '${c.rank}${c.suit}',
+                  style: TextStyle(
+                    color: isRed ? Colors.red : Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12 * widget.scale,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ));
+      } else if (i < widget.revealedCards.length &&
+          widget.revealedCards[i].isNotEmpty) {
+        final dx = cos(angle) < 0 ? -40 * widget.scale : 40 * widget.scale;
+        items.add(Positioned(
+          left: offset.dx + dx,
+          top: offset.dy - 18 * widget.scale,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: widget.revealedCards[i].take(2).map((c) {
               final isRed = c.suit == '♥' || c.suit == '♦';
               return Container(
                 margin: EdgeInsets.symmetric(horizontal: 2 * widget.scale),
