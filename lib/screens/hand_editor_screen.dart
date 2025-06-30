@@ -12,6 +12,76 @@ class HandEditorScreen extends StatefulWidget {
 
 class _HandEditorScreenState extends State<HandEditorScreen> {
   final List<CardModel> _heroCards = [];
+  final List<CardModel> _boardCards = [];
+
+  Set<String> get _usedCards => {
+        for (final c in _heroCards) '${c.rank}${c.suit}',
+        for (final c in _boardCards) '${c.rank}${c.suit}',
+      };
+
+  void _setBoardCard(int index, CardModel card) {
+    setState(() {
+      if (_boardCards.length > index) {
+        _boardCards[index] = card;
+      } else if (_boardCards.length == index) {
+        _boardCards.add(card);
+      }
+    });
+  }
+
+  Widget _buildBoardRow() {
+    final cards =
+        List.generate(5, (i) => i < _boardCards.length ? _boardCards[i] : null);
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: cards.map((c) {
+          final isRed = c?.suit == '♥' || c?.suit == '♦';
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: 36,
+            height: 52,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(c == null ? 0.3 : 1),
+              borderRadius: BorderRadius.circular(6),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.25),
+                  blurRadius: 3,
+                  offset: const Offset(1, 2),
+                )
+              ],
+            ),
+            alignment: Alignment.center,
+            child: c != null
+                ? Text(
+                    '${c.rank}${c.suit}',
+                    style: TextStyle(
+                      color: isRed ? Colors.red : Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  )
+                : const Icon(Icons.add, color: Colors.grey),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildStreetPicker(int start, int count) {
+    final end = (_boardCards.length - start).clamp(0, count);
+    final cards = end > 0
+        ? _boardCards.sublist(start, start + end)
+        : <CardModel>[];
+    return CardPickerWidget(
+      cards: cards,
+      count: count,
+      onChanged: (i, c) => _setBoardCard(start + i, c),
+      disabledCards: _usedCards,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +123,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                 heroCards: _heroCards,
               ),
             ),
+            _buildBoardRow(),
             Expanded(
               child: TabBarView(
                 children: [
@@ -71,13 +142,23 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
                               }
                             });
                           },
+                          disabledCards: _usedCards,
                         ),
                       ],
                     ),
                   ),
-                  const Center(child: Text('Coming soon')),
-                  const Center(child: Text('Coming soon')),
-                  const Center(child: Text('Coming soon')),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _buildStreetPicker(0, 3),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _buildStreetPicker(3, 1),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _buildStreetPicker(4, 1),
+                  ),
                 ],
               ),
             ),
