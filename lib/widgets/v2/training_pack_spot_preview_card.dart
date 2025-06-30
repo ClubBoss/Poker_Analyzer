@@ -17,8 +17,11 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hero = spot.hand.heroCards;
     final pos = spot.hand.position;
-    final act =
-        spot.hand.streetActions.isNotEmpty ? spot.hand.streetActions.first : null;
+    final pre = spot.hand.actions[0];
+    final first = pre.isEmpty ? null : pre.first.customLabel ?? pre.first.action;
+    final act = first == null
+        ? null
+        : (first.length > 40 ? first.substring(0, 40) : first);
     final legacy = hero.isEmpty && spot.note.trim().isNotEmpty;
     return Card(
       margin: EdgeInsets.zero,
