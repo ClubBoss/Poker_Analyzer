@@ -31,7 +31,12 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
   void _edit(TrainingPackTemplate template) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => TrainingPackTemplateEditorScreen(template: template)),
+      MaterialPageRoute(
+        builder: (_) => TrainingPackTemplateEditorScreen(
+          template: template,
+          templates: _templates,
+        ),
+      ),
     );
     setState(() {});
     TrainingPackStorage.save(_templates);
