@@ -20,7 +20,7 @@ const playerActionColors = {
   PlayerAction.push: Colors.orange,
   PlayerAction.call: Colors.blueAccent,
   PlayerAction.raise: Colors.redAccent,
-  PlayerAction.post: Colors.grey,
+  PlayerAction.post: Colors.brown,
 };
 
 enum TableTheme { green, carbon, blue }

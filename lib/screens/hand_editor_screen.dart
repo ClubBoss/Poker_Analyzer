@@ -50,29 +50,38 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
         case 'post':
           final amt = (a.amount ?? 0).toDouble();
           _stacks[a.playerIndex] -= amt;
-          _bets[a.playerIndex] += amt;
+          _bets[a.playerIndex] = amt;
           _pot += amt;
           _actions[a.playerIndex] = PlayerAction.post;
           break;
         case 'call':
           final amt = (a.amount ?? 0).toDouble();
-          _stacks[a.playerIndex] -= amt;
-          _bets[a.playerIndex] += amt;
-          _pot += amt;
+          final diff = amt - _bets[a.playerIndex];
+          if (diff > 0) {
+            _stacks[a.playerIndex] -= diff;
+            _pot += diff;
+          }
+          _bets[a.playerIndex] = amt;
           _actions[a.playerIndex] = PlayerAction.call;
           break;
         case 'raise':
           final amt = (a.amount ?? 0).toDouble();
-          _stacks[a.playerIndex] -= amt;
-          _bets[a.playerIndex] += amt;
-          _pot += amt;
+          final diff = amt - _bets[a.playerIndex];
+          if (diff > 0) {
+            _stacks[a.playerIndex] -= diff;
+            _pot += diff;
+          }
+          _bets[a.playerIndex] = amt;
           _actions[a.playerIndex] = PlayerAction.raise;
           break;
         case 'push':
           final amt = (a.amount ?? 0).toDouble();
-          _stacks[a.playerIndex] -= amt;
-          _bets[a.playerIndex] += amt;
-          _pot += amt;
+          final diff = amt - _bets[a.playerIndex];
+          if (diff > 0) {
+            _stacks[a.playerIndex] -= diff;
+            _pot += diff;
+          }
+          _bets[a.playerIndex] = amt;
           _actions[a.playerIndex] = PlayerAction.push;
           break;
       }
