@@ -419,6 +419,17 @@ class _ActionListWidgetState extends State<ActionListWidget> {
             );
           },
         ),
+        if (_actions.isNotEmpty)
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4, right: 8),
+              child: Text(
+                'Total pot: ${_actions.last.potAfter.toStringAsFixed(1)} BB',
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ),
+          ),
         Row(
           children: [
             TextButton(
