@@ -1124,6 +1124,20 @@ class _TrainingPackTemplateListScreenState
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            IconButton(
+                              icon: const Icon(Icons.play_arrow),
+                              tooltip: 'Start training',
+                              onPressed: () async {
+                                await context
+                                    .read<TrainingSessionService>()
+                                    .startSession(t, persist: false);
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const TrainingSessionScreen()),
+                                );
+                              },
+                            ),
                             PopupMenuButton<String>(
                               onSelected: (v) {
                                 if (v == 'rename') _rename(t);
@@ -1140,10 +1154,16 @@ class _TrainingPackTemplateListScreenState
                                 ),
                               ],
                             ),
-                            TextButton(
-                              onPressed: () => _edit(t),
-                              child: const Text('📝 Edit'),
-                            ),
+                            if (narrow)
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _edit(t),
+                              )
+                            else
+                              TextButton(
+                                onPressed: () => _edit(t),
+                                child: const Text('📝 Edit'),
+                              ),
                             IconButton(
                               icon: const Icon(Icons.copy),
                               onPressed: () => _duplicate(t),
