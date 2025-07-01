@@ -1407,6 +1407,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final countCtr = TextEditingController(text: widget.template.spotCount.toString());
     double bbCall = widget.template.bbCallPct.toDouble();
     final anteCtr = TextEditingController(text: widget.template.anteBb.toString());
+    String rangeStr = widget.template.heroRange?.join(' ') ?? '';
+    String rangeMode = 'simple';
+    final rangeCtr = TextEditingController(text: rangeStr);
+    bool rangeErr = false;
     final formKey = GlobalKey<FormState>();
     final ok = await showModalBottomSheet<bool>(
       context: context,
@@ -1480,6 +1484,64 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 keyboardType: TextInputType.number,
                 validator: (v) => (int.tryParse(v ?? '') ?? -1) < 0 ? '' : null,
               ),
+              Row(
+                children: [
+                  DropdownButton<String>(
+                    value: rangeMode,
+                    items: const [
+                      DropdownMenuItem(value: 'simple', child: Text('Simple')),
+                      DropdownMenuItem(value: 'matrix', child: Text('Matrix')),
+                    ],
+                    onChanged: (v) => set(() => rangeMode = v ?? 'simple'),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: rangeMode == 'simple'
+                        ? TextFormField(
+                            controller: rangeCtr,
+                            decoration: InputDecoration(
+                              labelText: 'Hero Range',
+                              errorText: rangeErr ? '' : null,
+                            ),
+                            onChanged: (v) => set(() {
+                              rangeStr = v;
+                              rangeErr = v.trim().isNotEmpty &&
+                                  PackGeneratorService.parseRangeString(v).isEmpty;
+                            }),
+                          )
+                        : GestureDetector(
+                            onTap: () async {
+                              final init = PackGeneratorService
+                                  .parseRangeString(rangeStr)
+                                  .toSet();
+                              final res = await Navigator.push<Set<String>>(
+                                context,
+                                MaterialPageRoute(
+                                  fullscreenDialog: true,
+                                  builder: (_) => _MatrixPickerPage(initial: init),
+                                ),
+                              );
+                              if (res != null) set(() {
+                                rangeStr = PackGeneratorService.serializeRange(res);
+                                rangeCtr.text = rangeStr;
+                                rangeErr = rangeStr.trim().isNotEmpty &&
+                                    PackGeneratorService.parseRangeString(rangeStr).isEmpty;
+                              });
+                            },
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: 'Hero Range',
+                                errorText: rangeErr ? '' : null,
+                              ),
+                              child: Text(
+                                rangeStr.isEmpty ? 'All hands' : rangeStr,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
             ];
             final content = narrow
                 ? Column(mainAxisSize: MainAxisSize.min, children: fields)
@@ -1490,12 +1552,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   );
             return Form(
               key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  content,
-                  const SizedBox(height: 16),
-                  Row(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    content,
+                    const SizedBox(height: 16),
+                    Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
@@ -1516,7 +1579,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       ),
                     ],
                   ),
-                ],
+                  ],
+                ),
               ),
             );
           },
@@ -1533,6 +1597,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (list.isEmpty) list.add(hero);
       final count = int.parse(countCtr.text.trim());
       final ante = int.parse(anteCtr.text.trim());
+      final parsedSet = PackGeneratorService.parseRangeString(rangeStr);
       setState(() {
         widget.template.heroBbStack = hero;
         widget.template.playerStacksBb = list;
@@ -1540,6 +1605,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.spotCount = count;
         widget.template.bbCallPct = bbCall.round();
         widget.template.anteBb = ante;
+        widget.template.heroRange =
+            parsedSet.isEmpty ? null : parsedSet.toList();
       });
       await TrainingPackStorage.save(widget.templates);
       if (mounted) {
@@ -1551,6 +1618,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     stacksCtr.dispose();
     countCtr.dispose();
     anteCtr.dispose();
+    rangeCtr.dispose();
   }
 
   @override
@@ -2449,6 +2517,47 @@ class _RangeLegend extends StatelessWidget {
         const SizedBox(width: 12),
         _item(Colors.blue, 'Offsuit'),
       ],
+    );
+  }
+}
+
+class _MatrixPickerPage extends StatefulWidget {
+  final Set<String> initial;
+  const _MatrixPickerPage({required this.initial});
+
+  @override
+  State<_MatrixPickerPage> createState() => _MatrixPickerPageState();
+}
+
+class _MatrixPickerPageState extends State<_MatrixPickerPage> {
+  late Set<String> _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = Set.from(widget.initial);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Hero Range'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, _selected),
+            child: const Text('OK'),
+          )
+        ],
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: RangeMatrixPicker(
+            selected: _selected,
+            onChanged: (v) => setState(() => _selected = v),
+          ),
+        ),
+      ),
     );
   }
 }
