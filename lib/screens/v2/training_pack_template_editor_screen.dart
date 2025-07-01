@@ -291,6 +291,45 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _bulkMove() => _bulkTransfer(true);
   Future<void> _bulkCopy() => _bulkTransfer(false);
 
+  Future<void> _bulkDelete() async {
+    final count = _selectedSpotIds.length;
+    if (count == 0) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Delete $count spots?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+        ],
+      ),
+    );
+    if (ok ?? false) {
+      _lastRemoved = widget.template.spots.where((s) => _selectedSpotIds.contains(s.id)).toList();
+      setState(() {
+        widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
+        _selectedSpotIds.clear();
+        if (_autoSortEv) _sortSpots();
+      });
+      TrainingPackStorage.save(widget.templates);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Removed ${_lastRemoved!.length} spot(s)'),
+          action: SnackBarAction(
+            label: 'UNDO',
+            onPressed: () {
+              setState(() {
+                widget.template.spots.addAll(_lastRemoved!);
+                if (_autoSortEv) _sortSpots();
+              });
+              TrainingPackStorage.save(widget.templates);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
   void _selectAll() {
     setState(() {
       _selectedSpotIds
@@ -450,6 +489,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 child: Center(child: Text('Move to Tag')),
               ),
             ),
+          if (_isMultiSelect)
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              tooltip: 'Delete Selected',
+              onPressed: _bulkDelete,
+            ),
           PopupMenuButton<SortBy>(
             icon: const Icon(Icons.sort),
             onSelected: (v) async {
@@ -541,45 +586,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   TextButton.icon(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     label: const Text('Delete'),
-                    onPressed: () async {
-                      final ok = await showDialog<bool>(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          title: Text('Delete ${_selectedSpotIds.length} spots?'),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
-                          ],
-                        ),
-                      );
-                      if (ok ?? false) {
-                        _lastRemoved = widget.template.spots
-                            .where((s) => _selectedSpotIds.contains(s.id))
-                            .toList();
-                        setState(() {
-                          widget.template.spots
-                              .removeWhere((s) => _selectedSpotIds.contains(s.id));
-                          _selectedSpotIds.clear();
-                          if (_autoSortEv) _sortSpots();
-                        });
-                        TrainingPackStorage.save(widget.templates);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Removed ${_lastRemoved!.length} spot(s)'),
-                            action: SnackBarAction(
-                              label: 'UNDO',
-                              onPressed: () {
-                                setState(() {
-                                  widget.template.spots.addAll(_lastRemoved!);
-                                  if (_autoSortEv) _sortSpots();
-                                });
-                                TrainingPackStorage.save(widget.templates);
-                              },
-                            ),
-                          ),
-                        );
-                      }
-                    },
+                    onPressed: _bulkDelete,
                   ),
                 ],
               ),
