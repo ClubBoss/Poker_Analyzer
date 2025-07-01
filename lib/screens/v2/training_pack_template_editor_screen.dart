@@ -170,6 +170,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     TrainingPackStorage.save(widget.templates);
   }
 
+  Future<void> _generateSpots() async {
+    _recordSnapshot();
+    final spots = await widget.template.generateSpots();
+    setState(() {
+      widget.template.spots.addAll(spots);
+      if (_autoSortEv) _sortSpots();
+    });
+    TrainingPackStorage.save(widget.templates);
+  }
+
   Future<void> _pasteSpot() async {
     final c = TextEditingController();
     final input = await showDialog<String>(
@@ -1636,6 +1646,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   tooltip: 'Generate Spot',
                   onPressed: _generateSpot,
                   child: const Icon(Icons.auto_fix_high),
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: 'generateSpotsFab',
+                  icon: const Icon(Icons.auto_fix_high),
+                  label: const Text('Generate Spots'),
+                  onPressed: _generateSpots,
                 ),
                 const SizedBox(height: 12),
                 FloatingActionButton.extended(
