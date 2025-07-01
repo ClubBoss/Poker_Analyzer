@@ -231,17 +231,40 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _import() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['json'],
+      allowedExtensions: ['json', 'zip'],
     );
     if (result == null || result.files.isEmpty) return;
-    Uint8List? data = result.files.single.bytes;
-    final path = result.files.single.path;
+    final file = result.files.single;
+    Uint8List? data = file.bytes;
+    final path = file.path;
     if (data == null && path != null) data = await File(path).readAsBytes();
     if (data == null) return;
     try {
-      final json = jsonDecode(utf8.decode(data));
-      if (json is! Map<String, dynamic>) throw const FormatException();
-      final tpl = TrainingPackTemplate.fromJson(json);
+      TrainingPackTemplate tpl;
+      if (file.extension?.toLowerCase() == 'zip') {
+        final tmp = await getTemporaryDirectory();
+        final dir = Directory('${tmp.path}/tpl_import_${DateTime.now().microsecondsSinceEpoch}');
+        if (await dir.exists()) await dir.delete(recursive: true);
+        await dir.create();
+        final archive = ZipDecoder().decodeBytes(data);
+        for (final f in archive.files) {
+          if (f.isFile && !f.name.endsWith('.png')) {
+            final out = File('${dir.path}/${f.name}');
+            await out.create(recursive: true);
+            await out.writeAsBytes(f.content as List<int>);
+          }
+        }
+        final tplFile = File('${dir.path}/template.json');
+        final jsonStr = await tplFile.readAsString();
+        final json = jsonDecode(jsonStr);
+        if (json is! Map<String, dynamic>) throw const FormatException();
+        tpl = TrainingPackTemplate.fromJson(json);
+        await dir.delete(recursive: true);
+      } else {
+        final json = jsonDecode(utf8.decode(data));
+        if (json is! Map<String, dynamic>) throw const FormatException();
+        tpl = TrainingPackTemplate.fromJson(json);
+      }
       setState(() {
         widget.template.spots
           ..clear()
