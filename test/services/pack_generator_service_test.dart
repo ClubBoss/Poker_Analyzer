@@ -42,6 +42,7 @@ void main() {
       expect(s.hand.heroCards.isNotEmpty, isTrue);
       expect(s.hand.actions[0]?.first.action, 'push');
       expect(s.hand.actions[0]?.length, 2);
+      expect(s.tags.contains('pushfold'), isTrue);
     }
   });
 
