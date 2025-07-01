@@ -188,7 +188,11 @@ class _TrainingPackTemplateListScreenState
     );
     if (ok == true) {
       final range = PackGeneratorService.parseRangeString(ctrl.text).toList();
-      if (range.isNotEmpty) {
+      if (range.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No valid hands found.')),
+        );
+      } else {
         final template = await PackGeneratorService.generatePushFoldPack(
           id: const Uuid().v4(),
           name: 'Pasted Range',
