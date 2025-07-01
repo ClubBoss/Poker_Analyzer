@@ -259,6 +259,13 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                     max: 100,
                     onChanged: (v) => setState(() => bbCall = v),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      'In SB vs BB, hands from top ${bbCall.round()}% will call instead of fold. This does not affect EV.',
+                      style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.white54),
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerLeft,
