@@ -86,6 +86,24 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
+                      if (spot.hand.playerCount > 2)
+                        Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '${spot.hand.playerCount}-handed',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       if (heroEv != null) ...[
                         const SizedBox(width: 8),
                         Column(
@@ -93,7 +111,8 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                           children: [
                             Container(
                               key: const ValueKey('evBadge'),
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: badgeColor,
                                 borderRadius: BorderRadius.circular(8),
@@ -111,7 +130,8 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                               const SizedBox(height: 4),
                               Container(
                                 key: const ValueKey('icmBadge'),
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: Colors.purple,
                                   borderRadius: BorderRadius.circular(8),
@@ -143,8 +163,11 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
-                        heroLabel.length > 40 ? heroLabel.substring(0, 40) : heroLabel,
-                        style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                        heroLabel.length > 40
+                            ? heroLabel.substring(0, 40)
+                            : heroLabel,
+                        style: const TextStyle(
+                            fontSize: 14, fontStyle: FontStyle.italic),
                       ),
                     ),
                   if (board.isNotEmpty)
@@ -165,7 +188,9 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: heroEv >= 0 ? Colors.greenAccent : Colors.redAccent,
+                          color: heroEv >= 0
+                              ? Colors.greenAccent
+                              : Colors.redAccent,
                         ),
                       ),
                     ),
@@ -177,8 +202,10 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                         children: [
                           for (final tag in spot.tags)
                             InputChip(
-                              label: Text(tag, style: const TextStyle(fontSize: 12)),
-                              onPressed: () => onTagTap?.call(tag.toLowerCase()),
+                              label: Text(tag,
+                                  style: const TextStyle(fontSize: 12)),
+                              onPressed: () =>
+                                  onTagTap?.call(tag.toLowerCase()),
                             ),
                         ],
                       ),
@@ -190,23 +217,26 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Text('🕹️ $actionCount',
-                              style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.white70)),
                           if (spot.note.trim().isNotEmpty) ...[
                             const SizedBox(width: 8),
                             const Text('📝',
-                                style: TextStyle(fontSize: 12, color: Colors.white70)),
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.white70)),
                           ]
                         ],
                       ),
                     ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+                    children: [
                       TextButton(
                         onPressed: () async {
                           await Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => HandEditorScreen(spot: spot)),
+                            MaterialPageRoute(
+                                builder: (_) => HandEditorScreen(spot: spot)),
                           );
                           onHandEdited?.call();
                         },
