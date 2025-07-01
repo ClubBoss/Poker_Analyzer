@@ -146,6 +146,7 @@ class PackGeneratorService {
             stacks: stacks,
             actions: actions,
           ),
+          tags: const ['pushfold'],
         ),
       );
     }
