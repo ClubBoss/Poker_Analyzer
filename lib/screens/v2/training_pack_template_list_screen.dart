@@ -162,6 +162,49 @@ class _TrainingPackTemplateListScreenState
     _edit(template);
   }
 
+  Future<void> _pasteRange() async {
+    final ctrl = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Paste Range'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Hands'),
+          maxLines: null,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Generate'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) {
+      final range = PackGeneratorService.parseRangeString(ctrl.text).toList();
+      if (range.isNotEmpty) {
+        final template = await PackGeneratorService.generatePushFoldPack(
+          id: const Uuid().v4(),
+          name: 'Pasted Range',
+          heroBbStack: 10,
+          playerStacksBb: const [10, 10],
+          heroPos: HeroPosition.sb,
+          heroRange: range,
+        );
+        setState(() => _templates.add(template));
+        TrainingPackStorage.save(_templates);
+        _edit(template);
+      }
+    }
+    ctrl.dispose();
+  }
+
   Future<void> _generate() async {
     final nameCtrl = TextEditingController();
     final heroStackCtrl = TextEditingController(text: '10');
@@ -822,6 +865,13 @@ class _TrainingPackTemplateListScreenState
             heroTag: 'quickGenTplFab',
             onPressed: _quickGenerate,
             label: const Text('Quick Generate'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'pasteRangeTplFab',
+            onPressed: _pasteRange,
+            icon: const Icon(Icons.content_paste),
+            label: const Text('Paste Range'),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
