@@ -31,6 +31,7 @@ import '../../helpers/training_pack_validator.dart';
 import '../../widgets/common/ev_distribution_chart.dart';
 import '../../theme/app_colors.dart';
 import '../../services/room_hand_history_importer.dart';
+import '../../services/push_fold_ev_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -705,6 +706,51 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  int _rankVal(String r) {
+    const order = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
+    return order.indexOf(r);
+  }
+
+  String? _handCode(String cards) {
+    final parts = cards.split(RegExp(r'\s+'));
+    if (parts.length < 2) return null;
+    final r1 = parts[0][0].toUpperCase();
+    final s1 = parts[0].substring(1);
+    final r2 = parts[1][0].toUpperCase();
+    final s2 = parts[1].substring(1);
+    if (r1 == r2) return '$r1$r2';
+    final firstHigh = _rankVal(r1) >= _rankVal(r2);
+    final high = firstHigh ? r1 : r2;
+    final low = firstHigh ? r2 : r1;
+    final suited = s1 == s2;
+    return '$high$low${suited ? 's' : 'o'}';
+  }
+
+  void _regenerateEv() {
+    _recordSnapshot();
+    setState(() {
+      for (final spot in widget.template.spots) {
+        final hero = spot.hand.heroIndex;
+        final hand = _handCode(spot.hand.heroCards);
+        final stack = spot.hand.stacks['$hero']?.round();
+        if (hand == null || stack == null) continue;
+        final acts = spot.hand.actions[0] ?? [];
+        for (final a in acts) {
+          if (a.playerIndex == hero && a.action == 'push') {
+            a.ev = computePushEV(
+              heroBbStack: stack,
+              bbCount: spot.hand.playerCount - 1,
+              heroHand: hand,
+              anteBb: 0,
+            );
+            break;
+          }
+        }
+      }
+    });
+    TrainingPackStorage.save(widget.templates);
+  }
+
   Future<void> _bulkAddTag() async {
     final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
@@ -1314,6 +1360,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (v) {
+              if (v == 'regenEv') _regenerateEv();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'regenEv', child: Text('Regenerate EV')),
+            ],
+          ),
           IconButton(
             onPressed: () async {
               await context
