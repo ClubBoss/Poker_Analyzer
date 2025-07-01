@@ -280,6 +280,41 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  void _showSummary() {
+    final spots = widget.template.spots;
+    final total = spots.length;
+    final tags = spots.expand((s) => s.tags).toList();
+    final uniqueTags = tags.toSet();
+    final counts = <String, int>{};
+    for (final t in tags) {
+      counts[t] = (counts[t] ?? 0) + 1;
+    }
+    final entries = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Summary'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Spots: $total'),
+            Text('Tags: ${uniqueTags.length}'),
+            const SizedBox(height: 8),
+            for (final e in entries) Text('${e.key}: ${e.value}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _bulkAddTag() async {
     final c = TextEditingController();
     final tag = await showDialog<String>(
@@ -673,6 +708,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Icon(Icons.archive), onPressed: _exportBundle),
+          IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(
             onPressed: () async {
               await context
