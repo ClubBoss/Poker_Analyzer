@@ -23,6 +23,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
   TrainingPackTemplate? _lastRemoved;
   int _lastIndex = 0;
   GameType? _selectedType;
+  String? _selectedTag;
 
   @override
   void initState() {
@@ -189,9 +190,13 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _selectedType == null
+    final tags = <String>{for (final t in _templates) ...t.tags};
+    final byType = _selectedType == null
         ? _templates
         : [for (final t in _templates) if (t.gameType == _selectedType) t];
+    final filtered = _selectedTag == null
+        ? byType
+        : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
     final shown = _query.isEmpty
         ? filtered
         : [
@@ -243,28 +248,40 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Wrap(
+                    spacing: 8,
+                    alignment: WrapAlignment.center,
                     children: [
                       ChoiceChip(
                         label: const Text('All'),
                         selected: _selectedType == null,
                         onSelected: (_) => setState(() => _selectedType = null),
                       ),
-                      const SizedBox(width: 8),
                       ChoiceChip(
                         label: const Text('Tournament'),
                         selected: _selectedType == GameType.tournament,
                         onSelected: (_) =>
                             setState(() => _selectedType = GameType.tournament),
                       ),
-                      const SizedBox(width: 8),
                       ChoiceChip(
                         label: const Text('Cash'),
                         selected: _selectedType == GameType.cash,
                         onSelected: (_) =>
                             setState(() => _selectedType = GameType.cash),
                       ),
+                      if (tags.isNotEmpty) ...[
+                        ChoiceChip(
+                          label: const Text('All Tags'),
+                          selected: _selectedTag == null,
+                          onSelected: (_) => setState(() => _selectedTag = null),
+                        ),
+                        for (final tag in tags)
+                          ChoiceChip(
+                            label: Text(tag),
+                            selected: _selectedTag == tag,
+                            onSelected: (_) => setState(() => _selectedTag = tag),
+                          ),
+                      ],
                     ],
                   ),
                 ),
