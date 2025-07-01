@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
+import '../../helpers/title_utils.dart';
 import '../../models/v2/hand_data.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
@@ -47,7 +48,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   String? _highlightId;
 
   void _addSpot() async {
-    final spot = TrainingPackSpot(id: const Uuid().v4(), title: 'New spot');
+    final spot = TrainingPackSpot(
+      id: const Uuid().v4(),
+      title: normalizeSpotTitle('New spot'),
+    );
     setState(() => widget.template.spots.add(spot));
     TrainingPackStorage.save(widget.templates);
     await Navigator.push(

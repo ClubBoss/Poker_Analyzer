@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
+import '../../helpers/title_utils.dart';
 
 class TrainingPackSpotEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
@@ -36,6 +37,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
   @override
   void initState() {
     super.initState();
+    widget.spot.title = normalizeSpotTitle(widget.spot.title);
     _titleCtr = TextEditingController(text: widget.spot.title);
     _noteCtr = TextEditingController(text: widget.spot.note);
   }
@@ -48,7 +50,10 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
   }
 
   Future<void> _save() async {
-    if (widget.spot.title.trim().isEmpty) {
+    final normalized = normalizeSpotTitle(_titleCtr.text);
+    widget.spot.title = normalized;
+    _titleCtr.text = normalized;
+    if (widget.spot.title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title is required')));
       return;
     }
