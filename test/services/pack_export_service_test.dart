@@ -29,7 +29,7 @@ void main() {
     final file = await PackExportService.exportToCsv(tpl);
     final lines = await file.readAsLines();
     expect(lines.length, 4);
-    expect(lines.first.split(',').length, 7);
+    expect(lines.first.split(',').length, 10);
     await dir.delete(recursive: true);
   });
 }
