@@ -4,6 +4,7 @@ import '../../helpers/training_pack_storage.dart';
 import '../../helpers/title_utils.dart';
 import '../../models/card_model.dart';
 import '../../widgets/card_picker_widget.dart';
+import '../../models/evaluation_result.dart';
 
 class TrainingPackSpotEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
@@ -59,6 +60,47 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
           disabledCards: _usedCards(),
         ),
       ],
+    );
+  }
+
+  Widget _evPreviewBox() {
+    final EvaluationResult? res = widget.spot.evalResult;
+    final bg = Colors.grey.shade800;
+    if (res == null) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: const [
+            Text('EV Preview',
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white70)),
+            Spacer(),
+            Text('Not evaluated', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+    final ev = (res.expectedEquity * 100).toStringAsFixed(1);
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Text('EV Preview',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white70)),
+          const Spacer(),
+          Text('$ev%', style: const TextStyle(color: Colors.greenAccent)),
+          const SizedBox(width: 8),
+          Text(res.expectedAction,
+              style: const TextStyle(color: Colors.white)),
+        ],
+      ),
     );
   }
 
@@ -162,6 +204,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
             _streetPicker('Turn', 3, 1),
             const SizedBox(height: 16),
             _streetPicker('River', 4, 1),
+            const SizedBox(height: 16),
+            _evPreviewBox(),
           ],
         ),
       ),
