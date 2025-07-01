@@ -14,6 +14,8 @@ import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../services/pack_generator_service.dart';
 import '../../services/training_spot_storage_service.dart';
+import '../../services/saved_hand_manager_service.dart';
+import '../../models/saved_hand.dart';
 import 'package:provider/provider.dart';
 import 'training_pack_template_editor_screen.dart';
 import '../../widgets/range_matrix_picker.dart';
@@ -265,6 +267,46 @@ class _TrainingPackTemplateListScreenState
     return '$high$low${suited ? 's' : 'o'}';
   }
 
+  HeroPosition _posFromString(String s) {
+    final p = s.toUpperCase();
+    if (p.startsWith('SB')) return HeroPosition.sb;
+    if (p.startsWith('BB')) return HeroPosition.bb;
+    if (p.startsWith('BTN')) return HeroPosition.btn;
+    if (p.startsWith('CO')) return HeroPosition.co;
+    if (p.startsWith('MP') || p.startsWith('HJ')) return HeroPosition.mp;
+    if (p.startsWith('UTG')) return HeroPosition.utg;
+    return HeroPosition.unknown;
+  }
+
+  TrainingPackSpot _spotFromHand(SavedHand hand) {
+    final heroCards = hand.playerCards[hand.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
+    final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
+    for (final a in actions) {
+      if (a.playerIndex == hand.heroIndex) {
+        a.ev = -(hand.evLoss ?? 0);
+        break;
+      }
+    }
+    final stacks = <String, double>{
+      for (int i = 0; i < hand.numberOfPlayers; i++)
+        '$i': (hand.stackSizes[i] ?? 0).toDouble()
+    };
+    return TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData(
+        heroCards: heroCards,
+        position: _posFromString(hand.heroPosition),
+        heroIndex: hand.heroIndex,
+        playerCount: hand.numberOfPlayers,
+        stacks: stacks,
+        actions: {0: actions},
+      ),
+      tags: List<String>.from(hand.tags),
+    );
+  }
+
   Future<void> _generateFavorites() async {
     final storage = context.read<TrainingSpotStorageService>();
     final spots = await storage.load();
@@ -302,6 +344,34 @@ class _TrainingPackTemplateListScreenState
     });
     TrainingPackStorage.save(_templates);
     _nameAndEdit(template);
+  }
+
+  Future<void> _generateTopMistakes() async {
+    final manager = context.read<SavedHandManagerService>();
+    final hands = manager.hands
+        .where((h) => h.evLoss != null)
+        .toList()
+      ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+    if (hands.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('No history')));
+      }
+      return;
+    }
+    final spots = [for (final h in hands.take(10)) _spotFromHand(h)];
+    final template = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Top Mistakes',
+      createdAt: DateTime.now(),
+      spots: spots,
+    );
+    setState(() {
+      _templates.add(template);
+      _sortTemplates();
+    });
+    TrainingPackStorage.save(_templates);
+    _edit(template);
   }
 
   Future<void> _pasteRange() async {
@@ -1056,6 +1126,12 @@ class _TrainingPackTemplateListScreenState
             onPressed: _generateFavorites,
             icon: const Icon(Icons.star),
             label: const Text('Favorites Pack'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'topMistakesTplFab',
+            onPressed: _generateTopMistakes,
+            label: const Text('Top 10 Mistakes'),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
