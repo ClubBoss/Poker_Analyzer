@@ -8,6 +8,7 @@ class TrainingPackTemplate {
   String description;
   GameType gameType;
   List<TrainingPackSpot> spots;
+  List<String> tags;
 
   TrainingPackTemplate({
     required this.id,
@@ -15,7 +16,9 @@ class TrainingPackTemplate {
     this.description = '',
     this.gameType = GameType.tournament,
     List<TrainingPackSpot>? spots,
-  }) : spots = spots ?? [];
+    List<String>? tags,
+  })  : spots = spots ?? [],
+        tags = tags ?? [];
 
   TrainingPackTemplate copyWith({
     String? id,
@@ -23,6 +26,7 @@ class TrainingPackTemplate {
     String? description,
     GameType? gameType,
     List<TrainingPackSpot>? spots,
+    List<String>? tags,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -30,6 +34,7 @@ class TrainingPackTemplate {
       description: description ?? this.description,
       gameType: gameType ?? this.gameType,
       spots: spots ?? List<TrainingPackSpot>.from(this.spots),
+      tags: tags ?? List<String>.from(this.tags),
     );
   }
 
@@ -43,6 +48,7 @@ class TrainingPackTemplate {
         for (final s in (json['spots'] as List? ?? []))
           TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
       ],
+      tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
     );
   }
 
@@ -52,5 +58,6 @@ class TrainingPackTemplate {
         'description': description,
         'gameType': gameType.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
+        if (tags.isNotEmpty) 'tags': tags,
       };
 }
