@@ -1,0 +1,83 @@
+import 'package:csv/csv.dart';
+import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/v2/hand_data.dart';
+import '../models/v2/hero_position.dart';
+import '../models/action_entry.dart';
+
+class PackImportService {
+  static TrainingPackTemplate importFromCsv({
+    required String csv,
+    required String templateId,
+    required String templateName,
+  }) {
+    final rows = const CsvToListConverter().convert(csv.trim());
+    if (rows.isEmpty) throw const FormatException();
+    final header = [for (final h in rows.first) h.toString().trim()];
+    final Map<String, int> idx = {};
+    for (var i = 0; i < header.length; i++) {
+      idx[header[i]] = i;
+    }
+    if (!idx.containsKey('Title') || !idx.containsKey('HeroHand')) {
+      throw const FormatException();
+    }
+    final spots = <TrainingPackSpot>[];
+    for (var r = 1; r < rows.length; r++) {
+      final row = rows[r];
+      final title = _cell(row, idx['Title']!);
+      final hand = _cell(row, idx['HeroHand']!);
+      if (title.isEmpty || hand.isEmpty) continue;
+      final pos = _parsePos(_cell(row, idx['HeroPosition']));
+      final stack = _parseDouble(_cell(row, idx['StackBB'])) ?? 0;
+      final ev = _parseDouble(_cell(row, idx['EV_BB']));
+      final icmEv = _parseDouble(_cell(row, idx['ICM_EV']));
+      final tags = _parseTags(_cell(row, idx['Tags']));
+      final actions = {0: [ActionEntry(0, 0, 'note', ev: ev, icmEv: icmEv)]};
+      final stacks = {'0': stack, '1': stack};
+      spots.add(
+        TrainingPackSpot(
+          id: '${templateId}_${spots.length + 1}',
+          title: title,
+          hand: HandData(
+            heroCards: hand,
+            position: pos,
+            heroIndex: 0,
+            playerCount: 2,
+            stacks: stacks,
+            actions: actions,
+          ),
+          tags: tags,
+        ),
+      );
+    }
+    return TrainingPackTemplate(id: templateId, name: templateName, spots: spots);
+  }
+
+  static String _cell(List row, int? i) {
+    if (i == null || i >= row.length) return '';
+    return row[i].toString().trim();
+  }
+
+  static HeroPosition _parsePos(String v) {
+    for (final p in HeroPosition.values) {
+      if (v.toLowerCase() == p.name || v.toUpperCase() == p.label.toUpperCase()) {
+        return p;
+      }
+    }
+    return HeroPosition.unknown;
+  }
+
+  static double? _parseDouble(String v) {
+    if (v.isEmpty) return null;
+    return double.tryParse(v.replaceAll(',', '.'));
+  }
+
+  static List<String> _parseTags(String v) {
+    final list = v.split(RegExp(r'[|;]'));
+    return [
+      for (final t in list)
+        if (t.trim().isNotEmpty) t.trim(),
+      'imported'
+    ];
+  }
+}
