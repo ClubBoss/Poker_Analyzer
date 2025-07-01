@@ -5,6 +5,7 @@ import '../models/v2/hero_position.dart';
 import '../models/action_entry.dart';
 import '../models/game_type.dart';
 import 'push_fold_ev_service.dart';
+import 'icm_push_ev_service.dart';
 
 class PackGeneratorService {
   static const _ranks = [
@@ -200,6 +201,19 @@ class PackGeneratorService {
       final stacksMap = {
         for (var j = 0; j < stacks.length; j++) '$j': stacks[j].toDouble()
       };
+      final chipEv = computePushEV(
+        heroBbStack: stacks[heroIndex],
+        bbCount: stacks.length - 1,
+        heroHand: range[i],
+        anteBb: 0,
+      );
+      actions[0]![0].ev = chipEv;
+      actions[0]![0].icmEv = computeIcmPushEV(
+        chipStacksBb: stacks,
+        heroIndex: heroIndex,
+        heroHand: range[i],
+        chipPushEv: chipEv,
+      );
       spots.add(
         TrainingPackSpot(
           id: 'finaltable_${i + 1}',

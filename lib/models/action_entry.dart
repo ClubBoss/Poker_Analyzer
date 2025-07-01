@@ -29,6 +29,8 @@ class ActionEntry {
 
   double? ev;
 
+  double? icmEv;
+
   /// Время, когда было совершено действие
   final DateTime timestamp;
 
@@ -44,7 +46,8 @@ class ActionEntry {
       this.potAfter = 0,
       this.potOdds,
       this.equity,
-      this.ev})
+      this.ev,
+      this.icmEv})
       : timestamp = timestamp ?? DateTime.now();
 
   factory ActionEntry.fromJson(Map<String, dynamic> j) => ActionEntry(
@@ -61,6 +64,7 @@ class ActionEntry {
         potOdds: (j['potOdds'] as num?)?.toDouble(),
         equity: (j['equity'] as num?)?.toDouble(),
         ev: (j['ev'] as num?)?.toDouble(),
+        icmEv: (j['icmEv'] as num?)?.toDouble(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -76,5 +80,6 @@ class ActionEntry {
         if (potOdds != null) 'potOdds': potOdds,
         if (equity != null) 'equity': equity,
         if (ev != null) 'ev': ev,
+        if (icmEv != null) 'icmEv': icmEv,
       };
 }
