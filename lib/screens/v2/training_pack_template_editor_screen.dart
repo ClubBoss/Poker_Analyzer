@@ -919,6 +919,76 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {});
   }
 
+  Future<void> _manageTags() async {
+    final tags = <String>{
+      ...widget.template.tags,
+      ...widget.template.spots.expand((s) => s.tags),
+    }.toList()
+      ..sort((a, b) => a.compareTo(b));
+    await showDialog(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setStateDialog) {
+          void rename(String oldTag, String newTag) {
+            if (newTag.isEmpty || oldTag == newTag) return;
+            setState(() {
+              for (final s in widget.template.spots) {
+                for (var i = 0; i < s.tags.length; i++) {
+                  if (s.tags[i] == oldTag) s.tags[i] = newTag;
+                }
+                s.tags = s.tags.toSet().toList();
+              }
+              widget.template.tags.removeWhere((t) => t == oldTag);
+              if (!widget.template.tags.contains(newTag)) {
+                widget.template.tags.add(newTag);
+              }
+            });
+            TrainingPackStorage.save(widget.templates);
+            setStateDialog(() {
+              final i = tags.indexOf(oldTag);
+              if (i != -1) tags[i] = newTag;
+            });
+          }
+
+          void remove(String tag) {
+            setState(() {
+              widget.template.tags.removeWhere((t) => t == tag);
+              for (final s in widget.template.spots) {
+                s.tags.removeWhere((t) => t == tag);
+              }
+            });
+            TrainingPackStorage.save(widget.templates);
+            setStateDialog(() => tags.remove(tag));
+          }
+
+          return AlertDialog(
+            title: const Text('Manage Tags'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final tag in tags)
+                    _ManageTagTile(
+                      key: ValueKey(tag),
+                      tag: tag,
+                      onRename: (v) => rename(tag, v),
+                      onDelete: () => remove(tag),
+                    ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close')),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   double _spotEv(TrainingPackSpot s) {
     final acts = s.hand.actions[0] ?? [];
     for (final a in acts) {
@@ -1043,6 +1113,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'rename', child: Text('Rename Tag')),
             ],
+          ),
+          IconButton(
+            icon: const Text('🏷️'),
+            tooltip: 'Manage Tags',
+            onPressed: _manageTags,
           ),
           IconButton(
             icon: const Icon(Icons.delete_sweep),
@@ -1629,6 +1704,61 @@ class _TemplatePreviewCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ManageTagTile extends StatefulWidget {
+  final String tag;
+  final ValueChanged<String> onRename;
+  final VoidCallback onDelete;
+  const _ManageTagTile({super.key, required this.tag, required this.onRename, required this.onDelete});
+
+  @override
+  State<_ManageTagTile> createState() => _ManageTagTileState();
+}
+
+class _ManageTagTileState extends State<_ManageTagTile> {
+  late TextEditingController _ctr;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctr = TextEditingController(text: widget.tag);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ManageTagTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tag != widget.tag) _ctr.text = widget.tag;
+  }
+
+  @override
+  void dispose() {
+    _ctr.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const Text('✏️'),
+      title: TextField(
+        controller: _ctr,
+        decoration: const InputDecoration(border: InputBorder.none),
+        onSubmitted: (v) {
+          final t = v.trim();
+          if (t.isEmpty || t == widget.tag) {
+            _ctr.text = widget.tag;
+          } else {
+            widget.onRename(t);
+          }
+        },
+      ),
+      trailing: IconButton(
+        icon: const Text('🗑️'),
+        onPressed: widget.onDelete,
       ),
     );
   }
