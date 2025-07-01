@@ -347,7 +347,7 @@ class _TrainingPackTemplateListScreenState
           nameCtrl.text.trim().isEmpty ? 'New Pack' : nameCtrl.text.trim();
       final hero = int.tryParse(heroStackCtrl.text.trim()) ?? 0;
       final stacks = [
-        for (final s in playerStacksCtrl.text.split(','))
+        for (final s in playerStacksCtrl.text.split(RegExp(r'[,/]+')))
           if (s.trim().isNotEmpty) int.tryParse(s.trim()) ?? hero
       ];
       if (stacks.isEmpty) stacks.add(hero);

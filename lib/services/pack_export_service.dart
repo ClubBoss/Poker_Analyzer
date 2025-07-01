@@ -28,10 +28,14 @@ class PackExportService {
           hand.stacks['$i']?.toString() ?? ''
       ].join('/');
       final pre = hand.actions[0] ?? [];
-      final callsMask = [
-        for (var i = 0; i < hand.playerCount; i++)
-          pre.any((a) => a.playerIndex == i && a.action == 'call') ? '1' : '0'
-      ].join();
+      final callsMask = hand.playerCount == 2
+          ? ''
+          : [
+              for (var i = 0; i < hand.playerCount; i++)
+                pre.any((a) => a.playerIndex == i && a.action == 'call')
+                    ? '1'
+                    : '0'
+            ].join();
       rows.add([
         spot.title,
         hand.position.label,
@@ -59,6 +63,7 @@ class PackExportService {
 
   static String _toSnakeCase(String input) {
     final snake = input
+        .trim()
         .replaceAll(RegExp(r'[^A-Za-z0-9]+'), '_')
         .replaceAll(RegExp('_+'), '_')
         .toLowerCase();

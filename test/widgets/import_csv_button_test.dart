@@ -58,7 +58,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('import csv adds template', (tester) async {
-    const csv = 'Title,HeroPosition,HeroHand,StackBB,EV_BB,ICM_EV,Tags\nA,SB,AA,10,0.1,,\n';
+    const csv =
+        'Title,HeroPosition,HeroHand,StackBB,StacksBB,HeroIndex,CallsMask,EV_BB,ICM_EV,Tags\nA,SB,AA,10,,0,,0.1,,\n';
     final file = PlatformFile(name: 'test.csv', size: csv.length, bytes: Uint8List.fromList(csv.codeUnits));
     FilePicker.platform = _FakeFilePicker(FilePickerResult([file]));
     await tester.pumpWidget(const MaterialApp(home: TrainingPackTemplateListScreen()));
