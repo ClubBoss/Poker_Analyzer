@@ -25,6 +25,7 @@ import '../../services/training_session_service.dart';
 import '../training_session_screen.dart';
 import '../../helpers/training_pack_validator.dart';
 import '../../helpers/training_pack_validator.dart';
+import '../../widgets/common/ev_distribution_chart.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -505,6 +506,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final spots = widget.template.spots;
     final total = spots.length;
     final tags = spots.expand((s) => s.tags).toList();
+    final heroEvs = <double>[];
+    for (final s in spots) {
+      final acts = s.hand.actions[0] ?? [];
+      for (final a in acts) {
+        if (a.playerIndex == s.hand.heroIndex && a.ev != null) {
+          heroEvs.add(a.ev!);
+          break;
+        }
+      }
+    }
     final uniqueTags = tags.toSet();
     final counts = <String, int>{};
     for (final t in tags) {
@@ -516,15 +527,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Summary'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Spots: $total'),
-            Text('Tags: ${uniqueTags.length}'),
-            const SizedBox(height: 8),
-            for (final e in entries) Text('${e.key}: ${e.value}'),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Spots: $total'),
+              Text('Tags: ${uniqueTags.length}'),
+              const SizedBox(height: 8),
+              for (final e in entries) Text('${e.key}: ${e.value}'),
+              if (heroEvs.isNotEmpty) EvDistributionChart(evs: heroEvs),
+            ],
+          ),
         ),
         actions: [
           TextButton(
