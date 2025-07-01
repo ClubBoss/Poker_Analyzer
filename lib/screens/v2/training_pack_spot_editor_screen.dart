@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../helpers/title_utils.dart';
+import '../../models/card_model.dart';
+import '../../widgets/card_picker_widget.dart';
 
 class TrainingPackSpotEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
@@ -14,6 +16,51 @@ class TrainingPackSpotEditorScreen extends StatefulWidget {
 class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScreen> {
   late final TextEditingController _titleCtr;
   late final TextEditingController _noteCtr;
+
+  Set<String> _usedCards() {
+    final hero = widget.spot.hand.heroCards
+        .split(RegExp(r'\s+'))
+        .where((e) => e.isNotEmpty);
+    return {
+      ...hero,
+      ...widget.spot.hand.board,
+    };
+  }
+
+  CardModel _toCard(String s) {
+    return CardModel(rank: s[0], suit: s.substring(1));
+  }
+
+  void _setBoardCard(int index, CardModel card) {
+    final b = widget.spot.hand.board;
+    final v = '${card.rank}${card.suit}';
+    setState(() {
+      if (index < b.length) {
+        b[index] = v;
+      } else if (index == b.length) {
+        b.add(v);
+      }
+    });
+  }
+
+  Widget _streetPicker(String label, int start, int count) {
+    final b = widget.spot.hand.board;
+    final end = (b.length - start).clamp(0, count);
+    final cards = [for (int i = 0; i < end; i++) _toCard(b[start + i])];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        CardPickerWidget(
+          cards: cards,
+          count: count,
+          onChanged: (i, c) => _setBoardCard(start + i, c),
+          disabledCards: _usedCards(),
+        ),
+      ],
+    );
+  }
 
   Future<void> _addTagDialog() async {
     final c = TextEditingController();
@@ -92,23 +139,29 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
               controller: _noteCtr,
               decoration: const InputDecoration(labelText: 'Note'),
               maxLines: 5,
-          onChanged: (v) => setState(() => widget.spot.note = v),
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          children: [
-            for (final tag in widget.spot.tags)
-              InputChip(
-                label: Text(tag),
-                onDeleted: () => setState(() => widget.spot.tags.remove(tag)),
-              ),
-            InputChip(
-              label: const Text('+ Add'),
-              onPressed: _addTagDialog,
+              onChanged: (v) => setState(() => widget.spot.note = v),
             ),
-          ],
-        ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final tag in widget.spot.tags)
+                  InputChip(
+                    label: Text(tag),
+                    onDeleted: () => setState(() => widget.spot.tags.remove(tag)),
+                  ),
+                InputChip(
+                  label: const Text('+ Add'),
+                  onPressed: _addTagDialog,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _streetPicker('Flop', 0, 3),
+            const SizedBox(height: 16),
+            _streetPicker('Turn', 3, 1),
+            const SizedBox(height: 16),
+            _streetPicker('River', 4, 1),
           ],
         ),
       ),
