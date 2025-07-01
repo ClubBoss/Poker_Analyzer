@@ -553,6 +553,32 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _bulkMove() => _bulkTransfer(true);
   Future<void> _bulkCopy() => _bulkTransfer(false);
 
+  void _newPackFromSelection() {
+    final spots = [
+      for (final s in widget.template.spots)
+        if (_selectedSpotIds.contains(s.id))
+          s.copyWith(
+            id: const Uuid().v4(),
+            editedAt: DateTime.now(),
+            hand: HandData.fromJson(s.hand.toJson()),
+            tags: List.from(s.tags),
+          )
+    ];
+    if (spots.isEmpty) return;
+    final tpl = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: '${widget.template.name} Subset',
+      gameType: widget.template.gameType,
+      spots: spots,
+    );
+    final index = widget.templates.indexOf(widget.template);
+    setState(() {
+      widget.templates.insert(index + 1, tpl);
+      _selectedSpotIds.clear();
+    });
+    TrainingPackStorage.save(widget.templates);
+  }
+
   Future<void> _bulkDelete() async {
     final count = _selectedSpotIds.length;
     if (count == 0) return;
@@ -875,6 +901,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   TextButton(
                     onPressed: _bulkCopy,
                     child: const Text('Copy to Pack'),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: _newPackFromSelection,
+                    child: const Text('New Pack from Selection'),
                   ),
                   const SizedBox(width: 12),
                   TextButton.icon(
