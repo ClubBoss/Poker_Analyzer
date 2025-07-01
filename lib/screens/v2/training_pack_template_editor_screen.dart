@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
@@ -130,6 +133,26 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     TrainingPackStorage.save(widget.templates);
     Navigator.pop(context);
+  }
+
+  Future<void> _export() async {
+    try {
+      final dir = await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      final safeName = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+      final file = File('${dir.path}/$safeName.json');
+      await file.writeAsString(jsonEncode(widget.template.toJson()));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Файл сохранён: ${file.path}')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось экспортировать файл')),
+        );
+      }
+    }
   }
 
   Future<void> _clearAll() async {
@@ -539,6 +562,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Clear All Spots',
             onPressed: _clearAll,
           ),
+          IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Icon(Icons.save), onPressed: _save)
         ],
       ),
