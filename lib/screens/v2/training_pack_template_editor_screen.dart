@@ -34,6 +34,7 @@ import '../../theme/app_colors.dart';
 import '../../services/room_hand_history_importer.dart';
 import '../../services/push_fold_ev_service.dart';
 import '../../services/pack_export_service.dart';
+import '../../widgets/range_matrix_picker.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -82,6 +83,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
+
+  Set<String> _templateRange() {
+    final set = <String>{};
+    for (final s in widget.template.spots) {
+      final hand = _handCode(s.hand.heroCards);
+      if (hand != null) set.add(hand);
+    }
+    return set;
+  }
 
   void _focusSpot(String id) {
     final key = _itemKeys[id];
@@ -1287,6 +1297,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }).toList();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
+    final range = _templateRange();
     List<TrainingPackSpot> sorted;
     if (_sortBy == SortBy.manual) {
       sorted = shown;
@@ -1615,6 +1626,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 values: _summaryIcm ? icmVals : chipVals,
                 isIcm: _summaryIcm,
                 onToggle: () => set(() => _summaryIcm = !_summaryIcm),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: RangeMatrixPicker(
+                  selected: range,
+                  onChanged: (_) {},
+                  readOnly: true,
+                ),
               ),
             ),
             const SizedBox(height: 16),
