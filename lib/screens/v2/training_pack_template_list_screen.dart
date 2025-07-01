@@ -584,9 +584,20 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                     },
                     itemBuilder: (context, index) {
                       final t = shown[index];
+                      final allEv = t.spots.isNotEmpty &&
+                          t.spots.every((s) => s.heroEv != null);
                       final tile = ListTile(
                         onLongPress: () => _duplicate(t),
-                        title: Text(t.name),
+                        title: Row(
+                          children: [
+                            Expanded(child: Text(t.name)),
+                            if (allEv)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Icon(Icons.trending_up, color: Colors.grey, size: 16),
+                              ),
+                          ],
+                        ),
                         subtitle: t.description.trim().isEmpty
                             ? null
                             : Text(
