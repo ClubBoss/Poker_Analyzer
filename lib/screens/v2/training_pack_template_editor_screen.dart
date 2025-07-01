@@ -3,7 +3,9 @@ import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../helpers/training_pack_storage.dart';
@@ -150,6 +152,41 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Не удалось экспортировать файл')),
+        );
+      }
+    }
+  }
+
+  Future<void> _import() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    Uint8List? data = result.files.single.bytes;
+    final path = result.files.single.path;
+    if (data == null && path != null) data = await File(path).readAsBytes();
+    if (data == null) return;
+    try {
+      final json = jsonDecode(utf8.decode(data));
+      if (json is! Map<String, dynamic>) throw const FormatException();
+      final tpl = TrainingPackTemplate.fromJson(json);
+      setState(() {
+        widget.template.spots
+          ..clear()
+          ..addAll(tpl.spots);
+        if (_autoSortEv) _sortSpots();
+      });
+      TrainingPackStorage.save(widget.templates);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Импортировано спотов: ${tpl.spots.length}')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось импортировать файл')),
         );
       }
     }
@@ -562,6 +599,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Clear All Spots',
             onPressed: _clearAll,
           ),
+          IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Icon(Icons.save), onPressed: _save)
         ],
