@@ -67,6 +67,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             total: service.totalCount,
             correct: service.correctCount,
             elapsed: service.elapsedTime,
+            authorPreview: service.session?.authorPreview ?? false,
           ),
         ),
       );

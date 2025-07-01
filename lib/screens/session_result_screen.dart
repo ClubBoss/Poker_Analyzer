@@ -16,7 +16,14 @@ class SessionResultScreen extends StatefulWidget {
   final int total;
   final int correct;
   final Duration elapsed;
-  const SessionResultScreen({super.key, required this.total, required this.correct, required this.elapsed});
+  final bool authorPreview;
+  const SessionResultScreen({
+    super.key,
+    required this.total,
+    required this.correct,
+    required this.elapsed,
+    this.authorPreview = false,
+  });
 
   @override
   State<SessionResultScreen> createState() => _SessionResultScreenState();
@@ -191,8 +198,9 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton(
-                    onPressed: () =>
-                        Navigator.of(context).popUntil((r) => r.isFirst),
+                    onPressed: () => widget.authorPreview
+                        ? Navigator.pop(context)
+                        : Navigator.of(context).popUntil((r) => r.isFirst),
                     child: const Text('Done'),
                   ),
                 ],

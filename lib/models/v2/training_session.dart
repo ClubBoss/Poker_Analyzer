@@ -1,3 +1,6 @@
+import 'package:uuid/uuid.dart';
+import 'training_pack_template.dart';
+
 class TrainingSession {
   final String id;
   final String templateId;
@@ -5,6 +8,7 @@ class TrainingSession {
   DateTime? completedAt;
   int index;
   final Map<String, bool> results;
+  final bool authorPreview;
 
   TrainingSession({
     required this.id,
@@ -13,6 +17,7 @@ class TrainingSession {
     this.completedAt,
     this.index = 0,
     Map<String, bool>? results,
+    this.authorPreview = false,
   })  : startedAt = startedAt ?? DateTime.now(),
         results = results ?? {};
 
@@ -28,6 +33,7 @@ class TrainingSession {
         results: j['results'] != null
             ? Map<String, bool>.from(j['results'] as Map)
             : {},
+        authorPreview: j['authorPreview'] == true,
       );
 
   Map<String, dynamic> toJson() => {
@@ -37,5 +43,16 @@ class TrainingSession {
         if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
         'index': index,
         if (results.isNotEmpty) 'results': results,
+        if (authorPreview) 'authorPreview': true,
       };
+
+  factory TrainingSession.fromTemplate(
+    TrainingPackTemplate template, {
+    bool authorPreview = false,
+  }) =>
+      TrainingSession(
+        id: const Uuid().v4(),
+        templateId: template.id,
+        authorPreview: authorPreview,
+      );
 }
