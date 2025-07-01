@@ -5,6 +5,7 @@ import '../widgets/spot_quiz_widget.dart';
 import '../widgets/action_history_widget.dart';
 import '../models/action_entry.dart';
 import '../services/training_session_service.dart';
+import '../services/tag_service.dart';
 import 'share_dialog.dart';
 
 class SpotViewerDialog extends StatefulWidget {
@@ -107,6 +108,58 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
     }
   }
 
+  Future<void> _editTags() async {
+    final tags = context.read<TagService>().tags;
+    final selected = spot.tags.toSet();
+    final result = await showDialog<List<String>>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          backgroundColor: Colors.black.withOpacity(0.8),
+          title: const Text('Tags', style: TextStyle(color: Colors.white)),
+          content: SizedBox(
+            width: 300,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                for (final tag in tags)
+                  CheckboxListTile(
+                    value: selected.contains(tag),
+                    title:
+                        Text(tag, style: const TextStyle(color: Colors.white)),
+                    onChanged: (v) {
+                      setStateDialog(() {
+                        if (v ?? false) {
+                          selected.add(tag);
+                        } else {
+                          selected.remove(tag);
+                        }
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
+            TextButton(
+                onPressed: () =>
+                    Navigator.pop(context, selected.toList()),
+                child: const Text('Save')),
+          ],
+        ),
+      ),
+    );
+    if (result != null) {
+      final updated = spot.copyWith(tags: result);
+      await context.read<TrainingSessionService>().updateSpot(updated);
+      if (!mounted) return;
+      setState(() => spot = updated);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -136,6 +189,10 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
         TextButton(
           onPressed: _editNote,
           child: const Text('Edit'),
+        ),
+        TextButton(
+          onPressed: _editTags,
+          child: const Text('Edit Tags'),
         ),
         TextButton(
           onPressed: () => showShareDialog(context, _summary()),
