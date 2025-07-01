@@ -72,6 +72,14 @@ class TrainingPackSpot {
     return null;
   }
 
+  double? get heroIcmEv {
+    final acts = hand.actions[0] ?? [];
+    for (final a in acts) {
+      if (a.playerIndex == hand.heroIndex && a.icmEv != null) return a.icmEv;
+    }
+    return null;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
