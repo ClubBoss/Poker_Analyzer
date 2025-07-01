@@ -889,6 +889,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   @override
   Widget build(BuildContext context) {
+    final hasSpots = widget.template.spots.isNotEmpty;
     return Scaffold(
       appBar: AppBar(
         leading: _isMultiSelect
@@ -1022,9 +1023,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           IconButton(icon: const Icon(Icons.save), onPressed: _save)
         ],
       ),
-      floatingActionButton:
-          FloatingActionButton(onPressed: _addSpot, child: const Icon(Icons.add)),
-      bottomNavigationBar: _isMultiSelect
+      floatingActionButton: hasSpots
+          ? FloatingActionButton(onPressed: _addSpot, child: const Icon(Icons.add))
+          : null,
+      bottomNavigationBar: hasSpots && _isMultiSelect
           ? BottomAppBar(
               child: Row(
                 children: [
@@ -1077,10 +1079,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ),
             )
           : null,
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+      body: hasSpots
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
             TextField(
               controller: _descCtr,
               decoration: const InputDecoration(labelText: 'Description'),
@@ -1493,11 +1496,41 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   );
                 },
               ),
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      )
+          : Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.lightbulb_outline, size: 96, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'This pack is empty. Tap + to add your first spot or 📋 to paste from JSON',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: _addSpot,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add Spot'),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: _pasteSpot,
+                        icon: const Text('📋'),
+                        label: const Text('Paste JSON'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
   }
 }
 
