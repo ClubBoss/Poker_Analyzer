@@ -97,6 +97,44 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     TrainingPackStorage.save(widget.templates);
   }
 
+  Future<void> _pasteSpot() async {
+    final c = TextEditingController();
+    final input = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Paste Spot'),
+        content: TextField(controller: c, maxLines: null, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, c.text), child: const Text('OK')),
+        ],
+      ),
+    );
+    c.dispose();
+    if (input == null || input.trim().isEmpty) return;
+    try {
+      final json = jsonDecode(input);
+      if (json is! Map<String, dynamic>) throw const FormatException();
+      final spot = TrainingPackSpot.fromJson(json)
+          .copyWith(id: const Uuid().v4(), editedAt: DateTime.now());
+      setState(() {
+        widget.template.spots.add(spot);
+        if (_autoSortEv) _sortSpots();
+      });
+      TrainingPackStorage.save(widget.templates);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _focusSpot(spot.id));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Spot pasted')));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Invalid JSON')));
+      }
+    }
+  }
+
   Future<void> _addPackTag() async {
     final c = TextEditingController();
     final tag = await showDialog<String>(
@@ -950,6 +988,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Clear All Spots',
             onPressed: _clearAll,
           ),
+          IconButton(icon: const Text('📋 Paste Spot'), onPressed: _pasteSpot),
           IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Text('📂 Preview Bundle'), onPressed: _previewBundle),
