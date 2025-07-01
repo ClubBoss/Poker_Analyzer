@@ -82,6 +82,7 @@ class PackGeneratorService {
     required List<String> heroRange,
     int anteBb = 0,
     int bbCallPct = 20,
+    DateTime? createdAt,
   }) async {
     return generatePushFoldPackSync(
       id: id,
@@ -92,6 +93,7 @@ class PackGeneratorService {
       heroRange: heroRange,
       anteBb: anteBb,
       bbCallPct: bbCallPct,
+      createdAt: createdAt,
     );
   }
 
@@ -104,6 +106,7 @@ class PackGeneratorService {
     required List<String> heroRange,
     int anteBb = 0,
     int bbCallPct = 20,
+    DateTime? createdAt,
   }) {
     final spots = <TrainingPackSpot>[];
     final isHeadsUp = playerStacksBb.length == 2;
@@ -156,6 +159,7 @@ class PackGeneratorService {
       name: name,
       gameType: GameType.tournament,
       spots: spots,
+      createdAt: createdAt,
     );
   }
 
@@ -183,7 +187,7 @@ class PackGeneratorService {
 
   static String serializeRange(Set<String> range) => range.join(' ');
 
-  static TrainingPackTemplate generateFinalTablePack() {
+  static TrainingPackTemplate generateFinalTablePack({DateTime? createdAt}) {
     const stacks = [5, 10, 20, 30, 40, 50, 60, 70, 80];
     const heroIndex = 3;
     const pos = HeroPosition.co;
@@ -236,6 +240,7 @@ class PackGeneratorService {
       name: 'Final Table ICM',
       gameType: GameType.tournament,
       spots: spots,
+      createdAt: createdAt,
     );
   }
 }

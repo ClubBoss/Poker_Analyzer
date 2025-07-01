@@ -38,6 +38,31 @@ class _TrainingPackTemplateListScreenState
   GameType? _selectedType;
   String? _selectedTag;
   bool _filtersShown = false;
+  String _sort = 'name';
+
+  void _sortTemplates() {
+    switch (_sort) {
+      case 'created':
+        _templates.sort((a, b) {
+          final r = b.createdAt.compareTo(a.createdAt);
+          return r == 0
+              ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
+              : r;
+        });
+        break;
+      case 'spots':
+        _templates.sort((a, b) {
+          final r = b.spots.length.compareTo(a.spots.length);
+          return r == 0
+              ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
+              : r;
+        });
+        break;
+      default:
+        _templates.sort(
+            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    }
+  }
 
   @override
   void initState() {
@@ -48,6 +73,7 @@ class _TrainingPackTemplateListScreenState
       if (!mounted) return;
       setState(() {
         _templates.addAll(list);
+        _sortTemplates();
         _loading = false;
       });
     });
@@ -137,15 +163,23 @@ class _TrainingPackTemplateListScreenState
             tags: List<String>.from(s.tags),
           )
       ],
+      createdAt: DateTime.now(),
     );
-    setState(() => _templates.insert(index + 1, copy));
+    setState(() {
+      _templates.insert(index + 1, copy);
+      _sortTemplates();
+    });
     TrainingPackStorage.save(_templates);
   }
 
   void _add() {
     final template =
-        TrainingPackTemplate(id: const Uuid().v4(), name: 'New Pack');
-    setState(() => _templates.add(template));
+        TrainingPackTemplate(
+            id: const Uuid().v4(), name: 'New Pack', createdAt: DateTime.now());
+    setState(() {
+      _templates.add(template);
+      _sortTemplates();
+    });
     TrainingPackStorage.save(_templates);
     _edit(template);
   }
@@ -158,8 +192,12 @@ class _TrainingPackTemplateListScreenState
       playerStacksBb: const [10, 10],
       heroPos: HeroPosition.sb,
       heroRange: PackGeneratorService.topNHands(25).toList(),
+      createdAt: DateTime.now(),
     );
-    setState(() => _templates.add(template));
+    setState(() {
+      _templates.add(template);
+      _sortTemplates();
+    });
     TrainingPackStorage.save(_templates);
     _edit(template);
   }
@@ -167,8 +205,12 @@ class _TrainingPackTemplateListScreenState
   Future<void> _generateFinalTable() async {
     await Future.delayed(Duration.zero);
     final template =
-        PackGeneratorService.generateFinalTablePack().copyWith(id: const Uuid().v4());
-    setState(() => _templates.add(template));
+        PackGeneratorService.generateFinalTablePack(createdAt: DateTime.now())
+            .copyWith(id: const Uuid().v4());
+    setState(() {
+      _templates.add(template);
+      _sortTemplates();
+    });
     TrainingPackStorage.save(_templates);
     _edit(template);
   }
@@ -222,8 +264,12 @@ class _TrainingPackTemplateListScreenState
       playerStacksBb: const [10, 10],
       heroPos: HeroPosition.sb,
       heroRange: list,
+      createdAt: DateTime.now(),
     );
-    setState(() => _templates.add(template));
+    setState(() {
+      _templates.add(template);
+      _sortTemplates();
+    });
     TrainingPackStorage.save(_templates);
     _edit(template);
   }
@@ -266,8 +312,12 @@ class _TrainingPackTemplateListScreenState
           playerStacksBb: const [10, 10],
           heroPos: HeroPosition.sb,
           heroRange: range,
+          createdAt: DateTime.now(),
         );
-        setState(() => _templates.add(template));
+        setState(() {
+          _templates.add(template);
+          _sortTemplates();
+        });
         TrainingPackStorage.save(_templates);
         _edit(template);
       }
@@ -473,8 +523,12 @@ class _TrainingPackTemplateListScreenState
         heroPos: pos,
         heroRange: range,
         bbCallPct: bbCall.round(),
+        createdAt: DateTime.now(),
       );
-      setState(() => _templates.add(template));
+      setState(() {
+        _templates.add(template);
+        _sortTemplates();
+      });
       TrainingPackStorage.save(_templates);
       _edit(template);
     }
@@ -525,7 +579,10 @@ class _TrainingPackTemplateListScreenState
       ),
     );
     if (ok ?? false) {
-      setState(() => _templates.addAll(imported));
+      setState(() {
+        _templates.addAll(imported);
+        _sortTemplates();
+      });
       TrainingPackStorage.save(_templates);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${imported.length} template(s) imported')),
@@ -551,7 +608,10 @@ class _TrainingPackTemplateListScreenState
         templateName: p.basenameWithoutExtension(file.name),
       );
       final skipped = allRows.length - 1 - tpl.spots.length;
-      setState(() => _templates.add(tpl));
+      setState(() {
+        _templates.add(tpl);
+        _sortTemplates();
+      });
       TrainingPackStorage.save(_templates);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -578,7 +638,10 @@ class _TrainingPackTemplateListScreenState
         templateName: 'Pasted Pack',
       );
       final skipped = rows.length - 1 - tpl.spots.length;
-      setState(() => _templates.add(tpl));
+      setState(() {
+        _templates.add(tpl);
+        _sortTemplates();
+      });
       TrainingPackStorage.save(_templates);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -700,6 +763,20 @@ class _TrainingPackTemplateListScreenState
             icon: const Icon(Icons.download),
             tooltip: 'Export',
             onPressed: _export,
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.sort),
+            onSelected: (v) {
+              setState(() {
+                _sort = v;
+                _sortTemplates();
+              });
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'name', child: Text('Name A–Z')),
+              PopupMenuItem(value: 'created', child: Text('Newest First')),
+              PopupMenuItem(value: 'spots', child: Text('Most Spots')),
+            ],
           ),
           PopupMenuButton<String>(
             onSelected: (v) {

@@ -35,6 +35,7 @@ final TrainingPackTemplate autoPushFold10bb =
     'A9o',
     'ATo',
   ],
+  createdAt: DateTime.now(),
 );
 
 final List<TrainingPackTemplate> seedPacks = [

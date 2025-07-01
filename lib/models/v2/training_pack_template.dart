@@ -9,6 +9,7 @@ class TrainingPackTemplate {
   GameType gameType;
   List<TrainingPackSpot> spots;
   List<String> tags;
+  final DateTime createdAt;
 
   TrainingPackTemplate({
     required this.id,
@@ -17,8 +18,10 @@ class TrainingPackTemplate {
     this.gameType = GameType.tournament,
     List<TrainingPackSpot>? spots,
     List<String>? tags,
+    DateTime? createdAt,
   })  : spots = spots ?? [],
-        tags = tags ?? [];
+        tags = tags ?? [],
+        createdAt = createdAt ?? DateTime.now();
 
   TrainingPackTemplate copyWith({
     String? id,
@@ -27,6 +30,7 @@ class TrainingPackTemplate {
     GameType? gameType,
     List<TrainingPackSpot>? spots,
     List<String>? tags,
+    DateTime? createdAt,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -35,6 +39,7 @@ class TrainingPackTemplate {
       gameType: gameType ?? this.gameType,
       spots: spots ?? List<TrainingPackSpot>.from(this.spots),
       tags: tags ?? List<String>.from(this.tags),
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -49,6 +54,8 @@ class TrainingPackTemplate {
           TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
     );
   }
 
@@ -59,5 +66,6 @@ class TrainingPackTemplate {
         'gameType': gameType.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
         if (tags.isNotEmpty) 'tags': tags,
+        'createdAt': createdAt.toIso8601String(),
       };
 }

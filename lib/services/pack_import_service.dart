@@ -92,7 +92,11 @@ class PackImportService {
       );
     }
     return TrainingPackTemplate(
-        id: templateId, name: templateName, spots: spots);
+      id: templateId,
+      name: templateName,
+      spots: spots,
+      createdAt: DateTime.now(),
+    );
   }
 
   static String _cell(List row, int? i) {
