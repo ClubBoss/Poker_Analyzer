@@ -17,6 +17,7 @@ import 'sample_logging_plugin.dart';
 import 'converters/poker_analyzer_json_converter.dart';
 import 'converters/simple_hand_history_converter.dart';
 import 'converters/pokerstars_hand_history_converter.dart';
+import 'converters/winamax_hand_history_converter.dart';
 
 /// Prototype loader for built-in plug-ins.
 ///
@@ -77,6 +78,7 @@ class PluginLoader {
       PokerAnalyzerJsonConverter(),
       SimpleHandHistoryConverter(),
       PokerStarsHandHistoryConverter(),
+      WinamaxHandHistoryConverter(),
     ];
     return <Plugin>[
       SampleLoggingPlugin(),
@@ -93,6 +95,7 @@ class PluginLoader {
           PokerAnalyzerJsonConverter(),
           SimpleHandHistoryConverter(),
           PokerStarsHandHistoryConverter(),
+          WinamaxHandHistoryConverter(),
         ]);
     }
     return null;

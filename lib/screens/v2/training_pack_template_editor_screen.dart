@@ -18,6 +18,8 @@ import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../helpers/title_utils.dart';
 import '../../models/v2/hand_data.dart';
+import '../../models/saved_hand.dart';
+import '../../models/action_entry.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
 import '../../widgets/spot_viewer_dialog.dart';
@@ -27,6 +29,7 @@ import '../../helpers/training_pack_validator.dart';
 import '../../helpers/training_pack_validator.dart';
 import '../../widgets/common/ev_distribution_chart.dart';
 import '../../theme/app_colors.dart';
+import '../../services/room_hand_history_importer.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -136,6 +139,71 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             .showSnackBar(const SnackBar(content: Text('Invalid JSON')));
       }
     }
+  }
+
+  HeroPosition _posFromString(String s) {
+    final p = s.toUpperCase();
+    if (p.startsWith('SB')) return HeroPosition.sb;
+    if (p.startsWith('BB')) return HeroPosition.bb;
+    if (p.startsWith('BTN')) return HeroPosition.btn;
+    if (p.startsWith('CO')) return HeroPosition.co;
+    if (p.startsWith('MP') || p.startsWith('HJ')) return HeroPosition.mp;
+    if (p.startsWith('UTG')) return HeroPosition.utg;
+    return HeroPosition.unknown;
+  }
+
+  TrainingPackSpot _spotFromHand(SavedHand hand) {
+    final heroCards = hand.playerCards[hand.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
+    final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
+    final stacks = <String, double>{
+      for (int i = 0; i < hand.numberOfPlayers; i++) '$i': (hand.stackSizes[i] ?? 0).toDouble()
+    };
+    return TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData(
+        heroCards: heroCards,
+        position: _posFromString(hand.heroPosition),
+        heroIndex: hand.heroIndex,
+        playerCount: hand.numberOfPlayers,
+        stacks: stacks,
+        actions: {0: actions},
+      ),
+    );
+  }
+
+  Future<void> _pasteHandHistory() async {
+    final c = TextEditingController();
+    final text = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Paste Hand History'),
+        content: TextField(controller: c, maxLines: null, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, c.text), child: const Text('OK')),
+        ],
+      ),
+    );
+    c.dispose();
+    if (text == null || text.trim().isEmpty) return;
+    final importer = await RoomHandHistoryImporter.create();
+    final hands = importer.parse(text);
+    if (hands.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Invalid hand')));
+      }
+      return;
+    }
+    final spot = _spotFromHand(hands.first);
+    setState(() {
+      widget.template.spots.add(spot);
+      if (_autoSortEv) _sortSpots();
+    });
+    TrainingPackStorage.save(widget.templates);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _focusSpot(spot.id));
   }
 
   Future<void> _addPackTag() async {
@@ -1125,6 +1193,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             onPressed: _clearAll,
           ),
           IconButton(icon: const Text('📋 Paste Spot'), onPressed: _pasteSpot),
+          IconButton(icon: const Text('📥 Paste Hand'), onPressed: _pasteHandHistory),
           IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Text('📂 Preview Bundle'), onPressed: _previewBundle),
@@ -1669,6 +1738,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         onPressed: _pasteSpot,
                         icon: const Text('📋'),
                         label: const Text('Paste JSON'),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: _pasteHandHistory,
+                        icon: const Text('📥'),
+                        label: const Text('Paste Hand'),
                       ),
                     ],
                   ),

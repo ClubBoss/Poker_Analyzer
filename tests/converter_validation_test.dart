@@ -48,6 +48,17 @@ void main() {
               'Seat 2: Player2 (\$1 in chips)',
             ].join('\n');
             break;
+          case 'winamax_hand_history':
+            sample = [
+              'Winamax Poker - Tournament',
+              'Seat 1: Hero (1500)',
+              'Seat 2: Villain (1500)',
+              '** HOLE CARDS **',
+              'Dealt to Hero [Ah Kh]',
+              'Hero raises 3 to 3',
+              'Villain folds',
+            ].join('\n');
+            break;
           default:
             sample = '';
         }
