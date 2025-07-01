@@ -84,7 +84,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   final GlobalKey _previewKey = GlobalKey();
   bool _summaryIcm = false;
   bool _evaluatingAll = false;
-  bool _cancelGeneration = false;
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
@@ -174,113 +173,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Future<void> _generateSpots() async {
     _recordSnapshot();
-    final range = widget.template.heroRange ??
-        PackGeneratorService.topNHands(25).toList();
-    final total = widget.template.spotCount;
-    final generated = <TrainingPackSpot>[];
-    int done = 0;
-    _cancelGeneration = false;
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        var started = false;
-        return StatefulBuilder(
-          builder: (context, setDialog) {
-            if (!started) {
-              started = true;
-              Future.microtask(() async {
-                final isHeadsUp =
-                    widget.template.playerStacksBb.length == 2;
-                const idxBB = 1;
-                final callCutoff =
-                    (PackGeneratorService.handRanking.length *
-                            widget.template.bbCallPct /
-                            100)
-                        .round();
-                for (var i = 0;
-                    i < range.length && generated.length < total;
-                    i++) {
-                  if (_cancelGeneration) break;
-                  final hand = range[i];
-                  final heroCards = _firstCombo(hand);
-                  final actions = {
-                    0: [
-                      ActionEntry(0, 0, 'push',
-                          amount:
-                              widget.template.heroBbStack.toDouble()),
-                      for (var j = 1;
-                          j < widget.template.playerStacksBb.length;
-                          j++)
-                        if (isHeadsUp &&
-                            j == idxBB &&
-                            PackGeneratorService.handRanking.indexOf(hand) <
-                                callCutoff)
-                          ActionEntry(0, j, 'call',
-                              amount: widget.template.heroBbStack.toDouble())
-                        else
-                          ActionEntry(0, j, 'fold'),
-                    ]
-                  };
-                  final ev = computePushEV(
-                    heroBbStack: widget.template.heroBbStack,
-                    bbCount: widget.template.playerStacksBb.length - 1,
-                    heroHand: hand,
-                    anteBb: widget.template.anteBb,
-                  );
-                  actions[0]![0].ev = ev;
-                  final stacks = {
-                    for (var j = 0;
-                        j < widget.template.playerStacksBb.length;
-                        j++)
-                      '$j': widget.template.playerStacksBb[j].toDouble()
-                  };
-                  generated.add(
-                    TrainingPackSpot(
-                      id:
-                          '${widget.template.id}_${widget.template.spots.length + generated.length + 1}',
-                      title: '$hand push',
-                      hand: HandData(
-                        heroCards: heroCards,
-                        position: widget.template.heroPos,
-                        heroIndex: 0,
-                        playerCount:
-                            widget.template.playerStacksBb.length,
-                        stacks: stacks,
-                        actions: actions,
-                      ),
-                      tags: const ['pushfold'],
-                    ),
-                  );
-                  done = generated.length;
-                  if (mounted) setDialog(() {});
-                  await Future.delayed(Duration.zero);
-                }
-                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
-              });
-            }
-            return AlertDialog(
-              content: Text('Generating $done of $total spots…'),
-              actions: [
-                TextButton(
-                  onPressed: () => _cancelGeneration = true,
-                  child: const Text('Cancel'),
-                )
-              ],
-            );
-          },
-        );
-      },
-    );
+    final generated = await widget.template.generateSpotsWithProgress(context);
     if (!mounted) return;
     setState(() {
       widget.template.spots.addAll(generated);
       if (_autoSortEv) _sortSpots();
     });
     TrainingPackStorage.save(widget.templates);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Generated ${generated.length} spots')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Generated ${generated.length} spots')));
   }
 
   Future<void> _pasteSpot() async {
@@ -888,18 +789,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     return '$high$low${suited ? 's' : 'o'}';
   }
 
-  String _firstCombo(String hand) {
-    const suits = ['h', 'd', 'c', 's'];
-    if (hand.length == 2) {
-      final r = hand[0];
-      return '$r${suits[0]} $r${suits[1]}';
-    }
-    final r1 = hand[0];
-    final r2 = hand[1];
-    final suited = hand[2] == 's';
-    if (suited) return '$r1${suits[0]} $r2${suits[0]}';
-    return '$r1${suits[0]} $r2${suits[1]}';
-  }
 
   void _regenerateEv() {
     _recordSnapshot();

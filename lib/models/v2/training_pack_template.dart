@@ -3,6 +3,10 @@ import 'hero_position.dart';
 import '../game_type.dart';
 import '../training_pack.dart' show parseGameType;
 import '../../services/pack_generator_service.dart';
+import '../../services/push_fold_ev_service.dart';
+import '../action_entry.dart';
+import 'hand_data.dart';
+import 'package:flutter/material.dart';
 
 class TrainingPackTemplate {
   final String id;
@@ -133,5 +137,109 @@ class TrainingPackTemplate {
       anteBb: anteBb,
     );
     return tpl.spots.take(spotCount).toList();
+  }
+
+  Future<List<TrainingPackSpot>> generateSpotsWithProgress(
+      BuildContext context) async {
+    final range = heroRange ?? PackGeneratorService.topNHands(25).toList();
+    final total = spotCount;
+    final generated = <TrainingPackSpot>[];
+    var cancel = false;
+    var done = 0;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                final isHu = playerStacksBb.length == 2;
+                const idxBB = 1;
+                final callCutoff =
+                    (PackGeneratorService.handRanking.length * bbCallPct / 100)
+                        .round();
+                for (var i = 0;
+                    i < range.length && generated.length < total;
+                    i++) {
+                  if (cancel) break;
+                  final hand = range[i];
+                  final heroCards = _firstCombo(hand);
+                  final actions = {
+                    0: [
+                      ActionEntry(0, 0, 'push', amount: heroBbStack.toDouble()),
+                      for (var j = 1; j < playerStacksBb.length; j++)
+                        if (isHu &&
+                            j == idxBB &&
+                            PackGeneratorService.handRanking.indexOf(hand) <
+                                callCutoff)
+                          ActionEntry(0, j, 'call',
+                              amount: heroBbStack.toDouble())
+                        else
+                          ActionEntry(0, j, 'fold'),
+                    ]
+                  };
+                  final ev = computePushEV(
+                    heroBbStack: heroBbStack,
+                    bbCount: playerStacksBb.length - 1,
+                    heroHand: hand,
+                    anteBb: anteBb,
+                  );
+                  actions[0]![0].ev = ev;
+                  final stacks = {
+                    for (var j = 0; j < playerStacksBb.length; j++)
+                      '$j': playerStacksBb[j].toDouble()
+                  };
+                  generated.add(
+                    TrainingPackSpot(
+                      id: '${id}_${spots.length + generated.length + 1}',
+                      title: '$hand push',
+                      hand: HandData(
+                        heroCards: heroCards,
+                        position: heroPos,
+                        heroIndex: 0,
+                        playerCount: playerStacksBb.length,
+                        stacks: stacks,
+                        actions: actions,
+                      ),
+                      tags: const ['pushfold'],
+                    ),
+                  );
+                  done = generated.length;
+                  setState(() {});
+                  await Future.delayed(Duration.zero);
+                }
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return AlertDialog(
+              content: Text('Generating $done of $total spots…'),
+              actions: [
+                TextButton(
+                  onPressed: () => cancel = true,
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    return generated;
+  }
+
+  static String _firstCombo(String hand) {
+    const suits = ['h', 'd', 'c', 's'];
+    if (hand.length == 2) {
+      final r = hand[0];
+      return '$r${suits[0]} $r${suits[1]}';
+    }
+    final r1 = hand[0];
+    final r2 = hand[1];
+    final suited = hand[2] == 's';
+    if (suited) return '$r1${suits[0]} $r2${suits[0]}';
+    return '$r1${suits[0]} $r2${suits[1]}';
   }
 }
