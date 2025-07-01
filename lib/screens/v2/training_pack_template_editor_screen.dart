@@ -1395,6 +1395,159 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  Future<void> _showTemplateSettings() async {
+    final heroCtr = TextEditingController(text: widget.template.heroBbStack.toString());
+    final stacksCtr = TextEditingController(text: widget.template.playerStacksBb.join(','));
+    HeroPosition pos = widget.template.heroPos;
+    final countCtr = TextEditingController(text: widget.template.spotCount.toString());
+    double bbCall = widget.template.bbCallPct.toDouble();
+    final anteCtr = TextEditingController(text: widget.template.anteBb.toString());
+    final formKey = GlobalKey<FormState>();
+    final ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: StatefulBuilder(
+          builder: (context, set) {
+            final narrow = MediaQuery.of(context).size.width < 500;
+            final fields = [
+              TextFormField(
+                controller: heroCtr,
+                decoration: const InputDecoration(labelText: 'Hero BB Stack'),
+                keyboardType: TextInputType.number,
+                validator: (v) => (int.tryParse(v ?? '') ?? 0) < 1 ? '' : null,
+              ),
+              TextFormField(
+                controller: stacksCtr,
+                decoration: const InputDecoration(labelText: 'Player Stacks BB'),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return '';
+                  for (final s in v.split(RegExp('[,/]'))) {
+                    if (s.trim().isEmpty) continue;
+                    if ((int.tryParse(s.trim()) ?? 0) < 1) return '';
+                  }
+                  return null;
+                },
+              ),
+              DropdownButtonFormField<HeroPosition>(
+                value: pos,
+                decoration: const InputDecoration(labelText: 'Hero Position'),
+                items: const [
+                  DropdownMenuItem(value: HeroPosition.sb, child: Text('SB')),
+                  DropdownMenuItem(value: HeroPosition.bb, child: Text('BB')),
+                  DropdownMenuItem(value: HeroPosition.btn, child: Text('BTN')),
+                  DropdownMenuItem(value: HeroPosition.co, child: Text('CO')),
+                  DropdownMenuItem(value: HeroPosition.mp, child: Text('MP')),
+                  DropdownMenuItem(value: HeroPosition.utg, child: Text('UTG')),
+                ],
+                onChanged: (v) => set(() => pos = v ?? HeroPosition.sb),
+              ),
+              TextFormField(
+                controller: countCtr,
+                decoration: const InputDecoration(labelText: 'Spot Count'),
+                keyboardType: TextInputType.number,
+                validator: (v) {
+                  final n = int.tryParse(v ?? '') ?? 0;
+                  return n < 1 || n > 169 ? '' : null;
+                },
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('BB call ${bbCall.round()}%'),
+                  Slider(
+                    value: bbCall,
+                    min: 0,
+                    max: 100,
+                    onChanged: (v) => set(() => bbCall = v),
+                  ),
+                ],
+              ),
+              TextFormField(
+                controller: anteCtr,
+                decoration: const InputDecoration(labelText: 'Ante BB'),
+                keyboardType: TextInputType.number,
+                validator: (v) => (int.tryParse(v ?? '') ?? -1) < 0 ? '' : null,
+              ),
+            ];
+            final content = narrow
+                ? Column(mainAxisSize: MainAxisSize.min, children: fields)
+                : Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: [for (final f in fields) SizedBox(width: 250, child: f)],
+                  );
+            return Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  content,
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 16),
+                      TextButton(
+                        onPressed: () {
+                          if (formKey.currentState?.validate() != true) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Please fix errors')));
+                            return;
+                          }
+                          Navigator.pop(context, true);
+                        },
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+    if (ok == true) {
+      final hero = int.parse(heroCtr.text.trim());
+      final list = [
+        for (final s in stacksCtr.text.split(RegExp('[,/]')))
+          if (s.trim().isNotEmpty) int.parse(s.trim())
+      ];
+      if (!list.contains(hero)) list.insert(0, hero);
+      if (list.isEmpty) list.add(hero);
+      final count = int.parse(countCtr.text.trim());
+      final ante = int.parse(anteCtr.text.trim());
+      setState(() {
+        widget.template.heroBbStack = hero;
+        widget.template.playerStacksBb = list;
+        widget.template.heroPos = pos;
+        widget.template.spotCount = count;
+        widget.template.bbCallPct = bbCall.round();
+        widget.template.anteBb = ante;
+      });
+      await TrainingPackStorage.save(widget.templates);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Template settings updated')));
+      }
+    }
+    heroCtr.dispose();
+    stacksCtr.dispose();
+    countCtr.dispose();
+    anteCtr.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final narrow = MediaQuery.of(context).size.width < 400;
@@ -1594,6 +1747,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
+          IconButton(icon: const Text('⚙️ Settings'), onPressed: _showTemplateSettings),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (v) {
