@@ -98,11 +98,11 @@ class TrainingSessionService extends ChangeNotifier {
   }
 
   void _saveActive() {
-    if (_session == null) return;
+    if (_session == null || _activeBox == null || _session!.authorPreview) return;
     if (_session!.completedAt != null) {
-      _activeBox?.delete('session');
+      _activeBox!.delete('session');
     } else {
-      _activeBox?.put('session', {
+      _activeBox!.put('session', {
         'session': _session!.toJson(),
         'spots': [for (final s in _spots) s.toJson()],
         'actions': [for (final a in _actions) a.toJson()]
@@ -130,20 +130,25 @@ class TrainingSessionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> startSession(TrainingPackTemplate template) async {
-    await _openBox();
+  Future<void> startSession(
+    TrainingPackTemplate template, {
+    bool persist = true,
+  }) async {
+    if (persist) await _openBox();
     _spots = List<TrainingPackSpot>.from(template.spots);
     _actions.clear();
-    _session = TrainingSession(
-      id: const Uuid().v4(),
-      templateId: template.id,
+    _session = TrainingSession.fromTemplate(
+      template,
+      authorPreview: !persist,
     );
     _paused = false;
     _accumulated = Duration.zero;
     _resumedAt = DateTime.now();
     _startTicker();
-    await _box!.put(_session!.id, _session!.toJson());
-    _saveActive();
+    if (persist && _box != null) {
+      await _box!.put(_session!.id, _session!.toJson());
+      _saveActive();
+    }
     notifyListeners();
   }
 
@@ -161,7 +166,7 @@ class TrainingSessionService extends ChangeNotifier {
         isCorrect: isCorrect,
       ),
     );
-    await _box!.put(_session!.id, _session!.toJson());
+    if (_box != null) await _box!.put(_session!.id, _session!.toJson());
     _saveActive();
   }
 
@@ -176,7 +181,7 @@ class TrainingSessionService extends ChangeNotifier {
       }
       _timer?.cancel();
     }
-    _box?.put(_session!.id, _session!.toJson());
+    if (_box != null) _box!.put(_session!.id, _session!.toJson());
     _saveActive();
     notifyListeners();
     return currentSpot;
@@ -186,7 +191,7 @@ class TrainingSessionService extends ChangeNotifier {
     if (_session == null) return null;
     if (_session!.index > 0) {
       _session!.index -= 1;
-      _box?.put(_session!.id, _session!.toJson());
+      if (_box != null) _box!.put(_session!.id, _session!.toJson());
       _saveActive();
       notifyListeners();
     }
@@ -198,7 +203,7 @@ class TrainingSessionService extends ChangeNotifier {
     if (index == -1) return;
     _spots[index] = spot;
     if (_session != null) {
-      await _box?.put(_session!.id, _session!.toJson());
+      if (_box != null) await _box!.put(_session!.id, _session!.toJson());
       _saveActive();
     }
     notifyListeners();

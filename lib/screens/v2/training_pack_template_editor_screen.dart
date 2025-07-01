@@ -9,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
@@ -18,6 +19,8 @@ import '../../models/v2/hand_data.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
 import '../../widgets/spot_viewer_dialog.dart';
+import '../../services/training_session_service.dart';
+import '../training_session_screen.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -670,6 +673,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Icon(Icons.archive), onPressed: _exportBundle),
+          IconButton(
+            onPressed: () async {
+              await context
+                  .read<TrainingSessionService>()
+                  .startSession(widget.template, persist: false);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const TrainingSessionScreen()),
+              );
+            },
+            icon: const Text('▶️ Playtest'),
+          ),
           IconButton(icon: const Icon(Icons.save), onPressed: _save)
         ],
       ),
