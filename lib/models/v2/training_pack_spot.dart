@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'hand_data.dart';
+import '../evaluation_result.dart';
 
 class TrainingPackSpot {
   final String id;
@@ -9,6 +10,7 @@ class TrainingPackSpot {
   List<String> tags;
   DateTime editedAt;
   bool pinned;
+  EvaluationResult? evalResult;
 
   TrainingPackSpot({
     required this.id,
@@ -18,6 +20,7 @@ class TrainingPackSpot {
     List<String>? tags,
     DateTime? editedAt,
     this.pinned = false,
+    this.evalResult,
   })  : hand = hand ?? HandData(),
         tags = tags ?? [],
         editedAt = editedAt ?? DateTime.now();
@@ -30,6 +33,7 @@ class TrainingPackSpot {
     List<String>? tags,
     DateTime? editedAt,
     bool? pinned,
+    EvaluationResult? evalResult,
   }) =>
       TrainingPackSpot(
         id: id ?? this.id,
@@ -39,6 +43,7 @@ class TrainingPackSpot {
         tags: tags ?? List<String>.from(this.tags),
         editedAt: editedAt ?? this.editedAt,
         pinned: pinned ?? this.pinned,
+        evalResult: evalResult ?? this.evalResult,
       );
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
@@ -52,6 +57,10 @@ class TrainingPackSpot {
         editedAt:
             DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
         pinned: j['pinned'] == true,
+        evalResult: j['evalResult'] != null
+            ? EvaluationResult.fromJson(
+                Map<String, dynamic>.from(j['evalResult']))
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -62,6 +71,7 @@ class TrainingPackSpot {
         if (tags.isNotEmpty) 'tags': tags,
         'editedAt': editedAt.toIso8601String(),
         if (pinned) 'pinned': true,
+        if (evalResult != null) 'evalResult': evalResult!.toJson(),
       };
 
   double? get heroEv {
@@ -90,9 +100,11 @@ class TrainingPackSpot {
           note == other.note &&
           hand == other.hand &&
           const ListEquality().equals(tags, other.tags) &&
-          pinned == other.pinned;
+          pinned == other.pinned &&
+          evalResult == other.evalResult;
 
   @override
   int get hashCode =>
-      Object.hash(id, title, note, hand, const ListEquality().hash(tags), pinned);
+      Object.hash(id, title, note, hand, const ListEquality().hash(tags), pinned,
+          evalResult);
 }
