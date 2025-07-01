@@ -138,6 +138,20 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     _edit(template);
   }
 
+  Future<void> _quickGenerate() async {
+    final template = await PackGeneratorService.generatePushFoldPack(
+      id: const Uuid().v4(),
+      name: 'Standard Pack',
+      heroBbStack: 10,
+      playerStacksBb: const [10, 10],
+      heroPos: HeroPosition.sb,
+      heroRange: PackGeneratorService.topNHands(25).toList(),
+    );
+    setState(() => _templates.add(template));
+    TrainingPackStorage.save(_templates);
+    _edit(template);
+  }
+
   Future<void> _generate() async {
     final nameCtrl = TextEditingController();
     final heroStackCtrl = TextEditingController(text: '10');
@@ -682,6 +696,12 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
               child: const Icon(Icons.filter_list),
             ),
           if (narrow) const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'quickGenTplFab',
+            onPressed: _quickGenerate,
+            label: const Text('Quick Generate'),
+          ),
+          const SizedBox(height: 12),
           FloatingActionButton.extended(
             heroTag: 'genTplFab',
             onPressed: _generate,
