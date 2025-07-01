@@ -987,6 +987,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       name: '${widget.template.name} Subset',
       gameType: widget.template.gameType,
       spots: spots,
+      createdAt: DateTime.now(),
     );
     final index = widget.templates.indexOf(widget.template);
     setState(() {
