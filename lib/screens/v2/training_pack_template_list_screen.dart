@@ -145,6 +145,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     final rangeCtrl = TextEditingController();
     final selected = <String>{};
     double percent = 0;
+    double bbCall = 20;
     HeroPosition pos = HeroPosition.sb;
     bool listenerAdded = false;
     final ok = await showDialog<bool>(
@@ -251,6 +252,14 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                     ),
                   ),
                   const SizedBox(height: 8),
+                  Text('BB call ${bbCall.round()}%'),
+                  Slider(
+                    value: bbCall,
+                    min: 0,
+                    max: 100,
+                    onChanged: (v) => setState(() => bbCall = v),
+                  ),
+                  const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Wrap(
@@ -300,6 +309,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
         playerStacksBb: stacks,
         heroPos: pos,
         heroRange: range,
+        bbCallPct: bbCall.round(),
       );
       setState(() => _templates.add(template));
       TrainingPackStorage.save(_templates);
