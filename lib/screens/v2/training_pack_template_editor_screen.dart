@@ -1373,9 +1373,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final hasSpots = widget.template.spots.isNotEmpty;
     final shown = widget.template.spots.where((s) {
       if (_pinnedOnly && !s.pinned) return false;
-      final ev = _spotEv(s);
-      if (_evFilter == 'mistakes' && ev >= 0) return false;
-      if (_evFilter == 'profitable' && ev < 0) return false;
+      final res = s.evalResult;
+      if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
+      if (_evFilter == 'error' && !(res != null && !res.correct)) return false;
+      if (_evFilter == 'empty' && res != null) return false;
       if (_selectedTags.isNotEmpty && !s.tags.any(_selectedTags.contains)) {
         return false;
       }
@@ -1831,8 +1832,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     SegmentedButton<String>(
                       segments: const [
                         ButtonSegment(value: 'all', label: Text('All')),
-                        ButtonSegment(value: 'mistakes', label: Text('Mistakes')),
-                        ButtonSegment(value: 'profitable', label: Text('Profitable')),
+                        ButtonSegment(value: 'ok', label: Text('OK')),
+                        ButtonSegment(value: 'error', label: Text('Errors')),
+                        ButtonSegment(value: 'empty', label: Text('Empty')),
                       ],
                       selected: {_evFilter},
                       onSelectionChanged: (v) async {
@@ -1847,8 +1849,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       decoration: const InputDecoration(labelText: 'EV filter'),
                       items: const [
                         DropdownMenuItem(value: 'all', child: Text('All')),
-                        DropdownMenuItem(value: 'mistakes', child: Text('Mistakes only')),
-                        DropdownMenuItem(value: 'profitable', child: Text('Profitable only')),
+                        DropdownMenuItem(value: 'ok', child: Text('OK')),
+                        DropdownMenuItem(value: 'error', child: Text('Errors')),
+                        DropdownMenuItem(value: 'empty', child: Text('Empty')),
                       ],
                       onChanged: (v) async {
                         final prefs = await SharedPreferences.getInstance();
