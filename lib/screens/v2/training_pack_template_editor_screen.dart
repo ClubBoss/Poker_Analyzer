@@ -651,6 +651,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         prefs.setString(_prefsEvFilterKey, val);
                       },
                     ),
+                    CheckboxListTile(
+                      title: const Text('Filter: Mistakes only'),
+                      value: _evFilter == 'mistakes',
+                      onChanged: (v) async {
+                        final prefs = await SharedPreferences.getInstance();
+                        final val = v == true ? 'mistakes' : 'all';
+                        setState(() => _evFilter = val);
+                        prefs.setString(_prefsEvFilterKey, val);
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                    ),
                   ],
                 );
               },
