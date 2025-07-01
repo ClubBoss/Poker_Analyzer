@@ -43,4 +43,11 @@ void main() {
       expect(s.hand.actions[0]?.length, 2);
     }
   });
+
+  test('parseRangeString and serializeRange are idempotent', () {
+    const raw = 'A2s 22 KQo';
+    final parsed = PackGeneratorService.parseRangeString(raw);
+    final serialized = PackGeneratorService.serializeRange(parsed);
+    expect(PackGeneratorService.parseRangeString(serialized), parsed);
+  });
 }

@@ -9,6 +9,7 @@ import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../services/pack_generator_service.dart';
 import 'training_pack_template_editor_screen.dart';
+import '../../widgets/range_matrix_picker.dart';
 
 class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
@@ -141,6 +142,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     final heroStackCtrl = TextEditingController(text: '10');
     final playerStacksCtrl = TextEditingController(text: '10,10');
     final rangeCtrl = TextEditingController();
+    final selected = <String>{};
     HeroPosition pos = HeroPosition.sb;
     bool listenerAdded = false;
     final ok = await showDialog<bool>(
@@ -149,12 +151,14 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
         builder: (context, setState) {
           if (!listenerAdded) {
             listenerAdded = true;
-            rangeCtrl.addListener(() => setState(() {}));
+            rangeCtrl.addListener(() {
+              selected
+                ..clear()
+                ..addAll(PackGeneratorService.parseRangeString(rangeCtrl.text));
+              setState(() {});
+            });
           }
-          final parsed = [
-            for (final r in rangeCtrl.text.split(RegExp('[,\n ]')))
-              if (r.trim().isNotEmpty) r.trim()
-          ];
+          final parsed = selected.toList()..sort();
           return AlertDialog(
             title: const Text('Generate Pack'),
             content: SingleChildScrollView(
@@ -183,10 +187,36 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                     ],
                     onChanged: (v) => setState(() => pos = v ?? HeroPosition.sb),
                   ),
-                  TextField(
-                    controller: rangeCtrl,
-                    decoration: const InputDecoration(labelText: 'Range'),
-                    maxLines: null,
+                  DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        const TabBar(tabs: [Tab(text: 'Text'), Tab(text: 'Matrix')]),
+                        SizedBox(
+                          height: 280,
+                          child: TabBarView(
+                            children: [
+                              TextField(
+                                controller: rangeCtrl,
+                                decoration: const InputDecoration(labelText: 'Range'),
+                                maxLines: null,
+                              ),
+                              SingleChildScrollView(
+                                child: RangeMatrixPicker(
+                                  selected: selected,
+                                  onChanged: (v) {
+                                    selected
+                                      ..clear()
+                                      ..addAll(v);
+                                    rangeCtrl.text = PackGeneratorService.serializeRange(v);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Align(
@@ -198,6 +228,11 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                           ? [const Text('No hands yet')]
                           : [for (final h in parsed) Text('[$h]')],
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Выбрано: ${selected.length} рук (${((selected.length / 169) * 100).round()} %)'),
                   ),
                 ],
               ),
@@ -224,10 +259,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
           if (s.trim().isNotEmpty) int.tryParse(s.trim()) ?? hero
       ];
       if (stacks.isEmpty) stacks.add(hero);
-      final range = [
-        for (final r in rangeCtrl.text.split(RegExp('[,\n ]')))
-          if (r.trim().isNotEmpty) r.trim()
-      ];
+      final range = selected.toList();
       final template = await PackGeneratorService.generatePushFoldPack(
         id: const Uuid().v4(),
         name: name,

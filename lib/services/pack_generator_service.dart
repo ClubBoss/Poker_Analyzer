@@ -84,4 +84,13 @@ class PackGeneratorService {
     }
     return '$r1${suits[0]} $r2${suits[1]}';
   }
+
+  static Set<String> parseRangeString(String raw) {
+    return {
+      for (final t in raw.split(RegExp('[,\n ]+')))
+        if (t.trim().isNotEmpty) t.trim()
+    };
+  }
+
+  static String serializeRange(Set<String> range) => range.join(' ');
 }
