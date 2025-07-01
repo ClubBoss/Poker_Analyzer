@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/hand_data.dart';
+import '../../models/v2/hero_position.dart';
 import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
+import '../../services/pack_generator_service.dart';
 import 'training_pack_template_editor_screen.dart';
 
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -132,6 +134,94 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     setState(() => _templates.add(template));
     TrainingPackStorage.save(_templates);
     _edit(template);
+  }
+
+  Future<void> _generate() async {
+    final nameCtrl = TextEditingController();
+    final heroStackCtrl = TextEditingController(text: '10');
+    final playerStacksCtrl = TextEditingController(text: '10,10');
+    final rangeCtrl = TextEditingController();
+    HeroPosition pos = HeroPosition.sb;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Generate Pack'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                TextField(
+                  controller: heroStackCtrl,
+                  decoration: const InputDecoration(labelText: 'Hero Stack'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: playerStacksCtrl,
+                  decoration: const InputDecoration(labelText: 'Player Stacks'),
+                ),
+                DropdownButtonFormField<HeroPosition>(
+                  value: pos,
+                  decoration: const InputDecoration(labelText: 'Hero Position'),
+                  items: [
+                    for (final p in HeroPosition.values)
+                      DropdownMenuItem(value: p, child: Text(p.label)),
+                  ],
+                  onChanged: (v) => setState(() => pos = v ?? HeroPosition.sb),
+                ),
+                TextField(
+                  controller: rangeCtrl,
+                  decoration: const InputDecoration(labelText: 'Range'),
+                  maxLines: null,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Generate'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (ok == true) {
+      final name = nameCtrl.text.trim().isEmpty ? 'New Pack' : nameCtrl.text.trim();
+      final hero = int.tryParse(heroStackCtrl.text.trim()) ?? 0;
+      final stacks = [
+        for (final s in playerStacksCtrl.text.split(','))
+          if (s.trim().isNotEmpty) int.tryParse(s.trim()) ?? hero
+      ];
+      if (stacks.isEmpty) stacks.add(hero);
+      final range = [
+        for (final r in rangeCtrl.text.split(RegExp('[,\n ]')))
+          if (r.trim().isNotEmpty) r.trim()
+      ];
+      final template = await PackGeneratorService.generatePushFoldPack(
+        id: const Uuid().v4(),
+        name: name,
+        heroBbStack: hero,
+        playerStacksBb: stacks,
+        heroPos: pos,
+        heroRange: range,
+      );
+      setState(() => _templates.add(template));
+      TrainingPackStorage.save(_templates);
+      _edit(template);
+    }
+    nameCtrl.dispose();
+    heroStackCtrl.dispose();
+    playerStacksCtrl.dispose();
+    rangeCtrl.dispose();
   }
 
   Future<void> _export() async {
@@ -488,6 +578,12 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
               child: const Icon(Icons.filter_list),
             ),
           if (narrow) const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'genTplFab',
+            onPressed: _generate,
+            label: const Text('➕ Generate Pack'),
+          ),
+          const SizedBox(height: 12),
           FloatingActionButton(
             heroTag: 'addTplFab',
             onPressed: _add,
