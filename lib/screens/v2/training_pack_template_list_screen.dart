@@ -306,11 +306,16 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                             PopupMenuButton<String>(
                               onSelected: (v) {
                                 if (v == 'rename') _rename(t);
+                                if (v == 'duplicate') _duplicate(t);
                               },
                               itemBuilder: (_) => const [
                                 PopupMenuItem(
                                   value: 'rename',
                                   child: Text('✏️ Rename'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'duplicate',
+                                  child: Text('📄 Duplicate'),
                                 ),
                               ],
                             ),
