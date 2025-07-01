@@ -279,6 +279,42 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _previewBundle() async {
+    final path = await _exportBundle(notify: false);
+    if (path == null || !mounted) return;
+    try {
+      final data = await File(path).readAsBytes();
+      final archive = ZipDecoder().decodeBytes(data);
+      final files = [for (final f in archive.files) if (f.isFile) f.name];
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Bundle Preview'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 300,
+            child: ListView.builder(
+              itemCount: files.length,
+              itemBuilder: (_, i) => ListTile(title: Text(files[i])),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ошибка предпросмотра пакета')),
+        );
+      }
+    }
+  }
+
   Future<Uint8List?> _capturePreview() async {
     final entry = OverlayEntry(
       builder: (_) => Center(
@@ -916,6 +952,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
+          IconButton(icon: const Text('📂 Preview Bundle'), onPressed: _previewBundle),
           IconButton(icon: const Icon(Icons.archive), onPressed: () => _exportBundle()),
           IconButton(icon: const Text('📤 Share'), onPressed: _shareBundle),
           IconButton(
