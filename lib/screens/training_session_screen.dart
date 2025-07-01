@@ -5,6 +5,28 @@ import '../services/training_session_service.dart';
 import '../widgets/spot_quiz_widget.dart';
 import 'session_result_screen.dart';
 
+class _EndlessStats {
+  int total = 0;
+  int correct = 0;
+  Duration elapsed = Duration.zero;
+  void add(bool ok) {
+    total += 1;
+    if (ok) correct += 1;
+  }
+
+  void addDuration(Duration d) {
+    elapsed += d;
+  }
+
+  double get accuracy => total == 0 ? 0 : correct / total;
+
+  void reset() {
+    total = 0;
+    correct = 0;
+    elapsed = Duration.zero;
+  }
+}
+
 class TrainingSessionScreen extends StatefulWidget {
   final VoidCallback? onSessionEnd;
   const TrainingSessionScreen({super.key, this.onSessionEnd});
@@ -14,13 +36,18 @@ class TrainingSessionScreen extends StatefulWidget {
 }
 
 class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
+  static final _EndlessStats _endlessStats = _EndlessStats();
   String? _selected;
   bool? _correct;
   Timer? _timer;
+  bool _continue = false;
 
   @override
   void initState() {
     super.initState();
+    if (widget.onSessionEnd != null && _endlessStats.total == 0 && _endlessStats.elapsed == Duration.zero) {
+      _endlessStats.reset();
+    }
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
@@ -29,6 +56,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    if (widget.onSessionEnd != null && !_continue) {
+      _endlessStats.reset();
+    }
     super.dispose();
   }
 
@@ -52,6 +82,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final ok =
         expected != null && action.toLowerCase() == expected.toLowerCase();
     service.submitResult(spot.id, action, ok);
+    if (widget.onSessionEnd != null) _endlessStats.add(ok);
     setState(() {
       _selected = action;
       _correct = ok;
@@ -62,6 +93,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final next = service.nextSpot();
     if (next == null) {
       if (widget.onSessionEnd != null) {
+        _endlessStats.addDuration(service.elapsedTime);
+        _continue = true;
         Navigator.pop(context);
         widget.onSessionEnd!();
       } else {
@@ -147,84 +180,103 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             ],
           ),
           backgroundColor: const Color(0xFF1B1C1E),
-          body: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${(service.session?.index ?? 0) + 1} / ${service.totalCount}',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Elapsed: ${_format(service.elapsedTime)}',
-                  style: const TextStyle(color: Colors.white70),
-                ),
-                const SizedBox(height: 8),
-                Expanded(child: SpotQuizWidget(spot: spot)),
-                if (service.isPaused) ...[
-                  const SizedBox(height: 16),
-                  const Text('Сессия на паузе',
-                      style: TextStyle(color: Colors.white54)),
-                ] else if (_selected == null) ...[
-                  const SizedBox(height: 16),
-                  const Text('Ваше действие?',
-                      style: TextStyle(color: Colors.white70)),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      for (final a in ['fold', 'call', 'raise', 'check', 'bet'])
-                        ElevatedButton(
-                          onPressed: () => _choose(a, service, spot),
-                          child: Text(a.toUpperCase()),
-                        ),
-                    ],
-                  ),
-                  if (service.session?.index != null &&
-                      service.session!.index > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: ElevatedButton(
-                          onPressed: () => _prev(service),
-                          child: const Text('Prev'),
-                        ),
+          body: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        '${(service.session?.index ?? 0) + 1} / ${service.totalCount}',
+                        style: const TextStyle(color: Colors.white70),
                       ),
                     ),
-                ] else ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    _correct! ? 'Верно!' : 'Неверно. Надо ${expected ?? '-'}',
-                    style: TextStyle(
-                      color: _correct! ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 4),
+                    Text(
+                      'Elapsed: ${_format(service.elapsedTime)}',
+                      style: const TextStyle(color: Colors.white70),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                    const SizedBox(height: 8),
+                    Expanded(child: SpotQuizWidget(spot: spot)),
+                    if (service.isPaused) ...[
+                      const SizedBox(height: 16),
+                      const Text('Сессия на паузе',
+                          style: TextStyle(color: Colors.white54)),
+                    ] else if (_selected == null) ...[
+                      const SizedBox(height: 16),
+                      const Text('Ваше действие?',
+                          style: TextStyle(color: Colors.white70)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          for (final a in ['fold', 'call', 'raise', 'check', 'bet'])
+                            ElevatedButton(
+                              onPressed: () => _choose(a, service, spot),
+                              child: Text(a.toUpperCase()),
+                            ),
+                        ],
+                      ),
                       if (service.session?.index != null &&
                           service.session!.index > 0)
-                        ElevatedButton(
-                          onPressed: () => _prev(service),
-                          child: const Text('Prev'),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: ElevatedButton(
+                              onPressed: () => _prev(service),
+                              child: const Text('Prev'),
+                            ),
+                          ),
                         ),
-                      ElevatedButton(
-                        onPressed: () => _next(service),
-                        child: const Text('Next'),
+                    ] else ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        _correct! ? 'Верно!' : 'Неверно. Надо ${expected ?? '-'}',
+                        style: TextStyle(
+                          color: _correct! ? Colors.green : Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (service.session?.index != null &&
+                              service.session!.index > 0)
+                            ElevatedButton(
+                              onPressed: () => _prev(service),
+                              child: const Text('Prev'),
+                            ),
+                          ElevatedButton(
+                            onPressed: () => _next(service),
+                            child: const Text('Next'),
+                          ),
+                        ],
                       ),
                     ],
+                  ],
+                ),
+              ),
+              if (widget.onSessionEnd != null)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    color: Colors.black54,
+                    padding: const EdgeInsets.all(8),
+                    child: Text(
+                      'Total: ${_endlessStats.total}  ${(_endlessStats.accuracy * 100).toStringAsFixed(0)}%  ${_format(_endlessStats.elapsed + service.elapsedTime)}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                   ),
-                ],
-              ],
-            ),
+                ),
+            ],
           ),
         );
       },
