@@ -717,11 +717,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     sorted = [...pinned, ...rest];
                   }
                 },
-                  return ReorderableListView.builder(
+                  final groups = <String, List<TrainingPackSpot>>{};
+                  for (final s in sorted) {
+                    final tag = s.tags.isNotEmpty ? s.tags.first : '';
+                    groups.putIfAbsent(tag, () => []).add(s);
+                  }
+                  final entries = groups.entries.toList()
+                    ..sort((a, b) => a.key.compareTo(b.key));
+                  return ListView.separated(
                     controller: _scrollCtrl,
-                    itemCount: sorted.length,
-                    itemBuilder: (context, index) {
-                      final spot = sorted[index];
+                    itemCount: entries.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    itemBuilder: (context, gIndex) {
+                      final entry = entries[gIndex];
+                      final spots = entry.value;
+                      final start = sorted.indexOf(spots.first);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(
+                              entry.key.isEmpty ? 'Untagged' : entry.key,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                          ReorderableListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: spots.length,
+                            itemBuilder: (context, index) {
+                              final spot = spots[index];
                       final selected = _selectedSpotIds.contains(spot.id);
                       final content = ReorderableDragStartListener(
                         key: ValueKey(spot.id),
@@ -846,8 +872,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           ),
                         ),
                       );
-                      return Dismissible(
-                        key: ValueKey(spot.id),
+                              return Dismissible(
+                                key: ValueKey(spot.id),
                         background: Container(
                           color: Colors.green,
                           alignment: Alignment.centerLeft,
@@ -885,23 +911,28 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           }
                           return false;
                         },
-                        child: content,
+                                child: content,
+                              );
+                            },
+                        onReorder: (o, n) {
+                          final spot = spots[o];
+                          final oldIndex = widget.template.spots.indexOf(spot);
+                          final newSorted = n < spots.length ? start + n : start + spots.length;
+                          final newIndex = newSorted < sorted.length
+                              ? widget.template.spots.indexOf(sorted[newSorted])
+                              : widget.template.spots.length;
+                          setState(() {
+                            final s = widget.template.spots.removeAt(oldIndex);
+                            widget.template.spots.insert(
+                                newIndex > oldIndex ? newIndex - 1 : newIndex, s);
+                          });
+                          TrainingPackStorage.save(widget.templates);
+                        },
+                          ),
+                        ],
                       );
                     },
-                onReorder: (o, n) {
-                  final spot = sorted[o];
-                  final oldIndex = widget.template.spots.indexOf(spot);
-                  final newIndex = n < sorted.length
-                      ? widget.template.spots.indexOf(sorted[n])
-                      : widget.template.spots.length;
-                  setState(() {
-                    final s = widget.template.spots.removeAt(oldIndex);
-                    widget.template.spots.insert(
-                        newIndex > oldIndex ? newIndex - 1 : newIndex, s);
-                  });
-                  TrainingPackStorage.save(widget.templates);
-                },
-              );
+                  );
                 },
               ),
             ),
