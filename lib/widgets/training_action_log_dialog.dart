@@ -83,7 +83,8 @@ class TrainingActionLogDialog extends StatelessWidget {
                               },
                             );
                             if (res != null) {
-                              final updated = spot!.copyWith(note: res.trim());
+                              final updated = spot!
+                                  .copyWith(note: res.trim(), editedAt: DateTime.now());
                               await context.read<TrainingSessionService>().updateSpot(updated);
                             }
                           },
