@@ -137,12 +137,36 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _addPackTag() async {
+    final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
     final tag = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Add Tag'),
-        content: TextField(controller: c, autofocus: true),
+        content: Autocomplete<String>(
+          optionsBuilder: (v) {
+            final input = v.text.toLowerCase();
+            if (input.isEmpty) return allTags;
+            return allTags.where((e) => e.toLowerCase().contains(input));
+          },
+          onSelected: (s) => Navigator.pop(context, s),
+          fieldViewBuilder: (context, controller, focusNode, _) {
+            controller.text = c.text;
+            controller.selection = c.selection;
+            controller.addListener(() {
+              if (c.text != controller.text) c.value = controller.value;
+            });
+            c.addListener(() {
+              if (controller.text != c.text) controller.value = c.value;
+            });
+            return TextField(
+              controller: controller,
+              focusNode: focusNode,
+              autofocus: true,
+              onSubmitted: (v) => Navigator.pop(context, v.trim()),
+            );
+          },
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
@@ -565,12 +589,36 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _bulkAddTag() async {
+    final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
     final tag = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Add Tag'),
-        content: TextField(controller: c, autofocus: true),
+        content: Autocomplete<String>(
+          optionsBuilder: (v) {
+            final input = v.text.toLowerCase();
+            if (input.isEmpty) return allTags;
+            return allTags.where((e) => e.toLowerCase().contains(input));
+          },
+          onSelected: (s) => Navigator.pop(context, s),
+          fieldViewBuilder: (context, controller, focusNode, _) {
+            controller.text = c.text;
+            controller.selection = c.selection;
+            controller.addListener(() {
+              if (c.text != controller.text) c.value = controller.value;
+            });
+            c.addListener(() {
+              if (controller.text != c.text) controller.value = c.value;
+            });
+            return TextField(
+              controller: controller,
+              focusNode: focusNode,
+              autofocus: true,
+              onSubmitted: (v) => Navigator.pop(context, v.trim()),
+            );
+          },
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
