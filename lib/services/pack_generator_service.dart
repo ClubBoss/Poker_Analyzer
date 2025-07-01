@@ -105,7 +105,10 @@ class PackGeneratorService {
     int bbCallPct = 20,
   }) {
     final spots = <TrainingPackSpot>[];
-    final callHands = topNHands(bbCallPct);
+    final isHeadsUp = playerStacksBb.length == 2;
+    const idxBB = 1;
+    final callCutoff =
+        (PackGeneratorService.handRanking.length * bbCallPct / 100).round();
     for (var i = 0; i < heroRange.length; i++) {
       final hand = heroRange[i];
       final heroCards = _firstCombo(hand);
@@ -113,7 +116,8 @@ class PackGeneratorService {
         0: [
           ActionEntry(0, 0, 'push', amount: heroBbStack.toDouble()),
           for (var j = 1; j < playerStacksBb.length; j++)
-            if (playerStacksBb.length == 2 && j == 1 && callHands.contains(hand))
+            if (isHeadsUp && j == idxBB &&
+                handRanking.indexOf(hand) < callCutoff)
               ActionEntry(0, j, 'call', amount: heroBbStack.toDouble())
             else
               ActionEntry(0, j, 'fold'),

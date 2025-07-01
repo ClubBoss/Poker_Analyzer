@@ -58,6 +58,19 @@ void main() {
     expect(tpl.spots.first.hand.actions[0]?[1].action, 'call');
   });
 
+  test('bb calls with top hands at 20 pct', () async {
+    final tpl = PackGeneratorService.generatePushFoldPackSync(
+      id: 'c2',
+      name: 'Call20',
+      heroBbStack: 10,
+      playerStacksBb: [10, 10],
+      heroPos: HeroPosition.sb,
+      heroRange: ['AA'],
+      bbCallPct: 20,
+    );
+    expect(tpl.spots.first.hand.actions[0]?[1].action, 'call');
+  });
+
   test('parseRangeString and serializeRange are idempotent', () {
     const raw = 'A2s 22 KQo';
     final parsed = PackGeneratorService.parseRangeString(raw);
