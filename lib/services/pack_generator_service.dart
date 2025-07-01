@@ -80,6 +80,7 @@ class PackGeneratorService {
     required HeroPosition heroPos,
     required List<String> heroRange,
     int anteBb = 0,
+    int bbCallPct = 20,
   }) async {
     return generatePushFoldPackSync(
       id: id,
@@ -89,6 +90,7 @@ class PackGeneratorService {
       heroPos: heroPos,
       heroRange: heroRange,
       anteBb: anteBb,
+      bbCallPct: bbCallPct,
     );
   }
 
@@ -100,8 +102,10 @@ class PackGeneratorService {
     required HeroPosition heroPos,
     required List<String> heroRange,
     int anteBb = 0,
+    int bbCallPct = 20,
   }) {
     final spots = <TrainingPackSpot>[];
+    final callHands = topNHands(bbCallPct);
     for (var i = 0; i < heroRange.length; i++) {
       final hand = heroRange[i];
       final heroCards = _firstCombo(hand);
@@ -109,12 +113,15 @@ class PackGeneratorService {
         0: [
           ActionEntry(0, 0, 'push', amount: heroBbStack.toDouble()),
           for (var j = 1; j < playerStacksBb.length; j++)
-            ActionEntry(0, j, 'fold'),
+            if (playerStacksBb.length == 2 && j == 1 && callHands.contains(hand))
+              ActionEntry(0, j, 'call', amount: heroBbStack.toDouble())
+            else
+              ActionEntry(0, j, 'fold'),
         ]
       };
       final ev = computePushEV(
         heroBbStack: heroBbStack,
-        bbCount: playerStacksBb.length,
+        bbCount: playerStacksBb.length - 1,
         heroHand: hand,
         anteBb: anteBb,
       );

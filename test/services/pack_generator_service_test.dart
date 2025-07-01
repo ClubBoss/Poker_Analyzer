@@ -32,6 +32,7 @@ void main() {
         'A9o',
         'ATo',
       ],
+      bbCallPct: 100,
     );
     expect(tpl.spots.length, 20);
     final ids = <String>{};
@@ -42,6 +43,19 @@ void main() {
       expect(s.hand.actions[0]?.first.action, 'push');
       expect(s.hand.actions[0]?.length, 2);
     }
+  });
+
+  test('bb calls with top hands', () async {
+    final tpl = PackGeneratorService.generatePushFoldPackSync(
+      id: 'c',
+      name: 'Call',
+      heroBbStack: 10,
+      playerStacksBb: [10, 10],
+      heroPos: HeroPosition.sb,
+      heroRange: ['AA'],
+      bbCallPct: 100,
+    );
+    expect(tpl.spots.first.hand.actions[0]?[1].action, 'call');
   });
 
   test('parseRangeString and serializeRange are idempotent', () {
