@@ -29,6 +29,7 @@ import '../training_session_screen.dart';
 import '../../helpers/training_pack_validator.dart';
 import '../../helpers/training_pack_validator.dart';
 import '../../widgets/common/ev_distribution_chart.dart';
+import '../../widgets/ev_summary_card.dart';
 import '../../theme/app_colors.dart';
 import '../../services/room_hand_history_importer.dart';
 import '../../services/push_fold_ev_service.dart';
@@ -76,6 +77,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
   final GlobalKey _previewKey = GlobalKey();
+  bool _summaryIcm = false;
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
@@ -1250,6 +1252,54 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Widget build(BuildContext context) {
     final narrow = MediaQuery.of(context).size.width < 400;
     final hasSpots = widget.template.spots.isNotEmpty;
+    final shown = widget.template.spots.where((s) {
+      if (_pinnedOnly && !s.pinned) return false;
+      final ev = _spotEv(s);
+      if (_evFilter == 'mistakes' && ev >= 0) return false;
+      if (_evFilter == 'profitable' && ev < 0) return false;
+      if (_selectedTags.isNotEmpty && !s.tags.any(_selectedTags.contains)) {
+        return false;
+      }
+      if (_tagFilter != null &&
+          !s.tags.any((t) => t.toLowerCase() == _tagFilter)) {
+        return false;
+      }
+      if (_query.isEmpty) return true;
+      return s.title.toLowerCase().contains(_query) ||
+          s.tags.any((t) => t.toLowerCase().contains(_query));
+    }).toList();
+    final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
+    final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
+    List<TrainingPackSpot> sorted;
+    if (_sortBy == SortBy.manual) {
+      sorted = shown;
+    } else {
+      final pinned = [for (final s in shown) if (s.pinned) s];
+      final rest = [for (final s in shown) if (!s.pinned) s];
+      switch (_sortBy) {
+        case SortBy.title:
+          rest.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+          break;
+        case SortBy.evDesc:
+          double ev(TrainingPackSpot s) {
+            final acts = s.hand.actions[0] ?? [];
+            for (final a in acts) {
+              if (a.playerIndex == s.hand.heroIndex) return a.ev ?? double.negativeInfinity;
+            }
+            return double.negativeInfinity;
+          }
+          rest.sort((a, b) => ev(b).compareTo(ev(a)));
+          break;
+        case SortBy.edited:
+          rest.sort((a, b) => b.editedAt.compareTo(a.editedAt));
+          break;
+        case SortBy.autoEv:
+          break;
+        case SortBy.manual:
+          break;
+      }
+      sorted = [...pinned, ...rest];
+    }
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ): const UndoIntent(),
@@ -1541,6 +1591,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               },
             ),
             const SizedBox(height: 16),
+            StatefulBuilder(
+              builder: (context, set) => EvSummaryCard(
+                values: _summaryIcm ? icmVals : chipVals,
+                isIcm: _summaryIcm,
+                onToggle: () => set(() => _summaryIcm = !_summaryIcm),
+              ),
+            ),
+            const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: TextField(
@@ -1650,54 +1708,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             Expanded(
               child: Builder(
                 builder: (context) {
-                  final shown = widget.template.spots.where((s) {
-                    if (_pinnedOnly && !s.pinned) return false;
-                    final ev = _spotEv(s);
-                    if (_evFilter == 'mistakes' && ev >= 0) return false;
-                    if (_evFilter == 'profitable' && ev < 0) return false;
-                    if (_selectedTags.isNotEmpty &&
-                        !s.tags.any(_selectedTags.contains)) {
-                      return false;
-                    }
-                    if (_tagFilter != null &&
-                        !s.tags.any((t) => t.toLowerCase() == _tagFilter)) {
-                      return false;
-                    }
-                    if (_query.isEmpty) return true;
-                    return s.title.toLowerCase().contains(_query) ||
-                        s.tags.any((t) => t.toLowerCase().contains(_query));
-                  }).toList();
-                  List<TrainingPackSpot> sorted;
-                  if (_sortBy == SortBy.manual) {
-                    sorted = shown;
-                  } else {
-                    final pinned = [for (final s in shown) if (s.pinned) s];
-                    final rest = [for (final s in shown) if (!s.pinned) s];
-                    switch (_sortBy) {
-                      case SortBy.title:
-                        rest.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-                        break;
-                      case SortBy.evDesc:
-                        double ev(TrainingPackSpot s) {
-                          final acts = s.hand.actions[0] ?? [];
-                          for (final a in acts) {
-                            if (a.playerIndex == s.hand.heroIndex) return a.ev ?? double.negativeInfinity;
-                          }
-                          return double.negativeInfinity;
-                        }
-                        rest.sort((a, b) => ev(b).compareTo(ev(a)));
-                        break;
-                      case SortBy.edited:
-                        rest.sort((a, b) => b.editedAt.compareTo(a.editedAt));
-                        break;
-                      case SortBy.autoEv:
-                        break;
-                      case SortBy.manual:
-                        break;
-                    }
-                    sorted = [...pinned, ...rest];
-                  }
-                },
                   final groups = <String, List<TrainingPackSpot>>{};
                   for (final s in sorted) {
                     final tag = s.tags.isNotEmpty ? s.tags.first : '';
