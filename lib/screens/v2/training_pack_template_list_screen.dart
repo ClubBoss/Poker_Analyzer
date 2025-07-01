@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
@@ -889,6 +890,93 @@ class _TrainingPackTemplateListScreenState
     );
   }
 
+  Future<void> _startMixedDrill() async {
+    final countCtrl = TextEditingController(text: '20');
+    bool autoOnly = false;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Mixed Drill'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: countCtrl,
+                decoration: const InputDecoration(labelText: 'Spots count'),
+                keyboardType: TextInputType.number,
+              ),
+              CheckboxListTile(
+                value: autoOnly,
+                onChanged: (v) => setState(() => autoOnly = v ?? false),
+                title: const Text('Only auto-generated'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (ok != true) return;
+    final count = int.tryParse(countCtrl.text.trim()) ?? 0;
+    final byType = _selectedType == null
+        ? _templates
+        : [for (final t in _templates) if (t.gameType == _selectedType) t];
+    final filtered = _selectedTag == null
+        ? byType
+        : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
+    final shown = _query.isEmpty
+        ? filtered
+        : [
+            for (final t in filtered)
+              if (t.name.toLowerCase().contains(_query) ||
+                  t.description.toLowerCase().contains(_query))
+                t
+          ];
+    final list =
+        autoOnly ? [for (final t in shown) if (t.tags.contains('auto')) t] : shown;
+    final spots = <TrainingPackSpot>[for (final t in list) ...t.spots];
+    if (spots.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Not enough spots')));
+      }
+      return;
+    }
+    spots.shuffle(Random());
+    final picked =
+        count <= 0 || spots.length <= count ? spots : spots.take(count).toList();
+    final tpl = TrainingPackTemplate(
+      id: 'mixed_${DateTime.now().millisecondsSinceEpoch}',
+      name: 'Mixed Drill',
+      tags: const ['mixed', 'auto'],
+      spots: picked,
+      createdAt: DateTime.now(),
+    );
+    await context.read<TrainingSessionService>().startSession(tpl, persist: false);
+    await GeneratedPackHistoryService.logPack(
+      id: tpl.id,
+      name: tpl.name,
+      type: 'mixed',
+      ts: DateTime.now(),
+    );
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+      );
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -1273,6 +1361,13 @@ class _TrainingPackTemplateListScreenState
             onPressed: _generateTopMistakes,
             tooltip: 'Generate Top Mistakes Pack',
             label: const Text('Top 10 Mistakes'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'mixedDrillFab',
+            icon: const Icon(Icons.shuffle),
+            label: const Text('Mixed Drill'),
+            onPressed: _startMixedDrill,
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
