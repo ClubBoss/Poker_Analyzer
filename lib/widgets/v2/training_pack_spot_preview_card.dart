@@ -34,13 +34,13 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
     final double? heroEv = heroAct?.ev;
     final borderColor = heroEv == null
         ? Colors.grey
-        : (heroEv >= 0 ? Colors.green : Colors.red);
-    final badgeColor = heroEv == null
-        ? Colors.grey
-        : (heroEv >= 0 ? Colors.green : Colors.red);
+        : (heroEv.abs() <= 0.01
+            ? Colors.grey
+            : (heroEv > 0 ? Colors.green : Colors.red));
+    final badgeColor = borderColor;
     final badgeText = heroEv == null
-        ? '--'
-        : '${heroEv >= 0 ? '+' : ''}${heroEv.toStringAsFixed(1)} BB';
+        ? ''
+        : '${heroEv > 0 ? '+' : ''}${heroEv.toStringAsFixed(1)}';
 
     final String? heroLabel = heroAct == null
         ? null
@@ -82,22 +82,25 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: badgeColor,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          badgeText,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                      if (heroEv != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          key: const ValueKey('evBadge'),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: badgeColor,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            badgeText,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                   if (hero.isNotEmpty || pos != HeroPosition.unknown || legacy)

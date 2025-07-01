@@ -4,6 +4,7 @@ import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
 import '../models/action_entry.dart';
 import '../models/game_type.dart';
+import 'push_fold_ev_service.dart';
 
 class PackGeneratorService {
   static const _ranks = [
@@ -78,6 +79,7 @@ class PackGeneratorService {
     required List<int> playerStacksBb,
     required HeroPosition heroPos,
     required List<String> heroRange,
+    int anteBb = 0,
   }) async {
     return generatePushFoldPackSync(
       id: id,
@@ -86,6 +88,7 @@ class PackGeneratorService {
       playerStacksBb: playerStacksBb,
       heroPos: heroPos,
       heroRange: heroRange,
+      anteBb: anteBb,
     );
   }
 
@@ -96,6 +99,7 @@ class PackGeneratorService {
     required List<int> playerStacksBb,
     required HeroPosition heroPos,
     required List<String> heroRange,
+    int anteBb = 0,
   }) {
     final spots = <TrainingPackSpot>[];
     for (var i = 0; i < heroRange.length; i++) {
@@ -108,6 +112,13 @@ class PackGeneratorService {
             ActionEntry(0, j, 'fold'),
         ]
       };
+      final ev = computePushEV(
+        heroBbStack: heroBbStack,
+        bbCount: playerStacksBb.length,
+        heroHand: hand,
+        anteBb: anteBb,
+      );
+      actions[0]![0].ev = ev;
       final stacks = {
         for (var j = 0; j < playerStacksBb.length; j++)
           '$j': playerStacksBb[j].toDouble()
