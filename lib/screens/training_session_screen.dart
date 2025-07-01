@@ -91,6 +91,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
 
   void _next(service) {
     final next = service.nextSpot();
+    if (!mounted) return;
     if (next == null) {
       if (widget.onSessionEnd != null) {
         _endlessStats.addDuration(service.elapsedTime);
@@ -132,6 +133,23 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         }
       });
     }
+  }
+
+  void _showEndlessSummary() {
+    final service = context.read<TrainingSessionService>();
+    _endlessStats.addDuration(service.elapsedTime);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SessionResultScreen(
+          total: _endlessStats.total,
+          correct: _endlessStats.correct,
+          elapsed: _endlessStats.elapsed,
+          authorPreview: false,
+        ),
+      ),
+    );
+    _endlessStats.reset();
   }
 
   @override
@@ -278,6 +296,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                 ),
             ],
           ),
+          floatingActionButton: widget.onSessionEnd != null
+              ? FloatingActionButton(
+                  heroTag: 'stopDrillFab',
+                  tooltip: 'Stop Drill & show summary',
+                  child: const Icon(Icons.stop),
+                  onPressed: _showEndlessSummary,
+                )
+              : null,
         );
       },
     ),
