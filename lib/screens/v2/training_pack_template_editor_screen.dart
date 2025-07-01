@@ -1360,6 +1360,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     ),
                 ],
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: _evFilter,
+                decoration: const InputDecoration(labelText: 'EV'),
+                items: const [
+                  DropdownMenuItem(value: 'all', child: Text('All')),
+                  DropdownMenuItem(value: 'ok', child: Text('OK')),
+                  DropdownMenuItem(value: 'error', child: Text('Errors')),
+                  DropdownMenuItem(value: 'empty', child: Text('Empty')),
+                ],
+                onChanged: (v) async {
+                  final prefs = await SharedPreferences.getInstance();
+                  final val = v ?? 'all';
+                  set(() => _evFilter = val);
+                  this.setState(() {});
+                  prefs.setString(_prefsEvFilterKey, val);
+                },
+              ),
             ],
           ),
         ),
@@ -1846,7 +1864,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     ),
                     DropdownButtonFormField<String>(
                       value: _evFilter,
-                      decoration: const InputDecoration(labelText: 'EV filter'),
+                      decoration: const InputDecoration(labelText: 'EV'),
                       items: const [
                         DropdownMenuItem(value: 'all', child: Text('All')),
                         DropdownMenuItem(value: 'ok', child: Text('OK')),
