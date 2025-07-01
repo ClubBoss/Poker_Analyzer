@@ -10,6 +10,7 @@ import '../../helpers/training_pack_storage.dart';
 import '../../services/pack_generator_service.dart';
 import 'training_pack_template_editor_screen.dart';
 import '../../widgets/range_matrix_picker.dart';
+import '../../widgets/preset_range_buttons.dart';
 
 class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
@@ -143,6 +144,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     final playerStacksCtrl = TextEditingController(text: '10,10');
     final rangeCtrl = TextEditingController();
     final selected = <String>{};
+    double percent = 0;
     HeroPosition pos = HeroPosition.sb;
     bool listenerAdded = false;
     final ok = await showDialog<bool>(
@@ -155,6 +157,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
               selected
                 ..clear()
                 ..addAll(PackGeneratorService.parseRangeString(rangeCtrl.text));
+              percent = selected.length / 169 * 100;
               setState(() {});
             });
           }
@@ -188,10 +191,10 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                     onChanged: (v) => setState(() => pos = v ?? HeroPosition.sb),
                   ),
                   DefaultTabController(
-                    length: 2,
+                    length: 3,
                     child: Column(
                       children: [
-                        const TabBar(tabs: [Tab(text: 'Text'), Tab(text: 'Matrix')]),
+                        const TabBar(tabs: [Tab(text: 'Text'), Tab(text: 'Matrix'), Tab(text: 'Presets')]),
                         SizedBox(
                           height: 280,
                           child: TabBarView(
@@ -209,8 +212,37 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                                       ..clear()
                                       ..addAll(v);
                                     rangeCtrl.text = PackGeneratorService.serializeRange(v);
+                                    percent = selected.length / 169 * 100;
                                   },
                                 ),
+                              ),
+                              Column(
+                                children: [
+                                  PresetRangeButtons(
+                                    selected: selected,
+                                    onChanged: (v) {
+                                      selected
+                                        ..clear()
+                                        ..addAll(v);
+                                      rangeCtrl.text = PackGeneratorService.serializeRange(v);
+                                      percent = selected.length / 169 * 100;
+                                      setState(() {});
+                                    },
+                                  ),
+                                  Slider(
+                                    value: percent,
+                                    min: 0,
+                                    max: 100,
+                                    onChanged: (v) {
+                                      percent = v;
+                                      selected
+                                        ..clear()
+                                        ..addAll(PackGeneratorService.topNHands(v.round()));
+                                      rangeCtrl.text = PackGeneratorService.serializeRange(selected);
+                                      setState(() {});
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -232,7 +264,8 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                   const SizedBox(height: 4),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('Выбрано: ${selected.length} рук (${((selected.length / 169) * 100).round()} %)'),
+                    child: Text(
+                        'Выбрано: ${selected.length} рук (${((selected.length / 169) * 100).round()} %)\nTop-N: ${percent.round()} %'),
                   ),
                 ],
               ),
