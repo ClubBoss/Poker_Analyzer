@@ -176,7 +176,7 @@ class PackGeneratorService {
 
   static Set<String> parseRangeString(String raw) {
     return {
-      for (final t in raw.split(RegExp('[,\n ]+')))
+      for (final t in raw.split(RegExp('[,;\s]+')))
         if (t.trim().isNotEmpty) t.trim()
     };
   }
