@@ -506,16 +506,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final spots = widget.template.spots;
     final total = spots.length;
     final tags = spots.expand((s) => s.tags).toList();
-    final heroEvs = <double>[];
-    for (final s in spots) {
-      final acts = s.hand.actions[0] ?? [];
-      for (final a in acts) {
-        if (a.playerIndex == s.hand.heroIndex && a.ev != null) {
-          heroEvs.add(a.ev!);
-          break;
-        }
-      }
-    }
+    final heroEvs = [for (final s in spots) if (s.heroEv != null) s.heroEv!];
     final uniqueTags = tags.toSet();
     final counts = <String, int>{};
     for (final t in tags) {
