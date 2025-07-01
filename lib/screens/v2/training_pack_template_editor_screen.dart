@@ -210,6 +210,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() => _selectedSpotIds.clear());
   }
 
+  Future<void> _bulkMoveToTag(String tag) async {
+    setState(() {
+      for (final id in _selectedSpotIds) {
+        final s = widget.template.spots.firstWhere((e) => e.id == id);
+        s.tags
+          ..clear();
+        if (tag.isNotEmpty) s.tags.add(tag);
+      }
+    });
+    await TrainingPackStorage.save(widget.templates);
+    setState(() => _selectedSpotIds.clear());
+  }
+
   Future<void> _bulkTogglePin() async {
     final spots = [for (final s in widget.template.spots) if (_selectedSpotIds.contains(s.id)) s];
     if (spots.isEmpty) return;
@@ -403,6 +416,27 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 onSubmitted: (_) => _saveName(),
               ),
         actions: [
+          if (_isMultiSelect)
+            PopupMenuButton<String>(
+              tooltip: 'Move to Tag',
+              onSelected: _bulkMoveToTag,
+              itemBuilder: (_) {
+                final tags = widget.template.spots
+                    .expand((s) => s.tags)
+                    .toSet()
+                    .toList()
+                  ..sort((a, b) => a.compareTo(b));
+                return [
+                  const PopupMenuItem(value: '', child: Text('Untagged')),
+                  for (final t in tags)
+                    PopupMenuItem(value: t, child: Text(t)),
+                ];
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Center(child: Text('Move to Tag')),
+              ),
+            ),
           PopupMenuButton<SortBy>(
             icon: const Icon(Icons.sort),
             onSelected: (v) async {
