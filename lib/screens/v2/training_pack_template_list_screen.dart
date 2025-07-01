@@ -262,7 +262,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
-                      'In SB vs BB, hands from top ${bbCall.round()}% will call instead of fold. This does not affect EV.',
+                      'In SB vs BB, hands from top ${bbCall.round()}% will trigger a call instead of fold. This affects action preview, not EV.',
                       style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.white54),
                     ),
                   ),
