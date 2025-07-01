@@ -1640,6 +1640,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 ),
               ),
             ),
+            const SizedBox(height: 8),
+            const _RangeLegend(),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -2109,6 +2111,35 @@ class _ManageTagTileState extends State<_ManageTagTile> {
         icon: const Text('🗑️'),
         onPressed: widget.onDelete,
       ),
+    );
+  }
+}
+
+class _RangeLegend extends StatelessWidget {
+  const _RangeLegend();
+
+  Widget _item(Color c, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 12, height: 12, color: c),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _item(Colors.orange, 'Pairs'),
+        const SizedBox(width: 12),
+        _item(Colors.green, 'Suited'),
+        const SizedBox(width: 12),
+        _item(Colors.blue, 'Offsuit'),
+      ],
     );
   }
 }
