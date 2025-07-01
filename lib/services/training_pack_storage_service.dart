@@ -399,6 +399,47 @@ class TrainingPackStorageService extends ChangeNotifier {
     return copy;
   }
 
+  Future<List<TrainingPack>> splitByTable(TrainingPack pack) async {
+    final groups = <String, List<SavedHand>>{};
+    for (final h in pack.hands) {
+      final key = h.comment?.trim() ?? '';
+      groups.putIfAbsent(key, () => []).add(h);
+    }
+    if (groups.length <= 1) return [pack];
+    final index = _packs.indexOf(pack);
+    if (index != -1) _packs.removeAt(index);
+    final List<TrainingPack> result = [];
+    int i = 1;
+    for (final entry in groups.entries) {
+      var name = pack.name;
+      if (entry.key.isNotEmpty) {
+        name = '$name (${entry.key})';
+      } else {
+        name = '$name ($i)';
+      }
+      final newPack = TrainingPack(
+        name: name,
+        description: pack.description,
+        category: pack.category,
+        gameType: pack.gameType,
+        colorTag: pack.colorTag,
+        isBuiltIn: false,
+        tags: pack.tags,
+        hands: entry.value,
+        spots: pack.spots,
+        difficulty: pack.difficulty,
+        history: const [],
+      );
+      _packs.insert(index + result.length, newPack);
+      result.add(newPack);
+      await _sync(newPack);
+      i++;
+    }
+    await _persist();
+    notifyListeners();
+    return result;
+  }
+
   Future<TrainingPack> createPackFromTemplate(TrainingPackTemplate tpl) async {
     final ts = DateFormat('dd.MM HH:mm').format(DateTime.now());
     String base = 'Новый пак: ${tpl.name} ($ts)';

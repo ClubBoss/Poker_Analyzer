@@ -319,7 +319,7 @@ class _TrainingPackTemplateListScreenState
     final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
     for (final a in actions) {
       if (a.playerIndex == hand.heroIndex) {
-        a.ev = -(hand.evLoss ?? 0);
+        a.ev = hand.evLoss ?? 0;
         break;
       }
     }
@@ -393,7 +393,7 @@ class _TrainingPackTemplateListScreenState
     final hands = manager.hands
         .where((h) => h.evLoss != null)
         .toList()
-      ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
+      ..sort((a, b) => (a.evLoss ?? 0).compareTo(b.evLoss ?? 0));
     if (hands.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -401,10 +401,22 @@ class _TrainingPackTemplateListScreenState
       }
       return;
     }
-    final spots = [for (final h in hands.take(10)) _spotFromHand(h)];
+    final seen = <String>{};
+    final spots = <TrainingPackSpot>[];
+    for (final h in hands) {
+      if (seen.add(h.id)) spots.add(_spotFromHand(h));
+      if (spots.length == 10) break;
+    }
+    if (spots.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Недостаточно данных')));
+      }
+      return;
+    }
     final template = TrainingPackTemplate(
       id: const Uuid().v4(),
-      name: 'Top Mistakes',
+      name: 'Top ${spots.length} Mistakes',
       createdAt: DateTime.now(),
       spots: spots,
     );
@@ -1211,6 +1223,7 @@ class _TrainingPackTemplateListScreenState
           FloatingActionButton.extended(
             heroTag: 'topMistakesTplFab',
             onPressed: _generateTopMistakes,
+            tooltip: 'Generate Top Mistakes Pack',
             label: const Text('Top 10 Mistakes'),
           ),
           const SizedBox(height: 12),

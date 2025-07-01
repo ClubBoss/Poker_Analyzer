@@ -231,25 +231,37 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
 
   Future<void> _showPackMenu(TrainingPack pack) async {
     if (pack.isBuiltIn || pack.history.isEmpty) return;
-    final reset = await showDialog<bool>(
+    final action = await showDialog<String>(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: Text(pack.name),
         children: [
           SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, true),
+            onPressed: () => Navigator.pop(ctx, 'reset'),
             child: const Text('Сбросить прогресс'),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, 'split'),
+            child: const Text('Разбить по столам'),
           ),
         ],
       ),
     );
-    if (reset == true) {
+    if (action == 'reset') {
       await context.read<TrainingPackStorageService>().clearProgress(pack);
       if (mounted) {
         await _loadDates();
         setState(() {});
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Прогресс сброшен')));
+      }
+    } else if (action == 'split') {
+      final packs = await context.read<TrainingPackStorageService>().splitByTable(pack);
+      if (mounted && packs.length > 1) {
+        await _loadDates();
+        setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Прогресс сброшен')),
+          SnackBar(content: Text('Создано паков: ${packs.length}')),
         );
       }
     }
