@@ -510,7 +510,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (context, setStateDialog) => AlertDialog(
-          title: Text(move ? 'Move To…' : 'Copy To…'),
+          title: Text(move ? 'Move to Pack' : 'Copy to Pack'),
           content: DropdownButton<TrainingPackTemplate>(
             value: selected,
             isExpanded: true,
@@ -869,12 +869,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   const SizedBox(width: 12),
                   TextButton(
                     onPressed: _bulkMove,
-                    child: const Text('Move To…'),
+                    child: const Text('Move to Pack'),
                   ),
                   const SizedBox(width: 12),
                   TextButton(
                     onPressed: _bulkCopy,
-                    child: const Text('Copy To…'),
+                    child: const Text('Copy to Pack'),
                   ),
                   const SizedBox(width: 12),
                   TextButton.icon(
