@@ -18,6 +18,9 @@ import '../../services/training_spot_storage_service.dart';
 import '../../services/saved_hand_manager_service.dart';
 import '../../models/saved_hand.dart';
 import '../../models/action_entry.dart';
+import '../../services/generated_pack_history_service.dart';
+import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'training_pack_template_editor_screen.dart';
 import '../../widgets/range_matrix_picker.dart';
@@ -43,6 +46,7 @@ class _TrainingPackTemplateListScreenState
   String? _selectedTag;
   bool _filtersShown = false;
   String _sort = 'name';
+  List<GeneratedPackInfo> _history = [];
 
   void _sortTemplates() {
     switch (_sort) {
@@ -80,6 +84,10 @@ class _TrainingPackTemplateListScreenState
         _sortTemplates();
         _loading = false;
       });
+    });
+    GeneratedPackHistoryService.load().then((list) {
+      if (!mounted) return;
+      setState(() => _history = list);
     });
   }
 
@@ -215,6 +223,14 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     TrainingPackStorage.save(_templates);
+    await GeneratedPackHistoryService.logPack(
+      id: template.id,
+      name: template.name,
+      type: 'mistakes',
+      ts: DateTime.now(),
+    );
+    _history = await GeneratedPackHistoryService.load();
+    if (mounted) setState(() {});
     _edit(template);
   }
 
@@ -233,6 +249,14 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     TrainingPackStorage.save(_templates);
+    await GeneratedPackHistoryService.logPack(
+      id: template.id,
+      name: template.name,
+      type: 'quick',
+      ts: DateTime.now(),
+    );
+    _history = await GeneratedPackHistoryService.load();
+    if (mounted) setState(() {});
     _nameAndEdit(template);
   }
 
@@ -246,6 +270,14 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     TrainingPackStorage.save(_templates);
+    await GeneratedPackHistoryService.logPack(
+      id: template.id,
+      name: template.name,
+      type: 'final',
+      ts: DateTime.now(),
+    );
+    _history = await GeneratedPackHistoryService.load();
+    if (mounted) setState(() {});
     _nameAndEdit(template);
   }
 
@@ -345,6 +377,14 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     TrainingPackStorage.save(_templates);
+    await GeneratedPackHistoryService.logPack(
+      id: template.id,
+      name: template.name,
+      type: 'fav',
+      ts: DateTime.now(),
+    );
+    _history = await GeneratedPackHistoryService.load();
+    if (mounted) setState(() {});
     _nameAndEdit(template);
   }
 
@@ -421,6 +461,14 @@ class _TrainingPackTemplateListScreenState
           _sortTemplates();
         });
         TrainingPackStorage.save(_templates);
+        await GeneratedPackHistoryService.logPack(
+          id: template.id,
+          name: template.name,
+          type: 'paste',
+          ts: DateTime.now(),
+        );
+        _history = await GeneratedPackHistoryService.load();
+        if (mounted) setState(() {});
         _nameAndEdit(template);
       }
     }
@@ -632,6 +680,14 @@ class _TrainingPackTemplateListScreenState
         _sortTemplates();
       });
       TrainingPackStorage.save(_templates);
+      await GeneratedPackHistoryService.logPack(
+        id: template.id,
+        name: template.name,
+        type: 'custom',
+        ts: DateTime.now(),
+      );
+      _history = await GeneratedPackHistoryService.load();
+      if (mounted) setState(() {});
       _edit(template);
     }
     nameCtrl.dispose();
@@ -915,6 +971,28 @@ class _TrainingPackTemplateListScreenState
                         setState(() => _query = v.trim().toLowerCase()),
                   ),
                 ),
+                if (_history.isNotEmpty)
+                  ExpansionTile(
+                    title: const Text('Recent Generated Packs'),
+                    children: [
+                      for (final h in _history)
+                        ListTile(
+                          title: Text(h.name),
+                          subtitle: Text(
+                              '${h.type} • ${DateFormat.yMMMd().add_Hm().format(h.ts)}'),
+                          onTap: () {
+                            final tpl = _templates.firstWhereOrNull(
+                                (t) => t.id == h.id);
+                            if (tpl != null) {
+                              _edit(tpl);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Pack not found')));
+                            }
+                          },
+                        ),
+                    ],
+                  ),
                 if (!narrow)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
