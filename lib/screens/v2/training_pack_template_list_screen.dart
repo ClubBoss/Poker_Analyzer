@@ -162,8 +162,10 @@ class _TrainingPackTemplateListScreenState
     _edit(template);
   }
 
-  void _generateFinalTable() {
-    final template = PackGeneratorService.generateFinalTablePack();
+  Future<void> _generateFinalTable() async {
+    await Future.delayed(Duration.zero);
+    final template =
+        PackGeneratorService.generateFinalTablePack().copyWith(id: const Uuid().v4());
     setState(() => _templates.add(template));
     TrainingPackStorage.save(_templates);
     _edit(template);
@@ -880,7 +882,8 @@ class _TrainingPackTemplateListScreenState
           const SizedBox(height: 12),
           FloatingActionButton.extended(
             heroTag: 'finalTableTplFab',
-            onPressed: _generateFinalTable,
+            onPressed: () => _generateFinalTable(),
+            tooltip: 'Generate Final Table Pack',
             label: const Text('Final Table'),
           ),
           const SizedBox(height: 12),
