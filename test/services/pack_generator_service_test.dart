@@ -78,4 +78,19 @@ void main() {
     final serialized = PackGeneratorService.serializeRange(parsed);
     expect(PackGeneratorService.parseRangeString(serialized), parsed);
   });
+
+  test('generateFinalTablePack creates correct spots', () {
+    final tpl = PackGeneratorService.generateFinalTablePack();
+    final count = PackGeneratorService.topNHands(10).length;
+    expect(tpl.spots.length, count);
+    for (final s in tpl.spots) {
+      expect(s.hand.heroIndex, 3);
+      expect(s.hand.position, HeroPosition.co);
+      expect(s.hand.playerCount, 9);
+      expect(s.hand.stacks['3'], 30);
+      expect(s.hand.actions[0]?.first.action, 'push');
+      expect(s.hand.actions[0]?.length, 9);
+      expect(s.tags.contains('finaltable'), isTrue);
+    }
+  });
 }
