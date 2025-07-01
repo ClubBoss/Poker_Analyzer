@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
+import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../helpers/title_utils.dart';
 import '../../models/v2/hand_data.dart';
@@ -657,6 +658,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 onSubmitted: (_) => _saveName(),
               ),
         actions: [
+          DropdownButton<GameType>(
+            value: widget.template.gameType,
+            underline: const SizedBox(),
+            items: const [
+              DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+              DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
+            ],
+            onChanged: (v) {
+              if (v == null) return;
+              setState(() => widget.template.gameType = v);
+              TrainingPackStorage.save(widget.templates);
+            },
+          ),
           if (_isMultiSelect)
             PopupMenuButton<String>(
               tooltip: 'Move to Tag',
@@ -812,15 +826,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               },
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<GameType>(
               value: widget.template.gameType,
               decoration: const InputDecoration(labelText: 'Game Type'),
               items: const [
-                DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
-                DropdownMenuItem(value: 'cash', child: Text('Cash')),
+                DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
               ],
               onChanged: (v) {
-                setState(() => widget.template.gameType = v ?? 'tournament');
+                setState(() => widget.template.gameType = v ?? GameType.tournament);
                 TrainingPackStorage.save(widget.templates);
               },
             ),
