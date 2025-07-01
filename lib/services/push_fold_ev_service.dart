@@ -6,14 +6,19 @@ final Map<String, double> _equity = {
         0.85 - i * (0.55 / (PackGeneratorService.handRanking.length - 1))
 };
 
+final Map<String, double> _evCache = {};
+
 double computePushEV({
   required int heroBbStack,
   required int bbCount,
   required String heroHand,
   required int anteBb,
 }) {
-  final eq = _equity[heroHand] ?? 0.5;
-  final pot = bbCount * anteBb + 1.5;
-  final bet = heroBbStack.toDouble();
-  return eq * pot - (1 - eq) * bet;
+  final key = '$heroBbStack|$bbCount|$heroHand|$anteBb';
+  return _evCache.putIfAbsent(key, () {
+    final eq = _equity[heroHand] ?? 0.5;
+    final pot = (bbCount * anteBb) + 1.5 + anteBb;
+    final bet = heroBbStack.toDouble();
+    return eq * pot - (1 - eq) * bet;
+  });
 }
