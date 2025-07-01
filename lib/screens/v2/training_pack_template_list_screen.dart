@@ -25,6 +25,8 @@ import 'package:provider/provider.dart';
 import 'training_pack_template_editor_screen.dart';
 import '../../widgets/range_matrix_picker.dart';
 import '../../widgets/preset_range_buttons.dart';
+import '../training_session_screen.dart';
+import '../../services/training_session_service.dart';
 
 class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
@@ -998,9 +1000,29 @@ class _TrainingPackTemplateListScreenState
                           title: Text(h.name),
                           subtitle: Text(
                               '${h.type} • ${DateFormat.yMMMd().add_Hm().format(h.ts)}'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.play_arrow),
+                            tooltip: 'Start training',
+                            onPressed: () async {
+                              final tpl = _templates.firstWhereOrNull((t) => t.id == h.id);
+                              if (tpl == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Pack not found')));
+                                return;
+                              }
+                              await context
+                                  .read<TrainingSessionService>()
+                                  .startSession(tpl, persist: false);
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const TrainingSessionScreen()),
+                              );
+                            },
+                          ),
                           onTap: () {
-                            final tpl = _templates.firstWhereOrNull(
-                                (t) => t.id == h.id);
+                            final tpl =
+                                _templates.firstWhereOrNull((t) => t.id == h.id);
                             if (tpl != null) {
                               _edit(tpl);
                             } else {
