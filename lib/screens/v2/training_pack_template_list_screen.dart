@@ -162,6 +162,13 @@ class _TrainingPackTemplateListScreenState
     _edit(template);
   }
 
+  void _generateFinalTable() {
+    final template = PackGeneratorService.generateFinalTablePack();
+    setState(() => _templates.add(template));
+    TrainingPackStorage.save(_templates);
+    _edit(template);
+  }
+
   Future<void> _pasteRange() async {
     final ctrl = TextEditingController();
     final ok = await showDialog<bool>(
@@ -869,6 +876,12 @@ class _TrainingPackTemplateListScreenState
             heroTag: 'quickGenTplFab',
             onPressed: _quickGenerate,
             label: const Text('Quick Generate'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'finalTableTplFab',
+            onPressed: _generateFinalTable,
+            label: const Text('Final Table'),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
