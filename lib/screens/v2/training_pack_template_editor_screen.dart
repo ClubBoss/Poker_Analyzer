@@ -22,6 +22,8 @@ import '../../widgets/v2/training_pack_spot_preview_card.dart';
 import '../../widgets/spot_viewer_dialog.dart';
 import '../../services/training_session_service.dart';
 import '../training_session_screen.dart';
+import '../../helpers/training_pack_validator.dart';
+import '../../helpers/training_pack_validator.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -329,6 +331,29 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             for (final e in entries) Text('${e.key}: ${e.value}'),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _validateTemplate() {
+    final issues = validateTrainingPackTemplate(widget.template);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Validation'),
+        content: issues.isEmpty
+            ? const Text('No issues found')
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [for (final e in issues) Text(e)],
+              ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -746,6 +771,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Icon(Icons.archive), onPressed: _exportBundle),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
+          IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
           IconButton(
             onPressed: () async {
               await context
