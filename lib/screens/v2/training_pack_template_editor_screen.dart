@@ -10,7 +10,7 @@ import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
 import '../../widgets/spot_viewer_dialog.dart';
 
-enum SortBy { title, evDesc, edited, autoEv }
+enum SortBy { manual, title, evDesc, edited, autoEv }
 
 TrainingPackSpot? _copiedSpot;
 
@@ -39,7 +39,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Set<String> _selectedTags = {};
   Set<String> _selectedSpotIds = {};
   bool get _isMultiSelect => _selectedSpotIds.isNotEmpty;
-  SortBy _sortBy = SortBy.edited;
+  SortBy _sortBy = SortBy.manual;
   bool _autoSortEv = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
@@ -416,6 +416,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               }
             },
             itemBuilder: (_) => [
+              const PopupMenuItem(value: SortBy.manual, child: Text('Manual')),
               const PopupMenuItem(value: SortBy.title, child: Text('Title')),
               const PopupMenuItem(value: SortBy.evDesc, child: Text('EV')),
               const PopupMenuItem(value: SortBy.edited, child: Text('Edited')),
@@ -671,29 +672,36 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     return s.title.toLowerCase().contains(_query) ||
                         s.tags.any((t) => t.toLowerCase().contains(_query));
                   }).toList();
-                  final pinned = [for (final s in shown) if (s.pinned) s];
-                  final rest = [for (final s in shown) if (!s.pinned) s];
-                  switch (_sortBy) {
-                    case SortBy.title:
-                      rest.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
-                      break;
-                    case SortBy.evDesc:
-                      double ev(TrainingPackSpot s) {
-                        final acts = s.hand.actions[0] ?? [];
-                        for (final a in acts) {
-                          if (a.playerIndex == s.hand.heroIndex) return a.ev ?? double.negativeInfinity;
+                  List<TrainingPackSpot> sorted;
+                  if (_sortBy == SortBy.manual) {
+                    sorted = shown;
+                  } else {
+                    final pinned = [for (final s in shown) if (s.pinned) s];
+                    final rest = [for (final s in shown) if (!s.pinned) s];
+                    switch (_sortBy) {
+                      case SortBy.title:
+                        rest.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+                        break;
+                      case SortBy.evDesc:
+                        double ev(TrainingPackSpot s) {
+                          final acts = s.hand.actions[0] ?? [];
+                          for (final a in acts) {
+                            if (a.playerIndex == s.hand.heroIndex) return a.ev ?? double.negativeInfinity;
+                          }
+                          return double.negativeInfinity;
                         }
-                        return double.negativeInfinity;
-                      }
-                      rest.sort((a, b) => ev(b).compareTo(ev(a)));
-                      break;
-                    case SortBy.edited:
-                      rest.sort((a, b) => b.editedAt.compareTo(a.editedAt));
-                      break;
-                    case SortBy.autoEv:
-                      break;
+                        rest.sort((a, b) => ev(b).compareTo(ev(a)));
+                        break;
+                      case SortBy.edited:
+                        rest.sort((a, b) => b.editedAt.compareTo(a.editedAt));
+                        break;
+                      case SortBy.autoEv:
+                        break;
+                      case SortBy.manual:
+                        break;
+                    }
+                    sorted = [...pinned, ...rest];
                   }
-                  final sorted = [...pinned, ...rest];
                 },
                   return ReorderableListView.builder(
                     controller: _scrollCtrl,
