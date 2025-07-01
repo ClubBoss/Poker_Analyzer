@@ -181,4 +181,47 @@ class PackGeneratorService {
   }
 
   static String serializeRange(Set<String> range) => range.join(' ');
+
+  static TrainingPackTemplate generateFinalTablePack() {
+    const stacks = [5, 10, 20, 30, 40, 50, 60, 70, 80];
+    const heroIndex = 3;
+    const pos = HeroPosition.co;
+    final range = topNHands(10).toList();
+    final spots = <TrainingPackSpot>[];
+
+    for (var i = 0; i < range.length; i++) {
+      final actions = {
+        0: [
+          ActionEntry(0, heroIndex, 'push', amount: stacks[heroIndex].toDouble()),
+          for (var j = 0; j < stacks.length; j++)
+            if (j != heroIndex) ActionEntry(0, j, 'fold'),
+        ]
+      };
+      final stacksMap = {
+        for (var j = 0; j < stacks.length; j++) '$j': stacks[j].toDouble()
+      };
+      spots.add(
+        TrainingPackSpot(
+          id: 'finaltable_${i + 1}',
+          title: '${range[i]} push',
+          hand: HandData(
+            heroCards: _firstCombo(range[i]),
+            position: pos,
+            heroIndex: heroIndex,
+            playerCount: stacks.length,
+            stacks: stacksMap,
+            actions: actions,
+          ),
+          tags: const ['finaltable'],
+        ),
+      );
+    }
+
+    return TrainingPackTemplate(
+      id: 'final_table_co',
+      name: 'Final Table ICM',
+      gameType: GameType.tournament,
+      spots: spots,
+    );
+  }
 }
