@@ -32,6 +32,7 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
       }
     }
     final double? heroEv = heroAct?.ev;
+    final double? heroIcmEv = heroAct?.icmEv;
     final borderColor = heroEv == null
         ? Colors.grey
         : (heroEv.abs() <= 0.01
@@ -41,6 +42,9 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
     final badgeText = heroEv == null
         ? ''
         : '${heroEv > 0 ? '+' : ''}${heroEv.toStringAsFixed(1)}';
+    final icmBadgeText = heroIcmEv == null
+        ? ''
+        : '${heroIcmEv > 0 ? '+' : ''}${heroIcmEv.toStringAsFixed(3)}';
 
     final String? heroLabel = heroAct == null
         ? null
@@ -84,21 +88,45 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                       ),
                       if (heroEv != null) ...[
                         const SizedBox(width: 8),
-                        Container(
-                          key: const ValueKey('evBadge'),
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: badgeColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            badgeText,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                              key: const ValueKey('evBadge'),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: badgeColor,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                badgeText,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
+                            if (heroIcmEv != null) ...[
+                              const SizedBox(height: 4),
+                              Container(
+                                key: const ValueKey('icmBadge'),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.purple,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  icmBadgeText,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ]
+                          ],
                         ),
                       ],
                     ],

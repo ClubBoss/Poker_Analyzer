@@ -751,6 +751,41 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     TrainingPackStorage.save(widget.templates);
   }
 
+  void _regenerateIcm() {
+    _recordSnapshot();
+    setState(() {
+      for (final spot in widget.template.spots) {
+        final hero = spot.hand.heroIndex;
+        final hand = _handCode(spot.hand.heroCards);
+        final stack = spot.hand.stacks['$hero']?.round();
+        if (hand == null || stack == null) continue;
+        final acts = spot.hand.actions[0] ?? [];
+        final stacks = [
+          for (var i = 0; i < spot.hand.playerCount; i++)
+            spot.hand.stacks['$i']?.round() ?? 0
+        ];
+        for (final a in acts) {
+          if (a.playerIndex == hero && a.action == 'push') {
+            final chipEv = a.ev ?? computePushEV(
+              heroBbStack: stack,
+              bbCount: spot.hand.playerCount - 1,
+              heroHand: hand,
+              anteBb: 0,
+            );
+            a.icmEv = computeIcmPushEV(
+              chipStacksBb: stacks,
+              heroIndex: hero,
+              heroHand: hand,
+              chipPushEv: chipEv,
+            );
+            break;
+          }
+        }
+      }
+    });
+    TrainingPackStorage.save(widget.templates);
+  }
+
   Future<void> _bulkAddTag() async {
     final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
@@ -1364,9 +1399,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             icon: const Icon(Icons.more_vert),
             onSelected: (v) {
               if (v == 'regenEv') _regenerateEv();
+              if (v == 'regenIcm') _regenerateIcm();
             },
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'regenEv', child: Text('Regenerate EV')),
+              PopupMenuItem(value: 'regenIcm', child: Text('Regenerate ICM')),
             ],
           ),
           IconButton(
