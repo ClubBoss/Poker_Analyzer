@@ -429,6 +429,33 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     }
   }
 
+  Future<void> _pasteCsv() async {
+    final clip = await Clipboard.getData('text/plain');
+    final text = clip?.text?.trim();
+    if (text == null || !text.startsWith('Title,HeroPosition')) return;
+    final rows = const CsvToListConverter().convert(text);
+    try {
+      final tpl = PackImportService.importFromCsv(
+        csv: text,
+        templateId: const Uuid().v4(),
+        templateName: 'Pasted Pack',
+      );
+      final skipped = rows.length - 1 - tpl.spots.length;
+      setState(() => _templates.add(tpl));
+      TrainingPackStorage.save(_templates);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Imported ${tpl.spots.length} spots' +
+              (skipped > 0 ? ', $skipped skipped' : '')),
+        ),
+      );
+      _edit(tpl);
+    } catch (_) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Invalid CSV')));
+    }
+  }
+
   void _showFilters() {
     final tags = <String>{for (final t in _templates) ...t.tags};
     showModalBottomSheet(
@@ -530,6 +557,14 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
             icon: const Icon(Icons.download),
             tooltip: 'Export',
             onPressed: _export,
+          ),
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              if (v == 'paste') _pasteCsv();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'paste', child: Text('Paste CSV')),
+            ],
           ),
         ],
       ),
