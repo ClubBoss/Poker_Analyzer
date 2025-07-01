@@ -13,6 +13,8 @@ import '../../models/v2/hero_position.dart';
 import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../services/pack_generator_service.dart';
+import '../../services/training_spot_storage_service.dart';
+import 'package:provider/provider.dart';
 import 'training_pack_template_editor_screen.dart';
 import '../../widgets/range_matrix_picker.dart';
 import '../../widgets/preset_range_buttons.dart';
@@ -166,6 +168,61 @@ class _TrainingPackTemplateListScreenState
     await Future.delayed(Duration.zero);
     final template =
         PackGeneratorService.generateFinalTablePack().copyWith(id: const Uuid().v4());
+    setState(() => _templates.add(template));
+    TrainingPackStorage.save(_templates);
+    _edit(template);
+  }
+
+  int _rankVal(String r) {
+    const order = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
+    return order.indexOf(r);
+  }
+
+  String? _handCode(String cards) {
+    final parts = cards.split(RegExp(r'\s+'));
+    if (parts.length < 2) return null;
+    final r1 = parts[0][0].toUpperCase();
+    final s1 = parts[0].substring(1);
+    final r2 = parts[1][0].toUpperCase();
+    final s2 = parts[1].substring(1);
+    if (r1 == r2) return '$r1$r2';
+    final firstHigh = _rankVal(r1) >= _rankVal(r2);
+    final high = firstHigh ? r1 : r2;
+    final low = firstHigh ? r2 : r1;
+    final suited = s1 == s2;
+    return '$high$low${suited ? 's' : 'o'}';
+  }
+
+  Future<void> _generateFavorites() async {
+    final storage = context.read<TrainingSpotStorageService>();
+    final spots = await storage.load();
+    final hands = <String>{};
+    for (final s in spots) {
+      if (!s.tags.contains('favorite')) continue;
+      if (s.playerCards.length <= s.heroIndex || s.playerCards[s.heroIndex].length < 2) continue;
+      final c = s.playerCards[s.heroIndex];
+      final cards = '${c[0].rank}${c[0].suit} ${c[1].rank}${c[1].suit}';
+      final code = _handCode(cards);
+      if (code != null) hands.add(code);
+    }
+    if (hands.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('No favorites found')));
+      }
+      return;
+    }
+    final list = hands.toList()
+      ..sort((a, b) => PackGeneratorService.handRanking.indexOf(a).compareTo(
+          PackGeneratorService.handRanking.indexOf(b)));
+    final template = await PackGeneratorService.generatePushFoldPack(
+      id: const Uuid().v4(),
+      name: 'Favorites',
+      heroBbStack: 10,
+      playerStacksBb: const [10, 10],
+      heroPos: HeroPosition.sb,
+      heroRange: list,
+    );
     setState(() => _templates.add(template));
     TrainingPackStorage.save(_templates);
     _edit(template);
@@ -885,6 +942,13 @@ class _TrainingPackTemplateListScreenState
             onPressed: () => _generateFinalTable(),
             tooltip: 'Generate Final Table Pack',
             label: const Text('Final Table'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'favoritesTplFab',
+            onPressed: _generateFavorites,
+            icon: const Icon(Icons.star),
+            label: const Text('Favorites Pack'),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
