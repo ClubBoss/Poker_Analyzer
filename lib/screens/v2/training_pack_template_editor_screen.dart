@@ -26,6 +26,7 @@ import '../training_session_screen.dart';
 import '../../helpers/training_pack_validator.dart';
 import '../../helpers/training_pack_validator.dart';
 import '../../widgets/common/ev_distribution_chart.dart';
+import '../../theme/app_colors.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -58,6 +59,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool get _isMultiSelect => _selectedSpotIds.isNotEmpty;
   SortBy _sortBy = SortBy.manual;
   bool _autoSortEv = false;
+  bool _pinnedOnly = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
   static const _prefsEvFilterKey = 'ev_filter';
@@ -971,6 +973,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               TrainingPackStorage.save(widget.templates);
             },
           ),
+          IconButton(
+            icon: Icon(Icons.push_pin, color: _pinnedOnly ? AppColors.accent : null),
+            tooltip: 'Pinned Only',
+            onPressed: () => setState(() => _pinnedOnly = !_pinnedOnly),
+          ),
           if (_isMultiSelect)
             PopupMenuButton<String>(
               tooltip: 'Move to Tag',
@@ -1279,6 +1286,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               child: Builder(
                 builder: (context) {
                   final shown = widget.template.spots.where((s) {
+                    if (_pinnedOnly && !s.pinned) return false;
                     final ev = _spotEv(s);
                     if (_evFilter == 'mistakes' && ev >= 0) return false;
                     if (_evFilter == 'profitable' && ev < 0) return false;
