@@ -8,6 +8,7 @@ import '../../helpers/title_utils.dart';
 import '../../models/v2/hand_data.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
+import '../../widgets/spot_viewer_dialog.dart';
 
 enum SortBy { title, evDesc, edited, autoEv }
 
@@ -46,6 +47,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   final ScrollController _scrollCtrl = ScrollController();
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
+
+  void _focusSpot(String id) {
+    final key = _itemKeys[id];
+    final ctx = key?.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300));
+      setState(() => _highlightId = id);
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted && _highlightId == id) {
+          setState(() => _highlightId = null);
+        }
+      });
+    }
+  }
 
   void _addSpot() async {
     final spot = TrainingPackSpot(
@@ -678,6 +693,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         key: ValueKey(spot.id),
                         index: index,
                         child: InkWell(
+                          onTap: () async {
+                            await showSpotViewerDialog(context, spot);
+                            _focusSpot(spot.id);
+                          },
                           onLongPress: () => setState(() => _selectedSpotIds.add(spot.id)),
                           child: Card(
                             margin: const EdgeInsets.symmetric(vertical: 4),
