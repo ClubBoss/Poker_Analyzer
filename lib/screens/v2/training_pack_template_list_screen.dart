@@ -142,56 +142,78 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     final playerStacksCtrl = TextEditingController(text: '10,10');
     final rangeCtrl = TextEditingController();
     HeroPosition pos = HeroPosition.sb;
+    bool listenerAdded = false;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Generate Pack'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                ),
-                TextField(
-                  controller: heroStackCtrl,
-                  decoration: const InputDecoration(labelText: 'Hero Stack'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: playerStacksCtrl,
-                  decoration: const InputDecoration(labelText: 'Player Stacks'),
-                ),
-                DropdownButtonFormField<HeroPosition>(
-                  value: pos,
-                  decoration: const InputDecoration(labelText: 'Hero Position'),
-                  items: [
-                    for (final p in HeroPosition.values)
-                      DropdownMenuItem(value: p, child: Text(p.label)),
-                  ],
-                  onChanged: (v) => setState(() => pos = v ?? HeroPosition.sb),
-                ),
-                TextField(
-                  controller: rangeCtrl,
-                  decoration: const InputDecoration(labelText: 'Range'),
-                  maxLines: null,
-                ),
-              ],
+        builder: (context, setState) {
+          if (!listenerAdded) {
+            listenerAdded = true;
+            rangeCtrl.addListener(() => setState(() {}));
+          }
+          final parsed = [
+            for (final r in rangeCtrl.text.split(RegExp('[,\n ]')))
+              if (r.trim().isNotEmpty) r.trim()
+          ];
+          return AlertDialog(
+            title: const Text('Generate Pack'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: const InputDecoration(labelText: 'Name'),
+                  ),
+                  TextField(
+                    controller: heroStackCtrl,
+                    decoration: const InputDecoration(labelText: 'Hero Stack'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: playerStacksCtrl,
+                    decoration: const InputDecoration(labelText: 'Player Stacks'),
+                  ),
+                  DropdownButtonFormField<HeroPosition>(
+                    value: pos,
+                    decoration: const InputDecoration(labelText: 'Hero Position'),
+                    items: [
+                      for (final p in HeroPosition.values)
+                        DropdownMenuItem(value: p, child: Text(p.label)),
+                    ],
+                    onChanged: (v) => setState(() => pos = v ?? HeroPosition.sb),
+                  ),
+                  TextField(
+                    controller: rangeCtrl,
+                    decoration: const InputDecoration(labelText: 'Range'),
+                    maxLines: null,
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: parsed.isEmpty
+                          ? [const Text('No hands yet')]
+                          : [for (final h in parsed) Text('[$h]')],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Generate'),
-            ),
-          ],
-        ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Generate'),
+              ),
+            ],
+          );
+        },
       ),
     );
     if (ok == true) {
