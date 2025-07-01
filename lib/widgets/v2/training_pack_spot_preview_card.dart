@@ -8,11 +8,13 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
   final TrainingPackSpot spot;
   final VoidCallback? onHandEdited;
   final ValueChanged<String>? onTagTap;
+  final VoidCallback? onDuplicate;
   const TrainingPackSpotPreviewCard({
     super.key,
     required this.spot,
     this.onHandEdited,
     this.onTagTap,
+    this.onDuplicate,
   });
 
   @override
@@ -168,7 +170,7 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                     ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
+                  children: [
                       TextButton(
                         onPressed: () async {
                           await Navigator.push(
@@ -178,6 +180,11 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                           onHandEdited?.call();
                         },
                         child: const Text('✏️ Edit Hand'),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: onDuplicate,
+                        child: const Text('📄 Duplicate'),
                       ),
                     ],
                   ),

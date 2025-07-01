@@ -1398,7 +1398,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                       }),
                                     ),
                                   Expanded(
-                                    child: TrainingPackSpotPreviewCard(
+                                  child: TrainingPackSpotPreviewCard(
                                       spot: spot,
                                       onHandEdited: () {
                                         setState(() {
@@ -1407,6 +1407,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                         TrainingPackStorage.save(widget.templates);
                                       },
                                       onTagTap: (tag) => setState(() => _tagFilter = tag),
+                                      onDuplicate: () {
+                                        final i = widget.template.spots.indexOf(spot);
+                                        if (i == -1) return;
+                                        final copy = spot.copyWith(
+                                          id: const Uuid().v4(),
+                                          editedAt: DateTime.now(),
+                                          hand: HandData.fromJson(spot.hand.toJson()),
+                                          tags: List.from(spot.tags),
+                                        );
+                                        setState(() => widget.template.spots.insert(i + 1, copy));
+                                        TrainingPackStorage.save(widget.templates);
+                                        _focusSpot(copy.id);
+                                      },
                                     ),
                                   ),
                                   const SizedBox(width: 8),
