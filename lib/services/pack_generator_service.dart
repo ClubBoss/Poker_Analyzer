@@ -65,7 +65,7 @@ class PackGeneratorService {
     }
 
     hands.sort((a, b) => score(b).compareTo(score(a)));
-    return List.unmodifiable(hands);
+    return List<String>.unmodifiable(hands);
   })();
 
   static Set<String> topNHands(int percent) {
@@ -73,6 +73,7 @@ class PackGeneratorService {
     if (count > 169) count = 169;
     return handRanking.take(count).toSet();
   }
+
   static Future<TrainingPackTemplate> generatePushFoldPack({
     required String id,
     required String name,
@@ -120,7 +121,8 @@ class PackGeneratorService {
         0: [
           ActionEntry(0, 0, 'push', amount: heroBbStack.toDouble()),
           for (var j = 1; j < playerStacksBb.length; j++)
-            if (isHeadsUp && j == idxBB &&
+            if (isHeadsUp &&
+                j == idxBB &&
                 handRanking.indexOf(hand) < callCutoff)
               ActionEntry(0, j, 'call', amount: heroBbStack.toDouble())
             else
@@ -197,7 +199,8 @@ class PackGeneratorService {
     for (var i = 0; i < range.length; i++) {
       final actions = {
         0: [
-          ActionEntry(0, heroIndex, 'push', amount: stacks[heroIndex].toDouble()),
+          ActionEntry(0, heroIndex, 'push',
+              amount: stacks[heroIndex].toDouble()),
           for (var j = 0; j < stacks.length; j++)
             if (j != heroIndex) ActionEntry(0, j, 'fold'),
         ]
