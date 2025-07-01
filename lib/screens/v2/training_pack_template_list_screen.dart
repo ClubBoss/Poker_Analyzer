@@ -172,6 +172,36 @@ class _TrainingPackTemplateListScreenState
     TrainingPackStorage.save(_templates);
   }
 
+  Future<void> _nameAndEdit(TrainingPackTemplate template) async {
+    final ctrl = TextEditingController(text: template.name);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Pack Name'),
+        content: TextField(controller: ctrl, autofocus: true),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ctrl.text.trim()),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (result != null && result.isNotEmpty) {
+      setState(() {
+        template.name = result;
+        _sortTemplates();
+      });
+      TrainingPackStorage.save(_templates);
+    }
+    ctrl.dispose();
+    _edit(template);
+  }
+
   void _add() {
     final template =
         TrainingPackTemplate(
@@ -199,7 +229,7 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     TrainingPackStorage.save(_templates);
-    _edit(template);
+    _nameAndEdit(template);
   }
 
   Future<void> _generateFinalTable() async {
@@ -212,7 +242,7 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     TrainingPackStorage.save(_templates);
-    _edit(template);
+    _nameAndEdit(template);
   }
 
   int _rankVal(String r) {
@@ -271,7 +301,7 @@ class _TrainingPackTemplateListScreenState
       _sortTemplates();
     });
     TrainingPackStorage.save(_templates);
-    _edit(template);
+    _nameAndEdit(template);
   }
 
   Future<void> _pasteRange() async {
@@ -319,7 +349,7 @@ class _TrainingPackTemplateListScreenState
           _sortTemplates();
         });
         TrainingPackStorage.save(_templates);
-        _edit(template);
+        _nameAndEdit(template);
       }
     }
     ctrl.dispose();
