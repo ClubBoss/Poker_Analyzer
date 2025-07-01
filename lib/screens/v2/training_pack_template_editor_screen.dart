@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
@@ -186,7 +187,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
-  Future<void> _exportBundle() async {
+  Future<String?> _exportBundle({bool notify = true}) async {
     try {
       final tmp = await getTemporaryDirectory();
       final dir = Directory('${tmp.path}/template_bundle');
@@ -218,35 +219,62 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
       final zipFile = File('${downloads.path}/$safe.zip');
       await zipFile.writeAsBytes(bytes, flush: true);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Expanded(child: Text('Bundle saved: ${zipFile.path}')),
-              TextButton(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: zipFile.path));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Path copied')),
-                  );
-                },
-                child: const Text('Copy'),
-              ),
-            ],
+      if (!mounted) return zipFile.path;
+      if (notify) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Expanded(child: Text('Bundle saved: ${zipFile.path}')),
+                TextButton(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: zipFile.path));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Path copied')),
+                    );
+                  },
+                  child: const Text('Copy'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    try {
+                      await Share.shareXFiles([XFile(zipFile.path)]);
+                    } catch (_) {}
+                  },
+                  child: const Text('📤 Share Bundle'),
+                ),
+              ],
+            ),
+            action: SnackBarAction(
+              label: 'Open',
+              onPressed: () => OpenFilex.open(zipFile.path),
+            ),
           ),
-          action: SnackBarAction(
-            label: 'Open',
-            onPressed: () => OpenFilex.open(zipFile.path),
-          ),
-        ),
-      );
+        );
+      }
+      return zipFile.path;
     } catch (_) {
-      if (mounted) {
+      if (mounted && notify) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Не удалось создать пакет')),
         );
       }
+      return null;
+    }
+  }
+
+  Future<void> _shareBundle() async {
+    final path = await _exportBundle(notify: false);
+    if (path == null || !mounted) return;
+    try {
+      await Share.shareXFiles([XFile(path)]);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bundle shared')),
+      );
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Не удалось поделиться пакетом')),
+      );
     }
   }
 
@@ -788,7 +816,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
-          IconButton(icon: const Icon(Icons.archive), onPressed: _exportBundle),
+          IconButton(icon: const Icon(Icons.archive), onPressed: () => _exportBundle()),
+          IconButton(icon: const Text('📤 Share'), onPressed: _shareBundle),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
           IconButton(
