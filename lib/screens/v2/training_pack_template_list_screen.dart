@@ -244,6 +244,7 @@ class _TrainingPackTemplateListScreenState
       heroRange: PackGeneratorService.topNHands(25).toList(),
       createdAt: DateTime.now(),
     );
+    template.tags.add('auto');
     setState(() {
       _templates.add(template);
       _sortTemplates();
@@ -265,6 +266,7 @@ class _TrainingPackTemplateListScreenState
     final template =
         PackGeneratorService.generateFinalTablePack(createdAt: DateTime.now())
             .copyWith(id: const Uuid().v4());
+    template.tags.add('auto');
     setState(() {
       _templates.add(template);
       _sortTemplates();
@@ -372,6 +374,7 @@ class _TrainingPackTemplateListScreenState
       heroRange: list,
       createdAt: DateTime.now(),
     );
+    template.tags.add('auto');
     setState(() {
       _templates.add(template);
       _sortTemplates();
@@ -408,6 +411,7 @@ class _TrainingPackTemplateListScreenState
       createdAt: DateTime.now(),
       spots: spots,
     );
+    template.tags.add('auto');
     setState(() {
       _templates.add(template);
       _sortTemplates();
@@ -456,6 +460,7 @@ class _TrainingPackTemplateListScreenState
           heroRange: range,
           createdAt: DateTime.now(),
         );
+        template.tags.add('auto');
         setState(() {
           _templates.add(template);
           _sortTemplates();
@@ -675,6 +680,7 @@ class _TrainingPackTemplateListScreenState
         bbCallPct: bbCall.round(),
         createdAt: DateTime.now(),
       );
+      template.tags.add('auto');
       setState(() {
         _templates.add(template);
         _sortTemplates();
