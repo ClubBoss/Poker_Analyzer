@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
+import '../../services/template_undo_redo_service.dart';
 import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../helpers/title_utils.dart';
@@ -34,6 +35,8 @@ import '../../services/room_hand_history_importer.dart';
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
 TrainingPackSpot? _copiedSpot;
+class UndoIntent extends Intent { const UndoIntent(); }
+class RedoIntent extends Intent { const RedoIntent(); }
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -71,6 +74,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
   final GlobalKey _previewKey = GlobalKey();
+  late final UndoRedoService _history;
+  bool get _canUndo => _history.canUndo;
+  bool get _canRedo => _history.canRedo;
 
   void _focusSpot(String id) {
     final key = _itemKeys[id];
@@ -86,7 +92,32 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  void _recordSnapshot() => _history.record(widget.template.spots);
+
+  void _undo() {
+    final snap = _history.undo(widget.template.spots);
+    if (snap == null) return;
+    setState(() {
+      widget.template.spots
+        ..clear()
+        ..addAll(snap);
+    });
+    TrainingPackStorage.save(widget.templates);
+  }
+
+  void _redo() {
+    final snap = _history.redo(widget.template.spots);
+    if (snap == null) return;
+    setState(() {
+      widget.template.spots
+        ..clear()
+        ..addAll(snap);
+    });
+    TrainingPackStorage.save(widget.templates);
+  }
+
   void _addSpot() async {
+    _recordSnapshot();
     final spot = TrainingPackSpot(
       id: const Uuid().v4(),
       title: normalizeSpotTitle('New spot'),
@@ -117,6 +148,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ),
     );
     c.dispose();
+    _recordSnapshot();
     if (input == null || input.trim().isEmpty) return;
     try {
       final json = jsonDecode(input);
@@ -187,6 +219,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ),
     );
     c.dispose();
+    _recordSnapshot();
     if (text == null || text.trim().isEmpty) return;
     final importer = await RoomHandHistoryImporter.create();
     final hands = importer.parse(text);
@@ -267,6 +300,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _descCtr = TextEditingController(text: widget.template.description);
     _searchCtrl = TextEditingController();
     _tagSearchCtrl = TextEditingController();
+    _history = UndoRedoService();
+    _history.record(widget.template.spots);
     SharedPreferences.getInstance().then((prefs) {
       final auto = prefs.getBool(_prefsAutoSortKey) ?? false;
       final filter = prefs.getString(_prefsEvFilterKey) ?? 'all';
@@ -532,6 +567,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final path = file.path;
     if (data == null && path != null) data = await File(path).readAsBytes();
     if (data == null) return;
+    _recordSnapshot();
     try {
       TrainingPackTemplate tpl;
       if (file.extension?.toLowerCase() == 'zip') {
@@ -591,6 +627,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ),
     );
     if (ok ?? false) {
+      _recordSnapshot();
       setState(() => widget.template.spots.clear());
       TrainingPackStorage.save(widget.templates);
     }
@@ -864,6 +901,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ),
     );
     if (ok ?? false) {
+      _recordSnapshot();
       _lastRemoved = widget.template.spots.where((s) => _selectedSpotIds.contains(s.id)).toList();
       setState(() {
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
@@ -903,6 +941,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   void _duplicateSpot(TrainingPackSpot spot) {
+    _recordSnapshot();
     final i = widget.template.spots.indexOf(spot);
     if (i == -1) return;
     final copy = spot.copyWith(
@@ -1078,7 +1117,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   @override
   Widget build(BuildContext context) {
     final hasSpots = widget.template.spots.isNotEmpty;
-    return Scaffold(
+    return Shortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ): const UndoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ): const UndoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY): const RedoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY): const RedoIntent(),
+      },
+      child: Actions(
+        actions: {
+          UndoIntent: CallbackAction<UndoIntent>(onInvoke: (_) => _undo()),
+          RedoIntent: CallbackAction<RedoIntent>(onInvoke: (_) => _redo()),
+        },
+        child: Focus(
+          autofocus: true,
+          child: Scaffold(
       appBar: AppBar(
         leading: _isMultiSelect
             ? IconButton(
@@ -1116,6 +1169,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Pinned Only',
             onPressed: () => setState(() => _pinnedOnly = !_pinnedOnly),
           ),
+          IconButton(icon: const Text('↶'), onPressed: _canUndo ? _undo : null),
+          IconButton(icon: const Text('↷'), onPressed: _canRedo ? _redo : null),
           if (_isMultiSelect)
             PopupMenuButton<String>(
               tooltip: 'Move to Tag',
@@ -1689,6 +1744,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               );
                             },
                         onReorder: (o, n) {
+                          _recordSnapshot();
                           final spot = spots[o];
                           final oldIndex = widget.template.spots.indexOf(spot);
                           final newSorted = n < spots.length ? start + n : start + spots.length;
