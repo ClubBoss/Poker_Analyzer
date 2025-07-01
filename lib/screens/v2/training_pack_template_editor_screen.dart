@@ -29,6 +29,7 @@ class TrainingPackTemplateEditorScreen extends StatefulWidget {
 
 class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateEditorScreen> {
   late final TextEditingController _nameCtr;
+  late final FocusNode _nameFocus;
   late final TextEditingController _descCtr;
   String _query = '';
   String? _tagFilter;
@@ -77,10 +78,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     TrainingPackStorage.save(widget.templates);
   }
 
+  void _saveName() {
+    final value = _nameCtr.text.trim();
+    if (value.isEmpty) return;
+    setState(() => widget.template.name = value);
+    TrainingPackStorage.save(widget.templates);
+  }
+
   @override
   void initState() {
     super.initState();
     _nameCtr = TextEditingController(text: widget.template.name);
+    _nameFocus = FocusNode();
+    _nameFocus.addListener(() {
+      if (!_nameFocus.hasFocus) _saveName();
+    });
     _descCtr = TextEditingController(text: widget.template.description);
     _searchCtrl = TextEditingController();
     _tagSearchCtrl = TextEditingController();
@@ -100,6 +112,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   @override
   void dispose() {
     _nameCtr.dispose();
+    _nameFocus.dispose();
     _descCtr.dispose();
     _searchCtrl.dispose();
     _tagSearchCtrl.dispose();
@@ -108,6 +121,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   void _save() {
+    _saveName();
     if (widget.template.name.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name is required')));
       return;
@@ -377,7 +391,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             : null,
         title: _isMultiSelect
             ? Text('${_selectedSpotIds.length} selected')
-            : const Text('Edit pack'),
+            : TextField(
+                controller: _nameCtr,
+                focusNode: _nameFocus,
+                decoration: const InputDecoration(border: InputBorder.none),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _saveName(),
+              ),
         actions: [
           PopupMenuButton<SortBy>(
             icon: const Icon(Icons.sort),
@@ -517,16 +539,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
-              controller: _nameCtr,
-              decoration: const InputDecoration(labelText: 'Name'),
-              autofocus: true,
-              onChanged: (v) {
-                setState(() => widget.template.name = v);
-                TrainingPackStorage.save(widget.templates);
-              },
-            ),
-            const SizedBox(height: 16),
             TextField(
               controller: _descCtr,
               decoration: const InputDecoration(labelText: 'Description'),
