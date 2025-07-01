@@ -64,6 +64,14 @@ class TrainingPackSpot {
         if (pinned) 'pinned': true,
       };
 
+  double? get heroEv {
+    final acts = hand.actions[0] ?? [];
+    for (final a in acts) {
+      if (a.playerIndex == hand.heroIndex && a.ev != null) return a.ev;
+    }
+    return null;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
