@@ -1407,9 +1407,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final countCtr = TextEditingController(text: widget.template.spotCount.toString());
     double bbCall = widget.template.bbCallPct.toDouble();
     final anteCtr = TextEditingController(text: widget.template.anteBb.toString());
-    String rangeStr = widget.template.heroRange?.join(' ') ?? '';
+    String _rangeStr = widget.template.heroRange?.join(' ') ?? '';
     String rangeMode = 'simple';
-    final rangeCtr = TextEditingController(text: rangeStr);
+    final rangeCtr = TextEditingController(text: _rangeStr);
     bool rangeErr = false;
     final formKey = GlobalKey<FormState>();
     final ok = await showModalBottomSheet<bool>(
@@ -1504,7 +1504,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               errorText: rangeErr ? '' : null,
                             ),
                             onChanged: (v) => set(() {
-                              rangeStr = v;
+                              _rangeStr = v;
                               rangeErr = v.trim().isNotEmpty &&
                                   PackGeneratorService.parseRangeString(v).isEmpty;
                             }),
@@ -1512,7 +1512,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         : GestureDetector(
                             onTap: () async {
                               final init = PackGeneratorService
-                                  .parseRangeString(rangeStr)
+                                  .parseRangeString(_rangeStr)
                                   .toSet();
                               final res = await Navigator.push<Set<String>>(
                                 context,
@@ -1522,10 +1522,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                 ),
                               );
                               if (res != null) set(() {
-                                rangeStr = PackGeneratorService.serializeRange(res);
-                                rangeCtr.text = rangeStr;
-                                rangeErr = rangeStr.trim().isNotEmpty &&
-                                    PackGeneratorService.parseRangeString(rangeStr).isEmpty;
+                                _rangeStr = PackGeneratorService.serializeRange(res);
+                                rangeCtr.text = _rangeStr;
+                                rangeErr = _rangeStr.trim().isNotEmpty &&
+                                    PackGeneratorService.parseRangeString(_rangeStr).isEmpty;
                               });
                             },
                             child: InputDecorator(
@@ -1534,7 +1534,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                 errorText: rangeErr ? '' : null,
                               ),
                               child: Text(
-                                rangeStr.isEmpty ? 'All hands' : rangeStr,
+                                _rangeStr.isEmpty ? 'All hands' : _rangeStr,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -1597,7 +1597,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (list.isEmpty) list.add(hero);
       final count = int.parse(countCtr.text.trim());
       final ante = int.parse(anteCtr.text.trim());
-      final parsedSet = PackGeneratorService.parseRangeString(rangeStr);
+      final parsedSet = PackGeneratorService.parseRangeString(_rangeStr);
       setState(() {
         widget.template.heroBbStack = hero;
         widget.template.playerStacksBb = list;
