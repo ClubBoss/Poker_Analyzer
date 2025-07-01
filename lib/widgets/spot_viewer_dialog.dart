@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../widgets/spot_quiz_widget.dart';
@@ -162,10 +163,29 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
     }
   }
 
+  void _copyId() {
+    Clipboard.setData(ClipboardData(text: spot.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Spot ID copied to clipboard')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(spot.title.isEmpty ? 'Spot' : spot.title),
+      title: Row(
+        children: [
+          Expanded(child: Text(spot.title.isEmpty ? 'Spot' : spot.title)),
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              if (v == 'copy') _copyId();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'copy', child: Text('Copy Spot ID')),
+            ],
+          ),
+        ],
+      ),
       content: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
