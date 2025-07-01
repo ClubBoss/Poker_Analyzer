@@ -3,8 +3,14 @@ import 'package:flutter/material.dart';
 class RangeMatrixPicker extends StatelessWidget {
   final Set<String> selected;
   final ValueChanged<Set<String>> onChanged;
+  final bool readOnly;
 
-  const RangeMatrixPicker({super.key, required this.selected, required this.onChanged});
+  const RangeMatrixPicker({
+    super.key,
+    required this.selected,
+    required this.onChanged,
+    this.readOnly = false,
+  });
 
   static const _ranks = [
     'A',
@@ -50,6 +56,7 @@ class RangeMatrixPicker extends StatelessWidget {
                   label: _label(row, col),
                   color: _baseColor(row, col),
                   selected: selected.contains(_label(row, col)),
+                  readOnly: readOnly,
                   onTap: () {
                     final newSet = Set<String>.from(selected);
                     final hand = _label(row, col);
@@ -69,15 +76,22 @@ class _Cell extends StatelessWidget {
   final Color color;
   final bool selected;
   final VoidCallback onTap;
+  final bool readOnly;
 
-  const _Cell({required this.label, required this.color, required this.selected, required this.onTap});
+  const _Cell({
+    required this.label,
+    required this.color,
+    required this.selected,
+    required this.onTap,
+    this.readOnly = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final bg = selected ? color : color.withOpacity(0.4);
     return GestureDetector(
-      onTap: onTap,
-      onLongPress: onTap,
+      onTap: readOnly ? null : onTap,
+      onLongPress: readOnly ? null : onTap,
       child: Container(
         width: 24,
         height: 24,
