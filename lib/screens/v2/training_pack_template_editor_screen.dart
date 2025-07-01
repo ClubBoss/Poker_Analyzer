@@ -1536,17 +1536,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         prefs.setString(_prefsEvFilterKey, val);
                       },
                     ),
-                    CheckboxListTile(
-                      title: const Text('Filter: Mistakes only'),
-                      value: _evFilter == 'mistakes',
+                    DropdownButtonFormField<String>(
+                      value: _evFilter,
+                      decoration: const InputDecoration(labelText: 'EV filter'),
+                      items: const [
+                        DropdownMenuItem(value: 'all', child: Text('All')),
+                        DropdownMenuItem(value: 'mistakes', child: Text('Mistakes only')),
+                        DropdownMenuItem(value: 'profitable', child: Text('Profitable only')),
+                      ],
                       onChanged: (v) async {
                         final prefs = await SharedPreferences.getInstance();
-                        final val = v == true ? 'mistakes' : 'all';
+                        final val = v ?? 'all';
                         setState(() => _evFilter = val);
                         prefs.setString(_prefsEvFilterKey, val);
                       },
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
                     ),
                   ],
                 );
