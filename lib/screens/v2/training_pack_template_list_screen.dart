@@ -1,7 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:csv/csv.dart';
+import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
+import '../../services/pack_import_service.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/hand_data.dart';
 import '../../models/v2/hero_position.dart';
@@ -391,6 +396,39 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     }
   }
 
+  Future<void> _importCsv() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final file = result.files.single;
+    final data = file.bytes != null
+        ? String.fromCharCodes(file.bytes!)
+        : await File(file.path!).readAsString();
+    final allRows = const CsvToListConverter().convert(data.trim());
+    try {
+      final tpl = PackImportService.importFromCsv(
+        csv: data,
+        templateId: const Uuid().v4(),
+        templateName: p.basenameWithoutExtension(file.name),
+      );
+      final skipped = allRows.length - 1 - tpl.spots.length;
+      setState(() => _templates.add(tpl));
+      TrainingPackStorage.save(_templates);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Imported ${tpl.spots.length} spots' +
+              (skipped > 0 ? ', $skipped skipped' : '')),
+        ),
+      );
+      _edit(tpl);
+    } catch (_) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Invalid CSV')));
+    }
+  }
+
   void _showFilters() {
     final tags = <String>{for (final t in _templates) ...t.tags};
     showModalBottomSheet(
@@ -717,6 +755,12 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
             heroTag: 'genTplFab',
             onPressed: _generate,
             label: const Text('➕ Generate Pack'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'importCsvTplFab',
+            onPressed: _importCsv,
+            child: const Icon(Icons.upload_file),
           ),
           const SizedBox(height: 12),
           FloatingActionButton(
