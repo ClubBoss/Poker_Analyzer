@@ -420,7 +420,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       name: name,
       description: tpl.description,
       category: cat,
-      gameType: parseGameType(tpl.gameType),
+      gameType: tpl.gameType,
       colorTag: color,
       tags: List.from(tpl.tags),
       hands: tpl.hands,
@@ -466,7 +466,7 @@ class TrainingPackStorageService extends ChangeNotifier {
           : (template.category?.isNotEmpty == true
               ? template.category!
               : 'Uncategorized'),
-      gameType: parseGameType(template.gameType),
+      gameType: template.gameType,
       colorTag: colorTag ?? '#2196F3',
       hands: selected,
       spots: const [],

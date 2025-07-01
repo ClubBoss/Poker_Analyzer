@@ -1,17 +1,19 @@
 import 'training_pack_spot.dart';
+import '../game_type.dart';
+import '../training_pack.dart' show parseGameType;
 
 class TrainingPackTemplate {
   final String id;
   String name;
   String description;
-  String gameType;
+  GameType gameType;
   List<TrainingPackSpot> spots;
 
   TrainingPackTemplate({
     required this.id,
     required this.name,
     this.description = '',
-    this.gameType = 'tournament',
+    this.gameType = GameType.tournament,
     List<TrainingPackSpot>? spots,
   }) : spots = spots ?? [];
 
@@ -19,7 +21,7 @@ class TrainingPackTemplate {
     String? id,
     String? name,
     String? description,
-    String? gameType,
+    GameType? gameType,
     List<TrainingPackSpot>? spots,
   }) {
     return TrainingPackTemplate(
@@ -36,7 +38,7 @@ class TrainingPackTemplate {
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      gameType: json['gameType'] as String? ?? 'tournament',
+      gameType: parseGameType(json['gameType']),
       spots: [
         for (final s in (json['spots'] as List? ?? []))
           TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
@@ -48,7 +50,7 @@ class TrainingPackTemplate {
         'id': id,
         'name': name,
         'description': description,
-        'gameType': gameType,
+        'gameType': gameType.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
       };
 }

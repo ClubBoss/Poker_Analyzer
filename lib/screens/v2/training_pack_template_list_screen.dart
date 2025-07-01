@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/hand_data.dart';
+import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import 'training_pack_template_editor_screen.dart';
 
@@ -52,7 +53,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
 
   Future<void> _rename(TrainingPackTemplate template) async {
     final ctrl = TextEditingController(text: template.name);
-    String type = template.gameType;
+    GameType type = template.gameType;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -66,14 +67,14 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                 autofocus: true,
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
+              DropdownButtonFormField<GameType>(
                 value: type,
                 decoration: const InputDecoration(labelText: 'Game Type'),
                 items: const [
-                  DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
-                  DropdownMenuItem(value: 'cash', child: Text('Cash')),
+                  DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                  DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
                 ],
-                onChanged: (v) => setState(() => type = v ?? 'tournament'),
+                onChanged: (v) => setState(() => type = v ?? GameType.tournament),
               ),
             ],
           ),
