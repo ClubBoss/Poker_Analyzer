@@ -5,6 +5,8 @@ import '../../helpers/title_utils.dart';
 import '../../models/card_model.dart';
 import '../../widgets/card_picker_widget.dart';
 import '../../models/evaluation_result.dart';
+import 'package:provider/provider.dart';
+import '../../services/evaluation_executor_service.dart';
 
 class TrainingPackSpotEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
@@ -17,6 +19,7 @@ class TrainingPackSpotEditorScreen extends StatefulWidget {
 class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScreen> {
   late final TextEditingController _titleCtr;
   late final TextEditingController _noteCtr;
+  bool _loading = false;
 
   Set<String> _usedCards() {
     final hero = widget.spot.hand.heroCards
@@ -159,6 +162,23 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     if (mounted) Navigator.pop(context);
   }
 
+  Future<void> _evaluate() async {
+    setState(() => _loading = true);
+    try {
+      final res = await context.read<EvaluationExecutorService>().evaluate(widget.spot);
+      setState(() => widget.spot.evalResult = res);
+      final ev = (res.expectedEquity * 100).toStringAsFixed(1);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('EV $ev% ${res.expectedAction}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Evaluation failed')));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -206,6 +226,17 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
             _streetPicker('River', 4, 1),
             const SizedBox(height: 16),
             _evPreviewBox(),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _loading ? null : _evaluate,
+              child: _loading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Evaluate'),
+            ),
           ],
         ),
       ),
