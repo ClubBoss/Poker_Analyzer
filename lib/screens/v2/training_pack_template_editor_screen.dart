@@ -74,7 +74,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       context,
       MaterialPageRoute(builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
     );
-    setState(() {});
+    setState(() {
+      if (_autoSortEv) _sortSpots();
+    });
     TrainingPackStorage.save(widget.templates);
   }
 
@@ -715,6 +717,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         child: InkWell(
                           onTap: () async {
                             await showSpotViewerDialog(context, spot);
+                            if (_autoSortEv) setState(() => _sortSpots());
                             _focusSpot(spot.id);
                           },
                           onLongPress: () => setState(() => _selectedSpotIds.add(spot.id)),
@@ -797,7 +800,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                             context,
                                             MaterialPageRoute(builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
                                           );
-                                          setState(() {});
+                                          setState(() {
+                                            if (_autoSortEv) _sortSpots();
+                                          });
                                           TrainingPackStorage.save(widget.templates);
                                         },
                                         child: const Text('📝 Edit'),
