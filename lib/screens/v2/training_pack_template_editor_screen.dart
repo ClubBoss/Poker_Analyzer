@@ -604,7 +604,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               child: TextField(
                 controller: _searchCtrl,
                 decoration: InputDecoration(
-                  labelText: 'Search by tag or title',
+                  labelText: 'Search by title/tag',
                   prefixIcon: const Icon(Icons.search),
                   fillColor: _tagFilter == null ? null : Colors.yellow[50],
                   filled: _tagFilter != null,
