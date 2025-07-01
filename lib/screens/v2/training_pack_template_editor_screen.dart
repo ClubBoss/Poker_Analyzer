@@ -304,6 +304,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() => _selectedSpotIds = all.difference(_selectedSpotIds));
   }
 
+  void _duplicateSpot(TrainingPackSpot spot) {
+    final i = widget.template.spots.indexOf(spot);
+    if (i == -1) return;
+    final copy = spot.copyWith(
+      id: const Uuid().v4(),
+      editedAt: DateTime.now(),
+      hand: HandData.fromJson(spot.hand.toJson()),
+      tags: List.from(spot.tags),
+    );
+    setState(() => widget.template.spots.insert(i + 1, copy));
+    TrainingPackStorage.save(widget.templates);
+  }
+
   Future<void> _renameTag() async {
     final tags = widget.template.spots.expand((s) => s.tags).toSet().toList()
       ..sort((a, b) => a.compareTo(b));
