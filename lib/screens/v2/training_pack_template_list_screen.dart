@@ -22,6 +22,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
   late TextEditingController _searchCtrl;
   TrainingPackTemplate? _lastRemoved;
   int _lastIndex = 0;
+  GameType? _selectedType;
 
   @override
   void initState() {
@@ -187,10 +188,13 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
 
   @override
   Widget build(BuildContext context) {
-    final shown = _query.isEmpty
+    final filtered = _selectedType == null
         ? _templates
+        : [for (final t in _templates) if (t.gameType == _selectedType) t];
+    final shown = _query.isEmpty
+        ? filtered
         : [
-            for (final t in _templates)
+            for (final t in filtered)
               if (t.name.toLowerCase().contains(_query) ||
                   t.description.toLowerCase().contains(_query))
                 t
@@ -234,6 +238,33 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                     ),
                     onChanged: (v) =>
                         setState(() => _query = v.trim().toLowerCase()),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('All'),
+                        selected: _selectedType == null,
+                        onSelected: (_) => setState(() => _selectedType = null),
+                      ),
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        label: const Text('Tournament'),
+                        selected: _selectedType == GameType.tournament,
+                        onSelected: (_) =>
+                            setState(() => _selectedType = GameType.tournament),
+                      ),
+                      const SizedBox(width: 8),
+                      ChoiceChip(
+                        label: const Text('Cash'),
+                        selected: _selectedType == GameType.cash,
+                        onSelected: (_) =>
+                            setState(() => _selectedType = GameType.cash),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(
