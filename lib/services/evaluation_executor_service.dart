@@ -10,6 +10,9 @@ import '../models/eval_result.dart';
 import '../models/training_spot.dart';
 import '../models/saved_hand.dart';
 import '../models/summary_result.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/card_model.dart';
+import '../models/player_model.dart';
 import '../models/mistake_severity.dart';
 import 'goals_service.dart';
 import 'training_stats_service.dart';
@@ -295,6 +298,64 @@ class EvaluationExecutorService implements EvaluationExecutor {
       positionMistakeFrequencies: positionErrors,
       accuracyPerSession: sessionAcc,
     );
+  }
+
+  Future<EvaluationResult> evaluate(TrainingPackSpot spot) async {
+    final ctx = WidgetsBinding.instance.renderViewElement;
+    if (ctx == null) throw Exception('No context');
+    final hand = spot.hand;
+    final heroCards = hand.heroCards
+        .split(RegExp(r'\s+'))
+        .where((e) => e.isNotEmpty)
+        .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
+        .toList();
+    final playerCards = [
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+    ];
+    if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
+      playerCards[hand.heroIndex] = heroCards;
+    }
+    final boardCards = [
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+    ];
+    final actions = <ActionEntry>[];
+    for (final list in hand.actions.values) {
+      for (final a in list) {
+        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
+            amount: a.amount,
+            generated: a.generated,
+            manualEvaluation: a.manualEvaluation,
+            customLabel: a.customLabel));
+      }
+    }
+    final stacks = [
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0
+    ];
+    final positions = List.generate(hand.playerCount, (_) => '');
+    if (hand.heroIndex < positions.length) {
+      positions[hand.heroIndex] = hand.position.label;
+    }
+    final spotData = TrainingSpot(
+      playerCards: playerCards,
+      boardCards: boardCards,
+      actions: actions,
+      heroIndex: hand.heroIndex,
+      numberOfPlayers: hand.playerCount,
+      playerTypes: List.generate(hand.playerCount, (_) => PlayerType.unknown),
+      positions: positions,
+      stacks: stacks,
+      createdAt: DateTime.now(),
+    );
+    ActionEntry? heroAct;
+    for (final a in actions) {
+      if (a.playerIndex == hand.heroIndex) {
+        heroAct = a;
+        break;
+      }
+    }
+    final action = heroAct?.action ?? '-';
+    return evaluateSpot(ctx, spotData, action);
   }
 
   /// Classifies [mistakeCount] into a [MistakeSeverity] level.
