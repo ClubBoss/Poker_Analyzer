@@ -50,6 +50,9 @@ class _TrainingPackTemplateListScreenState
   bool _filtersShown = false;
   String _sort = 'name';
   List<GeneratedPackInfo> _history = [];
+  int _mixedCount = 20;
+  bool _mixedAutoOnly = false;
+  bool _endlessDrill = false;
 
   void _sortTemplates() {
     switch (_sort) {
@@ -891,8 +894,9 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _startMixedDrill() async {
-    final countCtrl = TextEditingController(text: '20');
-    bool autoOnly = false;
+    final countCtrl = TextEditingController(text: _mixedCount.toString());
+    bool autoOnly = _mixedAutoOnly;
+    bool endless = _endlessDrill;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -911,6 +915,11 @@ class _TrainingPackTemplateListScreenState
                 onChanged: (v) => setState(() => autoOnly = v ?? false),
                 title: const Text('Only auto-generated'),
               ),
+              CheckboxListTile(
+                value: endless,
+                onChanged: (v) => setState(() => endless = v ?? false),
+                title: const Text('Endless Drill'),
+              ),
             ],
           ),
           actions: [
@@ -927,7 +936,15 @@ class _TrainingPackTemplateListScreenState
       ),
     );
     if (ok != true) return;
-    final count = int.tryParse(countCtrl.text.trim()) ?? 0;
+    _mixedCount = int.tryParse(countCtrl.text.trim()) ?? 0;
+    _mixedAutoOnly = autoOnly;
+    _endlessDrill = endless;
+    await _runMixedDrill();
+  }
+
+  Future<void> _runMixedDrill() async {
+    final count = _mixedCount;
+    final autoOnly = _mixedAutoOnly;
     final byType = _selectedType == null
         ? _templates
         : [for (final t in _templates) if (t.gameType == _selectedType) t];
@@ -972,7 +989,11 @@ class _TrainingPackTemplateListScreenState
     if (mounted) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+        MaterialPageRoute(
+          builder: (_) => TrainingSessionScreen(
+            onSessionEnd: _endlessDrill ? _runMixedDrill : null,
+          ),
+        ),
       );
     }
   }

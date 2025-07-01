@@ -6,7 +6,8 @@ import '../widgets/spot_quiz_widget.dart';
 import 'session_result_screen.dart';
 
 class TrainingSessionScreen extends StatefulWidget {
-  const TrainingSessionScreen({super.key});
+  final VoidCallback? onSessionEnd;
+  const TrainingSessionScreen({super.key, this.onSessionEnd});
 
   @override
   State<TrainingSessionScreen> createState() => _TrainingSessionScreenState();
@@ -60,17 +61,22 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   void _next(service) {
     final next = service.nextSpot();
     if (next == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => SessionResultScreen(
-            total: service.totalCount,
-            correct: service.correctCount,
-            elapsed: service.elapsedTime,
-            authorPreview: service.session?.authorPreview ?? false,
+      if (widget.onSessionEnd != null) {
+        Navigator.pop(context);
+        widget.onSessionEnd!();
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SessionResultScreen(
+              total: service.totalCount,
+              correct: service.correctCount,
+              elapsed: service.elapsedTime,
+              authorPreview: service.session?.authorPreview ?? false,
+            ),
           ),
-        ),
-      );
+        );
+      }
     } else {
       setState(() {
         _selected = null;
