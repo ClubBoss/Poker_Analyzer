@@ -141,6 +141,8 @@ class TrainingPackTemplate {
 
   Future<List<TrainingPackSpot>> generateSpotsWithProgress(
       BuildContext context) async {
+    debugPrint(
+        'templateId: $id, heroBbStack: $heroBbStack, playerStacksBb: $playerStacksBb, heroPos: ${heroPos.name}, spotCount: $spotCount, bbCallPct: $bbCallPct, heroRange: ${heroRange ?? 'null'}');
     final range = heroRange ?? PackGeneratorService.topNHands(25).toList();
     final total = spotCount;
     final generated = <TrainingPackSpot>[];
