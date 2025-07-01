@@ -64,6 +64,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   final ScrollController _scrollCtrl = ScrollController();
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
+  final GlobalKey _previewKey = GlobalKey();
 
   void _focusSpot(String id) {
     final key = _itemKeys[id];
@@ -275,6 +276,79 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Не удалось поделиться пакетом')),
       );
+    }
+  }
+
+  Future<Uint8List?> _capturePreview() async {
+    final entry = OverlayEntry(
+      builder: (_) => Center(
+        child: Opacity(
+          opacity: 0,
+          child: RepaintBoundary(
+            key: _previewKey,
+            child: _TemplatePreviewCard(template: widget.template),
+          ),
+        ),
+      ),
+    );
+    Overlay.of(context, rootOverlay: true).insert(entry);
+    await Future.delayed(const Duration(milliseconds: 50));
+    final boundary =
+        _previewKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    Uint8List? bytes;
+    if (boundary != null) {
+      final image = await boundary.toImage(pixelRatio: 3);
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      bytes = data?.buffer.asUint8List();
+    }
+    entry.remove();
+    return bytes;
+  }
+
+  Future<void> _exportPreview() async {
+    final bytes = await _capturePreview();
+    if (bytes == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось создать превью')),
+        );
+      }
+      return;
+    }
+    try {
+      final dir =
+          await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+      final file = File('${dir.path}/$safe.png');
+      await file.writeAsBytes(bytes, flush: true);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Expanded(child: Text('Preview saved: ${file.path}')),
+              TextButton(
+                onPressed: () async {
+                  try {
+                    await Share.shareXFiles([XFile(file.path)]);
+                  } catch (_) {}
+                },
+                child: const Text('📤 Share'),
+              ),
+            ],
+          ),
+          action: SnackBarAction(
+            label: 'Open',
+            onPressed: () => OpenFilex.open(file.path),
+          ),
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось сохранить превью')),
+        );
+      }
     }
   }
 
@@ -844,6 +918,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Icon(Icons.archive), onPressed: () => _exportBundle()),
           IconButton(icon: const Text('📤 Share'), onPressed: _shareBundle),
+          IconButton(
+            icon: const Text('🖼️'),
+            tooltip: 'Export PNG Preview',
+            onPressed: _exportPreview,
+          ),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
           IconButton(
@@ -1333,6 +1412,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   );
                 },
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TemplatePreviewCard extends StatelessWidget {
+  final TrainingPackTemplate template;
+  const _TemplatePreviewCard({required this.template});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(template.name,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            if (template.description.trim().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(template.description),
+              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text('Spots: ${template.spots.length}'),
             ),
           ],
         ),
