@@ -4,8 +4,41 @@ import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
 import '../models/game_type.dart';
 import '../models/action_entry.dart';
+import '../services/pack_generator_service.dart';
+
+final TrainingPackTemplate autoPushFold10bb =
+    PackGeneratorService.generatePushFoldPackSync(
+  id: 'auto_10bb_sb',
+  name: 'Auto SB 10bb push/fold',
+  heroBbStack: 10,
+  playerStacksBb: [10, 10],
+  heroPos: HeroPosition.sb,
+  heroRange: [
+    '22',
+    '33',
+    'A2s',
+    'A3s',
+    'K9s',
+    'Q9s',
+    'J9s',
+    'T9s',
+    '98s',
+    'AJo',
+    'KQo',
+    'A2o',
+    'A3o',
+    'A4o',
+    'A5o',
+    'A6o',
+    'A7o',
+    'A8o',
+    'A9o',
+    'ATo',
+  ],
+);
 
 final List<TrainingPackTemplate> seedPacks = [
+  autoPushFold10bb,
   TrainingPackTemplate(
     id: 'sb_vs_bb_10bb',
     name: 'SB vs BB 10bb',
