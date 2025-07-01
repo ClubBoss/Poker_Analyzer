@@ -35,6 +35,8 @@ import '../../services/room_hand_history_importer.dart';
 import '../../services/push_fold_ev_service.dart';
 import '../../services/pack_export_service.dart';
 import '../../widgets/range_matrix_picker.dart';
+import '../../services/evaluation_executor_service.dart';
+import '../../models/evaluation_result.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -80,6 +82,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   String? _highlightId;
   final GlobalKey _previewKey = GlobalKey();
   bool _summaryIcm = false;
+  bool _evaluatingAll = false;
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
@@ -832,6 +835,77 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     TrainingPackStorage.save(widget.templates);
   }
 
+  Future<void> _evaluateAllSpots() async {
+    setState(() => _evaluatingAll = true);
+    final spots = widget.template.spots;
+    final total = spots.length;
+    int done = 0;
+    int errors = 0;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setDialog) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                for (final spot in spots) {
+                  try {
+                    final res = await context
+                        .read<EvaluationExecutorService>()
+                        .evaluate(spot);
+                    if (mounted) {
+                      setState(() => spot.evalResult = res);
+                      await TrainingPackStorage.save(widget.templates);
+                    }
+                  } catch (e) {
+                    errors++;
+                    if (mounted) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        SnackBar(
+                          content: Text('Spot "${spot.title}" failed: $e'),
+                        ),
+                      );
+                    }
+                  }
+                  done++;
+                  if (mounted) setDialog(() {});
+                }
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LinearProgressIndicator(value: done / total),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Evaluated $done / $total',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (!mounted) return;
+    setState(() => _evaluatingAll = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            'Evaluated $total spots (${total - errors} OK, $errors errors)'),
+      ),
+    );
+  }
+
   Future<void> _bulkAddTag() async {
     final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
@@ -1543,6 +1617,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   tooltip: 'Generate Spot',
                   onPressed: _generateSpot,
                   child: const Icon(Icons.auto_fix_high),
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: 'evalAllSpotsFab',
+                  icon: _evaluatingAll
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.playlist_play),
+                  label: const Text('Evaluate All'),
+                  onPressed: _evaluatingAll ? null : _evaluateAllSpots,
                 ),
               ],
             )
