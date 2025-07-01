@@ -8,15 +8,18 @@ class HandData {
   Map<String, double> stacks;
   int heroIndex;
   int playerCount;
+  List<String> board;
 
   HandData({
     this.heroCards = '',
     this.position = HeroPosition.unknown,
     this.heroIndex = 0,
     this.playerCount = 6,
+    List<String>? board,
     Map<int, List<ActionEntry>>? actions,
     Map<String, double>? stacks,
-  })  : actions = actions ?? {for (var s = 0; s < 4; s++) s: <ActionEntry>[]},
+  })  : board = board ?? [],
+        actions = actions ?? {for (var s = 0; s < 4; s++) s: <ActionEntry>[]},
         stacks = stacks ?? {};
 
   factory HandData.fromJson(Map<String, dynamic> j) {
@@ -45,6 +48,7 @@ class HandData {
       ),
       heroIndex: j['heroIndex'] as int? ?? 0,
       playerCount: j['playerCount'] as int? ?? 6,
+      board: [for (final c in (j['board'] as List? ?? [])) c as String],
       actions: acts,
       stacks: Map<String, double>.from(j['stacks'] ?? {}),
     );
@@ -61,5 +65,6 @@ class HandData {
               kv.key.toString(): [for (final a in kv.value) a.toJson()]
           },
         if (stacks.isNotEmpty) 'stacks': stacks,
+        if (board.isNotEmpty) 'board': board,
       };
 }

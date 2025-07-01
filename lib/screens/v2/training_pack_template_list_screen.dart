@@ -53,6 +53,7 @@ class _TrainingPackTemplateListScreenState
   int _mixedCount = 20;
   bool _mixedAutoOnly = false;
   bool _endlessDrill = false;
+  String _mixedStreet = 'any';
 
   void _sortTemplates() {
     switch (_sort) {
@@ -897,6 +898,7 @@ class _TrainingPackTemplateListScreenState
     final countCtrl = TextEditingController(text: _mixedCount.toString());
     bool autoOnly = _mixedAutoOnly;
     bool endless = _endlessDrill;
+    String street = _mixedStreet;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -909,6 +911,17 @@ class _TrainingPackTemplateListScreenState
                 controller: countCtrl,
                 decoration: const InputDecoration(labelText: 'Spots count'),
                 keyboardType: TextInputType.number,
+              ),
+              DropdownButton<String>(
+                value: street,
+                onChanged: (v) => setState(() => street = v ?? 'any'),
+                items: const [
+                  DropdownMenuItem(value: 'any', child: Text('Any')),
+                  DropdownMenuItem(value: 'preflop', child: Text('Preflop')),
+                  DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                  DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                  DropdownMenuItem(value: 'river', child: Text('River')),
+                ],
               ),
               CheckboxListTile(
                 value: autoOnly,
@@ -939,6 +952,7 @@ class _TrainingPackTemplateListScreenState
     _mixedCount = int.tryParse(countCtrl.text.trim()) ?? 0;
     _mixedAutoOnly = autoOnly;
     _endlessDrill = endless;
+    _mixedStreet = street;
     await _runMixedDrill();
   }
 
@@ -961,7 +975,21 @@ class _TrainingPackTemplateListScreenState
           ];
     final list =
         autoOnly ? [for (final t in shown) if (t.tags.contains('auto')) t] : shown;
-    final spots = <TrainingPackSpot>[for (final t in list) ...t.spots];
+    final spots = <TrainingPackSpot>[
+      for (final t in list)
+        for (final s in t.spots)
+          if (_mixedStreet == 'any')
+            s
+          else
+            {
+              'preflop': 0,
+              'flop': 3,
+              'turn': 4,
+              'river': 5
+            }[_mixedStreet] == s.hand.board.length
+                ? s
+                : null
+        ].whereType<TrainingPackSpot>().toList();
     if (spots.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context)
