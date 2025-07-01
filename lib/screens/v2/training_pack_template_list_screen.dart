@@ -24,6 +24,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
   int _lastIndex = 0;
   GameType? _selectedType;
   String? _selectedTag;
+  bool _filtersShown = false;
 
   @override
   void initState() {
@@ -182,6 +183,70 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     }
   }
 
+  void _showFilters() {
+    final tags = <String>{for (final t in _templates) ...t.tags};
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            spacing: 8,
+            children: [
+              ChoiceChip(
+                label: const Text('All'),
+                selected: _selectedType == null,
+                onSelected: (_) => setState(() {
+                  this.setState(() => _selectedType = null);
+                }),
+              ),
+              ChoiceChip(
+                label: const Text('Tournament'),
+                selected: _selectedType == GameType.tournament,
+                onSelected: (_) => setState(() {
+                  this.setState(() => _selectedType = GameType.tournament);
+                }),
+              ),
+              ChoiceChip(
+                label: const Text('Cash'),
+                selected: _selectedType == GameType.cash,
+                onSelected: (_) => setState(() {
+                  this.setState(() => _selectedType = GameType.cash);
+                }),
+              ),
+              if (tags.isNotEmpty) ...[
+                ChoiceChip(
+                  label: const Text('All Tags'),
+                  selected: _selectedTag == null,
+                  onSelected: (_) => setState(() {
+                    this.setState(() => _selectedTag = null);
+                  }),
+                ),
+                for (final tag in tags)
+                  ChoiceChip(
+                    label: Text(tag),
+                    selected: _selectedTag == tag,
+                    onSelected: (_) => setState(() {
+                      this.setState(() => _selectedTag = tag);
+                    }),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_filtersShown && MediaQuery.of(context).size.width < 400) {
+      _filtersShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showFilters());
+    }
+  }
+
   @override
   void dispose() {
     _searchCtrl.dispose();
@@ -190,6 +255,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
 
   @override
   Widget build(BuildContext context) {
+    final narrow = MediaQuery.of(context).size.width < 400;
     final tags = <String>{for (final t in _templates) ...t.tags};
     final byType = _selectedType == null
         ? _templates
@@ -246,45 +312,46 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                         setState(() => _query = v.trim().toLowerCase()),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Wrap(
-                    spacing: 8,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      ChoiceChip(
-                        label: const Text('All'),
-                        selected: _selectedType == null,
-                        onSelected: (_) => setState(() => _selectedType = null),
-                      ),
-                      ChoiceChip(
-                        label: const Text('Tournament'),
-                        selected: _selectedType == GameType.tournament,
-                        onSelected: (_) =>
-                            setState(() => _selectedType = GameType.tournament),
-                      ),
-                      ChoiceChip(
-                        label: const Text('Cash'),
-                        selected: _selectedType == GameType.cash,
-                        onSelected: (_) =>
-                            setState(() => _selectedType = GameType.cash),
-                      ),
-                      if (tags.isNotEmpty) ...[
+                if (!narrow)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Wrap(
+                      spacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: [
                         ChoiceChip(
-                          label: const Text('All Tags'),
-                          selected: _selectedTag == null,
-                          onSelected: (_) => setState(() => _selectedTag = null),
+                          label: const Text('All'),
+                          selected: _selectedType == null,
+                          onSelected: (_) => setState(() => _selectedType = null),
                         ),
-                        for (final tag in tags)
+                        ChoiceChip(
+                          label: const Text('Tournament'),
+                          selected: _selectedType == GameType.tournament,
+                          onSelected: (_) =>
+                              setState(() => _selectedType = GameType.tournament),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Cash'),
+                          selected: _selectedType == GameType.cash,
+                          onSelected: (_) =>
+                              setState(() => _selectedType = GameType.cash),
+                        ),
+                        if (tags.isNotEmpty) ...[
                           ChoiceChip(
-                            label: Text(tag),
-                            selected: _selectedTag == tag,
-                            onSelected: (_) => setState(() => _selectedTag = tag),
+                            label: const Text('All Tags'),
+                            selected: _selectedTag == null,
+                            onSelected: (_) => setState(() => _selectedTag = null),
                           ),
+                          for (final tag in tags)
+                            ChoiceChip(
+                              label: Text(tag),
+                              selected: _selectedTag == tag,
+                              onSelected: (_) => setState(() => _selectedTag = tag),
+                            ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
                 Expanded(
                   child: ReorderableListView.builder(
                     buildDefaultDragHandles: false,
@@ -410,9 +477,23 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                 ),
               ],
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _add,
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (narrow)
+            FloatingActionButton(
+              heroTag: 'filterTplFab',
+              onPressed: _showFilters,
+              child: const Icon(Icons.filter_list),
+            ),
+          if (narrow) const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'addTplFab',
+            onPressed: _add,
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }

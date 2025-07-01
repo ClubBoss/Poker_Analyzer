@@ -66,6 +66,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   SortBy _sortBy = SortBy.manual;
   bool _autoSortEv = false;
   bool _pinnedOnly = false;
+  bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
   static const _prefsEvFilterKey = 'ev_filter';
@@ -313,6 +314,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         });
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_filtersShown && MediaQuery.of(context).size.width < 400) {
+      _filtersShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showFilters());
+    }
   }
 
   @override
@@ -1114,8 +1124,50 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ..addAll(others);
   }
 
+  void _showFilters() {
+    final tags = widget.template.spots.expand((s) => s.tags).toSet();
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, set) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SwitchListTile(
+                title: const Text('Pinned Only'),
+                value: _pinnedOnly,
+                onChanged: (v) => set(() {
+                  this.setState(() => _pinnedOnly = v);
+                }),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final tag in tags)
+                    FilterChip(
+                      label: Text(tag),
+                      selected: _selectedTags.contains(tag),
+                      onSelected: (v) => set(() {
+                        this.setState(() {
+                          v ? _selectedTags.add(tag) : _selectedTags.remove(tag);
+                        });
+                      }),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final narrow = MediaQuery.of(context).size.width < 400;
     final hasSpots = widget.template.spots.isNotEmpty;
     return Shortcuts(
       shortcuts: {
@@ -1164,11 +1216,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               TrainingPackStorage.save(widget.templates);
             },
           ),
-          IconButton(
-            icon: Icon(Icons.push_pin, color: _pinnedOnly ? AppColors.accent : null),
-            tooltip: 'Pinned Only',
-            onPressed: () => setState(() => _pinnedOnly = !_pinnedOnly),
-          ),
+          if (!narrow)
+            IconButton(
+              icon: Icon(Icons.push_pin, color: _pinnedOnly ? AppColors.accent : null),
+              tooltip: 'Pinned Only',
+              onPressed: () => setState(() => _pinnedOnly = !_pinnedOnly),
+            ),
           IconButton(icon: const Text('↶'), onPressed: _canUndo ? _undo : null),
           IconButton(icon: const Text('↷'), onPressed: _canRedo ? _redo : null),
           if (_isMultiSelect)
@@ -1278,7 +1331,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ],
       ),
       floatingActionButton: hasSpots
-          ? FloatingActionButton(onPressed: _addSpot, child: const Icon(Icons.add))
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (narrow)
+                  FloatingActionButton(
+                    heroTag: 'filterSpotFab',
+                    onPressed: _showFilters,
+                    child: const Icon(Icons.filter_list),
+                  ),
+                if (narrow) const SizedBox(height: 12),
+                FloatingActionButton(
+                  heroTag: 'addSpotFab',
+                  onPressed: _addSpot,
+                  child: const Icon(Icons.add),
+                ),
+              ],
+            )
           : null,
       bottomNavigationBar: hasSpots && _isMultiSelect
           ? BottomAppBar(
@@ -1406,16 +1476,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
               ),
             ),
-            Builder(
-              builder: (context) {
-                final allTags = widget.template.spots
-                    .expand((s) => s.tags)
-                    .toSet()
-                    .where((t) => t
-                        .toLowerCase()
-                        .contains(_tagSearch.toLowerCase()))
-                    .toList();
-                return Column(
+            if (!narrow)
+              Builder(
+                builder: (context) {
+                  final allTags = widget.template.spots
+                      .expand((s) => s.tags)
+                      .toSet()
+                      .where((t) => t
+                          .toLowerCase()
+                          .contains(_tagSearch.toLowerCase()))
+                      .toList();
+                  return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
