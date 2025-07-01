@@ -91,7 +91,8 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
       ),
     );
     if (res != null) {
-      final updated = spot.copyWith(note: res.trim());
+      final updated =
+          spot.copyWith(note: res.trim(), editedAt: DateTime.now());
       await context.read<TrainingSessionService>().updateSpot(updated);
     }
   }

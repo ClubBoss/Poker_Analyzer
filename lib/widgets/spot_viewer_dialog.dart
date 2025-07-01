@@ -102,7 +102,8 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       ),
     );
     if (result != null) {
-      final updated = spot.copyWith(note: result.trim());
+      final updated =
+          spot.copyWith(note: result.trim(), editedAt: DateTime.now());
       await context.read<TrainingSessionService>().updateSpot(updated);
       setState(() => spot = updated);
     }
@@ -153,7 +154,8 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       ),
     );
     if (result != null) {
-      final updated = spot.copyWith(tags: result);
+      final updated =
+          spot.copyWith(tags: result, editedAt: DateTime.now());
       await context.read<TrainingSessionService>().updateSpot(updated);
       if (!mounted) return;
       setState(() => spot = updated);
