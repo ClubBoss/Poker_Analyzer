@@ -33,6 +33,7 @@ import '../../widgets/ev_summary_card.dart';
 import '../../theme/app_colors.dart';
 import '../../services/room_hand_history_importer.dart';
 import '../../services/push_fold_ev_service.dart';
+import '../../services/pack_export_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -457,6 +458,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Не удалось поделиться пакетом')),
       );
+    }
+  }
+
+  Future<void> _exportCsv() async {
+    try {
+      final file = await PackExportService.exportToCsv(widget.template);
+      if (!mounted) return;
+      await Share.shareXFiles([XFile(file.path)]);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('CSV exported')));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      }
     }
   }
 
@@ -1450,10 +1466,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             onSelected: (v) {
               if (v == 'regenEv') _regenerateEv();
               if (v == 'regenIcm') _regenerateIcm();
+              if (v == 'exportCsv') _exportCsv();
             },
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'regenEv', child: Text('Regenerate EV')),
               PopupMenuItem(value: 'regenIcm', child: Text('Regenerate ICM')),
+              PopupMenuItem(value: 'exportCsv', child: Text('Export CSV')),
             ],
           ),
           IconButton(
