@@ -8,15 +8,38 @@ import '../models/v2/training_pack_template.dart';
 class PackExportService {
   static Future<File> exportToCsv(TrainingPackTemplate tpl) async {
     final rows = <List<dynamic>>[
-      ['Title', 'HeroPosition', 'HeroHand', 'StackBB', 'EV_BB', 'ICM_EV', 'Tags'],
+      [
+        'Title',
+        'HeroPosition',
+        'HeroHand',
+        'StackBB',
+        'StacksBB',
+        'HeroIndex',
+        'CallsMask',
+        'EV_BB',
+        'ICM_EV',
+        'Tags'
+      ],
     ];
     for (final spot in tpl.spots) {
       final hand = spot.hand;
+      final stacks = [
+        for (var i = 0; i < hand.playerCount; i++)
+          hand.stacks['$i']?.toString() ?? ''
+      ].join('/');
+      final pre = hand.actions[0] ?? [];
+      final callsMask = [
+        for (var i = 0; i < hand.playerCount; i++)
+          pre.any((a) => a.playerIndex == i && a.action == 'call') ? '1' : '0'
+      ].join();
       rows.add([
         spot.title,
         hand.position.label,
         hand.heroCards,
         hand.stacks['${hand.heroIndex}']?.toString() ?? '',
+        stacks,
+        hand.heroIndex,
+        callsMask,
         spot.heroEv?.toStringAsFixed(1) ?? '',
         spot.heroIcmEv?.toStringAsFixed(3) ?? '',
         spot.tags.join('|'),

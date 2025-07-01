@@ -21,10 +21,12 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
 
   @override
-  State<TrainingPackTemplateListScreen> createState() => _TrainingPackTemplateListScreenState();
+  State<TrainingPackTemplateListScreen> createState() =>
+      _TrainingPackTemplateListScreenState();
 }
 
-class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateListScreen> {
+class _TrainingPackTemplateListScreenState
+    extends State<TrainingPackTemplateListScreen> {
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
   String _query = '';
@@ -83,10 +85,12 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                 value: type,
                 decoration: const InputDecoration(labelText: 'Game Type'),
                 items: const [
-                  DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                  DropdownMenuItem(
+                      value: GameType.tournament, child: Text('Tournament')),
                   DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
                 ],
-                onChanged: (v) => setState(() => type = v ?? GameType.tournament),
+                onChanged: (v) =>
+                    setState(() => type = v ?? GameType.tournament),
               ),
             ],
           ),
@@ -137,7 +141,8 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
   }
 
   void _add() {
-    final template = TrainingPackTemplate(id: const Uuid().v4(), name: 'New Pack');
+    final template =
+        TrainingPackTemplate(id: const Uuid().v4(), name: 'New Pack');
     setState(() => _templates.add(template));
     TrainingPackStorage.save(_templates);
     _edit(template);
@@ -199,29 +204,38 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                   ),
                   TextField(
                     controller: playerStacksCtrl,
-                    decoration: const InputDecoration(labelText: 'Player Stacks'),
+                    decoration: const InputDecoration(
+                      labelText: 'Stacks (e.g. 10/8/20)',
+                    ),
                   ),
                   DropdownButtonFormField<HeroPosition>(
                     value: pos,
-                    decoration: const InputDecoration(labelText: 'Hero Position'),
+                    decoration:
+                        const InputDecoration(labelText: 'Hero Position'),
                     items: [
                       for (final p in HeroPosition.values)
                         DropdownMenuItem(value: p, child: Text(p.label)),
                     ],
-                    onChanged: (v) => setState(() => pos = v ?? HeroPosition.sb),
+                    onChanged: (v) =>
+                        setState(() => pos = v ?? HeroPosition.sb),
                   ),
                   DefaultTabController(
                     length: 3,
                     child: Column(
                       children: [
-                        const TabBar(tabs: [Tab(text: 'Text'), Tab(text: 'Matrix'), Tab(text: 'Presets')]),
+                        const TabBar(tabs: [
+                          Tab(text: 'Text'),
+                          Tab(text: 'Matrix'),
+                          Tab(text: 'Presets')
+                        ]),
                         SizedBox(
                           height: 280,
                           child: TabBarView(
                             children: [
                               TextField(
                                 controller: rangeCtrl,
-                                decoration: const InputDecoration(labelText: 'Range'),
+                                decoration:
+                                    const InputDecoration(labelText: 'Range'),
                                 maxLines: null,
                               ),
                               SingleChildScrollView(
@@ -231,7 +245,8 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                                     selected
                                       ..clear()
                                       ..addAll(v);
-                                    rangeCtrl.text = PackGeneratorService.serializeRange(v);
+                                    rangeCtrl.text =
+                                        PackGeneratorService.serializeRange(v);
                                     percent = selected.length / 169 * 100;
                                   },
                                 ),
@@ -244,7 +259,9 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                                       selected
                                         ..clear()
                                         ..addAll(v);
-                                      rangeCtrl.text = PackGeneratorService.serializeRange(v);
+                                      rangeCtrl.text =
+                                          PackGeneratorService.serializeRange(
+                                              v);
                                       percent = selected.length / 169 * 100;
                                       setState(() {});
                                     },
@@ -257,8 +274,11 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                                       percent = v;
                                       selected
                                         ..clear()
-                                        ..addAll(PackGeneratorService.topNHands(v.round()));
-                                      rangeCtrl.text = PackGeneratorService.serializeRange(selected);
+                                        ..addAll(PackGeneratorService.topNHands(
+                                            v.round()));
+                                      rangeCtrl.text =
+                                          PackGeneratorService.serializeRange(
+                                              selected);
                                       setState(() {});
                                     },
                                   ),
@@ -282,7 +302,10 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       'In SB vs BB, hands from top ${bbCall.round()}% will trigger a call instead of fold. This affects action preview, not EV.',
-                      style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.white54),
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.white54),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -320,7 +343,8 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
       ),
     );
     if (ok == true) {
-      final name = nameCtrl.text.trim().isEmpty ? 'New Pack' : nameCtrl.text.trim();
+      final name =
+          nameCtrl.text.trim().isEmpty ? 'New Pack' : nameCtrl.text.trim();
       final hero = int.tryParse(heroStackCtrl.text.trim()) ?? 0;
       final stacks = [
         for (final s in playerStacksCtrl.text.split(','))
@@ -532,10 +556,16 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
     final tags = <String>{for (final t in _templates) ...t.tags};
     final byType = _selectedType == null
         ? _templates
-        : [for (final t in _templates) if (t.gameType == _selectedType) t];
+        : [
+            for (final t in _templates)
+              if (t.gameType == _selectedType) t
+          ];
     final filtered = _selectedTag == null
         ? byType
-        : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
+        : [
+            for (final t in byType)
+              if (t.tags.contains(_selectedTag)) t
+          ];
     final shown = _query.isEmpty
         ? filtered
         : [
@@ -603,13 +633,14 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                         ChoiceChip(
                           label: const Text('All'),
                           selected: _selectedType == null,
-                          onSelected: (_) => setState(() => _selectedType = null),
+                          onSelected: (_) =>
+                              setState(() => _selectedType = null),
                         ),
                         ChoiceChip(
                           label: const Text('Tournament'),
                           selected: _selectedType == GameType.tournament,
-                          onSelected: (_) =>
-                              setState(() => _selectedType = GameType.tournament),
+                          onSelected: (_) => setState(
+                              () => _selectedType = GameType.tournament),
                         ),
                         ChoiceChip(
                           label: const Text('Cash'),
@@ -621,13 +652,15 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                           ChoiceChip(
                             label: const Text('All Tags'),
                             selected: _selectedTag == null,
-                            onSelected: (_) => setState(() => _selectedTag = null),
+                            onSelected: (_) =>
+                                setState(() => _selectedTag = null),
                           ),
                           for (final tag in tags)
                             ChoiceChip(
                               label: Text(tag),
                               selected: _selectedTag == tag,
-                              onSelected: (_) => setState(() => _selectedTag = tag),
+                              onSelected: (_) =>
+                                  setState(() => _selectedTag = tag),
                             ),
                         ],
                       ],
@@ -667,7 +700,8 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                             if (allEv)
                               const Padding(
                                 padding: EdgeInsets.only(left: 4),
-                                child: Icon(Icons.trending_up, color: Colors.grey, size: 16),
+                                child: Icon(Icons.trending_up,
+                                    color: Colors.grey, size: 16),
                               ),
                           ],
                         ),
@@ -711,14 +745,16 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                                   context: context,
                                   builder: (_) => AlertDialog(
                                     title: const Text('Delete pack?'),
-                                    content: Text('“${t.name}” will be removed.'),
+                                    content:
+                                        Text('“${t.name}” will be removed.'),
                                     actions: [
                                       TextButton(
                                           onPressed: () =>
                                               Navigator.pop(context, false),
                                           child: const Text('Cancel')),
                                       TextButton(
-                                          onPressed: () => Navigator.pop(context, true),
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
                                           child: const Text('Delete')),
                                     ],
                                   ),
@@ -738,8 +774,10 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
                                         label: 'UNDO',
                                         onPressed: () {
                                           if (_lastRemoved != null) {
-                                            setState(() => _templates.insert(_lastIndex, _lastRemoved!));
-                                            TrainingPackStorage.save(_templates);
+                                            setState(() => _templates.insert(
+                                                _lastIndex, _lastRemoved!));
+                                            TrainingPackStorage.save(
+                                                _templates);
                                           }
                                         },
                                       ),

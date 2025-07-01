@@ -16,4 +16,19 @@ void main() {
     expect(tpl.spots.first.heroEv, 0.8);
     expect(tpl.spots.first.tags.contains('imported'), true);
   });
+
+  test('stacks and calls mask', () {
+    const csv = 'Title,HeroPosition,HeroHand,StacksBB,HeroIndex,CallsMask\n'
+        'A,SB,AA,5/10/20,1,010\n';
+    final tpl = PackImportService.importFromCsv(
+      csv: csv,
+      templateId: 'x',
+      templateName: 'X',
+    );
+    final spot = tpl.spots.single;
+    expect(spot.hand.playerCount, 3);
+    final actions = spot.hand.actions[0]!;
+    expect(actions.firstWhere((a) => a.playerIndex == 1).action, 'push');
+    expect(actions.firstWhere((a) => a.playerIndex == 2).action, 'call');
+  });
 }

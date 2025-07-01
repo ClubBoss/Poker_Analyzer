@@ -28,12 +28,53 @@ class PackImportService {
       final hand = _cell(row, idx['HeroHand']!);
       if (title.isEmpty || hand.isEmpty) continue;
       final pos = _parsePos(_cell(row, idx['HeroPosition']));
-      final stack = _parseDouble(_cell(row, idx['StackBB'])) ?? 0;
+      final stacksStr = _cell(row, idx['StacksBB']);
+      List<double> stackList;
+      if (stacksStr.isEmpty) {
+        final v = _parseDouble(_cell(row, idx['StackBB'])) ?? 0;
+        stackList = [v, v];
+      } else {
+        stackList = [
+          for (final s in stacksStr.split('/')) _parseDouble(s) ?? 0
+        ];
+      }
+      final heroIndex = int.tryParse(_cell(row, idx['HeroIndex'])) ?? 0;
       final ev = _parseDouble(_cell(row, idx['EV_BB']));
       final icmEv = _parseDouble(_cell(row, idx['ICM_EV']));
       final tags = _parseTags(_cell(row, idx['Tags']));
-      final actions = {0: [ActionEntry(0, 0, 'note', ev: ev, icmEv: icmEv)]};
-      final stacks = {'0': stack, '1': stack};
+      final actions = {
+        0: [
+          for (var i = 0; i < stackList.length; i++)
+            ActionEntry(
+              0,
+              i,
+              i == heroIndex ? 'push' : 'fold',
+              amount: stackList[heroIndex].toDouble(),
+              ev: i == heroIndex ? ev : null,
+              icmEv: i == heroIndex ? icmEv : null,
+            )
+        ]
+      };
+      final callsMask = _cell(row, idx['CallsMask']);
+      if (callsMask.isNotEmpty) {
+        final mask = callsMask.padRight(stackList.length, '0');
+        for (var i = 0; i < stackList.length && i < mask.length; i++) {
+          if (mask[i] == '1') {
+            final act = actions[0]!.firstWhere((a) => a.playerIndex == i);
+            if (act.action == 'fold') {
+              actions[0]![actions[0]!.indexOf(act)] = ActionEntry(
+                0,
+                i,
+                'call',
+                amount: stackList[heroIndex].toDouble(),
+              );
+            }
+          }
+        }
+      }
+      final stacks = {
+        for (var i = 0; i < stackList.length; i++) '$i': stackList[i]
+      };
       spots.add(
         TrainingPackSpot(
           id: '${templateId}_${spots.length + 1}',
@@ -41,8 +82,8 @@ class PackImportService {
           hand: HandData(
             heroCards: hand,
             position: pos,
-            heroIndex: 0,
-            playerCount: 2,
+            heroIndex: heroIndex,
+            playerCount: stackList.length,
             stacks: stacks,
             actions: actions,
           ),
@@ -50,7 +91,8 @@ class PackImportService {
         ),
       );
     }
-    return TrainingPackTemplate(id: templateId, name: templateName, spots: spots);
+    return TrainingPackTemplate(
+        id: templateId, name: templateName, spots: spots);
   }
 
   static String _cell(List row, int? i) {
@@ -60,7 +102,8 @@ class PackImportService {
 
   static HeroPosition _parsePos(String v) {
     for (final p in HeroPosition.values) {
-      if (v.toLowerCase() == p.name || v.toUpperCase() == p.label.toUpperCase()) {
+      if (v.toLowerCase() == p.name ||
+          v.toUpperCase() == p.label.toUpperCase()) {
         return p;
       }
     }
