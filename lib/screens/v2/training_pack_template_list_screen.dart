@@ -111,6 +111,7 @@ class _TrainingPackTemplateListScreenState extends State<TrainingPackTemplateLis
       id: const Uuid().v4(),
       name: '${template.name} (copy)',
       description: template.description,
+      tags: List<String>.from(template.tags),
       spots: [
         for (final s in template.spots)
           s.copyWith(

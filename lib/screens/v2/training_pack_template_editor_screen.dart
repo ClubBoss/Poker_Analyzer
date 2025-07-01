@@ -95,6 +95,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     TrainingPackStorage.save(widget.templates);
   }
 
+  Future<void> _addPackTag() async {
+    final c = TextEditingController();
+    final tag = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Add Tag'),
+        content: TextField(controller: c, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
+        ],
+      ),
+    );
+    c.dispose();
+    if (tag == null || tag.isEmpty) return;
+    setState(() => widget.template.tags.add(tag));
+    TrainingPackStorage.save(widget.templates);
+  }
+
   void _saveName() {
     final value = _nameCtr.text.trim();
     if (value.isEmpty) return;
@@ -850,6 +869,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 setState(() => widget.template.description = v);
                 TrainingPackStorage.save(widget.templates);
               },
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final tag in widget.template.tags)
+                  InputChip(
+                    label: Text(tag),
+                    onDeleted: () {
+                      setState(() => widget.template.tags.remove(tag));
+                      TrainingPackStorage.save(widget.templates);
+                    },
+                  ),
+                InputChip(
+                  label: const Text('+ Add'),
+                  onPressed: _addPackTag,
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<GameType>(
