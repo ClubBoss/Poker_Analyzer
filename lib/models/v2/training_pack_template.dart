@@ -23,6 +23,7 @@ class TrainingPackTemplate {
   int anteBb;
   List<String>? heroRange;
   final DateTime createdAt;
+  DateTime? lastGeneratedAt;
 
   TrainingPackTemplate({
     required this.id,
@@ -39,6 +40,7 @@ class TrainingPackTemplate {
     this.anteBb = 0,
     this.heroRange,
     DateTime? createdAt,
+    this.lastGeneratedAt,
   })  : spots = spots ?? [],
         tags = tags ?? [],
         playerStacksBb = playerStacksBb ?? const [10, 10],
@@ -59,6 +61,7 @@ class TrainingPackTemplate {
     int? anteBb,
     List<String>? heroRange,
     DateTime? createdAt,
+    DateTime? lastGeneratedAt,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -75,6 +78,7 @@ class TrainingPackTemplate {
       anteBb: anteBb ?? this.anteBb,
       heroRange: heroRange ?? this.heroRange,
       createdAt: createdAt ?? this.createdAt,
+      lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
     );
   }
 
@@ -104,6 +108,8 @@ class TrainingPackTemplate {
       heroRange: (json['heroRange'] as List?)?.map((e) => e as String).toList(),
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
+      lastGeneratedAt:
+          DateTime.tryParse(json['lastGeneratedAt'] as String? ?? ''),
     );
   }
 
@@ -122,6 +128,8 @@ class TrainingPackTemplate {
         'bbCallPct': bbCallPct,
         'anteBb': anteBb,
         'createdAt': createdAt.toIso8601String(),
+        if (lastGeneratedAt != null)
+          'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
       };
 
   Future<List<TrainingPackSpot>> generateSpots() async {
@@ -229,6 +237,7 @@ class TrainingPackTemplate {
         );
       },
     );
+    lastGeneratedAt = DateTime.now();
     return generated;
   }
 
