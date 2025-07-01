@@ -8,10 +8,16 @@ import '../models/action_entry.dart';
 import '../services/training_session_service.dart';
 import '../services/tag_service.dart';
 import 'share_dialog.dart';
+import '../screens/v2/training_pack_spot_editor_screen.dart';
 
 class SpotViewerDialog extends StatefulWidget {
   final TrainingPackSpot spot;
-  const SpotViewerDialog({super.key, required this.spot});
+  final BuildContext parentContext;
+  const SpotViewerDialog({
+    super.key,
+    required this.spot,
+    required this.parentContext,
+  });
 
   @override
   State<SpotViewerDialog> createState() => _SpotViewerDialogState();
@@ -217,6 +223,17 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
           child: const Text('Edit Tags'),
         ),
         TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+            await Navigator.of(widget.parentContext).push(
+              MaterialPageRoute(
+                builder: (_) => TrainingPackSpotEditorScreen(spot: spot),
+              ),
+            );
+          },
+          child: const Text('Edit Full'),
+        ),
+        TextButton(
           onPressed: () => showShareDialog(context, _summary()),
           child: const Text('Share'),
         ),
@@ -232,6 +249,6 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
 Future<void> showSpotViewerDialog(BuildContext context, TrainingPackSpot spot) {
   return showDialog(
     context: context,
-    builder: (_) => SpotViewerDialog(spot: spot),
+    builder: (_) => SpotViewerDialog(spot: spot, parentContext: context),
   );
 }
