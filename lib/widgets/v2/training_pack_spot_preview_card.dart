@@ -53,6 +53,10 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
           if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
             ...a.customLabel!.split(' ')
     ];
+    final actionCount = actions.values
+        .expand((e) => e)
+        .where((a) => a.action != 'board' && !a.generated)
+        .length;
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: borderColor, width: 1.5),
@@ -143,6 +147,22 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                               label: Text(tag, style: const TextStyle(fontSize: 12)),
                               onPressed: () => onTagTap?.call(tag.toLowerCase()),
                             ),
+                        ],
+                      ),
+                    ),
+                  if (actionCount > 0 || spot.note.trim().isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text('🕹️ $actionCount',
+                              style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                          if (spot.note.trim().isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            const Text('📝',
+                                style: TextStyle(fontSize: 12, color: Colors.white70)),
+                          ]
                         ],
                       ),
                     ),
