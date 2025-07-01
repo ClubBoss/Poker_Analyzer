@@ -4,6 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'package:archive/archive.dart';
+import 'package:flutter/services.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../models/v2/training_pack_template.dart';
@@ -152,6 +156,70 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Не удалось экспортировать файл')),
+        );
+      }
+    }
+  }
+
+  Future<void> exportToBundle() async {
+    try {
+      final temp = await getTemporaryDirectory();
+      final dir = Directory('${temp.path}/template_bundle');
+      if (await dir.exists()) await dir.delete(recursive: true);
+      await dir.create(recursive: true);
+      final jsonFile = File('${dir.path}/template.json');
+      await jsonFile.writeAsString(jsonEncode(widget.template.toJson()));
+      for (int i = 0; i < widget.template.spots.length; i++) {
+        final key = _itemKeys[widget.template.spots[i].id];
+        final boundary =
+            key?.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+        if (boundary == null) continue;
+        final image = await boundary.toImage(pixelRatio: 3);
+        final bytes =
+            await image.toByteData(format: ui.ImageByteFormat.png);
+        if (bytes == null) continue;
+        final file = File('${dir.path}/spot_${i + 1}.png');
+        await file.writeAsBytes(bytes.buffer.asUint8List());
+      }
+      final archive = Archive();
+      for (final f in await dir.list().whereType<File>().toList()) {
+        final data = await f.readAsBytes();
+        final name = f.path.substring(dir.path.length + 1);
+        archive.addFile(ArchiveFile(name, data.length, data));
+      }
+      final zip = ZipEncoder().encode(archive);
+      if (zip == null) throw Exception();
+      final downloads =
+          await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      final safeName =
+          widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+      final file = File('${downloads.path}/$safeName.zip');
+      await file.writeAsBytes(zip, flush: true);
+      await dir.delete(recursive: true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Expanded(child: Text('Файл сохранён: ${file.path}')),
+                TextButton(
+                  onPressed: () =>
+                      Clipboard.setData(ClipboardData(text: file.path)),
+                  child: const Text('Копировать'),
+                ),
+              ],
+            ),
+            action: SnackBarAction(
+              label: 'Открыть',
+              onPressed: () => OpenFilex.open(file.path),
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось создать архив')),
         );
       }
     }
@@ -599,6 +667,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Clear All Spots',
             onPressed: _clearAll,
           ),
+          IconButton(icon: const Icon(Icons.archive), onPressed: exportToBundle),
           IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
           IconButton(icon: const Icon(Icons.save), onPressed: _save)
@@ -877,14 +946,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           onLongPress: () => setState(() => _selectedSpotIds.add(spot.id)),
                           child: Card(
                             margin: const EdgeInsets.symmetric(vertical: 4),
-                            child: AnimatedContainer(
+                            child: RepaintBoundary(
                               key: _itemKeys.putIfAbsent(spot.id, () => GlobalKey()),
-                              duration: const Duration(milliseconds: 500),
-                              color: spot.id == _highlightId ? Colors.yellow.withOpacity(0.3) : null,
-                              padding: const EdgeInsets.all(8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 500),
+                                color: spot.id == _highlightId ? Colors.yellow.withOpacity(0.3) : null,
+                                padding: const EdgeInsets.all(8),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                   if (_isMultiSelect)
                                     Checkbox(
                                       value: selected,
