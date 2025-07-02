@@ -83,6 +83,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsAutoSortKey = 'auto_sort_ev';
   static const _prefsEvFilterKey = 'ev_filter';
   static const _prefsEvRangeKey = 'ev_range';
+  static const _prefsTagFilterKey = 'tag_filter';
+  static const _prefsQuickFilterKey = 'quick_filter';
+  static const _prefsSortKey = 'sort_mode';
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   static const _quickFilters = [
@@ -104,6 +107,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
+
+  void _storeTagFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(_prefsTagFilterKey, _tagFilter ?? '');
+  }
+
+  void _storeQuickFilter() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(_prefsQuickFilterKey, _quickFilter ?? '');
+  }
+
+  void _storeSort() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(_prefsSortKey, _sortBy.name);
+  }
 
   Set<String> _templateRange() {
     final set = <String>{};
@@ -451,6 +469,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final auto = prefs.getBool(_prefsAutoSortKey) ?? false;
       final filter = prefs.getString(_prefsEvFilterKey) ?? 'all';
       final rangeStr = prefs.getString(_prefsEvRangeKey);
+      final tag = prefs.getString(_prefsTagFilterKey);
+      final quick = prefs.getString(_prefsQuickFilterKey);
+      final sortStr = prefs.getString(_prefsSortKey);
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
         final parts = rangeStr.split(',');
@@ -462,11 +483,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           }
         }
       }
+      SortBy sort = SortBy.manual;
+      if (sortStr != null) {
+        for (final v in SortBy.values) {
+          if (v.name == sortStr) {
+            sort = v;
+            break;
+          }
+        }
+      }
       if (mounted) {
         setState(() {
           _autoSortEv = auto;
           _evFilter = filter;
           _evRange = range;
+          _tagFilter = tag?.isEmpty ?? true ? null : tag;
+          _quickFilter = quick?.isEmpty ?? true ? null : quick;
+          _sortBy = sort;
           if (_autoSortEv) _sortSpots();
         });
       }
@@ -2089,6 +2122,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 prefs.setBool(_prefsAutoSortKey, _autoSortEv);
               } else {
                 setState(() => _sortBy = v);
+                _storeSort();
               }
             },
             itemBuilder: (_) => [
@@ -2396,7 +2430,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   suffixIcon: _tagFilter != null
                       ? IconButton(
                           icon: const Icon(Icons.clear),
-                          onPressed: () => setState(() => _tagFilter = null),
+                          onPressed: () async {
+                            setState(() => _tagFilter = null);
+                            _storeTagFilter();
+                          },
                         )
                       : _query.isEmpty
                           ? null
@@ -2503,8 +2540,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       child: FilterChip(
                         label: Text(f),
                         selected: _quickFilter == f,
-                        onSelected: (v) =>
-                            setState(() => _quickFilter = v ? f : null),
+                        onSelected: (v) async {
+                          setState(() => _quickFilter = v ? f : null);
+                          _storeQuickFilter();
+                        },
                       ),
                     ),
                 ],
@@ -2612,8 +2651,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     ..sort())
                     DropdownMenuItem(value: t.toLowerCase(), child: Text(t)),
                 ],
-                onChanged: (v) => setState(
-                    () => _tagFilter = (v == null || v.isEmpty) ? null : v),
+                onChanged: (v) async {
+                  setState(
+                      () => _tagFilter = (v == null || v.isEmpty) ? null : v);
+                  _storeTagFilter();
+                },
               ),
             ),
             const SizedBox(height: 16),
@@ -2707,7 +2749,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                         });
                                         _persist();
                                       },
-                                      onTagTap: (tag) => setState(() => _tagFilter = tag),
+                                      onTagTap: (tag) async {
+                                        setState(() => _tagFilter = tag);
+                                        _storeTagFilter();
+                                      },
                                       onDuplicate: () {
                                         final i = widget.template.spots.indexOf(spot);
                                         if (i == -1) return;
