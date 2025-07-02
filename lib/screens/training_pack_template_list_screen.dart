@@ -34,7 +34,6 @@ class _TrainingPackTemplateListScreenState
   static const _prefsFavKey = 'tpl_show_fav_only';
   _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
-  final Map<String, double?> _coverage = {};
   final Map<String, bool> _collapsed = {};
   final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
@@ -137,13 +136,6 @@ class _TrainingPackTemplateListScreenState
     });
   }
 
-  void _ensureCoverage(String id, Map<String, dynamic> filters) {
-    if (_coverage.containsKey(id)) return;
-    _coverage[id] = null;
-    _spotStorage.filterEvCoverage(filters).then((value) {
-      if (mounted) setState(() => _coverage[id] = value);
-    });
-  }
 
   Future<void> _add() async {
     final service = context.read<TrainingPackTemplateStorageService>();
@@ -664,7 +656,6 @@ class _TrainingPackTemplateListScreenState
                     if (!collapsed && index < count + list.length) {
                       final t = list[index - count];
                       _ensureCount(t.id, t.filters);
-                      _ensureCoverage(t.id, t.filters);
                       final isActive =
                           t.filters.equals(_spotStorage.activeFilters);
                       final selection = _selectedIds.isNotEmpty;
@@ -734,21 +725,20 @@ class _TrainingPackTemplateListScreenState
                                       MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
-                            Tooltip(
-                              message: 'EV coverage',
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                icon: const Icon(Icons.bar_chart, size: 20),
-                                onPressed: () {
-                                  final pct = _coverage[t.id];
-                                  final text = pct == null
-                                      ? 'EV coverage unknown'
-                                      : 'EV calculated for ${pct.round()}% of spots';
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(text)));
-                                },
-                              ),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: const Icon(Icons.bar_chart, size: 20),
+                              onPressed: () {
+                                final total = t.spots.length;
+                                final pct = total == 0
+                                    ? 0
+                                    : (t.evCovered * 100 / total).round();
+                                final text =
+                                    'EV calculated for $pct% of spots';
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(content: Text(text)));
+                              },
                             ),
                             IconButton(
                               icon: Icon(t.isFavorite

@@ -150,7 +150,7 @@ class PackGeneratorService {
       heroRange: p.heroRange,
       createdAt: p.createdAt,
       lastGeneratedAt: DateTime.now(),
-    );
+    )..recountCoverage();
   }
 
   static TrainingPackTemplate generatePushFoldPackSync({
@@ -217,7 +217,7 @@ class PackGeneratorService {
       gameType: GameType.tournament,
       spots: spots,
       createdAt: createdAt,
-    );
+    )..recountCoverage();
   }
 
   static String _firstCombo(String hand) {
@@ -299,6 +299,6 @@ class PackGeneratorService {
       gameType: GameType.tournament,
       spots: spots,
       createdAt: createdAt,
-    );
+    )..recountCoverage();
   }
 }

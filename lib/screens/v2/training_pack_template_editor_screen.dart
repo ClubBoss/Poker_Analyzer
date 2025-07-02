@@ -167,7 +167,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   void _recordSnapshot() => _history.record(widget.template.spots);
 
-  void _undo() {
+  Future<void> _persist() async {
+    widget.template.recountCoverage();
+    await TrainingPackStorage.save(widget.templates);
+  }
+
+  void _saveOnly() {
+    TrainingPackStorage.save(widget.templates);
+  }
+
+  Future<void> _undo() async {
     final snap = _history.undo(widget.template.spots);
     if (snap == null) return;
     setState(() {
@@ -175,10 +184,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ..clear()
         ..addAll(snap);
     });
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
   }
 
-  void _redo() {
+  Future<void> _redo() async {
     final snap = _history.redo(widget.template.spots);
     if (snap == null) return;
     setState(() {
@@ -186,17 +195,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ..clear()
         ..addAll(snap);
     });
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
   }
 
-  void _addSpot() async {
+  Future<void> _addSpot() async {
     _recordSnapshot();
     final spot = TrainingPackSpot(
       id: const Uuid().v4(),
       title: normalizeSpotTitle('New spot'),
     );
     setState(() => widget.template.spots.add(spot));
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
@@ -204,17 +213,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {
       if (_autoSortEv) _sortSpots();
     });
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
   }
 
-  void _generateSpot() async {
+  Future<void> _generateSpot() async {
     _recordSnapshot();
     final spot = TrainingPackSpot(
       id: const Uuid().v4(),
       title: 'New Spot',
     );
     setState(() => widget.template.spots.add(spot));
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
@@ -222,7 +231,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {
       if (_autoSortEv) _sortSpots();
     });
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
   }
 
   Future<void> _generateSpots() async {
@@ -233,7 +242,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       widget.template.spots.addAll(generated);
       if (_autoSortEv) _sortSpots();
     });
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Generated ${generated.length} spots')));
   }
@@ -250,7 +259,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       widget.template.spots.addAll(missing);
       if (_autoSortEv) _sortSpots();
     });
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Added ${missing.length} spots')));
   }
@@ -280,7 +289,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.spots.add(spot);
         if (_autoSortEv) _sortSpots();
       });
-      TrainingPackStorage.save(widget.templates);
+      await _persist();
       WidgetsBinding.instance.addPostFrameCallback((_) => _focusSpot(spot.id));
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -356,7 +365,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       widget.template.spots.add(spot);
       if (_autoSortEv) _sortSpots();
     });
-    TrainingPackStorage.save(widget.templates);
+    await _persist();
     WidgetsBinding.instance.addPostFrameCallback((_) => _focusSpot(spot.id));
   }
 
@@ -400,14 +409,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     c.dispose();
     if (tag == null || tag.isEmpty) return;
     setState(() => widget.template.tags.add(tag));
-    TrainingPackStorage.save(widget.templates);
+    _persist();
   }
 
   void _saveName() {
     final value = _nameCtr.text.trim();
     if (value.isEmpty) return;
     setState(() => widget.template.name = value);
-    TrainingPackStorage.save(widget.templates);
+    _persist();
   }
 
   @override
@@ -462,7 +471,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name is required')));
       return;
     }
-    TrainingPackStorage.save(widget.templates);
+    _persist();
     Navigator.pop(context);
   }
 
@@ -745,7 +754,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ..addAll(tpl.spots);
         if (_autoSortEv) _sortSpots();
       });
-      TrainingPackStorage.save(widget.templates);
+      _persist();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Импортировано спотов: ${tpl.spots.length}')),
@@ -774,7 +783,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (ok ?? false) {
       _recordSnapshot();
       setState(() => widget.template.spots.clear());
-      TrainingPackStorage.save(widget.templates);
+      _persist();
     }
   }
 
@@ -864,7 +873,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         }
       }
     });
-    TrainingPackStorage.save(widget.templates);
+    _persist();
   }
 
   void _regenerateIcm() {
@@ -899,7 +908,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         }
       }
     });
-    TrainingPackStorage.save(widget.templates);
+    _persist();
   }
 
   void _tagAllMistakes() {
@@ -913,7 +922,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         }
       }
     });
-    TrainingPackStorage.save(widget.templates);
+    _persist();
     if (count > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Tagged $count spot(s)')),
@@ -944,7 +953,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         .evaluate(spot);
                     if (mounted) {
                       setState(() => spot.evalResult = res);
-                      await TrainingPackStorage.save(widget.templates);
+                      await _persist();
                     }
                   } catch (e) {
                     errors++;
@@ -1015,6 +1024,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   try {
                     if (s.heroEv == null) {
                       await const PushFoldEvService().evaluate(s);
+                      widget.template.meta['evCovered'] =
+                          (widget.template.meta['evCovered'] ?? 0) + 1;
                       if (!mounted) return;
                       setState(() {
                         if (_autoSortEv) _sortSpots();
@@ -1027,7 +1038,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   if (mounted) setDialog(() {});
                   await Future.delayed(Duration.zero);
                 }
-                await TrainingPackStorage.save(widget.templates);
+                await _persist();
                 if (Navigator.canPop(ctx)) Navigator.pop(ctx);
               });
             }
@@ -1080,6 +1091,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   try {
                     if (s.heroIcmEv == null) {
                       await const PushFoldEvService().evaluateIcm(s);
+                      widget.template.meta['icmCovered'] =
+                          (widget.template.meta['icmCovered'] ?? 0) + 1;
                       if (!mounted) return;
                       setState(() {
                         if (_autoSortEv) _sortSpots();
@@ -1092,7 +1105,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   if (mounted) setDialog(() {});
                   await Future.delayed(Duration.zero);
                 }
-                await TrainingPackStorage.save(widget.templates);
+                await _persist();
                 if (Navigator.canPop(ctx)) Navigator.pop(ctx);
               });
             }
@@ -1200,7 +1213,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         if (!s.tags.contains(tag)) s.tags.add(tag);
       }
     });
-    await TrainingPackStorage.save(widget.templates);
+    await _persist();
     setState(() => _selectedSpotIds.clear());
   }
 
@@ -1236,7 +1249,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         s.tags.remove(tag);
       }
     });
-    await TrainingPackStorage.save(widget.templates);
+    await _persist();
     setState(() => _selectedSpotIds.clear());
   }
 
@@ -1249,7 +1262,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         if (tag.isNotEmpty) s.tags.add(tag);
       }
     });
-    await TrainingPackStorage.save(widget.templates);
+    await _persist();
     setState(() => _selectedSpotIds.clear());
   }
 
@@ -1263,7 +1276,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
       if (_autoSortEv) _sortSpots();
     });
-    await TrainingPackStorage.save(widget.templates);
+    await _persist();
     setState(() => _selectedSpotIds.clear());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${newState ? 'Pinned' : 'Unpinned'} ${spots.length} spot(s)')),
@@ -1311,7 +1324,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         if (_autoSortEv) _sortSpots();
       }
     });
-    await TrainingPackStorage.save(widget.templates);
+    await _persist();
     setState(() => _selectedSpotIds.clear());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${move ? 'Moved' : 'Copied'} ${copies.length} spot(s)')),
@@ -1345,7 +1358,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       widget.templates.insert(index + 1, tpl);
       _selectedSpotIds.clear();
     });
-    TrainingPackStorage.save(widget.templates);
+    _persist();
   }
 
   Future<void> _bulkDelete() async {
@@ -1369,7 +1382,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         _selectedSpotIds.clear();
         if (_autoSortEv) _sortSpots();
       });
-      TrainingPackStorage.save(widget.templates);
+      _persist();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Removed ${_lastRemoved!.length} spot(s)'),
@@ -1380,7 +1393,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 widget.template.spots.addAll(_lastRemoved!);
                 if (_autoSortEv) _sortSpots();
               });
-              TrainingPackStorage.save(widget.templates);
+              _persist();
             },
           ),
         ),
@@ -1412,7 +1425,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       tags: List.from(spot.tags),
     );
     setState(() => widget.template.spots.insert(i + 1, copy));
-    TrainingPackStorage.save(widget.templates);
+    _persist();
   }
 
   Future<void> _renameTag() async {
@@ -1483,7 +1496,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         }
       }
     });
-    await TrainingPackStorage.save(widget.templates);
+    await _persist();
     setState(() {});
   }
 
@@ -1511,7 +1524,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 widget.template.tags.add(newTag);
               }
             });
-            TrainingPackStorage.save(widget.templates);
+            _persist();
             setStateDialog(() {
               final i = tags.indexOf(oldTag);
               if (i != -1) tags[i] = newTag;
@@ -1525,7 +1538,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 s.tags.removeWhere((t) => t == tag);
               }
             });
-            TrainingPackStorage.save(widget.templates);
+            _persist();
             setStateDialog(() => tags.remove(tag));
           }
 
@@ -1842,7 +1855,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.heroRange =
             parsedSet.isEmpty ? null : parsedSet.toList();
       });
-      await TrainingPackStorage.save(widget.templates);
+      await _persist();
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Template settings updated')));
@@ -1862,17 +1875,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
-    final totalSpots = shown.length;
+    final totalSpots = widget.template.spots.length;
     final evCoverage = totalSpots == 0
         ? 0.0
-        : shown.where((s) => s.heroEv != null).length / totalSpots;
+        : widget.template.evCovered / totalSpots;
     final icmCoverage = totalSpots == 0
         ? 0.0
-        : shown.where((s) => s.heroIcmEv != null).length / totalSpots;
-    final bothCoverage = totalSpots == 0
-        ? 0.0
-        : shown.where((s) => s.heroEv != null && s.heroIcmEv != null).length /
-            totalSpots;
+        : widget.template.icmCovered / totalSpots;
+    final bothCoverage = evCoverage < icmCoverage ? evCoverage : icmCoverage;
     final range = _templateRange();
     List<TrainingPackSpot> sorted;
     if (_sortBy == SortBy.manual) {
@@ -1948,7 +1958,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             onChanged: (v) {
               if (v == null) return;
               setState(() => widget.template.gameType = v);
-              TrainingPackStorage.save(widget.templates);
+              _persist();
             },
           ),
           if (!narrow)
@@ -2199,7 +2209,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               maxLines: 4,
               onChanged: (v) {
                 setState(() => widget.template.description = v);
-                TrainingPackStorage.save(widget.templates);
+                _persist();
               },
             ),
             const SizedBox(height: 16),
@@ -2211,7 +2221,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     label: Text(tag),
                     onDeleted: () {
                       setState(() => widget.template.tags.remove(tag));
-                      TrainingPackStorage.save(widget.templates);
+                      _persist();
                     },
                   ),
                 InputChip(
@@ -2230,7 +2240,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ],
               onChanged: (v) {
                 setState(() => widget.template.gameType = v ?? GameType.tournament);
-                TrainingPackStorage.save(widget.templates);
+                _persist();
               },
             ),
             const SizedBox(height: 16),
@@ -2516,7 +2526,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                         setState(() {
                                           if (_autoSortEv) _sortSpots();
                                         });
-                                        TrainingPackStorage.save(widget.templates);
+                                        _persist();
                                       },
                                       onTagTap: (tag) => setState(() => _tagFilter = tag),
                                       onDuplicate: () {
@@ -2529,7 +2539,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                           tags: List.from(spot.tags),
                                         );
                                         setState(() => widget.template.spots.insert(i + 1, copy));
-                                        TrainingPackStorage.save(widget.templates);
+                                        _persist();
                                         _focusSpot(copy.id);
                                       },
                                     ),
@@ -2556,7 +2566,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                               tags: List.from(_copiedSpot!.tags),
                                             );
                                             setState(() => widget.template.spots.insert(i + 1, s));
-                                            TrainingPackStorage.save(widget.templates);
+                                            _persist();
                                           } else if (v == 'dup') {
                                             _duplicateSpot(spot);
                                           } else if (v == 'pin') {
@@ -2564,7 +2574,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                               spot.pinned = !spot.pinned;
                                               if (_autoSortEv) _sortSpots();
                                             });
-                                            TrainingPackStorage.save(widget.templates);
+                                            _persist();
                                           }
                                         },
                                         itemBuilder: (_) => [
@@ -2583,7 +2593,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                           setState(() {
                                             if (_autoSortEv) _sortSpots();
                                           });
-                                          TrainingPackStorage.save(widget.templates);
+                                          _persist();
                                         },
                                         child: const Text('📝 Edit'),
                                       ),
@@ -2602,7 +2612,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                           );
                                           if (ok ?? false) {
                                             setState(() => widget.template.spots.removeAt(index));
-                                            TrainingPackStorage.save(widget.templates);
+                                            _persist();
                                           }
                                         },
                                       ),
@@ -2634,7 +2644,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           } else {
                             _lastRemoved = [spot];
                             setState(() => widget.template.spots.remove(spot));
-                            TrainingPackStorage.save(widget.templates);
+                            _persist();
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text('Deleted'),
@@ -2645,7 +2655,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                       widget.template.spots.addAll(_lastRemoved!);
                                       if (_autoSortEv) _sortSpots();
                                     });
-                                    TrainingPackStorage.save(widget.templates);
+                                    _persist();
                                   },
                                 ),
                               ),
@@ -2669,7 +2679,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             widget.template.spots.insert(
                                 newIndex > oldIndex ? newIndex - 1 : newIndex, s);
                           });
-                          TrainingPackStorage.save(widget.templates);
+                          _persist();
                         },
                           ),
                         ],
