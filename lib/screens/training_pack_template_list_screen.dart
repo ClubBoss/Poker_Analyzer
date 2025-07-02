@@ -640,6 +640,11 @@ class _TrainingPackTemplateListScreenState
                           t.filters.equals(_spotStorage.activeFilters);
                       final selection = _selectedIds.isNotEmpty;
                       final selected = _selectedIds.contains(t.id);
+                      final isNew = t.lastGeneratedAt != null &&
+                          DateTime.now()
+                                  .difference(t.lastGeneratedAt!)
+                                  .inHours <
+                              48;
                       Widget tile = ListTile(
                         tileColor: isActive ? Colors.blueGrey.shade800 : null,
                         leading: Row(
@@ -687,6 +692,17 @@ class _TrainingPackTemplateListScreenState
                         title: Row(
                           children: [
                             Expanded(child: Text(t.name)),
+                            if (isNew)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Chip(
+                                  label: Text('NEW',
+                                      style: TextStyle(fontSize: 12)),
+                                  visualDensity: VisualDensity.compact,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                              ),
                             IconButton(
                               icon: Icon(t.isFavorite ? Icons.star : Icons.star_border),
                               color: t.isFavorite ? Colors.amber : Colors.white54,
