@@ -1896,6 +1896,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ? 0.0
         : widget.template.icmCovered / totalSpots;
     final bothCoverage = evCoverage < icmCoverage ? evCoverage : icmCoverage;
+    final heroEvsAll = [
+      for (final s in widget.template.spots)
+        if (s.heroEv != null) s.heroEv!
+    ];
+    final avgEv = heroEvsAll.isEmpty
+        ? null
+        : heroEvsAll.reduce((a, b) => a + b) / heroEvsAll.length;
+    final tagCounts = <String, int>{};
+    for (final t in widget.template.spots.expand((s) => s.tags)) {
+      tagCounts[t] = (tagCounts[t] ?? 0) + 1;
+    }
+    final topTags = tagCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final summaryTags = [for (final e in topTags.take(3)) e.key];
     final range = _templateRange();
     List<TrainingPackSpot> sorted;
     if (_sortBy == SortBy.manual) {
@@ -2472,6 +2486,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ),
             ),
             const SizedBox(height: 8),
+            _TemplateSummaryPanel(
+              spots: totalSpots,
+              ev: evCoverage,
+              icm: icmCoverage,
+              tags: summaryTags,
+              avgEv: avgEv,
+            ),
+            const SizedBox(height: 8),
             _EvCoverageBar(ev: evCoverage, icm: icmCoverage, both: bothCoverage),
             const SizedBox(height: 16),
             Padding(
@@ -2906,6 +2928,63 @@ class _EvCoverageBar extends StatelessWidget {
         const SizedBox(width: 8),
         _bar(context, both, 'Both', Colors.green),
       ],
+    );
+  }
+}
+
+class _TemplateSummaryPanel extends StatelessWidget {
+  final int spots;
+  final double ev;
+  final double icm;
+  final List<String> tags;
+  final double? avgEv;
+  const _TemplateSummaryPanel({
+    required this.spots,
+    required this.ev,
+    required this.icm,
+    required this.tags,
+    required this.avgEv,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Spots: $spots', style: const TextStyle(color: Colors.white)),
+          const SizedBox(height: 4),
+          Text('EV ${(ev * 100).round()}%  •  ICM ${(icm * 100).round()}%',
+              style: const TextStyle(color: Colors.white70)),
+          if (tags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  for (final t in tags)
+                    Chip(
+                      backgroundColor: Colors.grey[800],
+                      label: Text(t, style: const TextStyle(color: Colors.white)),
+                    ),
+                ],
+              ),
+            ),
+          if (avgEv != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Avg EV: ${(avgEv! >= 0 ? '+' : '')}${avgEv!.toStringAsFixed(2)} BB',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
