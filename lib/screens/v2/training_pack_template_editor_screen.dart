@@ -2509,6 +2509,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                   Expanded(
                                   child: TrainingPackSpotPreviewCard(
                                       spot: spot,
+                                      titleColor: spot.evalResult == null
+                                          ? Colors.yellow
+                                          : (spot.evalResult!.correct ? null : Colors.red),
                                       onHandEdited: () {
                                         setState(() {
                                           if (_autoSortEv) _sortSpots();
