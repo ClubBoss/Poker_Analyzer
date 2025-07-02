@@ -481,17 +481,6 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
         (e) => !_levels.contains(service.classifySeverity(e.value)));
 
     List<MapEntry<String, int>> cmpEntries = [];
-    if (cmpSummary != null) {
-      cmpEntries = [
-        for (final e in cmpSummary.mistakeTagFrequencies.entries)
-          if (!ignored.contains('tag:${e.key}')) e
-      ];
-      if (_activeTags.isNotEmpty) {
-        cmpEntries.removeWhere((e) => !_activeTags.contains(e.key));
-      }
-      cmpEntries.removeWhere(
-          (e) => !_levels.contains(service.classifySeverity(e.value)));
-    }
 
     int _score(MapEntry<String, int> e) {
       final severity = service.classifySeverity(e.value);

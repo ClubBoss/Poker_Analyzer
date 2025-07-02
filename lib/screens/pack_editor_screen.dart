@@ -1127,7 +1127,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
     if (!mounted) return;
     if (result is PackEditorSnapshot) {
-      final snap = result as PackEditorSnapshot;
+      final snap = result;
       setState(() {
         _hands = [for (final h in snap.hands) h];
         _views = [for (final v in snap.views) v];

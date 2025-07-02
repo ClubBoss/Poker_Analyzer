@@ -820,8 +820,8 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
             ),
             child: nextPack != null
                 ? PackNextStepCard(
-                    key: ValueKey(nextPack!.name),
-                    pack: nextPack!,
+                    key: ValueKey(nextPack.name),
+                    pack: nextPack,
                     progress: nextProgress,
                   )
                 : const SizedBox.shrink(),

@@ -31,7 +31,7 @@ class _GoalDrillScreenState extends State<GoalDrillScreen> {
       final list = <SavedHand>[];
       for (final p in packs) {
         for (final h in p.hands) {
-          if (_goal!.isViolatedBy(h)) {
+          if (_goal.isViolatedBy(h)) {
             list.add(h);
             if (list.length >= 20) break;
           }
@@ -88,7 +88,7 @@ class _GoalDrillScreenState extends State<GoalDrillScreen> {
     final spot = TrainingSpot.fromSavedHand(hand);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_goal!.title),
+        title: Text(_goal.title),
         centerTitle: true,
         actions: [SyncStatusIcon.of(context)],
       ),

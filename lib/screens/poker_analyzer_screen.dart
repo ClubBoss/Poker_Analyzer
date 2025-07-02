@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -25,7 +24,6 @@ import '../services/board_reveal_service.dart';
 import '../widgets/player_zone_widget.dart';
 import '../screens/result_screen.dart';
 import '../widgets/street_actions_widget.dart';
-import '../widgets/board_display.dart';
 import '../widgets/action_history_overlay.dart';
 import '../widgets/collapsible_action_history.dart';
 import '../widgets/action_history_expansion_tile.dart';
@@ -33,11 +31,8 @@ import 'package:provider/provider.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../theme/constants.dart';
 import '../theme/app_colors.dart';
-import '../widgets/detailed_action_bottom_sheet.dart';
-import '../widgets/chip_widget.dart';
 import '../widgets/player_info_widget.dart';
 import '../widgets/street_actions_list.dart';
-import '../widgets/collapsible_street_section.dart';
 import '../widgets/street_action_history_panel.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/chip_trail.dart';
@@ -49,20 +44,16 @@ import '../widgets/player_bet_indicator.dart';
 import '../widgets/player_stack_chips.dart';
 import '../widgets/spr_label.dart';
 import '../widgets/total_invested_label.dart';
-import '../widgets/chip_stack_widget.dart';
 import '../widgets/chip_amount_widget.dart';
 import '../widgets/mini_stack_widget.dart';
-import '../widgets/bet_stack_indicator.dart';
 import '../widgets/bet_display_widget.dart';
 import '../widgets/player_stack_value.dart';
 import '../widgets/player_note_button.dart';
 import '../widgets/bet_size_label.dart';
 import '../widgets/turn_countdown_overlay.dart';
-import '../helpers/poker_position_helper.dart';
 import '../models/saved_hand.dart';
 import '../models/player_model.dart';
 import '../models/action_evaluation_request.dart';
-import '../widgets/action_timeline_widget.dart';
 import '../widgets/analyzer/action_timeline_panel.dart';
 import '../widgets/analyzer/stack_display.dart';
 import '../widgets/analyzer/board_editor.dart';
@@ -80,9 +71,7 @@ import '../widgets/chip_reward_animation.dart';
 import '../widgets/win_amount_widget.dart';
 import '../services/pot_animation_service.dart';
 import '../widgets/win_text_widget.dart';
-import '../widgets/winner_glow_widget.dart';
 import '../widgets/loss_fade_widget.dart';
-import '../widgets/pot_chip_animation.dart';
 import '../widgets/bet_chip_animation.dart';
 import '../widgets/pot_collection_chips.dart';
 import '../services/demo_animation_manager.dart';
@@ -90,8 +79,6 @@ import '../widgets/trash_flying_chips.dart';
 import '../widgets/burn_chips_animation.dart';
 import '../widgets/burn_card_animation.dart';
 import '../widgets/fold_flying_cards.dart';
-import '../widgets/central_pot_widget.dart';
-import '../widgets/central_spr_widget.dart';
 import '../widgets/undo_refund_animation.dart';
 import '../widgets/refund_amount_widget.dart';
 import '../widgets/reveal_card_animation.dart';
@@ -113,7 +100,6 @@ import '../services/player_editing_service.dart';
 import '../services/hand_restore_service.dart';
 import '../services/action_tag_service.dart';
 import '../helpers/date_utils.dart';
-import '../widgets/evaluation_request_tile.dart';
 import '../helpers/debug_helpers.dart';
 import '../user_preferences.dart';
 import '../helpers/table_geometry_helper.dart';
@@ -5941,10 +5927,10 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
         child: IgnorePointer(
           child: AnimatedOpacity(
             opacity: (lastStreetAction != null &&
-                    lastStreetAction!.playerIndex == index &&
-                    (lastStreetAction!.action == 'bet' ||
-                        lastStreetAction!.action == 'raise' ||
-                        lastStreetAction!.action == 'call'))
+                    lastStreetAction.playerIndex == index &&
+                    (lastStreetAction.action == 'bet' ||
+                        lastStreetAction.action == 'raise' ||
+                        lastStreetAction.action == 'call'))
                 ? 1.0
                 : 0.0,
             duration: const Duration(milliseconds: 300),
@@ -6058,9 +6044,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
           left: centerX + dx - 24 * scale,
           top: centerY + dy + bias - 80 * scale,
           child: ChipAmountWidget(
-            amount: lastAmountAction!.amount!.toDouble(),
+            amount: lastAmountAction.amount!.toDouble(),
             color: ActionFormattingHelper.actionColor(
-                lastAmountAction!.action),
+                lastAmountAction.action),
             scale: scale,
           ),
         ),
@@ -6280,9 +6266,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              lastAction!.amount != null
-                  ? '${lastAction!.action.toUpperCase()} ${lastAction!.amount}'
-                  : lastAction!.action.toUpperCase(),
+              lastAction.amount != null
+                  ? '${lastAction.action.toUpperCase()} ${lastAction.amount}'
+                  : lastAction.action.toUpperCase(),
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -6435,9 +6421,9 @@ class _PokerAnalyzerScreenState extends State<PokerAnalyzerScreen>
 
     final bool showTrail = invested > 0 &&
         (lastAction != null &&
-            (lastAction!.action == 'bet' ||
-                lastAction!.action == 'raise' ||
-                lastAction!.action == 'call'));
+            (lastAction.action == 'bet' ||
+                lastAction.action == 'raise' ||
+                lastAction.action == 'call'));
 
     if (!showTrail) return [];
 
@@ -8557,7 +8543,7 @@ class _StreetActionInputWidgetState extends State<StreetActionInputWidget> {
 class _DebugPanelDialog extends StatefulWidget {
   final _PokerAnalyzerScreenState parent;
 
-  const _DebugPanelDialog({super.key, required this.parent});
+  const _DebugPanelDialog({required this.parent});
 
   @override
   State<_DebugPanelDialog> createState() => _DebugPanelDialogState();

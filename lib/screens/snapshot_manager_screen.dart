@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/pack_snapshot.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_storage_service.dart';
 import 'snapshot_diff_screen.dart';

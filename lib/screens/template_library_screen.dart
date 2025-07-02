@@ -99,7 +99,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     Uint8List? data = result.files.single.bytes;
     final path = result.files.single.path;
     if (data == null && path != null) data = await File(path).readAsBytes();
-    if (data == null) return;
     final service = context.read<TemplateStorageService>();
     final error = service.importTemplate(data);
     if (!mounted) return;

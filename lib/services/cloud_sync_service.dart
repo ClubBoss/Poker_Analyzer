@@ -125,7 +125,7 @@ class CloudSyncService {
   Map<String, dynamic>? getCached(String col) {
     if (_local) {
       final val = _box!.get('cached_$col');
-      if (val is Map) return Map<String, dynamic>.from(val as Map);
+      if (val is Map) return Map<String, dynamic>.from(val);
       if (val is String) return jsonDecode(val) as Map<String, dynamic>;
       return null;
     }

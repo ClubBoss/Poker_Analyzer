@@ -421,7 +421,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                actionLabel!,
+                actionLabel,
                 style: const TextStyle(color: Colors.white, fontSize: 10),
               ),
             ),

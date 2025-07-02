@@ -42,7 +42,7 @@ class ServiceRegistry {
       return service as T;
     }
     if (_parent != null) {
-      return _parent!.get<T>();
+      return _parent.get<T>();
     }
     throw StateError('Service of type $T is not registered');
   }
@@ -66,7 +66,7 @@ class ServiceRegistry {
   List<Type> dumpAll() {
     final Set<Type> types = <Type>{..._services.keys};
     if (_parent != null) {
-      types.addAll(_parent!.dumpAll());
+      types.addAll(_parent.dumpAll());
     }
     return List<Type>.unmodifiable(types);
   }

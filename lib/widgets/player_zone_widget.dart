@@ -33,7 +33,6 @@ import 'gain_amount_widget.dart';
 import 'stack_delta_label.dart';
 import 'winner_flying_chip.dart';
 import 'action_tag_label.dart';
-import '../services/pot_sync_service.dart';
 import 'player_effective_stack_label.dart';
 import 'player_position_label.dart';
 
@@ -974,11 +973,11 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _showFinalStackLabel();
       _showBustedLabel();
       if (lostAmount != null && lostAmount > 0) {
-        _showLossAmount(lostAmount!);
-        _showStackLossLabel(lostAmount!);
+        _showLossAmount(lostAmount);
+        _showStackLossLabel(lostAmount);
       }
       if (gainAmount != null && gainAmount > 0) {
-        _showGainAmount(gainAmount!);
+        _showGainAmount(gainAmount);
       }
     }
   }
@@ -2971,7 +2970,6 @@ class _FoldChipOverlay extends StatelessWidget {
     required this.start,
     required this.end,
     this.scale = 1.0,
-    this.chipCount = 6,
   });
 
   Offset _bezier(Offset p0, Offset p1, Offset p2, double t) {
@@ -3561,7 +3559,6 @@ class _ChipWinOverlay extends StatelessWidget {
     required this.start,
     required this.end,
     this.scale = 1.0,
-    this.chipCount = 6,
   });
 
   Offset _bezier(Offset p0, Offset p1, Offset p2, double t) {

@@ -31,7 +31,7 @@ class RoomHandHistoryImporter {
       SavedHand? hand;
       for (final info in converters) {
         hand = _pipeline.tryImport(info.formatId, seg);
-        if (hand != null) break;
+        break;
       }
       hand ??= _parseGg(seg);
       if (hand != null) hands.add(hand);
