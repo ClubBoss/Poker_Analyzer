@@ -62,7 +62,10 @@ class DrillHistoryScreen extends StatelessWidget {
                         builder: (_) => AlertDialog(
                           title: Text(r.templateName),
                           content: Text(
-                              '${formatDate(r.date)}\nВерно: ${r.correct}/${r.total} ($pct%)\nПотеря EV: ${r.evLoss.toStringAsFixed(2)} bb'),
+                            '${formatDate(r.date)}\n'
+                            'Верно: ${r.correct}/${r.total} ($pct%)\n'
+                            'Потеря EV: ${r.evLoss.toStringAsFixed(2)} bb',
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
