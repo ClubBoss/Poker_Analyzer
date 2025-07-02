@@ -19,6 +19,7 @@ import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../helpers/title_utils.dart';
 import '../../models/v2/hand_data.dart';
+import '../../models/v2/hero_position.dart';
 import '../../models/saved_hand.dart';
 import '../../models/action_entry.dart';
 import 'training_pack_spot_editor_screen.dart';
@@ -79,6 +80,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsAutoSortKey = 'auto_sort_ev';
   static const _prefsEvFilterKey = 'ev_filter';
   String _evFilter = 'all';
+  static const _quickFilters = [
+    'BTN',
+    'SB',
+    'Hero push only',
+    'Mistake spots'
+  ];
+  String? _quickFilter;
   final ScrollController _scrollCtrl = ScrollController();
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
@@ -1630,6 +1638,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
       if (_evFilter == 'error' && !(res != null && !res.correct)) return false;
       if (_evFilter == 'empty' && res != null) return false;
+      if (_quickFilter == 'BTN' && s.hand.position != HeroPosition.btn) {
+        return false;
+      }
+      if (_quickFilter == 'SB' && s.hand.position != HeroPosition.sb) {
+        return false;
+      }
+      if (_quickFilter == 'Hero push only') {
+        final acts = s.hand.actions[0] ?? [];
+        final push = acts.any((a) =>
+            a.playerIndex == s.hand.heroIndex && a.action == 'push');
+        if (!push) return false;
+      }
+      if (_quickFilter == 'Mistake spots' && !(res != null && !res.correct)) {
+        return false;
+      }
       if (_selectedTags.isNotEmpty && !s.tags.any(_selectedTags.contains)) {
         return false;
       }
@@ -2131,6 +2154,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   ],
                 );
               },
+            ),
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final f in _quickFilters)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(f),
+                        selected: _quickFilter == f,
+                        onSelected: (v) =>
+                            setState(() => _quickFilter = v ? f : null),
+                      ),
+                    ),
+                ],
+              ),
             ),
             Expanded(
               child: Builder(
