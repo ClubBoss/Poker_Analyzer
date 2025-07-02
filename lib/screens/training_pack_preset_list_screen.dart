@@ -36,6 +36,7 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
 
   Future<void> _generate(TrainingPackPreset preset) async {
     final tpl = await PackGeneratorService.generatePackFromPreset(preset);
+    final service = context.read<TrainingPackTemplateStorageService>();
     final model = TrainingPackTemplateModel(
       id: tpl.id,
       name: tpl.name,
@@ -45,10 +46,18 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
       filters: const {},
       isTournament: preset.gameType == GameType.tournament,
       createdAt: DateTime.now(),
+      lastGeneratedAt: tpl.lastGeneratedAt,
     );
-    await context.read<TrainingPackTemplateStorageService>().add(model);
+    final exists = service.templates.any((e) => e.id == model.id);
+    if (exists) {
+      await service.update(model);
+    } else {
+      await service.add(model);
+    }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Пак создан')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(exists ? 'Пак обновлён' : 'Пак создан')),
+    );
   }
 
   Future<void> _generateAll() async {
@@ -57,6 +66,7 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
     var cancel = false;
     var done = 0;
     final total = list.length;
+    final service = context.read<TrainingPackTemplateStorageService>();
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -79,8 +89,13 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
                     filters: const {},
                     isTournament: p.gameType == GameType.tournament,
                     createdAt: DateTime.now(),
+                    lastGeneratedAt: tpl.lastGeneratedAt,
                   );
-                  await context.read<TrainingPackTemplateStorageService>().add(model);
+                  if (service.templates.any((e) => e.id == model.id)) {
+                    await service.update(model);
+                  } else {
+                    await service.add(model);
+                  }
                   done++;
                   if (mounted) setDialog(() {});
                 }
@@ -163,12 +178,38 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
               itemCount: _presets.length,
               itemBuilder: (context, index) {
                 final p = _presets[index];
+                final templates =
+                    context.watch<TrainingPackTemplateStorageService>().templates;
+                final exists = templates.any((t) => t.id == p.id);
                 return ListTile(
                   title: Text(p.name),
                   subtitle: Text(p.description),
                   trailing: IconButton(
-                    icon: const Icon(Icons.play_arrow),
-                    onPressed: () => _generate(p),
+                    icon: Icon(
+                      exists ? Icons.done : Icons.play_arrow,
+                      color: exists ? Colors.green : null,
+                    ),
+                    onPressed: () async {
+                      if (!exists) {
+                        await _generate(p);
+                      } else {
+                        final ok = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Regenerate?'),
+                            actions: [
+                              TextButton(
+                                  onPressed: () => Navigator.pop(ctx, false),
+                                  child: const Text('Cancel')),
+                              TextButton(
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  child: const Text('OK')),
+                            ],
+                          ),
+                        );
+                        if (ok == true) await _generate(p);
+                      }
+                    },
                   ),
                 );
               },
