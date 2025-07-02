@@ -5,7 +5,7 @@ import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import 'streak_history_screen.dart';
-import 'hand_history_review_screen.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/sync_status_widget.dart';
 
 /// Displays hands from the current error-free streak.
@@ -41,12 +41,7 @@ class ErrorFreeStreakScreen extends StatelessWidget {
         initialAccuracy: 'correct',
         showAccuracyToggle: false,
         onTap: (hand) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => HandHistoryReviewScreen(hand: hand),
-            ),
-          );
+          showSavedHandViewerDialog(context, hand);
         },
       ),
     );

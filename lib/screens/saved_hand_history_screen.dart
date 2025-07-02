@@ -6,7 +6,7 @@ import '../services/saved_hand_manager_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_list_view.dart';
-import 'hand_history_review_screen.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/sync_status_widget.dart';
 
 class SavedHandHistoryScreen extends StatefulWidget {
@@ -48,12 +48,7 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
   }
 
   void _openHand(SavedHand hand) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => HandHistoryReviewScreen(hand: hand),
-      ),
-    );
+    showSavedHandViewerDialog(context, hand);
   }
 
   void _toggleFavorite(SavedHand hand, SavedHandManagerService manager) {

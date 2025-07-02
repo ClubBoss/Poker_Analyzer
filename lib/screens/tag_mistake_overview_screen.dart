@@ -27,7 +27,7 @@ import '../widgets/mistake_empty_state.dart';
 import '../widgets/common/mistake_trend_chart.dart';
 
 enum _ChartMode { daily, weekly }
-import 'hand_history_review_screen.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -1068,12 +1068,7 @@ class _TagMistakeHandsScreen extends StatelessWidget {
         filterKey: tag,
         title: 'Ошибки: $tag',
         onTap: (hand) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => HandHistoryReviewScreen(hand: hand),
-            ),
-          );
+          showSavedHandViewerDialog(context, hand);
         },
       ),
     );
@@ -1198,12 +1193,7 @@ class _DailySeverityHandsScreen extends StatelessWidget {
                     return SavedHandTile(
                       hand: hand,
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => HandHistoryReviewScreen(hand: hand),
-                          ),
-                        );
+                        showSavedHandViewerDialog(context, hand);
                       },
                     );
                   },

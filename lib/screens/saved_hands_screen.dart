@@ -8,7 +8,7 @@ import '../services/saved_hand_import_export_service.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/constants.dart';
 import '../widgets/saved_hand_list_view.dart';
-import '../screens/hand_history_review_screen.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 import '../helpers/poker_street_helper.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -194,12 +194,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                       : null,
               showAccuracyToggle: false,
               onTap: (hand) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => HandHistoryReviewScreen(hand: hand),
-                  ),
-                );
+                showSavedHandViewerDialog(context, hand);
               },
               onFavoriteToggle: (hand) {
                 final originalIndex = allHands.indexOf(hand);

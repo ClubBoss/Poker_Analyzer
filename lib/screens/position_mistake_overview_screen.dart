@@ -18,7 +18,7 @@ import '../services/ignored_mistake_service.dart';
 import '../widgets/saved_hand_list_view.dart';
 import '../widgets/mistake_summary_section.dart';
 import '../widgets/mistake_empty_state.dart';
-import 'hand_history_review_screen.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/sync_status_widget.dart';
 
 /// Displays a list of hero positions sorted by mistake count.
@@ -308,12 +308,7 @@ class _PositionMistakeHandsScreen extends StatelessWidget {
         filterKey: position,
         title: 'Ошибки: $position',
         onTap: (hand) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => HandHistoryReviewScreen(hand: hand),
-            ),
-          );
+          showSavedHandViewerDialog(context, hand);
         },
       ),
     );

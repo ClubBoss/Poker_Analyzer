@@ -6,6 +6,7 @@ import '../models/pack_snapshot.dart';
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 
 class SnapshotDiffScreen extends StatefulWidget {
   final TrainingPack pack;
@@ -77,39 +78,7 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
   }
 
   Future<void> _previewHand(SavedHand hand) async {
-    await showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.grey[900],
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              hand.name.isEmpty ? 'Untitled' : hand.name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${hand.heroPosition} • ${hand.numberOfPlayers}p',
-              style: const TextStyle(color: Colors.white70),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Actions: ${hand.actions.length}',
-              style: const TextStyle(color: Colors.white70),
-            ),
-          ],
-        ),
-      ),
-    );
+    await showSavedHandViewerDialog(context, hand);
   }
 
   Future<void> _apply() async {

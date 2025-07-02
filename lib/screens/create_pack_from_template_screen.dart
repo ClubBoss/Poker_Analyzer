@@ -8,6 +8,7 @@ import '../models/saved_hand.dart';
 import '../services/training_pack_storage_service.dart';
 import 'training_pack_screen.dart';
 import '../widgets/sync_status_widget.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 
 class CreatePackFromTemplateScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -97,84 +98,7 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
   }
 
   Future<void> _previewHand(SavedHand hand) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.grey[900],
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateSheet) {
-          var showAll = false;
-          Widget actionText(a) => Text(
-                'S${a.street}: P${a.playerIndex} ${a.action}${a.amount != null ? ' • ${a.amount}' : ''}',
-                style: const TextStyle(color: Colors.white70),
-              );
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    hand.name.isEmpty ? 'Без названия' : hand.name,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.white),
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Позиция: ${hand.heroPosition}',
-                      style: const TextStyle(color: Colors.white70)),
-                  if (hand.tags.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 4,
-                      children: [
-                        for (final t in hand.tags)
-                          Chip(
-                            label: Text(t),
-                            backgroundColor: const Color(0xFF3A3B3E),
-                            labelStyle: const TextStyle(color: Colors.white),
-                          ),
-                      ],
-                    ),
-                  ],
-                  if (hand.actions.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    const Text('Действия:',
-                        style: TextStyle(color: Colors.white)),
-                    const SizedBox(height: 4),
-                    if (showAll)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [for (final a in hand.actions) actionText(a)],
-                      )
-                    else ...[
-                      actionText(hand.actions.first),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: () => setStateSheet(() => showAll = true),
-                          child: const Text('Показать всё'),
-                        ),
-                      ),
-                    ],
-                  ],
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Закрыть'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
+    await showSavedHandViewerDialog(context, hand);
   }
 
   Future<void> _editSelected() async {

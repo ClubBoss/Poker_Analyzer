@@ -11,7 +11,7 @@ import '../widgets/saved_hand_tile.dart';
 import '../helpers/date_utils.dart';
 import '../theme/app_colors.dart';
 import '../theme/constants.dart';
-import 'hand_history_review_screen.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/sync_status_widget.dart';
 
 class SessionHandsScreen extends StatefulWidget {
@@ -245,12 +245,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
                     manager.update(originalIndex, updated);
                   },
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => HandHistoryReviewScreen(hand: hand),
-                      ),
-                    );
+                    showSavedHandViewerDialog(context, hand);
                   },
                 ),
             ]
