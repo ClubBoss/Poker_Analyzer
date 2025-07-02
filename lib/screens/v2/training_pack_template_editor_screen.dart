@@ -86,6 +86,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsTagFilterKey = 'tag_filter';
   static const _prefsQuickFilterKey = 'quick_filter';
   static const _prefsSortKey = 'sort_mode';
+  static const _prefsScrollKey = 'tmpl_scroll';
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   static const _quickFilters = [
@@ -121,6 +122,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   void _storeSort() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(_prefsSortKey, _sortBy.name);
+  }
+
+  void _storeScroll() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble(_prefsScrollKey, _scrollCtrl.offset);
   }
 
   Set<String> _templateRange() {
@@ -465,6 +471,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _tagSearchCtrl = TextEditingController();
     _history = UndoRedoService();
     _history.record(widget.template.spots);
+    _scrollCtrl.addListener(_storeScroll);
     SharedPreferences.getInstance().then((prefs) {
       final auto = prefs.getBool(_prefsAutoSortKey) ?? false;
       final filter = prefs.getString(_prefsEvFilterKey) ?? 'all';
@@ -472,6 +479,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final tag = prefs.getString(_prefsTagFilterKey);
       final quick = prefs.getString(_prefsQuickFilterKey);
       final sortStr = prefs.getString(_prefsSortKey);
+      final offset = prefs.getDouble(_prefsScrollKey) ?? 0;
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
         final parts = rangeStr.split(',');
@@ -502,6 +510,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _sortBy = sort;
           if (_autoSortEv) _sortSpots();
         });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollCtrl.hasClients) _scrollCtrl.jumpTo(offset);
+        });
       }
     });
   }
@@ -517,6 +528,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   @override
   void dispose() {
+    _storeScroll();
     _nameCtr.dispose();
     _nameFocus.dispose();
     _descCtr.dispose();
