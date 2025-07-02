@@ -894,6 +894,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     TrainingPackStorage.save(widget.templates);
   }
 
+  void _tagAllMistakes() {
+    int count = 0;
+    setState(() {
+      for (final s in widget.template.spots) {
+        final r = s.evalResult;
+        if (r != null && !r.correct && !s.tags.contains('Mistake')) {
+          s.tags.add('Mistake');
+          count++;
+        }
+      }
+    });
+    TrainingPackStorage.save(widget.templates);
+    if (count > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tagged $count spot(s)')),
+      );
+    }
+  }
+
   Future<void> _evaluateAllSpots() async {
     setState(() => _evaluatingAll = true);
     final spots = widget.template.spots;
@@ -1898,11 +1917,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               if (v == 'regenEv') _regenerateEv();
               if (v == 'regenIcm') _regenerateIcm();
               if (v == 'exportCsv') _exportCsv();
+              if (v == 'tagMistakes') _tagAllMistakes();
             },
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'regenEv', child: Text('Regenerate EV')),
               PopupMenuItem(value: 'regenIcm', child: Text('Regenerate ICM')),
               PopupMenuItem(value: 'exportCsv', child: Text('Export CSV')),
+              PopupMenuItem(value: 'tagMistakes', child: Text('Tag All Mistakes')),
             ],
           ),
           IconButton(
