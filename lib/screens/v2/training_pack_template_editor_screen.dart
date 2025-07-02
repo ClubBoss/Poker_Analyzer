@@ -77,6 +77,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _autoSortEv = false;
   bool _pinnedOnly = false;
   bool _heroPushOnly = false;
+  bool _mistakeOnly = false;
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
@@ -118,6 +119,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
       if (_evFilter == 'error' && !(res != null && !res.correct)) return false;
       if (_evFilter == 'empty' && res != null) return false;
+      if (_mistakeOnly && !(res != null && !res.correct)) return false;
       if (_quickFilter == 'BTN' && s.hand.position != HeroPosition.btn) {
         return false;
       }
@@ -2478,6 +2480,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               title: const Text('Hero push only'),
               value: _heroPushOnly,
               onChanged: (v) => setState(() => _heroPushOnly = v),
+            ),
+            SwitchListTile(
+              title: const Text('Mistake only'),
+              value: _mistakeOnly,
+              onChanged: (v) => setState(() => _mistakeOnly = v),
             ),
             const SizedBox(height: 16),
             Expanded(
