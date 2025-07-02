@@ -1262,8 +1262,8 @@ class _TrainingPackTemplateListScreenState
                     },
                     itemBuilder: (context, index) {
                       final t = shown[index];
-                      final allEv = t.spots.isNotEmpty &&
-                          t.spots.every((s) => s.heroEv != null);
+                      final total = t.spots.length;
+                      final allEv = total > 0 && t.evCovered >= total;
                       final isNew = t.lastGeneratedAt != null &&
                           DateTime.now()
                                   .difference(t.lastGeneratedAt!)
