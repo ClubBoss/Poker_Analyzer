@@ -78,6 +78,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _pinnedOnly = false;
   bool _heroPushOnly = false;
   bool _mistakeOnly = false;
+  bool _changedOnly = false;
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
@@ -139,6 +140,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   List<TrainingPackSpot> _visibleSpots() {
+    final changed = _changedOnly
+        ? _history.history.map((e) => e.title).toSet()
+        : null;
     return widget.template.spots.where((s) {
       if (_pinnedOnly && !s.pinned) return false;
       final res = s.evalResult;
@@ -178,6 +182,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (ev != null && (ev < _evRange.start || ev > _evRange.end)) {
         return false;
       }
+      if (changed != null && !changed.contains(s.title)) return false;
       if (_query.isEmpty) return true;
       return s.title.toLowerCase().contains(_query) ||
           s.tags.any((t) => t.toLowerCase().contains(_query));
@@ -2710,6 +2715,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               title: const Text('Mistake only'),
               value: _mistakeOnly,
               onChanged: (v) => setState(() => _mistakeOnly = v),
+            ),
+            CheckboxListTile(
+              title: const Text('Only Changed'),
+              value: _changedOnly,
+              onChanged: (v) => setState(() => _changedOnly = v ?? false),
             ),
             const SizedBox(height: 16),
             Expanded(
