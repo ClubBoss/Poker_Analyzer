@@ -7,6 +7,12 @@ import '../widgets/replay_spot_widget.dart';
 import '../widgets/action_history_widget.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../screens/saved_hand_editor_screen.dart';
+import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/v2/hand_data.dart';
+import '../models/v2/hero_position.dart';
+import '../helpers/training_pack_storage.dart';
+import 'package:uuid/uuid.dart';
 
 class SavedHandViewerDialog extends StatelessWidget {
   final SavedHand hand;
@@ -32,6 +38,65 @@ class SavedHandViewerDialog extends StatelessWidget {
     }
   }
 
+  HeroPosition _posFromString(String s) {
+    final p = s.toUpperCase();
+    if (p.startsWith('SB')) return HeroPosition.sb;
+    if (p.startsWith('BB')) return HeroPosition.bb;
+    if (p.startsWith('BTN')) return HeroPosition.btn;
+    if (p.startsWith('CO')) return HeroPosition.co;
+    if (p.startsWith('MP') || p.startsWith('HJ')) return HeroPosition.mp;
+    if (p.startsWith('UTG')) return HeroPosition.utg;
+    return HeroPosition.unknown;
+  }
+
+  TrainingPackSpot _spotFromHand(SavedHand hand) {
+    final heroCards = hand.playerCards[hand.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
+    final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
+    final stacks = <String, double>{
+      for (int i = 0; i < hand.numberOfPlayers; i++)
+        '$i': (hand.stackSizes[i] ?? 0).toDouble()
+    };
+    return TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData(
+        heroCards: heroCards,
+        position: _posFromString(hand.heroPosition),
+        heroIndex: hand.heroIndex,
+        playerCount: hand.numberOfPlayers,
+        stacks: stacks,
+        actions: {0: actions},
+      ),
+      tags: List<String>.from(hand.tags),
+    );
+  }
+
+  Future<void> _addToPack(BuildContext context) async {
+    final templates = await TrainingPackStorage.load();
+    if (templates.isEmpty) return;
+    final selected = await showDialog<TrainingPackTemplate>(
+      context: context,
+      builder: (_) => SimpleDialog(
+        title: const Text('Add to Pack'),
+        children: [
+          for (final t in templates)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, t),
+              child: Text(t.name),
+            ),
+        ],
+      ),
+    );
+    if (selected == null) return;
+    final spot = _spotFromHand(hand);
+    selected.spots.add(spot);
+    await TrainingPackStorage.save(templates);
+    ScaffoldMessenger.of(parentContext).showSnackBar(
+      SnackBar(content: Text('Spot added to ${selected.name}')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final spot = TrainingSpot.fromSavedHand(hand);
@@ -39,6 +104,11 @@ class SavedHandViewerDialog extends StatelessWidget {
       title: Row(
         children: [
           Expanded(child: Text(hand.name.isEmpty ? 'Hand' : hand.name)),
+          IconButton(
+            onPressed: () => _addToPack(context),
+            icon: const Text('➕'),
+            tooltip: 'Add to Pack',
+          ),
           IconButton(onPressed: () => _edit(context), icon: const Icon(Icons.edit)),
         ],
       ),
