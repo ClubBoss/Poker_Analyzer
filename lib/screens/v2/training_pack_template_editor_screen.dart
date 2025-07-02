@@ -469,7 +469,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _descCtr = TextEditingController(text: widget.template.description);
     _searchCtrl = TextEditingController();
     _tagSearchCtrl = TextEditingController();
-    _history = UndoRedoService();
+    _history = UndoRedoService(eventsLimit: 50);
     _history.record(widget.template.spots);
     _scrollCtrl.addListener(_storeScroll);
     SharedPreferences.getInstance().then((prefs) {
@@ -1027,6 +1027,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         final r = s.evalResult;
         if (r != null && !r.correct && !s.tags.contains('Mistake')) {
           s.tags.add('Mistake');
+          _history.log('Tagged', s.title);
           count++;
         }
       }
@@ -1319,7 +1320,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {
       for (final id in _selectedSpotIds) {
         final s = widget.template.spots.firstWhere((e) => e.id == id);
-        if (!s.tags.contains(tag)) s.tags.add(tag);
+        if (!s.tags.contains(tag)) {
+          s.tags.add(tag);
+          _history.log('Tagged', s.title);
+        }
       }
     });
     await _persist();
@@ -1355,7 +1359,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {
       for (final id in _selectedSpotIds) {
         final s = widget.template.spots.firstWhere((e) => e.id == id);
-        s.tags.remove(tag);
+        if (s.tags.remove(tag)) {
+          _history.log('Untagged', s.title);
+        }
       }
     });
     await _persist();
@@ -1368,7 +1374,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         final s = widget.template.spots.firstWhere((e) => e.id == id);
         s.tags
           ..clear();
-        if (tag.isNotEmpty) s.tags.add(tag);
+        if (tag.isNotEmpty) {
+          s.tags.add(tag);
+          _history.log('Tagged', s.title);
+        } else {
+          _history.log('Untagged', s.title);
+        }
       }
     });
     await _persist();
@@ -2010,6 +2021,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ..sort((a, b) => b.value.compareTo(a.value));
     final summaryTags = [for (final e in topTags.take(3)) e.key];
     final range = _templateRange();
+    final historyGroups = <String, List<ChangeEntry>>{};
+    for (final e in _history.history) {
+      final day = DateFormat.yMd().format(e.time);
+      historyGroups.putIfAbsent(day, () => []).add(e);
+    }
     List<TrainingPackSpot> sorted;
     if (_sortBy == SortBy.manual) {
       sorted = shown;
@@ -2394,7 +2410,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             const _RangeLegend(),
             const SizedBox(height: 16),
             ExpansionTile(
-              title: const Text('Recent Changes', style: TextStyle(color: Colors.white)),
+              title: const Text('Edit History', style: TextStyle(color: Colors.white)),
               iconColor: Colors.white,
               collapsedIconColor: Colors.white,
               collapsedTextColor: Colors.white,
@@ -2407,26 +2423,40 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     title: Text('No changes yet', style: TextStyle(color: Colors.white70)),
                   )
                 else
-                  for (final e in _history.history.take(10))
-                    ListTile(
-                      dense: true,
-                      leading: Icon(
-                        e.action == 'Added'
-                            ? Icons.add_circle
-                            : e.action == 'Deleted'
-                                ? Icons.remove_circle
-                                : Icons.edit,
-                        color: e.action == 'Added'
-                            ? Colors.green
-                            : e.action == 'Deleted'
-                                ? Colors.red
-                                : Colors.blue,
-                      ),
-                      title: Text('${e.action}: ${e.title}',
-                          style: const TextStyle(color: Colors.white)),
-                      trailing: Text(DateFormat.Hm().format(e.time),
-                          style: const TextStyle(color: Colors.white70)),
+                  for (final entry in historyGroups.entries) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(entry.key, style: const TextStyle(color: Colors.white70)),
                     ),
+                    for (final e in entry.value)
+                      ListTile(
+                        dense: true,
+                        leading: Icon(
+                          e.action == 'Added'
+                              ? Icons.add_circle
+                              : e.action == 'Deleted'
+                                  ? Icons.remove_circle
+                                  : e.action == 'Tagged'
+                                      ? Icons.local_offer
+                                      : e.action == 'Untagged'
+                                          ? Icons.local_offer_outlined
+                                          : Icons.edit,
+                          color: e.action == 'Added'
+                              ? Colors.green
+                              : e.action == 'Deleted'
+                                  ? Colors.red
+                                  : e.action == 'Tagged'
+                                      ? Colors.orange
+                                      : e.action == 'Untagged'
+                                          ? Colors.grey
+                                          : Colors.blue,
+                        ),
+                        title: Text('${e.action}: ${e.title}',
+                            style: const TextStyle(color: Colors.white)),
+                        trailing: Text(DateFormat.Hm().format(e.time),
+                            style: const TextStyle(color: Colors.white70)),
+                      ),
+                  ],
               ],
             ),
             const SizedBox(height: 16),

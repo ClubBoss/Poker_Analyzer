@@ -9,10 +9,11 @@ class ChangeEntry {
 
 class UndoRedoService {
   final int limit;
+  final int eventsLimit;
   final List<List<TrainingPackSpot>> _undo = [];
   final List<List<TrainingPackSpot>> _redo = [];
   final List<ChangeEntry> _events = [];
-  UndoRedoService({this.limit = 30});
+  UndoRedoService({this.limit = 30, this.eventsLimit = 50});
 
   bool get canUndo => _undo.isNotEmpty;
   bool get canRedo => _redo.isNotEmpty;
@@ -44,7 +45,7 @@ class UndoRedoService {
 
   void log(String action, String title) {
     _events.add(ChangeEntry(action, title));
-    if (_events.length > 10) _events.removeAt(0);
+    if (_events.length > eventsLimit) _events.removeAt(0);
   }
 
   List<ChangeEntry> get history => List.unmodifiable(_events.reversed);
