@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/v2/training_pack_preset.dart';
 import "../models/game_type.dart";
 import '../services/pack_generator_service.dart';
@@ -47,10 +51,46 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Пак создан')));
   }
 
+  Future<void> _import() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    final file = result.files.single;
+    final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+    bool ok = true;
+    final list = <TrainingPackPreset>[];
+    try {
+      final decoded = jsonDecode(utf8.decode(bytes));
+      if (decoded is List) {
+        for (final e in decoded) {
+          if (e is Map) {
+            try {
+              list.add(TrainingPackPreset.fromJson(Map<String, dynamic>.from(e as Map)));
+            } catch (_) {}
+          }
+        }
+      } else {
+        ok = false;
+      }
+    } catch (_) {
+      ok = false;
+    }
+    if (!mounted) return;
+    if (ok) setState(() => _presets.addAll(list));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(ok ? 'Импортировано ${list.length}' : '⚠️ Ошибка импорта')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Presets')),
+      appBar: AppBar(
+        title: const Text('Presets'),
+        actions: [IconButton(onPressed: _import, icon: const Icon(Icons.upload_file))],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
