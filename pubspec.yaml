@@ -8,6 +8,9 @@ version: 1.0.0+1
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
+executables:
+  batch_generate: bin/batch_generate.dart
+
 dependencies:
   flutter:
     sdk: flutter
@@ -57,6 +60,7 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  test: any
 
   flutter_lints: ^2.0.0
   build_runner: ^2.4.6
