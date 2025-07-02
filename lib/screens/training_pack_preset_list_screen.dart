@@ -51,6 +51,69 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Пак создан')));
   }
 
+  Future<void> _generateAll() async {
+    final list = List<TrainingPackPreset>.from(_presets);
+    if (list.isEmpty) return;
+    var cancel = false;
+    var done = 0;
+    final total = list.length;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setDialog) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                for (final p in list) {
+                  if (cancel) break;
+                  final tpl = await PackGeneratorService.generatePackFromPreset(p);
+                  final model = TrainingPackTemplateModel(
+                    id: tpl.id,
+                    name: tpl.name,
+                    description: tpl.description,
+                    category: p.category,
+                    difficulty: 1,
+                    filters: const {},
+                    isTournament: p.gameType == GameType.tournament,
+                    createdAt: DateTime.now(),
+                  );
+                  await context.read<TrainingPackTemplateStorageService>().add(model);
+                  done++;
+                  if (mounted) setDialog(() {});
+                }
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LinearProgressIndicator(value: done / total),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Generated $done / $total',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(onPressed: () => cancel = true, child: const Text('Cancel')),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Generated $done of $total packs')),
+    );
+  }
+
   Future<void> _import() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -89,7 +152,10 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
     return Scaffold(
       appBar: AppBar(
         title: const Text('Presets'),
-        actions: [IconButton(onPressed: _import, icon: const Icon(Icons.upload_file))],
+        actions: [
+          IconButton(onPressed: _generateAll, icon: const Icon(Icons.playlist_play)),
+          IconButton(onPressed: _import, icon: const Icon(Icons.upload_file)),
+        ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
