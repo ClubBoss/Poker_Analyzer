@@ -94,6 +94,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _summaryIcm = false;
   bool _evaluatingAll = false;
   bool _generatingAll = false;
+  bool _generatingIcm = false;
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
@@ -974,6 +975,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     await TrainingPackStorage.save(widget.templates);
     if (!mounted) return;
     setState(() => _generatingAll = false);
+  }
+
+  Future<void> _generateAllIcm() async {
+    setState(() => _generatingIcm = true);
+    final spots = _visibleSpots();
+    for (final s in spots) {
+      if (s.heroIcmEv != null) continue;
+      await const PushFoldEvService().evaluateIcm(s);
+    }
+    await TrainingPackStorage.save(widget.templates);
+    if (!mounted) return;
+    setState(() => _generatingIcm = false);
   }
 
   Future<void> _bulkAddTag() async {
@@ -2193,15 +2206,30 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: _generatingAll ? null : _generateAllEv,
-                child: _generatingAll
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Generate All'),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  ElevatedButton(
+                    onPressed: _generatingAll ? null : _generateAllEv,
+                    child: _generatingAll
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Generate All'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _generatingIcm ? null : _generateAllIcm,
+                    child: _generatingIcm
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Generate ICM'),
+                  ),
+                ],
               ),
             ),
             Expanded(
