@@ -89,6 +89,16 @@ class _TrainingPackTemplateListScreenState
               : r;
         });
         break;
+      case 'tag':
+        _templates.sort((a, b) {
+          final tagA = a.tags.isNotEmpty ? a.tags.first.toLowerCase() : '';
+          final tagB = b.tags.isNotEmpty ? b.tags.first.toLowerCase() : '';
+          final r = tagA.compareTo(tagB);
+          return r == 0
+              ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
+              : r;
+        });
+        break;
       default:
         _templates.sort(
             (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
@@ -1120,6 +1130,7 @@ class _TrainingPackTemplateListScreenState
               PopupMenuItem(value: 'name', child: Text('Name A–Z')),
               PopupMenuItem(value: 'created', child: Text('Newest First')),
               PopupMenuItem(value: 'spots', child: Text('Most Spots')),
+              PopupMenuItem(value: 'tag', child: Text('Tag A–Z')),
             ],
           ),
           PopupMenuButton<String>(
