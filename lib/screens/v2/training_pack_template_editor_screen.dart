@@ -82,7 +82,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
   static const _prefsEvFilterKey = 'ev_filter';
+  static const _prefsEvRangeKey = 'ev_range';
   String _evFilter = 'all';
+  RangeValues _evRange = const RangeValues(-5, 5);
   static const _quickFilters = [
     'BTN',
     'SB',
@@ -146,6 +148,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
       if (_tagFilter != null &&
           !s.tags.any((t) => t.toLowerCase() == _tagFilter)) {
+        return false;
+      }
+      final ev = s.heroEv;
+      if (ev != null && (ev < _evRange.start || ev > _evRange.end)) {
         return false;
       }
       if (_query.isEmpty) return true;
@@ -444,10 +450,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     SharedPreferences.getInstance().then((prefs) {
       final auto = prefs.getBool(_prefsAutoSortKey) ?? false;
       final filter = prefs.getString(_prefsEvFilterKey) ?? 'all';
+      final rangeStr = prefs.getString(_prefsEvRangeKey);
+      var range = const RangeValues(-5, 5);
+      if (rangeStr != null) {
+        final parts = rangeStr.split(',');
+        if (parts.length == 2) {
+          final start = double.tryParse(parts[0]);
+          final end = double.tryParse(parts[1]);
+          if (start != null && end != null) {
+            range = RangeValues(start, end);
+          }
+        }
+      }
       if (mounted) {
         setState(() {
           _autoSortEv = auto;
           _evFilter = filter;
+          _evRange = range;
           if (_autoSortEv) _sortSpots();
         });
       }
@@ -2490,6 +2509,50 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     ),
                 ],
               ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('EV range (BB)',
+                          style: TextStyle(color: Colors.white70)),
+                      RangeSlider(
+                        values: _evRange,
+                        min: -5,
+                        max: 5,
+                        divisions: 100,
+                        labels: RangeLabels(
+                          _evRange.start.toStringAsFixed(1),
+                          _evRange.end.toStringAsFixed(1),
+                        ),
+                        onChanged: (v) async {
+                          setState(() => _evRange = v);
+                          final prefs = await SharedPreferences.getInstance();
+                          prefs.setString(
+                              _prefsEvRangeKey, '${v.start},${v.end}');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${_evRange.start.toStringAsFixed(1)} … ${_evRange.end.toStringAsFixed(1)} BB',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    setState(() => _evRange = const RangeValues(-5, 5));
+                    prefs.setString(_prefsEvRangeKey, '-5.0,5.0');
+                  },
+                  child: const Text('Reset'),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Align(
