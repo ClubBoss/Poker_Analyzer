@@ -66,6 +66,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   late final TextEditingController _nameCtr;
   late final FocusNode _nameFocus;
   late final TextEditingController _descCtr;
+  late final FocusNode _descFocus;
   String _query = '';
   String? _tagFilter;
   late TextEditingController _searchCtrl;
@@ -490,6 +491,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _persist();
   }
 
+  void _saveDesc() {
+    setState(() => widget.template.description = _descCtr.text.trim());
+    _persist();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -499,6 +505,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (!_nameFocus.hasFocus) _saveName();
     });
     _descCtr = TextEditingController(text: widget.template.description);
+    _descFocus = FocusNode();
+    _descFocus.addListener(() {
+      if (!_descFocus.hasFocus) _saveDesc();
+    });
     _searchCtrl = TextEditingController();
     _tagSearchCtrl = TextEditingController();
     _history = UndoRedoService(eventsLimit: 50);
@@ -565,6 +575,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _storeScroll();
     _nameCtr.dispose();
     _nameFocus.dispose();
+    _descFocus.dispose();
     _descCtr.dispose();
     _searchCtrl.dispose();
     _tagSearchCtrl.dispose();
@@ -574,6 +585,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   void _save() {
     _saveName();
+    _saveDesc();
     if (widget.template.name.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name is required')));
       return;
@@ -2405,12 +2417,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 children: [
             TextField(
               controller: _descCtr,
+              focusNode: _descFocus,
               decoration: const InputDecoration(labelText: 'Description'),
               maxLines: 4,
-              onChanged: (v) {
-                setState(() => widget.template.description = v);
-                _persist();
-              },
+              onEditingComplete: _saveDesc,
             ),
             const SizedBox(height: 16),
             Wrap(
