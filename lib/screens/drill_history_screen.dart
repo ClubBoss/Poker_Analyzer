@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../services/drill_history_service.dart';
@@ -9,7 +8,6 @@ import '../helpers/date_utils.dart';
 class DrillHistoryScreen extends StatelessWidget {
   const DrillHistoryScreen({super.key});
 
-  String _short(DateTime d) => DateFormat('dd.MM').format(d);
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +44,18 @@ class DrillHistoryScreen extends StatelessWidget {
                     ],
                   ),
                   child: ListTile(
+                    leading: const Icon(Icons.history, color: Colors.white),
+                    title: Text(r.templateName,
+                        style: const TextStyle(color: Colors.white)),
+                    subtitle: Text(
+                      '${formatDate(r.date)} •  ${r.correct}/${r.total}  ($pct%)',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    trailing: Text(
+                      r.evLoss.toStringAsFixed(2),
+                      style: TextStyle(
+                          color: r.evLoss > 0 ? Colors.red : Colors.green),
+                    ),
                     onTap: () {
                       showDialog(
                         context: context,
@@ -62,29 +72,6 @@ class DrillHistoryScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    title: Row(
-                      children: [
-                        SizedBox(
-                          width: 60,
-                          child: Text(_short(r.date),
-                              style: const TextStyle(color: Colors.white)),
-                        ),
-                        Expanded(
-                          child: Text(r.templateName,
-                              style: const TextStyle(color: Colors.white)),
-                        ),
-                        Text(
-                          '${r.correct}/${r.total} ($pct%)',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          r.evLoss.toStringAsFixed(2),
-                          style: TextStyle(
-                              color: r.evLoss > 0 ? Colors.red : Colors.green),
-                        )
-                      ],
-                    ),
                   ),
                 );
               },
