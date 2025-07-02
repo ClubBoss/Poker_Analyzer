@@ -97,6 +97,28 @@ class TrainingSpotStorageService extends ChangeNotifier {
     }
   }
 
+  Future<double?> filterEvCoverage(Map<String, dynamic> filters) async {
+    try {
+      final spots = await load();
+      int total = 0;
+      int covered = 0;
+      for (final s in spots) {
+        if (!_matchesFilters(s, filters)) continue;
+        total++;
+        for (final a in s.actions) {
+          if (a.playerIndex == s.heroIndex && a.action == 'push') {
+            if (a.ev != null) covered++;
+            break;
+          }
+        }
+      }
+      if (total == 0) return null;
+      return covered * 100 / total;
+    } catch (_) {
+      return null;
+    }
+  }
+
   bool _matchesFilters(TrainingSpot spot, Map<String, dynamic> f) {
     final tags = f['tags'];
     if (tags is List && tags.isNotEmpty) {

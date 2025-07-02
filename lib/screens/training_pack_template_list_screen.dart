@@ -23,7 +23,8 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
 
   @override
-  State<TrainingPackTemplateListScreen> createState() => _TrainingPackTemplateListScreenState();
+  State<TrainingPackTemplateListScreen> createState() =>
+      _TrainingPackTemplateListScreenState();
 }
 
 class _TrainingPackTemplateListScreenState
@@ -33,7 +34,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsFavKey = 'tpl_show_fav_only';
   _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
-  final Map<String, bool?> _allEv = {};
+  final Map<String, double?> _coverage = {};
   final Map<String, bool> _collapsed = {};
   final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
@@ -94,7 +95,10 @@ class _TrainingPackTemplateListScreenState
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
       _prefsCollapsedKey,
-      [for (final e in _collapsed.entries) if (e.value) e.key],
+      [
+        for (final e in _collapsed.entries)
+          if (e.value) e.key
+      ],
     );
   }
 
@@ -133,13 +137,14 @@ class _TrainingPackTemplateListScreenState
     });
   }
 
-  void _ensureAllEv(String id, Map<String, dynamic> filters) {
-    if (_allEv.containsKey(id)) return;
-    _allEv[id] = null;
-    _spotStorage.filterAllHaveEv(filters).then((value) {
-      if (mounted) setState(() => _allEv[id] = value);
+  void _ensureCoverage(String id, Map<String, dynamic> filters) {
+    if (_coverage.containsKey(id)) return;
+    _coverage[id] = null;
+    _spotStorage.filterEvCoverage(filters).then((value) {
+      if (mounted) setState(() => _coverage[id] = value);
     });
   }
+
   Future<void> _add() async {
     final service = context.read<TrainingPackTemplateStorageService>();
     final base = 'Новый шаблон';
@@ -175,8 +180,8 @@ class _TrainingPackTemplateListScreenState
   Future<void> _export() async {
     final service = context.read<TrainingPackTemplateStorageService>();
     try {
-      final dir =
-          await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+      final dir = await getDownloadsDirectory() ??
+          await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/training_pack_templates.json');
       await file.writeAsString(
         jsonEncode([for (final t in service.templates) t.toJson()]),
@@ -355,8 +360,9 @@ class _TrainingPackTemplateListScreenState
                     e.id != t.id &&
                     e.name.toLowerCase() == value.toLowerCase());
                 if (value.isEmpty || exists) {
-                  setState(() =>
-                      error = value.isEmpty ? 'Название обязательно' : 'Уже существует');
+                  setState(() => error = value.isEmpty
+                      ? 'Название обязательно'
+                      : 'Уже существует');
                   return;
                 }
                 Navigator.pop(context, value);
@@ -451,16 +457,15 @@ class _TrainingPackTemplateListScreenState
   IconData _categoryIcon(String value) {
     final v = value.toLowerCase();
     if (v.contains('spin')) return Icons.videogame_asset;
-    if (v.contains('mtt') || v.contains('tournament')) return Icons.emoji_events;
+    if (v.contains('mtt') || v.contains('tournament'))
+      return Icons.emoji_events;
     if (v.contains('heads') || v.contains('hu')) return Icons.sports_esports;
     return Icons.folder_open;
   }
 
   Widget _statusChip(DateTime dt) {
     final diff = DateTime.now().difference(dt);
-    final label = diff.inHours < 48
-        ? 'NEW'
-        : 'Updated ${timeago.format(dt)}';
+    final label = diff.inHours < 48 ? 'NEW' : 'Updated ${timeago.format(dt)}';
     return Chip(
       label: Text(label, style: const TextStyle(fontSize: 12)),
       visualDensity: VisualDensity.compact,
@@ -495,8 +500,8 @@ class _TrainingPackTemplateListScreenState
     final categories = groups.keys.toList()
       ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
     _cleanupCollapsed(categories);
-    final allCollapsed =
-        categories.isNotEmpty && categories.every((c) => _collapsed[c] ?? false);
+    final allCollapsed = categories.isNotEmpty &&
+        categories.every((c) => _collapsed[c] ?? false);
     return Scaffold(
       appBar: AppBar(
         leading: _selectedIds.isEmpty
@@ -517,8 +522,10 @@ class _TrainingPackTemplateListScreenState
                     color: _showFavoritesOnly ? Colors.amber : null,
                   ),
                 ),
-                IconButton(onPressed: _export, icon: const Icon(Icons.upload_file)),
-                IconButton(onPressed: _import, icon: const Icon(Icons.download)),
+                IconButton(
+                    onPressed: _export, icon: const Icon(Icons.upload_file)),
+                IconButton(
+                    onPressed: _import, icon: const Icon(Icons.download)),
                 PopupMenuButton<String>(
                   onSelected: (v) {
                     if (v == 'delete_all') _deleteAllTemplates();
@@ -535,20 +542,29 @@ class _TrainingPackTemplateListScreenState
                   padding: EdgeInsets.zero,
                   onSelected: _setSort,
                   itemBuilder: (_) => const [
-                    PopupMenuItem(value: _SortOption.name, child: Text('По имени')),
-                    PopupMenuItem(value: _SortOption.category, child: Text('По категории')),
-                    PopupMenuItem(value: _SortOption.difficulty, child: Text('По сложности')),
-                    PopupMenuItem(value: _SortOption.createdAt, child: Text('По дате')),
+                    PopupMenuItem(
+                        value: _SortOption.name, child: Text('По имени')),
+                    PopupMenuItem(
+                        value: _SortOption.category,
+                        child: Text('По категории')),
+                    PopupMenuItem(
+                        value: _SortOption.difficulty,
+                        child: Text('По сложности')),
+                    PopupMenuItem(
+                        value: _SortOption.createdAt, child: Text('По дате')),
                   ],
                 ),
               ]
             : [
-                IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
-                IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
+                IconButton(
+                    onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
+                IconButton(
+                    onPressed: _exportSelected,
+                    icon: const Icon(Icons.upload_file)),
               ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(
-              kToolbarHeight * (categorySet.isEmpty ? 1 : 2)),
+          preferredSize:
+              Size.fromHeight(kToolbarHeight * (categorySet.isEmpty ? 1 : 2)),
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -563,7 +579,8 @@ class _TrainingPackTemplateListScreenState
                   DropdownButton<String>(
                     value: _categoryFilter,
                     dropdownColor: const Color(0xFF2A2B2E),
-                    onChanged: (v) => setState(() => _categoryFilter = v ?? 'Все'),
+                    onChanged: (v) =>
+                        setState(() => _categoryFilter = v ?? 'Все'),
                     items: ['Все', ...categorySet]
                         .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                         .toList(),
@@ -597,7 +614,9 @@ class _TrainingPackTemplateListScreenState
               final itemCount = categories.fold<int>(
                   0,
                   (n, c) =>
-                      n + (c.trim().isEmpty ? 0 : 1) + (_collapsed[c] == true ? 0 : groups[c]!.length));
+                      n +
+                      (c.trim().isEmpty ? 0 : 1) +
+                      (_collapsed[c] == true ? 0 : groups[c]!.length));
               return ListView.builder(
                 itemCount: itemCount,
                 itemBuilder: (context, index) {
@@ -645,7 +664,7 @@ class _TrainingPackTemplateListScreenState
                     if (!collapsed && index < count + list.length) {
                       final t = list[index - count];
                       _ensureCount(t.id, t.filters);
-                      _ensureAllEv(t.id, t.filters);
+                      _ensureCoverage(t.id, t.filters);
                       final isActive =
                           t.filters.equals(_spotStorage.activeFilters);
                       final selection = _selectedIds.isNotEmpty;
@@ -690,11 +709,13 @@ class _TrainingPackTemplateListScreenState
                                   context,
                                   MaterialPageRoute(
                                       builder: (_) =>
-                                          TrainingPackTemplateEditorScreen(initial: t)),
+                                          TrainingPackTemplateEditorScreen(
+                                              initial: t)),
                                 );
                                 if (model != null && mounted) {
                                   await context
-                                      .read<TrainingPackTemplateStorageService>()
+                                      .read<
+                                          TrainingPackTemplateStorageService>()
                                       .update(model);
                                 }
                               },
@@ -713,17 +734,34 @@ class _TrainingPackTemplateListScreenState
                                       MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
-                            if (_allEv[t.id] == true)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 4),
-                                child: Text('📈', style: TextStyle(fontSize: 16)),
+                            Tooltip(
+                              message: 'EV coverage',
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                icon: const Icon(Icons.bar_chart, size: 20),
+                                onPressed: () {
+                                  final pct = _coverage[t.id];
+                                  final text = pct == null
+                                      ? 'EV coverage unknown'
+                                      : 'EV calculated for ${pct.round()}% of spots';
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(text)));
+                                },
                               ),
+                            ),
                             IconButton(
-                              icon: Icon(t.isFavorite ? Icons.star : Icons.star_border),
-                              color: t.isFavorite ? Colors.amber : Colors.white54,
+                              icon: Icon(t.isFavorite
+                                  ? Icons.star
+                                  : Icons.star_border),
+                              color:
+                                  t.isFavorite ? Colors.amber : Colors.white54,
                               onPressed: () {
-                                final updated = t.copyWith(isFavorite: !t.isFavorite);
-                                context.read<TrainingPackTemplateStorageService>().update(updated);
+                                final updated =
+                                    t.copyWith(isFavorite: !t.isFavorite);
+                                context
+                                    .read<TrainingPackTemplateStorageService>()
+                                    .update(updated);
                               },
                             ),
                           ],
@@ -754,8 +792,10 @@ class _TrainingPackTemplateListScreenState
                                         ..clear()
                                         ..addAll(t.filters);
                                       _spotStorage.notifyListeners();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Шаблон применён')));
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content:
+                                                  Text('Шаблон применён')));
                                       break;
                                     case 'export':
                                       await _exportTemplate(t);
@@ -772,22 +812,28 @@ class _TrainingPackTemplateListScreenState
                                         name: 'Копия ${t.name}',
                                       );
                                       await context
-                                          .read<TrainingPackTemplateStorageService>()
+                                          .read<
+                                              TrainingPackTemplateStorageService>()
                                           .add(copy);
                                       break;
                                   }
                                 },
                                 itemBuilder: (_) => const [
                                   PopupMenuItem(
-                                      value: 'apply', child: Text('Применить шаблон')),
+                                      value: 'apply',
+                                      child: Text('Применить шаблон')),
                                   PopupMenuItem(
-                                      value: 'export', child: Text('📤 Экспортировать')),
+                                      value: 'export',
+                                      child: Text('📤 Экспортировать')),
                                   PopupMenuItem(
-                                      value: 'share', child: Text('📤 Поделиться')),
+                                      value: 'share',
+                                      child: Text('📤 Поделиться')),
                                   PopupMenuItem(
-                                      value: 'rename', child: Text('✏️ Переименовать')),
+                                      value: 'rename',
+                                      child: Text('✏️ Переименовать')),
                                   PopupMenuItem(
-                                      value: 'duplicate', child: Text('📄 Дублировать')),
+                                      value: 'duplicate',
+                                      child: Text('📄 Дублировать')),
                                 ],
                               ),
                       );
@@ -802,11 +848,13 @@ class _TrainingPackTemplateListScreenState
                                     title: const Text('Удалить шаблон?'),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.pop(ctx, false),
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, false),
                                         child: const Text('Отмена'),
                                       ),
                                       TextButton(
-                                        onPressed: () => Navigator.pop(ctx, true),
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, true),
                                         child: const Text('Удалить'),
                                       ),
                                     ],
@@ -814,8 +862,9 @@ class _TrainingPackTemplateListScreenState
                                 );
                                 return ok == true;
                               },
-                              onDismissed: (_) =>
-                                  context.read<TrainingPackTemplateStorageService>().remove(t),
+                              onDismissed: (_) => context
+                                  .read<TrainingPackTemplateStorageService>()
+                                  .remove(t),
                               child: tile,
                             );
                     }
