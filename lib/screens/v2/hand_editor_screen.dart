@@ -66,6 +66,19 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
 
   Future<void> _save(BuildContext context) async {
     _update();
+    final count = widget.spot.hand.playerCount;
+    if (count < 2 || count > 9) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ошибка: количество игроков 2-9')),
+      );
+      return;
+    }
+    if (widget.spot.hand.heroIndex >= count) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ошибка: hero index выходит за пределы')),
+      );
+      return;
+    }
     if (!_validateStacks()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ошибка: стеков недостаточно для розыгрыша')),
