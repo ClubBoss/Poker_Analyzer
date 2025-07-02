@@ -6,6 +6,7 @@ import '../../services/pack_generator_service.dart';
 import '../../services/push_fold_ev_service.dart';
 import '../action_entry.dart';
 import 'hand_data.dart';
+import '../../helpers/hand_utils.dart';
 import 'package:flutter/material.dart';
 
 class TrainingPackTemplate {
@@ -226,6 +227,106 @@ class TrainingPackTemplate {
             }
             return AlertDialog(
               content: Text('Generating $done of $total spots…'),
+              actions: [
+                TextButton(
+                  onPressed: () => cancel = true,
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    lastGeneratedAt = DateTime.now();
+    return generated;
+  }
+
+  Future<List<TrainingPackSpot>> generateMissingSpotsWithProgress(
+      BuildContext context) async {
+    final existing = <String>{
+      for (final s in spots)
+        if (handCode(s.hand.heroCards) != null) handCode(s.hand.heroCards)!
+    };
+    if (existing.length >= spotCount) return [];
+    final range = (heroRange ?? PackGeneratorService.topNHands(25).toList())
+        .where((h) => !existing.contains(h))
+        .toList();
+    final total = spotCount - existing.length;
+    final generated = <TrainingPackSpot>[];
+    var cancel = false;
+    var done = 0;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                final isHu = playerStacksBb.length == 2;
+                const idxBB = 1;
+                final callCutoff =
+                    (PackGeneratorService.handRanking.length * bbCallPct / 100)
+                        .round();
+                for (var i = 0;
+                    i < range.length && generated.length < total;
+                    i++) {
+                  if (cancel) break;
+                  final hand = range[i];
+                  final heroCards = _firstCombo(hand);
+                  final actions = {
+                    0: [
+                      ActionEntry(0, 0, 'push', amount: heroBbStack.toDouble()),
+                      for (var j = 1; j < playerStacksBb.length; j++)
+                        if (isHu &&
+                            j == idxBB &&
+                            PackGeneratorService.handRanking.indexOf(hand) <
+                                callCutoff)
+                          ActionEntry(0, j, 'call',
+                              amount: heroBbStack.toDouble())
+                        else
+                          ActionEntry(0, j, 'fold'),
+                    ]
+                  };
+                  final ev = computePushEV(
+                    heroBbStack: heroBbStack,
+                    bbCount: playerStacksBb.length - 1,
+                    heroHand: hand,
+                    anteBb: anteBb,
+                  );
+                  actions[0]![0].ev = ev;
+                  final stacks = {
+                    for (var j = 0; j < playerStacksBb.length; j++)
+                      '$j': playerStacksBb[j].toDouble()
+                  };
+                  generated.add(
+                    TrainingPackSpot(
+                      id: '${id}_${spots.length + generated.length + 1}',
+                      title: '$hand push',
+                      hand: HandData(
+                        heroCards: heroCards,
+                        position: heroPos,
+                        heroIndex: 0,
+                        playerCount: playerStacksBb.length,
+                        stacks: stacks,
+                        actions: actions,
+                      ),
+                      tags: const ['pushfold'],
+                    ),
+                  );
+                  done = generated.length;
+                  setState(() {});
+                  await Future.delayed(Duration.zero);
+                }
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return AlertDialog(
+              content:
+                  Text('Generated $done of $total missing spots…'),
               actions: [
                 TextButton(
                   onPressed: () => cancel = true,
