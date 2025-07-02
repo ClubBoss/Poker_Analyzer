@@ -16,6 +16,7 @@ import 'dart:ui' as ui;
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../services/template_undo_redo_service.dart';
+import 'package:collection/collection.dart';
 import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
 import '../../helpers/title_utils.dart';
@@ -141,7 +142,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   List<TrainingPackSpot> _visibleSpots() {
     final changed = _changedOnly
-        ? _history.history.map((e) => e.title).toSet()
+        ? _history.history.map((e) => e.id).toSet()
         : null;
     return widget.template.spots.where((s) {
       if (_pinnedOnly && !s.pinned) return false;
@@ -182,7 +183,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (ev != null && (ev < _evRange.start || ev > _evRange.end)) {
         return false;
       }
-      if (changed != null && !changed.contains(s.title)) return false;
+      if (changed != null && !changed.contains(s.id)) return false;
       if (_query.isEmpty) return true;
       return s.title.toLowerCase().contains(_query) ||
           s.tags.any((t) => t.toLowerCase().contains(_query));
@@ -205,6 +206,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   void _recordSnapshot() => _history.record(widget.template.spots);
 
+  void _log(String action, TrainingPackSpot spot) {
+    _history.log(action, spot.title, spot.id);
+    final key = _itemKeys[spot.id];
+    if (key?.currentContext != null) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _focusSpot(spot.id));
+    }
+  }
+
   Future<void> _openEditor(TrainingPackSpot spot) async {
     await Navigator.push(
       context,
@@ -214,7 +224,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    setState(() => _history.log('Edited', spot.title));
+    setState(() => _log('Edited', spot));
   }
 
   Future<void> _persist() async {
@@ -248,6 +258,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     await _persist();
   }
 
+  void _jumpToLastChange() {
+    final entry = _history.history.isEmpty ? null : _history.history.first;
+    if (entry == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No recent changes')));
+      return;
+    }
+    final spot = widget.template.spots
+        .firstWhereOrNull((s) => s.id == entry.id || s.title == entry.title);
+    if (spot == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No recent changes')));
+      return;
+    }
+    _focusSpot(spot.id);
+  }
+
   Future<void> _addSpot() async {
     _recordSnapshot();
     final spot = TrainingPackSpot(
@@ -256,7 +283,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     setState(() => widget.template.spots.add(spot));
     await _persist();
-    setState(() => _history.log('Added', spot.title));
+    setState(() => _log('Added', spot));
     await _openEditor(spot);
   }
 
@@ -268,7 +295,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     setState(() => widget.template.spots.add(spot));
     await _persist();
-    setState(() => _history.log('Added', spot.title));
+    setState(() => _log('Added', spot));
     await _openEditor(spot);
   }
 
@@ -282,7 +309,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     });
     await _persist();
     if (generated.isNotEmpty) {
-      setState(() => _history.log('Added', '${generated.length} spots'));
+      setState(() => _history.log('Added', '${generated.length} spots', ''));
     }
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Generated ${generated.length} spots')));
@@ -301,7 +328,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    setState(() => _history.log('Added', '${missing.length} spots'));
+    setState(() => _history.log('Added', '${missing.length} spots', ''));
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Added ${missing.length} spots')));
   }
@@ -332,8 +359,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         if (_autoSortEv) _sortSpots();
       });
       await _persist();
-      setState(() => _history.log('Added', spot.title));
-      WidgetsBinding.instance.addPostFrameCallback((_) => _focusSpot(spot.id));
+      setState(() => _log('Added', spot));
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Spot pasted')));
@@ -409,8 +435,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    setState(() => _history.log('Added', spot.title));
-    WidgetsBinding.instance.addPostFrameCallback((_) => _focusSpot(spot.id));
+    setState(() => _log('Added', spot));
   }
 
   Future<void> _addPackTag() async {
@@ -862,7 +887,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _recordSnapshot();
       setState(() => widget.template.spots.clear());
       _persist();
-      setState(() => _history.log('Deleted', 'all spots'));
+      setState(() => _history.log('Deleted', 'all spots', ''));
     }
   }
 
@@ -1032,7 +1057,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         final r = s.evalResult;
         if (r != null && !r.correct && !s.tags.contains('Mistake')) {
           s.tags.add('Mistake');
-          _history.log('Tagged', s.title);
+          _history.log('Tagged', s.title, s.id);
           count++;
         }
       }
@@ -1327,7 +1352,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         final s = widget.template.spots.firstWhere((e) => e.id == id);
         if (!s.tags.contains(tag)) {
           s.tags.add(tag);
-          _history.log('Tagged', s.title);
+          _history.log('Tagged', s.title, s.id);
         }
       }
     });
@@ -1365,7 +1390,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       for (final id in _selectedSpotIds) {
         final s = widget.template.spots.firstWhere((e) => e.id == id);
         if (s.tags.remove(tag)) {
-          _history.log('Untagged', s.title);
+          _history.log('Untagged', s.title, s.id);
         }
       }
     });
@@ -1381,9 +1406,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ..clear();
         if (tag.isNotEmpty) {
           s.tags.add(tag);
-          _history.log('Tagged', s.title);
+          _history.log('Tagged', s.title, s.id);
         } else {
-          _history.log('Untagged', s.title);
+          _history.log('Untagged', s.title, s.id);
         }
       }
     });
@@ -1509,7 +1534,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       });
       _persist();
       setState(() =>
-          _history.log('Deleted', '${_lastRemoved!.length} spots'));
+          _history.log('Deleted', '${_lastRemoved!.length} spots', ''));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Removed ${_lastRemoved!.length} spot(s)'),
@@ -1553,7 +1578,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     setState(() => widget.template.spots.insert(i + 1, copy));
     _persist();
-    setState(() => _history.log('Added', copy.title));
+    setState(() => _log('Added', copy));
   }
 
   Future<void> _renameTag() async {
@@ -2116,6 +2141,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             ),
           IconButton(icon: const Text('↶'), onPressed: _canUndo ? _undo : null),
           IconButton(icon: const Text('↷'), onPressed: _canRedo ? _redo : null),
+          IconButton(
+            icon: const Text('🔄'),
+            tooltip: 'Jump to last change',
+            onPressed: _jumpToLastChange,
+          ),
           if (_isMultiSelect)
             PopupMenuButton<String>(
               tooltip: 'Move to Tag',
@@ -2881,7 +2911,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                             final t = spot.title;
                                             setState(() => widget.template.spots.removeAt(index));
                                             _persist();
-                                            setState(() => _history.log('Deleted', t));
+                                            setState(() => _history.log('Deleted', t, spot.id));
                                           }
                                         },
                                       ),
@@ -2915,7 +2945,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             final t = spot.title;
                             setState(() => widget.template.spots.remove(spot));
                             _persist();
-                            setState(() => _history.log('Deleted', t));
+                            setState(() => _history.log('Deleted', t, spot.id));
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text('Deleted'),
