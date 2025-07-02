@@ -1275,6 +1275,17 @@ class _TrainingPackTemplateListScreenState
                                 );
                               },
                             ),
+                            IconButton(
+                              icon: const Icon(Icons.auto_fix_high),
+                              tooltip: 'Generate spots',
+                              onPressed: () async {
+                                final generated =
+                                    await t.generateSpotsWithProgress(context);
+                                if (!mounted) return;
+                                setState(() => t.spots.addAll(generated));
+                                TrainingPackStorage.save(_templates);
+                              },
+                            ),
                             PopupMenuButton<String>(
                               onSelected: (v) {
                                 if (v == 'rename') _rename(t);
