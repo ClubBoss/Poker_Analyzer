@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 import '../helpers/training_pack_storage.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -18,16 +20,24 @@ class StartTrainingFromPackScreen extends StatefulWidget {
 class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScreen> {
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = true;
+  String? _last;
+  static const _lastKey = 'last_pack_template';
 
   @override
   void initState() {
     super.initState();
-    TrainingPackStorage.load().then((list) {
-      if (!mounted) return;
-      setState(() {
-        _templates.addAll(list);
-        _loading = false;
-      });
+    _load();
+  }
+
+  Future<void> _load() async {
+    final list = await TrainingPackStorage.load();
+    final prefs = await SharedPreferences.getInstance();
+    final last = prefs.getString(_lastKey);
+    if (!mounted) return;
+    setState(() {
+      _templates.addAll(list);
+      _last = last;
+      _loading = false;
     });
   }
 
@@ -79,11 +89,21 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
   }
 
   Future<void> _start(TrainingPackTemplate tpl) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastKey, tpl.name);
+    setState(() => _last = tpl.name);
     final hands = [for (final s in tpl.spots) _handFromSpot(s)];
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => TrainingScreen.drill(hands: hands)),
     );
+  }
+
+  void _continueLast() {
+    final tpl = _templates.firstWhereOrNull((t) => t.name == _last);
+    if (tpl != null) {
+      _start(tpl);
+    }
   }
 
   @override
@@ -93,10 +113,18 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView.separated(
-              itemCount: _templates.length,
+              itemCount: _templates.length + (_last != null ? 1 : 0),
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {
-                final t = _templates[index];
+                if (_last != null && index == 0) {
+                  return ListTile(
+                    title: const Text('Continue Last Pack'),
+                    subtitle: Text(_last!),
+                    leading: const Icon(Icons.play_arrow),
+                    onTap: _continueLast,
+                  );
+                }
+                final t = _templates[index - (_last != null ? 1 : 0)];
                 return ListTile(
                   title: Text(t.name),
                   subtitle: Text('${t.spots.length} spots'),
