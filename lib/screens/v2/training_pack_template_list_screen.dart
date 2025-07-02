@@ -232,29 +232,54 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _nameAndEdit(TrainingPackTemplate template) async {
     final ctrl = TextEditingController(text: template.name);
-    final result = await showDialog<String>(
+    GameType type = template.gameType;
+    final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Pack Name'),
-        content: TextField(controller: ctrl, autofocus: true),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Pack Name'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: ctrl, autofocus: true),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<GameType>(
+                value: type,
+                decoration: const InputDecoration(labelText: 'Game Type'),
+                items: const [
+                  DropdownMenuItem(
+                      value: GameType.tournament,
+                      child: Text('Tournament')),
+                  DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
+                ],
+                onChanged: (v) =>
+                    setState(() => type = v ?? GameType.tournament),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, ctrl.text.trim()),
-            child: const Text('OK'),
-          ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
       ),
     );
-    if (result != null && result.isNotEmpty) {
-      setState(() {
-        template.name = result;
-        _sortTemplates();
-      });
-      TrainingPackStorage.save(_templates);
+    if (ok == true) {
+      final name = ctrl.text.trim();
+      if (name.isNotEmpty) {
+        setState(() {
+          template.name = name;
+          template.gameType = type;
+          _sortTemplates();
+        });
+        TrainingPackStorage.save(_templates);
+      }
     }
     ctrl.dispose();
     _edit(template);
