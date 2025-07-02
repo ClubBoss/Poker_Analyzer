@@ -89,8 +89,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsQuickFilterKey = 'quick_filter';
   static const _prefsSortKey = 'sort_mode';
   static const _prefsScrollKey = 'tmpl_scroll';
+  static const _prefsSortModeKey = 'templateSortMode';
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
+  bool _evAsc = false;
   static const _quickFilters = [
     'BTN',
     'SB',
@@ -509,6 +511,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final tag = prefs.getString(_prefsTagFilterKey);
       final quick = prefs.getString(_prefsQuickFilterKey);
       final sortStr = prefs.getString(_prefsSortKey);
+      final sortMode = prefs.getString(_prefsSortModeKey);
       final offset = prefs.getDouble(_prefsScrollKey) ?? 0;
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
@@ -530,6 +533,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           }
         }
       }
+      if (sortMode != null) _evAsc = sortMode == 'asc';
       if (mounted) {
         setState(() {
           _autoSortEv = auto;
@@ -538,8 +542,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _tagFilter = tag?.isEmpty ?? true ? null : tag;
           _quickFilter = quick?.isEmpty ?? true ? null : quick;
           _sortBy = sort;
-          if (_autoSortEv) _sortSpots();
-        });
+          if (sortMode != null) _sortSpots();
+          });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollCtrl.hasClients) _scrollCtrl.jumpTo(offset);
         });
@@ -1734,11 +1738,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   void _sortSpots() {
     final pinned = widget.template.spots.where((s) => s.pinned).toList();
     final others = widget.template.spots.where((s) => !s.pinned).toList();
-    others.sort((a, b) => _spotEv(b).compareTo(_spotEv(a)));
+    if (_evAsc) {
+      others.sort((a, b) => _spotEv(a).compareTo(_spotEv(b)));
+    } else {
+      others.sort((a, b) => _spotEv(b).compareTo(_spotEv(a)));
+    }
     widget.template.spots
       ..clear()
       ..addAll(pinned)
       ..addAll(others);
+  }
+
+  Future<void> _toggleEvSort() async {
+    setState(() {
+      _evAsc = !_evAsc;
+      _sortSpots();
+    });
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(_prefsSortModeKey, _evAsc ? 'asc' : 'desc');
   }
 
   void _showFilters() {
@@ -2145,6 +2162,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             icon: const Text('🔄'),
             tooltip: 'Jump to last change',
             onPressed: _jumpToLastChange,
+          ),
+          IconButton(
+            icon: Icon(_evAsc ? Icons.arrow_upward : Icons.arrow_downward),
+            tooltip: 'Sort by EV',
+            onPressed: _toggleEvSort,
           ),
           if (_isMultiSelect)
             PopupMenuButton<String>(
