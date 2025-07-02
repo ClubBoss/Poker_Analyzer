@@ -9,12 +9,14 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
   final VoidCallback? onHandEdited;
   final ValueChanged<String>? onTagTap;
   final VoidCallback? onDuplicate;
+  final Color? titleColor;
   const TrainingPackSpotPreviewCard({
     super.key,
     required this.spot,
     this.onHandEdited,
     this.onTagTap,
     this.onDuplicate,
+    this.titleColor,
   });
 
   @override
@@ -83,7 +85,10 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           spot.title.isEmpty ? 'Untitled spot' : spot.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: titleColor,
+                          ),
                         ),
                       ),
                       if (spot.hand.playerCount > 2)
