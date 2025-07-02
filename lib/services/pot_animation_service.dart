@@ -8,7 +8,6 @@ import '../helpers/table_geometry_helper.dart';
 import '../models/player_model.dart';
 import '../widgets/player_zone_widget.dart';
 import 'pot_sync_service.dart';
-import '../widgets/win_amount_widget.dart';
 
 class ChipFlight {
   final Key key;

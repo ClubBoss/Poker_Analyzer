@@ -225,7 +225,7 @@ class StreetActionsList extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        qualityLabel!,
+                        qualityLabel,
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 12,

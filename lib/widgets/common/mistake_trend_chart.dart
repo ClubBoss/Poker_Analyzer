@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
-import '../../theme/app_colors.dart';
 
 enum MistakeTrendMode { daily, weekly }
 
@@ -31,13 +30,13 @@ class MistakeTrendChart extends StatelessWidget {
     DateTime? max;
     for (final m in src.values) {
       for (final d in m.keys) {
-        min = min == null || d.isBefore(min!) ? d : min;
-        max = max == null || d.isAfter(max!) ? d : max;
+        min = min == null || d.isBefore(min) ? d : min;
+        max = max == null || d.isAfter(max) ? d : max;
       }
     }
     if (min == null || max == null) return {};
-    final start = min!.subtract(Duration(days: min!.weekday - 1));
-    final end = max!.subtract(Duration(days: max!.weekday - 1));
+    final start = min.subtract(Duration(days: min.weekday - 1));
+    final end = max.subtract(Duration(days: max.weekday - 1));
     final result = {
       for (final k in src.keys) k: <DateTime, int>{}
     };

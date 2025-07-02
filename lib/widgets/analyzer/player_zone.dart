@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../models/player_model.dart';
 
 class PlayerZone extends StatelessWidget {
   final int numberOfPlayers;

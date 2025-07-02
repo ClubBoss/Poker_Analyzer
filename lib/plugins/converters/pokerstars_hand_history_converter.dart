@@ -433,8 +433,8 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       final name = (seatEntries[i]['name'] as String).toLowerCase();
       final returned = uncalledReturned[name] ?? 0;
       final adjustedStack = stack - returned;
-      if (bigBlind != null && bigBlind! > 0) {
-        stackSizes[i] = (adjustedStack / bigBlind!).round();
+      if (bigBlind != null && bigBlind > 0) {
+        stackSizes[i] = (adjustedStack / bigBlind).round();
       } else {
         stackSizes[i] = adjustedStack.round();
       }

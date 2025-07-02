@@ -31,7 +31,7 @@ class HeroRangeGridWidget extends StatelessWidget {
   }
 
   Color _cellColor(double freq) {
-    final clamped = freq.clamp(0.0, 1.0) as double;
+    final clamped = freq.clamp(0.0, 1.0);
     if (clamped >= 0.5) {
       return Colors.orangeAccent;
     }

@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../helpers/color_utils.dart';
 
 class TagService extends ChangeNotifier {
   static const _prefsKey = 'global_tags';

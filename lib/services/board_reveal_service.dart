@@ -108,7 +108,7 @@ class BoardRevealService {
         toAnimate.add(i);
       } else if (!shouldShow) {
         _controllers[i].value = 0;
-      } else if (oldCard != null && newCard != null &&
+      } else if (oldCard != null &&
           (oldCard.rank != newCard.rank || oldCard.suit != newCard.suit)) {
         _controllers[i].value = 0;
         toAnimate.add(i);

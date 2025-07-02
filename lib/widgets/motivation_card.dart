@@ -39,10 +39,10 @@ class MotivationCard extends StatelessWidget {
     }
 
     final showGoal = bestGoal != null && (bestAch == null || goalRemain <= achRemain);
-    final title = showGoal ? bestGoal!.title : bestAch!.title;
+    final title = showGoal ? bestGoal.title : bestAch!.title;
     final icon = showGoal ? Icons.flag : bestAch!.icon;
-    final progress = showGoal ? engine.progress(bestGoal!) : bestAch!.progress;
-    final target = showGoal ? bestGoal!.target : bestAch!.target;
+    final progress = showGoal ? engine.progress(bestGoal) : bestAch!.progress;
+    final target = showGoal ? bestGoal.target : bestAch!.target;
     final accent = Theme.of(context).colorScheme.secondary;
 
     return GestureDetector(

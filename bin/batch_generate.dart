@@ -20,7 +20,7 @@ Future<void> main(List<String> args) async {
     ErrorLogger.instance.logError('Missing --src');
     exit(1);
   }
-  final file = File(src!);
+  final file = File(src);
   if (!file.existsSync()) {
     ErrorLogger.instance.logError('File not found: ${file.path}');
     exit(1);

@@ -1986,26 +1986,24 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         );
       },
     );
-    if (updated != null) {
-      final index = _history.indexOf(session);
-      if (index != -1) {
-        final correct = updated[0];
-        final total = updated[1];
-        final newAccuracy = calculateAccuracy(correct, total);
-        setState(() {
-          _history[index] = TrainingResult(
-            date: session.date,
-            total: total,
-            correct: correct,
-            accuracy: newAccuracy,
-            tags: session.tags,
-            notes: session.notes,
-          );
-        });
-        await _saveHistory();
-      }
+    final index = _history.indexOf(session);
+    if (index != -1) {
+      final correct = updated[0];
+      final total = updated[1];
+      final newAccuracy = calculateAccuracy(correct, total);
+      setState(() {
+        _history[index] = TrainingResult(
+          date: session.date,
+          total: total,
+          correct: correct,
+          accuracy: newAccuracy,
+          tags: session.tags,
+          notes: session.notes,
+        );
+      });
+      await _saveHistory();
     }
-  }
+    }
 
   Future<void> _editSessionDate(TrainingResult session) async {
     final picked = await showDatePicker(

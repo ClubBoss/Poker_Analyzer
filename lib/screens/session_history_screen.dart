@@ -33,7 +33,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
       if (value is Map) {
         list.add(
           TrainingSession.fromJson(
-            Map<String, dynamic>.from(value as Map),
+            Map<String, dynamic>.from(value),
           ),
         );
       }

@@ -4300,7 +4300,7 @@ class TrainingSpotListState extends State<TrainingSpotList>
       for (final e in data) {
         if (e is Map) {
           try {
-            spots.add(TrainingSpot.fromJson(Map<String, dynamic>.from(e as Map)));
+            spots.add(TrainingSpot.fromJson(Map<String, dynamic>.from(e)));
           } catch (_) {}
         }
       }

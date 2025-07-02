@@ -15,7 +15,6 @@ import '../models/training_pack.dart';
 import '../models/training_pack_template.dart';
 import '../models/pack_snapshot.dart';
 import '../models/saved_hand.dart';
-import '../models/game_type.dart';
 
 class TrainingPackStorageService extends ChangeNotifier {
   static const _storageFile = 'training_packs.json';
@@ -73,7 +72,7 @@ class TrainingPackStorageService extends ChangeNotifier {
                 _snapshots[key] = [
                   for (final s in value.whereType<Map>())
                     PackSnapshot.fromJson(
-                        Map<String, dynamic>.from(s as Map))
+                        Map<String, dynamic>.from(s))
                 ];
               }
             });

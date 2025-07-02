@@ -83,7 +83,7 @@ class StreakChart extends StatelessWidget {
         if (message != null)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(message!,
+            child: Text(message,
                 style: const TextStyle(color: Colors.white70, fontSize: 12)),
           ),
         Container(

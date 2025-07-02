@@ -30,7 +30,6 @@ import '../../widgets/spot_viewer_dialog.dart';
 import '../../services/training_session_service.dart';
 import '../training_session_screen.dart';
 import '../../helpers/training_pack_validator.dart';
-import '../../helpers/training_pack_validator.dart';
 import '../../widgets/common/ev_distribution_chart.dart';
 import '../../widgets/ev_summary_card.dart';
 import '../../theme/app_colors.dart';
@@ -39,7 +38,6 @@ import '../../services/push_fold_ev_service.dart';
 import '../../services/pack_export_service.dart';
 import '../../widgets/range_matrix_picker.dart';
 import '../../services/evaluation_executor_service.dart';
-import '../../models/evaluation_result.dart';
 import '../../services/pack_generator_service.dart';
 import '../../helpers/hand_utils.dart';
 
@@ -839,7 +837,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     Uint8List? data = file.bytes;
     final path = file.path;
     if (data == null && path != null) data = await File(path).readAsBytes();
-    if (data == null) return;
     _recordSnapshot();
     try {
       TrainingPackTemplate tpl;

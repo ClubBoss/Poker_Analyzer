@@ -162,7 +162,7 @@ class TrainingStatsService extends ChangeNotifier {
       final key = d.toIso8601String().split('T').first;
       final hands = _handsPerDay[key] ?? 0;
       final mistakes = _mistakesPerDay[key] ?? 0;
-      if (prev != null && d.difference(prev!).inDays > 1) current = 0;
+      if (prev != null && d.difference(prev).inDays > 1) current = 0;
       if (hands > 0 && mistakes == 0) {
         current += 1;
         if (current > best) best = current;

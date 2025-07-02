@@ -42,7 +42,7 @@ class SavedHandManagerService extends ChangeNotifier {
     final withSession = hand.copyWith(sessionId: sessionId);
     await _storage.add(withSession);
     if (_cloud != null) {
-      unawaited(_cloud!.syncUp());
+      unawaited(_cloud.syncUp());
     }
     _stats?.incrementHands();
     if (sessionId != last?.sessionId) {

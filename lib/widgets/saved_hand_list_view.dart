@@ -10,12 +10,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/saved_hand.dart';
-import '../models/mistake_severity.dart';
 import '../theme/constants.dart';
 import '../services/evaluation_executor_service.dart';
 import '../helpers/mistake_advice.dart';
 import 'saved_hand_tile.dart';
-import '../services/goals_service.dart';
 import '../helpers/date_utils.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 

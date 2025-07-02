@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
-import '../models/training_spot.dart';
 import 'training_spot_storage_service.dart';
 
 class TrainingHistoryExportService {

@@ -145,7 +145,7 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
         for (final e in decoded) {
           if (e is Map) {
             try {
-              list.add(TrainingPackPreset.fromJson(Map<String, dynamic>.from(e as Map)));
+              list.add(TrainingPackPreset.fromJson(Map<String, dynamic>.from(e)));
             } catch (_) {}
           }
         }

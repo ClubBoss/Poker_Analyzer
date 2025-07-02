@@ -82,10 +82,8 @@ class _ProgressScreenState extends State<ProgressScreen>
     };
     for (var i = 0; i < sorted.length; i++) {
       final h = sorted[i];
-      final correct = h.expectedAction != null &&
-          h.gtoAction != null &&
-          h.expectedAction!.trim().toLowerCase() ==
-              h.gtoAction!.trim().toLowerCase();
+      final correct = h.expectedAction.trim().toLowerCase() ==
+              h.gtoAction.trim().toLowerCase();
       streak = correct ? streak + 1 : 0;
       spots.add(FlSpot(i.toDouble(), streak.toDouble()));
       if (!correct) {
