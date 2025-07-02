@@ -41,6 +41,7 @@ import '../../services/evaluation_executor_service.dart';
 import '../../services/pack_generator_service.dart';
 import '../../services/training_pack_template_ui_service.dart';
 import '../../helpers/hand_utils.dart';
+import '../../services/training_pack_template_storage_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -64,6 +65,7 @@ class TrainingPackTemplateEditorScreen extends StatefulWidget {
 class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateEditorScreen> {
   late final TextEditingController _descCtr;
   late final FocusNode _descFocus;
+  late String _templateName;
   String _query = '';
   String? _tagFilter;
   late TextEditingController _searchCtrl;
@@ -490,7 +492,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _renameTemplate() async {
-    final ctrl = TextEditingController(text: widget.template.name);
+    final ctrl = TextEditingController(text: _templateName);
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -514,7 +516,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (ok == true) {
       final name = ctrl.text.trim();
       if (name.isNotEmpty) {
-        setState(() => widget.template.name = name);
+        setState(() {
+          _templateName = name;
+          widget.template.name = name;
+        });
+        final service = context.read<TrainingPackTemplateStorageService>();
+        await service.saveAll();
         await _persist();
       }
     }
@@ -524,6 +531,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   @override
   void initState() {
     super.initState();
+    _templateName = widget.template.name;
     _descCtr = TextEditingController(text: widget.template.description);
     _descFocus = FocusNode();
     _descFocus.addListener(() {
@@ -2157,7 +2165,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             ? Text('${_selectedSpotIds.length} selected')
             : GestureDetector(
                 onTap: _renameTemplate,
-                child: Text(widget.template.name),
+                child: Text(_templateName),
               ),
         actions: [
           DropdownButton<GameType>(
