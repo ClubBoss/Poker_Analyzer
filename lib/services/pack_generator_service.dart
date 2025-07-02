@@ -2,6 +2,7 @@ import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
+import '../models/v2/training_pack_preset.dart';
 import '../models/action_entry.dart';
 import '../models/game_type.dart';
 import 'push_fold_ev_service.dart';
@@ -120,6 +121,36 @@ class PackGeneratorService {
       createdAt: DateTime.now(),
     );
     return tpl.spots.take(count).toList();
+  }
+
+  static Future<TrainingPackTemplate> generatePackFromPreset(
+      TrainingPackPreset p) async {
+    final spots = await autoGenerateSpots(
+      id: p.id,
+      stack: p.heroBbStack,
+      players: p.playerStacksBb,
+      pos: p.heroPos,
+      count: p.spotCount,
+      bbCallPct: p.bbCallPct,
+      anteBb: p.anteBb,
+      range: p.heroRange,
+    );
+    return TrainingPackTemplate(
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      gameType: p.gameType,
+      spots: spots,
+      heroBbStack: p.heroBbStack,
+      playerStacksBb: List<int>.from(p.playerStacksBb),
+      heroPos: p.heroPos,
+      spotCount: p.spotCount,
+      bbCallPct: p.bbCallPct,
+      anteBb: p.anteBb,
+      heroRange: p.heroRange,
+      createdAt: p.createdAt,
+      lastGeneratedAt: DateTime.now(),
+    );
   }
 
   static TrainingPackTemplate generatePushFoldPackSync({

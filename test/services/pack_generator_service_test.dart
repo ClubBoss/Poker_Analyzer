@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:poker_ai_analyzer/services/pack_generator_service.dart';
 import 'package:poker_ai_analyzer/models/v2/hero_position.dart';
+import 'package:poker_ai_analyzer/models/v2/training_pack_preset.dart';
 
 void main() {
   test('generatePushFoldPack creates correct spots', () async {
@@ -108,4 +109,24 @@ void main() {
       expect(s.tags.contains('pushfold'), isTrue);
     }
   });
+
+  test('generatePackFromPreset builds template', () async {
+    final preset = TrainingPackPreset(
+      id: 'pr',
+      name: 'Preset',
+      description: 'd',
+      heroBbStack: 10,
+      playerStacksBb: const [10, 10],
+      heroPos: HeroPosition.sb,
+      heroRange: const ['AA'],
+      spotCount: 1,
+    );
+    final tpl = await PackGeneratorService.generatePackFromPreset(preset);
+    expect(tpl.id, preset.id);
+    expect(tpl.name, preset.name);
+    expect(tpl.description, preset.description);
+    expect(tpl.spots.length, 1);
+    expect(tpl.heroRange, preset.heroRange);
+  });
 }
+
