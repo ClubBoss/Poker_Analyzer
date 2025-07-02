@@ -1696,6 +1696,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
+    final totalSpots = shown.length;
+    final evCoverage = totalSpots == 0
+        ? 0.0
+        : shown.where((s) => s.heroEv != null).length / totalSpots;
+    final icmCoverage = totalSpots == 0
+        ? 0.0
+        : shown.where((s) => s.heroIcmEv != null).length / totalSpots;
+    final bothCoverage = totalSpots == 0
+        ? 0.0
+        : shown.where((s) => s.heroEv != null && s.heroIcmEv != null).length /
+            totalSpots;
     final range = _templateRange();
     List<TrainingPackSpot> sorted;
     if (_sortBy == SortBy.manual) {
@@ -2232,6 +2243,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 ],
               ),
             ),
+            const SizedBox(height: 8),
+            _EvCoverageBar(ev: evCoverage, icm: icmCoverage, both: bothCoverage),
+            const SizedBox(height: 16),
             Expanded(
               child: Builder(
                 builder: (context) {
@@ -2594,6 +2608,48 @@ class _ManageTagTileState extends State<_ManageTagTile> {
         icon: const Text('🗑️'),
         onPressed: widget.onDelete,
       ),
+    );
+  }
+}
+
+class _EvCoverageBar extends StatelessWidget {
+  final double ev;
+  final double icm;
+  final double both;
+  const _EvCoverageBar({required this.ev, required this.icm, required this.both});
+
+  Widget _bar(BuildContext context, double value, String label, Color color) {
+    final percent = (value * 100).round();
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          LinearProgressIndicator(
+            value: value,
+            backgroundColor: Colors.white24,
+            valueColor: AlwaysStoppedAnimation(color),
+            minHeight: 6,
+          ),
+          const SizedBox(height: 4),
+          Text('$label $percent%',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white70)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = Theme.of(context).colorScheme.secondary;
+    return Row(
+      children: [
+        _bar(context, ev, 'EV', accent),
+        const SizedBox(width: 8),
+        _bar(context, icm, 'ICM', Colors.purple),
+        const SizedBox(width: 8),
+        _bar(context, both, 'Both', Colors.green),
+      ],
     );
   }
 }
