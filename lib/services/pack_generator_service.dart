@@ -98,6 +98,30 @@ class PackGeneratorService {
     );
   }
 
+  static Future<List<TrainingPackSpot>> autoGenerateSpots({
+    required String id,
+    required int stack,
+    required List<int> players,
+    required HeroPosition pos,
+    int count = 20,
+    int bbCallPct = 20,
+    int anteBb = 0,
+    List<String>? range,
+  }) async {
+    final tpl = generatePushFoldPackSync(
+      id: id,
+      name: '',
+      heroBbStack: stack,
+      playerStacksBb: players,
+      heroPos: pos,
+      heroRange: range ?? topNHands(25).toList(),
+      anteBb: anteBb,
+      bbCallPct: bbCallPct,
+      createdAt: DateTime.now(),
+    );
+    return tpl.spots.take(count).toList();
+  }
+
   static TrainingPackTemplate generatePushFoldPackSync({
     required String id,
     required String name,
