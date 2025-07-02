@@ -75,6 +75,28 @@ class TrainingSpotStorageService extends ChangeNotifier {
     }
   }
 
+  Future<bool?> filterAllHaveEv(Map<String, dynamic> filters) async {
+    try {
+      final spots = await load();
+      bool any = false;
+      for (final s in spots) {
+        if (!_matchesFilters(s, filters)) continue;
+        any = true;
+        bool hasEv = false;
+        for (final a in s.actions) {
+          if (a.playerIndex == s.heroIndex && a.ev != null) {
+            hasEv = true;
+            break;
+          }
+        }
+        if (!hasEv) return false;
+      }
+      return any;
+    } catch (_) {
+      return null;
+    }
+  }
+
   bool _matchesFilters(TrainingSpot spot, Map<String, dynamic> f) {
     final tags = f['tags'];
     if (tags is List && tags.isNotEmpty) {
