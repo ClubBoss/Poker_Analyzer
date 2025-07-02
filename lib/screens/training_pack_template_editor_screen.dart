@@ -139,10 +139,10 @@ class _TrainingPackTemplateEditorScreenState
           _templateName = name;
           _name.text = name;
         });
+        final service = context.read<TrainingPackTemplateStorageService>();
         final model = widget.initial?.copyWith(name: name);
-        if (model != null) {
-          await context.read<TrainingPackTemplateStorageService>().update(model);
-        }
+        if (model != null) await service.update(model);
+        await service.saveAll();
       }
     }
     ctrl.dispose();
@@ -154,7 +154,7 @@ class _TrainingPackTemplateEditorScreenState
       appBar: AppBar(
         title: GestureDetector(
           onTap: _renameTemplate,
-          child: Text(_templateName.isEmpty ? 'Шаблон пака' : _templateName),
+          child: Text(_templateName),
         ),
         actions: [SyncStatusIcon.of(context)],
       ),
