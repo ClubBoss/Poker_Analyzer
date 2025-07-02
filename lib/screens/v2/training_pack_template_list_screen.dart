@@ -28,6 +28,7 @@ import '../../widgets/range_matrix_picker.dart';
 import '../../widgets/preset_range_buttons.dart';
 import '../training_session_screen.dart';
 import '../../services/training_session_service.dart';
+import '../../helpers/hand_utils.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -206,6 +207,19 @@ class _TrainingPackTemplateListScreenState
     TrainingPackStorage.save(_templates);
   }
 
+  Future<void> _generateMissing(TrainingPackTemplate t) async {
+    final missing = await t.generateMissingSpotsWithProgress(context);
+    if (missing.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All spots already present 🎉')));
+      return;
+    }
+    setState(() => t.spots.addAll(missing));
+    TrainingPackStorage.save(_templates);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Added ${missing.length} spots')));
+  }
+
   Future<void> _nameAndEdit(TrainingPackTemplate template) async {
     final ctrl = TextEditingController(text: template.name);
     final result = await showDialog<String>(
@@ -305,25 +319,6 @@ class _TrainingPackTemplateListScreenState
     _nameAndEdit(template);
   }
 
-  int _rankVal(String r) {
-    const order = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
-    return order.indexOf(r);
-  }
-
-  String? _handCode(String cards) {
-    final parts = cards.split(RegExp(r'\s+'));
-    if (parts.length < 2) return null;
-    final r1 = parts[0][0].toUpperCase();
-    final s1 = parts[0].substring(1);
-    final r2 = parts[1][0].toUpperCase();
-    final s2 = parts[1].substring(1);
-    if (r1 == r2) return '$r1$r2';
-    final firstHigh = _rankVal(r1) >= _rankVal(r2);
-    final high = firstHigh ? r1 : r2;
-    final low = firstHigh ? r2 : r1;
-    final suited = s1 == s2;
-    return '$high$low${suited ? 's' : 'o'}';
-  }
 
   HeroPosition _posFromString(String s) {
     final p = s.toUpperCase();
@@ -374,7 +369,7 @@ class _TrainingPackTemplateListScreenState
       if (s.playerCards.length <= s.heroIndex || s.playerCards[s.heroIndex].length < 2) continue;
       final c = s.playerCards[s.heroIndex];
       final cards = '${c[0].rank}${c[0].suit} ${c[1].rank}${c[1].suit}';
-      final code = _handCode(cards);
+      final code = handCode(cards);
       if (code != null) hands.add(code);
     }
     if (hands.isEmpty) {
@@ -1347,6 +1342,7 @@ class _TrainingPackTemplateListScreenState
                               onSelected: (v) {
                                 if (v == 'rename') _rename(t);
                                 if (v == 'duplicate') _duplicate(t);
+                                if (v == 'missing') _generateMissing(t);
                               },
                               itemBuilder: (_) => const [
                                 PopupMenuItem(
@@ -1356,6 +1352,10 @@ class _TrainingPackTemplateListScreenState
                                 PopupMenuItem(
                                   value: 'duplicate',
                                   child: Text('📄 Duplicate'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'missing',
+                                  child: Text('Generate Missing'),
                                 ),
                               ],
                             ),

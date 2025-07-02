@@ -38,6 +38,7 @@ import '../../widgets/range_matrix_picker.dart';
 import '../../services/evaluation_executor_service.dart';
 import '../../models/evaluation_result.dart';
 import '../../services/pack_generator_service.dart';
+import '../../helpers/hand_utils.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 
@@ -91,7 +92,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Set<String> _templateRange() {
     final set = <String>{};
     for (final s in widget.template.spots) {
-      final hand = _handCode(s.hand.heroCards);
+      final hand = handCode(s.hand.heroCards);
       if (hand != null) set.add(hand);
     }
     return set;
@@ -182,6 +183,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     TrainingPackStorage.save(widget.templates);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Generated ${generated.length} spots')));
+  }
+
+  Future<void> _generateMissingSpots() async {
+    final missing =
+        await widget.template.generateMissingSpotsWithProgress(context);
+    if (missing.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All spots already present 🎉')));
+      return;
+    }
+    setState(() {
+      widget.template.spots.addAll(missing);
+      if (_autoSortEv) _sortSpots();
+    });
+    TrainingPackStorage.save(widget.templates);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Added ${missing.length} spots')));
   }
 
   Future<void> _pasteSpot() async {
@@ -769,25 +787,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
-  int _rankVal(String r) {
-    const order = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
-    return order.indexOf(r);
-  }
-
-  String? _handCode(String cards) {
-    final parts = cards.split(RegExp(r'\s+'));
-    if (parts.length < 2) return null;
-    final r1 = parts[0][0].toUpperCase();
-    final s1 = parts[0].substring(1);
-    final r2 = parts[1][0].toUpperCase();
-    final s2 = parts[1].substring(1);
-    if (r1 == r2) return '$r1$r2';
-    final firstHigh = _rankVal(r1) >= _rankVal(r2);
-    final high = firstHigh ? r1 : r2;
-    final low = firstHigh ? r2 : r1;
-    final suited = s1 == s2;
-    return '$high$low${suited ? 's' : 'o'}';
-  }
 
 
   void _regenerateEv() {
@@ -795,7 +794,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {
       for (final spot in widget.template.spots) {
         final hero = spot.hand.heroIndex;
-        final hand = _handCode(spot.hand.heroCards);
+        final hand = handCode(spot.hand.heroCards);
         final stack = spot.hand.stacks['$hero']?.round();
         if (hand == null || stack == null) continue;
         final acts = spot.hand.actions[0] ?? [];
@@ -820,7 +819,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {
       for (final spot in widget.template.spots) {
         final hero = spot.hand.heroIndex;
-        final hand = _handCode(spot.hand.heroCards);
+        final hand = handCode(spot.hand.heroCards);
         final stack = spot.hand.stacks['$hero']?.round();
         if (hand == null || stack == null) continue;
         final acts = spot.hand.actions[0] ?? [];
@@ -1880,6 +1879,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   icon: const Icon(Icons.auto_fix_high),
                   label: const Text('Generate Spots'),
                   onPressed: _generateSpots,
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: 'generateMissingFab',
+                  icon: const Icon(Icons.playlist_add),
+                  label: const Text('Generate Missing'),
+                  onPressed: _generateMissingSpots,
                 ),
                 const SizedBox(height: 12),
                 FloatingActionButton.extended(
