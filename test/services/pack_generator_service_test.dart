@@ -93,4 +93,19 @@ void main() {
       expect(s.tags.contains('finaltable'), isTrue);
     }
   });
+
+  test('autoGenerateSpots returns expected count', () async {
+    final spots = await PackGeneratorService.autoGenerateSpots(
+      id: 'a',
+      stack: 10,
+      players: [10, 10],
+      pos: HeroPosition.sb,
+      count: 5,
+    );
+    expect(spots.length, 5);
+    for (final s in spots) {
+      expect(s.hand.stacks, {'0': 10.0, '1': 10.0});
+      expect(s.tags.contains('pushfold'), isTrue);
+    }
+  });
 }
