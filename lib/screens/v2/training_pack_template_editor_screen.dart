@@ -997,6 +997,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final spots = _visibleSpots();
     final total = spots.length;
     int done = 0;
+    final failed = <String>[];
     _cancelRequested = false;
     await showDialog(
       context: context,
@@ -1008,14 +1009,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             if (!started) {
               started = true;
               Future.microtask(() async {
-                for (final s in spots) {
+                for (var i = 0; i < spots.length; i++) {
                   if (_cancelRequested) break;
-                  if (s.heroEv == null) {
-                    await const PushFoldEvService().evaluate(s);
-                    if (!mounted) return;
-                    setState(() {
-                      if (_autoSortEv) _sortSpots();
-                    });
+                  final s = spots[i];
+                  try {
+                    if (s.heroEv == null) {
+                      await const PushFoldEvService().evaluate(s);
+                      if (!mounted) return;
+                      setState(() {
+                        if (_autoSortEv) _sortSpots();
+                      });
+                    }
+                  } catch (_) {
+                    failed.add('${i + 1}. ${s.title.isEmpty ? 'Spot' : s.title}');
                   }
                   done++;
                   if (mounted) setDialog(() {});
@@ -1040,6 +1046,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     if (!mounted) return;
     setState(() => _generatingAll = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            'Generated $total spots (${total - failed.length} OK, ${failed.length} errors)'),
+      ),
+    );
+    if (failed.isNotEmpty) {
+      await _showGenerationErrors(failed, 'EV');
+    }
   }
 
   Future<void> _generateAllIcm() async {
@@ -1047,6 +1062,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final spots = _visibleSpots();
     final total = spots.length;
     int done = 0;
+    final failed = <String>[];
     _cancelRequested = false;
     await showDialog(
       context: context,
@@ -1058,14 +1074,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             if (!started) {
               started = true;
               Future.microtask(() async {
-                for (final s in spots) {
+                for (var i = 0; i < spots.length; i++) {
                   if (_cancelRequested) break;
-                  if (s.heroIcmEv == null) {
-                    await const PushFoldEvService().evaluateIcm(s);
-                    if (!mounted) return;
-                    setState(() {
-                      if (_autoSortEv) _sortSpots();
-                    });
+                  final s = spots[i];
+                  try {
+                    if (s.heroIcmEv == null) {
+                      await const PushFoldEvService().evaluateIcm(s);
+                      if (!mounted) return;
+                      setState(() {
+                        if (_autoSortEv) _sortSpots();
+                      });
+                    }
+                  } catch (_) {
+                    failed.add('${i + 1}. ${s.title.isEmpty ? 'Spot' : s.title}');
                   }
                   done++;
                   if (mounted) setDialog(() {});
@@ -1090,6 +1111,48 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     if (!mounted) return;
     setState(() => _generatingIcm = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            'Generated $total spots (${total - failed.length} OK, ${failed.length} errors)'),
+      ),
+    );
+    if (failed.isNotEmpty) {
+      await _showGenerationErrors(failed, 'ICM');
+    }
+  }
+
+  Future<void> _showGenerationErrors(List<String> failed, String type) async {
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('$type Generation Errors (${failed.length})'),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: ListView.builder(
+            itemCount: failed.length,
+            itemBuilder: (_, i) => ListTile(title: Text(failed[i])),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: failed.join('\n')));
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Copied to clipboard')),
+              );
+            },
+            child: const Text('Copy to Clipboard'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _bulkAddTag() async {
