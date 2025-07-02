@@ -25,6 +25,7 @@ class TrainingPackTemplate {
   List<String>? heroRange;
   final DateTime createdAt;
   DateTime? lastGeneratedAt;
+  Map<String, dynamic> meta;
 
   TrainingPackTemplate({
     required this.id,
@@ -42,10 +43,14 @@ class TrainingPackTemplate {
     this.heroRange,
     DateTime? createdAt,
     this.lastGeneratedAt,
+    Map<String, dynamic>? meta,
   })  : spots = spots ?? [],
         tags = tags ?? [],
         playerStacksBb = playerStacksBb ?? const [10, 10],
-        createdAt = createdAt ?? DateTime.now();
+        meta = meta ?? {},
+        createdAt = createdAt ?? DateTime.now() {
+    recountCoverage();
+  }
 
   TrainingPackTemplate copyWith({
     String? id,
@@ -63,6 +68,7 @@ class TrainingPackTemplate {
     List<String>? heroRange,
     DateTime? createdAt,
     DateTime? lastGeneratedAt,
+    Map<String, dynamic>? meta,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -80,11 +86,12 @@ class TrainingPackTemplate {
       heroRange: heroRange ?? this.heroRange,
       createdAt: createdAt ?? this.createdAt,
       lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
+      meta: meta ?? Map<String, dynamic>.from(this.meta),
     );
   }
 
   factory TrainingPackTemplate.fromJson(Map<String, dynamic> json) {
-    return TrainingPackTemplate(
+    final tpl = TrainingPackTemplate(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
@@ -111,7 +118,12 @@ class TrainingPackTemplate {
           DateTime.now(),
       lastGeneratedAt:
           DateTime.tryParse(json['lastGeneratedAt'] as String? ?? ''),
+      meta: json['meta'] != null ? Map<String, dynamic>.from(json['meta']) : {},
     );
+    if (!tpl.meta.containsKey('evCovered') || !tpl.meta.containsKey('icmCovered')) {
+      tpl.recountCoverage();
+    }
+    return tpl;
   }
 
   Map<String, dynamic> toJson() => {
@@ -131,7 +143,23 @@ class TrainingPackTemplate {
         'createdAt': createdAt.toIso8601String(),
         if (lastGeneratedAt != null)
           'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
+        if (meta.isNotEmpty) 'meta': meta,
       };
+
+  int get evCovered => meta['evCovered'] as int? ?? 0;
+  int get icmCovered => meta['icmCovered'] as int? ?? 0;
+
+  void recountCoverage([List<TrainingPackSpot>? all]) {
+    final list = all ?? spots;
+    int ev = 0;
+    int icm = 0;
+    for (final s in list) {
+      if (s.heroEv != null) ev++;
+      if (s.heroIcmEv != null) icm++;
+    }
+    meta['evCovered'] = ev;
+    meta['icmCovered'] = icm;
+  }
 
   Future<List<TrainingPackSpot>> generateSpots() async {
     final range = heroRange ?? PackGeneratorService.topNHands(25).toList();
