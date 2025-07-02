@@ -2344,6 +2344,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             const SizedBox(height: 8),
             _EvCoverageBar(ev: evCoverage, icm: icmCoverage, both: bothCoverage),
             const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DropdownButtonFormField<String>(
+                value: _tagFilter ?? '',
+                decoration: const InputDecoration(labelText: 'Filter by tag'),
+                items: [
+                  const DropdownMenuItem(value: '', child: Text('All')),
+                  for (final t in widget.template.spots
+                      .expand((s) => s.tags)
+                      .toSet()
+                      .toList()
+                    ..sort())
+                    DropdownMenuItem(value: t.toLowerCase(), child: Text(t)),
+                ],
+                onChanged: (v) => setState(
+                    () => _tagFilter = (v == null || v.isEmpty) ? null : v),
+              ),
+            ),
+            const SizedBox(height: 16),
             Expanded(
               child: Builder(
                 builder: (context) {
