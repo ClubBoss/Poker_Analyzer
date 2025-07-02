@@ -1240,11 +1240,27 @@ class _TrainingPackTemplateListScreenState
                       final t = shown[index];
                       final allEv = t.spots.isNotEmpty &&
                           t.spots.every((s) => s.heroEv != null);
+                      final isNew = t.lastGeneratedAt != null &&
+                          DateTime.now()
+                                  .difference(t.lastGeneratedAt!)
+                                  .inHours <
+                              48;
                       final tile = ListTile(
                         onLongPress: () => _duplicate(t),
                         title: Row(
                           children: [
                             Expanded(child: Text(t.name)),
+                            if (isNew)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Chip(
+                                  label: Text('NEW',
+                                      style: TextStyle(fontSize: 12)),
+                                  visualDensity: VisualDensity.compact,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                              ),
                             if (allEv)
                               const Padding(
                                 padding: EdgeInsets.only(left: 4),
