@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../services/daily_hand_service.dart';
 import '../widgets/saved_hand_tile.dart';
-import '../widgets/saved_hand_detail_sheet.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 import '../helpers/date_utils.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -41,20 +41,7 @@ class DailyHandScreen extends StatelessWidget {
             : SavedHandTile(
                 hand: hand,
                 onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.grey[900],
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                    ),
-                    builder: (_) => SavedHandDetailSheet(
-                      hand: hand,
-                      onDelete: () {},
-                      onExportJson: () async {},
-                      onExportCsv: () async {},
-                    ),
-                  );
+                  showSavedHandViewerDialog(context, hand);
                 },
               ),
       ),

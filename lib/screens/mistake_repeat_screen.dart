@@ -9,7 +9,7 @@ import 'package:open_filex/open_filex.dart';
 
 import '../models/saved_hand.dart';
 import '../services/saved_hand_manager_service.dart';
-import 'hand_history_review_screen.dart';
+import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../widgets/sync_status_widget.dart';
 
@@ -232,13 +232,7 @@ class MistakeRepeatScreen extends StatelessWidget {
                         SavedHandTile(
                           hand: hand,
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    HandHistoryReviewScreen(hand: hand),
-                              ),
-                            );
+                            showSavedHandViewerDialog(context, hand);
                           },
                           onFavoriteToggle: () {
                             final manager =
