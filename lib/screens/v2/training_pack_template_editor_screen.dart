@@ -95,6 +95,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _evaluatingAll = false;
   bool _generatingAll = false;
   bool _generatingIcm = false;
+  bool _cancelRequested = false;
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
@@ -987,15 +988,49 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _generateAllEv() async {
     setState(() => _generatingAll = true);
     final spots = _visibleSpots();
-    for (final s in spots) {
-      if (s.heroEv != null) continue;
-      await const PushFoldEvService().evaluate(s);
-      if (!mounted) return;
-      setState(() {
-        if (_autoSortEv) _sortSpots();
-      });
-    }
-    await TrainingPackStorage.save(widget.templates);
+    final total = spots.length;
+    int done = 0;
+    _cancelRequested = false;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setDialog) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                for (final s in spots) {
+                  if (_cancelRequested) break;
+                  if (s.heroEv == null) {
+                    await const PushFoldEvService().evaluate(s);
+                    if (!mounted) return;
+                    setState(() {
+                      if (_autoSortEv) _sortSpots();
+                    });
+                  }
+                  done++;
+                  if (mounted) setDialog(() {});
+                  await Future.delayed(Duration.zero);
+                }
+                await TrainingPackStorage.save(widget.templates);
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return AlertDialog(
+              content: Text('Generated $done of $total EV…'),
+              actions: [
+                TextButton(
+                  onPressed: () => _cancelRequested = true,
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
     if (!mounted) return;
     setState(() => _generatingAll = false);
   }
@@ -1003,15 +1038,49 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _generateAllIcm() async {
     setState(() => _generatingIcm = true);
     final spots = _visibleSpots();
-    for (final s in spots) {
-      if (s.heroIcmEv != null) continue;
-      await const PushFoldEvService().evaluateIcm(s);
-      if (!mounted) return;
-      setState(() {
-        if (_autoSortEv) _sortSpots();
-      });
-    }
-    await TrainingPackStorage.save(widget.templates);
+    final total = spots.length;
+    int done = 0;
+    _cancelRequested = false;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setDialog) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                for (final s in spots) {
+                  if (_cancelRequested) break;
+                  if (s.heroIcmEv == null) {
+                    await const PushFoldEvService().evaluateIcm(s);
+                    if (!mounted) return;
+                    setState(() {
+                      if (_autoSortEv) _sortSpots();
+                    });
+                  }
+                  done++;
+                  if (mounted) setDialog(() {});
+                  await Future.delayed(Duration.zero);
+                }
+                await TrainingPackStorage.save(widget.templates);
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return AlertDialog(
+              content: Text('Generated $done of $total ICM…'),
+              actions: [
+                TextButton(
+                  onPressed: () => _cancelRequested = true,
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
     if (!mounted) return;
     setState(() => _generatingIcm = false);
   }
