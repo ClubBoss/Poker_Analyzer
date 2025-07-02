@@ -55,6 +55,7 @@ class _TrainingPackTemplateListScreenState
   bool _mixedAutoOnly = false;
   bool _endlessDrill = false;
   String _mixedStreet = 'any';
+  String? _lastOpenedId;
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -1021,7 +1022,6 @@ class _TrainingPackTemplateListScreenState
       spots: picked,
       createdAt: DateTime.now(),
     );
-    await context.read<TrainingSessionService>().startSession(tpl, persist: false);
     await GeneratedPackHistoryService.logPack(
       id: tpl.id,
       name: tpl.name,
@@ -1029,15 +1029,34 @@ class _TrainingPackTemplateListScreenState
       ts: DateTime.now(),
     );
     if (mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => TrainingSessionScreen(
-            onSessionEnd: _endlessDrill ? _runMixedDrill : null,
-          ),
-        ),
+      await _openTrainingSession(
+        tpl,
+        persist: false,
+        onSessionEnd: _endlessDrill ? _runMixedDrill : null,
       );
     }
+  }
+
+  Future<void> _openTrainingSession(
+    TrainingPackTemplate template, {
+    bool persist = true,
+    VoidCallback? onSessionEnd,
+  }) async {
+    await context
+        .read<TrainingSessionService>()
+        .startSession(template, persist: persist);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingSessionScreen(onSessionEnd: onSessionEnd),
+      ),
+    );
+    if (!mounted) return;
+    setState(() => _lastOpenedId = template.id);
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted || _lastOpenedId != template.id) return;
+      setState(() => _lastOpenedId = null);
+    });
   }
 
   @override
@@ -1149,6 +1168,9 @@ class _TrainingPackTemplateListScreenState
                     children: [
                       for (final h in history)
                         ListTile(
+                          tileColor: h.id == _lastOpenedId
+                              ? Theme.of(context).highlightColor
+                              : null,
                           title: Text(h.name),
                           subtitle: Text(
                               '${h.type} • ${DateFormat.yMMMd().add_Hm().format(h.ts)}'),
@@ -1162,14 +1184,7 @@ class _TrainingPackTemplateListScreenState
                                     const SnackBar(content: Text('Pack not found')));
                                 return;
                               }
-                              await context
-                                  .read<TrainingSessionService>()
-                                  .startSession(tpl);
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const TrainingSessionScreen()),
-                              );
+                              await _openTrainingSession(tpl);
                             },
                           ),
                           onTap: () {
@@ -1260,6 +1275,9 @@ class _TrainingPackTemplateListScreenState
                                   .inHours <
                               48;
                       final tile = ListTile(
+                        tileColor: t.id == _lastOpenedId
+                            ? Theme.of(context).highlightColor
+                            : null,
                         onLongPress: () => _duplicate(t),
                         title: Row(
                           children: [
@@ -1311,14 +1329,7 @@ class _TrainingPackTemplateListScreenState
                               icon: const Icon(Icons.play_arrow),
                               tooltip: 'Start training',
                               onPressed: () async {
-                                await context
-                                    .read<TrainingSessionService>()
-                                    .startSession(t);
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => const TrainingSessionScreen()),
-                                );
+                                await _openTrainingSession(t);
                               },
                             ),
                             IconButton(
