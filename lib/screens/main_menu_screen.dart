@@ -33,6 +33,7 @@ import 'training_history_screen.dart';
 import 'session_stats_screen.dart';
 import 'training_stats_screen.dart';
 import 'progress_screen.dart';
+import 'drill_history_screen.dart';
 import '../services/streak_service.dart';
 import 'goals_overview_screen.dart';
 import 'mistake_repeat_screen.dart';
@@ -550,7 +551,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               },
               child: const Text('🏆 Достижения'),
             ),
-            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -615,7 +615,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               },
               child: const Text('🎯 Тренировка'),
             ),
-            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -694,6 +693,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 );
               },
               child: const Text('📒 Мои тренировки'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DrillHistoryScreen()),
+                );
+              },
+              child: const Text('📊 Drill History'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
