@@ -921,6 +921,41 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _persist();
   }
 
+  void _recalculateAll() {
+    _recordSnapshot();
+    setState(() {
+      for (final spot in widget.template.spots) {
+        final hero = spot.hand.heroIndex;
+        final hand = handCode(spot.hand.heroCards);
+        final stack = spot.hand.stacks['$hero']?.round();
+        if (hand == null || stack == null) continue;
+        final acts = spot.hand.actions[0] ?? [];
+        final stacks = [
+          for (var i = 0; i < spot.hand.playerCount; i++)
+            spot.hand.stacks['$i']?.round() ?? 0
+        ];
+        for (final a in acts) {
+          if (a.playerIndex == hero && a.action == 'push') {
+            a.ev = computePushEV(
+              heroBbStack: stack,
+              bbCount: spot.hand.playerCount - 1,
+              heroHand: hand,
+              anteBb: 0,
+            );
+            a.icmEv = computeIcmPushEV(
+              chipStacksBb: stacks,
+              heroIndex: hero,
+              heroHand: hand,
+              chipPushEv: a.ev!,
+            );
+            break;
+          }
+        }
+      }
+    });
+    _persist();
+  }
+
   void _tagAllMistakes() {
     int count = 0;
     setState(() {
@@ -2481,6 +2516,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text('Generate ICM'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _recalculateAll,
+                    child: const Text('Recalculate All'),
                   ),
                 ],
               ),
