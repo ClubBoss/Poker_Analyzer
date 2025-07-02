@@ -5,6 +5,7 @@ class TrainingPackPreset {
   final String id;
   final String name;
   final String description;
+  final String category;
   final GameType gameType;
   final int heroBbStack;
   final List<int> playerStacksBb;
@@ -19,6 +20,7 @@ class TrainingPackPreset {
     required this.id,
     required this.name,
     this.description = '',
+    this.category = '',
     this.gameType = GameType.tournament,
     this.heroBbStack = 10,
     List<int>? playerStacksBb,
@@ -52,12 +54,14 @@ class TrainingPackPreset {
         anteBb: j['anteBb'] as int? ?? 0,
         heroRange: (j['heroRange'] as List?)?.map((e) => e as String).toList(),
         createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
+        category: j['category'] as String? ?? '',
       );
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'description': description,
+        'category': category,
         'gameType': gameType.name,
         'heroBbStack': heroBbStack,
         'playerStacksBb': playerStacksBb,

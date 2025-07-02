@@ -37,6 +37,7 @@ class _TrainingPackTemplateListScreenState
   late TrainingSpotStorageService _spotStorage;
   bool _showFavoritesOnly = false;
   final Set<String> _selectedIds = {};
+  String _categoryFilter = 'Все';
 
   @override
   void initState() {
@@ -448,12 +449,17 @@ class _TrainingPackTemplateListScreenState
   @override
   Widget build(BuildContext context) {
     final all = context.watch<TrainingPackTemplateStorageService>().templates;
+    final categorySet = {
+      for (final t in all)
+        if (t.category.trim().isNotEmpty) t.category
+    };
     final query = _searchController.text.toLowerCase();
     final templates = [
       for (final t in all)
         if ((query.isEmpty ||
                 t.name.toLowerCase().contains(query) ||
                 t.category.toLowerCase().contains(query)) &&
+            (_categoryFilter == 'Все' || t.category == _categoryFilter) &&
             (!_showFavoritesOnly || t.isFavorite))
           t
     ]..sort(_compare);
@@ -519,13 +525,29 @@ class _TrainingPackTemplateListScreenState
                 IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
               ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
+          preferredSize: Size.fromHeight(
+              kToolbarHeight * (categorySet.isEmpty ? 1 : 2)),
           child: Padding(
             padding: const EdgeInsets.all(8),
-            child: TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(hintText: 'Поиск…'),
-              onChanged: (_) => setState(() {}),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _searchController,
+                  decoration: const InputDecoration(hintText: 'Поиск…'),
+                  onChanged: (_) => setState(() {}),
+                ),
+                if (categorySet.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  DropdownButton<String>(
+                    value: _categoryFilter,
+                    dropdownColor: const Color(0xFF2A2B2E),
+                    onChanged: (v) => setState(() => _categoryFilter = v ?? 'Все'),
+                    items: ['Все', ...categorySet]
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                        .toList(),
+                  ),
+                ]
+              ],
             ),
           ),
         ),
