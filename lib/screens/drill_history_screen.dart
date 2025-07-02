@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
-import '../helpers/date_utils.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../services/goals_service.dart';
+import '../services/drill_history_service.dart';
 import '../theme/app_colors.dart';
-import '../widgets/sync_status_widget.dart';
+import '../helpers/date_utils.dart';
 
 class DrillHistoryScreen extends StatelessWidget {
   const DrillHistoryScreen({super.key});
 
-  String _fmt(DateTime d) => formatLongDate(d);
+  String _short(DateTime d) => DateFormat('dd.MM').format(d);
 
   @override
   Widget build(BuildContext context) {
-    final results = [...context.watch<GoalsService>().drillResults]
-      ..sort((a, b) => b.date.compareTo(a.date));
+    final results = context.watch<DrillHistoryService>().results;
     return Scaffold(
       appBar: AppBar(
         title: const Text('История тренировок'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context)],
       ),
       body: results.isEmpty
           ? const Center(
@@ -33,10 +31,7 @@ class DrillHistoryScreen extends StatelessWidget {
               itemCount: results.length,
               itemBuilder: (context, index) {
                 final r = results[index];
-                final icon = r.type == 'mistake' ? '❗️' : '🏁';
-                final type = r.type == 'mistake' ? 'Ошибки' : 'Цель';
-                final status = (r.completed ?? true) ? 'Завершено' : 'Прервано';
-                final count = '${r.handsSeen ?? r.total} / ${r.total}';
+                final pct = r.total == 0 ? 0 : (r.correct / r.total * 100).round();
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
@@ -51,20 +46,43 @@ class DrillHistoryScreen extends StatelessWidget {
                     ],
                   ),
                   child: ListTile(
-                    leading: Text(icon, style: const TextStyle(fontSize: 24)),
-                    title: Text(
-                      _fmt(r.date),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text(r.templateName),
+                          content: Text(
+                              '${formatDate(r.date)}\nВерно: ${r.correct}/${r.total} ($pct%)\nПотеря EV: ${r.evLoss.toStringAsFixed(2)} bb'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    title: Row(
                       children: [
-                        Text('Тип тренировки: $type',
-                            style: const TextStyle(color: Colors.white70)),
-                        Text('Кол-во рук: $count',
-                            style: const TextStyle(color: Colors.white70)),
-                        Text('Статус: $status',
-                            style: const TextStyle(color: Colors.white70)),
+                        SizedBox(
+                          width: 60,
+                          child: Text(_short(r.date),
+                              style: const TextStyle(color: Colors.white)),
+                        ),
+                        Expanded(
+                          child: Text(r.templateName,
+                              style: const TextStyle(color: Colors.white)),
+                        ),
+                        Text(
+                          '${r.correct}/${r.total} ($pct%)',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          r.evLoss.toStringAsFixed(2),
+                          style: TextStyle(
+                              color: r.evLoss > 0 ? Colors.red : Colors.green),
+                        )
                       ],
                     ),
                   ),
@@ -74,4 +92,3 @@ class DrillHistoryScreen extends StatelessWidget {
     );
   }
 }
-

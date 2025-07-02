@@ -95,7 +95,12 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
     final hands = [for (final s in tpl.spots) _handFromSpot(s)];
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => TrainingScreen.drill(hands: hands)),
+      MaterialPageRoute(
+          builder: (_) => TrainingScreen.drill(
+                hands: hands,
+                templateId: tpl.id,
+                templateName: tpl.name,
+              )),
     );
   }
 

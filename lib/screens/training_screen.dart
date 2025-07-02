@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../models/training_spot.dart';
 import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
+import '../models/drill_result.dart';
+import '../services/drill_history_service.dart';
+import 'package:provider/provider.dart';
 import '../widgets/training_spot_diagram.dart';
 import '../widgets/training_spot_preview.dart';
 import '../widgets/replay_spot_widget.dart';
@@ -13,13 +16,15 @@ class TrainingScreen extends StatefulWidget {
   final TrainingSpot? spot;
   final List<SavedHand>? hands;
   final bool drillMode;
+  final String? templateId;
+  final String? templateName;
 
   const TrainingScreen({super.key, required TrainingSpot trainingSpot})
       : spot = trainingSpot,
         hands = null,
         drillMode = false;
 
-  const TrainingScreen.drill({super.key, required this.hands})
+  const TrainingScreen.drill({super.key, required this.hands, this.templateId, this.templateName})
       : spot = null,
         drillMode = true;
 
@@ -152,6 +157,15 @@ class _TrainingScreenState extends State<TrainingScreen> {
         ],
       ),
     );
+    final result = DrillResult(
+      templateId: widget.templateId ?? '',
+      templateName: widget.templateName ?? '',
+      date: DateTime.now(),
+      total: total,
+      correct: correct,
+      evLoss: evLoss,
+    );
+    await context.read<DrillHistoryService>().add(result);
     if (mounted) Navigator.pop(context);
   }
 
