@@ -179,7 +179,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    _history.log('Edited');
+    setState(() => _history.log('Edited', spot.title));
   }
 
   Future<void> _persist() async {
@@ -221,7 +221,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     setState(() => widget.template.spots.add(spot));
     await _persist();
-    _history.log('Added');
+    setState(() => _history.log('Added', spot.title));
     await _openEditor(spot);
   }
 
@@ -233,7 +233,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     setState(() => widget.template.spots.add(spot));
     await _persist();
-    _history.log('Added');
+    setState(() => _history.log('Added', spot.title));
     await _openEditor(spot);
   }
 
@@ -246,7 +246,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    if (generated.isNotEmpty) _history.log('Added');
+    if (generated.isNotEmpty) {
+      setState(() => _history.log('Added', '${generated.length} spots'));
+    }
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Generated ${generated.length} spots')));
   }
@@ -264,7 +266,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    _history.log('Added');
+    setState(() => _history.log('Added', '${missing.length} spots'));
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Added ${missing.length} spots')));
   }
@@ -295,7 +297,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         if (_autoSortEv) _sortSpots();
       });
       await _persist();
-      _history.log('Added');
+      setState(() => _history.log('Added', spot.title));
       WidgetsBinding.instance.addPostFrameCallback((_) => _focusSpot(spot.id));
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -372,7 +374,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    _history.log('Added');
+    setState(() => _history.log('Added', spot.title));
     WidgetsBinding.instance.addPostFrameCallback((_) => _focusSpot(spot.id));
   }
 
@@ -791,7 +793,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _recordSnapshot();
       setState(() => widget.template.spots.clear());
       _persist();
-      _history.log('Deleted');
+      setState(() => _history.log('Deleted', 'all spots'));
     }
   }
 
@@ -1391,7 +1393,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         if (_autoSortEv) _sortSpots();
       });
       _persist();
-      _history.log('Deleted');
+      setState(() =>
+          _history.log('Deleted', '${_lastRemoved!.length} spots'));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Removed ${_lastRemoved!.length} spot(s)'),
@@ -1435,7 +1438,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     setState(() => widget.template.spots.insert(i + 1, copy));
     _persist();
-    _history.log('Added');
+    setState(() => _history.log('Added', copy.title));
   }
 
   Future<void> _renameTag() async {
@@ -2293,8 +2296,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   for (final e in _history.history.take(10))
                     ListTile(
                       dense: true,
-                      title: Text(e.action, style: const TextStyle(color: Colors.white)),
-                      trailing: Text(DateFormat.Hm().format(e.time), style: const TextStyle(color: Colors.white70)),
+                      leading: Icon(
+                        e.action == 'Added'
+                            ? Icons.add_circle
+                            : e.action == 'Deleted'
+                                ? Icons.remove_circle
+                                : Icons.edit,
+                        color: e.action == 'Added'
+                            ? Colors.green
+                            : e.action == 'Deleted'
+                                ? Colors.red
+                                : Colors.blue,
+                      ),
+                      title: Text('${e.action}: ${e.title}',
+                          style: const TextStyle(color: Colors.white)),
+                      trailing: Text(DateFormat.Hm().format(e.time),
+                          style: const TextStyle(color: Colors.white70)),
                     ),
               ],
             ),
@@ -2640,9 +2657,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                             ),
                                           );
                                           if (ok ?? false) {
+                                            final t = spot.title;
                                             setState(() => widget.template.spots.removeAt(index));
                                             _persist();
-                                            _history.log('Deleted');
+                                            setState(() => _history.log('Deleted', t));
                                           }
                                         },
                                       ),
@@ -2673,9 +2691,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             _duplicateSpot(spot);
                           } else {
                             _lastRemoved = [spot];
+                            final t = spot.title;
                             setState(() => widget.template.spots.remove(spot));
                             _persist();
-                            _history.log('Deleted');
+                            setState(() => _history.log('Deleted', t));
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text('Deleted'),

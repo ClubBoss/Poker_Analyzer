@@ -2,8 +2,9 @@ import "../models/v2/training_pack_spot.dart";
 
 class ChangeEntry {
   final String action;
+  final String title;
   final DateTime time;
-  ChangeEntry(this.action) : time = DateTime.now();
+  ChangeEntry(this.action, this.title) : time = DateTime.now();
 }
 
 class UndoRedoService {
@@ -41,8 +42,8 @@ class UndoRedoService {
     _redo.clear();
   }
 
-  void log(String action) {
-    _events.add(ChangeEntry(action));
+  void log(String action, String title) {
+    _events.add(ChangeEntry(action, title));
     if (_events.length > 10) _events.removeAt(0);
   }
 
