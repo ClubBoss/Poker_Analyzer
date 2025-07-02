@@ -56,6 +56,19 @@ class _TrainingPackTemplateListScreenState
   bool _endlessDrill = false;
   String _mixedStreet = 'any';
 
+  List<GeneratedPackInfo> _dedupHistory() {
+    final map = <String, GeneratedPackInfo>{};
+    for (final h in _history) {
+      final existing = map[h.id];
+      if (existing == null || h.ts.isAfter(existing.ts)) {
+        map[h.id] = h;
+      }
+    }
+    final list = map.values.toList()
+      ..sort((a, b) => b.ts.compareTo(a.ts));
+    return list;
+  }
+
   void _sortTemplates() {
     switch (_sort) {
       case 'created':
@@ -1066,6 +1079,7 @@ class _TrainingPackTemplateListScreenState
                   t.description.toLowerCase().contains(_query))
                 t
           ];
+    final history = _dedupHistory();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Packs'),
@@ -1129,11 +1143,11 @@ class _TrainingPackTemplateListScreenState
                         setState(() => _query = v.trim().toLowerCase()),
                   ),
                 ),
-                if (_history.isNotEmpty)
+                if (history.isNotEmpty)
                   ExpansionTile(
                     title: const Text('Recent Generated Packs'),
                     children: [
-                      for (final h in _history)
+                      for (final h in history)
                         ListTile(
                           title: Text(h.name),
                           subtitle: Text(
