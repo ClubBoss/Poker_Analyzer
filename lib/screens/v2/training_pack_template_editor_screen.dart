@@ -62,8 +62,6 @@ class TrainingPackTemplateEditorScreen extends StatefulWidget {
 }
 
 class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateEditorScreen> {
-  late final TextEditingController _nameCtr;
-  late final FocusNode _nameFocus;
   late final TextEditingController _descCtr;
   late final FocusNode _descFocus;
   String _query = '';
@@ -486,26 +484,46 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _persist();
   }
 
-  void _saveName() {
-    final value = _nameCtr.text.trim();
-    if (value.isEmpty) return;
-    setState(() => widget.template.name = value);
-    _persist();
-  }
-
   void _saveDesc() {
     setState(() => widget.template.description = _descCtr.text.trim());
     _persist();
   }
 
+  Future<void> _renameTemplate() async {
+    final ctrl = TextEditingController(text: widget.template.name);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Rename template'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) {
+      final name = ctrl.text.trim();
+      if (name.isNotEmpty) {
+        setState(() => widget.template.name = name);
+        await _persist();
+      }
+    }
+    ctrl.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
-    _nameCtr = TextEditingController(text: widget.template.name);
-    _nameFocus = FocusNode();
-    _nameFocus.addListener(() {
-      if (!_nameFocus.hasFocus) _saveName();
-    });
     _descCtr = TextEditingController(text: widget.template.description);
     _descFocus = FocusNode();
     _descFocus.addListener(() {
@@ -575,8 +593,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   @override
   void dispose() {
     _storeScroll();
-    _nameCtr.dispose();
-    _nameFocus.dispose();
     _descFocus.dispose();
     _descCtr.dispose();
     _searchCtrl.dispose();
@@ -586,7 +602,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   void _save() {
-    _saveName();
     _saveDesc();
     if (widget.template.name.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name is required')));
@@ -2140,14 +2155,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             : null,
         title: _isMultiSelect
             ? Text('${_selectedSpotIds.length} selected')
-            : TextField(
-                controller: _nameCtr,
-                focusNode: _nameFocus,
-                decoration: const InputDecoration(border: InputBorder.none),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _saveName(),
+            : GestureDetector(
+                onTap: _renameTemplate,
+                child: Text(widget.template.name),
               ),
         actions: [
           DropdownButton<GameType>(
