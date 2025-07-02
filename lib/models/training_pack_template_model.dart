@@ -8,6 +8,7 @@ class TrainingPackTemplateModel {
   final bool isTournament;
   final bool isFavorite;
   final DateTime createdAt;
+  final DateTime? lastGeneratedAt;
 
   const TrainingPackTemplateModel({
     required this.id,
@@ -19,6 +20,7 @@ class TrainingPackTemplateModel {
     this.isTournament = false,
     this.isFavorite = false,
     DateTime? createdAt,
+    this.lastGeneratedAt,
   })  : filters = filters ?? const {},
         createdAt = createdAt ?? DateTime.now();
 
@@ -32,6 +34,7 @@ class TrainingPackTemplateModel {
     bool? isTournament,
     bool? isFavorite,
     DateTime? createdAt,
+    DateTime? lastGeneratedAt,
   }) {
     return TrainingPackTemplateModel(
       id: id ?? this.id,
@@ -43,6 +46,7 @@ class TrainingPackTemplateModel {
       isTournament: isTournament ?? this.isTournament,
       isFavorite: isFavorite ?? this.isFavorite,
       createdAt: createdAt ?? this.createdAt,
+      lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
     );
   }
 
@@ -58,6 +62,8 @@ class TrainingPackTemplateModel {
       isFavorite: json['isFavorite'] as bool? ?? false,
       createdAt:
           DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      lastGeneratedAt:
+          DateTime.tryParse(json['lastGeneratedAt'] as String? ?? ''),
     );
   }
 
@@ -71,6 +77,8 @@ class TrainingPackTemplateModel {
         'isTournament': isTournament,
         'isFavorite': isFavorite,
         'createdAt': createdAt.toIso8601String(),
+        if (lastGeneratedAt != null)
+          'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
       };
 }
 

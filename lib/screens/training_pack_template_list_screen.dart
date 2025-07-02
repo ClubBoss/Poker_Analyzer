@@ -15,6 +15,7 @@ import '../services/training_pack_template_storage_service.dart';
 import '../services/training_spot_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
 import 'package:uuid/uuid.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 enum _SortOption { name, category, difficulty, createdAt }
 
@@ -446,6 +447,18 @@ class _TrainingPackTemplateListScreenState
     return Icons.folder_open;
   }
 
+  Widget _statusChip(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    final label = diff.inHours < 48
+        ? 'NEW'
+        : 'Updated ${timeago.format(dt)}';
+    return Chip(
+      label: Text(label, style: const TextStyle(fontSize: 12)),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final all = context.watch<TrainingPackTemplateStorageService>().templates;
@@ -684,11 +697,21 @@ class _TrainingPackTemplateListScreenState
                             ),
                           ],
                         ),
-                        subtitle: Text(
-                          (_counts[t.id] == null
-                                  ? 'Невозможно оценить'
-                                  : '≈ ${_counts[t.id]} рук') +
-                              (isActive ? ' (активен)' : ''),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              (_counts[t.id] == null
+                                      ? 'Невозможно оценить'
+                                      : '≈ ${_counts[t.id]} рук') +
+                                  (isActive ? ' (активен)' : ''),
+                            ),
+                            if (t.lastGeneratedAt != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: _statusChip(t.lastGeneratedAt!),
+                              ),
+                          ],
                         ),
                         trailing: selection
                             ? null
