@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 const _validStreets = ['preflop', 'flop', 'turn', 'river'];
 
 import '../models/training_pack_template_model.dart';
 import '../widgets/sync_status_widget.dart';
+import '../services/training_pack_template_storage_service.dart';
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplateModel? initial;
@@ -24,12 +26,14 @@ class _TrainingPackTemplateEditorScreenState
   late TextEditingController _category;
   late TextEditingController _filters;
   int _difficulty = 1;
+  void _onNameChanged() => setState(() {});
 
   @override
   void initState() {
     super.initState();
     final m = widget.initial;
     _name = TextEditingController(text: m?.name ?? '');
+    _name.addListener(_onNameChanged);
     _desc = TextEditingController(text: m?.description ?? '');
     _category = TextEditingController(text: m?.category ?? '');
     Map<String, dynamic> f = {};
@@ -54,6 +58,7 @@ class _TrainingPackTemplateEditorScreenState
 
   @override
   void dispose() {
+    _name.removeListener(_onNameChanged);
     _name.dispose();
     _desc.dispose();
     _category.dispose();
@@ -106,10 +111,51 @@ class _TrainingPackTemplateEditorScreenState
     Navigator.pop(context, model);
   }
 
+  Future<void> _renameTemplate() async {
+    final ctrl = TextEditingController(text: _name.text);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Rename template'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) {
+      final name = ctrl.text.trim();
+      if (name.isNotEmpty) {
+        setState(() => _name.text = name);
+        final model = widget.initial?.copyWith(name: name);
+        if (model != null) {
+          await context.read<TrainingPackTemplateStorageService>().update(model);
+        }
+      }
+    }
+    ctrl.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Шаблон пака')),
+      appBar: AppBar(
+        title: GestureDetector(
+          onTap: _renameTemplate,
+          child: Text(_name.text.isEmpty ? 'Шаблон пака' : _name.text),
+        ),
+        actions: [SyncStatusIcon.of(context)],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -156,7 +202,6 @@ class _TrainingPackTemplateEditorScreenState
           ],
         ),
       ),
-      actions: [SyncStatusIcon.of(context)],
     );
   }
 }
