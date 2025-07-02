@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import '../../plugins/plugin_loader.dart';
-import '../../plugins/plugin_manager.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_loader.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
 import '../services/service_registry.dart';
 import '../widgets/sync_status_widget.dart';
 

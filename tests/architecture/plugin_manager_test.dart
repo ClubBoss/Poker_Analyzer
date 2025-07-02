@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
-import '../../plugins/plugin_manager.dart';
-import '../../plugins/service_extension.dart';
-import '../../plugins/plugin.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_ai_analyzer/plugins/service_extension.dart';
+import 'package:poker_ai_analyzer/plugins/plugin.dart';
 import 'package:poker_ai_analyzer/services/service_registry.dart';
 
 class _IntExtension extends ServiceExtension<int> {

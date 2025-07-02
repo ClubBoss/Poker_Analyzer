@@ -131,9 +131,9 @@ import '../services/current_hand_context_service.dart';
 import '../services/folded_players_service.dart';
 import '../services/action_history_service.dart';
 import '../services/service_registry.dart';
-import '../../plugins/plugin_manager.dart';
-import '../../plugins/plugin_loader.dart';
-import '../../plugins/plugin.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_loader.dart';
+import 'package:poker_ai_analyzer/plugins/plugin.dart';
 import '../services/demo_playback_controller.dart';
 
 

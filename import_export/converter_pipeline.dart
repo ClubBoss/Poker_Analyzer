@@ -1,6 +1,6 @@
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
-import '../plugins/converter_registry.dart';
-import '../plugins/converter_info.dart';
+import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
+import 'package:poker_ai_analyzer/plugins/converter_info.dart';
 
 /// High level pipeline for converting external hand formats.
 ///

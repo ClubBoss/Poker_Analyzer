@@ -4,9 +4,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../import_export/converter_pipeline.dart';
-import '../plugins/plugin_loader.dart';
-import '../plugins/plugin_manager.dart';
-import '../plugins/converter_registry.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_loader.dart';
+import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
 import '../services/service_registry.dart';
 import 'saved_hand_manager_service.dart';
 
