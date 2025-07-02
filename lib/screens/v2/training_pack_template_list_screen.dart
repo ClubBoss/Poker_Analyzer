@@ -1264,6 +1264,7 @@ class _TrainingPackTemplateListScreenState
                       final t = shown[index];
                       final total = t.spots.length;
                       final allEv = total > 0 && t.evCovered >= total;
+                      final allIcm = total > 0 && t.icmCovered >= total;
                       final isNew = t.lastGeneratedAt != null &&
                           DateTime.now()
                                   .difference(t.lastGeneratedAt!)
@@ -1282,6 +1283,17 @@ class _TrainingPackTemplateListScreenState
                                 padding: EdgeInsets.only(left: 4),
                                 child: Chip(
                                   label: Text('NEW',
+                                      style: TextStyle(fontSize: 12)),
+                                  visualDensity: VisualDensity.compact,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                              ),
+                            if (allIcm)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Chip(
+                                  label: Text('ICM',
                                       style: TextStyle(fontSize: 12)),
                                   visualDensity: VisualDensity.compact,
                                   materialTapTargetSize:
