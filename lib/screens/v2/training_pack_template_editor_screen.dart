@@ -971,6 +971,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     for (final s in spots) {
       if (s.heroEv != null) continue;
       await const PushFoldEvService().evaluate(s);
+      if (!mounted) return;
+      setState(() {
+        if (_autoSortEv) _sortSpots();
+      });
     }
     await TrainingPackStorage.save(widget.templates);
     if (!mounted) return;
@@ -983,6 +987,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     for (final s in spots) {
       if (s.heroIcmEv != null) continue;
       await const PushFoldEvService().evaluateIcm(s);
+      if (!mounted) return;
+      setState(() {
+        if (_autoSortEv) _sortSpots();
+      });
     }
     await TrainingPackStorage.save(widget.templates);
     if (!mounted) return;
