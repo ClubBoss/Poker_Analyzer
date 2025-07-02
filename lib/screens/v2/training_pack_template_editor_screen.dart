@@ -65,7 +65,7 @@ class TrainingPackTemplateEditorScreen extends StatefulWidget {
 class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateEditorScreen> {
   late final TextEditingController _descCtr;
   late final FocusNode _descFocus;
-  String _templateName = '';
+  late String _templateName;
   String _query = '';
   String? _tagFilter;
   late TextEditingController _searchCtrl;
