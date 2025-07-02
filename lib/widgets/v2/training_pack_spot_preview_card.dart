@@ -65,19 +65,45 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
         .expand((e) => e)
         .where((a) => a.action != 'board' && !a.generated)
         .length;
+    final ev = spot.evalResult?.ev;
+    Color? barColor;
+    if (ev != null) {
+      if (ev >= 0.5) {
+        barColor = Colors.green;
+      } else if (ev <= -0.5) {
+        barColor = Colors.red;
+      } else {
+        barColor = Colors.yellow;
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: borderColor, width: 1.5),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Stack(
+      child: Row(
         children: [
-          Card(
-            margin: EdgeInsets.zero,
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
+          if (barColor != null)
+            Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: barColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                ),
+              ),
+            ),
+          Expanded(
+            child: Stack(
+              children: [
+                Card(
+                  margin: EdgeInsets.zero,
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
