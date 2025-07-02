@@ -1150,7 +1150,7 @@ class _TrainingPackTemplateListScreenState
                               }
                               await context
                                   .read<TrainingSessionService>()
-                                  .startSession(tpl, persist: false);
+                                  .startSession(tpl);
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -1299,7 +1299,7 @@ class _TrainingPackTemplateListScreenState
                               onPressed: () async {
                                 await context
                                     .read<TrainingSessionService>()
-                                    .startSession(t, persist: false);
+                                    .startSession(t);
                                 await Navigator.push(
                                   context,
                                   MaterialPageRoute(
