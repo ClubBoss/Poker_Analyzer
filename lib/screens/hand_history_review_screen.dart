@@ -9,6 +9,12 @@ import 'package:share_plus/share_plus.dart';
 import 'package:poker_ai_analyzer/models/saved_hand.dart';
 import 'package:poker_ai_analyzer/import_export/training_generator.dart';
 import 'package:poker_ai_analyzer/widgets/replay_spot_widget.dart';
+import 'package:uuid/uuid.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../models/v2/hand_data.dart';
+import '../models/v2/hero_position.dart';
+import '../models/action_entry.dart';
+import '../helpers/training_pack_storage.dart';
 import '../services/goals_service.dart';
 import '../helpers/date_utils.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -233,6 +239,64 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     );
   }
 
+  HeroPosition _posFromString(String s) {
+    final p = s.toUpperCase();
+    if (p.startsWith('SB')) return HeroPosition.sb;
+    if (p.startsWith('BB')) return HeroPosition.bb;
+    if (p.startsWith('BTN')) return HeroPosition.btn;
+    if (p.startsWith('CO')) return HeroPosition.co;
+    if (p.startsWith('MP') || p.startsWith('HJ')) return HeroPosition.mp;
+    if (p.startsWith('UTG')) return HeroPosition.utg;
+    return HeroPosition.unknown;
+  }
+
+  TrainingPackSpot _spotFromHand(SavedHand hand) {
+    final heroCards = hand.playerCards[hand.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
+    final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
+    final stacks = <String, double>{
+      for (int i = 0; i < hand.numberOfPlayers; i++) '$i': (hand.stackSizes[i] ?? 0).toDouble()
+    };
+    return TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData(
+        heroCards: heroCards,
+        position: _posFromString(hand.heroPosition),
+        heroIndex: hand.heroIndex,
+        playerCount: hand.numberOfPlayers,
+        stacks: stacks,
+        actions: {0: actions},
+      ),
+    );
+  }
+
+  Future<void> _addToPack() async {
+    final templates = await TrainingPackStorage.load();
+    if (templates.isEmpty) return;
+    final selected = await showDialog<TrainingPackTemplate>(
+      context: context,
+      builder: (_) => SimpleDialog(
+        title: const Text('Add to Pack'),
+        children: [
+          for (final t in templates)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, t),
+              child: Text(t.name),
+            ),
+        ],
+      ),
+    );
+    if (selected == null) return;
+    final spot = _spotFromHand(widget.hand);
+    selected.spots.add(spot);
+    await TrainingPackStorage.save(templates);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Spot added')));
+    }
+  }
+
   Widget _buildGoalProgress(BuildContext context) {
     final service = context.watch<GoalsService>();
     final goal = service.dailyGoal;
@@ -367,6 +431,10 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
                 ElevatedButton(
                   onPressed: _exportPdf,
                   child: const Text('Экспорт PDF'),
+                ),
+                ElevatedButton(
+                  onPressed: _addToPack,
+                  child: const Text('➕ Add to Pack'),
                 ),
               ],
             ),
