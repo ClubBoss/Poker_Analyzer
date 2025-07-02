@@ -5,6 +5,7 @@ import 'package:poker_ai_analyzer/models/v2/training_pack_spot.dart';
 import 'package:poker_ai_analyzer/services/pack_generator_service.dart';
 import 'package:poker_ai_analyzer/models/v2/hero_position.dart';
 import 'package:poker_ai_analyzer/helpers/hand_utils.dart';
+import 'package:poker_ai_analyzer/services/training_pack_template_ui_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +35,8 @@ void main() {
       ctx = c;
       return const SizedBox();
     })));
-    final future = tpl.generateMissingSpotsWithProgress(ctx);
+    final service = TrainingPackTemplateUiService();
+    final future = service.generateMissingSpotsWithProgress(ctx, tpl);
     await tester.pumpAndSettle();
     final missing = await future;
     expect(missing.length, 3);

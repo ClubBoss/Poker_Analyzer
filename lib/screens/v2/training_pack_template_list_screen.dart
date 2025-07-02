@@ -17,6 +17,7 @@ import '../../helpers/training_pack_storage.dart';
 import '../../services/pack_generator_service.dart';
 import '../../services/training_spot_storage_service.dart';
 import '../../services/saved_hand_manager_service.dart';
+import '../../services/training_pack_template_ui_service.dart';
 import '../../models/saved_hand.dart';
 import '../../models/action_entry.dart';
 import '../../services/generated_pack_history_service.dart';
@@ -218,7 +219,8 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _generateMissing(TrainingPackTemplate t) async {
-    final missing = await t.generateMissingSpotsWithProgress(context);
+    final service = TrainingPackTemplateUiService();
+    final missing = await service.generateMissingSpotsWithProgress(context, t);
     if (missing.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('All spots already present 🎉')));
@@ -1381,8 +1383,10 @@ class _TrainingPackTemplateListScreenState
                               icon: const Icon(Icons.auto_fix_high),
                               tooltip: 'Generate spots',
                               onPressed: () async {
+                                final service = TrainingPackTemplateUiService();
                                 final generated =
-                                    await t.generateSpotsWithProgress(context);
+                                    await service.generateSpotsWithProgress(
+                                        context, t);
                                 if (!mounted) return;
                                 setState(() => t.spots.addAll(generated));
                                 TrainingPackStorage.save(_templates);
