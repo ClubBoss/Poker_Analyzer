@@ -39,6 +39,7 @@ import '../../services/pack_export_service.dart';
 import '../../widgets/range_matrix_picker.dart';
 import '../../services/evaluation_executor_service.dart';
 import '../../services/pack_generator_service.dart';
+import '../../services/training_pack_template_ui_service.dart';
 import '../../helpers/hand_utils.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
@@ -302,7 +303,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Future<void> _generateSpots() async {
     _recordSnapshot();
-    final generated = await widget.template.generateSpotsWithProgress(context);
+    final service = TrainingPackTemplateUiService();
+    final generated =
+        await service.generateSpotsWithProgress(context, widget.template);
     if (!mounted) return;
     setState(() {
       widget.template.spots.addAll(generated);
@@ -317,8 +320,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _generateMissingSpots() async {
+    final service = TrainingPackTemplateUiService();
     final missing =
-        await widget.template.generateMissingSpotsWithProgress(context);
+        await service.generateMissingSpotsWithProgress(context, widget.template);
     if (missing.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('All spots already present 🎉')));
