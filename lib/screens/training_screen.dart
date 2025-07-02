@@ -88,6 +88,42 @@ class _TrainingScreenState extends State<TrainingScreen> {
     setState(() => _selected = action);
   }
 
+  Widget _buildActionButton(String a, String? expected) {
+    final selected = _selected == a;
+    final showResult = _selected != null;
+    final correct = expected != null && a == expected;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Opacity(
+          opacity: showResult && !selected ? 0.5 : 1,
+          child: ElevatedButton(
+            onPressed: _selected == null ? () => _answer(a) : null,
+            style: ElevatedButton.styleFrom(
+              side: selected
+                  ? BorderSide(
+                      color: _wasCorrect == true ? Colors.green : Colors.red,
+                      width: 3,
+                    )
+                  : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(a),
+                if (showResult)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Text(correct ? '✅' : '❌'),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _reset() => setState(() => _selected = null);
 
   void _next() {
@@ -197,25 +233,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     for (final a in ['PUSH', 'CALL', 'FOLD'])
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: ElevatedButton(
-                            onPressed: () => _answer(a),
-                            style: ElevatedButton.styleFrom(
-                              side: _selected == a
-                                  ? BorderSide(
-                                      color: _wasCorrect == true
-                                          ? Colors.green
-                                          : Colors.red,
-                                      width: 3,
-                                    )
-                                  : null,
-                            ),
-                            child: Text(a),
-                          ),
-                        ),
-                      ),
+                      _buildActionButton(a, expected),
                   ],
                 ),
               ] else if (!_drill) ...[
