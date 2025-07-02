@@ -2180,6 +2180,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Sort by EV',
             onPressed: _toggleEvSort,
           ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_list),
+            tooltip: 'Quick Filter',
+            onSelected: (v) {
+              setState(() => _quickFilter = _quickFilter == v ? null : v);
+              _storeQuickFilter();
+            },
+            itemBuilder: (_) => [
+              for (final f in _quickFilters)
+                CheckedPopupMenuItem(value: f, checked: _quickFilter == f, child: Text(f)),
+            ],
+          ),
           if (_isMultiSelect)
             PopupMenuButton<String>(
               tooltip: 'Move to Tag',
@@ -2639,26 +2651,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               },
             ),
             const SizedBox(height: 16),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (final f in _quickFilters)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: Text(f),
-                        selected: _quickFilter == f,
-                        onSelected: (v) async {
-                          setState(() => _quickFilter = v ? f : null);
-                          _storeQuickFilter();
-                        },
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
