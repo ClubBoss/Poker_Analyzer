@@ -29,6 +29,7 @@ import '../../widgets/preset_range_buttons.dart';
 import '../training_session_screen.dart';
 import '../../services/training_session_service.dart';
 
+import 'package:timeago/timeago.dart' as timeago;
 class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
 
@@ -1252,12 +1253,27 @@ class _TrainingPackTemplateListScreenState
                               ),
                           ],
                         ),
-                        subtitle: t.description.trim().isEmpty
-                            ? null
-                            : Text(
-                                t.description.split('\n').first,
-                                style: const TextStyle(fontSize: 12),
-                              ),
+                        subtitle: (() {
+                          final items = <Widget>[];
+                          if (t.description.trim().isNotEmpty) {
+                            items.add(Text(
+                              t.description.split('\n').first,
+                              style: const TextStyle(fontSize: 12),
+                            ));
+                          }
+                          if (t.lastGeneratedAt != null) {
+                            items.add(Text(
+                              'Last generated: ${timeago.format(t.lastGeneratedAt!)}',
+                              style: const TextStyle(fontSize: 12, color: Colors.white54),
+                            ));
+                          }
+                          if (items.isEmpty) return null;
+                          if (items.length == 1) return items.first;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: items,
+                          );
+                        })(),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
