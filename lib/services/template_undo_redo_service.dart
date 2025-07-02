@@ -1,8 +1,16 @@
 import "../models/v2/training_pack_spot.dart";
+
+class ChangeEntry {
+  final String action;
+  final DateTime time;
+  ChangeEntry(this.action) : time = DateTime.now();
+}
+
 class UndoRedoService {
   final int limit;
   final List<List<TrainingPackSpot>> _undo = [];
   final List<List<TrainingPackSpot>> _redo = [];
+  final List<ChangeEntry> _events = [];
   UndoRedoService({this.limit = 30});
 
   bool get canUndo => _undo.isNotEmpty;
@@ -32,6 +40,13 @@ class UndoRedoService {
     _undo.clear();
     _redo.clear();
   }
+
+  void log(String action) {
+    _events.add(ChangeEntry(action));
+    if (_events.length > 10) _events.removeAt(0);
+  }
+
+  List<ChangeEntry> get history => List.unmodifiable(_events.reversed);
 
   List<TrainingPackSpot> _clone(List<TrainingPackSpot> src) =>
       [for (final s in src) TrainingPackSpot.fromJson(s.toJson())];
