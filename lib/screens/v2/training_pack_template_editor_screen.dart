@@ -93,6 +93,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   final GlobalKey _previewKey = GlobalKey();
   bool _summaryIcm = false;
   bool _evaluatingAll = false;
+  bool _generatingAll = false;
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
@@ -104,6 +105,41 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (hand != null) set.add(hand);
     }
     return set;
+  }
+
+  List<TrainingPackSpot> _visibleSpots() {
+    return widget.template.spots.where((s) {
+      if (_pinnedOnly && !s.pinned) return false;
+      final res = s.evalResult;
+      if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
+      if (_evFilter == 'error' && !(res != null && !res.correct)) return false;
+      if (_evFilter == 'empty' && res != null) return false;
+      if (_quickFilter == 'BTN' && s.hand.position != HeroPosition.btn) {
+        return false;
+      }
+      if (_quickFilter == 'SB' && s.hand.position != HeroPosition.sb) {
+        return false;
+      }
+      if (_quickFilter == 'Hero push only') {
+        final acts = s.hand.actions[0] ?? [];
+        final push = acts.any(
+            (a) => a.playerIndex == s.hand.heroIndex && a.action == 'push');
+        if (!push) return false;
+      }
+      if (_quickFilter == 'Mistake spots' && !(res != null && !res.correct)) {
+        return false;
+      }
+      if (_selectedTags.isNotEmpty && !s.tags.any(_selectedTags.contains)) {
+        return false;
+      }
+      if (_tagFilter != null &&
+          !s.tags.any((t) => t.toLowerCase() == _tagFilter)) {
+        return false;
+      }
+      if (_query.isEmpty) return true;
+      return s.title.toLowerCase().contains(_query) ||
+          s.tags.any((t) => t.toLowerCase().contains(_query));
+    }).toList();
   }
 
   void _focusSpot(String id) {
@@ -928,6 +964,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  Future<void> _generateAllEv() async {
+    setState(() => _generatingAll = true);
+    final spots = _visibleSpots();
+    for (final s in spots) {
+      if (s.heroEv != null) continue;
+      await const PushFoldEvService().evaluate(s);
+    }
+    await TrainingPackStorage.save(widget.templates);
+    if (!mounted) return;
+    setState(() => _generatingAll = false);
+  }
+
   Future<void> _bulkAddTag() async {
     final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
@@ -1632,38 +1680,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Widget build(BuildContext context) {
     final narrow = MediaQuery.of(context).size.width < 400;
     final hasSpots = widget.template.spots.isNotEmpty;
-    final shown = widget.template.spots.where((s) {
-      if (_pinnedOnly && !s.pinned) return false;
-      final res = s.evalResult;
-      if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
-      if (_evFilter == 'error' && !(res != null && !res.correct)) return false;
-      if (_evFilter == 'empty' && res != null) return false;
-      if (_quickFilter == 'BTN' && s.hand.position != HeroPosition.btn) {
-        return false;
-      }
-      if (_quickFilter == 'SB' && s.hand.position != HeroPosition.sb) {
-        return false;
-      }
-      if (_quickFilter == 'Hero push only') {
-        final acts = s.hand.actions[0] ?? [];
-        final push = acts.any((a) =>
-            a.playerIndex == s.hand.heroIndex && a.action == 'push');
-        if (!push) return false;
-      }
-      if (_quickFilter == 'Mistake spots' && !(res != null && !res.correct)) {
-        return false;
-      }
-      if (_selectedTags.isNotEmpty && !s.tags.any(_selectedTags.contains)) {
-        return false;
-      }
-      if (_tagFilter != null &&
-          !s.tags.any((t) => t.toLowerCase() == _tagFilter)) {
-        return false;
-      }
-      if (_query.isEmpty) return true;
-      return s.title.toLowerCase().contains(_query) ||
-          s.tags.any((t) => t.toLowerCase().contains(_query));
-    }).toList();
+    final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
     final range = _templateRange();
@@ -2171,6 +2188,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       ),
                     ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: _generatingAll ? null : _generateAllEv,
+                child: _generatingAll
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Generate All'),
               ),
             ),
             Expanded(
