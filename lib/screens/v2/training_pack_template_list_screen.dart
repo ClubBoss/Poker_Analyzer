@@ -1264,8 +1264,8 @@ class _TrainingPackTemplateListScreenState
                             if (allEv)
                               const Padding(
                                 padding: EdgeInsets.only(left: 4),
-                                child: Icon(Icons.trending_up,
-                                    color: Colors.grey, size: 16),
+                                child:
+                                    Text('📈', style: TextStyle(fontSize: 16)),
                               ),
                           ],
                         ),

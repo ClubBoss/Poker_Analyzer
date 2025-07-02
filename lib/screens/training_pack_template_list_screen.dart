@@ -33,6 +33,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsFavKey = 'tpl_show_fav_only';
   _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
+  final Map<String, bool?> _allEv = {};
   final Map<String, bool> _collapsed = {};
   final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
@@ -129,6 +130,14 @@ class _TrainingPackTemplateListScreenState
     _counts[id] = null;
     _spotStorage.evaluateFilterCount(filters).then((value) {
       if (mounted) setState(() => _counts[id] = value);
+    });
+  }
+
+  void _ensureAllEv(String id, Map<String, dynamic> filters) {
+    if (_allEv.containsKey(id)) return;
+    _allEv[id] = null;
+    _spotStorage.filterAllHaveEv(filters).then((value) {
+      if (mounted) setState(() => _allEv[id] = value);
     });
   }
   Future<void> _add() async {
@@ -636,6 +645,7 @@ class _TrainingPackTemplateListScreenState
                     if (!collapsed && index < count + list.length) {
                       final t = list[index - count];
                       _ensureCount(t.id, t.filters);
+                      _ensureAllEv(t.id, t.filters);
                       final isActive =
                           t.filters.equals(_spotStorage.activeFilters);
                       final selection = _selectedIds.isNotEmpty;
@@ -702,6 +712,11 @@ class _TrainingPackTemplateListScreenState
                                   materialTapTargetSize:
                                       MaterialTapTargetSize.shrinkWrap,
                                 ),
+                              ),
+                            if (_allEv[t.id] == true)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Text('📈', style: TextStyle(fontSize: 16)),
                               ),
                             IconButton(
                               icon: Icon(t.isFavorite ? Icons.star : Icons.star_border),
