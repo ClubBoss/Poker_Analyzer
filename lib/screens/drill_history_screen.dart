@@ -5,17 +5,48 @@ import '../services/drill_history_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/date_utils.dart';
 
-class DrillHistoryScreen extends StatelessWidget {
+class DrillHistoryScreen extends StatefulWidget {
   const DrillHistoryScreen({super.key});
+
+  @override
+  State<DrillHistoryScreen> createState() => _DrillHistoryScreenState();
+}
+
+class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
+  final TextEditingController _search = TextEditingController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
 
 
   @override
   Widget build(BuildContext context) {
     final results = context.watch<DrillHistoryService>().results;
+    final query = _search.text.toLowerCase();
+    final filtered = query.isEmpty
+        ? results
+        : [
+            for (final r in results)
+              if (r.templateName.toLowerCase().contains(query)) r
+          ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('История тренировок'),
         centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: TextField(
+              controller: _search,
+              decoration: const InputDecoration(hintText: 'Поиск'),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+        ),
       ),
       body: results.isEmpty
           ? const Center(
@@ -24,11 +55,18 @@ class DrillHistoryScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.white70),
               ),
             )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: results.length,
-              itemBuilder: (context, index) {
-                final r = results[index];
+          : filtered.isEmpty
+              ? const Center(
+                  child: Text(
+                    'Нет результатов',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final r = filtered[index];
                 final pct = r.total == 0 ? 0 : (r.correct / r.total * 100).round();
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
