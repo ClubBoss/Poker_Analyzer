@@ -26,14 +26,14 @@ class _TrainingPackTemplateEditorScreenState
   late TextEditingController _category;
   late TextEditingController _filters;
   int _difficulty = 1;
-  void _onNameChanged() => setState(() {});
+  late String _templateName;
 
   @override
   void initState() {
     super.initState();
     final m = widget.initial;
-    _name = TextEditingController(text: m?.name ?? '');
-    _name.addListener(_onNameChanged);
+    _templateName = m?.name ?? '';
+    _name = TextEditingController(text: _templateName);
     _desc = TextEditingController(text: m?.description ?? '');
     _category = TextEditingController(text: m?.category ?? '');
     Map<String, dynamic> f = {};
@@ -58,7 +58,6 @@ class _TrainingPackTemplateEditorScreenState
 
   @override
   void dispose() {
-    _name.removeListener(_onNameChanged);
     _name.dispose();
     _desc.dispose();
     _category.dispose();
@@ -112,7 +111,7 @@ class _TrainingPackTemplateEditorScreenState
   }
 
   Future<void> _renameTemplate() async {
-    final ctrl = TextEditingController(text: _name.text);
+    final ctrl = TextEditingController(text: _templateName);
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -136,7 +135,10 @@ class _TrainingPackTemplateEditorScreenState
     if (ok == true) {
       final name = ctrl.text.trim();
       if (name.isNotEmpty) {
-        setState(() => _name.text = name);
+        setState(() {
+          _templateName = name;
+          _name.text = name;
+        });
         final model = widget.initial?.copyWith(name: name);
         if (model != null) {
           await context.read<TrainingPackTemplateStorageService>().update(model);
@@ -152,7 +154,7 @@ class _TrainingPackTemplateEditorScreenState
       appBar: AppBar(
         title: GestureDetector(
           onTap: _renameTemplate,
-          child: Text(_name.text.isEmpty ? 'Шаблон пака' : _name.text),
+          child: Text(_templateName.isEmpty ? 'Шаблон пака' : _templateName),
         ),
         actions: [SyncStatusIcon.of(context)],
       ),
