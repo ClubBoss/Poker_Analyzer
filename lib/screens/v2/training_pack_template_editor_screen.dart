@@ -1859,7 +1859,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Future<void> _showTemplateSettings() async {
     final heroCtr = TextEditingController(text: widget.template.heroBbStack.toString());
-    final stacksCtr = TextEditingController(text: widget.template.playerStacksBb.join(','));
+    final stacks = [
+      for (var i = 0; i < 9; i++)
+        if (i < widget.template.playerStacksBb.length)
+          widget.template.playerStacksBb[i]
+        else
+          0
+    ];
+    final stackCtrs = [
+      for (var i = 0; i < 9; i++)
+        TextEditingController(text: stacks[i].toString())
+    ];
     HeroPosition pos = widget.template.heroPos;
     final countCtr = TextEditingController(text: widget.template.spotCount.toString());
     double bbCall = widget.template.bbCallPct.toDouble();
@@ -1889,18 +1899,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 keyboardType: TextInputType.number,
                 validator: (v) => (int.tryParse(v ?? '') ?? 0) < 1 ? '' : null,
               ),
-              TextFormField(
-                controller: stacksCtr,
-                decoration: const InputDecoration(labelText: 'Player Stacks BB'),
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) return '';
-                  for (final s in v.split(RegExp('[,/]'))) {
-                    if (s.trim().isEmpty) continue;
-                    if ((int.tryParse(s.trim()) ?? 0) < 1) return '';
-                  }
-                  return null;
-                },
-              ),
               DropdownButtonFormField<HeroPosition>(
                 value: pos,
                 decoration: const InputDecoration(labelText: 'Hero Position'),
@@ -1913,6 +1911,41 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   DropdownMenuItem(value: HeroPosition.utg, child: Text('UTG')),
                 ],
                 onChanged: (v) => set(() => pos = v ?? HeroPosition.sb),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Player Stacks (BB)'),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (var i = 0; i < stackCtrs.length; i++)
+                        SizedBox(
+                          width: 80,
+                          child: TextFormField(
+                            controller: stackCtrs[i],
+                            decoration: InputDecoration(labelText: '#$i'),
+                            keyboardType: TextInputType.number,
+                            validator: (v) =>
+                                (int.tryParse(v ?? '') ?? -1) < 0 ? '' : null,
+                            onChanged: (v) async {
+                              final val = int.tryParse(v) ?? 0;
+                              set(() {
+                                while (widget.template.playerStacksBb.length <
+                                    stackCtrs.length) {
+                                  widget.template.playerStacksBb.add(0);
+                                }
+                                widget.template.playerStacksBb[i] = val;
+                              });
+                              await _persist();
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
               TextFormField(
                 controller: countCtr,
@@ -2047,11 +2080,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (ok == true) {
       final hero = int.parse(heroCtr.text.trim());
       final list = [
-        for (final s in stacksCtr.text.split(RegExp('[,/]')))
-          if (s.trim().isNotEmpty) int.parse(s.trim())
+        for (final c in stackCtrs)
+          int.tryParse(c.text.trim()) ?? 0
       ];
-      if (!list.contains(hero)) list.insert(0, hero);
-      if (list.isEmpty) list.add(hero);
       final count = int.parse(countCtr.text.trim());
       final ante = int.parse(anteCtr.text.trim());
       final parsedSet = PackGeneratorService.parseRangeString(_rangeStr);
@@ -2072,7 +2103,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     }
     heroCtr.dispose();
-    stacksCtr.dispose();
+    for (final c in stackCtrs) c.dispose();
     countCtr.dispose();
     anteCtr.dispose();
     rangeCtr.dispose();
