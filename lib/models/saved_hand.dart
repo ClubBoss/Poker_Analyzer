@@ -28,6 +28,7 @@ class SavedHand {
   final int? numberOfEntrants;
   /// Game type description such as "Hold'em No Limit".
   final String? gameType;
+  final int anteBb;
   /// Custom category label for this hand.
   final String? category;
   final Map<int, int> stackSizes;
@@ -105,6 +106,7 @@ class SavedHand {
     this.totalPrizePool,
     this.numberOfEntrants,
     this.gameType,
+    this.anteBb = 0,
     this.category,
     required this.playerPositions,
     this.playerTypes,
@@ -167,6 +169,7 @@ class SavedHand {
     int? totalPrizePool,
     int? numberOfEntrants,
     String? gameType,
+    int? anteBb,
     String? category,
     Map<int, String>? playerPositions,
     Map<int, PlayerType>? playerTypes,
@@ -230,6 +233,7 @@ class SavedHand {
       totalPrizePool: totalPrizePool ?? this.totalPrizePool,
       numberOfEntrants: numberOfEntrants ?? this.numberOfEntrants,
       gameType: gameType ?? this.gameType,
+      anteBb: anteBb ?? this.anteBb,
       category: category ?? this.category,
       playerPositions: playerPositions ?? Map<int, String>.from(this.playerPositions),
       playerTypes: playerTypes ?? this.playerTypes,
@@ -345,6 +349,7 @@ class SavedHand {
         if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
         if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
         if (gameType != null) 'gameType': gameType,
+        'anteBb': anteBb,
         if (category != null) 'category': category,
         'playerPositions': playerPositions.map((k, v) => MapEntry(k.toString(), v)),
         if (playerTypes != null)
@@ -459,6 +464,7 @@ class SavedHand {
     final totalPrizePool = json['totalPrizePool'] as int?;
     final numberOfEntrants = json['numberOfEntrants'] as int?;
     final gameType = json['gameType'] as String?;
+    final anteBb = json['anteBb'] as int? ?? 0;
     final category = json['category'] as String?;
     final positions = <int, String>{};
     (json['playerPositions'] as Map? ?? {}).forEach((key, value) {
@@ -574,6 +580,7 @@ class SavedHand {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
+      anteBb: anteBb,
       category: category,
       playerPositions: positions,
       playerTypes: types,

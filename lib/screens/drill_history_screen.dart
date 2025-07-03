@@ -178,7 +178,11 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingScreen.drill(hands: hands, templateName: 'Mistakes'),
+        builder: (_) => TrainingScreen.drill(
+          hands: hands,
+          templateName: 'Mistakes',
+          anteBb: 0,
+        ),
       ),
     );
   }
@@ -204,9 +208,10 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
         builder: (_) => TrainingScreen.drill(
           hands: pack.hands.isNotEmpty
               ? pack.hands
-              : [for (final s in pack.spots) handFromPackSpot(s as TrainingPackSpot)],
+              : [for (final s in pack.spots) handFromPackSpot(s as TrainingPackSpot, anteBb: pack.anteBb)],
           templateId: pack.id,
           templateName: pack.name,
+          anteBb: pack.anteBb,
         ),
       ),
     );

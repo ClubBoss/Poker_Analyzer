@@ -43,7 +43,7 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_lastKey, tpl.name);
     setState(() => _last = tpl.name);
-    final hands = [for (final s in tpl.spots) handFromPackSpot(s)];
+    final hands = [for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)];
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -52,6 +52,7 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
                 templateId: tpl.id,
                 templateName: tpl.name,
                 minEvForCorrect: tpl.minEvForCorrect,
+                anteBb: tpl.anteBb,
               )),
     );
   }
