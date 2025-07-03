@@ -90,8 +90,19 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('$_correct of $_total correct',
-                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: _correct.toDouble()),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOut,
+              builder: (_, value, __) => Opacity(
+                opacity: value / _correct.clamp(1, double.infinity),
+                child: Text('${value.round()} of $_total correct',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold)),
+              ),
+            ),
             const SizedBox(height: 8),
             Text(_message, style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
