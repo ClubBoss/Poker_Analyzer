@@ -1428,6 +1428,16 @@ class _TrainingPackTemplateListScreenState
                         ),
                         subtitle: (() {
                           final items = <Widget>[];
+                          final progVal = total > 0
+                              ? (_progress[t.id]?.clamp(0, total) ?? 0) / total
+                              : 0.0;
+                          final progColor =
+                              t.goalAchieved ? Colors.green : Colors.orange;
+                          items.add(LinearProgressIndicator(
+                            value: progVal,
+                            color: progColor,
+                            backgroundColor: progColor.withOpacity(0.3),
+                          ));
                           final ratio = t.goalTarget > 0
                               ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0)
                               : 0.0;
