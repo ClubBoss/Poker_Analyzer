@@ -50,6 +50,10 @@ import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
 import 'widgets/sync_status_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
+import 'helpers/training_pack_storage.dart';
+import 'screens/v2/training_pack_play_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -231,12 +235,61 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   late final TrainingSpotStorageService _spotStorage;
   late final ConnectivitySyncController _sync;
 
+  Future<void> _maybeResumeTraining() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? id;
+    int ts = 0;
+    for (final k in prefs.getKeys()) {
+      if (k.startsWith('tpl_prog_')) {
+        final pack = k.substring(9);
+        final t = prefs.getInt('tpl_ts_$pack') ?? 0;
+        if (t > ts) {
+          ts = t;
+          id = pack;
+        }
+      }
+    }
+    if (id == null || ts == 0) return;
+    if (DateTime.now()
+        .difference(DateTime.fromMillisecondsSinceEpoch(ts))
+        .inHours > 12) return;
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return;
+    final confirm = await showDialog<bool>(
+      context: ctx,
+      builder: (_) => AlertDialog(
+        content: const Text('Resume last training?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(_, false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(_, true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final templates = await TrainingPackStorage.load();
+    final tpl = templates.firstWhereOrNull((t) => t.id == id);
+    if (tpl == null) return;
+    Navigator.push(
+      ctx,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackPlayScreen(template: tpl, original: tpl),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _spotStorage = context.read<TrainingSpotStorageService>();
     _sync = ConnectivitySyncController(cloud: context.read<CloudSyncService>());
     context.read<UserActionLogger>().log('opened_app');
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeResumeTraining());
   }
 
   @override

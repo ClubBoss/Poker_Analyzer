@@ -142,6 +142,7 @@ class TrainingPackResultScreen extends StatelessWidget {
                       await prefs.remove('tpl_seq_${original.id}');
                       await prefs.remove('tpl_prog_${original.id}');
                       await prefs.remove('tpl_res_${original.id}');
+                      await prefs.remove('tpl_ts_${original.id}');
                       final spots = template.spots.where((s) {
                         final exp = _expected(s);
                         final ans = results[s.id];
