@@ -119,6 +119,14 @@ class _TrainingPackTemplateListScreenState
     if (mounted) setState(() => _progress..clear()..addAll(map));
   }
 
+  Future<void> _loadGoals() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final t in _templates) {
+      t.goalAchieved = prefs.getBool('tpl_goal_${t.id}') ?? false;
+    }
+    if (mounted) setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
@@ -132,6 +140,7 @@ class _TrainingPackTemplateListScreenState
         _loading = false;
       });
       _loadProgress();
+      _loadGoals();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1241,7 +1250,10 @@ class _TrainingPackTemplateListScreenState
                                       template: tpl, original: tpl),
                                 ),
                               );
-                              if (mounted) _loadProgress();
+                              if (mounted) {
+                                _loadProgress();
+                                _loadGoals();
+                              }
                             },
                           ),
                           onTap: () {
@@ -1368,6 +1380,11 @@ class _TrainingPackTemplateListScreenState
                                 child:
                                     Text('📈', style: TextStyle(fontSize: 16)),
                               ),
+                            if (t.goalAchieved)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Text('🏆', style: TextStyle(fontSize: 16)),
+                              ),
                           ],
                         ),
                         subtitle: (() {
@@ -1412,7 +1429,10 @@ class _TrainingPackTemplateListScreenState
                                         template: t, original: t),
                                   ),
                                 );
-                                if (mounted) _loadProgress();
+                                if (mounted) {
+                                  _loadProgress();
+                                  _loadGoals();
+                                }
                               },
                             ),
                             IconButton(
