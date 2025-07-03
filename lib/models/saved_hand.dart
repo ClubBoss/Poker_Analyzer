@@ -5,6 +5,7 @@ import 'action_evaluation_request.dart';
 
 class SavedHand {
   final String name;
+  final String? spotId;
   final int heroIndex;
   final String heroPosition;
   final int numberOfPlayers;
@@ -82,6 +83,7 @@ class SavedHand {
 
   SavedHand({
     required this.name,
+    this.spotId,
     required this.heroIndex,
     required this.heroPosition,
     required this.numberOfPlayers,
@@ -143,6 +145,7 @@ class SavedHand {
 
   SavedHand copyWith({
     String? name,
+    String? spotId,
     int? heroIndex,
     String? heroPosition,
     int? numberOfPlayers,
@@ -198,6 +201,7 @@ class SavedHand {
   }) {
     return SavedHand(
       name: name ?? this.name,
+      spotId: spotId ?? this.spotId,
       heroIndex: heroIndex ?? this.heroIndex,
       heroPosition: heroPosition ?? this.heroPosition,
       numberOfPlayers: numberOfPlayers ?? this.numberOfPlayers,
@@ -296,6 +300,7 @@ class SavedHand {
 
   Map<String, dynamic> toJson() => {
         'name': name,
+        if (spotId != null) 'spotId': spotId,
         'heroIndex': heroIndex,
         'heroPosition': heroPosition,
         'numberOfPlayers': numberOfPlayers,
@@ -405,6 +410,7 @@ class SavedHand {
         ]
     ];
     final boardStreet = json['boardStreet'] as int? ?? 0;
+    final spotId = json['spotId'] as String?;
     final oppIndex = json['opponentIndex'] as int?;
     final activeIndex = json['activePlayerIndex'] as int?;
     final acts = [
@@ -546,6 +552,7 @@ class SavedHand {
     }
     return SavedHand(
       name: json['name'] as String? ?? '',
+      spotId: spotId,
       heroIndex: json['heroIndex'] as int? ?? 0,
       heroPosition: json['heroPosition'] as String? ?? 'BTN',
       numberOfPlayers: json['numberOfPlayers'] as int? ?? 6,

@@ -74,6 +74,7 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
     }
     return SavedHand(
       name: spot.title,
+      spotId: spot.id,
       heroIndex: spot.hand.heroIndex,
       heroPosition: spot.hand.position.label,
       numberOfPlayers: spot.hand.playerCount,

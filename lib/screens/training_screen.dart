@@ -39,6 +39,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
   int total = 0;
   int correct = 0;
   double evLoss = 0;
+  final List<String> _wrongIds = [];
 
   @override
   void initState() {
@@ -71,8 +72,11 @@ class _TrainingScreenState extends State<TrainingScreen> {
       _wasCorrect = isCorrect;
       if (isCorrect) {
         correct++;
-      } else if (hero?.ev != null) {
-        evLoss += -hero!.ev!;
+      } else {
+        _wrongIds.add(hand.spotId ?? '');
+        if (hero?.ev != null) {
+          evLoss += -hero!.ev!;
+        }
       }
     });
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -164,6 +168,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
       total: total,
       correct: correct,
       evLoss: evLoss,
+      wrongSpotIds: _wrongIds,
     );
     await context.read<DrillHistoryService>().add(result);
     if (mounted) Navigator.pop(context);
