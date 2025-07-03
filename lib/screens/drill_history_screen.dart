@@ -6,6 +6,9 @@ import '../services/drill_history_service.dart';
 import '../theme/app_colors.dart';
 import '../helpers/date_utils.dart';
 import '../models/drill_result.dart';
+import '../services/training_pack_storage_service.dart';
+import '../models/saved_hand.dart';
+import 'training_screen.dart';
 
 class DrillHistoryScreen extends StatefulWidget {
   const DrillHistoryScreen({super.key});
@@ -148,6 +151,35 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
     );
   }
 
+  Future<void> _repeatMistakes() async {
+    final history = context.read<DrillHistoryService>().results;
+    final ids = <String>{};
+    for (final r in history) ids.addAll(r.wrongSpotIds);
+    if (ids.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
+      return;
+    }
+    final packs = context.read<TrainingPackStorageService>().packs;
+    final hands = <SavedHand>[];
+    for (final p in packs) {
+      for (final h in p.hands) {
+        if (ids.contains(h.spotId)) hands.add(h);
+      }
+    }
+    if (hands.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
+      return;
+    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingScreen.drill(hands: hands, templateName: 'Mistakes'),
+      ),
+    );
+  }
+
   Widget _empty() => const Center(
         child: Text('История пока пуста',
             style: TextStyle(color: Colors.white70)),
@@ -235,7 +267,12 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
             icon: const Text('📈', style: TextStyle(fontSize: 20)),
             label: const Text('Показать график'),
             style: TextButton.styleFrom(foregroundColor: Colors.white),
-          )
+          ),
+          IconButton(
+            onPressed: _repeatMistakes,
+            icon: const Text('🔁', style: TextStyle(fontSize: 20)),
+            tooltip: 'Повтор ошибок',
+          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
