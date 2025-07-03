@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../services/drill_history_service.dart';
 import '../theme/app_colors.dart';
@@ -16,6 +17,136 @@ class DrillHistoryScreen extends StatefulWidget {
 class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   final TextEditingController _search = TextEditingController();
   String _period = 'Все';
+
+  List<DrillResult> _applyFilters(List<DrillResult> all) {
+    final query = _search.text.toLowerCase();
+    Duration? d;
+    if (_period == '7 дней') {
+      d = const Duration(days: 7);
+    } else if (_period == '30 дней') {
+      d = const Duration(days: 30);
+    }
+    final now = DateTime.now();
+    return [
+      for (final r in all)
+        if ((d == null || r.date.isAfter(now.subtract(d))) &&
+            (query.isEmpty || r.templateName.toLowerCase().contains(query)))
+          r
+    ];
+  }
+
+  Widget _progressChart(List<DrillResult> data) {
+    if (data.length < 2) {
+      return const SizedBox(
+        height: 200,
+        child: Center(
+          child:
+              Text('Недостаточно данных', style: TextStyle(color: Colors.white70)),
+        ),
+      );
+    }
+    final sorted = [...data]..sort((a, b) => a.date.compareTo(b.date));
+    final spots = <FlSpot>[];
+    for (var i = 0; i < sorted.length; i++) {
+      final r = sorted[i];
+      final pct = r.total == 0 ? 0.0 : r.correct * 100 / r.total;
+      spots.add(FlSpot(i.toDouble(), pct));
+    }
+    final step = (sorted.length / 6).ceil();
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: LineChart(
+        LineChartData(
+          minY: 0,
+          maxY: 100,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: 20,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.white24, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 20,
+                reservedSize: 30,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toInt().toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index >= sorted.length) {
+                    return const SizedBox.shrink();
+                  }
+                  if (index % step != 0 && index != sorted.length - 1) {
+                    return const SizedBox.shrink();
+                  }
+                  final d = sorted[index].date;
+                  final label =
+                      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+                  return Text(label,
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 10));
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(color: Colors.white24),
+              bottom: BorderSide(color: Colors.white24),
+            ),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              color: Colors.orangeAccent,
+              barWidth: 2,
+              dotData: FlDotData(show: false),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showChart() {
+    final all = context.read<DrillHistoryService>().results;
+    final data = (_period == 'Все' && _search.text.trim().isEmpty)
+        ? all
+        : _applyFilters(all);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Прогресс'),
+        content: _progressChart(data),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _empty() => const Center(
         child: Text('История пока пуста',
@@ -93,24 +224,19 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final results = context.watch<DrillHistoryService>().results;
-    final query = _search.text.toLowerCase();
-    Duration? d;
-    if (_period == '7 дней') {
-      d = const Duration(days: 7);
-    } else if (_period == '30 дней') {
-      d = const Duration(days: 30);
-    }
-    final now = DateTime.now();
-    final filtered = [
-      for (final r in results)
-        if ((d == null || r.date.isAfter(now.subtract(d))) &&
-            (query.isEmpty || r.templateName.toLowerCase().contains(query)))
-          r
-    ];
+    final filtered = _applyFilters(results);
     return Scaffold(
       appBar: AppBar(
         title: const Text('История тренировок'),
         centerTitle: true,
+        actions: [
+          TextButton.icon(
+            onPressed: _showChart,
+            icon: const Text('📈', style: TextStyle(fontSize: 20)),
+            label: const Text('Показать график'),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+          )
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: Padding(
