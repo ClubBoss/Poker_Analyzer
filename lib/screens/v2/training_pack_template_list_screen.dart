@@ -53,6 +53,7 @@ class _TrainingPackTemplateListScreenState
   GameType? _selectedType;
   String? _selectedTag;
   bool _filtersShown = false;
+  bool _completedOnly = false;
   String _sort = 'name';
   List<GeneratedPackInfo> _history = [];
   int _mixedCount = 20;
@@ -940,6 +941,13 @@ class _TrainingPackTemplateListScreenState
                   this.setState(() => _selectedType = GameType.cash);
                 }),
               ),
+              ChoiceChip(
+                label: const Text('🏆 Completed'),
+                selected: _completedOnly,
+                onSelected: (_) => setState(() {
+                  this.setState(() => _completedOnly = !_completedOnly);
+                }),
+              ),
               if (tags.isNotEmpty) ...[
                 ChoiceChip(
                   label: const Text('All Tags'),
@@ -1145,10 +1153,13 @@ class _TrainingPackTemplateListScreenState
             for (final t in byType)
               if (t.tags.contains(_selectedTag)) t
           ];
+    final completed = _completedOnly
+        ? [for (final t in filtered) if (t.goalAchieved) t]
+        : filtered;
     final shown = _query.isEmpty
-        ? filtered
+        ? completed
         : [
-            for (final t in filtered)
+            for (final t in completed)
               if (t.name.toLowerCase().contains(_query) ||
                   t.description.toLowerCase().contains(_query))
                 t
@@ -1293,6 +1304,12 @@ class _TrainingPackTemplateListScreenState
                           selected: _selectedType == GameType.cash,
                           onSelected: (_) =>
                               setState(() => _selectedType = GameType.cash),
+                        ),
+                        ChoiceChip(
+                          label: const Text('🏆 Completed'),
+                          selected: _completedOnly,
+                          onSelected: (_) =>
+                              setState(() => _completedOnly = !_completedOnly),
                         ),
                         if (tags.isNotEmpty) ...[
                           ChoiceChip(
