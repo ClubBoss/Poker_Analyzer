@@ -611,6 +611,8 @@ class _TrainingPackTemplateListScreenState
     final heroStackCtrl = TextEditingController(text: '10');
     final playerStacksCtrl = TextEditingController(text: '10,10');
     final rangeCtrl = TextEditingController();
+    final streetGoalCtrl = TextEditingController();
+    String street = 'any';
     final selected = <String>{};
     double percent = 0;
     double bbCall = 20;
@@ -662,6 +664,24 @@ class _TrainingPackTemplateListScreenState
                     ],
                     onChanged: (v) =>
                         setState(() => pos = v ?? HeroPosition.sb),
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: street,
+                    decoration:
+                        const InputDecoration(labelText: 'Target Street'),
+                    items: const [
+                      DropdownMenuItem(value: 'any', child: Text('Any')),
+                      DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                      DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                      DropdownMenuItem(value: 'river', child: Text('River')),
+                    ],
+                    onChanged: (v) => setState(() => street = v ?? 'any'),
+                  ),
+                  TextField(
+                    controller: streetGoalCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                        labelText: 'Street Goal (optional)'),
                   ),
                   DefaultTabController(
                     length: 3,
@@ -806,6 +826,8 @@ class _TrainingPackTemplateListScreenState
         bbCallPct: bbCall.round(),
         createdAt: DateTime.now(),
       );
+      template.targetStreet = street == 'any' ? null : street;
+      template.streetGoal = int.tryParse(streetGoalCtrl.text) ?? 0;
       template.tags.add('auto');
       setState(() {
         _templates.add(template);
@@ -826,6 +848,7 @@ class _TrainingPackTemplateListScreenState
     heroStackCtrl.dispose();
     playerStacksCtrl.dispose();
     rangeCtrl.dispose();
+    streetGoalCtrl.dispose();
   }
 
   Future<void> _export() async {
