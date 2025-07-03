@@ -189,6 +189,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                       await prefs.remove('tpl_prog_${widget.original.id}');
                       await prefs.remove('tpl_res_${widget.original.id}');
                       await prefs.remove('tpl_ts_${widget.original.id}');
+                      if (widget.original.targetStreet != null) {
+                        await prefs.remove('tpl_street_${widget.original.id}');
+                      }
                       final spots = widget.template.spots.where((s) {
                         final exp = _expected(s);
                         final ans = widget.results[s.id];
