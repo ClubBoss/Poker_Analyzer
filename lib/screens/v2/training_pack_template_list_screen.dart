@@ -753,6 +753,7 @@ class _TrainingPackTemplateListScreenState
                   TextField(
                     controller: streetGoalCtrl,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: const InputDecoration(
                         labelText: 'Street Goal (optional)'),
                   ),
