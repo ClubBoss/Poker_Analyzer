@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../widgets/spot_quiz_widget.dart';
+import '../../widgets/common/explanation_text.dart';
 import '../../theme/app_colors.dart';
 import 'training_pack_result_screen.dart';
 
@@ -132,9 +133,45 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return context.mounted && res == true;
   }
 
-  void _choose(String act) {
+  Future<void> _choose(String act) async {
     final spot = _spots[_index];
     _results[spot.id] = act.toLowerCase();
+
+    final expected = spot.evalResult?.expectedAction ?? _expected(spot) ?? '-';
+    final explanation = spot.note.trim().isNotEmpty
+        ? spot.note.trim()
+        : (spot.evalResult?.hint ?? '');
+
+    await showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ExplanationText(
+              selectedAction: act,
+              correctAction: expected,
+              explanation: explanation,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!mounted) return;
     if (_index + 1 < _spots.length) {
       setState(() => _index++);
       _save();
