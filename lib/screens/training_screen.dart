@@ -270,9 +270,9 @@ class _TrainingScreenState extends State<TrainingScreen> {
       child: Scaffold(
         appBar: AppBar(
           leading: _drill && _index > 0
-              ? IconButton(
+              ? TextButton(
                   onPressed: _previous,
-                  icon: const Text('⬅️'),
+                  child: const Text('⬅️ Back'),
                 )
               : null,
           title: const Text('Training'),
