@@ -65,6 +65,7 @@ class TrainingPackTemplateEditorScreen extends StatefulWidget {
 class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateEditorScreen> {
   late final TextEditingController _descCtr;
   late final TextEditingController _evCtr;
+  late final TextEditingController _anteCtr;
   late final FocusNode _descFocus;
   late String _templateName;
   String _query = '';
@@ -536,6 +537,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _descCtr = TextEditingController(text: widget.template.description);
     _evCtr = TextEditingController(
         text: widget.template.minEvForCorrect.toString());
+    _anteCtr = TextEditingController(text: widget.template.anteBb.toString());
     _descFocus = FocusNode();
     _descFocus.addListener(() {
       if (!_descFocus.hasFocus) _saveDesc();
@@ -607,6 +609,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _descFocus.dispose();
     _descCtr.dispose();
     _evCtr.dispose();
+    _anteCtr.dispose();
     _searchCtrl.dispose();
     _tagSearchCtrl.dispose();
     _scrollCtrl.dispose();
@@ -1010,12 +1013,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         final acts = spot.hand.actions[0] ?? [];
         for (final a in acts) {
           if (a.playerIndex == hero && a.action == 'push') {
-            a.ev = computePushEV(
-              heroBbStack: stack,
-              bbCount: spot.hand.playerCount - 1,
-              heroHand: hand,
-              anteBb: 0,
-            );
+              a.ev = computePushEV(
+                heroBbStack: stack,
+                bbCount: spot.hand.playerCount - 1,
+                heroHand: hand,
+              anteBb: widget.template.anteBb,
+              );
             break;
           }
         }
@@ -1039,12 +1042,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ];
         for (final a in acts) {
           if (a.playerIndex == hero && a.action == 'push') {
-            final chipEv = a.ev ?? computePushEV(
-              heroBbStack: stack,
-              bbCount: spot.hand.playerCount - 1,
-              heroHand: hand,
-              anteBb: 0,
-            );
+              final chipEv = a.ev ?? computePushEV(
+                heroBbStack: stack,
+                bbCount: spot.hand.playerCount - 1,
+                heroHand: hand,
+              anteBb: widget.template.anteBb,
+              );
             a.icmEv = computeIcmPushEV(
               chipStacksBb: stacks,
               heroIndex: hero,
@@ -1074,13 +1077,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ];
         for (final a in acts) {
           if (a.playerIndex == hero && a.action == 'push') {
-            a.ev = computePushEV(
-              heroBbStack: stack,
-              bbCount: spot.hand.playerCount - 1,
-              heroHand: hand,
-              anteBb: 0,
-            );
-            a.icmEv = computeIcmPushEV(
+              a.ev = computePushEV(
+                heroBbStack: stack,
+                bbCount: spot.hand.playerCount - 1,
+                heroHand: hand,
+              anteBb: widget.template.anteBb,
+              );
+              a.icmEv = computeIcmPushEV(
               chipStacksBb: stacks,
               heroIndex: hero,
               heroHand: hand,
@@ -1207,7 +1210,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   final s = spots[i];
                   try {
                     if (s.heroEv == null) {
-                      await const PushFoldEvService().evaluate(s);
+                      await const PushFoldEvService()
+                          .evaluate(s, anteBb: widget.template.anteBb);
                       widget.template.meta['evCovered'] =
                           (widget.template.meta['evCovered'] ?? 0) + 1;
                       if (!mounted) return;
@@ -1274,7 +1278,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   final s = spots[i];
                   try {
                     if (s.heroIcmEv == null) {
-                      await const PushFoldEvService().evaluateIcm(s);
+                      await const PushFoldEvService()
+                          .evaluateIcm(s, anteBb: widget.template.anteBb);
                       widget.template.meta['icmCovered'] =
                           (widget.template.meta['icmCovered'] ?? 0) + 1;
                       if (!mounted) return;
@@ -1970,9 +1975,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ),
               TextFormField(
                 controller: anteCtr,
-                decoration: const InputDecoration(labelText: 'Ante BB'),
+                decoration: const InputDecoration(labelText: 'Ante (BB)'),
                 keyboardType: TextInputType.number,
-                validator: (v) => (int.tryParse(v ?? '') ?? -1) < 0 ? '' : null,
+                validator: (v) {
+                  final n = int.tryParse(v ?? '') ?? -1;
+                  return n < 0 || n > 5 ? '' : null;
+                },
               ),
               Row(
                 children: [
@@ -2084,7 +2092,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           int.tryParse(c.text.trim()) ?? 0
       ];
       final count = int.parse(countCtr.text.trim());
-      final ante = int.parse(anteCtr.text.trim());
+      int ante = int.parse(anteCtr.text.trim());
+      if (ante < 0) ante = 0;
+      if (ante > 5) ante = 5;
       final parsedSet = PackGeneratorService.parseRangeString(_rangeStr);
       setState(() {
         widget.template.heroBbStack = hero;
@@ -2497,6 +2507,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               onChanged: (v) {
                 final val = double.tryParse(v) ?? 0.01;
                 setState(() => widget.template.minEvForCorrect = val);
+                _persist();
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _anteCtr,
+              decoration: const InputDecoration(labelText: 'Ante (BB)'),
+              keyboardType: TextInputType.number,
+              onChanged: (v) {
+                var val = int.tryParse(v) ?? 0;
+                if (val < 0) val = 0;
+                if (val > 5) val = 5;
+                if (_anteCtr.text != '$val') {
+                  _anteCtr.text = '$val';
+                  _anteCtr.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _anteCtr.text.length));
+                }
+                setState(() => widget.template.anteBb = val);
                 _persist();
               },
             ),
