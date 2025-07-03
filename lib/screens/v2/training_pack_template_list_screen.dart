@@ -923,46 +923,37 @@ class _TrainingPackTemplateListScreenState
               ChoiceChip(
                 label: const Text('All'),
                 selected: _selectedType == null,
-                onSelected: (_) => setState(() {
-                  this.setState(() => _selectedType = null);
-                }),
+                onSelected: (_) => setState(() => _selectedType = null),
               ),
               ChoiceChip(
                 label: const Text('Tournament'),
                 selected: _selectedType == GameType.tournament,
-                onSelected: (_) => setState(() {
-                  this.setState(() => _selectedType = GameType.tournament);
-                }),
+                onSelected: (_) =>
+                    setState(() => _selectedType = GameType.tournament),
               ),
               ChoiceChip(
                 label: const Text('Cash'),
                 selected: _selectedType == GameType.cash,
-                onSelected: (_) => setState(() {
-                  this.setState(() => _selectedType = GameType.cash);
-                }),
+                onSelected: (_) =>
+                    setState(() => _selectedType = GameType.cash),
               ),
               ChoiceChip(
                 label: const Text('🏆 Completed'),
                 selected: _completedOnly,
-                onSelected: (_) => setState(() {
-                  this.setState(() => _completedOnly = !_completedOnly);
-                }),
+                onSelected: (_) =>
+                    setState(() => _completedOnly = !_completedOnly),
               ),
               if (tags.isNotEmpty) ...[
                 ChoiceChip(
                   label: const Text('All Tags'),
                   selected: _selectedTag == null,
-                  onSelected: (_) => setState(() {
-                    this.setState(() => _selectedTag = null);
-                  }),
+                  onSelected: (_) => setState(() => _selectedTag = null),
                 ),
                 for (final tag in tags)
                   ChoiceChip(
                     label: Text(tag),
                     selected: _selectedTag == tag,
-                    onSelected: (_) => setState(() {
-                      this.setState(() => _selectedTag = tag);
-                    }),
+                    onSelected: (_) => setState(() => _selectedTag = tag),
                   ),
               ],
             ],
