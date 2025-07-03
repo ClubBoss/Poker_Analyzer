@@ -752,6 +752,7 @@ class _TrainingPackTemplateListScreenState
   Future<void> _generateFinalTable() async {
     final streetCtrl = TextEditingController();
     String street = 'any';
+    String savedGoal = '';
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -769,13 +770,23 @@ class _TrainingPackTemplateListScreenState
                   DropdownMenuItem(value: 'turn', child: Text('Turn')),
                   DropdownMenuItem(value: 'river', child: Text('River')),
                 ],
-                onChanged: (v) => setState(() => street = v ?? 'any'),
+                onChanged: (v) {
+                  final s = v ?? 'any';
+                  if (s == 'any') {
+                    savedGoal = streetCtrl.text;
+                    streetCtrl.clear();
+                  } else if (street == 'any') {
+                    streetCtrl.text = savedGoal;
+                  }
+                  setState(() => street = s);
+                },
               ),
               TextField(
                 controller: streetCtrl,
                 keyboardType: TextInputType.number,
                 decoration:
                     const InputDecoration(labelText: 'Street Goal (optional)'),
+                enabled: street != 'any',
               ),
             ],
           ),
