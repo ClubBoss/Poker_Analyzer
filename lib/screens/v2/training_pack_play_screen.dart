@@ -11,7 +11,9 @@ enum PlayOrder { sequential, random, mistakes }
 
 class TrainingPackPlayScreen extends StatefulWidget {
   final TrainingPackTemplate template;
-  const TrainingPackPlayScreen({super.key, required this.template});
+  final TrainingPackTemplate original;
+  const TrainingPackPlayScreen({super.key, required this.template, TrainingPackTemplate? original})
+      : original = original ?? template;
 
   @override
   State<TrainingPackPlayScreen> createState() => _TrainingPackPlayScreenState();
@@ -109,6 +111,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           builder: (_) => TrainingPackResultScreen(
             template: widget.template,
             results: _results,
+            original: widget.original,
           ),
         ),
       );
