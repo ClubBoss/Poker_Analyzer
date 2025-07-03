@@ -137,7 +137,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final spot = _spots[_index];
-    final progress = _index / _spots.length;
+    final progress = (_index + 1) / _spots.length;
     final actions = _heroActions(spot);
     return Scaffold(
       appBar: AppBar(
@@ -183,15 +183,17 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 child: Column(
                   key: ValueKey(_index),
                   children: [
-                    Expanded(child: SpotQuizWidget(spot: spot)),
+                    SpotQuizWidget(spot: spot),
                     const SizedBox(height: 16),
                     Wrap(
                       spacing: 8,
                       alignment: WrapAlignment.center,
                       children: [
                         for (final a in actions.isEmpty
-                            ? ['fold', 'check', 'call', 'bet', 'raise']
-                            : actions)
+                            ? ['fold', 'push', 'call']
+                            : (actions.length == 1 && !actions.contains('fold')
+                                ? [...actions, 'fold']
+                                : actions))
                           ElevatedButton(
                             onPressed: () => _choose(a),
                             child: Text(a.toUpperCase()),
