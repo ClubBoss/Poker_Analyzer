@@ -135,7 +135,39 @@ class _TrainingScreenState extends State<TrainingScreen> {
 
   void _reset() => setState(() => _selected = null);
 
-  void _next() {
+  Future<void> _showHandStats() async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Hand $_index / $total',
+                style: const TextStyle(color: Colors.white)),
+            const SizedBox(height: 8),
+            Text('Correct: $correct',
+                style: const TextStyle(color: Colors.white)),
+            Text('EV lost: ${evLoss.toStringAsFixed(2)} bb',
+                style: const TextStyle(color: Colors.white)),
+            Text('Remaining: ${total - _index}',
+                style: const TextStyle(color: Colors.white)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _next() async {
     setState(() {
       _index++;
       _selected = null;
@@ -143,6 +175,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
     });
     if (_index >= widget.hands!.length) {
       _showSummary();
+    } else if (widget.hands!.length - _index >= 2) {
+      await _showHandStats();
     }
   }
 
