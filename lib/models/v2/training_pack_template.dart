@@ -174,7 +174,9 @@ class TrainingPackTemplate {
       bbCallPct: bbCallPct,
       anteBb: anteBb,
     );
-    return tpl.spots.take(spotCount).toList();
+    final spots = tpl.spots.take(spotCount).toList();
+    recountCoverage([...this.spots, ...spots]);
+    return spots;
   }
 
 }
