@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'dart:async';
 import '../models/training_spot.dart';
 import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
@@ -10,6 +11,9 @@ import '../widgets/training_spot_diagram.dart';
 import '../widgets/training_spot_preview.dart';
 import '../widgets/replay_spot_widget.dart';
 import '../widgets/sync_status_widget.dart';
+import '../helpers/training_pack_storage.dart';
+import '../helpers/pack_spot_utils.dart';
+import 'package:collection/collection.dart';
 
 /// Simple screen that shows a single [TrainingSpot].
 class TrainingScreen extends StatefulWidget {
@@ -199,15 +203,20 @@ class _TrainingScreenState extends State<TrainingScreen> {
   }
 
   Future<void> _showSummary() async {
-    await showDialog(
+    final repeat = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Training complete!'),
         content: Text(
             'Correct: $correct / $total  (${(correct / total * 100).toStringAsFixed(0)}%)\nEV lost: ${evLoss.toStringAsFixed(2)} bb'),
         actions: [
+          if (_wrongIds.isNotEmpty)
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Repeat Mistakes'),
+            ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Done'),
           ),
         ],
@@ -223,7 +232,32 @@ class _TrainingScreenState extends State<TrainingScreen> {
       wrongSpotIds: [for (final id in _wrongIds) if (id.isNotEmpty) id],
     );
     await context.read<DrillHistoryService>().add(result);
-    if (mounted) Navigator.pop(context);
+    if (!mounted) return;
+    if (repeat == true && widget.templateId != null) {
+      final templates = await TrainingPackStorage.load();
+      final tpl = templates.firstWhereOrNull((t) => t.id == widget.templateId);
+      if (tpl != null) {
+        final hands = [
+          for (final s in tpl.spots)
+            if (_wrongIds.contains(s.id)) handFromPackSpot(s)
+        ];
+        if (hands.isNotEmpty) {
+          unawaited(Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => TrainingScreen.drill(
+                hands: hands,
+                templateId: tpl.id,
+                templateName: tpl.name,
+                minEvForCorrect: widget.minEvForCorrect,
+              ),
+            ),
+          ));
+          return;
+        }
+      }
+    }
+    Navigator.pop(context);
   }
 
   @override
