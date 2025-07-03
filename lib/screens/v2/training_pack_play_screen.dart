@@ -145,6 +145,28 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     final actions = _heroActions(spot);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () async {
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: const Text('Exit training? Your progress will be saved.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Exit'),
+                  ),
+                ],
+              ),
+            );
+            if (confirm == true) Navigator.pop(context);
+          },
+        ),
         title: Text(widget.template.name),
         actions: [
           PopupMenuButton<PlayOrder>(
