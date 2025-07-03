@@ -172,6 +172,36 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         ),
         title: Text(widget.template.name),
         actions: [
+          PopupMenuButton<String>(
+            onSelected: (v) async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Start over?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true) {
+                setState(() {
+                  _index = 0;
+                  _results.clear();
+                });
+                _save();
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'start', child: Text('🔁 Start Over')),
+            ],
+          ),
           PopupMenuButton<PlayOrder>(
             initialValue: _order,
             onSelected: (v) {
