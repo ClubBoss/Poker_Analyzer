@@ -275,7 +275,20 @@ class _TrainingScreenState extends State<TrainingScreen> {
                   child: const Text('⬅️ Back'),
                 )
               : null,
-          title: const Text('Training'),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Training'),
+              if (_drill)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Text(
+                    'EV Lost: ${evLoss.toStringAsFixed(2)} bb',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+            ],
+          ),
           centerTitle: true,
           actions: [SyncStatusIcon.of(context)],
         ),
