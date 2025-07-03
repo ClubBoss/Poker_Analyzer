@@ -10,12 +10,20 @@ import '../../theme/app_colors.dart';
 import 'training_pack_play_screen.dart';
 import 'training_pack_template_editor_screen.dart';
 
-class TrainingPackResultScreen extends StatelessWidget {
+class TrainingPackResultScreen extends StatefulWidget {
   final TrainingPackTemplate template;
   final TrainingPackTemplate original;
   final Map<String, String> results;
   const TrainingPackResultScreen({super.key, required this.template, required this.results, TrainingPackTemplate? original})
       : original = original ?? template;
+  
+  @override
+  State<TrainingPackResultScreen> createState() => _TrainingPackResultScreenState();
+}
+
+class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
+  final ScrollController _controller = ScrollController();
+  final _firstKey = GlobalKey();
 
   String? _expected(TrainingPackSpot s) {
     final eval = s.evalResult?.expectedAction;
@@ -29,16 +37,17 @@ class TrainingPackResultScreen extends StatelessWidget {
 
   int get _correct {
     var c = 0;
-    for (final s in template.spots) {
+    for (final s in widget.template.spots) {
       final exp = _expected(s);
-      final ans = results[s.id];
+      final ans = widget.results[s.id];
       if (exp != null && ans != null && ans.toLowerCase() == exp.toLowerCase()) {
         c++;
       }
     }
     return c;
   }
-  int get _total => template.spots.length;
+
+  int get _total => widget.template.spots.length;
   int get _mistakes => _total - _correct;
   double get _rate => _total == 0 ? 0 : _correct * 100 / _total;
 
@@ -48,17 +57,28 @@ class TrainingPackResultScreen extends StatelessWidget {
     return 'Keep training!';
   }
 
-  List<double> get _evs => [for (final s in template.spots) if (s.heroEv != null && results.containsKey(s.id)) s.heroEv!];
+  List<double> get _evs => [for (final s in widget.template.spots) if (s.heroEv != null && widget.results.containsKey(s.id)) s.heroEv!];
 
-  List<TrainingPackSpot> get _mistakeSpots => template.spots
+  List<TrainingPackSpot> get _mistakeSpots => widget.template.spots
       .where((s) {
         final exp = _expected(s);
-        final ans = results[s.id];
+        final ans = widget.results[s.id];
         return exp != null &&
             ans != null &&
             ans != 'false' &&
             exp.toLowerCase() != ans.toLowerCase();
       }).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _firstKey.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,14 +118,16 @@ class TrainingPackResultScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Expanded(
                 child: ListView.builder(
+                  controller: _controller,
                   itemCount: _mistakeSpots.length,
                   itemBuilder: (context, i) {
                     final spot = _mistakeSpots[i];
                     final board = spot.hand.board.join(' ');
                     final hero = spot.hand.heroCards;
                     final exp = _expected(spot) ?? '';
-                    final ans = results[spot.id] ?? '';
+                    final ans = widget.results[spot.id] ?? '';
                     return Container(
+                      key: i == 0 ? _firstKey : null,
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         color: AppColors.cardBackground,
@@ -149,23 +171,23 @@ class TrainingPackResultScreen extends StatelessWidget {
                   ? null
                   : () async {
                       final prefs = await SharedPreferences.getInstance();
-                      await prefs.remove('tpl_seq_${original.id}');
-                      await prefs.remove('tpl_prog_${original.id}');
-                      await prefs.remove('tpl_res_${original.id}');
-                      await prefs.remove('tpl_ts_${original.id}');
-                      final spots = template.spots.where((s) {
+                      await prefs.remove('tpl_seq_${widget.original.id}');
+                      await prefs.remove('tpl_prog_${widget.original.id}');
+                      await prefs.remove('tpl_res_${widget.original.id}');
+                      await prefs.remove('tpl_ts_${widget.original.id}');
+                      final spots = widget.template.spots.where((s) {
                         final exp = _expected(s);
-                        final ans = results[s.id];
+                        final ans = widget.results[s.id];
                         return exp != null &&
                             ans != null &&
                             ans != 'false' &&
                             exp.toLowerCase() != ans.toLowerCase();
                       }).toList();
-                      final retry = template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
+                      final retry = widget.template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TrainingPackPlayScreen(template: retry, original: original),
+                          builder: (_) => TrainingPackPlayScreen(template: retry, original: widget.original),
                         ),
                       );
                     },
@@ -177,7 +199,7 @@ class TrainingPackResultScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => TrainingPackTemplateEditorScreen(template: original, templates: [original]),
+                    builder: (_) => TrainingPackTemplateEditorScreen(template: widget.original, templates: [widget.original]),
                   ),
                 );
               },
