@@ -102,19 +102,27 @@ class TrainingPackResultScreen extends StatelessWidget {
                         title: Text(
                           board.isEmpty ? '(Preflop)' : board,
                           style: const TextStyle(color: Colors.white),
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Hero: $hero',
                                 style:
-                                    const TextStyle(color: Colors.white70)),
+                                    const TextStyle(color: Colors.white70),
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis),
                             Text('Expected: $exp',
                                 style:
-                                    const TextStyle(color: Colors.greenAccent)),
+                                    const TextStyle(color: Colors.greenAccent),
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis),
                             Text('Your: $ans',
                                 style:
-                                    const TextStyle(color: Colors.redAccent)),
+                                    const TextStyle(color: Colors.redAccent),
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis),
                           ],
                         ),
                       ),
@@ -123,7 +131,6 @@ class TrainingPackResultScreen extends StatelessWidget {
                 ),
               ),
             ],
-            const Spacer(),
             ElevatedButton(
               onPressed: _mistakes == 0
                   ? null
