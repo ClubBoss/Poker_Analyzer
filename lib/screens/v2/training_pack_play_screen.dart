@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../widgets/spot_quiz_widget.dart';
+import 'training_pack_result_screen.dart';
 
 enum PlayOrder { sequential, random, mistakes }
 
@@ -102,11 +103,13 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     } else {
       _index = _spots.length - 1;
       _save();
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          content: const Text('Session complete'),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TrainingPackResultScreen(
+            template: widget.template,
+            results: _results,
+          ),
         ),
       );
     }
