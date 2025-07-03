@@ -162,7 +162,7 @@ class TrainingPackResultScreen extends StatelessWidget {
                             exp.toLowerCase() != ans.toLowerCase();
                       }).toList();
                       final retry = template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => TrainingPackPlayScreen(template: retry, original: original),
