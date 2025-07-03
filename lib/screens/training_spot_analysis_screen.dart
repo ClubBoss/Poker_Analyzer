@@ -44,7 +44,9 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
     for (final a in widget.spot.actions) {
       investments.addAction(a);
     }
-    return PotCalculator().calculatePots(widget.spot.actions, investments);
+    final ante = widget.spot.anteBb * widget.spot.numberOfPlayers;
+    return PotCalculator()
+        .calculatePots(widget.spot.actions, investments, initialPot: ante);
   }
 
   Map<int, int> _computeStacks() {

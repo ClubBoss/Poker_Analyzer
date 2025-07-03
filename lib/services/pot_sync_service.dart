@@ -13,6 +13,7 @@ class PotSyncService extends ChangeNotifier {
     PotCalculator? potCalculator,
     StackManagerService? stackService,
     PotHistoryService? historyService,
+    this.initialPot = 0,
   })  : _potCalculator = potCalculator ?? PotCalculator(),
         _stackService = stackService,
         _history = historyService ?? PotHistoryService();
@@ -20,6 +21,9 @@ class PotSyncService extends ChangeNotifier {
   final PotCalculator _potCalculator;
   StackManagerService? _stackService;
   final PotHistoryService _history;
+
+  /// Starting pot amount for the current hand.
+  int initialPot;
 
   /// Provides access to recorded pot history.
   PotHistoryService get history => _history;
@@ -46,7 +50,8 @@ class PotSyncService extends ChangeNotifier {
     for (final a in actions) {
       investments.addAction(a);
     }
-    return _potCalculator.calculatePots(actions, investments);
+    return _potCalculator.calculatePots(actions, investments,
+        initialPot: initialPot);
   }
 
   /// Calculates side pots based on current player investments.
@@ -208,6 +213,7 @@ class PotSyncService extends ChangeNotifier {
     sidePots.clear();
     _effectiveStacks.clear();
     _history.clear();
+    initialPot = 0;
     notifyListeners();
   }
 }

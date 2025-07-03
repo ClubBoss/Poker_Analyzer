@@ -31,6 +31,7 @@ class TrainingGenerator {
       totalPrizePool: hand.totalPrizePool,
       numberOfEntrants: hand.numberOfEntrants,
       gameType: hand.gameType,
+      anteBb: hand.anteBb,
       tags: List<String>.from(hand.tags),
       actionHistory: null,
       difficulty: 3,
