@@ -293,6 +293,30 @@ class _TrainingPackTemplateListScreenState
         ),
       ),
     );
+    if (!mounted) return;
+    if (done >= tpl.streetGoal) {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'tpl_sgoal_${tpl.id}_${tpl.streetGoal}';
+      if (!(prefs.getBool(key) ?? false)) {
+        await prefs.setBool(key, true);
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            backgroundColor: Colors.grey[900],
+            content: Text(
+              '🏆 Goal achieved on ${_streetName(tpl.targetStreet!)}! Great job!',
+              style: const TextStyle(fontSize: 16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   bool _isIcmTemplate(TrainingPackTemplate t) {
