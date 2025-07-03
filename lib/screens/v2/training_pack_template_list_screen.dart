@@ -1428,6 +1428,19 @@ class _TrainingPackTemplateListScreenState
                         ),
                         subtitle: (() {
                           final items = <Widget>[];
+                          final ratio = t.goalTarget > 0
+                              ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0)
+                              : 0.0;
+                          if (t.goalTarget > 0) {
+                            items.add(Row(
+                              children: [
+                                Expanded(child: LinearProgressIndicator(value: ratio)),
+                                const SizedBox(width: 8),
+                                Text('${(ratio * 100).round()}%',
+                                    style: const TextStyle(fontSize: 12)),
+                              ],
+                            ));
+                          }
                           final prog = _progress[t.id];
                           if (prog != null) {
                             items.add(Text(
