@@ -130,12 +130,56 @@ class _TrainingPackTemplateListScreenState
       final sv = prefs.getInt('tpl_street_${t.id}');
       if (sv != null) streetMap[t.id] = sv;
     }
-    if (mounted) {
-      setState(() {
-        _progress..clear()..addAll(map);
-        _streetProgress..clear()..addAll(streetMap);
-      });
+    if (!mounted) return;
+    setState(() {
+      _progress..clear()..addAll(map);
+      _streetProgress..clear()..addAll(streetMap);
+    });
+    _maybeShowStreetReminder();
+  }
+
+  void _maybeShowStreetReminder() {
+    final byStreet = <String, List<double>>{};
+    for (final t in _templates) {
+      final s = t.targetStreet;
+      if (s == null || t.streetGoal <= 0) continue;
+      final val = _streetProgress[t.id] ?? 0;
+      byStreet.putIfAbsent(s, () => []).add(val / t.streetGoal);
     }
+    String? street;
+    double best = 1;
+    for (final e in byStreet.entries) {
+      final avg = e.value.reduce((a, b) => a + b) / e.value.length;
+      if (avg < best) {
+        best = avg;
+        street = e.key;
+      }
+    }
+    if (street == null || best >= 0.7) return;
+    final tpl = _suggestTemplate(street);
+    if (tpl == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Low ${_streetName(street)} progress'),
+        action: SnackBarAction(
+          label: 'Try Now',
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    TrainingPackPlayScreen(template: tpl, original: tpl),
+              ),
+            );
+            if (mounted) {
+              _loadProgress();
+              _loadGoals();
+              setState(() {});
+            }
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _loadGoals() async {
@@ -224,32 +268,42 @@ class _TrainingPackTemplateListScreenState
     return true;
   }
 
-  TrainingPackTemplate? _suggestTemplate() {
-    final byStreet = <String, List<TrainingPackTemplate>>{};
+  TrainingPackTemplate? _suggestTemplate([String? street]) {
+    final list = <TrainingPackTemplate>[];
     for (final t in _templates) {
       final s = t.targetStreet;
       if (s == null || t.spots.isEmpty) continue;
-      byStreet.putIfAbsent(s, () => []).add(t);
+      if (street != null && s != street) continue;
+      list.add(t);
     }
-    String? street;
-    double best = 2;
-    for (final e in byStreet.entries) {
-      double sum = 0;
-      for (final t in e.value) {
-        final total = t.spots.length;
-        if (total == 0) continue;
-        sum += (_progress[t.id]?.clamp(0, total) ?? 0) / total;
+    if (list.isEmpty) return null;
+    street ??= (() {
+      final byStreet = <String, List<TrainingPackTemplate>>{};
+      for (final t in list) {
+        byStreet.putIfAbsent(t.targetStreet!, () => []).add(t);
       }
-      final avg = sum / e.value.length;
-      if (avg < best) {
-        best = avg;
-        street = e.key;
+      String? st;
+      double best = 2;
+      for (final e in byStreet.entries) {
+        double sum = 0;
+        for (final t in e.value) {
+          final total = t.spots.length;
+          if (total == 0) continue;
+          sum += (_progress[t.id]?.clamp(0, total) ?? 0) / total;
+        }
+        final avg = sum / e.value.length;
+        if (avg < best) {
+          best = avg;
+          st = e.key;
+        }
       }
-    }
-    if (street == null || best >= 0.999) return null;
+      return best >= 0.999 ? null : st;
+    })();
+    if (street == null) return null;
     TrainingPackTemplate? result;
     double ratio = 2;
-    for (final t in byStreet[street]!) {
+    for (final t in list) {
+      if (t.targetStreet != street) continue;
       final total = t.spots.length;
       if (total == 0) continue;
       final r = (_progress[t.id]?.clamp(0, total) ?? 0) / total;
