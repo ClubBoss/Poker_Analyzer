@@ -9,12 +9,14 @@ class HandData {
   int heroIndex;
   int playerCount;
   List<String> board;
+  int anteBb;
 
   HandData({
     this.heroCards = '',
     this.position = HeroPosition.unknown,
     this.heroIndex = 0,
     this.playerCount = 6,
+    this.anteBb = 0,
     List<String>? board,
     Map<int, List<ActionEntry>>? actions,
     Map<String, double>? stacks,
@@ -51,6 +53,7 @@ class HandData {
       board: [for (final c in (j['board'] as List? ?? [])) c as String],
       actions: acts,
       stacks: Map<String, double>.from(j['stacks'] ?? {}),
+      anteBb: j['anteBb'] as int? ?? 0,
     );
   }
 
@@ -66,5 +69,6 @@ class HandData {
           },
         if (stacks.isNotEmpty) 'stacks': stacks,
         if (board.isNotEmpty) 'board': board,
+        'anteBb': anteBb,
       };
 }
