@@ -221,7 +221,7 @@ class _TrainingPackTemplateListScreenState
         street = e.key;
       }
     }
-    if (street == null) return null;
+    if (street == null || best >= 0.999) return null;
     TrainingPackTemplate? result;
     double ratio = 2;
     for (final t in byStreet[street]!) {
@@ -369,6 +369,7 @@ class _TrainingPackTemplateListScreenState
               if (mounted) {
                 _loadProgress();
                 _loadGoals();
+                setState(() {});
               }
             },
           ),
@@ -495,6 +496,7 @@ class _TrainingPackTemplateListScreenState
       });
       _loadProgress();
       _loadGoals();
+      setState(() {});
       _loadHideCompleted();
       _loadGroupByStreet();
     });
@@ -1849,6 +1851,7 @@ class _TrainingPackTemplateListScreenState
                               if (mounted) {
                                 _loadProgress();
                                 _loadGoals();
+                                setState(() {});
                               }
                             },
                           ),
@@ -1904,6 +1907,7 @@ class _TrainingPackTemplateListScreenState
                             if (mounted) {
                               _loadProgress();
                               _loadGoals();
+                              setState(() {});
                             }
                           },
                           child: const Text('Start Training'),
