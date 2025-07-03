@@ -8,6 +8,7 @@ import '../helpers/date_utils.dart';
 import '../models/drill_result.dart';
 import '../services/training_pack_storage_service.dart';
 import '../models/saved_hand.dart';
+import 'package:collection/collection.dart';
 import 'training_screen.dart';
 
 class DrillHistoryScreen extends StatefulWidget {
@@ -180,6 +181,33 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
     );
   }
 
+  Future<void> _repeatLast() async {
+    final history = context.read<DrillHistoryService>().results;
+    if (history.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('История пуста')));
+      return;
+    }
+    final last = history.first;
+    final packs = context.read<TrainingPackStorageService>().packs;
+    final pack = packs.firstWhereOrNull((p) => p.id == last.templateId);
+    if (pack == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Шаблон не найден')));
+      return;
+    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingScreen.drill(
+          hands: pack.hands,
+          templateId: pack.id,
+          templateName: pack.name,
+        ),
+      ),
+    );
+  }
+
   Widget _empty() => const Center(
         child: Text('История пока пуста',
             style: TextStyle(color: Colors.white70)),
@@ -272,6 +300,11 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
             onPressed: _repeatMistakes,
             icon: const Text('🔁', style: TextStyle(fontSize: 20)),
             tooltip: 'Повтор ошибок',
+          ),
+          IconButton(
+            onPressed: _repeatLast,
+            icon: const Text('🔂', style: TextStyle(fontSize: 20)),
+            tooltip: 'Повтор последней',
           ),
         ],
         bottom: PreferredSize(
