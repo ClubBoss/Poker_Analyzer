@@ -70,6 +70,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     await prefs.setStringList('tpl_seq_${widget.template.id}', [for (final s in _spots) s.id]);
     await prefs.setInt('tpl_prog_${widget.template.id}', _index);
     await prefs.setString('tpl_res_${widget.template.id}', jsonEncode(_results));
+    await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
   }
 
   void _startNew() {
