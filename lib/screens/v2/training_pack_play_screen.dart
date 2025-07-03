@@ -65,12 +65,14 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     });
   }
 
-  Future<void> _save() async {
+  Future<void> _save({bool ts = true}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('tpl_seq_${widget.template.id}', [for (final s in _spots) s.id]);
     await prefs.setInt('tpl_prog_${widget.template.id}', _index);
     await prefs.setString('tpl_res_${widget.template.id}', jsonEncode(_results));
-    await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
+    if (ts) {
+      await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
+    }
   }
 
   void _startNew() {
@@ -114,6 +116,20 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       }
     }
     return res;
+  }
+
+  Future<bool> _confirmStartOver(BuildContext context) async {
+    final res = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Start over?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('OK')),
+        ],
+      ),
+    );
+    return context.mounted && res == true;
   }
 
   void _choose(String act) {
@@ -172,43 +188,30 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         ),
         title: Text(widget.template.name),
         actions: [
-          PopupMenuButton<String>(
-            onSelected: (v) async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Start over?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('OK'),
-                    ),
-                  ],
-                ),
-              );
-              if (confirm == true) {
-                setState(() {
-                  _index = 0;
-                  _results.clear();
-                });
-                _save();
+          PopupMenuButton<dynamic>(
+            initialValue: _order,
+            onSelected: (choice) async {
+              if (choice == 'start') {
+                final ok = await _confirmStartOver(context);
+                if (ok) {
+                  setState(() {
+                    _index = 0;
+                    _results.clear();
+                  });
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs
+                    ..remove('tpl_seq_${widget.template.id}')
+                    ..remove('tpl_res_${widget.template.id}');
+                  _save(ts: false);
+                }
+              } else if (choice is PlayOrder) {
+                setState(() => _order = choice);
+                _startNew();
               }
             },
             itemBuilder: (_) => const [
-              PopupMenuItem(value: 'start', child: Text('🔁 Start Over')),
-            ],
-          ),
-          PopupMenuButton<PlayOrder>(
-            initialValue: _order,
-            onSelected: (v) {
-              setState(() => _order = v);
-              _startNew();
-            },
-            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'start', child: Text('Start over')),
+              PopupMenuDivider(),
               PopupMenuItem(value: PlayOrder.sequential, child: Text('Sequential')),
               PopupMenuItem(value: PlayOrder.random, child: Text('Random')),
               PopupMenuItem(value: PlayOrder.mistakes, child: Text('Mistakes')),
