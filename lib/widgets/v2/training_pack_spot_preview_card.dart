@@ -86,6 +86,17 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          if (spot.dirty)
+            Container(
+              width: 4,
+              decoration: const BoxDecoration(
+                color: Colors.amber,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                ),
+              ),
+            ),
           if (isMistake)
             Container(
               width: 4,
@@ -311,6 +322,26 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                   '📌 Pinned',
                   style: TextStyle(
                     color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          if (spot.dirty)
+            Positioned(
+              top: 4,
+              left: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  '⚠️ Outdated',
+                  style: TextStyle(
+                    color: Colors.black,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
