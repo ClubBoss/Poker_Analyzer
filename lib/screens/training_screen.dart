@@ -168,7 +168,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
       total: total,
       correct: correct,
       evLoss: evLoss,
-      wrongSpotIds: _wrongIds,
+      wrongSpotIds: [for (final id in _wrongIds) if (id.isNotEmpty) id],
     );
     await context.read<DrillHistoryService>().add(result);
     if (mounted) Navigator.pop(context);

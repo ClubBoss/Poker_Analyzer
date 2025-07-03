@@ -8,6 +8,8 @@ import '../helpers/date_utils.dart';
 import '../models/drill_result.dart';
 import '../services/training_pack_storage_service.dart';
 import '../models/saved_hand.dart';
+import '../models/v2/training_pack_spot.dart';
+import '../helpers/pack_spot_utils.dart';
 import 'package:collection/collection.dart';
 import 'training_screen.dart';
 
@@ -155,7 +157,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   Future<void> _repeatMistakes() async {
     final history = context.read<DrillHistoryService>().results;
     final ids = <String>{};
-    for (final r in history) ids.addAll(r.wrongSpotIds);
+    for (final r in history) ids.addAll(r.wrongSpotIds.where((e) => e.isNotEmpty));
     if (ids.isEmpty) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
@@ -200,7 +202,9 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => TrainingScreen.drill(
-          hands: pack.hands,
+          hands: pack.hands.isNotEmpty
+              ? pack.hands
+              : [for (final s in pack.spots) handFromPackSpot(s as TrainingPackSpot)],
           templateId: pack.id,
           templateName: pack.name,
         ),
