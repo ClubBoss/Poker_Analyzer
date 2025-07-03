@@ -23,6 +23,8 @@ class TrainingPackTemplate {
   DateTime? lastGeneratedAt;
   Map<String, dynamic> meta;
   bool goalAchieved;
+  int goalTarget;
+  int goalProgress;
 
   TrainingPackTemplate({
     required this.id,
@@ -43,6 +45,8 @@ class TrainingPackTemplate {
     this.lastGeneratedAt,
     Map<String, dynamic>? meta,
     this.goalAchieved = false,
+    this.goalTarget = 0,
+    this.goalProgress = 0,
   })  : spots = spots ?? [],
         tags = tags ?? [],
         playerStacksBb = playerStacksBb ?? const [10, 10],
@@ -70,6 +74,8 @@ class TrainingPackTemplate {
     DateTime? lastGeneratedAt,
     Map<String, dynamic>? meta,
     bool? goalAchieved,
+    int? goalTarget,
+    int? goalProgress,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -90,6 +96,8 @@ class TrainingPackTemplate {
       lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
       meta: meta ?? Map<String, dynamic>.from(this.meta),
       goalAchieved: goalAchieved ?? this.goalAchieved,
+      goalTarget: goalTarget ?? this.goalTarget,
+      goalProgress: goalProgress ?? this.goalProgress,
     );
   }
 
@@ -124,6 +132,8 @@ class TrainingPackTemplate {
           DateTime.tryParse(json['lastGeneratedAt'] as String? ?? ''),
       meta: json['meta'] != null ? Map<String, dynamic>.from(json['meta']) : {},
       goalAchieved: json['goalAchieved'] as bool? ?? false,
+      goalTarget: json['goalTarget'] as int? ?? 0,
+      goalProgress: json['goalProgress'] as int? ?? 0,
     );
     if (!tpl.meta.containsKey('evCovered') || !tpl.meta.containsKey('icmCovered')) {
       tpl.recountCoverage();
@@ -151,6 +161,8 @@ class TrainingPackTemplate {
           'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
         if (meta.isNotEmpty) 'meta': meta,
         if (goalAchieved) 'goalAchieved': true,
+        if (goalTarget > 0) 'goalTarget': goalTarget,
+        if (goalProgress > 0) 'goalProgress': goalProgress,
       };
 
   int get evCovered => meta['evCovered'] as int? ?? 0;
