@@ -176,6 +176,36 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
     );
   }
 
+  Widget _evCard() {
+    final res = spot.evalResult;
+    if (res == null) return const SizedBox.shrink();
+    final ev = res.ev;
+    final icm = res.icmEv;
+    if (ev == null && icm == null) return const SizedBox.shrink();
+    final rows = <Widget>[];
+    if (ev != null) {
+      rows.add(Text(
+        'EV: ${ev >= 0 ? '+' : ''}${ev.toStringAsFixed(1)} BB',
+        style: const TextStyle(color: Colors.white),
+      ));
+    }
+    if (icm != null) {
+      rows.add(Text(
+        'ICM EV: ${icm >= 0 ? '+' : ''}${icm.toStringAsFixed(3)}',
+        style: const TextStyle(color: Colors.white70),
+      ));
+    }
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade800,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -210,6 +240,7 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
             ],
             const SizedBox(height: 8),
             ActionHistoryWidget(actions: _actions(), playerPositions: _posMap()),
+            _evCard(),
           ],
         ),
       ),
