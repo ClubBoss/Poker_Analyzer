@@ -180,6 +180,15 @@ class _TrainingScreenState extends State<TrainingScreen> {
     }
   }
 
+  void _previous() {
+    if (_index <= 0) return;
+    setState(() {
+      _index--;
+      _selected = null;
+      _wasCorrect = null;
+    });
+  }
+
   Future<void> _showSummary() async {
     await showDialog(
       context: context,
@@ -260,6 +269,12 @@ class _TrainingScreenState extends State<TrainingScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
+          leading: _drill && _index > 0
+              ? IconButton(
+                  onPressed: _previous,
+                  icon: const Text('⬅️'),
+                )
+              : null,
           title: const Text('Training'),
           centerTitle: true,
           actions: [SyncStatusIcon.of(context)],
