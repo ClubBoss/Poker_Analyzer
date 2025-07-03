@@ -7,7 +7,7 @@ import 'package:poker_ai_analyzer/models/evaluation_result.dart';
 import 'package:poker_ai_analyzer/screens/v2/training_pack_template_editor_screen.dart';
 
 void main() {
-  testWidgets('mistake only filter shows only incorrect spots', (tester) async {
+  testWidgets('mistakes filter shows only incorrect spots', (tester) async {
     final tpl = TrainingPackTemplate(
       id: 't',
       name: 'Test',
@@ -33,7 +33,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Spot 1'), findsOneWidget);
     expect(find.text('Spot 2'), findsOneWidget);
-    await tester.tap(find.text('Mistake only'));
+    await tester.tap(find.text('Mistakes'));
     await tester.pumpAndSettle();
     expect(find.text('Spot 1'), findsNothing);
     expect(find.text('Spot 2'), findsOneWidget);
