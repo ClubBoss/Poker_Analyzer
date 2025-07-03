@@ -184,6 +184,21 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  String _streetName(String street) {
+    switch (street) {
+      case 'preflop':
+        return 'Preflop';
+      case 'flop':
+        return 'Flop';
+      case 'turn':
+        return 'Turn';
+      case 'river':
+        return 'River';
+      default:
+        return street;
+    }
+  }
+
   Widget _buildTemplateTile(TrainingPackTemplate t, bool narrow,
       {int? index}) {
     final total = t.spots.length;
@@ -293,6 +308,16 @@ class _TrainingPackTemplateListScreenState
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (t.targetStreet != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(
+                t.streetGoal > 0
+                    ? '${_streetName(t.targetStreet!)} Goal: ${t.streetGoal}%'
+                    : '${_streetName(t.targetStreet!)} Focus',
+                style: const TextStyle(fontSize: 12, color: Colors.white70),
+              ),
+            ),
           IconButton(
             icon: const Icon(Icons.play_arrow),
             tooltip: 'Start training',
