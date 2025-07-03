@@ -1224,8 +1224,9 @@ class _TrainingPackTemplateListScreenState
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (_) =>
-                                        TrainingPackPlayScreen(template: tpl)),
+                                  builder: (_) => TrainingPackPlayScreen(
+                                      template: tpl, original: tpl),
+                                ),
                               );
                             },
                           ),
@@ -1386,8 +1387,8 @@ class _TrainingPackTemplateListScreenState
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        TrainingPackPlayScreen(template: t),
+                                    builder: (_) => TrainingPackPlayScreen(
+                                        template: t, original: t),
                                   ),
                                 );
                               },

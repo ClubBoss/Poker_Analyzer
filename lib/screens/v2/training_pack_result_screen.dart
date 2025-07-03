@@ -38,20 +38,23 @@ class TrainingPackResultScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text('Mistakes: $_mistakes', style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            Text('Accuracy: ${_rate.toStringAsFixed(1)}%', style: const TextStyle(color: Colors.white70)),
-            if (_evs.length > 1) ...[
+            Text('Accuracy: ${_mistakes == 0 ? '100' : _rate.toStringAsFixed(1)}%',
+                style: const TextStyle(color: Colors.white70)),
+            if (_evs.length >= 2)
               const SizedBox(height: 16),
-              _EvChart(evs: _evs),
-            ],
+            if (_evs.length >= 2)
+              _EvChart(evs: _evs)
+            else
+              const SizedBox.shrink(),
             const Spacer(),
             ElevatedButton(
               onPressed: _mistakes == 0
                   ? null
                   : () async {
                       final prefs = await SharedPreferences.getInstance();
-                      await prefs.remove('tpl_seq_${template.id}');
-                      await prefs.remove('tpl_prog_${template.id}');
-                      await prefs.remove('tpl_res_${template.id}');
+                      await prefs.remove('tpl_seq_${original.id}');
+                      await prefs.remove('tpl_prog_${original.id}');
+                      await prefs.remove('tpl_res_${original.id}');
                       final spots = [for (final s in template.spots) if (results[s.id] == false) s];
                       final retry = template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
                       Navigator.pushReplacement(
@@ -93,6 +96,7 @@ class _EvChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (evs.length < 2) return const SizedBox.shrink();
     final maxEv = evs.reduce(max);
     final minEv = evs.reduce(min);
     final limit = max(maxEv.abs(), minEv.abs());
@@ -119,14 +123,16 @@ class _EvChart extends StatelessWidget {
       );
     }
     var interval = limit == 0 ? 1.0 : (limit / 5).ceilToDouble();
-    return Container(
-      height: 200,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: BarChart(
+    return Tooltip(
+      message: 'Only spots you actually answered',
+      child: Container(
+        height: 200,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: BarChart(
         BarChartData(
           maxY: limit,
           minY: -limit,
