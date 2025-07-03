@@ -47,6 +47,7 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
   static const _prefsHideKey = 'tpl_hide_completed';
+  static const _prefsGroupKey = 'tpl_group_by_street';
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
   String _query = '';
@@ -58,6 +59,7 @@ class _TrainingPackTemplateListScreenState
   bool _filtersShown = false;
   bool _completedOnly = false;
   bool _hideCompleted = false;
+  bool _groupByStreet = false;
   String _sort = 'name';
   List<GeneratedPackInfo> _history = [];
   int _mixedCount = 20;
@@ -148,10 +150,273 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadGroupByStreet() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() => _groupByStreet = prefs.getBool(_prefsGroupKey) ?? false);
+    }
+  }
+
   Future<void> _setHideCompleted(bool value) async {
     setState(() => _hideCompleted = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefsHideKey, value);
+  }
+
+  Future<void> _setGroupByStreet(bool value) async {
+    setState(() => _groupByStreet = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsGroupKey, value);
+  }
+
+  String _streetLabel(String? street) {
+    switch (street) {
+      case 'preflop':
+        return 'Preflop Focus';
+      case 'flop':
+        return 'Flop Focus';
+      case 'turn':
+        return 'Turn Focus';
+      case 'river':
+        return 'River Focus';
+      default:
+        return 'Any Street';
+    }
+  }
+
+  Widget _buildTemplateTile(TrainingPackTemplate t, bool narrow,
+      {int? index}) {
+    final total = t.spots.length;
+    final allEv = total > 0 && t.evCovered >= total;
+    final allIcm = total > 0 && t.icmCovered >= total;
+    final isNew = t.lastGeneratedAt != null &&
+        DateTime.now().difference(t.lastGeneratedAt!).inHours < 48;
+    final tile = ListTile(
+      tileColor:
+          t.id == _lastOpenedId ? Theme.of(context).highlightColor : null,
+      onLongPress: () => _duplicate(t),
+      title: Row(
+        children: [
+          Expanded(child: Text(t.name)),
+          if (isNew)
+            const Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Chip(
+                label: Text('NEW', style: TextStyle(fontSize: 12)),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          if (allIcm)
+            const Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Chip(
+                label: Text('ICM', style: TextStyle(fontSize: 12)),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          if (allEv)
+            const Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Text('📈', style: TextStyle(fontSize: 16)),
+            ),
+          if (t.goalAchieved)
+            const Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Text('🏆', style: TextStyle(fontSize: 16)),
+            ),
+        ],
+      ),
+      subtitle: (() {
+        final items = <Widget>[];
+        final progVal =
+            total > 0 ? (_progress[t.id]?.clamp(0, total) ?? 0) / total : 0.0;
+        final progColor = t.goalAchieved ? Colors.green : Colors.orange;
+        items.add(LinearProgressIndicator(
+          value: progVal,
+          color: progColor,
+          backgroundColor: progColor.withOpacity(0.3),
+        ));
+        items.add(const SizedBox(height: 4));
+        if (t.targetStreet != null && t.streetGoal > 0) {
+          final val =
+              (_streetProgress[t.id]?.clamp(0, t.streetGoal) ?? 0) / t.streetGoal;
+          items.add(Row(
+            children: [
+              Expanded(child: LinearProgressIndicator(value: val)),
+              const SizedBox(width: 8),
+              Text('${(val * 100).round()}%',
+                  style: const TextStyle(fontSize: 12)),
+            ],
+          ));
+        }
+        final ratio = t.goalTarget > 0
+            ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0)
+            : 0.0;
+        if (t.goalTarget > 0) {
+          items.add(Row(
+            children: [
+              Expanded(child: LinearProgressIndicator(value: ratio)),
+              const SizedBox(width: 8),
+              Text('${(ratio * 100).round()}%',
+                  style: const TextStyle(fontSize: 12)),
+            ],
+          ));
+        }
+        final prog = _progress[t.id];
+        if (prog != null) {
+          items.add(Text(
+            '${prog.clamp(0, total)}/$total done',
+            style: const TextStyle(fontSize: 12, color: Colors.white54),
+          ));
+        }
+        if (t.description.trim().isNotEmpty) {
+          items.add(Text(
+            t.description.split('\n').first,
+            style: const TextStyle(fontSize: 12),
+          ));
+        }
+        if (t.lastGeneratedAt != null) {
+          items.add(Text(
+            'Last generated: ${timeago.format(t.lastGeneratedAt!)}',
+            style: const TextStyle(fontSize: 12, color: Colors.white54),
+          ));
+        }
+        if (items.isEmpty) return null;
+        if (items.length == 1) return items.first;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: items,
+        );
+      })(),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.play_arrow),
+            tooltip: 'Start training',
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      TrainingPackPlayScreen(template: t, original: t),
+                ),
+              );
+              if (mounted) {
+                _loadProgress();
+                _loadGoals();
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.auto_fix_high),
+            tooltip: 'Generate spots',
+            onPressed: () async {
+              final service = TrainingPackTemplateUiService();
+              final generated =
+                  await service.generateSpotsWithProgress(context, t);
+              if (!mounted) return;
+              setState(() => t.spots.addAll(generated));
+              TrainingPackStorage.save(_templates);
+            },
+          ),
+          PopupMenuButton<String>(
+            onSelected: (v) {
+              if (v == 'rename') _rename(t);
+              if (v == 'duplicate') _duplicate(t);
+              if (v == 'missing') _generateMissing(t);
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'rename',
+                child: Text('✏️ Rename'),
+              ),
+              PopupMenuItem(
+                value: 'duplicate',
+                child: Text('📄 Duplicate'),
+              ),
+              PopupMenuItem(
+                value: 'missing',
+                child: Text('Generate Missing'),
+              ),
+            ],
+          ),
+          if (narrow)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () => _edit(t),
+            )
+          else
+            TextButton(
+              onPressed: () => _edit(t),
+              child: const Text('📝 Edit'),
+            ),
+          IconButton(
+            icon: const Icon(Icons.copy),
+            onPressed: () => _duplicate(t),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () async {
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Delete pack?'),
+                  content: Text('“${t.name}” will be removed.'),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel')),
+                    TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Delete')),
+                  ],
+                ),
+              );
+              if (ok ?? false) {
+                final idx = _templates.indexOf(t);
+                setState(() {
+                  _lastRemoved = t;
+                  _lastIndex = idx;
+                  _templates.removeAt(idx);
+                });
+                TrainingPackStorage.save(_templates);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Deleted'),
+                    action: SnackBarAction(
+                      label: 'UNDO',
+                      onPressed: () {
+                        if (_lastRemoved != null) {
+                          setState(() => _templates.insert(_lastIndex, _lastRemoved!));
+                          TrainingPackStorage.save(_templates);
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+    if (index == null) return tile;
+    return Container(
+      key: ValueKey(t.id),
+      child: Row(
+        children: [
+          if (!_loading)
+            ReorderableDragStartListener(
+              index: index,
+              child: const Icon(Icons.drag_handle),
+            ),
+          Expanded(child: tile),
+        ],
+      ),
+    );
   }
 
   @override
@@ -169,6 +434,7 @@ class _TrainingPackTemplateListScreenState
       _loadProgress();
       _loadGoals();
       _loadHideCompleted();
+      _loadGroupByStreet();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1342,6 +1608,13 @@ class _TrainingPackTemplateListScreenState
                   t.description.toLowerCase().contains(_query))
                 t
           ];
+    final groups = <String, List<TrainingPackTemplate>>{};
+    if (_groupByStreet) {
+      for (final t in shown) {
+        final key = t.targetStreet ?? 'any';
+        groups.putIfAbsent(key, () => []).add(t);
+      }
+    }
     final history = _dedupHistory();
     return Scaffold(
       appBar: AppBar(
@@ -1475,6 +1748,12 @@ class _TrainingPackTemplateListScreenState
                   onChanged: _setHideCompleted,
                   activeColor: Colors.orange,
                 ),
+                SwitchListTile(
+                  title: const Text('Group by Street'),
+                  value: _groupByStreet,
+                  onChanged: _setGroupByStreet,
+                  activeColor: Colors.orange,
+                ),
                 if (!narrow)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -1525,276 +1804,57 @@ class _TrainingPackTemplateListScreenState
                     ),
                   ),
                 Expanded(
-                  child: ReorderableListView.builder(
-                    buildDefaultDragHandles: false,
-                    itemCount: shown.length,
-                    onReorder: (oldIndex, newIndex) {
-                      final item = shown[oldIndex];
-                      final oldPos = _templates.indexOf(item);
-                      int newPos;
-                      if (newIndex >= shown.length) {
-                        newPos = _templates.length;
-                      } else {
-                        newPos = _templates.indexOf(shown[newIndex]);
-                      }
-                      setState(() {
-                        _templates.removeAt(oldPos);
-                        _templates.insert(
-                          newPos > oldPos ? newPos - 1 : newPos,
-                          item,
-                        );
-                      });
-                      TrainingPackStorage.save(_templates);
-                    },
-                    itemBuilder: (context, index) {
-                      final t = shown[index];
-                      final total = t.spots.length;
-                      final allEv = total > 0 && t.evCovered >= total;
-                      final allIcm = total > 0 && t.icmCovered >= total;
-                      final isNew = t.lastGeneratedAt != null &&
-                          DateTime.now()
-                                  .difference(t.lastGeneratedAt!)
-                                  .inHours <
-                              48;
-                      final tile = ListTile(
-                        tileColor: t.id == _lastOpenedId
-                            ? Theme.of(context).highlightColor
-                            : null,
-                        onLongPress: () => _duplicate(t),
-                        title: Row(
+                  child: _groupByStreet
+                      ? ListView(
                           children: [
-                            Expanded(child: Text(t.name)),
-                            if (isNew)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 4),
-                                child: Chip(
-                                  label: Text('NEW',
-                                      style: TextStyle(fontSize: 12)),
-                                  visualDensity: VisualDensity.compact,
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                              ),
-                            if (allIcm)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 4),
-                                child: Chip(
-                                  label: Text('ICM',
-                                      style: TextStyle(fontSize: 12)),
-                                  visualDensity: VisualDensity.compact,
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                              ),
-                            if (allEv)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 4),
-                                child:
-                                    Text('📈', style: TextStyle(fontSize: 16)),
-                              ),
-                            if (t.goalAchieved)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 4),
-                                child: Text('🏆', style: TextStyle(fontSize: 16)),
-                              ),
-                          ],
-                        ),
-                        subtitle: (() {
-                          final items = <Widget>[];
-                          final progVal = total > 0
-                              ? (_progress[t.id]?.clamp(0, total) ?? 0) / total
-                              : 0.0;
-                          final progColor =
-                              t.goalAchieved ? Colors.green : Colors.orange;
-                          items.add(LinearProgressIndicator(
-                            value: progVal,
-                            color: progColor,
-                            backgroundColor: progColor.withOpacity(0.3),
-                          ));
-                          items.add(const SizedBox(height: 4));
-                          if (t.targetStreet != null && t.streetGoal > 0) {
-                            final val = (_streetProgress[t.id]?.clamp(0, t.streetGoal) ?? 0) / t.streetGoal;
-                            items.add(Row(
-                              children: [
-                                Expanded(child: LinearProgressIndicator(value: val)),
-                                const SizedBox(width: 8),
-                                Text('${(val * 100).round()}%', style: const TextStyle(fontSize: 12)),
-                              ],
-                            ));
-                          }
-                          final ratio = t.goalTarget > 0
-                              ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0)
-                              : 0.0;
-                          if (t.goalTarget > 0) {
-                            items.add(Row(
-                              children: [
-                                Expanded(child: LinearProgressIndicator(value: ratio)),
-                                const SizedBox(width: 8),
-                                Text('${(ratio * 100).round()}%',
-                                    style: const TextStyle(fontSize: 12)),
-                              ],
-                            ));
-                          }
-                          final prog = _progress[t.id];
-                          if (prog != null) {
-                            items.add(Text(
-                              '${prog.clamp(0, total)}/$total done',
-                              style: const TextStyle(fontSize: 12, color: Colors.white54),
-                            ));
-                          }
-                          if (t.description.trim().isNotEmpty) {
-                            items.add(Text(
-                              t.description.split('\n').first,
-                              style: const TextStyle(fontSize: 12),
-                            ));
-                          }
-                          if (t.lastGeneratedAt != null) {
-                            items.add(Text(
-                              'Last generated: ${timeago.format(t.lastGeneratedAt!)}',
-                              style: const TextStyle(fontSize: 12, color: Colors.white54),
-                            ));
-                          }
-                          if (items.isEmpty) return null;
-                          if (items.length == 1) return items.first;
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: items,
-                          );
-                        })(),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.play_arrow),
-                              tooltip: 'Start training',
-                              onPressed: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => TrainingPackPlayScreen(
-                                        template: t, original: t),
+                            for (final key in [
+                              'preflop',
+                              'flop',
+                              'turn',
+                              'river',
+                              'any'
+                            ])
+                              if (groups[key]?.isNotEmpty ?? false) ...[
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  child: Text(
+                                    _streetLabel(key),
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
-                                );
-                                if (mounted) {
-                                  _loadProgress();
-                                  _loadGoals();
-                                }
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.auto_fix_high),
-                              tooltip: 'Generate spots',
-                              onPressed: () async {
-                                final service = TrainingPackTemplateUiService();
-                                final generated =
-                                    await service.generateSpotsWithProgress(
-                                        context, t);
-                                if (!mounted) return;
-                                setState(() => t.spots.addAll(generated));
-                                TrainingPackStorage.save(_templates);
-                              },
-                            ),
-                            PopupMenuButton<String>(
-                              onSelected: (v) {
-                                if (v == 'rename') _rename(t);
-                                if (v == 'duplicate') _duplicate(t);
-                                if (v == 'missing') _generateMissing(t);
-                              },
-                              itemBuilder: (_) => const [
-                                PopupMenuItem(
-                                  value: 'rename',
-                                  child: Text('✏️ Rename'),
                                 ),
-                                PopupMenuItem(
-                                  value: 'duplicate',
-                                  child: Text('📄 Duplicate'),
-                                ),
-                                PopupMenuItem(
-                                  value: 'missing',
-                                  child: Text('Generate Missing'),
-                                ),
+                                for (final t in groups[key]!)
+                                  _buildTemplateTile(t, narrow),
                               ],
-                            ),
-                            if (narrow)
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _edit(t),
-                              )
-                            else
-                              TextButton(
-                                onPressed: () => _edit(t),
-                                child: const Text('📝 Edit'),
-                              ),
-                            IconButton(
-                              icon: const Icon(Icons.copy),
-                              onPressed: () => _duplicate(t),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () async {
-                                final ok = await showDialog<bool>(
-                                  context: context,
-                                  builder: (_) => AlertDialog(
-                                    title: const Text('Delete pack?'),
-                                    content:
-                                        Text('“${t.name}” will be removed.'),
-                                    actions: [
-                                      TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: const Text('Cancel')),
-                                      TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, true),
-                                          child: const Text('Delete')),
-                                    ],
-                                  ),
-                                );
-                                if (ok ?? false) {
-                                  final index = _templates.indexOf(t);
-                                  setState(() {
-                                    _lastRemoved = t;
-                                    _lastIndex = index;
-                                    _templates.removeAt(index);
-                                  });
-                                  TrainingPackStorage.save(_templates);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: const Text('Deleted'),
-                                      action: SnackBarAction(
-                                        label: 'UNDO',
-                                        onPressed: () {
-                                          if (_lastRemoved != null) {
-                                            setState(() => _templates.insert(
-                                                _lastIndex, _lastRemoved!));
-                                            TrainingPackStorage.save(
-                                                _templates);
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
                           ],
+                        )
+                      : ReorderableListView.builder(
+                          buildDefaultDragHandles: false,
+                          itemCount: shown.length,
+                          onReorder: (oldIndex, newIndex) {
+                            final item = shown[oldIndex];
+                            final oldPos = _templates.indexOf(item);
+                            int newPos;
+                            if (newIndex >= shown.length) {
+                              newPos = _templates.length;
+                            } else {
+                              newPos = _templates.indexOf(shown[newIndex]);
+                            }
+                            setState(() {
+                              _templates.removeAt(oldPos);
+                              _templates.insert(
+                                newPos > oldPos ? newPos - 1 : newPos,
+                                item,
+                              );
+                            });
+                            TrainingPackStorage.save(_templates);
+                          },
+                          itemBuilder: (context, index) {
+                            final t = shown[index];
+                            return _buildTemplateTile(t, narrow, index: index);
+                          },
                         ),
-                      );
-                      return Container(
-                        key: ValueKey(t.id),
-                        child: Row(
-                          children: [
-                            if (!_loading)
-                              ReorderableDragStartListener(
-                                index: index,
-                                child: const Icon(Icons.drag_handle),
-                              ),
-                            Expanded(child: tile),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
