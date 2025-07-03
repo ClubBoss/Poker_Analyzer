@@ -269,7 +269,10 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _nameAndEdit(TrainingPackTemplate template) async {
     final ctrl = TextEditingController(text: template.name);
+    final streetCtrl =
+        TextEditingController(text: template.streetGoal > 0 ? '${template.streetGoal}' : '');
     GameType type = template.gameType;
+    String street = template.targetStreet ?? 'any';
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -292,6 +295,25 @@ class _TrainingPackTemplateListScreenState
                 onChanged: (v) =>
                     setState(() => type = v ?? GameType.tournament),
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: street,
+                decoration: const InputDecoration(labelText: 'Target Street'),
+                items: const [
+                  DropdownMenuItem(value: 'any', child: Text('Any')),
+                  DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                  DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                  DropdownMenuItem(value: 'river', child: Text('River')),
+                ],
+                onChanged: (v) => setState(() => street = v ?? 'any'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: streetCtrl,
+                keyboardType: TextInputType.number,
+                decoration:
+                    const InputDecoration(labelText: 'Street Goal (optional)'),
+              ),
             ],
           ),
           actions: [
@@ -313,12 +335,15 @@ class _TrainingPackTemplateListScreenState
         setState(() {
           template.name = name;
           template.gameType = type;
+          template.targetStreet = street == 'any' ? null : street;
+          template.streetGoal = int.tryParse(streetCtrl.text) ?? 0;
           _sortTemplates();
         });
         TrainingPackStorage.save(_templates);
       }
     }
     ctrl.dispose();
+    streetCtrl.dispose();
     _edit(template);
   }
 
