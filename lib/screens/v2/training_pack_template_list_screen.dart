@@ -164,6 +164,7 @@ class _TrainingPackTemplateListScreenState
         action: SnackBarAction(
           label: 'Try Now',
           onPressed: () async {
+            await _showStreetProgress(tpl);
             await Navigator.push(
               context,
               MaterialPageRoute(
@@ -257,6 +258,41 @@ class _TrainingPackTemplateListScreenState
       default:
         return street;
     }
+  }
+
+  Future<void> _showStreetProgress(TrainingPackTemplate tpl) async {
+    if (tpl.targetStreet == null || tpl.streetGoal <= 0) return;
+    final done = _streetProgress[tpl.id]?.clamp(0, tpl.streetGoal) ?? 0;
+    final ratio = done / tpl.streetGoal;
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        content: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.0, end: ratio),
+          duration: const Duration(milliseconds: 500),
+          builder: (context, value, _) => SizedBox(
+            width: 80,
+            height: 80,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircularProgressIndicator(
+                  value: value,
+                  strokeWidth: 8,
+                  backgroundColor: Colors.white24,
+                  valueColor:
+                      const AlwaysStoppedAnimation(Colors.orangeAccent),
+                ),
+                Text('${(value * 100).round()}%',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   bool _isIcmTemplate(TrainingPackTemplate t) {
@@ -438,6 +474,7 @@ class _TrainingPackTemplateListScreenState
             icon: const Icon(Icons.play_arrow),
             tooltip: 'Start training',
             onPressed: () async {
+              await _showStreetProgress(t);
               await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -587,6 +624,7 @@ class _TrainingPackTemplateListScreenState
   }
 
   void _edit(TrainingPackTemplate template) async {
+    await _showStreetProgress(template);
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -1934,6 +1972,7 @@ class _TrainingPackTemplateListScreenState
                                     const SnackBar(content: Text('Pack not found')));
                                 return;
                               }
+                              await _showStreetProgress(tpl);
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -1990,6 +2029,7 @@ class _TrainingPackTemplateListScreenState
                         const SizedBox(width: 8),
                         ElevatedButton(
                           onPressed: () async {
+                            await _showStreetProgress(suggestion);
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
