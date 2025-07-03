@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/v2/training_pack_template.dart';
+import '../../models/v2/training_pack_spot.dart';
 import '../../theme/app_colors.dart';
 import 'training_pack_play_screen.dart';
 import 'training_pack_template_editor_screen.dart';
@@ -12,11 +13,29 @@ import 'training_pack_template_editor_screen.dart';
 class TrainingPackResultScreen extends StatelessWidget {
   final TrainingPackTemplate template;
   final TrainingPackTemplate original;
-  final Map<String, bool> results;
+  final Map<String, String> results;
   const TrainingPackResultScreen({super.key, required this.template, required this.results, TrainingPackTemplate? original})
       : original = original ?? template;
 
-  int get _correct => results.values.where((e) => e).length;
+  String? _expected(TrainingPackSpot s) {
+    final acts = s.hand.actions[0] ?? [];
+    for (final a in acts) {
+      if (a.playerIndex == s.hand.heroIndex) return a.action;
+    }
+    return null;
+  }
+
+  int get _correct {
+    var c = 0;
+    for (final s in template.spots) {
+      final exp = _expected(s);
+      final ans = results[s.id];
+      if (exp != null && ans != null && ans.toLowerCase() == exp.toLowerCase()) {
+        c++;
+      }
+    }
+    return c;
+  }
   int get _total => template.spots.length;
   int get _mistakes => _total - _correct;
   double get _rate => _total == 0 ? 0 : _correct * 100 / _total;
@@ -55,7 +74,13 @@ class TrainingPackResultScreen extends StatelessWidget {
                       await prefs.remove('tpl_seq_${original.id}');
                       await prefs.remove('tpl_prog_${original.id}');
                       await prefs.remove('tpl_res_${original.id}');
-                      final spots = [for (final s in template.spots) if (results[s.id] == false) s];
+                      final spots = [
+                        for (final s in template.spots)
+                          if (results.containsKey(s.id) &&
+                              _expected(s)?.toLowerCase() !=
+                                  results[s.id]!.toLowerCase())
+                            s
+                      ];
                       final retry = template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
                       Navigator.pushReplacement(
                         context,
