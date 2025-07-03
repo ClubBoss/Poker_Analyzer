@@ -60,6 +60,7 @@ class _TrainingPackTemplateListScreenState
   bool _completedOnly = false;
   bool _hideCompleted = false;
   bool _groupByStreet = false;
+  bool _icmOnly = false;
   String _sort = 'name';
   List<GeneratedPackInfo> _history = [];
   int _mixedCount = 20;
@@ -197,6 +198,15 @@ class _TrainingPackTemplateListScreenState
       default:
         return street;
     }
+  }
+
+  bool _isIcmTemplate(TrainingPackTemplate t) {
+    if (t.meta['icmType'] != null) return true;
+    if (t.spots.isEmpty) return false;
+    for (final s in t.spots) {
+      if (!s.tags.contains('icm')) return false;
+    }
+    return true;
   }
 
   TrainingPackTemplate? _suggestTemplate() {
@@ -1482,6 +1492,11 @@ class _TrainingPackTemplateListScreenState
                 onSelected: (_) =>
                     setState(() => _completedOnly = !_completedOnly),
               ),
+              ChoiceChip(
+                label: const Text('ICM Only'),
+                selected: _icmOnly,
+                onSelected: (_) => setState(() => _icmOnly = !_icmOnly),
+              ),
               if (tags.isNotEmpty) ...[
                 ChoiceChip(
                   label: const Text('All Tags'),
@@ -1711,9 +1726,15 @@ class _TrainingPackTemplateListScreenState
             for (final t in byType)
               if (t.tags.contains(_selectedTag)) t
           ];
+    final icmFiltered = !_icmOnly
+        ? filtered
+        : [
+            for (final t in filtered)
+              if (_isIcmTemplate(t)) t
+          ];
     final completed = _completedOnly
-        ? [for (final t in filtered) if (t.goalAchieved) t]
-        : filtered;
+        ? [for (final t in icmFiltered) if (t.goalAchieved) t]
+        : icmFiltered;
     final visible = _hideCompleted
         ? [
             for (final t in completed)
@@ -1957,6 +1978,12 @@ class _TrainingPackTemplateListScreenState
                           selected: _completedOnly,
                           onSelected: (_) =>
                               setState(() => _completedOnly = !_completedOnly),
+                        ),
+                        ChoiceChip(
+                          label: const Text('ICM Only'),
+                          selected: _icmOnly,
+                          onSelected: (_) =>
+                              setState(() => _icmOnly = !_icmOnly),
                         ),
                         if (tags.isNotEmpty) ...[
                           ChoiceChip(
