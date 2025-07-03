@@ -183,7 +183,10 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 ],
               ),
             );
-            if (confirm == true) Navigator.pop(context);
+            if (confirm == true) {
+              _save();
+              Navigator.pop(context);
+            }
           },
         ),
         title: Text(widget.template.name),
