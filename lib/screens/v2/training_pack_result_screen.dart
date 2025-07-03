@@ -18,6 +18,8 @@ class TrainingPackResultScreen extends StatelessWidget {
       : original = original ?? template;
 
   String? _expected(TrainingPackSpot s) {
+    final eval = s.evalResult?.expectedAction;
+    if (eval != null && eval.isNotEmpty) return eval;
     final acts = s.hand.actions[0] ?? [];
     for (final a in acts) {
       if (a.playerIndex == s.hand.heroIndex) return a.action;
@@ -39,6 +41,12 @@ class TrainingPackResultScreen extends StatelessWidget {
   int get _total => template.spots.length;
   int get _mistakes => _total - _correct;
   double get _rate => _total == 0 ? 0 : _correct * 100 / _total;
+
+  String get _message {
+    if (_correct == _total) return 'Perfect!';
+    if (_rate >= 80) return 'Great effort!';
+    return 'Keep training!';
+  }
 
   List<double> get _evs => [for (final s in template.spots) if (s.heroEv != null && results.containsKey(s.id)) s.heroEv!];
 
@@ -62,8 +70,10 @@ class TrainingPackResultScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('$_correct / $_total',
+            Text('$_correct of $_total correct',
                 style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text(_message, style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             Text('Mistakes: $_mistakes', style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
