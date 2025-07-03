@@ -72,6 +72,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
   @override
   void initState() {
     super.initState();
+    final achieved = _correct == _total;
+    SharedPreferences.getInstance()
+        .then((p) => p.setBool('tpl_goal_${widget.original.id}', achieved));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _firstKey.currentContext;
       if (ctx != null) {
