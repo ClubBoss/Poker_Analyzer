@@ -3318,8 +3318,12 @@ class _CoverageProgress extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text('$label $percent%',
-            style: const TextStyle(color: Colors.white70)),
+        Tooltip(
+          message:
+              'This shows how many spots have calculated EV/ICM. Aim for 100% before training or publishing.',
+          child: Text('$label $percent%',
+              style: const TextStyle(color: Colors.white70)),
+        ),
       ],
     );
   }
