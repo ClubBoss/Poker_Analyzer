@@ -239,7 +239,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
       if (tpl != null) {
         final hands = [
           for (final s in tpl.spots)
-            if (_wrongIds.contains(s.id)) handFromPackSpot(s)
+            if (_wrongIds.contains(s.id))
+              handFromPackSpot(s, anteBb: tpl.anteBb)
         ];
         if (hands.isNotEmpty) {
           unawaited(Navigator.pushReplacement(
@@ -345,6 +346,14 @@ class _TrainingScreenState extends State<TrainingScreen> {
                 Text(
                   'Раздача ${_index + 1} / ${widget.hands!.length}',
                   style: const TextStyle(color: Colors.white70),
+                ),
+              if (_drill && spot.anteBb > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    'Ante: ${spot.anteBb} BB',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               if (_drill) const SizedBox(height: 8),
               TrainingSpotDiagram(

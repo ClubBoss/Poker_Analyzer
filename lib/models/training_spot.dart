@@ -12,6 +12,7 @@ class TrainingSpot {
   final List<PlayerType> playerTypes;
   final List<String> positions;
   final List<int> stacks;
+  final int anteBb;
 
   /// Optional strategy advice for each player indexed by player position.
   final List<String>? strategyAdvice;
@@ -45,6 +46,7 @@ class TrainingSpot {
     required this.playerTypes,
     required this.positions,
     required this.stacks,
+    this.anteBb = 0,
     this.strategyAdvice,
     this.equities,
     this.rangeMatrix,
@@ -85,6 +87,7 @@ class TrainingSpot {
       stacks: [
         for (int i = 0; i < hand.numberOfPlayers; i++) hand.stackSizes[i] ?? 0
       ],
+      anteBb: hand.anteBb,
       rangeMatrix: null,
       equities: null,
       tournamentId: hand.tournamentId,
@@ -129,6 +132,7 @@ class TrainingSpot {
         'playerTypes': [for (final t in playerTypes) t.name],
         'positions': positions,
         'stacks': stacks,
+        'anteBb': anteBb,
         if (equities != null) 'equities': equities,
         if (rangeMatrix != null) 'rangeMatrix': rangeMatrix,
         if (tournamentId != null) 'tournamentId': tournamentId,
@@ -211,6 +215,7 @@ class TrainingSpot {
     for (int i = 0; i < numberOfPlayers; i++) {
       stacks.add(i < stackData.length ? stackData[i].toInt() : 0);
     }
+    final anteBb = json['anteBb'] as int? ?? 0;
 
     final adviceData = (json['strategyAdvice'] as List?)?.cast<String>();
     final equityData = (json['equities'] as List?)?.cast<num>();
@@ -239,6 +244,7 @@ class TrainingSpot {
       playerTypes: types,
       positions: positions,
       stacks: stacks,
+      anteBb: anteBb,
       strategyAdvice: adviceData,
       equities: equities,
       rangeMatrix: rangeMatrix,
@@ -273,6 +279,7 @@ class TrainingSpot {
     List<double>? equities,
     List<List<double>>? rangeMatrix,
     DateTime? createdAt,
+    int? anteBb,
   }) {
     return TrainingSpot(
       playerCards: [for (final list in playerCards) List<CardModel>.from(list)],
@@ -283,6 +290,7 @@ class TrainingSpot {
       playerTypes: List<PlayerType>.from(playerTypes),
       positions: List<String>.from(positions),
       stacks: List<int>.from(stacks),
+      anteBb: anteBb ?? this.anteBb,
       strategyAdvice: strategyAdvice ?? this.strategyAdvice,
       equities: equities ?? this.equities,
       rangeMatrix: rangeMatrix ?? this.rangeMatrix,

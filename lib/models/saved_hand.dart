@@ -39,6 +39,7 @@ class SavedHand {
   final int? totalPot;
   /// Rake taken from the pot in chips or big blinds.
   final int? rake;
+  final int anteBb;
   final Map<int, String> playerPositions;
   final Map<int, PlayerType>? playerTypes;
   final String? comment;
@@ -100,6 +101,7 @@ class SavedHand {
     this.winnings,
     this.totalPot,
     this.rake,
+    this.anteBb = 0,
     this.tournamentId,
     this.buyIn,
     this.totalPrizePool,
@@ -162,6 +164,7 @@ class SavedHand {
     Map<int, int>? winnings,
     int? totalPot,
     int? rake,
+    int? anteBb,
     String? tournamentId,
     int? buyIn,
     int? totalPrizePool,
@@ -225,6 +228,7 @@ class SavedHand {
           (this.winnings == null ? null : Map<int, int>.from(this.winnings!)),
       totalPot: totalPot ?? this.totalPot,
       rake: rake ?? this.rake,
+      anteBb: anteBb ?? this.anteBb,
       tournamentId: tournamentId ?? this.tournamentId,
       buyIn: buyIn ?? this.buyIn,
       totalPrizePool: totalPrizePool ?? this.totalPrizePool,
@@ -340,6 +344,7 @@ class SavedHand {
           'winnings': winnings!.map((k, v) => MapEntry(k.toString(), v)),
         if (totalPot != null) 'totalPot': totalPot,
         if (rake != null) 'rake': rake,
+        'anteBb': anteBb,
         if (tournamentId != null) 'tournamentId': tournamentId,
         if (buyIn != null) 'buyIn': buyIn,
         if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
@@ -454,6 +459,7 @@ class SavedHand {
     }
     final totalPot = json['totalPot'] as int?;
     final rake = json['rake'] as int?;
+    final anteBb = json['anteBb'] as int? ?? 0;
     final tournamentId = json['tournamentId'] as String?;
     final buyIn = json['buyIn'] as int?;
     final totalPrizePool = json['totalPrizePool'] as int?;
@@ -569,6 +575,7 @@ class SavedHand {
       winnings: wins,
       totalPot: totalPot,
       rake: rake,
+      anteBb: anteBb,
       tournamentId: tournamentId,
       buyIn: buyIn,
       totalPrizePool: totalPrizePool,
