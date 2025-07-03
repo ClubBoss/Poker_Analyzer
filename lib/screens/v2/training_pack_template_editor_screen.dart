@@ -213,6 +213,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   void _recordSnapshot() => _history.record(widget.template.spots);
 
+  void _markAllDirty() {
+    for (final s in widget.template.spots) {
+      s.dirty = true;
+    }
+  }
+
   void _log(String action, TrainingPackSpot spot) {
     _history.log(action, spot.title, spot.id);
     final key = _itemKeys[spot.id];
@@ -1140,6 +1146,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               icmEv: icm,
               hint: r?.hint,
             );
+            spot.dirty = false;
             break;
           }
         }
@@ -2161,6 +2168,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.heroRange =
             parsedSet.isEmpty ? null : parsedSet.toList();
       });
+      _markAllDirty();
       await _persist();
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -2604,6 +2612,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               onChanged: (v) {
                 final val = double.tryParse(v) ?? 0.01;
                 setState(() => widget.template.minEvForCorrect = val);
+                _markAllDirty();
                 _persist();
               },
             ),
@@ -2622,6 +2631,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       TextPosition(offset: _anteCtr.text.length));
                 }
                 setState(() => widget.template.anteBb = val);
+                _markAllDirty();
                 _persist();
               },
             ),

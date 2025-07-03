@@ -155,8 +155,8 @@ class TrainingPackTemplate {
     int ev = 0;
     int icm = 0;
     for (final s in list) {
-      if (s.heroEv != null) ev++;
-      if (s.heroIcmEv != null) icm++;
+      if (!s.dirty && s.heroEv != null) ev++;
+      if (!s.dirty && s.heroIcmEv != null) icm++;
     }
     meta['evCovered'] = ev;
     meta['icmCovered'] = icm;
