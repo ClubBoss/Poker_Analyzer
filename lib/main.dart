@@ -232,7 +232,6 @@ class PokerAIAnalyzerApp extends StatefulWidget {
 }
 
 class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
-  late final TrainingSpotStorageService _spotStorage;
   late final ConnectivitySyncController _sync;
 
   Future<void> _maybeResumeTraining() async {
@@ -253,28 +252,33 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     if (DateTime.now()
         .difference(DateTime.fromMillisecondsSinceEpoch(ts))
         .inHours > 12) return;
+    final templates = await TrainingPackStorage.load();
+    final tpl = templates.firstWhereOrNull((t) => t.id == id);
+    if (tpl == null) return;
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
     final confirm = await showDialog<bool>(
       context: ctx,
-      builder: (_) => AlertDialog(
-        content: const Text('Resume last training?'),
+      builder: (dCtx) => AlertDialog(
+        title: Text('Resume "${tpl.name}"?'),
+        content: const Text('You were in the middle of a training pack.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(_, false),
+            onPressed: () {
+              if (dCtx.mounted) Navigator.pop(dCtx, false);
+            },
             child: const Text('No'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(_, true),
+            onPressed: () {
+              if (dCtx.mounted) Navigator.pop(dCtx, true);
+            },
             child: const Text('Yes'),
           ),
         ],
       ),
     );
     if (confirm != true) return;
-    final templates = await TrainingPackStorage.load();
-    final tpl = templates.firstWhereOrNull((t) => t.id == id);
-    if (tpl == null) return;
     Navigator.push(
       ctx,
       MaterialPageRoute(
@@ -286,7 +290,6 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   @override
   void initState() {
     super.initState();
-    _spotStorage = context.read<TrainingSpotStorageService>();
     _sync = ConnectivitySyncController(cloud: context.read<CloudSyncService>());
     context.read<UserActionLogger>().log('opened_app');
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeResumeTraining());
