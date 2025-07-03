@@ -138,6 +138,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     }
     final spot = _spots[_index];
     final progress = _index / _spots.length;
+    final actions = _heroActions(spot);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.template.name),
@@ -166,23 +167,40 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             Text('Spot ${_index + 1} of ${_spots.length}',
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            Expanded(child: SpotQuizWidget(spot: spot)),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              alignment: WrapAlignment.center,
-              children: [
-                for (final a
-                    in (() {
-                      final list = _heroActions(spot);
-                      return list.isEmpty
-                          ? ['fold', 'check', 'call', 'bet', 'raise']
-                          : list;
-                    })())
-                  ElevatedButton(
-                      onPressed: () => _choose(a),
-                      child: Text(a.toUpperCase())),
-              ],
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.1, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                ),
+                child: Column(
+                  key: ValueKey(_index),
+                  children: [
+                    Expanded(child: SpotQuizWidget(spot: spot)),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        for (final a in actions.isEmpty
+                            ? ['fold', 'check', 'call', 'bet', 'raise']
+                            : actions)
+                          ElevatedButton(
+                            onPressed: () => _choose(a),
+                            child: Text(a.toUpperCase()),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
