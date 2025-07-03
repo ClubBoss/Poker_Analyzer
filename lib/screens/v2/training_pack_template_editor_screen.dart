@@ -44,6 +44,7 @@ import '../../helpers/hand_utils.dart';
 import '../../services/training_pack_template_storage_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
+enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
 
 TrainingPackSpot? _copiedSpot;
 class UndoIntent extends Intent { const UndoIntent(); }
@@ -95,6 +96,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
+  SpotSort _spotSort = SpotSort.original;
   static const _quickFilters = [
     'BTN',
     'SB',
@@ -2184,6 +2186,33 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
       sorted = [...pinned, ...rest];
     }
+    if (_spotSort != SpotSort.original) {
+      final pinned = [for (final s in sorted) if (s.pinned) s];
+      final rest = [for (final s in sorted) if (!s.pinned) s];
+      int Function(TrainingPackSpot, TrainingPackSpot) cmp;
+      switch (_spotSort) {
+        case SpotSort.evDesc:
+          cmp = (a, b) =>
+              (b.heroEv ?? double.negativeInfinity).compareTo(a.heroEv ?? double.negativeInfinity);
+          break;
+        case SpotSort.evAsc:
+          cmp = (a, b) =>
+              (a.heroEv ?? double.infinity).compareTo(b.heroEv ?? double.infinity);
+          break;
+        case SpotSort.icmDesc:
+          cmp = (a, b) => (b.heroIcmEv ?? double.negativeInfinity)
+              .compareTo(a.heroIcmEv ?? double.negativeInfinity);
+          break;
+        case SpotSort.icmAsc:
+          cmp = (a, b) =>
+              (a.heroIcmEv ?? double.infinity).compareTo(b.heroIcmEv ?? double.infinity);
+          break;
+        default:
+          cmp = (a, b) => 0;
+      }
+      rest.sort(cmp);
+      sorted = [...pinned, ...rest];
+    }
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyZ): const UndoIntent(),
@@ -2881,6 +2910,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               title: const Text('Only Changed'),
               value: _changedOnly,
               onChanged: (v) => setState(() => _changedOnly = v ?? false),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DropdownButtonFormField<SpotSort>(
+                value: _spotSort,
+                decoration: const InputDecoration(labelText: 'Sort'),
+                items: const [
+                  DropdownMenuItem(
+                      value: SpotSort.original, child: Text('Default')),
+                  DropdownMenuItem(value: SpotSort.evDesc, child: Text('EV ↓')),
+                  DropdownMenuItem(value: SpotSort.evAsc, child: Text('EV ↑')),
+                  DropdownMenuItem(value: SpotSort.icmDesc, child: Text('ICM ↓')),
+                  DropdownMenuItem(value: SpotSort.icmAsc, child: Text('ICM ↑')),
+                ],
+                onChanged: (v) =>
+                    setState(() => _spotSort = v ?? SpotSort.original),
+              ),
             ),
             const SizedBox(height: 16),
             Expanded(
