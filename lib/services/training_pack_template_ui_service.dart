@@ -64,6 +64,12 @@ class TrainingPackTemplateUiService {
                     anteBb: template.anteBb,
                   );
                   actions[0]![0].ev = ev;
+                  actions[0]![0].icmEv = computeIcmPushEV(
+                    chipStacksBb: template.playerStacksBb,
+                    heroIndex: 0,
+                    heroHand: hand,
+                    chipPushEv: ev,
+                  );
                   final stacks = {
                     for (var j = 0; j < template.playerStacksBb.length; j++)
                       '$j': template.playerStacksBb[j].toDouble()
@@ -169,6 +175,12 @@ class TrainingPackTemplateUiService {
                     anteBb: template.anteBb,
                   );
                   actions[0]![0].ev = ev;
+                  actions[0]![0].icmEv = computeIcmPushEV(
+                    chipStacksBb: template.playerStacksBb,
+                    heroIndex: 0,
+                    heroHand: hand,
+                    chipPushEv: ev,
+                  );
                   final stacks = {
                     for (var j = 0; j < template.playerStacksBb.length; j++)
                       '$j': template.playerStacksBb[j].toDouble()
