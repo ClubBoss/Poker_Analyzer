@@ -32,12 +32,14 @@ class _TrainingPackTemplateListScreenState
   static const _prefsSortKey = 'tpl_sort_option';
   static const _prefsCollapsedKey = 'tpl_collapsed_state';
   static const _prefsFavKey = 'tpl_show_fav_only';
+  static const _prefsGroupKey = 'tpl_group_by_street';
   _SortOption _sort = _SortOption.name;
   final Map<String, int?> _counts = {};
   final Map<String, bool> _collapsed = {};
   final TextEditingController _searchController = TextEditingController();
   late TrainingSpotStorageService _spotStorage;
   bool _showFavoritesOnly = false;
+  bool _groupByStreet = false;
   final Set<String> _selectedIds = {};
   String _categoryFilter = 'Все';
 
@@ -47,6 +49,7 @@ class _TrainingPackTemplateListScreenState
     _loadSort();
     _loadCollapsed();
     _loadShowFavorites();
+    _loadGroupByStreet();
   }
 
   Future<void> _loadSort() async {
@@ -78,6 +81,12 @@ class _TrainingPackTemplateListScreenState
     if (mounted) setState(() => _showFavoritesOnly = value);
   }
 
+  Future<void> _loadGroupByStreet() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getBool(_prefsGroupKey) ?? false;
+    if (mounted) setState(() => _groupByStreet = value);
+  }
+
   Future<void> _setSort(_SortOption value) async {
     setState(() => _sort = value);
     final prefs = await SharedPreferences.getInstance();
@@ -88,6 +97,12 @@ class _TrainingPackTemplateListScreenState
     setState(() => _showFavoritesOnly = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefsFavKey, value);
+  }
+
+  Future<void> _setGroupByStreet(bool value) async {
+    setState(() => _groupByStreet = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsGroupKey, value);
   }
 
   Future<void> _saveCollapsed() async {
@@ -455,6 +470,30 @@ class _TrainingPackTemplateListScreenState
     return Icons.folder_open;
   }
 
+  String _streetLabel(String? street) {
+    switch (street) {
+      case 'preflop':
+        return 'Preflop Focus';
+      case 'flop':
+        return 'Flop Focus';
+      case 'turn':
+        return 'Turn Focus';
+      case 'river':
+        return 'River Focus';
+      default:
+        return 'Any Street';
+    }
+  }
+
+  String? _targetStreet(TrainingPackTemplateModel t) {
+    final streets = t.filters['streets'];
+    if (streets is List && streets.length == 1 && streets.first is String) {
+      final s = streets.first as String;
+      if (['preflop', 'flop', 'turn', 'river'].contains(s)) return s;
+    }
+    return null;
+  }
+
   Widget _statusChip(DateTime dt) {
     final diff = DateTime.now().difference(dt);
     final label = diff.inHours < 48 ? 'NEW' : 'Updated ${timeago.format(dt)}';
@@ -478,19 +517,36 @@ class _TrainingPackTemplateListScreenState
         if ((query.isEmpty ||
                 t.name.toLowerCase().contains(query) ||
                 t.category.toLowerCase().contains(query)) &&
-            (_categoryFilter == 'Все' || t.category == _categoryFilter) &&
+            (_groupByStreet ||
+                _categoryFilter == 'Все' ||
+                t.category == _categoryFilter) &&
             (!_showFavoritesOnly || t.isFavorite))
           t
     ]..sort(_compare);
     final Map<String, List<TrainingPackTemplateModel>> groups = {};
-    for (final t in templates) {
-      groups.putIfAbsent(t.category, () => []).add(t);
+    if (_groupByStreet) {
+      for (final t in templates) {
+        final key = _targetStreet(t) ?? 'any';
+        groups.putIfAbsent(key, () => []).add(t);
+      }
+    } else {
+      for (final t in templates) {
+        groups.putIfAbsent(t.category, () => []).add(t);
+      }
     }
     for (final g in groups.values) {
       g.sort(_compareWithFavorites);
     }
-    final categories = groups.keys.toList()
-      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    final categories = _groupByStreet
+        ? [
+            'preflop',
+            'flop',
+            'turn',
+            'river',
+            'any'
+          ].where((k) => groups.containsKey(k)).toList()
+        : (groups.keys.toList()
+          ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase())));
     _cleanupCollapsed(categories);
     final allCollapsed = categories.isNotEmpty &&
         categories.every((c) => _collapsed[c] ?? false);
@@ -566,7 +622,7 @@ class _TrainingPackTemplateListScreenState
                   decoration: const InputDecoration(hintText: 'Поиск…'),
                   onChanged: (_) => setState(() {}),
                 ),
-                if (categorySet.isNotEmpty) ...[
+                if (!_groupByStreet && categorySet.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   DropdownButton<String>(
                     value: _categoryFilter,
@@ -602,16 +658,25 @@ class _TrainingPackTemplateListScreenState
       ),
       body: templates.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : (() {
-              final itemCount = categories.fold<int>(
-                  0,
-                  (n, c) =>
-                      n +
-                      (c.trim().isEmpty ? 0 : 1) +
-                      (_collapsed[c] == true ? 0 : groups[c]!.length));
-              return ListView.builder(
-                itemCount: itemCount,
-                itemBuilder: (context, index) {
+          : Column(
+              children: [
+                SwitchListTile(
+                  title: const Text('Группировать по улице'),
+                  value: _groupByStreet,
+                  onChanged: _setGroupByStreet,
+                  activeColor: Colors.orange,
+                ),
+                Expanded(
+                  child: (() {
+                    final itemCount = categories.fold<int>(
+                        0,
+                        (n, c) =>
+                            n +
+                            (c.trim().isEmpty ? 0 : 1) +
+                            (_collapsed[c] == true ? 0 : groups[c]!.length));
+                    return ListView.builder(
+                      itemCount: itemCount,
+                      itemBuilder: (context, index) {
                   int count = 0;
                   for (final cat in categories) {
                     final list = groups[cat]!;
@@ -632,9 +697,11 @@ class _TrainingPackTemplateListScreenState
                               children: [
                                 Expanded(
                                   child: Text(
-                                    list.isEmpty || cat.trim().isEmpty
-                                        ? cat
-                                        : '$cat (${list.length})',
+                                    _groupByStreet
+                                        ? _streetLabel(cat == 'any' ? null : cat)
+                                        : (list.isEmpty || cat.trim().isEmpty
+                                            ? cat
+                                            : '$cat (${list.length})'),
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold),
@@ -863,7 +930,9 @@ class _TrainingPackTemplateListScreenState
                   return const SizedBox.shrink();
                 },
               );
-            })(),
+                })(),
+              ],
+            ),
     );
   }
 }
