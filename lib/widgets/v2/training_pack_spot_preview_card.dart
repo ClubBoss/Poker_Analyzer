@@ -10,6 +10,7 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
   final ValueChanged<String>? onTagTap;
   final VoidCallback? onDuplicate;
   final Color? titleColor;
+  final bool isMistake;
   const TrainingPackSpotPreviewCard({
     super.key,
     required this.spot,
@@ -17,6 +18,7 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
     this.onTagTap,
     this.onDuplicate,
     this.titleColor,
+    this.isMistake = false,
   });
 
   @override
@@ -84,6 +86,17 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          if (isMistake)
+            Container(
+              width: 4,
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                ),
+              ),
+            ),
           if (barColor != null)
             Container(
               width: 4,
