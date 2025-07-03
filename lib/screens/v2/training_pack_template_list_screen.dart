@@ -32,6 +32,8 @@ import '../../services/training_session_service.dart';
 import '../../helpers/hand_utils.dart';
 import 'training_pack_play_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/mixed_drill_history_service.dart';
+import '../../models/mixed_drill_stat.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -1085,11 +1087,26 @@ class _TrainingPackTemplateListScreenState
       type: 'mixed',
       ts: DateTime.now(),
     );
-    if (mounted) {
-      await _openTrainingSession(
-        tpl,
-        persist: false,
-        onSessionEnd: _endlessDrill ? _runMixedDrill : null,
+    if (!mounted) return;
+    await _openTrainingSession(
+      tpl,
+      persist: false,
+      onSessionEnd: _endlessDrill ? _runMixedDrill : null,
+    );
+    final service = context.read<TrainingSessionService>();
+    if (service.session?.completedAt != null) {
+      final hist = context.read<MixedDrillHistoryService>();
+      await hist.add(
+        MixedDrillStat(
+          date: DateTime.now(),
+          total: service.totalCount,
+          correct: service.correctCount,
+          tags: [
+            if (_selectedTag != null) _selectedTag!,
+            if (autoOnly && (_selectedTag != 'auto')) 'auto'
+          ],
+          street: _mixedStreet,
+        ),
       );
     }
   }
@@ -1225,6 +1242,17 @@ class _TrainingPackTemplateListScreenState
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                Builder(builder: (context) {
+                  final stats = context.watch<MixedDrillHistoryService>().stats;
+                  if (stats.isEmpty) return const SizedBox.shrink();
+                  final s = stats.first;
+                  final tags = s.tags.isEmpty ? '-' : s.tags.join(', ');
+                  final pct = s.accuracy.toStringAsFixed(1);
+                  return ListTile(
+                    title: const Text('Last Mixed Drill'),
+                    subtitle: Text('$pct% • ${s.street} • $tags'),
+                  );
+                }),
                 if (history.isNotEmpty)
                   ExpansionTile(
                     title: const Text('Recent Generated Packs'),
