@@ -94,6 +94,19 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return null;
   }
 
+  List<String> _heroActions(TrainingPackSpot spot) {
+    final acts = spot.hand.actions[0] ?? [];
+    final hero = spot.hand.heroIndex;
+    final res = <String>[];
+    for (final a in acts) {
+      if (a.playerIndex == hero) {
+        final name = a.action.toLowerCase();
+        if (!res.contains(name)) res.add(name);
+      }
+    }
+    return res;
+  }
+
   void _choose(String act) {
     final spot = _spots[_index];
     final exp = _expected(spot);
@@ -159,8 +172,16 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
               spacing: 8,
               alignment: WrapAlignment.center,
               children: [
-                for (final a in ['fold', 'check', 'call', 'bet', 'raise'])
-                  ElevatedButton(onPressed: () => _choose(a), child: Text(a.toUpperCase())),
+                for (final a
+                    in (() {
+                      final list = _heroActions(spot);
+                      return list.isEmpty
+                          ? ['fold', 'check', 'call', 'bet', 'raise']
+                          : list;
+                    })())
+                  ElevatedButton(
+                      onPressed: () => _choose(a),
+                      child: Text(a.toUpperCase())),
               ],
             ),
           ],
