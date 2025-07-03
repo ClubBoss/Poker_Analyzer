@@ -42,6 +42,13 @@ class TrainingPackResultScreen extends StatelessWidget {
 
   List<double> get _evs => [for (final s in template.spots) if (s.heroEv != null && results.containsKey(s.id)) s.heroEv!];
 
+  List<TrainingPackSpot> get _mistakeSpots => [
+        for (final s in template.spots)
+          if (results.containsKey(s.id) &&
+              _expected(s)?.toLowerCase() != results[s.id]!.toLowerCase())
+            s
+      ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +72,57 @@ class TrainingPackResultScreen extends StatelessWidget {
               _EvChart(evs: _evs)
             else
               const SizedBox.shrink(),
+            if (_mistakeSpots.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Mistakes',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _mistakeSpots.length,
+                  itemBuilder: (context, i) {
+                    final spot = _mistakeSpots[i];
+                    final board = spot.hand.board.join(' ');
+                    final hero = spot.hand.heroCards;
+                    final exp = _expected(spot) ?? '';
+                    final ans = results[spot.id] ?? '';
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBackground,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ListTile(
+                        title: Text(
+                          board.isEmpty ? '(Preflop)' : board,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Hero: $hero',
+                                style:
+                                    const TextStyle(color: Colors.white70)),
+                            Text('Expected: $exp',
+                                style:
+                                    const TextStyle(color: Colors.greenAccent)),
+                            Text('Your: $ans',
+                                style:
+                                    const TextStyle(color: Colors.redAccent)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
             const Spacer(),
             ElevatedButton(
               onPressed: _mistakes == 0
