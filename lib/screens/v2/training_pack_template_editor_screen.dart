@@ -1893,12 +1893,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           builder: (context, set) {
             final narrow = MediaQuery.of(context).size.width < 500;
             final fields = [
-              TextFormField(
-                controller: heroCtr,
-                decoration: const InputDecoration(labelText: 'Hero BB Stack'),
-                keyboardType: TextInputType.number,
-                validator: (v) => (int.tryParse(v ?? '') ?? 0) < 1 ? '' : null,
-              ),
+                TextFormField(
+                  controller: heroCtr,
+                  decoration: const InputDecoration(labelText: 'Hero BB Stack'),
+                  keyboardType: TextInputType.number,
+                  validator: (v) => (int.tryParse(v ?? '') ?? 0) < 1 ? '≥ 1' : null,
+                ),
               DropdownButtonFormField<HeroPosition>(
                 value: pos,
                 decoration: const InputDecoration(labelText: 'Hero Position'),
@@ -1929,7 +1929,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             decoration: InputDecoration(labelText: '#$i'),
                             keyboardType: TextInputType.number,
                             validator: (v) =>
-                                (int.tryParse(v ?? '') ?? -1) < 0 ? '' : null,
+                                (int.tryParse(v ?? '') ?? -1) < 0 ? '≥ 0' : null,
                             onChanged: (v) async {
                               final val = int.tryParse(v) ?? 0;
                               set(() {
