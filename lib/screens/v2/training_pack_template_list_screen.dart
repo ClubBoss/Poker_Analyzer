@@ -750,10 +750,58 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _generateFinalTable() async {
+    final streetCtrl = TextEditingController();
+    String street = 'any';
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Final Table Options'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: street,
+                decoration: const InputDecoration(labelText: 'Target Street'),
+                items: const [
+                  DropdownMenuItem(value: 'any', child: Text('Any')),
+                  DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                  DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                  DropdownMenuItem(value: 'river', child: Text('River')),
+                ],
+                onChanged: (v) => setState(() => street = v ?? 'any'),
+              ),
+              TextField(
+                controller: streetCtrl,
+                keyboardType: TextInputType.number,
+                decoration:
+                    const InputDecoration(labelText: 'Street Goal (optional)'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Generate'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (ok != true) {
+      streetCtrl.dispose();
+      return;
+    }
     await Future.delayed(Duration.zero);
     final template =
         PackGeneratorService.generateFinalTablePack(createdAt: DateTime.now())
             .copyWith(id: const Uuid().v4());
+    template.targetStreet = street == 'any' ? null : street;
+    template.streetGoal = int.tryParse(streetCtrl.text) ?? 0;
     template.tags.add('auto');
     setState(() {
       _templates.add(template);
@@ -768,6 +816,7 @@ class _TrainingPackTemplateListScreenState
     );
     _history = await GeneratedPackHistoryService.load();
     if (mounted) setState(() {});
+    streetCtrl.dispose();
     _nameAndEdit(template);
   }
 
