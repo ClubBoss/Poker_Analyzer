@@ -48,6 +48,7 @@ class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
   static const _prefsHideKey = 'tpl_hide_completed';
   static const _prefsGroupKey = 'tpl_group_by_street';
+  static const _prefsTypeKey = 'tpl_group_by_type';
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
   String _query = '';
@@ -60,6 +61,7 @@ class _TrainingPackTemplateListScreenState
   bool _completedOnly = false;
   bool _hideCompleted = false;
   bool _groupByStreet = false;
+  bool _groupByType = false;
   bool _icmOnly = false;
   String _sort = 'name';
   List<GeneratedPackInfo> _history = [];
@@ -158,6 +160,13 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadGroupByType() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() => _groupByType = prefs.getBool(_prefsTypeKey) ?? false);
+    }
+  }
+
   Future<void> _setHideCompleted(bool value) async {
     setState(() => _hideCompleted = value);
     final prefs = await SharedPreferences.getInstance();
@@ -168,6 +177,12 @@ class _TrainingPackTemplateListScreenState
     setState(() => _groupByStreet = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefsGroupKey, value);
+  }
+
+  Future<void> _setGroupByType(bool value) async {
+    setState(() => _groupByType = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsTypeKey, value);
   }
 
   String _streetLabel(String? street) {
@@ -509,6 +524,7 @@ class _TrainingPackTemplateListScreenState
       setState(() {});
       _loadHideCompleted();
       _loadGroupByStreet();
+      _loadGroupByType();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1753,12 +1769,14 @@ class _TrainingPackTemplateListScreenState
                   t.description.toLowerCase().contains(_query))
                 t
           ];
-    final groups = <String, List<TrainingPackTemplate>>{};
+    final streetGroups = <String, List<TrainingPackTemplate>>{};
     if (_groupByStreet) {
       for (final t in shown) {
         final key = t.targetStreet ?? 'any';
-        groups.putIfAbsent(key, () => []).add(t);
+        streetGroups.putIfAbsent(key, () => []).add(t);
       }
+    } else {
+      streetGroups['all'] = shown;
     }
     final history = _dedupHistory();
     final suggestion = _groupByStreet ? _suggestTemplate() : null;
@@ -1948,6 +1966,12 @@ class _TrainingPackTemplateListScreenState
                   onChanged: _setGroupByStreet,
                   activeColor: Colors.orange,
                 ),
+                SwitchListTile(
+                  title: const Text('Group by Game Type'),
+                  value: _groupByType,
+                  onChanged: _setGroupByType,
+                  activeColor: Colors.orange,
+                ),
                 if (!narrow)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -2004,29 +2028,54 @@ class _TrainingPackTemplateListScreenState
                     ),
                   ),
                 Expanded(
-                  child: _groupByStreet
+                  child: (_groupByStreet || _groupByType)
                       ? ListView(
                           children: [
-                            for (final key in [
-                              'preflop',
-                              'flop',
-                              'turn',
-                              'river',
-                              'any'
+                            for (final street in [
+                              if (_groupByStreet) ...[
+                                'preflop',
+                                'flop',
+                                'turn',
+                                'river',
+                                'any'
+                              ]
+                              else
+                                'all'
                             ])
-                              if (groups[key]?.isNotEmpty ?? false) ...[
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  child: Text(
-                                    _streetLabel(key),
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
+                              if (streetGroups[street]?.isNotEmpty ?? false) ...[
+                                if (_groupByStreet)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    child: Text(
+                                      _streetLabel(street == 'all' ? null : street),
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
                                   ),
-                                ),
-                                for (final t in groups[key]!)
-                                  _buildTemplateTile(t, narrow),
-                              ],
+                                if (_groupByType)
+                                  for (final type in GameType.values)
+                                    if (streetGroups[street]!
+                                        .where((t) => t.gameType == type)
+                                        .isNotEmpty) ...[
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: _groupByStreet ? 32 : 16,
+                                            vertical: 4),
+                                        child: Text(
+                                          type == GameType.tournament
+                                              ? 'Tournament Packs'
+                                              : 'Cash Game Packs',
+                                          style:
+                                              Theme.of(context).textTheme.titleSmall,
+                                        ),
+                                      ),
+                                      for (final t in streetGroups[street]!
+                                          .where((e) => e.gameType == type))
+                                        _buildTemplateTile(t, narrow),
+                                    ]
+                                else
+                                  for (final t in streetGroups[street]!)
+                                    _buildTemplateTile(t, narrow),
+                              ]
                           ],
                         )
                       : ReorderableListView.builder(
