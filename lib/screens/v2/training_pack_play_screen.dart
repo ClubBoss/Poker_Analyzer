@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +29,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   int _index = 0;
   bool _loading = true;
   PlayOrder _order = PlayOrder.sequential;
+  int _streetCount = 0;
 
   @override
   void initState() {
@@ -39,6 +42,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     final seqKey = 'tpl_seq_${widget.template.id}';
     final progKey = 'tpl_prog_${widget.template.id}';
     final resKey = 'tpl_res_${widget.template.id}';
+    final streetKey = 'tpl_street_${widget.template.id}';
     final seq = prefs.getStringList(seqKey);
     var spots = List<TrainingPackSpot>.from(widget.template.spots);
     if (seq != null && seq.length == spots.length) {
@@ -58,10 +62,19 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         results = {for (final e in data.entries) e.key as String: e.value.toString()};
       }
     }
+    int streetCount = 0;
+    if (widget.template.targetStreet != null) {
+      for (final id in results.keys) {
+        final s = spots.firstWhereOrNull((e) => e.id == id);
+        if (s != null && _matchStreet(s)) streetCount++; 
+      }
+      streetCount = max(streetCount, prefs.getInt(streetKey) ?? 0);
+    }
     setState(() {
       _spots = spots;
       _results = results;
       _index = prefs.getInt(progKey)?.clamp(0, spots.length - 1) ?? 0;
+      _streetCount = streetCount;
       _loading = false;
     });
   }
@@ -71,6 +84,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     await prefs.setStringList('tpl_seq_${widget.template.id}', [for (final s in _spots) s.id]);
     await prefs.setInt('tpl_prog_${widget.template.id}', _index);
     await prefs.setString('tpl_res_${widget.template.id}', jsonEncode(_results));
+    if (widget.template.targetStreet != null) {
+      await prefs.setInt('tpl_street_${widget.template.id}', _streetCount);
+    }
     if (ts) {
       await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
     }
@@ -94,6 +110,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     setState(() {
       _spots = spots;
       _index = 0;
+      _streetCount = 0;
     });
     _save();
   }
@@ -119,6 +136,20 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return res;
   }
 
+  bool _matchStreet(TrainingPackSpot spot) {
+    final len = spot.hand.board.length;
+    switch (widget.template.targetStreet) {
+      case 'flop':
+        return len == 3;
+      case 'turn':
+        return len == 4;
+      case 'river':
+        return len == 5;
+      default:
+        return false;
+    }
+  }
+
   Future<bool> _confirmStartOver(BuildContext context) async {
     final res = await showDialog<bool>(
       context: context,
@@ -136,7 +167,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   Future<void> _choose(String? act) async {
     final spot = _spots[_index];
     if (act != null) {
+      final first = !_results.containsKey(spot.id);
       _results[spot.id] = act.toLowerCase();
+      if (first && _matchStreet(spot)) _streetCount++;
 
       final expected =
           spot.evalResult?.expectedAction ?? _expected(spot) ?? '-';
@@ -245,6 +278,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                   prefs
                     ..remove('tpl_seq_${widget.template.id}')
                     ..remove('tpl_res_${widget.template.id}');
+                  if (widget.template.targetStreet != null) {
+                    prefs.remove('tpl_street_${widget.template.id}');
+                  }
                   _save(ts: false);
                 }
               } else if (choice is PlayOrder) {

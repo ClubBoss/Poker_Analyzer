@@ -25,6 +25,8 @@ class TrainingPackTemplate {
   bool goalAchieved;
   int goalTarget;
   int goalProgress;
+  String? targetStreet;
+  int streetGoal;
 
   TrainingPackTemplate({
     required this.id,
@@ -47,6 +49,8 @@ class TrainingPackTemplate {
     this.goalAchieved = false,
     this.goalTarget = 0,
     this.goalProgress = 0,
+    this.targetStreet,
+    this.streetGoal = 0,
   })  : spots = spots ?? [],
         tags = tags ?? [],
         playerStacksBb = playerStacksBb ?? const [10, 10],
@@ -76,6 +80,8 @@ class TrainingPackTemplate {
     bool? goalAchieved,
     int? goalTarget,
     int? goalProgress,
+    String? targetStreet,
+    int? streetGoal,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -98,6 +104,8 @@ class TrainingPackTemplate {
       goalAchieved: goalAchieved ?? this.goalAchieved,
       goalTarget: goalTarget ?? this.goalTarget,
       goalProgress: goalProgress ?? this.goalProgress,
+      targetStreet: targetStreet ?? this.targetStreet,
+      streetGoal: streetGoal ?? this.streetGoal,
     );
   }
 
@@ -134,6 +142,8 @@ class TrainingPackTemplate {
       goalAchieved: json['goalAchieved'] as bool? ?? false,
       goalTarget: json['goalTarget'] as int? ?? 0,
       goalProgress: json['goalProgress'] as int? ?? 0,
+      targetStreet: json['targetStreet'] as String?,
+      streetGoal: json['streetGoal'] as int? ?? 0,
     );
     if (!tpl.meta.containsKey('evCovered') || !tpl.meta.containsKey('icmCovered')) {
       tpl.recountCoverage();
@@ -163,6 +173,8 @@ class TrainingPackTemplate {
         if (goalAchieved) 'goalAchieved': true,
         if (goalTarget > 0) 'goalTarget': goalTarget,
         if (goalProgress > 0) 'goalProgress': goalProgress,
+        if (targetStreet != null) 'targetStreet': targetStreet,
+        if (streetGoal > 0) 'streetGoal': streetGoal,
       };
 
   int get evCovered => meta['evCovered'] as int? ?? 0;

@@ -64,6 +64,7 @@ class _TrainingPackTemplateListScreenState
   String _mixedStreet = 'any';
   String? _lastOpenedId;
   final Map<String, int> _progress = {};
+  final Map<String, int> _streetProgress = {};
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -115,11 +116,19 @@ class _TrainingPackTemplateListScreenState
   Future<void> _loadProgress() async {
     final prefs = await SharedPreferences.getInstance();
     final map = <String, int>{};
+    final streetMap = <String, int>{};
     for (final t in _templates) {
       final v = prefs.getInt('tpl_prog_${t.id}');
       if (v != null) map[t.id] = v;
+      final sv = prefs.getInt('tpl_street_${t.id}');
+      if (sv != null) streetMap[t.id] = sv;
     }
-    if (mounted) setState(() => _progress..clear()..addAll(map));
+    if (mounted) {
+      setState(() {
+        _progress..clear()..addAll(map);
+        _streetProgress..clear()..addAll(streetMap);
+      });
+    }
   }
 
   Future<void> _loadGoals() async {
@@ -1438,6 +1447,16 @@ class _TrainingPackTemplateListScreenState
                             color: progColor,
                             backgroundColor: progColor.withOpacity(0.3),
                           ));
+                          if (t.targetStreet != null && t.streetGoal > 0) {
+                            final val = (_streetProgress[t.id]?.clamp(0, t.streetGoal) ?? 0) / t.streetGoal;
+                            items.add(Row(
+                              children: [
+                                Expanded(child: LinearProgressIndicator(value: val)),
+                                const SizedBox(width: 8),
+                                Text('${(val * 100).round()}%', style: const TextStyle(fontSize: 12)),
+                              ],
+                            ));
+                          }
                           final ratio = t.goalTarget > 0
                               ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0)
                               : 0.0;
