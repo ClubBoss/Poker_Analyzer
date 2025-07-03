@@ -29,7 +29,7 @@ double computePushEV({
 class PushFoldEvService {
   const PushFoldEvService();
 
-  Future<void> evaluate(TrainingPackSpot spot) async {
+  Future<void> evaluate(TrainingPackSpot spot, {int anteBb = 0}) async {
     final hero = spot.hand.heroIndex;
     final hand = handCode(spot.hand.heroCards);
     final stack = spot.hand.stacks['$hero']?.round();
@@ -41,14 +41,14 @@ class PushFoldEvService {
           heroBbStack: stack,
           bbCount: spot.hand.playerCount - 1,
           heroHand: hand,
-          anteBb: 0,
+          anteBb: anteBb,
         );
         break;
       }
     }
   }
 
-  Future<void> evaluateIcm(TrainingPackSpot spot) async {
+  Future<void> evaluateIcm(TrainingPackSpot spot, {int anteBb = 0}) async {
     final hero = spot.hand.heroIndex;
     final hand = handCode(spot.hand.heroCards);
     final stack = spot.hand.stacks['$hero']?.round();
@@ -64,7 +64,7 @@ class PushFoldEvService {
           heroBbStack: stack,
           bbCount: spot.hand.playerCount - 1,
           heroHand: hand,
-          anteBb: 0,
+          anteBb: anteBb,
         );
         a.icmEv = computeIcmPushEV(
           chipStacksBb: stacks,
