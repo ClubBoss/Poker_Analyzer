@@ -31,6 +31,7 @@ import '../training_session_screen.dart';
 import '../../services/training_session_service.dart';
 import '../../helpers/hand_utils.dart';
 import 'training_pack_play_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -59,6 +60,7 @@ class _TrainingPackTemplateListScreenState
   bool _endlessDrill = false;
   String _mixedStreet = 'any';
   String? _lastOpenedId;
+  final Map<String, int> _progress = {};
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -107,6 +109,16 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final map = <String, int>{};
+    for (final t in _templates) {
+      final v = prefs.getInt('tpl_prog_${t.id}');
+      if (v != null) map[t.id] = v;
+    }
+    if (mounted) setState(() => _progress..clear()..addAll(map));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -119,6 +131,7 @@ class _TrainingPackTemplateListScreenState
         _sortTemplates();
         _loading = false;
       });
+      _loadProgress();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1221,13 +1234,14 @@ class _TrainingPackTemplateListScreenState
                                     const SnackBar(content: Text('Pack not found')));
                                 return;
                               }
-                              Navigator.push(
+                              await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => TrainingPackPlayScreen(
                                       template: tpl, original: tpl),
                                 ),
                               );
+                              if (mounted) _loadProgress();
                             },
                           ),
                           onTap: () {
@@ -1358,6 +1372,13 @@ class _TrainingPackTemplateListScreenState
                         ),
                         subtitle: (() {
                           final items = <Widget>[];
+                          final prog = _progress[t.id];
+                          if (prog != null) {
+                            items.add(Text(
+                              '${prog.clamp(0, total)}/$total done',
+                              style: const TextStyle(fontSize: 12, color: Colors.white54),
+                            ));
+                          }
                           if (t.description.trim().isNotEmpty) {
                             items.add(Text(
                               t.description.split('\n').first,
@@ -1383,14 +1404,15 @@ class _TrainingPackTemplateListScreenState
                             IconButton(
                               icon: const Icon(Icons.play_arrow),
                               tooltip: 'Start training',
-                              onPressed: () {
-                                Navigator.push(
+                              onPressed: () async {
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => TrainingPackPlayScreen(
                                         template: t, original: t),
                                   ),
                                 );
+                                if (mounted) _loadProgress();
                               },
                             ),
                             IconButton(
