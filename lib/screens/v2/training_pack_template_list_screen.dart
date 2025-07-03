@@ -311,8 +311,10 @@ class _TrainingPackTemplateListScreenState
               TextField(
                 controller: streetCtrl,
                 keyboardType: TextInputType.number,
-                decoration:
-                    const InputDecoration(labelText: 'Street Goal (optional)'),
+                decoration: const InputDecoration(
+                  labelText: 'Street Goal (optional)',
+                  helperText: 'Напр., 50',
+                ),
               ),
             ],
           ),
@@ -347,10 +349,79 @@ class _TrainingPackTemplateListScreenState
     _edit(template);
   }
 
-  void _add() {
-    final template =
-        TrainingPackTemplate(
-            id: const Uuid().v4(), name: 'New Pack', createdAt: DateTime.now());
+  Future<void> _add() async {
+    final nameCtrl = TextEditingController();
+    final streetCtrl = TextEditingController();
+    GameType type = GameType.tournament;
+    String street = 'any';
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('New Pack'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: nameCtrl, autofocus: true),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<GameType>(
+                value: type,
+                decoration: const InputDecoration(labelText: 'Game Type'),
+                items: const [
+                  DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                  DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
+                ],
+                onChanged: (v) => setState(() => type = v ?? GameType.tournament),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: street,
+                decoration: const InputDecoration(labelText: 'Target Street'),
+                items: const [
+                  DropdownMenuItem(value: 'any', child: Text('Any')),
+                  DropdownMenuItem(value: 'flop', child: Text('Flop')),
+                  DropdownMenuItem(value: 'turn', child: Text('Turn')),
+                  DropdownMenuItem(value: 'river', child: Text('River')),
+                ],
+                onChanged: (v) => setState(() => street = v ?? 'any'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: streetCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Street Goal (optional)',
+                  helperText: 'Напр., 50',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (ok != true) {
+      nameCtrl.dispose();
+      streetCtrl.dispose();
+      return;
+    }
+    final template = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: nameCtrl.text.trim().isEmpty ? 'New Pack' : nameCtrl.text.trim(),
+      gameType: type,
+      targetStreet: street == 'any' ? null : street,
+      streetGoal: int.tryParse(streetCtrl.text) ?? 0,
+      createdAt: DateTime.now(),
+    );
     setState(() {
       _templates.add(template);
       _sortTemplates();
@@ -364,6 +435,8 @@ class _TrainingPackTemplateListScreenState
     );
     _history = await GeneratedPackHistoryService.load();
     if (mounted) setState(() {});
+    nameCtrl.dispose();
+    streetCtrl.dispose();
     _edit(template);
   }
 
@@ -1495,6 +1568,7 @@ class _TrainingPackTemplateListScreenState
                             color: progColor,
                             backgroundColor: progColor.withOpacity(0.3),
                           ));
+                          items.add(const SizedBox(height: 4));
                           if (t.targetStreet != null && t.streetGoal > 0) {
                             final val = (_streetProgress[t.id]?.clamp(0, t.streetGoal) ?? 0) / t.streetGoal;
                             items.add(Row(
