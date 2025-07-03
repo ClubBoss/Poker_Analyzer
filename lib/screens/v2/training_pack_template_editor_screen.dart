@@ -24,6 +24,7 @@ import '../../models/v2/hand_data.dart';
 import '../../models/v2/hero_position.dart';
 import '../../models/saved_hand.dart';
 import '../../models/action_entry.dart';
+import '../../models/evaluation_result.dart';
 import 'training_pack_spot_editor_screen.dart';
 import '../../widgets/v2/training_pack_spot_preview_card.dart';
 import '../../widgets/spot_viewer_dialog.dart';
@@ -1097,6 +1098,58 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     });
     _persist();
+  }
+
+  Future<void> _reEvaluateAll() async {
+    _recordSnapshot();
+    setState(() {
+      for (final spot in widget.template.spots) {
+        final hero = spot.hand.heroIndex;
+        final hand = handCode(spot.hand.heroCards);
+        final stack = spot.hand.stacks['$hero']?.round();
+        if (hand == null || stack == null) continue;
+        final acts = spot.hand.actions[0] ?? [];
+        final stacks = [
+          for (var i = 0; i < spot.hand.playerCount; i++)
+            spot.hand.stacks['$i']?.round() ?? 0
+        ];
+        for (final a in acts) {
+          if (a.playerIndex == hero && a.action == 'push') {
+            final ev = computePushEV(
+              heroBbStack: stack,
+              bbCount: spot.hand.playerCount - 1,
+              heroHand: hand,
+              anteBb: widget.template.anteBb,
+            );
+            final icm = computeIcmPushEV(
+              chipStacksBb: stacks,
+              heroIndex: hero,
+              heroHand: hand,
+              chipPushEv: ev,
+            );
+            a
+              ..ev = ev
+              ..icmEv = icm;
+            final r = spot.evalResult;
+            spot.evalResult = EvaluationResult(
+              correct: r?.correct ?? true,
+              expectedAction: r?.expectedAction ?? 'push',
+              userEquity: r?.userEquity ?? 0,
+              expectedEquity: r?.expectedEquity ?? 0,
+              ev: ev,
+              icmEv: icm,
+              hint: r?.hint,
+            );
+            break;
+          }
+        }
+      }
+    });
+    await _persist();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Re-evaluated ${widget.template.spots.length} spots')),
+    );
   }
 
   void _tagAllMistakes() {
@@ -2382,12 +2435,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             onSelected: (v) {
               if (v == 'regenEv') _regenerateEv();
               if (v == 'regenIcm') _regenerateIcm();
+              if (v == 'reEval') _reEvaluateAll();
               if (v == 'exportCsv') _exportCsv();
               if (v == 'tagMistakes') _tagAllMistakes();
             },
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'regenEv', child: Text('Regenerate EV')),
               PopupMenuItem(value: 'regenIcm', child: Text('Regenerate ICM')),
+              PopupMenuItem(value: 'reEval', child: Text('Re-evaluate All')),
               PopupMenuItem(value: 'exportCsv', child: Text('Export CSV')),
               PopupMenuItem(value: 'tagMistakes', child: Text('Tag All Mistakes')),
             ],
