@@ -1,0 +1,169 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'package:fl_chart/fl_chart.dart';
+
+import '../../models/v2/training_pack_template.dart';
+import '../../theme/app_colors.dart';
+import 'training_pack_play_screen.dart';
+import 'training_pack_template_editor_screen.dart';
+
+class TrainingPackResultScreen extends StatelessWidget {
+  final TrainingPackTemplate template;
+  final Map<String, bool> results;
+  const TrainingPackResultScreen({super.key, required this.template, required this.results});
+
+  int get _correct => results.values.where((e) => e).length;
+  int get _total => template.spots.length;
+  int get _mistakes => _total - _correct;
+  double get _rate => _total == 0 ? 0 : _correct * 100 / _total;
+
+  List<double> get _evs => [for (final s in template.spots) if (s.heroEv != null) s.heroEv!];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Pack Result')),
+      backgroundColor: AppColors.background,
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text('$_correct / $_total',
+                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('Mistakes: $_mistakes', style: const TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            Text('Accuracy: ${_rate.toStringAsFixed(1)}%', style: const TextStyle(color: Colors.white70)),
+            if (_evs.length > 1) ...[
+              const SizedBox(height: 16),
+              _EvChart(evs: _evs),
+            ],
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _mistakes == 0
+                  ? null
+                  : () {
+                      final spots = [for (final s in template.spots) if (results[s.id] == false) s];
+                      final retry = template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => TrainingPackPlayScreen(template: retry)),
+                      );
+                    },
+              child: const Text('Retry Mistakes'),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TrainingPackTemplateEditorScreen(template: template, templates: [template]),
+                  ),
+                );
+              },
+              child: const Text('View Pack'),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Back to List'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EvChart extends StatelessWidget {
+  final List<double> evs;
+  const _EvChart({required this.evs});
+
+  @override
+  Widget build(BuildContext context) {
+    final maxEv = evs.reduce(max);
+    final minEv = evs.reduce(min);
+    final limit = max(maxEv.abs(), minEv.abs());
+    final groups = <BarChartGroupData>[];
+    for (var i = 0; i < evs.length; i++) {
+      final ev = evs[i];
+      final color = ev >= 0 ? Colors.greenAccent : Colors.redAccent;
+      groups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: ev,
+              width: 14,
+              borderRadius: BorderRadius.circular(4),
+              gradient: LinearGradient(
+                colors: [color.withOpacity(0.7), color],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    var interval = limit == 0 ? 1.0 : (limit / 5).ceilToDouble();
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: BarChart(
+        BarChartData(
+          maxY: limit,
+          minY: -limit,
+          alignment: BarChartAlignment.spaceBetween,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: interval,
+            getDrawingHorizontalLine: (value) => FlLine(color: Colors.white24, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: interval,
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final i = value.toInt();
+                  if (i < 0 || i >= evs.length) return const SizedBox.shrink();
+                  return Text('${i + 1}', style: const TextStyle(color: Colors.white, fontSize: 10));
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: const Border(
+              left: BorderSide(color: Colors.white24),
+              bottom: BorderSide(color: Colors.white24),
+            ),
+          ),
+          barGroups: groups,
+        ),
+      ),
+    );
+  }
+}
