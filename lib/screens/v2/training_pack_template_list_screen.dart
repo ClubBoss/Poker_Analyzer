@@ -1034,10 +1034,13 @@ class _TrainingPackTemplateListScreenState
     final filtered = _selectedTag == null
         ? byType
         : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
+    final completed = _completedOnly
+        ? [for (final t in filtered) if (t.goalAchieved) t]
+        : filtered;
     final shown = _query.isEmpty
-        ? filtered
+        ? completed
         : [
-            for (final t in filtered)
+            for (final t in completed)
               if (t.name.toLowerCase().contains(_query) ||
                   t.description.toLowerCase().contains(_query))
                 t
