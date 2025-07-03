@@ -30,6 +30,7 @@ import '../../widgets/preset_range_buttons.dart';
 import '../training_session_screen.dart';
 import '../../services/training_session_service.dart';
 import '../../helpers/hand_utils.dart';
+import 'training_pack_play_screen.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -1212,14 +1213,20 @@ class _TrainingPackTemplateListScreenState
                           trailing: IconButton(
                             icon: const Icon(Icons.play_arrow),
                             tooltip: 'Start training',
-                            onPressed: () async {
-                              final tpl = _templates.firstWhereOrNull((t) => t.id == h.id);
+                            onPressed: () {
+                              final tpl =
+                                  _templates.firstWhereOrNull((t) => t.id == h.id);
                               if (tpl == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(content: Text('Pack not found')));
                                 return;
                               }
-                              await _openTrainingSession(tpl);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        TrainingPackPlayScreen(template: tpl)),
+                              );
                             },
                           ),
                           onTap: () {
@@ -1375,8 +1382,14 @@ class _TrainingPackTemplateListScreenState
                             IconButton(
                               icon: const Icon(Icons.play_arrow),
                               tooltip: 'Start training',
-                              onPressed: () async {
-                                await _openTrainingSession(t);
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        TrainingPackPlayScreen(template: t),
+                                  ),
+                                );
                               },
                             ),
                             IconButton(
