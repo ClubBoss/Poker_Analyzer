@@ -77,12 +77,14 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     if (_order == PlayOrder.random) {
       spots.shuffle();
     } else if (_order == PlayOrder.mistakes) {
-      spots = [
-        for (final s in spots)
-          if (_results.containsKey(s.id) &&
-              _expected(s)?.toLowerCase() != _results[s.id]!.toLowerCase())
-            s
-      ];
+      spots = spots.where((s) {
+        final exp = _expected(s);
+        final ans = _results[s.id];
+        return exp != null &&
+            ans != null &&
+            ans != 'false' &&
+            exp.toLowerCase() != ans.toLowerCase();
+      }).toList();
       if (spots.isEmpty) spots = List<TrainingPackSpot>.from(widget.template.spots);
     }
     setState(() {

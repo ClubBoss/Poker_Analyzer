@@ -42,12 +42,15 @@ class TrainingPackResultScreen extends StatelessWidget {
 
   List<double> get _evs => [for (final s in template.spots) if (s.heroEv != null && results.containsKey(s.id)) s.heroEv!];
 
-  List<TrainingPackSpot> get _mistakeSpots => [
-        for (final s in template.spots)
-          if (results.containsKey(s.id) &&
-              _expected(s)?.toLowerCase() != results[s.id]!.toLowerCase())
-            s
-      ];
+  List<TrainingPackSpot> get _mistakeSpots => template.spots
+      .where((s) {
+        final exp = _expected(s);
+        final ans = results[s.id];
+        return exp != null &&
+            ans != null &&
+            ans != 'false' &&
+            exp.toLowerCase() != ans.toLowerCase();
+      }).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -139,13 +142,14 @@ class TrainingPackResultScreen extends StatelessWidget {
                       await prefs.remove('tpl_seq_${original.id}');
                       await prefs.remove('tpl_prog_${original.id}');
                       await prefs.remove('tpl_res_${original.id}');
-                      final spots = [
-                        for (final s in template.spots)
-                          if (results.containsKey(s.id) &&
-                              _expected(s)?.toLowerCase() !=
-                                  results[s.id]!.toLowerCase())
-                            s
-                      ];
+                      final spots = template.spots.where((s) {
+                        final exp = _expected(s);
+                        final ans = results[s.id];
+                        return exp != null &&
+                            ans != null &&
+                            ans != 'false' &&
+                            exp.toLowerCase() != ans.toLowerCase();
+                      }).toList();
                       final retry = template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
                       Navigator.pushReplacement(
                         context,
