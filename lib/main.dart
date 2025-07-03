@@ -40,6 +40,7 @@ import 'services/daily_reminder_service.dart';
 import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/drill_history_service.dart';
+import 'services/mixed_drill_history_service.dart';
 import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
@@ -210,6 +211,7 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider(create: (_) => DrillHistoryService()..load()),
+        ChangeNotifierProvider(create: (_) => MixedDrillHistoryService()..load()),
         ChangeNotifierProvider(create: (_) => TrainingSessionService()..load()),
         ChangeNotifierProvider(
           create: (context) =>
