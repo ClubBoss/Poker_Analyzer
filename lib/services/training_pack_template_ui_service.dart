@@ -111,6 +111,7 @@ class TrainingPackTemplateUiService {
         );
       },
     );
+    template.recountCoverage([...template.spots, ...generated]);
     template.lastGeneratedAt = DateTime.now();
     return generated;
   }
@@ -222,6 +223,7 @@ class TrainingPackTemplateUiService {
         );
       },
     );
+    template.recountCoverage([...template.spots, ...generated]);
     template.lastGeneratedAt = DateTime.now();
     return generated;
   }
