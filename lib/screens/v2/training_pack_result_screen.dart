@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/v2/training_pack_template.dart';
 import '../../theme/app_colors.dart';
@@ -10,15 +11,17 @@ import 'training_pack_template_editor_screen.dart';
 
 class TrainingPackResultScreen extends StatelessWidget {
   final TrainingPackTemplate template;
+  final TrainingPackTemplate original;
   final Map<String, bool> results;
-  const TrainingPackResultScreen({super.key, required this.template, required this.results});
+  const TrainingPackResultScreen({super.key, required this.template, required this.results, TrainingPackTemplate? original})
+      : original = original ?? template;
 
   int get _correct => results.values.where((e) => e).length;
   int get _total => template.spots.length;
   int get _mistakes => _total - _correct;
   double get _rate => _total == 0 ? 0 : _correct * 100 / _total;
 
-  List<double> get _evs => [for (final s in template.spots) if (s.heroEv != null) s.heroEv!];
+  List<double> get _evs => [for (final s in template.spots) if (s.heroEv != null && results.containsKey(s.id)) s.heroEv!];
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +47,18 @@ class TrainingPackResultScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: _mistakes == 0
                   ? null
-                  : () {
+                  : () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.remove('tpl_seq_${template.id}');
+                      await prefs.remove('tpl_prog_${template.id}');
+                      await prefs.remove('tpl_res_${template.id}');
                       final spots = [for (final s in template.spots) if (results[s.id] == false) s];
                       final retry = template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => TrainingPackPlayScreen(template: retry)),
+                        MaterialPageRoute(
+                          builder: (_) => TrainingPackPlayScreen(template: retry, original: original),
+                        ),
                       );
                     },
               child: const Text('Retry Mistakes'),
@@ -60,7 +69,7 @@ class TrainingPackResultScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => TrainingPackTemplateEditorScreen(template: template, templates: [template]),
+                    builder: (_) => TrainingPackTemplateEditorScreen(template: original, templates: [original]),
                   ),
                 );
               },
@@ -68,7 +77,7 @@ class TrainingPackResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
               child: const Text('Back to List'),
             ),
           ],
