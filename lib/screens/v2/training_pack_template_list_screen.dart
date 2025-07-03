@@ -199,6 +199,43 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  TrainingPackTemplate? _suggestTemplate() {
+    final byStreet = <String, List<TrainingPackTemplate>>{};
+    for (final t in _templates) {
+      final s = t.targetStreet;
+      if (s == null || t.spots.isEmpty) continue;
+      byStreet.putIfAbsent(s, () => []).add(t);
+    }
+    String? street;
+    double best = 2;
+    for (final e in byStreet.entries) {
+      double sum = 0;
+      for (final t in e.value) {
+        final total = t.spots.length;
+        if (total == 0) continue;
+        sum += (_progress[t.id]?.clamp(0, total) ?? 0) / total;
+      }
+      final avg = sum / e.value.length;
+      if (avg < best) {
+        best = avg;
+        street = e.key;
+      }
+    }
+    if (street == null) return null;
+    TrainingPackTemplate? result;
+    double ratio = 2;
+    for (final t in byStreet[street]!) {
+      final total = t.spots.length;
+      if (total == 0) continue;
+      final r = (_progress[t.id]?.clamp(0, total) ?? 0) / total;
+      if (r < ratio) {
+        ratio = r;
+        result = t;
+      }
+    }
+    return result;
+  }
+
   Widget _buildTemplateTile(TrainingPackTemplate t, bool narrow,
       {int? index}) {
     final total = t.spots.length;
@@ -1701,6 +1738,7 @@ class _TrainingPackTemplateListScreenState
       }
     }
     final history = _dedupHistory();
+    final suggestion = _groupByStreet ? _suggestTemplate() : null;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Packs'),
@@ -1826,6 +1864,52 @@ class _TrainingPackTemplateListScreenState
                           },
                         ),
                     ],
+                  ),
+                if (suggestion != null)
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.insights, color: Colors.orangeAccent),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _streetLabel(suggestion.targetStreet),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(suggestion.name,
+                                  style: const TextStyle(color: Colors.white)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => TrainingPackPlayScreen(
+                                    template: suggestion, original: suggestion),
+                              ),
+                            );
+                            if (mounted) {
+                              _loadProgress();
+                              _loadGoals();
+                            }
+                          },
+                          child: const Text('Start Training'),
+                        ),
+                      ],
+                    ),
                   ),
                 SwitchListTile(
                   title: const Text('Hide Completed'),
