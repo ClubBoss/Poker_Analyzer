@@ -124,7 +124,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final spot = _spots[_index];
-    final progress = (_index + 1) / _spots.length;
+    final progress = _index / _spots.length;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.template.name),
@@ -150,7 +150,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           children: [
             LinearProgressIndicator(value: progress),
             const SizedBox(height: 8),
-            Text('${_index + 1} / ${_spots.length}', style: const TextStyle(color: Colors.white70)),
+            Text('Spot ${_index + 1} of ${_spots.length}',
+                style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             Expanded(child: SpotQuizWidget(spot: spot)),
             const SizedBox(height: 16),
