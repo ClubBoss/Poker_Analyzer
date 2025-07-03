@@ -46,6 +46,7 @@ class TrainingPackTemplateListScreen extends StatefulWidget {
 
 class _TrainingPackTemplateListScreenState
     extends State<TrainingPackTemplateListScreen> {
+  static const _prefsHideKey = 'tpl_hide_completed';
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
   String _query = '';
@@ -56,6 +57,7 @@ class _TrainingPackTemplateListScreenState
   String? _selectedTag;
   bool _filtersShown = false;
   bool _completedOnly = false;
+  bool _hideCompleted = false;
   String _sort = 'name';
   List<GeneratedPackInfo> _history = [];
   int _mixedCount = 20;
@@ -139,6 +141,19 @@ class _TrainingPackTemplateListScreenState
     if (mounted) setState(() {});
   }
 
+  Future<void> _loadHideCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() => _hideCompleted = prefs.getBool(_prefsHideKey) ?? false);
+    }
+  }
+
+  Future<void> _setHideCompleted(bool value) async {
+    setState(() => _hideCompleted = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsHideKey, value);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -153,6 +168,7 @@ class _TrainingPackTemplateListScreenState
       });
       _loadProgress();
       _loadGoals();
+      _loadHideCompleted();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1170,10 +1186,20 @@ class _TrainingPackTemplateListScreenState
     final completed = _completedOnly
         ? [for (final t in filtered) if (t.goalAchieved) t]
         : filtered;
-    final shown = _query.isEmpty
-        ? completed
-        : [
+    final visible = _hideCompleted
+        ? [
             for (final t in completed)
+              if ((t.spots.isEmpty
+                      ? 0.0
+                      : (_progress[t.id] ?? 0) / t.spots.length) < 1.0 ||
+                  !t.goalAchieved)
+                t
+          ]
+        : completed;
+    final shown = _query.isEmpty
+        ? visible
+        : [
+            for (final t in visible)
               if (t.name.toLowerCase().contains(_query) ||
                   t.description.toLowerCase().contains(_query))
                 t
@@ -1298,10 +1324,20 @@ class _TrainingPackTemplateListScreenState
     final completed = _completedOnly
         ? [for (final t in filtered) if (t.goalAchieved) t]
         : filtered;
-    final shown = _query.isEmpty
-        ? completed
-        : [
+    final visible = _hideCompleted
+        ? [
             for (final t in completed)
+              if ((t.spots.isEmpty
+                      ? 0.0
+                      : (_progress[t.id] ?? 0) / t.spots.length) < 1.0 ||
+                  !t.goalAchieved)
+                t
+          ]
+        : completed;
+    final shown = _query.isEmpty
+        ? visible
+        : [
+            for (final t in visible)
               if (t.name.toLowerCase().contains(_query) ||
                   t.description.toLowerCase().contains(_query))
                 t
@@ -1433,6 +1469,12 @@ class _TrainingPackTemplateListScreenState
                         ),
                     ],
                   ),
+                SwitchListTile(
+                  title: const Text('Hide Completed'),
+                  value: _hideCompleted,
+                  onChanged: _setHideCompleted,
+                  activeColor: Colors.orange,
+                ),
                 if (!narrow)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
