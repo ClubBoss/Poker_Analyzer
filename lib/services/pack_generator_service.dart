@@ -191,6 +191,12 @@ class PackGeneratorService {
         anteBb: anteBb,
       );
       actions[0]![0].ev = ev;
+      actions[0]![0].icmEv = computeIcmPushEV(
+        chipStacksBb: playerStacksBb,
+        heroIndex: 0,
+        heroHand: hand,
+        chipPushEv: ev,
+      );
       final stacks = {
         for (var j = 0; j < playerStacksBb.length; j++)
           '$j': playerStacksBb[j].toDouble()
