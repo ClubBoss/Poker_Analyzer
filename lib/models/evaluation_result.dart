@@ -9,11 +9,17 @@ class EvaluationResult {
   /// Equity of the hand if the optimal action was taken.
   final double expectedEquity;
 
+  final double? ev;
+
+  final double? icmEv;
+
   EvaluationResult({
     required this.correct,
     required this.expectedAction,
     required this.userEquity,
     required this.expectedEquity,
+    this.ev,
+    this.icmEv,
     this.hint,
   });
 
@@ -22,6 +28,8 @@ class EvaluationResult {
         'expectedAction': expectedAction,
         'userEquity': userEquity,
         'expectedEquity': expectedEquity,
+        if (ev != null) 'ev': ev,
+        if (icmEv != null) 'icmEv': icmEv,
         if (hint != null) 'hint': hint,
       };
 
@@ -30,6 +38,8 @@ class EvaluationResult {
         expectedAction: json['expectedAction'] as String? ?? '',
         userEquity: (json['userEquity'] as num?)?.toDouble() ?? 0.0,
         expectedEquity: (json['expectedEquity'] as num?)?.toDouble() ?? 0.0,
+        ev: (json['ev'] as num?)?.toDouble(),
+        icmEv: (json['icmEv'] as num?)?.toDouble(),
         hint: json['hint'] as String?,
       );
 }
