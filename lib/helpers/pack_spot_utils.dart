@@ -3,7 +3,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 
-SavedHand handFromPackSpot(TrainingPackSpot spot) {
+SavedHand handFromPackSpot(TrainingPackSpot spot, {int anteBb = 0}) {
   final parts = spot.hand.heroCards
       .split(RegExp(r'\s+'))
       .where((e) => e.isNotEmpty)
@@ -60,6 +60,7 @@ SavedHand handFromPackSpot(TrainingPackSpot spot) {
     boardStreet: street,
     actions: actions,
     stackSizes: stacks,
+    anteBb: anteBb,
     playerPositions: positions,
     tags: List<String>.from(spot.tags),
     gtoAction: gto,

@@ -23,12 +23,14 @@ class TrainingScreen extends StatefulWidget {
   final String? templateId;
   final String? templateName;
   final double minEvForCorrect;
+  final int anteBb;
 
   const TrainingScreen({super.key, required TrainingSpot trainingSpot})
       : spot = trainingSpot,
         hands = null,
         drillMode = false,
-        minEvForCorrect = 0.01;
+        minEvForCorrect = 0.01,
+        anteBb = 0;
 
   const TrainingScreen.drill({
     super.key,
@@ -36,6 +38,7 @@ class TrainingScreen extends StatefulWidget {
     this.templateId,
     this.templateName,
     this.minEvForCorrect = 0.01,
+    this.anteBb = 0,
   })  : spot = null,
         drillMode = true;
 
@@ -239,7 +242,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
       if (tpl != null) {
         final hands = [
           for (final s in tpl.spots)
-            if (_wrongIds.contains(s.id)) handFromPackSpot(s)
+            if (_wrongIds.contains(s.id)) handFromPackSpot(s, anteBb: tpl.anteBb)
         ];
         if (hands.isNotEmpty) {
           unawaited(Navigator.pushReplacement(
@@ -250,6 +253,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
                 templateId: tpl.id,
                 templateName: tpl.name,
                 minEvForCorrect: widget.minEvForCorrect,
+                anteBb: tpl.anteBb,
               ),
             ),
           ));
@@ -351,6 +355,14 @@ class _TrainingScreenState extends State<TrainingScreen> {
                 spot: spot,
                 size: MediaQuery.of(context).size.width - 32,
               ),
+              if (_drill && widget.anteBb > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Ante: ${widget.anteBb} BB',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
               const SizedBox(height: 16),
               if (_drill && heroAction != null) ...[
                 Row(

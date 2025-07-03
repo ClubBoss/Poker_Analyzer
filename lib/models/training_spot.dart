@@ -26,6 +26,7 @@ class TrainingSpot {
   final int? totalPrizePool;
   final int? numberOfEntrants;
   final String? gameType;
+  final int anteBb;
   final List<String> tags;
   final int difficulty;
   final int rating;
@@ -53,6 +54,7 @@ class TrainingSpot {
     this.totalPrizePool,
     this.numberOfEntrants,
     this.gameType,
+    this.anteBb = 0,
     List<String>? tags,
     this.userAction,
     this.userComment,
@@ -92,6 +94,7 @@ class TrainingSpot {
       totalPrizePool: hand.totalPrizePool,
       numberOfEntrants: hand.numberOfEntrants,
       gameType: hand.gameType,
+      anteBb: hand.anteBb,
       tags: List<String>.from(hand.tags),
       userAction: null,
       userComment: hand.comment,
@@ -136,6 +139,7 @@ class TrainingSpot {
         if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
         if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
         if (gameType != null) 'gameType': gameType,
+        'anteBb': anteBb,
         if (tags.isNotEmpty) 'tags': tags,
         if (strategyAdvice != null) 'strategyAdvice': strategyAdvice,
         'difficulty': difficulty,
@@ -247,6 +251,7 @@ class TrainingSpot {
       totalPrizePool: (json['totalPrizePool'] as num?)?.toInt(),
       numberOfEntrants: (json['numberOfEntrants'] as num?)?.toInt(),
       gameType: json['gameType'] as String?,
+      anteBb: json['anteBb'] as int? ?? 0,
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 3,
       rating: (json['rating'] as num?)?.toInt() ?? 0,
@@ -273,6 +278,7 @@ class TrainingSpot {
     List<double>? equities,
     List<List<double>>? rangeMatrix,
     DateTime? createdAt,
+    int? anteBb,
   }) {
     return TrainingSpot(
       playerCards: [for (final list in playerCards) List<CardModel>.from(list)],
@@ -291,6 +297,7 @@ class TrainingSpot {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
+      anteBb: anteBb ?? this.anteBb,
       tags: tags ?? List<String>.from(this.tags),
       difficulty: difficulty ?? this.difficulty,
       rating: rating ?? this.rating,
