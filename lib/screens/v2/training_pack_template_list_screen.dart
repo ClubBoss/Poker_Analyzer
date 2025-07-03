@@ -388,6 +388,22 @@ class _TrainingPackTemplateListScreenState
       onLongPress: () => _duplicate(t),
       title: Row(
         children: [
+          if (t.streetGoal > 0)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  value: (_streetProgress[t.id]?.clamp(0, t.streetGoal) ?? 0) /
+                      t.streetGoal,
+                  strokeWidth: 3,
+                  backgroundColor: Colors.white24,
+                  valueColor:
+                      const AlwaysStoppedAnimation(Colors.orangeAccent),
+                ),
+              ),
+            ),
           Expanded(child: Text(t.name)),
           if (isNew)
             const Padding(
