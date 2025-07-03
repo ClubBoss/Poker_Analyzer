@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../widgets/spot_quiz_widget.dart';
+import '../../theme/app_colors.dart';
 import 'training_pack_result_screen.dart';
 
 enum PlayOrder { sequential, random, mistakes }
@@ -21,7 +22,7 @@ class TrainingPackPlayScreen extends StatefulWidget {
 
 class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   late List<TrainingPackSpot> _spots;
-  Map<String, bool> _results = {};
+  Map<String, String> _results = {};
   int _index = 0;
   bool _loading = true;
   PlayOrder _order = PlayOrder.sequential;
@@ -49,11 +50,11 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       if (ordered.length == spots.length) spots = ordered;
     }
     final resStr = prefs.getString(resKey);
-    Map<String, bool> results = {};
+    Map<String, String> results = {};
     if (resStr != null) {
       final data = jsonDecode(resStr);
       if (data is Map) {
-        results = {for (final e in data.entries) e.key as String: e.value == true};
+        results = {for (final e in data.entries) e.key as String: e.value.toString()};
       }
     }
     setState(() {
@@ -76,7 +77,12 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     if (_order == PlayOrder.random) {
       spots.shuffle();
     } else if (_order == PlayOrder.mistakes) {
-      spots = [for (final s in spots) if (_results[s.id] == false) s];
+      spots = [
+        for (final s in spots)
+          if (_results.containsKey(s.id) &&
+              _expected(s)?.toLowerCase() != _results[s.id]!.toLowerCase())
+            s
+      ];
       if (spots.isEmpty) spots = List<TrainingPackSpot>.from(widget.template.spots);
     }
     setState(() {
@@ -109,9 +115,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
 
   void _choose(String act) {
     final spot = _spots[_index];
-    final exp = _expected(spot);
-    final ok = exp != null && act.toLowerCase() == exp.toLowerCase();
-    _results[spot.id] = ok;
+    _results[spot.id] = act.toLowerCase();
     if (_index + 1 < _spots.length) {
       setState(() => _index++);
       _save();
@@ -194,10 +198,17 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                             : (actions.length == 1 && !actions.contains('fold')
                                 ? [...actions, 'fold']
                                 : actions))
-                          ElevatedButton(
-                            onPressed: () => _choose(a),
-                            child: Text(a.toUpperCase()),
-                          ),
+                          _results[spot.id]?.toLowerCase() == a.toLowerCase()
+                              ? ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.accent),
+                                  onPressed: () => _choose(a),
+                                  child: Text(a.toUpperCase()),
+                                )
+                              : OutlinedButton(
+                                  onPressed: () => _choose(a),
+                                  child: Text(a.toUpperCase()),
+                                ),
                       ],
                     ),
                   ],
