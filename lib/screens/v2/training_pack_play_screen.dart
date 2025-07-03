@@ -133,45 +133,48 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return context.mounted && res == true;
   }
 
-  Future<void> _choose(String act) async {
+  Future<void> _choose(String? act) async {
     final spot = _spots[_index];
-    _results[spot.id] = act.toLowerCase();
+    if (act != null) {
+      _results[spot.id] = act.toLowerCase();
 
-    final expected = spot.evalResult?.expectedAction ?? _expected(spot) ?? '-';
-    final explanation = spot.note.trim().isNotEmpty
-        ? spot.note.trim()
-        : (spot.evalResult?.hint ?? '');
+      final expected =
+          spot.evalResult?.expectedAction ?? _expected(spot) ?? '-';
+      final explanation = spot.note.trim().isNotEmpty
+          ? spot.note.trim()
+          : (spot.evalResult?.hint ?? '');
 
-    await showModalBottomSheet(
-      context: context,
-      isDismissible: false,
-      enableDrag: false,
-      backgroundColor: Colors.grey[900],
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ExplanationText(
-              selectedAction: act,
-              correctAction: expected,
-              explanation: explanation,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Continue'),
-            ),
-          ],
+      await showModalBottomSheet(
+        context: context,
+        isDismissible: false,
+        enableDrag: false,
+        backgroundColor: Colors.grey[900],
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-      ),
-    );
+        builder: (ctx) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ExplanationText(
+                selectedAction: act,
+                correctAction: expected,
+                explanation: explanation,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Continue'),
+              ),
+            ],
+          ),
+        ),
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
+    }
     if (_index + 1 < _spots.length) {
       setState(() => _index++);
       _save();
@@ -270,10 +273,18 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
+              child: GestureDetector(
+                onHorizontalDragEnd: (d) {
+                  if (d.primaryVelocity != null &&
+                      d.primaryVelocity! < -100 &&
+                      _results[spot.id] == null) {
+                    _choose(null);
+                  }
+                },
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
                   child: SlideTransition(
                     position: Tween<Offset>(
                       begin: const Offset(0.1, 0),
@@ -312,6 +323,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                   ],
                 ),
               ),
+            ),
             ),
           ],
         ),
