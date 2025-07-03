@@ -2999,6 +2999,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                   Expanded(
                                   child: TrainingPackSpotPreviewCard(
                                       spot: spot,
+                                      isMistake: spot.evalResult?.correct == false,
                                       titleColor: spot.evalResult == null
                                           ? Colors.yellow
                                           : (spot.evalResult!.correct ? null : Colors.red),
