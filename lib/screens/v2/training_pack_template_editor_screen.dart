@@ -2490,7 +2490,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ? Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+            _CoverageProgress(
+              label: 'EV Covered',
+              value: evCoverage,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const SizedBox(height: 8),
+            _CoverageProgress(
+              label: 'ICM Covered',
+              value: icmCoverage,
+              color: Colors.purple,
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: _descCtr,
               focusNode: _descFocus,
@@ -3274,6 +3287,39 @@ class _EvCoverageBar extends StatelessWidget {
         _bar(context, icm, 'ICM', Colors.purple),
         const SizedBox(width: 8),
         _bar(context, both, 'Both', Colors.green),
+      ],
+    );
+  }
+}
+
+class _CoverageProgress extends StatelessWidget {
+  final String label;
+  final double value;
+  final Color color;
+  const _CoverageProgress({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final percent = (value * 100).round();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: value,
+            backgroundColor: Colors.white24,
+            valueColor: AlwaysStoppedAnimation(color),
+            minHeight: 6,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text('$label $percent%',
+            style: const TextStyle(color: Colors.white70)),
       ],
     );
   }
