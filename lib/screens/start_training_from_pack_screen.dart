@@ -51,6 +51,7 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
                 hands: hands,
                 templateId: tpl.id,
                 templateName: tpl.name,
+                minEvForCorrect: tpl.minEvForCorrect,
               )),
     );
   }
