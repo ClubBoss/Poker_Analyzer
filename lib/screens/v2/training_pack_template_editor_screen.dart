@@ -82,7 +82,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _autoSortEv = false;
   bool _pinnedOnly = false;
   bool _heroPushOnly = false;
-  bool _mistakeOnly = false;
+  bool _filterMistakes = false;
+  bool _filterOutdated = false;
+  bool _filterEvCovered = false;
   bool _changedOnly = false;
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
@@ -157,7 +159,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
       if (_evFilter == 'error' && !(res != null && !res.correct)) return false;
       if (_evFilter == 'empty' && res != null) return false;
-      if (_mistakeOnly && !(res != null && !res.correct)) return false;
+      if (_filterMistakes && !(res != null && !res.correct)) return false;
+      if (_filterOutdated && !s.dirty) return false;
+      if (_filterEvCovered && !(s.heroEv != null && !s.dirty)) return false;
       if (_quickFilter == 'BTN' && s.hand.position != HeroPosition.btn) {
         return false;
       }
@@ -2189,23 +2193,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
-    final totalSpots = widget.template.spots.length;
-    final evCoverage = totalSpots == 0
-        ? 0.0
-        : widget.template.evCovered / totalSpots;
-    final icmCoverage = totalSpots == 0
-        ? 0.0
-        : widget.template.icmCovered / totalSpots;
+    final totalSpots = shown.length;
+    final evCovered = shown.where((s) => s.heroEv != null && !s.dirty).length;
+    final icmCovered = shown.where((s) => s.heroIcmEv != null && !s.dirty).length;
+    final evCoverage = totalSpots == 0 ? 0.0 : evCovered / totalSpots;
+    final icmCoverage = totalSpots == 0 ? 0.0 : icmCovered / totalSpots;
     final bothCoverage = evCoverage < icmCoverage ? evCoverage : icmCoverage;
-    final heroEvsAll = [
-      for (final s in widget.template.spots)
-        if (s.heroEv != null) s.heroEv!
-    ];
+    final heroEvsAll = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final avgEv = heroEvsAll.isEmpty
         ? null
         : heroEvsAll.reduce((a, b) => a + b) / heroEvsAll.length;
     final tagCounts = <String, int>{};
-    for (final t in widget.template.spots.expand((s) => s.tags)) {
+    for (final t in shown.expand((s) => s.tags)) {
       tagCounts[t] = (tagCounts[t] ?? 0) + 1;
     }
     final topTags = tagCounts.entries.toList()
@@ -2966,10 +2965,29 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               value: _heroPushOnly,
               onChanged: (v) => setState(() => _heroPushOnly = v),
             ),
-            SwitchListTile(
-              title: const Text('Mistake only'),
-              value: _mistakeOnly,
-              onChanged: (v) => setState(() => _mistakeOnly = v),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  FilterChip(
+                    label: const Text('Mistakes'),
+                    selected: _filterMistakes,
+                    onSelected: (v) => setState(() => _filterMistakes = v),
+                  ),
+                  const SizedBox(width: 8),
+                  FilterChip(
+                    label: const Text('Outdated'),
+                    selected: _filterOutdated,
+                    onSelected: (v) => setState(() => _filterOutdated = v),
+                  ),
+                  const SizedBox(width: 8),
+                  FilterChip(
+                    label: const Text('EV Covered'),
+                    selected: _filterEvCovered,
+                    onSelected: (v) => setState(() => _filterEvCovered = v),
+                  ),
+                ],
+              ),
             ),
             CheckboxListTile(
               title: const Text('Only Changed'),
