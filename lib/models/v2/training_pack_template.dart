@@ -17,6 +17,7 @@ class TrainingPackTemplate {
   int spotCount;
   int bbCallPct;
   int anteBb;
+  double minEvForCorrect;
   List<String>? heroRange;
   final DateTime createdAt;
   DateTime? lastGeneratedAt;
@@ -35,6 +36,7 @@ class TrainingPackTemplate {
     this.spotCount = 20,
     this.bbCallPct = 20,
     this.anteBb = 0,
+    this.minEvForCorrect = 0.01,
     this.heroRange,
     DateTime? createdAt,
     this.lastGeneratedAt,
@@ -60,6 +62,7 @@ class TrainingPackTemplate {
     int? spotCount,
     int? bbCallPct,
     int? anteBb,
+    double? minEvForCorrect,
     List<String>? heroRange,
     DateTime? createdAt,
     DateTime? lastGeneratedAt,
@@ -78,6 +81,7 @@ class TrainingPackTemplate {
       spotCount: spotCount ?? this.spotCount,
       bbCallPct: bbCallPct ?? this.bbCallPct,
       anteBb: anteBb ?? this.anteBb,
+      minEvForCorrect: minEvForCorrect ?? this.minEvForCorrect,
       heroRange: heroRange ?? this.heroRange,
       createdAt: createdAt ?? this.createdAt,
       lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
@@ -108,6 +112,7 @@ class TrainingPackTemplate {
       spotCount: json['spotCount'] as int? ?? 20,
       bbCallPct: json['bbCallPct'] as int? ?? 20,
       anteBb: json['anteBb'] as int? ?? 0,
+      minEvForCorrect: (json['minEvForCorrect'] as num?)?.toDouble() ?? 0.01,
       heroRange: (json['heroRange'] as List?)?.map((e) => e as String).toList(),
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
@@ -135,6 +140,7 @@ class TrainingPackTemplate {
         'spotCount': spotCount,
         'bbCallPct': bbCallPct,
         'anteBb': anteBb,
+        'minEvForCorrect': minEvForCorrect,
         'createdAt': createdAt.toIso8601String(),
         if (lastGeneratedAt != null)
           'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),

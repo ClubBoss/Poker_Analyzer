@@ -18,14 +18,21 @@ class TrainingScreen extends StatefulWidget {
   final bool drillMode;
   final String? templateId;
   final String? templateName;
+  final double minEvForCorrect;
 
   const TrainingScreen({super.key, required TrainingSpot trainingSpot})
       : spot = trainingSpot,
         hands = null,
-        drillMode = false;
+        drillMode = false,
+        minEvForCorrect = 0.01;
 
-  const TrainingScreen.drill({super.key, required this.hands, this.templateId, this.templateName})
-      : spot = null,
+  const TrainingScreen.drill({
+    super.key,
+    required this.hands,
+    this.templateId,
+    this.templateName,
+    this.minEvForCorrect = 0.01,
+  })  : spot = null,
         drillMode = true;
 
   @override
@@ -59,13 +66,17 @@ class _TrainingScreenState extends State<TrainingScreen> {
     if (_selected != null) return;
     final hand = widget.hands![_index];
     final expected = hand.gtoAction?.trim().toUpperCase() ?? '';
-    final isCorrect = action.toUpperCase() == expected;
+    bool isCorrect = action.toUpperCase() == expected;
     ActionEntry? hero;
     for (final a in hand.actions) {
       if (a.street == 0 && a.playerIndex == hand.heroIndex) {
         hero = a;
         break;
       }
+    }
+    if (!isCorrect && hero?.ev != null &&
+        hero!.ev!.abs() < widget.minEvForCorrect) {
+      isCorrect = true;
     }
     setState(() {
       _selected = action;
@@ -74,9 +85,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
         correct++;
       } else {
         _wrongIds.add(hand.spotId ?? '');
-        if (hero?.ev != null) {
-          evLoss += -hero!.ev!;
-        }
+        if (hero?.ev != null) evLoss += -hero!.ev!;
       }
     });
     ScaffoldMessenger.of(context).clearSnackBars();

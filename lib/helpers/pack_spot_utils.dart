@@ -21,7 +21,9 @@ SavedHand handFromPackSpot(TrainingPackSpot spot) {
           amount: a.amount,
           generated: a.generated,
           manualEvaluation: a.manualEvaluation,
-          customLabel: a.customLabel));
+          customLabel: a.customLabel,
+          ev: a.ev,
+          icmEv: a.icmEv));
     }
   }
   final stacks = {

@@ -64,6 +64,7 @@ class TrainingPackTemplateEditorScreen extends StatefulWidget {
 
 class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateEditorScreen> {
   late final TextEditingController _descCtr;
+  late final TextEditingController _evCtr;
   late final FocusNode _descFocus;
   late String _templateName;
   String _query = '';
@@ -533,6 +534,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     super.initState();
     _templateName = widget.template.name;
     _descCtr = TextEditingController(text: widget.template.description);
+    _evCtr = TextEditingController(
+        text: widget.template.minEvForCorrect.toString());
     _descFocus = FocusNode();
     _descFocus.addListener(() {
       if (!_descFocus.hasFocus) _saveDesc();
@@ -603,6 +606,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _storeScroll();
     _descFocus.dispose();
     _descCtr.dispose();
+    _evCtr.dispose();
     _searchCtrl.dispose();
     _tagSearchCtrl.dispose();
     _scrollCtrl.dispose();
@@ -2452,6 +2456,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               decoration: const InputDecoration(labelText: 'Description'),
               maxLines: 4,
               onEditingComplete: _saveDesc,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _evCtr,
+              decoration:
+                  const InputDecoration(labelText: 'Min EV to be correct (bb)'),
+              keyboardType: TextInputType.number,
+              onChanged: (v) {
+                final val = double.tryParse(v) ?? 0.01;
+                setState(() => widget.template.minEvForCorrect = val);
+                _persist();
+              },
             ),
             const SizedBox(height: 16),
             Wrap(
