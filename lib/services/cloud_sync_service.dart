@@ -25,8 +25,16 @@ class CloudSyncService {
   final List<Map<String, dynamic>> _pending = [];
   final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
   final ValueNotifier<double> progress = ValueNotifier(0);
+  final ValueNotifier<String?> syncMessage = ValueNotifier(null);
   late final Connectivity _conn;
   StreamSubscription<ConnectivityResult>? _connSub;
+
+  void _notify(String message) {
+    syncMessage.value = message;
+    Future.delayed(const Duration(seconds: 3), () {
+      if (syncMessage.value == message) syncMessage.value = null;
+    });
+  }
 
   Future<void> init() async {
     if (_local) {
@@ -72,6 +80,7 @@ class CloudSyncService {
       await _box!.put('pending_mutations', _pending);
       lastSync.value = DateTime.now();
       await _box!.put('last_sync', lastSync.value!.toIso8601String());
+      _notify('Synced changes to cloud');
       return;
     }
     final user = _db.collection('users').doc(uid);
@@ -91,6 +100,7 @@ class CloudSyncService {
       return;
     }
     progress.value = 0;
+    _notify('Synced changes to cloud');
   }
 
   Future<void> syncDown() async {
@@ -100,6 +110,7 @@ class CloudSyncService {
       final ts = _box!.get('last_sync') as String?;
       if (ts != null) lastSync.value = DateTime.tryParse(ts);
       progress.value = 0;
+      _notify('Loaded latest from cloud');
       return;
     }
     try {
@@ -125,6 +136,7 @@ class CloudSyncService {
       return;
     }
     progress.value = 0;
+    _notify('Loaded latest from cloud');
   }
 
   Future<void> queueMutation(String col, String id, Map<String, dynamic> data) async {
