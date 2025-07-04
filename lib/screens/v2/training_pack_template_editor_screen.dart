@@ -2645,7 +2645,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     message: 'Select All (Ctrl + A)',
                     child: TextButton(
                       onPressed: _toggleSelectAll,
-                      child: const Text('Select All'),
+                      child: const Text('Select All (Ctrl + A)'),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -2653,7 +2653,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     message: 'Invert Selection (Ctrl + I)',
                     child: TextButton(
                       onPressed: _invertSelection,
-                      child: const Text('Invert Selection'),
+                      child: const Text('Invert (Ctrl + I)'),
                     ),
                   ),
                   const SizedBox(width: 12),
