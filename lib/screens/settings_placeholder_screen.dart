@@ -13,6 +13,7 @@ import '../services/daily_reminder_service.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
 import '../widgets/sync_status_widget.dart';
+import 'notification_settings_screen.dart';
 
 class SettingsPlaceholderScreen extends StatelessWidget {
   const SettingsPlaceholderScreen({super.key});
@@ -109,6 +110,16 @@ class SettingsPlaceholderScreen extends StatelessWidget {
               if (picked != null) {
                 dailyReminder.setHour(picked.hour);
               }
+            },
+          ),
+          ListTile(
+            title: const Text('Push Reminder', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationSettingsScreen()),
+              );
             },
           ),
           const Padding(
