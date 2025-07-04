@@ -146,7 +146,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poker AI Analyzer'),
-        actions: [const StreakWidget(), SyncStatusIcon.of(context),
+        actions: [StreakWidget(), SyncStatusIcon.of(context),
           PopupMenuButton<String>(
             onSelected: (value) {
               switch (value) {
