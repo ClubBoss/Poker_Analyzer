@@ -51,6 +51,10 @@ class _TrainingPackTemplateListScreenState
   static const _prefsGroupKey = 'tpl_group_by_street';
   static const _prefsTypeKey = 'tpl_group_by_type';
   static const _prefsMixedHandKey = 'tpl_mixed_handgoal_only';
+  static const _prefsMixedCountKey = 'tpl_mixed_count';
+  static const _prefsMixedStreetKey = 'tpl_mixed_street';
+  static const _prefsMixedAutoKey = 'tpl_mixed_auto';
+  static const _prefsEndlessKey = 'tpl_endless_drill';
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
   String _query = '';
@@ -139,18 +143,26 @@ class _TrainingPackTemplateListScreenState
       final hv = prefs.getInt('tpl_hand_${t.id}');
       if (hv != null) handMap[t.id] = hv;
       if (t.focusHandTypes.isNotEmpty) {
-        int total = 0;
-        for (final s in t.spots) {
-          final code = handCode(s.hand.heroCards);
-          if (code == null) continue;
-          for (final label in t.focusHandTypes) {
-            if (matchHandTypeLabel(label, code)) {
-              total++;
-              break;
+        final cached = prefs.getInt('tpl_total_${t.id}');
+        final cachedCount = prefs.getInt('tpl_total_count_${t.id}');
+        if (cached != null && cachedCount == t.spots.length) {
+          handTotalMap[t.id] = cached;
+        } else {
+          int total = 0;
+          for (final s in t.spots) {
+            final code = handCode(s.hand.heroCards);
+            if (code == null) continue;
+            for (final label in t.focusHandTypes) {
+              if (matchHandTypeLabel(label, code)) {
+                total++;
+                break;
+              }
             }
           }
+          handTotalMap[t.id] = total;
+          await prefs.setInt('tpl_total_${t.id}', total);
+          await prefs.setInt('tpl_total_count_${t.id}', t.spots.length);
         }
-        handTotalMap[t.id] = total;
       }
     }
     if (!mounted) return;
@@ -284,11 +296,16 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
-  Future<void> _loadMixedHandGoalOnly() async {
+  Future<void> _loadMixedPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() =>
-          _mixedHandGoalOnly = prefs.getBool(_prefsMixedHandKey) ?? false);
+      setState(() {
+        _mixedHandGoalOnly = prefs.getBool(_prefsMixedHandKey) ?? false;
+        _mixedCount = prefs.getInt(_prefsMixedCountKey) ?? 20;
+        _mixedStreet = prefs.getString(_prefsMixedStreetKey) ?? 'any';
+        _mixedAutoOnly = prefs.getBool(_prefsMixedAutoKey) ?? false;
+        _endlessDrill = prefs.getBool(_prefsEndlessKey) ?? false;
+      });
     }
   }
 
@@ -314,6 +331,15 @@ class _TrainingPackTemplateListScreenState
     setState(() => _mixedHandGoalOnly = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefsMixedHandKey, value);
+  }
+
+  Future<void> _saveMixedPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_prefsMixedCountKey, _mixedCount);
+    await prefs.setString(_prefsMixedStreetKey, _mixedStreet);
+    await prefs.setBool(_prefsMixedAutoKey, _mixedAutoOnly);
+    await prefs.setBool(_prefsEndlessKey, _endlessDrill);
+    await prefs.setBool(_prefsMixedHandKey, _mixedHandGoalOnly);
   }
 
   String _streetLabel(String? street) {
@@ -799,9 +825,9 @@ class _TrainingPackTemplateListScreenState
       _loadGoals();
       setState(() {});
       _loadHideCompleted();
+      _loadMixedPrefs();
       _loadGroupByStreet();
       _loadGroupByType();
-      _loadMixedHandGoalOnly();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1855,6 +1881,37 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _startMixedDrill() async {
+    final byType = _selectedType == null
+        ? _templates
+        : [for (final t in _templates) if (t.gameType == _selectedType) t];
+    final filtered = _selectedTag == null
+        ? byType
+        : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
+    final icmFiltered = !_icmOnly
+        ? filtered
+        : [for (final t in filtered) if (_isIcmTemplate(t)) t];
+    final completed = _completedOnly
+        ? [for (final t in icmFiltered) if (t.goalAchieved) t]
+        : icmFiltered;
+    final visible = _hideCompleted
+        ? [
+            for (final t in completed)
+              if ((t.spots.isEmpty
+                      ? 0.0
+                      : (_progress[t.id] ?? 0) / t.spots.length) < 1.0 ||
+                  !t.goalAchieved)
+                t
+          ]
+        : completed;
+    final shown = _query.isEmpty
+        ? visible
+        : [
+            for (final t in visible)
+              if (t.name.toLowerCase().contains(_query) ||
+                  t.description.toLowerCase().contains(_query))
+                t
+          ];
+    final hasFocus = shown.any((t) => t.focusHandTypes.isNotEmpty);
     final countCtrl = TextEditingController(text: _mixedCount.toString());
     bool autoOnly = _mixedAutoOnly;
     bool endless = _endlessDrill;
@@ -1896,7 +1953,9 @@ class _TrainingPackTemplateListScreenState
               ),
               CheckboxListTile(
                 value: handOnly,
-                onChanged: (v) => setState(() => handOnly = v ?? false),
+                onChanged:
+                    hasFocus ? (v) => setState(() => handOnly = v ?? false) : null,
+                enabled: hasFocus,
                 title: const Text('Hand Goal only'),
               ),
             ],
@@ -1919,7 +1978,8 @@ class _TrainingPackTemplateListScreenState
     _mixedAutoOnly = autoOnly;
     _endlessDrill = endless;
     _mixedStreet = street;
-    await _setMixedHandGoalOnly(handOnly);
+    _mixedHandGoalOnly = handOnly;
+    await _saveMixedPrefs();
     await _runMixedDrill();
   }
 
