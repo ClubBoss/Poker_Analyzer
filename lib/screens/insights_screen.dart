@@ -4,12 +4,12 @@ import 'package:fl_chart/fl_chart.dart';
 
 import '../services/training_stats_service.dart';
 import '../services/goal_engine.dart';
-import '../services/streak_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/training_calendar_widget.dart';
 import 'streak_calendar_screen.dart';
 import '../widgets/mistake_summary_card.dart';
 import '../widgets/sync_status_widget.dart';
+import '../widgets/streak_trend_chart.dart';
 
 enum _Mode { daily, weekly }
 
@@ -108,82 +108,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
-  Widget _streakChart(StreakService s) {
-    final data = s.history;
-    if (data.length < 2) return const SizedBox(height: 200);
-    final spots = <FlSpot>[];
-    for (var i = 0; i < data.length; i++) {
-      spots.add(FlSpot(i.toDouble(), data[i].value.toDouble()));
-    }
-    final step = (data.length / 6).ceil();
-    return Container(
-      height: 200,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: LineChart(
-        LineChartData(
-          minY: 0,
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: 1,
-            getDrawingHorizontalLine: (value) =>
-                FlLine(color: Colors.white24, strokeWidth: 1),
-          ),
-          titlesData: FlTitlesData(
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: data.map((e) => e.value).reduce((a, b) => a > b ? a : b) / 4,
-                reservedSize: 30,
-                getTitlesWidget: (v, meta) => Text(v.toInt().toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10)),
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 1,
-                getTitlesWidget: (value, meta) {
-                  final i = value.toInt();
-                  if (i < 0 || i >= data.length) return const SizedBox.shrink();
-                  if (i % step != 0 && i != data.length - 1) {
-                    return const SizedBox.shrink();
-                  }
-                  final d = data[i].key;
-                  final label = '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                  return Text(label,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 10));
-                },
-              ),
-            ),
-          ),
-          borderData: FlBorderData(
-            show: true,
-            border: const Border(
-              left: BorderSide(color: Colors.white24),
-              bottom: BorderSide(color: Colors.white24),
-            ),
-          ),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              color: Colors.greenAccent,
-              barWidth: 2,
-              isCurved: false,
-              dotData: FlDotData(show: false),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _pie(GoalEngine g) {
     final goals = g.goals;
@@ -232,7 +156,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
   Widget build(BuildContext context) {
     final stats = context.watch<TrainingStatsService>();
     final goals = context.watch<GoalEngine>();
-    final streak = context.watch<StreakService>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Insights'),
@@ -265,7 +188,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
           const SizedBox(height: 12),
           _chart(_sessions(stats)),
           const SizedBox(height: 12),
-          _streakChart(streak),
+          const StreakTrendChart(),
           const SizedBox(height: 12),
           _pie(goals),
           const SizedBox(height: 12),
