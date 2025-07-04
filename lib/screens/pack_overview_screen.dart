@@ -143,6 +143,28 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     setState(() => _selectedIds.clear());
   }
 
+  void _toggleSelectAll(Set<String> visible) {
+    setState(() {
+      final all = _selectedIds.length == visible.length;
+      if (all) {
+        _selectedIds.clear();
+      } else {
+        _selectedIds
+          ..clear()
+          ..addAll(visible);
+      }
+    });
+  }
+
+  void _invertSelection(Set<String> visible) {
+    setState(() {
+      final newSel = visible.difference(_selectedIds);
+      _selectedIds
+        ..clear()
+        ..addAll(newSel);
+    });
+  }
+
   Future<void> _deleteSelected() async {
     final service = context.read<TrainingPackStorageService>();
     final list = [for (final p in service.packs) if (_selectedIds.contains(p.id)) p];
@@ -333,20 +355,15 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         actions: _selectionMode
             ? [
                 IconButton(
-                  onPressed: () {
-                    final all = _selectedIds.length == packs.length;
-                    setState(() {
-                      if (all) {
-                        _selectedIds.clear();
-                      } else {
-                        _selectedIds
-                          ..clear()
-                          ..addAll(packs.map((p) => p.id));
-                      }
-                    });
-                  },
                   icon: Icon(_selectedIds.length == packs.length ? Icons.clear_all : Icons.select_all),
+                  onPressed: () => _toggleSelectAll({for (final p in packs) p.id}),
                 ),
+                if (packs.isNotEmpty)
+                  IconButton(
+                    tooltip: 'Invert selection',
+                    icon: const Icon(Icons.sync_alt),
+                    onPressed: () => _invertSelection({for (final p in packs) p.id}),
+                  ),
                 IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
                 IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
                 IconButton(onPressed: _shareSelected, icon: const Icon(Icons.share)),
