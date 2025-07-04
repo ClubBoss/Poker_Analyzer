@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -24,6 +25,8 @@ class CloudSyncService {
   final List<Map<String, dynamic>> _pending = [];
   final ValueNotifier<DateTime?> lastSync = ValueNotifier(null);
   final ValueNotifier<double> progress = ValueNotifier(0);
+  late final Connectivity _conn;
+  StreamSubscription<ConnectivityResult>? _connSub;
 
   Future<void> init() async {
     if (_local) {
@@ -45,6 +48,16 @@ class CloudSyncService {
       final ts = _prefs.getString('last_sync');
       if (ts != null) lastSync.value = DateTime.tryParse(ts);
     }
+    _conn = Connectivity();
+    _connSub = _conn.onConnectivityChanged.listen((r) async {
+      if (r != ConnectivityResult.none && _pending.isNotEmpty) await syncUp();
+      if (r != ConnectivityResult.none &&
+          (lastSync.value == null ||
+              DateTime.now().difference(lastSync.value!) >
+                  const Duration(hours: 6))) {
+        await syncDown();
+      }
+    });
   }
 
   Future<void> syncUp() async {
@@ -153,5 +166,9 @@ class CloudSyncService {
         await _prefs.setString('last_sync', lastSync.value!.toIso8601String());
       });
     }
+  }
+
+  void dispose() {
+    _connSub?.cancel();
   }
 }
