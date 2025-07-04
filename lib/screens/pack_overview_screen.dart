@@ -32,6 +32,15 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
   final Set<String> _selectedIds = {};
   bool get _selectionMode => _selectedIds.isNotEmpty;
 
+  void _reconcileSelection(Set<String> ids) {
+    final removed = _selectedIds.difference(ids);
+    if (removed.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _selectedIds.removeAll(removed));
+      });
+    }
+  }
+
   double _calcAverage(List<TrainingPack> packs) {
     var sum = 0.0;
     var count = 0;
@@ -310,6 +319,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         packs.sort((a, b) => b.lastAttemptDate.compareTo(a.lastAttemptDate));
         break;
     }
+    _reconcileSelection({for (final p in packs) p.id});
     final avg = _calcAverage(packs);
     return Scaffold(
       appBar: AppBar(
