@@ -42,6 +42,7 @@ import '../../services/evaluation_executor_service.dart';
 import '../../services/pack_generator_service.dart';
 import '../../services/training_pack_template_ui_service.dart';
 import '../../helpers/hand_utils.dart';
+import '../../helpers/hand_type_utils.dart';
 import '../../services/training_pack_template_storage_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
@@ -69,6 +70,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   late final TextEditingController _evCtr;
   late final TextEditingController _anteCtr;
   late final TextEditingController _focusCtr;
+  late final TextEditingController _handTypeCtr;
   late final FocusNode _descFocus;
   late String _templateName;
   String _query = '';
@@ -509,6 +511,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _persist();
   }
 
+  void _addHandType(String val) {
+    if (!isValidHandTypeLabel(val)) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Invalid hand type')));
+      return;
+    }
+    setState(() => widget.template.focusHandTypes.add(val));
+    _handTypeCtr.clear();
+    _persist();
+  }
+
   void _saveDesc() {
     setState(() => widget.template.description = _descCtr.text.trim());
     _persist();
@@ -560,6 +573,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         text: widget.template.minEvForCorrect.toString());
     _anteCtr = TextEditingController(text: widget.template.anteBb.toString());
     _focusCtr = TextEditingController();
+    _handTypeCtr = TextEditingController();
     _descFocus = FocusNode();
     _descFocus.addListener(() {
       if (!_descFocus.hasFocus) _saveDesc();
@@ -633,6 +647,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _evCtr.dispose();
     _anteCtr.dispose();
     _focusCtr.dispose();
+    _handTypeCtr.dispose();
     _searchCtrl.dispose();
     _tagSearchCtrl.dispose();
     _scrollCtrl.dispose();
@@ -2685,6 +2700,33 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ],
             ),
             const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final t in widget.template.focusHandTypes)
+                  InputChip(
+                    label: Text(t),
+                    onDeleted: () {
+                      setState(() => widget.template.focusHandTypes.remove(t));
+                      _persist();
+                    },
+                  ),
+                SizedBox(
+                  width: 120,
+                  child: TextField(
+                    controller: _handTypeCtr,
+                    decoration: const InputDecoration(hintText: 'Hand type'),
+                    onSubmitted: (v) => _addHandType(v.trim()),
+                  ),
+                ),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text('e.g. JXs, 76s+, suited connectors',
+                  style: TextStyle(color: Colors.white70)),
+            ),
+            const SizedBox(height: 16),
             DropdownButtonFormField<GameType>(
               value: widget.template.gameType,
               decoration: const InputDecoration(labelText: 'Game Type'),
@@ -3350,6 +3392,11 @@ class _TemplatePreviewCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text('🎯 Focus: ${template.focusTags.join(', ')}'),
+              ),
+            if (template.focusHandTypes.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text('🎯 Hand Goal: ${template.focusHandTypes.join(', ')}'),
               ),
             if (template.heroRange != null)
               Padding(
