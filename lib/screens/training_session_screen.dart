@@ -221,27 +221,35 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                     if (service.focusHandTypes.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: LinearProgressIndicator(
-                                value: service.handGoalTotal > 0
-                                    ? service.handGoalCount /
-                                        service.handGoalTotal
-                                    : 0,
-                                color: Colors.purpleAccent,
-                                backgroundColor:
-                                    Colors.purpleAccent.withOpacity(0.3),
-                              ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final g in service.focusHandTypes)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: LinearProgressIndicator(
+                                    value: service.handGoalTotal[g.label] != null && service.handGoalTotal[g.label]! > 0
+                                        ? (service.handGoalCount[g.label]?.clamp(0, service.handGoalTotal[g.label]!) ?? 0) /
+                                            service.handGoalTotal[g.label]!
+                                        : 0,
+                                    color: Colors.purpleAccent,
+                                    backgroundColor:
+                                        Colors.purpleAccent.withOpacity(0.3),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${g.label} ${service.handGoalCount[g.label] ?? 0}/${service.handGoalTotal[g.label] ?? 0}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${service.handGoalCount}/${service.handGoalTotal} ${service.focusHandTypes.join(', ')}',
-                              style:
-                                  const TextStyle(color: Colors.white70),
-                            ),
-                          ],
-                        ),
+                          ),
+                      ],
+                    ),
                       ),
                     if (service.isPaused) ...[
                       const SizedBox(height: 16),
