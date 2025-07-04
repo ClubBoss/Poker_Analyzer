@@ -152,6 +152,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     return set;
   }
 
+  Map<String, int> _handTypeCounts() {
+    final res = <String, int>{};
+    for (final label in widget.template.focusHandTypes) {
+      var count = 0;
+      for (final s in widget.template.spots) {
+        final code = handCode(s.hand.heroCards);
+        if (code != null && matchHandTypeLabel(label, code)) count++;
+      }
+      res[label] = count;
+    }
+    return res;
+  }
+
   List<TrainingPackSpot> _visibleSpots() {
     final changed = _changedOnly
         ? _history.history.map((e) => e.id).toSet()
@@ -2237,6 +2250,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ..sort((a, b) => b.value.compareTo(a.value));
     final summaryTags = [for (final e in topTags.take(3)) e.key];
     final range = _templateRange();
+    final handCounts = _handTypeCounts();
     final historyGroups = <String, List<ChangeEntry>>{};
     for (final e in _history.history) {
       final day = DateFormat.yMd().format(e.time);
@@ -2727,6 +2741,31 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               child: Text('e.g. JXs, 76s+, suited connectors',
                   style: TextStyle(color: Colors.white70)),
             ),
+            const SizedBox(height: 8),
+            if (handCounts.isNotEmpty)
+              ExpansionTile(
+                title: const Text('Hand Goal Stats',
+                    style: TextStyle(color: Colors.white)),
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                collapsedTextColor: Colors.white,
+                textColor: Colors.white,
+                childrenPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final e in handCounts.entries)
+                        Chip(
+                          backgroundColor: Colors.grey[800],
+                          label: Text('${e.key}: ${e.value}',
+                              style: const TextStyle(color: Colors.white)),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             const SizedBox(height: 16),
             DropdownButtonFormField<GameType>(
               value: widget.template.gameType,
