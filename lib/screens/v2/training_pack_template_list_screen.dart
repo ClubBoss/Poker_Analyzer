@@ -372,6 +372,14 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  String _mixedSummary() {
+    final parts = <String>['${_mixedCount} spots'];
+    parts.add(_mixedStreet == 'any' ? 'Any' : _streetName(_mixedStreet));
+    if (_mixedHandGoalOnly) parts.add('Hand Goal only');
+    if (_mixedAutoOnly) parts.add('Auto only');
+    return parts.join(' • ');
+  }
+
   List<String> _topTags(TrainingPackTemplate tpl) {
     final counts = <String, int>{};
     for (final s in tpl.spots) {
@@ -1974,11 +1982,13 @@ class _TrainingPackTemplateListScreenState
       ),
     );
     if (ok != true) return;
-    _mixedCount = int.tryParse(countCtrl.text.trim()) ?? 0;
-    _mixedAutoOnly = autoOnly;
-    _endlessDrill = endless;
-    _mixedStreet = street;
-    _mixedHandGoalOnly = handOnly;
+    setState(() {
+      _mixedCount = int.tryParse(countCtrl.text.trim()) ?? 0;
+      _mixedAutoOnly = autoOnly;
+      _endlessDrill = endless;
+      _mixedStreet = street;
+      _mixedHandGoalOnly = handOnly;
+    });
     await _saveMixedPrefs();
     await _runMixedDrill();
   }
@@ -2554,6 +2564,14 @@ class _TrainingPackTemplateListScreenState
             icon: const Icon(Icons.shuffle),
             label: const Text('Mixed Drill'),
             onPressed: _startMixedDrill,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text.rich(
+              TextSpan(text: _mixedSummary()),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
+            ),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
