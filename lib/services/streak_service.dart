@@ -70,12 +70,7 @@ class StreakService extends ChangeNotifier {
     streak.value = prefs.getInt(_trainingCountKey) ?? 0;
     final tStr = prefs.getString(_trainingDateKey);
     _lastTrainingDate = tStr != null ? DateTime.tryParse(tStr) : null;
-    if (_lastTrainingDate != null) {
-      final today = DateTime.now();
-      final last = DateTime(
-          _lastTrainingDate!.year, _lastTrainingDate!.month, _lastTrainingDate!.day);
-      if (today.difference(last).inDays > 1) streak.value = 0;
-    }
+    _verifyTrainingStreak();
     if (cloud != null && cloud!.uid != null) {
       try {
         final doc = await CloudRetryPolicy.execute(() => FirebaseFirestore.instance
@@ -132,10 +127,21 @@ class StreakService extends ChangeNotifier {
     }
   }
 
+  void _verifyTrainingStreak() {
+    if (_lastTrainingDate != null) {
+      final today = DateTime.now();
+      final last = DateTime(
+          _lastTrainingDate!.year, _lastTrainingDate!.month, _lastTrainingDate!.day);
+      if (today.difference(last).inDays > 1) streak.value = 0;
+    }
+  }
+
   /// Compares the saved date with today and updates the streak accordingly.
   Future<void> updateStreak() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+
+    _verifyTrainingStreak();
 
     bool increased = false;
 
