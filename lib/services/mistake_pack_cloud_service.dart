@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'cloud_retry_policy.dart';
+
 import '../models/mistake_pack.dart';
 
 class MistakePackCloudService {
@@ -24,12 +26,14 @@ class MistakePackCloudService {
 
   Future<void> savePack(MistakePack pack) async {
     if (_uid == null) return;
-    await _db
-        .collection('mistakes')
-        .doc(_uid)
-        .collection('packs')
-        .doc(pack.id)
-        .set(pack.toJson());
+    await CloudRetryPolicy.execute(() =>
+        _db.collection('mistakes').doc(_uid).collection('packs').doc(pack.id).set(pack.toJson()));
+  }
+
+  Future<void> deletePack(String id) async {
+    if (_uid == null) return;
+    await CloudRetryPolicy.execute(() =>
+        _db.collection('mistakes').doc(_uid).collection('packs').doc(id).delete());
   }
 
   Future<void> deletePack(String id) async {
