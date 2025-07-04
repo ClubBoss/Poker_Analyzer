@@ -95,7 +95,11 @@ Future<void> main() async {
   final packStorage = TrainingPackStorageService(cloud: cloud);
   await packStorage.load();
   final packCloud = TrainingPackCloudSyncService();
+  final templateStorage = TrainingPackTemplateStorageService(cloud: packCloud);
+  await templateStorage.load();
   await packCloud.syncDown(packStorage);
+  await packCloud.syncDownTemplates(templateStorage);
+  await packCloud.syncUpTemplates(templateStorage);
   runApp(
     MultiProvider(
       providers: [
@@ -133,7 +137,7 @@ Future<void> main() async {
         ChangeNotifierProvider<TrainingPackStorageService>.value(value: packStorage),
         Provider<TrainingPackCloudSyncService>.value(value: packCloud),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
-        ChangeNotifierProvider(create: (_) => TrainingPackTemplateStorageService()..load()),
+        ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(value: templateStorage),
         ChangeNotifierProvider(
           create: (context) => CategoryUsageService(
             templates: context.read<TemplateStorageService>(),

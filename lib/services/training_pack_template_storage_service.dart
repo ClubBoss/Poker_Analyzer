@@ -4,9 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/training_pack_template_model.dart';
 import '../repositories/training_pack_template_repository.dart';
+import 'training_pack_cloud_sync_service.dart';
 
 class TrainingPackTemplateStorageService extends ChangeNotifier {
   static const _key = 'training_pack_templates';
+
+  TrainingPackTemplateStorageService({this.cloud});
+
+  final TrainingPackCloudSyncService? cloud;
 
   final List<TrainingPackTemplateModel> _templates = [];
   List<TrainingPackTemplateModel> get templates => List.unmodifiable(_templates);
@@ -36,6 +41,7 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
   Future<void> add(TrainingPackTemplateModel model) async {
     _templates.add(model);
     await _persist();
+    await cloud?.saveTemplate(model);
     notifyListeners();
   }
 
@@ -44,12 +50,14 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
     if (index == -1) return;
     _templates[index] = model;
     await _persist();
+    await cloud?.saveTemplate(model);
     notifyListeners();
   }
 
   Future<void> remove(TrainingPackTemplateModel model) async {
     _templates.removeWhere((t) => t.id == model.id);
     await _persist();
+    await cloud?.deleteTemplate(model.id);
     notifyListeners();
   }
 
