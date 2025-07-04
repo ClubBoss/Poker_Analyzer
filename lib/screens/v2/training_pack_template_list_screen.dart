@@ -2559,18 +2559,24 @@ class _TrainingPackTemplateListScreenState
             label: const Text('Top 10 Mistakes'),
           ),
           const SizedBox(height: 12),
-          FloatingActionButton.extended(
-            heroTag: 'mixedDrillFab',
-            icon: const Icon(Icons.shuffle),
-            label: const Text('Mixed Drill'),
-            onPressed: _startMixedDrill,
+          GestureDetector(
+            onLongPress: _runMixedDrill,
+            child: FloatingActionButton.extended(
+              heroTag: 'mixedDrillFab',
+              icon: const Icon(Icons.shuffle),
+              label: const Text('Mixed Drill'),
+              onPressed: _startMixedDrill,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Text.rich(
-              TextSpan(text: _mixedSummary()),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
+            child: InkWell(
+              onTap: _runMixedDrill,
+              child: Text.rich(
+                TextSpan(text: _mixedSummary()),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: Colors.white70),
+              ),
             ),
           ),
           const SizedBox(height: 12),
