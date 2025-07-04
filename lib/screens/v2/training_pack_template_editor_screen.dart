@@ -1786,6 +1786,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _invertSelection();
       return true;
     }
+    if (e.logicalKey == LogicalKeyboardKey.backspace) {
+      _bulkDelete();
+      return true;
+    }
     return false;
   }
 
@@ -2482,7 +2486,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           if (_isMultiSelect)
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              tooltip: 'Delete Selected',
+              tooltip: 'Delete (Ctrl + Backspace)',
               onPressed: _bulkDelete,
             ),
           PopupMenuButton<SortBy>(
@@ -2689,7 +2693,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   const SizedBox(width: 12),
                   TextButton.icon(
                     icon: const Icon(Icons.delete, color: Colors.red),
-                    label: const Text('Delete'),
+                    label: const Text('Delete (Ctrl + Backspace)'),
                     onPressed: _bulkDelete,
                   ),
                 ],
