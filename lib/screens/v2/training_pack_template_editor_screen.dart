@@ -68,6 +68,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   late final TextEditingController _descCtr;
   late final TextEditingController _evCtr;
   late final TextEditingController _anteCtr;
+  late final TextEditingController _focusCtr;
   late final FocusNode _descFocus;
   late String _templateName;
   String _query = '';
@@ -501,6 +502,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _persist();
   }
 
+  void _addFocusTag(String tag) {
+    if (tag.isEmpty) return;
+    setState(() => widget.template.focusTags.add(tag));
+    _focusCtr.clear();
+    _persist();
+  }
+
   void _saveDesc() {
     setState(() => widget.template.description = _descCtr.text.trim());
     _persist();
@@ -551,6 +559,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _evCtr = TextEditingController(
         text: widget.template.minEvForCorrect.toString());
     _anteCtr = TextEditingController(text: widget.template.anteBb.toString());
+    _focusCtr = TextEditingController();
     _descFocus = FocusNode();
     _descFocus.addListener(() {
       if (!_descFocus.hasFocus) _saveDesc();
@@ -623,6 +632,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _descCtr.dispose();
     _evCtr.dispose();
     _anteCtr.dispose();
+    _focusCtr.dispose();
     _searchCtrl.dispose();
     _tagSearchCtrl.dispose();
     _scrollCtrl.dispose();
@@ -2653,6 +2663,28 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ],
             ),
             const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final tag in widget.template.focusTags)
+                  InputChip(
+                    label: Text(tag),
+                    onDeleted: () {
+                      setState(() => widget.template.focusTags.remove(tag));
+                      _persist();
+                    },
+                  ),
+                SizedBox(
+                  width: 120,
+                  child: TextField(
+                    controller: _focusCtr,
+                    decoration: const InputDecoration(hintText: 'Focus tag'),
+                    onSubmitted: (v) => _addFocusTag(v.trim()),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             DropdownButtonFormField<GameType>(
               value: widget.template.gameType,
               decoration: const InputDecoration(labelText: 'Game Type'),
@@ -3313,6 +3345,11 @@ class _TemplatePreviewCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(template.description),
+              ),
+            if (template.focusTags.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text('🎯 Focus: ${template.focusTags.join(', ')}'),
               ),
             Padding(
               padding: const EdgeInsets.only(top: 12),

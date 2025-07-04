@@ -566,6 +566,12 @@ class _TrainingPackTemplateListScreenState
             style: const TextStyle(fontSize: 12, color: Colors.white70),
           ));
         }
+        if (t.focusTags.isNotEmpty) {
+          items.add(Text(
+            '🎯 Focus: ${t.focusTags.join(', ')}',
+            style: const TextStyle(fontSize: 12, color: Colors.white70),
+          ));
+        }
         if (t.lastGeneratedAt != null) {
           items.add(Text(
             'Last generated: ${timeago.format(t.lastGeneratedAt!)}',
