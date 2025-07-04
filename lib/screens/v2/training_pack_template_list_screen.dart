@@ -2053,10 +2053,7 @@ class _TrainingPackTemplateListScreenState
       }
     }
     if (spots.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Not enough spots')));
-      }
+      if (mounted) await _startMixedDrill();
       return;
     }
     spots.shuffle(Random());
@@ -2559,23 +2556,26 @@ class _TrainingPackTemplateListScreenState
             label: const Text('Top 10 Mistakes'),
           ),
           const SizedBox(height: 12),
-          GestureDetector(
+          FloatingActionButton.extended(
+            heroTag: 'mixedDrillFab',
+            icon: const Icon(Icons.shuffle),
+            label: const Text('Mixed Drill'),
+            tooltip: 'Mixed Drill (tap to edit, long press to restart)',
+            onPressed: _startMixedDrill,
             onLongPress: _runMixedDrill,
-            child: FloatingActionButton.extended(
-              heroTag: 'mixedDrillFab',
-              icon: const Icon(Icons.shuffle),
-              label: const Text('Mixed Drill'),
-              onPressed: _startMixedDrill,
-            ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: InkWell(
               onTap: _runMixedDrill,
-              child: Text.rich(
-                TextSpan(text: _mixedSummary()),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.white70),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Text.rich(
+                  TextSpan(text: _mixedSummary()),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                ),
               ),
             ),
           ),
