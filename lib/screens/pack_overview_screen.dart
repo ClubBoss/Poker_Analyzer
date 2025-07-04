@@ -14,6 +14,7 @@ import '../services/pack_sort_controller.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import '../widgets/selectable_list_item.dart';
+import '../widgets/bulk_edit_dialog.dart';
 import 'pack_editor_screen.dart';
 import 'training_pack_screen.dart';
 
@@ -160,6 +161,37 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     if (mounted) _clearSelection();
   }
 
+  Future<void> _editSelected() async {
+    final result = await showBulkEditDialog(context);
+    if (result == null) return;
+    final service = context.read<TrainingPackStorageService>();
+    final hex = result.$2 != null ? colorToHex(result.$2!) : null;
+    final list = [for (final p in service.packs) if (_selectedIds.contains(p.id)) p];
+    for (final p in list) {
+      await service.updatePack(
+        p,
+        TrainingPack(
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          category: result.$1.isEmpty ? p.category : result.$1,
+          gameType: p.gameType,
+          colorTag: hex ?? p.colorTag,
+          isBuiltIn: p.isBuiltIn,
+          tags: p.tags,
+          hands: p.hands,
+          spots: p.spots,
+          difficulty: p.difficulty,
+          history: p.history,
+        ),
+      );
+    }
+    if (mounted) {
+      _clearSelection();
+      setState(() {});
+    }
+  }
+
   Future<void> _deletePack(TrainingPack pack) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -293,6 +325,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                 IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
                 IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
                 IconButton(onPressed: _shareSelected, icon: const Icon(Icons.share)),
+                IconButton(onPressed: _editSelected, icon: const Icon(Icons.edit)),
               ]
             : [
                 ValueListenableBuilder(
