@@ -512,9 +512,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   void _addHandType(String val) {
-    if (!isValidHandTypeLabel(val)) {
+    final err = handTypeLabelError(val);
+    if (err != null) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Invalid hand type')));
+          .showSnackBar(SnackBar(content: Text(err)));
       return;
     }
     setState(() => widget.template.focusHandTypes.add(val));

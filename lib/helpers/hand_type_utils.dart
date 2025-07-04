@@ -1,9 +1,9 @@
 
 const _ranks = '23456789TJQKA';
 
-bool isValidHandTypeLabel(String label) {
+String? handTypeLabelError(String label) {
   final l = label.trim().toUpperCase();
-  if (l.isEmpty) return false;
+  if (l.isEmpty) return 'Empty label';
   if ({
         'PAIRS',
         'SMALL PAIRS',
@@ -16,11 +16,13 @@ bool isValidHandTypeLabel(String label) {
         'CONNECTORS',
         'SUITED AX',
         'OFFSUIT AX'
-      }.contains(l)) return true;
-  if (RegExp(r'^[2-9TJQKA]X[so]?$').hasMatch(l)) return true;
-  if (RegExp(r'^[2-9TJQKA]{2}[so]?\+?$').hasMatch(l)) return true;
-  return false;
+      }.contains(l)) return null;
+  if (RegExp(r'^[2-9TJQKA]X[so]?$').hasMatch(l)) return null;
+  if (RegExp(r'^[2-9TJQKA]{2}(?:[so](?:\+)?|\+)?$').hasMatch(l)) return null;
+  return 'Invalid hand type (e.g. JXs, 76s+, suited connectors)';
 }
+
+bool isValidHandTypeLabel(String label) => handTypeLabelError(label) == null;
 
 bool matchHandTypeLabel(String label, String handCode) {
   final l = label.trim().toUpperCase();
@@ -64,7 +66,7 @@ bool matchHandTypeLabel(String label, String handCode) {
     if (s == 'O' && suited) return false;
     return true;
   }
-  final m2 = RegExp(r'^([2-9TJQKA])([2-9TJQKA])([so])?(\+)?$').firstMatch(l);
+  final m2 = RegExp(r'^([2-9TJQKA])([2-9TJQKA])([so](?:\+)?|\+)?$').firstMatch(l);
   if (m2 != null) {
     final h = m2.group(1)!;
     final lw = m2.group(2)!;
