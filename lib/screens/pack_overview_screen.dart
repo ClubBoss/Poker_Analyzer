@@ -10,6 +10,7 @@ import '../services/training_pack_cloud_sync_service.dart';
 import '../services/training_pack_storage_service.dart';
 import '../services/pack_filter_controller.dart';
 import '../helpers/poker_street_helper.dart';
+import '../services/pack_sort_controller.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import 'pack_editor_screen.dart';
@@ -25,6 +26,7 @@ class PackOverviewScreen extends StatefulWidget {
 class _PackOverviewScreenState extends State<PackOverviewScreen> {
   final _filter = PackFilterController();
   final _searchController = TextEditingController();
+  final _sort = PackSortController();
 
   double _calcAverage(List<TrainingPack> packs) {
     var sum = 0.0;
@@ -51,6 +53,9 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
       });
       if (mounted) setState(() {});
     });
+    _sort.load().then((_) {
+      if (mounted) setState(() {});
+    });
     final storage = context.read<TrainingPackStorageService>();
     context
         .read<TrainingPackCloudSyncService>()
@@ -64,6 +69,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
   void dispose() {
     context.read<TrainingPackCloudSyncService>().cancelWatch();
     _filter.dispose();
+    _sort.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -197,8 +203,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         .watch<TrainingPackStorageService>()
         .packs
         .where((p) => !p.isBuiltIn)
-        .toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+        .toList();
     final categories = {for (final p in all) p.category};
     List<TrainingPack> packs = all.where((p) {
       final q = _filter.query.value.trim().toLowerCase();
@@ -215,12 +220,48 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
       }
       return true;
     }).toList();
+    switch (_sort.value) {
+      case PackSort.nameAsc:
+        packs.sort((a, b) => a.name.compareTo(b.name));
+        break;
+      case PackSort.lastPlayed:
+        packs.sort((a, b) => b.lastAttemptDate.compareTo(a.lastAttemptDate));
+        break;
+      case PackSort.difficulty:
+        packs.sort((a, b) => a.difficulty.compareTo(b.difficulty));
+        break;
+      case PackSort.updatedDesc:
+        packs.sort((a, b) => b.lastAttemptDate.compareTo(a.lastAttemptDate));
+        break;
+    }
     final avg = _calcAverage(packs);
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Packs'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context)],
+        actions: [
+          ValueListenableBuilder(
+            valueListenable: _sort,
+            builder: (context, sort, _) => DropdownButton<PackSort>(
+              value: sort,
+              underline: const SizedBox.shrink(),
+              icon: const Icon(Icons.sort, color: Colors.white),
+              dropdownColor: AppColors.cardBackground,
+              onChanged: (v) => v == null ? null : _sort.setSort(v),
+              items: const [
+                DropdownMenuItem(
+                    value: PackSort.nameAsc, child: Text('A-Z')),
+                DropdownMenuItem(
+                    value: PackSort.lastPlayed, child: Text('Последний запуск')),
+                DropdownMenuItem(
+                    value: PackSort.difficulty, child: Text('Сложность')),
+                DropdownMenuItem(
+                    value: PackSort.updatedDesc, child: Text('Обновлено')),
+              ],
+            ),
+          ),
+          SyncStatusIcon.of(context)
+        ],
       ),
       body: Column(
         children: [
