@@ -250,4 +250,36 @@ class TrainingPackTemplate {
     return spots;
   }
 
+  String handTypeSummary() {
+    final ranks = '23456789TJQKA';
+    final List<String> hands = heroRange ??
+        [
+          for (final s in spots)
+            s.hand.heroCards.length >= 4
+                ? '${s.hand.heroCards[0]}${s.hand.heroCards[2]}'
+                : ''
+        ].where((e) => e.isNotEmpty).toList();
+    final set = <String>{};
+    for (final h in hands) {
+      if (h.length < 2) continue;
+      if (h.length == 2 && h[0] == h[1]) {
+        final v = ranks.indexOf(h[0]) + 2;
+        if (v <= 6) {
+          set.add('small pairs');
+        } else if (v <= 10) {
+          set.add('mid pairs');
+        } else {
+          set.add('big pairs');
+        }
+      } else if (h.length == 3 && h[2] == 's') {
+        if (h[0] == 'A') set.add('AXs');
+        if (h[0] == 'K') set.add('KXs');
+        if (h[0] == 'Q') set.add('QXs');
+      }
+    }
+    final list = set.toList();
+    list.sort();
+    return list.join(', ');
+  }
+
 }
