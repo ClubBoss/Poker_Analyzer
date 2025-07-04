@@ -123,9 +123,10 @@ class MistakeReviewPackService extends ChangeNotifier {
   Future<void> syncDown() async {
     if (cloud == null) return;
     final remote = await cloud!.loadPacks();
+    final now = DateTime.now();
     _packs
       ..clear()
-      ..addAll(remote);
+      ..addAll([for (final p in remote) if (now.difference(p.createdAt).inDays <= 30) p]);
     _trim();
     await _save();
     _generate();
@@ -134,6 +135,13 @@ class MistakeReviewPackService extends ChangeNotifier {
   Future<void> syncUp() async {
     if (cloud == null) return;
     _trim();
+    final now = DateTime.now();
+    for (final p in List<MistakePack>.from(_packs)) {
+      if (now.difference(p.createdAt).inDays > 30) {
+        await cloud!.deletePack(p.id);
+        _packs.remove(p);
+      }
+    }
     await _save();
     for (final p in _packs) {
       await cloud!.savePack(p);
