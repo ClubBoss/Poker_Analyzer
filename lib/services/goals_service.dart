@@ -459,7 +459,9 @@ class GoalsService extends ChangeNotifier {
       if (!_achievementShown[i] && _achievements[i].completed) {
         _achievementShown[i] = true;
         _saveAchievementShown(i);
-        context.read<XPTrackerService>().addXp(XPTrackerService.achievementXp);
+        context
+            .read<XPTrackerService>()
+            .add(xp: XPTrackerService.achievementXp, source: 'achievement');
         if (context.mounted) {
           showAchievementUnlockedOverlay(
               context, _achievements[i].icon, _achievements[i].title);

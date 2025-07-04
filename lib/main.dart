@@ -201,8 +201,10 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => IgnoredMistakeService()..load()),
         ChangeNotifierProvider(create: (_) => GoalsService()..load()),
         ChangeNotifierProvider(
-          create: (context) =>
-              StreakService(cloud: context.read<CloudSyncService>())..load(),
+          create: (context) => StreakService(
+            cloud: context.read<CloudSyncService>(),
+            xp: context.read<XPTrackerService>(),
+          )..load(),
         ),
         ChangeNotifierProvider(
           create: (context) =>

@@ -14,6 +14,7 @@ import '../services/goals_service.dart';
 import '../services/evaluation_executor_service.dart';
 import '../services/saved_hand_manager_service.dart';
 import '../services/training_pack_storage_service.dart';
+import '../services/xp_tracker_service.dart';
 import '../models/summary_result.dart';
 import '../models/saved_hand.dart';
 import '../theme/app_colors.dart';
@@ -85,7 +86,6 @@ class _ProgressScreenState extends State<ProgressScreen>
       final correct = h.expectedAction.trim().toLowerCase() ==
               h.gtoAction.trim().toLowerCase();
       streak = correct ? streak + 1 : 0;
-      spots.add(FlSpot(i.toDouble(), streak.toDouble()));
       if (!correct) {
         final day = DateTime(h.date.year, h.date.month, h.date.day);
         counts.update(day, (v) => v + 1, ifAbsent: () => 1);
@@ -145,6 +145,11 @@ class _ProgressScreenState extends State<ProgressScreen>
         weekAcc.add(MapEntry(day, c / t * 100));
       }
     }
+
+    final xpHistory = context.read<XPTrackerService>().history.reversed.toList();
+    spots
+      ..clear()
+      ..addAll([for (var i = 0; i < xpHistory.length; i++) FlSpot(i.toDouble(), xpHistory[i].streak.toDouble())]);
 
     setState(() {
       _summary = summary;

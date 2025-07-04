@@ -83,7 +83,7 @@ class StreakCounterService extends ChangeNotifier {
     if (hands >= target.target && (_last == null || !_isSameDay(_last!, today))) {
       _last = today;
       await _save();
-      await xp.addXp(XPTrackerService.targetXp);
+      await xp.add(xp: XPTrackerService.targetXp, source: 'daily_target');
     }
   }
 

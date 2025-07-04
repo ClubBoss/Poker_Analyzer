@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cloud_retry_policy.dart';
 import 'cloud_sync_service.dart';
+import 'xp_tracker_service.dart';
 
 /// Tracks the number of consecutive days the app was opened.
 ///
@@ -15,9 +16,10 @@ import 'cloud_sync_service.dart';
 /// refreshed it compares today's date with the last stored activity date and
 /// updates the counter accordingly.
 class StreakService extends ChangeNotifier {
-  StreakService({this.cloud});
+  StreakService({this.cloud, required this.xp});
 
   final CloudSyncService? cloud;
+  final XPTrackerService xp;
   static const _lastOpenKey = 'streak_last_open';
   static const _countKey = 'streak_count';
   static const _errorKey = 'error_free_streak';
@@ -132,7 +134,10 @@ class StreakService extends ChangeNotifier {
       final today = DateTime.now();
       final last = DateTime(
           _lastTrainingDate!.year, _lastTrainingDate!.month, _lastTrainingDate!.day);
-      if (today.difference(last).inDays > 1) streak.value = 0;
+      if (today.difference(last).inDays > 1 && streak.value != 0) {
+        streak.value = 0;
+        unawaited(xp.add(xp: 0, source: 'streak_update', streak: 0));
+      }
     }
   }
 
@@ -201,6 +206,7 @@ class StreakService extends ChangeNotifier {
     } else {
       streak.value = 1;
     }
+    unawaited(xp.add(xp: 0, source: 'streak_update', streak: streak.value));
     _lastTrainingDate = today;
     await _saveTraining();
     notifyListeners();

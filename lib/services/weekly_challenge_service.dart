@@ -90,7 +90,7 @@ class WeeklyChallengeService extends ChangeNotifier {
 
   Future<void> _onStats() async {
     if (progressValue >= current.target) {
-      await xp.addXp(_rewardXp);
+      await xp.add(xp: _rewardXp, source: 'weekly_challenge');
       if (navigatorKey.currentState?.context.mounted ?? false) {
         ScaffoldMessenger.of(navigatorKey.currentState!.context).showSnackBar(
           const SnackBar(
