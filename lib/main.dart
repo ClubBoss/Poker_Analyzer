@@ -77,11 +77,18 @@ Future<void> main() async {
     pluginManager.load(p);
   }
   pluginManager.initializeAll(registry);
+  final auth = AuthService();
   if (!CloudSyncService.isLocal) {
     await Firebase.initializeApp();
+    if (!auth.isSignedIn) {
+      final uid = await auth.signInAnonymously();
+      if (uid != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('anon_uid_log', uid);
+      }
+    }
   }
   final cloud = CloudSyncService();
-  final auth = AuthService();
   await cloud.init();
   await cloud.syncDown();
   cloud.watchChanges();
