@@ -2948,27 +2948,18 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
               return null;
             }),
           },
-          child: Focus(
-            autofocus: true,
-            focusNode: _focusNode,
-            onKey: (n, e) => _onKey(n, e)
-                ? KeyEventResult.handled
-                : KeyEventResult.ignored,
-            child: child,
-          ),
+          child: child,
         ),
-      );
-    } else {
-      child = Focus(
-        autofocus: true,
-        focusNode: _focusNode,
-        onKey: (n, e) => _onKey(n, e)
-            ? KeyEventResult.handled
-            : KeyEventResult.ignored,
-        child: child,
       );
     }
 
-    return child;
+    return Focus(
+      autofocus: true,
+      focusNode: _focusNode,
+      onKey: (n, e) => _onKey(n, e)
+          ? KeyEventResult.handled
+          : KeyEventResult.ignored,
+      child: child,
+    );
   }
 }
