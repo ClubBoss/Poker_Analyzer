@@ -165,24 +165,23 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         ..clear()
         ..addAll(newSel);
     });
+    _reconcileSelection(visible);
   }
 
   bool _onKey(FocusNode _, RawKeyEvent e, Set<String> visible) {
     if (e is! RawKeyDownEvent) return false;
+    if (FocusManager.instance.primaryFocus?.context?.widget is EditableText) {
+      return false;
+    }
     final isCmd = e.isControlPressed || e.isMetaPressed;
-    switch (e.logicalKey.keyLabel.toLowerCase()) {
-      case 'a':
-        if (isCmd) {
-          _toggleSelectAll(visible);
-          return true;
-        }
-        break;
-      case 'i':
-        if (isCmd) {
-          _invertSelection(visible);
-          return true;
-        }
-        break;
+    if (!isCmd) return false;
+    if (e.logicalKey == LogicalKeyboardKey.keyA) {
+      _toggleSelectAll(visible);
+      return true;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyI) {
+      _invertSelection(visible);
+      return true;
     }
     return false;
   }
@@ -383,12 +382,13 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         actions: _selectionMode
             ? [
                 IconButton(
+                  tooltip: 'Select All (Ctrl + A)',
                   icon: Icon(_selectedIds.length == packs.length ? Icons.clear_all : Icons.select_all),
                   onPressed: () => _toggleSelectAll({for (final p in packs) p.id}),
                 ),
                 if (packs.isNotEmpty)
                   IconButton(
-                    tooltip: 'Invert selection',
+                    tooltip: 'Invert Selection (Ctrl + I)',
                     icon: const Icon(Icons.sync_alt),
                     onPressed: () => _invertSelection({for (final p in packs) p.id}),
                   ),

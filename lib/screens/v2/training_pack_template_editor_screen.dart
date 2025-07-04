@@ -1773,20 +1773,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   bool _onKey(FocusNode _, RawKeyEvent e) {
     if (e is! RawKeyDownEvent) return false;
+    if (FocusManager.instance.primaryFocus?.context?.widget is EditableText) {
+      return false;
+    }
     final isCmd = e.isControlPressed || e.isMetaPressed;
-    switch (e.logicalKey.keyLabel.toLowerCase()) {
-      case 'a':
-        if (isCmd) {
-          _toggleSelectAll();
-          return true;
-        }
-        break;
-      case 'i':
-        if (isCmd) {
-          _invertSelection();
-          return true;
-        }
-        break;
+    if (!isCmd) return false;
+    if (e.logicalKey == LogicalKeyboardKey.keyA) {
+      _toggleSelectAll();
+      return true;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyI) {
+      _invertSelection();
+      return true;
     }
     return false;
   }
@@ -2643,14 +2641,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ? BottomAppBar(
               child: Row(
                 children: [
-                  TextButton(
-                    onPressed: _toggleSelectAll,
-                    child: const Text('Select All'),
+                  Tooltip(
+                    message: 'Select All (Ctrl + A)',
+                    child: TextButton(
+                      onPressed: _toggleSelectAll,
+                      child: const Text('Select All'),
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  TextButton(
-                    onPressed: _invertSelection,
-                    child: const Text('Invert Selection'),
+                  Tooltip(
+                    message: 'Invert Selection (Ctrl + I)',
+                    child: TextButton(
+                      onPressed: _invertSelection,
+                      child: const Text('Invert Selection'),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   TextButton(

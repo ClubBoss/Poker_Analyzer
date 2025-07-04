@@ -514,20 +514,18 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   bool _onKey(FocusNode _, RawKeyEvent e) {
     if (e is! RawKeyDownEvent) return false;
+    if (FocusManager.instance.primaryFocus?.context?.widget is EditableText) {
+      return false;
+    }
     final isCmd = e.isControlPressed || e.isMetaPressed;
-    switch (e.logicalKey.keyLabel.toLowerCase()) {
-      case 'a':
-        if (isCmd) {
-          _toggleSelectAll();
-          return true;
-        }
-        break;
-      case 'i':
-        if (isCmd) {
-          _invertSelection();
-          return true;
-        }
-        break;
+    if (!isCmd) return false;
+    if (e.logicalKey == LogicalKeyboardKey.keyA) {
+      _toggleSelectAll();
+      return true;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyI) {
+      _invertSelection();
+      return true;
     }
     return false;
   }
@@ -2311,7 +2309,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     },
                     itemBuilder: (_) => const [
                       PopupMenuItem(value: 'rename', child: Text('Rename…')),
-                      PopupMenuItem(value: 'all', child: Text('Select All')),
+                      PopupMenuItem(value: 'all', child: Text('Select All (Ctrl + A)')),
                       PopupMenuItem(value: 'none', child: Text('Select None')),
                     ],
                   ),
