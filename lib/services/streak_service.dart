@@ -79,10 +79,10 @@ class StreakService extends ChangeNotifier {
     if (cloud != null && cloud!.uid != null) {
       try {
         final doc = await CloudRetryPolicy.execute(() => FirebaseFirestore.instance
-            .collection('users')
-            .doc(cloud!.uid)
             .collection('stats')
-            .doc('streak')
+            .doc(cloud!.uid)
+            .collection('streak')
+            .doc('main')
             .get());
         if (doc.exists) {
           final data = doc.data()!;
@@ -123,8 +123,12 @@ class StreakService extends ChangeNotifier {
         'last': _lastTrainingDate?.toIso8601String(),
         'updatedAt': DateTime.now().toIso8601String(),
       };
-      await cloud!.queueMutation('stats', 'streak', data);
-      unawaited(cloud!.syncUp());
+      await CloudRetryPolicy.execute(() => FirebaseFirestore.instance
+          .collection('stats')
+          .doc(cloud!.uid)
+          .collection('streak')
+          .doc('main')
+          .set(data));
     }
   }
 
