@@ -534,6 +534,46 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() => widget.template.focusHandTypes.add(val));
     _handTypeCtr.clear();
     _persist();
+    final tag = _tagForHandType(val);
+    if (tag != null && !widget.template.tags.contains(tag)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Expanded(child: Text("Add tag '$tag' for this hand goal?")),
+              TextButton(
+                onPressed: () {
+                  setState(() => widget.template.tags.add(tag));
+                  _persist();
+                  ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                },
+                child: const Text('Add'),
+              ),
+              TextButton(
+                onPressed: () =>
+                    ScaffoldMessenger.of(context).removeCurrentSnackBar(),
+                child: const Text('Dismiss'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  String? _tagForHandType(String label) {
+    final l = label.trim().toUpperCase();
+    if (l == 'SUITED CONNECTORS') return 'SC';
+    if (l == 'OFFSUIT CONNECTORS') return 'OC';
+    final m = RegExp(r'^([2-9TJQKA])X([SO])?$').firstMatch(l);
+    if (m != null) {
+      final r = m.group(1)!;
+      final s = m.group(2);
+      if (s == 'S') return '${r}xs';
+      if (s == 'O') return '${r}xo';
+      return '${r}x';
+    }
+    return null;
   }
 
   void _saveDesc() {
