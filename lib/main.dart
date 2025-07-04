@@ -43,6 +43,7 @@ import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/drill_history_service.dart';
 import 'services/mixed_drill_history_service.dart';
+import 'services/notification_service.dart';
 import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
 import 'services/xp_tracker_service.dart';
@@ -82,6 +83,8 @@ Future<void> main() async {
   final auth = AuthService();
   if (!CloudSyncService.isLocal) {
     await Firebase.initializeApp();
+    await NotificationService.init();
+    await NotificationService.scheduleDailyReminder();
     if (!auth.isSignedIn) {
       final uid = await auth.signInAnonymously();
       if (uid != null) {
