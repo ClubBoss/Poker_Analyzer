@@ -13,6 +13,7 @@ class TrainingPackTemplate {
   List<TrainingPackSpot> spots;
   List<String> tags;
   List<String> focusTags;
+  List<String> focusHandTypes;
   int heroBbStack;
   List<int> playerStacksBb;
   HeroPosition heroPos;
@@ -38,6 +39,7 @@ class TrainingPackTemplate {
     List<TrainingPackSpot>? spots,
     List<String>? tags,
     List<String>? focusTags,
+    List<String>? focusHandTypes,
     this.heroBbStack = 10,
     List<int>? playerStacksBb,
     this.heroPos = HeroPosition.sb,
@@ -57,6 +59,7 @@ class TrainingPackTemplate {
   })  : spots = spots ?? [],
         tags = tags ?? [],
         focusTags = focusTags ?? [],
+        focusHandTypes = focusHandTypes ?? [],
         playerStacksBb = playerStacksBb ?? const [10, 10],
         meta = meta ?? {},
         createdAt = createdAt ?? DateTime.now() {
@@ -96,6 +99,7 @@ class TrainingPackTemplate {
       spots: spots ?? List<TrainingPackSpot>.from(this.spots),
       tags: tags ?? List<String>.from(this.tags),
       focusTags: focusTags ?? List<String>.from(this.focusTags),
+      focusHandTypes: focusHandTypes ?? List<String>.from(this.focusHandTypes),
       heroBbStack: heroBbStack ?? this.heroBbStack,
       playerStacksBb: playerStacksBb ?? List<int>.from(this.playerStacksBb),
       heroPos: heroPos ?? this.heroPos,
@@ -127,6 +131,7 @@ class TrainingPackTemplate {
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
       focusTags: [for (final t in (json['focusTags'] as List? ?? [])) t as String],
+      focusHandTypes: [for (final t in (json['focusHandTypes'] as List? ?? [])) t as String],
       heroBbStack: json['heroBbStack'] as int? ?? 10,
       playerStacksBb: [
         for (final v in (json['playerStacksBb'] as List? ?? [10, 10]))
@@ -166,6 +171,7 @@ class TrainingPackTemplate {
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
         if (tags.isNotEmpty) 'tags': tags,
         if (focusTags.isNotEmpty) 'focusTags': focusTags,
+        if (focusHandTypes.isNotEmpty) 'focusHandTypes': focusHandTypes,
         if (heroRange != null) 'heroRange': heroRange,
         'heroBbStack': heroBbStack,
         'playerStacksBb': playerStacksBb,
