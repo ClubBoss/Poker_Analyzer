@@ -11,6 +11,7 @@ class TrainingPackTemplate {
   GameType gameType;
   List<TrainingPackSpot> spots;
   List<String> tags;
+  List<String> focusTags;
   int heroBbStack;
   List<int> playerStacksBb;
   HeroPosition heroPos;
@@ -35,6 +36,7 @@ class TrainingPackTemplate {
     this.gameType = GameType.tournament,
     List<TrainingPackSpot>? spots,
     List<String>? tags,
+    List<String>? focusTags,
     this.heroBbStack = 10,
     List<int>? playerStacksBb,
     this.heroPos = HeroPosition.sb,
@@ -53,6 +55,7 @@ class TrainingPackTemplate {
     this.streetGoal = 0,
   })  : spots = spots ?? [],
         tags = tags ?? [],
+        focusTags = focusTags ?? [],
         playerStacksBb = playerStacksBb ?? const [10, 10],
         meta = meta ?? {},
         createdAt = createdAt ?? DateTime.now() {
@@ -66,6 +69,7 @@ class TrainingPackTemplate {
     GameType? gameType,
     List<TrainingPackSpot>? spots,
     List<String>? tags,
+    List<String>? focusTags,
     int? heroBbStack,
     List<int>? playerStacksBb,
     HeroPosition? heroPos,
@@ -90,6 +94,7 @@ class TrainingPackTemplate {
       gameType: gameType ?? this.gameType,
       spots: spots ?? List<TrainingPackSpot>.from(this.spots),
       tags: tags ?? List<String>.from(this.tags),
+      focusTags: focusTags ?? List<String>.from(this.focusTags),
       heroBbStack: heroBbStack ?? this.heroBbStack,
       playerStacksBb: playerStacksBb ?? List<int>.from(this.playerStacksBb),
       heroPos: heroPos ?? this.heroPos,
@@ -120,6 +125,7 @@ class TrainingPackTemplate {
           TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
+      focusTags: [for (final t in (json['focusTags'] as List? ?? [])) t as String],
       heroBbStack: json['heroBbStack'] as int? ?? 10,
       playerStacksBb: [
         for (final v in (json['playerStacksBb'] as List? ?? [10, 10]))
@@ -158,6 +164,7 @@ class TrainingPackTemplate {
         'gameType': gameType.name,
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
         if (tags.isNotEmpty) 'tags': tags,
+        if (focusTags.isNotEmpty) 'focusTags': focusTags,
         if (heroRange != null) 'heroRange': heroRange,
         'heroBbStack': heroBbStack,
         'playerStacksBb': playerStacksBb,

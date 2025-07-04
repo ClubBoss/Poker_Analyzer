@@ -305,6 +305,14 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           children: [
             LinearProgressIndicator(value: progress),
             const SizedBox(height: 8),
+            if (widget.template.focusTags.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  '🎯 Focus: ${widget.template.focusTags.join(', ')}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
             Text('Spot ${_index + 1} of ${_spots.length}',
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
