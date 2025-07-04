@@ -67,6 +67,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   final Set<SavedHand> _selected = {};
   bool get _selectionMode => _selected.isNotEmpty;
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   bool _showSearch = false;
 
   _SortOption _sort = _SortOption.newest;
@@ -484,6 +485,51 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
 
   void _clearSelection() {
     setState(() => _selected.clear());
+  }
+
+  void _toggleSelectAll() {
+    final indices = _visibleIndices();
+    final visible = [for (final i in indices) _hands[i]];
+    setState(() {
+      if (_selected.length == visible.length) {
+        _selected.clear();
+      } else {
+        _selected
+          ..clear()
+          ..addAll(visible);
+      }
+    });
+  }
+
+  void _invertSelection() {
+    final indices = _visibleIndices();
+    final visible = {for (final i in indices) _hands[i]};
+    setState(() {
+      final newSel = visible.difference(_selected);
+      _selected
+        ..clear()
+        ..addAll(newSel);
+    });
+  }
+
+  bool _onKey(FocusNode _, RawKeyEvent e) {
+    if (e is! RawKeyDownEvent) return false;
+    final isCmd = e.isControlPressed || e.isMetaPressed;
+    switch (e.logicalKey.keyLabel.toLowerCase()) {
+      case 'a':
+        if (isCmd) {
+          _toggleSelectAll();
+          return true;
+        }
+        break;
+      case 'i':
+        if (isCmd) {
+          _invertSelection();
+          return true;
+        }
+        break;
+    }
+    return false;
   }
 
   void _deleteSelected() {
@@ -2185,6 +2231,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   void dispose() {
     _autoTimer?.cancel();
     _searchController.dispose();
+    _focusNode.dispose();
     _findController.dispose();
     _replaceController.dispose();
     super.dispose();
@@ -2255,11 +2302,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   PopupMenuButton<String>(
                     onSelected: (v) {
                       if (v == 'all') {
-                        setState(
-                          () => _selected
-                            ..clear()
-                            ..addAll(_hands),
-                        );
+                        _toggleSelectAll();
                       } else if (v == 'rename') {
                         _showRenameDialog();
                       } else {
@@ -2907,8 +2950,24 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
               return null;
             }),
           },
-          child: Focus(autofocus: true, child: child),
+          child: Focus(
+            autofocus: true,
+            focusNode: _focusNode,
+            onKey: (n, e) => _onKey(n, e)
+                ? KeyEventResult.handled
+                : KeyEventResult.ignored,
+            child: child,
+          ),
         ),
+      );
+    } else {
+      child = Focus(
+        autofocus: true,
+        focusNode: _focusNode,
+        onKey: (n, e) => _onKey(n, e)
+            ? KeyEventResult.handled
+            : KeyEventResult.ignored,
+        child: child,
       );
     }
 

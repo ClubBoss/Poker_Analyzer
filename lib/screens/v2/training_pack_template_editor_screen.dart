@@ -90,6 +90,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _filterOutdated = false;
   bool _filterEvCovered = false;
   bool _changedOnly = false;
+  final FocusNode _focusNode = FocusNode();
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
   static const _prefsAutoSortKey = 'auto_sort_ev';
@@ -709,6 +710,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _searchCtrl.dispose();
     _tagSearchCtrl.dispose();
     _scrollCtrl.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -1751,17 +1753,42 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
-  void _selectAll() {
+  void _toggleSelectAll() {
+    final allIds = {for (final s in widget.template.spots) s.id};
     setState(() {
-      _selectedSpotIds
-        ..clear()
-        ..addAll(widget.template.spots.map((e) => e.id));
+      if (_selectedSpotIds.length == allIds.length) {
+        _selectedSpotIds.clear();
+      } else {
+        _selectedSpotIds
+          ..clear()
+          ..addAll(allIds);
+      }
     });
   }
 
   void _invertSelection() {
     final all = widget.template.spots.map((e) => e.id).toSet();
     setState(() => _selectedSpotIds = all.difference(_selectedSpotIds));
+  }
+
+  bool _onKey(FocusNode _, RawKeyEvent e) {
+    if (e is! RawKeyDownEvent) return false;
+    final isCmd = e.isControlPressed || e.isMetaPressed;
+    switch (e.logicalKey.keyLabel.toLowerCase()) {
+      case 'a':
+        if (isCmd) {
+          _toggleSelectAll();
+          return true;
+        }
+        break;
+      case 'i':
+        if (isCmd) {
+          _invertSelection();
+          return true;
+        }
+        break;
+    }
+    return false;
   }
 
   void _duplicateSpot(TrainingPackSpot spot) {
@@ -2371,6 +2398,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         },
         child: Focus(
           autofocus: true,
+          focusNode: _focusNode,
+          onKey: (n, e) => _onKey(n, e)
+              ? KeyEventResult.handled
+              : KeyEventResult.ignored,
           child: Scaffold(
       appBar: AppBar(
         leading: _isMultiSelect
@@ -2613,7 +2644,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               child: Row(
                 children: [
                   TextButton(
-                    onPressed: _selectAll,
+                    onPressed: _toggleSelectAll,
                     child: const Text('Select All'),
                   ),
                   const SizedBox(width: 12),
