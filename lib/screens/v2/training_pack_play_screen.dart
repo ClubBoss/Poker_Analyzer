@@ -13,6 +13,7 @@ import '../../widgets/spot_quiz_widget.dart';
 import '../../widgets/common/explanation_text.dart';
 import '../../theme/app_colors.dart';
 import 'training_pack_result_screen.dart';
+import '../../services/streak_service.dart';
 
 enum PlayOrder { sequential, random, mistakes }
 
@@ -289,6 +290,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     } else {
       _index = _spots.length - 1;
       _save();
+      await context.read<StreakService>().onFinish();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
