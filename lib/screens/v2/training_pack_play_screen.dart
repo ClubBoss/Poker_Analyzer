@@ -4,6 +4,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/hand_utils.dart';
+import '../../helpers/hand_type_utils.dart';
+
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../widgets/spot_quiz_widget.dart';
@@ -153,36 +156,10 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
 
   bool _matchHandType(TrainingPackSpot spot) {
     if (widget.template.focusHandTypes.isEmpty) return false;
-    final cards = spot.hand.heroCards.split(RegExp(r'\s+'));
-    if (cards.length < 2) return false;
-    final r1 = cards[0][0];
-    final r2 = cards[1][0];
-    final suited = cards[0][1] == cards[1][1];
-    final ranks = '23456789TJQKA';
+    final code = handCode(spot.hand.heroCards);
+    if (code == null) return false;
     for (final t in widget.template.focusHandTypes) {
-      switch (t) {
-        case 'AXs':
-          if (suited && (r1 == 'A' || r2 == 'A')) return true;
-          break;
-        case 'KXs':
-          if (suited && (r1 == 'K' || r2 == 'K')) return true;
-          break;
-        case 'QXs':
-          if (suited && (r1 == 'Q' || r2 == 'Q')) return true;
-          break;
-        case 'pairs':
-          if (r1 == r2) return true;
-          break;
-        case 'small pairs':
-          if (r1 == r2 && ranks.indexOf(r1) + 2 <= 6) return true;
-          break;
-        case 'mid pairs':
-          if (r1 == r2 && ranks.indexOf(r1) + 2 > 6 && ranks.indexOf(r1) + 2 <= 10) return true;
-          break;
-        case 'big pairs':
-          if (r1 == r2 && ranks.indexOf(r1) + 2 > 10) return true;
-          break;
-      }
+      if (matchHandTypeLabel(t, code)) return true;
     }
     return false;
   }
