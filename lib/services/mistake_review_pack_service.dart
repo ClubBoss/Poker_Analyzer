@@ -20,6 +20,22 @@ class MistakeReviewPackService extends ChangeNotifier {
   final List<MistakePack> _packs = [];
   List<MistakePack> get packs => List.unmodifiable(_packs);
 
+  void _trim() {
+    _packs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final seen = <String>{};
+    final result = <MistakePack>[];
+    for (final p in _packs) {
+      final key = (p.spotIds.toSet().toList()..sort()).join(',');
+      if (seen.add(key)) {
+        result.add(p);
+        if (result.length >= 50) break;
+      }
+    }
+    _packs
+      ..clear()
+      ..addAll(result);
+  }
+
   TrainingPack? _pack;
   int _progress = 0;
   DateTime? _date;
@@ -43,6 +59,7 @@ class MistakeReviewPackService extends ChangeNotifier {
       ..clear()
       ..addAll(list.map((e) =>
           MistakePack.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+    _trim();
     _generate();
     _schedule();
     unawaited(syncDown());
@@ -109,12 +126,15 @@ class MistakeReviewPackService extends ChangeNotifier {
     _packs
       ..clear()
       ..addAll(remote);
+    _trim();
     await _save();
     _generate();
   }
 
   Future<void> syncUp() async {
     if (cloud == null) return;
+    _trim();
+    await _save();
     for (final p in _packs) {
       await cloud!.savePack(p);
     }
