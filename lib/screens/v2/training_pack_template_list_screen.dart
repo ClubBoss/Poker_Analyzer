@@ -50,6 +50,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsHideKey = 'tpl_hide_completed';
   static const _prefsGroupKey = 'tpl_group_by_street';
   static const _prefsTypeKey = 'tpl_group_by_type';
+  static const _prefsMixedHandKey = 'tpl_mixed_handgoal_only';
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
   String _query = '';
@@ -283,6 +284,14 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _loadMixedHandGoalOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() =>
+          _mixedHandGoalOnly = prefs.getBool(_prefsMixedHandKey) ?? false);
+    }
+  }
+
   Future<void> _setHideCompleted(bool value) async {
     setState(() => _hideCompleted = value);
     final prefs = await SharedPreferences.getInstance();
@@ -299,6 +308,12 @@ class _TrainingPackTemplateListScreenState
     setState(() => _groupByType = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefsTypeKey, value);
+  }
+
+  Future<void> _setMixedHandGoalOnly(bool value) async {
+    setState(() => _mixedHandGoalOnly = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsMixedHandKey, value);
   }
 
   String _streetLabel(String? street) {
@@ -786,6 +801,7 @@ class _TrainingPackTemplateListScreenState
       _loadHideCompleted();
       _loadGroupByStreet();
       _loadGroupByType();
+      _loadMixedHandGoalOnly();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1903,7 +1919,7 @@ class _TrainingPackTemplateListScreenState
     _mixedAutoOnly = autoOnly;
     _endlessDrill = endless;
     _mixedStreet = street;
-    _mixedHandGoalOnly = handOnly;
+    await _setMixedHandGoalOnly(handOnly);
     await _runMixedDrill();
   }
 
