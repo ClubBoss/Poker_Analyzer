@@ -230,6 +230,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       _Command('snapshot', 'Save Snapshot', null, _saveSnapshot),
       _Command('manageSnaps', 'Manage Snapshots…', null, _manageSnapshots),
       _Command('stats', 'Stats', null, _showStats),
+      _Command('dups', 'Find Duplicates', null, _findDuplicates),
       _Command('filters', 'Toggle Filters', null, _toggleFilters),
       _Command('saveView', 'Save View', null, _saveCurrentView),
       _Command('manageViews', 'Manage Views…', null, _manageViews),
@@ -965,7 +966,11 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     final map = <String, List<int>>{};
     for (int i = 0; i < _hands.length; i++) {
       final h = _hands[i];
-      final key = '${h.heroPosition}-${h.playerCards.map((p) => p.map((c) => c.toString()).join()).join('/')}-${h.actions.map((a) => '${a.playerIndex}${a.action}${a.amount ?? 0}').join()}';
+      final hero = h.playerCards.length > h.heroIndex
+          ? h.playerCards[h.heroIndex].map((c) => c.toString()).join()
+          : '';
+      final board = h.boardCards.map((c) => c.toString()).join();
+      final key = '${h.heroPosition}-$hero-$board';
       map.putIfAbsent(key, () => []).add(i);
     }
     final list = List<SavedHand>.from(_hands);
@@ -2229,6 +2234,170 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
   }
 
+  List<List<int>> _duplicateGroups() {
+    final map = <String, List<int>>{};
+    for (int i = 0; i < _hands.length; i++) {
+      final h = _hands[i];
+      final hero = h.playerCards.length > h.heroIndex
+          ? h.playerCards[h.heroIndex].map((c) => c.toString()).join()
+          : '';
+      final board = h.boardCards.map((c) => c.toString()).join();
+      final key = '${h.heroPosition}-$hero-$board';
+      map.putIfAbsent(key, () => []).add(i);
+    }
+    return [for (final g in map.values) if (g.length > 1) g];
+  }
+
+  Future<void> _findDuplicates() async {
+    final groups = _duplicateGroups();
+    setState(() {});
+    if (groups.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No duplicates')));
+      return;
+    }
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: Text('Duplicates (${groups.length})',
+            style: const TextStyle(color: Colors.white)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final g in groups)
+                ListTile(
+                  title: Text(
+                    _duplicateTitle(g.first),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    g.map((i) => _hands[i].name).join(', '),
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'merge'),
+            child: const Text('Merge'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'delete'),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (result == 'delete') {
+      _deleteDuplicateGroups(groups);
+    } else if (result == 'merge') {
+      _mergeDuplicateGroups(groups);
+    }
+  }
+
+  String _duplicateTitle(int i) {
+    final h = _hands[i];
+    final hero = h.playerCards.length > h.heroIndex
+        ? h.playerCards[h.heroIndex].map((c) => c.toString()).join(' ')
+        : '';
+    final board = h.boardCards.map((c) => c.toString()).join(' ');
+    return '${h.heroPosition} $hero – $board';
+  }
+
+  void _deleteDuplicateGroups(List<List<int>> groups) {
+    final removed = <(SavedHand, int)>[];
+    setState(() {
+      for (final g in groups) {
+        for (final i in g.skip(1).toList().reversed) {
+          removed.add((_hands[i], i));
+          _hands.removeAt(i);
+          _modified = true;
+        }
+      }
+      _rebuildStats();
+    });
+    if (removed.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Removed ${removed.length} hands'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in removed.reversed) {
+                _hands.insert(r.$2.clamp(0, _hands.length), r.$1);
+              }
+              _modified = true;
+              _rebuildStats();
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  void _mergeDuplicateGroups(List<List<int>> groups) {
+    final removed = <(SavedHand, int)>[];
+    setState(() {
+      for (final g in groups) {
+        final baseIndex = g.first;
+        var base = _hands[baseIndex];
+        final tags = {...base.tags};
+        String comment = base.comment ?? '';
+        bool fav = base.isFavorite;
+        for (final i in g.skip(1)) {
+          final h = _hands[i];
+          tags.addAll(h.tags);
+          if (h.comment != null && h.comment!.isNotEmpty) {
+            if (comment.isNotEmpty) comment += '\n';
+            comment += h.comment!;
+          }
+          if (h.isFavorite) fav = true;
+          removed.add((h, i));
+        }
+        base = base.copyWith(
+          tags: tags.toList(),
+          comment: comment.isNotEmpty ? comment : null,
+          isFavorite: fav,
+        );
+        _hands[baseIndex] = base;
+        for (final i in g.skip(1).toList().reversed) {
+          _hands.removeAt(i);
+        }
+        _modified = true;
+      }
+      _rebuildStats();
+    });
+    if (removed.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Merged ${removed.length} hands'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in removed.reversed) {
+                _hands.insert(r.$2.clamp(0, _hands.length), r.$1);
+              }
+              _modified = true;
+              _rebuildStats();
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _autoTimer?.cancel();
@@ -2342,6 +2511,11 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   IconButton(
                     onPressed: _showStats,
                     icon: const Icon(Icons.bar_chart),
+                  ),
+                  IconButton(
+                    onPressed: _findDuplicates,
+                    icon: const Icon(Icons.copy_all),
+                    tooltip: 'Find Duplicates',
                   ),
                   IconButton(
                     onPressed: _importFromRoom,
