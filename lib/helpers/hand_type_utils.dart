@@ -22,7 +22,6 @@ String? handTypeLabelError(String label) {
   return 'Invalid hand type (e.g. JXs, 76s+, suited connectors)';
 }
 
-bool isValidHandTypeLabel(String label) => handTypeLabelError(label) == null;
 
 bool matchHandTypeLabel(String label, String handCode) {
   final l = label.trim().toUpperCase();
@@ -71,7 +70,7 @@ bool matchHandTypeLabel(String label, String handCode) {
     final h = m2.group(1)!;
     final lw = m2.group(2)!;
     final s = m2.group(3);
-    final plus = m2.group(4) != null;
+    final plus = s?.contains('+') == true;
     final hiIdx = _ranks.indexOf(hi);
     final loIdx = _ranks.indexOf(lo);
     final hIdx = _ranks.indexOf(h);
