@@ -546,6 +546,7 @@ class _TrainingPackTemplateListScreenState
               if (v == 'rename') _rename(t);
               if (v == 'duplicate') _duplicate(t);
               if (v == 'missing') _generateMissing(t);
+              if (v == 'delete') _delete(t);
             },
             itemBuilder: (_) => const [
               PopupMenuItem(
@@ -559,6 +560,10 @@ class _TrainingPackTemplateListScreenState
               PopupMenuItem(
                 value: 'missing',
                 child: Text('Generate Missing'),
+              ),
+              PopupMenuItem(
+                value: 'delete',
+                child: Text('🗑️ Delete'),
               ),
             ],
           ),
@@ -578,46 +583,7 @@ class _TrainingPackTemplateListScreenState
           ),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () async {
-              final ok = await showDialog<bool>(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Delete pack?'),
-                  content: Text('“${t.name}” will be removed.'),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text('Cancel')),
-                    TextButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        child: const Text('Delete')),
-                  ],
-                ),
-              );
-              if (ok ?? false) {
-                final idx = _templates.indexOf(t);
-                setState(() {
-                  _lastRemoved = t;
-                  _lastIndex = idx;
-                  _templates.removeAt(idx);
-                });
-                TrainingPackStorage.save(_templates);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Deleted'),
-                    action: SnackBarAction(
-                      label: 'UNDO',
-                      onPressed: () {
-                        if (_lastRemoved != null) {
-                          setState(() => _templates.insert(_lastIndex, _lastRemoved!));
-                          TrainingPackStorage.save(_templates);
-                        }
-                      },
-                    ),
-                  ),
-                );
-              }
-            },
+            onPressed: () => _delete(t),
           ),
         ],
       ),
@@ -769,6 +735,49 @@ class _TrainingPackTemplateListScreenState
     TrainingPackStorage.save(_templates);
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Added ${missing.length} spots')));
+  }
+
+  Future<void> _delete(TrainingPackTemplate t) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete pack?'),
+        content: Text('“${t.name}” will be removed.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (ok ?? false) {
+      final idx = _templates.indexOf(t);
+      setState(() {
+        _lastRemoved = t;
+        _lastIndex = idx;
+        _templates.removeAt(idx);
+      });
+      TrainingPackStorage.save(_templates);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Deleted'),
+          action: SnackBarAction(
+            label: 'UNDO',
+            onPressed: () {
+              if (_lastRemoved != null) {
+                setState(() => _templates.insert(_lastIndex, _lastRemoved!));
+                TrainingPackStorage.save(_templates);
+              }
+            },
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _nameAndEdit(TrainingPackTemplate template) async {
