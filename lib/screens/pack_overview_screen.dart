@@ -335,7 +335,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                       }
                     });
                   },
-                  icon: const Icon(Icons.select_all),
+                  icon: Icon(_selectedIds.length == packs.length ? Icons.clear_all : Icons.select_all),
                 ),
                 IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
                 IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
