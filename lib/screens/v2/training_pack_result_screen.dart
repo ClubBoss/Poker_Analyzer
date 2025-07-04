@@ -12,6 +12,7 @@ import '../../helpers/hand_type_utils.dart';
 import '../../theme/app_colors.dart';
 import 'training_pack_play_screen.dart';
 import 'training_pack_template_editor_screen.dart';
+import '../../services/mistake_review_pack_service.dart';
 
 class TrainingPackResultScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -71,6 +72,8 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
             ans != 'false' &&
             exp.toLowerCase() != ans.toLowerCase();
       }).toList();
+
+  List<String> get _mistakeIds => [for (final s in _mistakeSpots) s.id];
 
   @override
   void initState() {
@@ -214,6 +217,31 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                   },
                 ),
               ),
+            ],
+            if (_mistakeIds.isNotEmpty) ...[
+              ElevatedButton(
+                onPressed: () async {
+                  final template = widget.template.copyWith(
+                    id: const Uuid().v4(),
+                    name: 'Review mistakes',
+                    spots: [for (final s in widget.template.spots) if (_mistakeIds.contains(s.id)) s],
+                  );
+                  MistakeReviewPackService.latestTemplate = template;
+                  await context.read<MistakeReviewPackService>().addPack(_mistakeIds);
+                  if (!mounted) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TrainingPackPlayScreen(
+                        template: MistakeReviewPackService.latestTemplate!,
+                        original: null,
+                      ),
+                    ),
+                  );
+                },
+                child: Text('🔥 Review ${_mistakeIds.length} mistakes'),
+              ),
+              const SizedBox(height: 8),
             ],
             ElevatedButton(
               onPressed: _mistakes == 0
