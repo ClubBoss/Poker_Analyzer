@@ -56,6 +56,7 @@ import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
 import 'services/remote_config_service.dart';
+import 'services/ab_test_engine.dart';
 import 'widgets/sync_status_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
@@ -97,6 +98,8 @@ Future<void> main() async {
       }
     }
   }
+  final ab = AbTestEngine(remote: rc);
+  await ab.init();
   final cloud = CloudSyncService();
   await cloud.init();
   await cloud.syncDown();
@@ -119,6 +122,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider<AuthService>.value(value: auth),
         ChangeNotifierProvider<RemoteConfigService>.value(value: rc),
+        ChangeNotifierProvider<AbTestEngine>.value(value: ab),
         Provider<CloudSyncService>.value(value: cloud),
         Provider(create: (_) => CloudTrainingHistoryService()),
         ChangeNotifierProvider(

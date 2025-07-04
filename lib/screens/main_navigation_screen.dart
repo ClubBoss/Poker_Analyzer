@@ -22,6 +22,7 @@ import '../services/daily_target_service.dart';
 import '../widgets/streak_widget.dart';
 import '../services/training_pack_play_controller.dart';
 import '../widgets/resume_training_card.dart';
+import '../services/ab_test_engine.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
 import 'package:provider/provider.dart';
@@ -103,14 +104,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   Widget _home() {
     final ctrl = context.read<TrainingPackPlayController>();
+    final ab = context.watch<AbTestEngine>();
     return Column(
       children: [
-        ValueListenableBuilder<bool>(
-          valueListenable: ctrl.hasIncompleteSession,
-          builder: (_, has, __) => has
-              ? ResumeTrainingCard(controller: ctrl)
-              : const SizedBox.shrink(),
-        ),
+        ab.isVariant('resume_card', 'B')
+            ? ValueListenableBuilder<bool>(
+                valueListenable: ctrl.hasIncompleteSession,
+                builder: (_, has, __) => has
+                    ? ResumeTrainingCard(controller: ctrl)
+                    : const SizedBox.shrink(),
+              )
+            : const SizedBox.shrink(),
         const SpotOfTheDayCard(),
         const StreakChart(),
         const TodayProgressBanner(),
