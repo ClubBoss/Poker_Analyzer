@@ -19,6 +19,7 @@ import 'services/mistake_pack_cloud_service.dart';
 import 'services/template_storage_service.dart';
 import 'services/training_pack_template_storage_service.dart';
 import 'services/goal_progress_cloud_service.dart';
+import 'services/xp_tracker_cloud_service.dart';
 import 'services/daily_hand_service.dart';
 import 'services/spot_of_the_day_service.dart';
 import 'services/action_sync_service.dart';
@@ -109,6 +110,7 @@ Future<void> main() async {
   final packCloud = TrainingPackCloudSyncService();
   final mistakeCloud = MistakePackCloudService();
   final goalCloud = GoalProgressCloudService();
+  final xpCloud = XPTrackerCloudService();
   final templateStorage = TrainingPackTemplateStorageService(
     cloud: packCloud,
     goals: goalCloud,
@@ -158,6 +160,7 @@ Future<void> main() async {
         ),
         Provider<TrainingPackCloudSyncService>.value(value: packCloud),
         Provider<MistakePackCloudService>.value(value: mistakeCloud),
+        Provider<XPTrackerCloudService>.value(value: xpCloud),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
         ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
           value: templateStorage,
@@ -171,7 +174,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => DailyHandService()..load()),
         ChangeNotifierProvider(create: (_) => DailyTargetService()..load()),
         ChangeNotifierProvider(create: (_) => DailyTipService()..load()),
-        ChangeNotifierProvider(create: (_) => XPTrackerService()..load()),
+        ChangeNotifierProvider(create: (_) => XPTrackerService(cloud: xpCloud)..load()),
         ChangeNotifierProvider(
           create: (context) => WeeklyChallengeService(
             stats: context.read<TrainingStatsService>(),
