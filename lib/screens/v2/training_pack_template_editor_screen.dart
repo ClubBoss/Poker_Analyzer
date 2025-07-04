@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
+import '../../models/v2/focus_goal.dart';
 import '../../services/template_undo_redo_service.dart';
 import 'package:collection/collection.dart';
 import '../../models/game_type.dart';
@@ -154,13 +155,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Map<String, int> _handTypeCounts() {
     final res = <String, int>{};
-    for (final label in widget.template.focusHandTypes) {
+    for (final g in widget.template.focusHandTypes) {
       var count = 0;
       for (final s in widget.template.spots) {
         final code = handCode(s.hand.heroCards);
-        if (code != null && matchHandTypeLabel(label, code)) count++;
+        if (code != null && matchHandTypeLabel(g.label, code)) count++;
       }
-      res[label] = count;
+      res[g.label] = count;
     }
     return res;
   }
@@ -525,16 +526,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   void _addHandType(String val) {
-    final err = handTypeLabelError(val);
+    final parts = val.split(':');
+    final label = parts.first.trim();
+    final weight = parts.length > 1 ? int.tryParse(parts[1]) ?? 100 : 100;
+    final err = handTypeLabelError(label);
     if (err != null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(err)));
       return;
     }
-    setState(() => widget.template.focusHandTypes.add(val));
+    setState(() => widget.template.focusHandTypes.add(FocusGoal(label, weight)));
     _handTypeCtr.clear();
     _persist();
-    final tag = _tagForHandType(val);
+    final tag = _tagForHandType(label);
     if (tag != null && !widget.template.tags.contains(tag)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -2760,7 +2764,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               children: [
                 for (final t in widget.template.focusHandTypes)
                   InputChip(
-                    label: Text(t),
+                    label: Text(t.toString()),
                     onDeleted: () {
                       setState(() => widget.template.focusHandTypes.remove(t));
                       _persist();

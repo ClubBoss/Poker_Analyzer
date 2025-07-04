@@ -9,6 +9,7 @@ import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_session.dart';
 import '../models/v2/training_action.dart';
+import '../models/v2/focus_goal.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -20,14 +21,14 @@ class TrainingSessionService extends ChangeNotifier {
   bool _paused = false;
   DateTime? _resumedAt;
   Duration _accumulated = Duration.zero;
-  final List<String> _focusHandTypes = [];
-  int _handGoalTotal = 0;
-  int _handGoalCount = 0;
+  final List<FocusGoal> _focusHandTypes = [];
+  final Map<String, int> _handGoalTotal = {};
+  final Map<String, int> _handGoalCount = {};
 
   bool get isPaused => _paused;
-  List<String> get focusHandTypes => List.unmodifiable(_focusHandTypes);
-  int get handGoalTotal => _handGoalTotal;
-  int get handGoalCount => _handGoalCount;
+  List<FocusGoal> get focusHandTypes => List.unmodifiable(_focusHandTypes);
+  Map<String, int> get handGoalTotal => Map.unmodifiable(_handGoalTotal);
+  Map<String, int> get handGoalCount => Map.unmodifiable(_handGoalCount);
 
   void _startTicker() {
     _timer?.cancel();
@@ -93,19 +94,42 @@ class TrainingSessionService extends ChangeNotifier {
           ];
           _focusHandTypes
             ..clear()
-            ..addAll([for (final t in (data['focusHandTypes'] as List? ?? [])) t as String]);
-          _handGoalTotal = data['handGoalTotal'] as int? ?? 0;
-          _handGoalCount = data['handGoalProgress'] as int? ?? 0;
-          if (_focusHandTypes.isNotEmpty && _handGoalTotal == 0) {
-            _handGoalTotal = _spots.where(_matchHandType).length;
+            ..addAll([
+              for (final t in (data['focusHandTypes'] as List? ?? []))
+                FocusGoal.fromJson(t)
+            ]);
+          final totalRaw = data['handGoalTotal'];
+          if (totalRaw is Map) {
+            _handGoalTotal
+              ..clear()
+              ..addAll(totalRaw.map((k, v) => MapEntry(k as String, (v as num).toInt())));
+          } else if (totalRaw is int && _focusHandTypes.isNotEmpty) {
+            _handGoalTotal[_focusHandTypes.first.label] = totalRaw;
           }
-          if (_focusHandTypes.isNotEmpty && _handGoalCount == 0) {
-            var count = 0;
+          final countRaw = data['handGoalProgress'];
+          if (countRaw is Map) {
+            _handGoalCount
+              ..clear()
+              ..addAll(countRaw.map((k, v) => MapEntry(k as String, (v as num).toInt())));
+          } else if (countRaw is int && _focusHandTypes.isNotEmpty) {
+            _handGoalCount[_focusHandTypes.first.label] = countRaw;
+          }
+          if (_focusHandTypes.isNotEmpty && _handGoalTotal.isEmpty) {
+            for (final g in _focusHandTypes) {
+              _handGoalTotal[g.label] =
+                  _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
+            }
+          }
+          if (_focusHandTypes.isNotEmpty && _handGoalCount.isEmpty) {
             for (final id in _session!.results.keys) {
               final s = _spots.firstWhere((e) => e.id == id, orElse: () => TrainingPackSpot(id: ''));
-              if (s.id.isNotEmpty && _matchHandType(s)) count++;
+              if (s.id.isEmpty) continue;
+              for (final g in _focusHandTypes) {
+                if (_matchHandTypeLabel(s, g.label)) {
+                  _handGoalCount[g.label] = (_handGoalCount[g.label] ?? 0) + 1;
+                }
+              }
             }
-            _handGoalCount = count;
           }
           _actions
             ..clear()
@@ -130,9 +154,10 @@ class TrainingSessionService extends ChangeNotifier {
         'session': _session!.toJson(),
         'spots': [for (final s in _spots) s.toJson()],
         'actions': [for (final a in _actions) a.toJson()],
-        if (_focusHandTypes.isNotEmpty) 'focusHandTypes': _focusHandTypes,
-        if (_handGoalTotal > 0) 'handGoalTotal': _handGoalTotal,
-        if (_handGoalCount > 0) 'handGoalProgress': _handGoalCount
+        if (_focusHandTypes.isNotEmpty)
+          'focusHandTypes': [for (final g in _focusHandTypes) g.toString()],
+        if (_handGoalTotal.isNotEmpty) 'handGoalTotal': _handGoalTotal,
+        if (_handGoalCount.isNotEmpty) 'handGoalProgress': _handGoalCount
       });
     }
   }
@@ -167,9 +192,13 @@ class TrainingSessionService extends ChangeNotifier {
     _focusHandTypes
       ..clear()
       ..addAll(template.focusHandTypes);
-    _handGoalTotal =
-        _focusHandTypes.isEmpty ? 0 : _spots.where(_matchHandType).length;
-    _handGoalCount = 0;
+    _handGoalTotal.clear();
+    _handGoalCount.clear();
+    for (final g in _focusHandTypes) {
+      _handGoalTotal[g.label] =
+          _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
+      _handGoalCount[g.label] = 0;
+    }
     _session = TrainingSession.fromTemplate(
       template,
       authorPreview: !persist,
@@ -202,7 +231,13 @@ class TrainingSessionService extends ChangeNotifier {
     );
     if (first && _focusHandTypes.isNotEmpty) {
       final spot = _spots.firstWhere((e) => e.id == spotId, orElse: () => TrainingPackSpot(id: ''));
-      if (spot.id.isNotEmpty && _matchHandType(spot)) _handGoalCount++;
+      if (spot.id.isNotEmpty) {
+        for (final g in _focusHandTypes) {
+          if (_matchHandTypeLabel(spot, g.label)) {
+            _handGoalCount[g.label] = (_handGoalCount[g.label] ?? 0) + 1;
+          }
+        }
+      }
     }
     if (_box != null) await _box!.put(_session!.id, _session!.toJson());
     _saveActive();
@@ -247,12 +282,15 @@ class TrainingSessionService extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _matchHandType(TrainingPackSpot spot) {
-    if (_focusHandTypes.isEmpty) return false;
+  bool _matchHandTypeLabel(TrainingPackSpot spot, String label) {
     final code = handCode(spot.hand.heroCards);
     if (code == null) return false;
-    for (final t in _focusHandTypes) {
-      if (matchHandTypeLabel(t, code)) return true;
+    return matchHandTypeLabel(label, code);
+  }
+
+  bool _matchHandType(TrainingPackSpot spot) {
+    for (final g in _focusHandTypes) {
+      if (_matchHandTypeLabel(spot, g.label)) return true;
     }
     return false;
   }

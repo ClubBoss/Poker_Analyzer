@@ -1,5 +1,6 @@
 import 'training_pack_spot.dart';
 import 'hero_position.dart';
+import 'focus_goal.dart';
 import '../game_type.dart';
 import '../training_pack.dart' show parseGameType;
 import '../../services/pack_generator_service.dart';
@@ -13,7 +14,7 @@ class TrainingPackTemplate {
   List<TrainingPackSpot> spots;
   List<String> tags;
   List<String> focusTags;
-  List<String> focusHandTypes;
+  List<FocusGoal> focusHandTypes;
   int heroBbStack;
   List<int> playerStacksBb;
   HeroPosition heroPos;
@@ -39,7 +40,7 @@ class TrainingPackTemplate {
     List<TrainingPackSpot>? spots,
     List<String>? tags,
     List<String>? focusTags,
-    List<String>? focusHandTypes,
+    List<FocusGoal>? focusHandTypes,
     this.heroBbStack = 10,
     List<int>? playerStacksBb,
     this.heroPos = HeroPosition.sb,
@@ -74,6 +75,7 @@ class TrainingPackTemplate {
     List<TrainingPackSpot>? spots,
     List<String>? tags,
     List<String>? focusTags,
+    List<FocusGoal>? focusHandTypes,
     int? heroBbStack,
     List<int>? playerStacksBb,
     HeroPosition? heroPos,
@@ -99,7 +101,7 @@ class TrainingPackTemplate {
       spots: spots ?? List<TrainingPackSpot>.from(this.spots),
       tags: tags ?? List<String>.from(this.tags),
       focusTags: focusTags ?? List<String>.from(this.focusTags),
-      focusHandTypes: focusHandTypes ?? List<String>.from(this.focusHandTypes),
+      focusHandTypes: focusHandTypes ?? List<FocusGoal>.from(this.focusHandTypes),
       heroBbStack: heroBbStack ?? this.heroBbStack,
       playerStacksBb: playerStacksBb ?? List<int>.from(this.playerStacksBb),
       heroPos: heroPos ?? this.heroPos,
@@ -131,7 +133,10 @@ class TrainingPackTemplate {
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
       focusTags: [for (final t in (json['focusTags'] as List? ?? [])) t as String],
-      focusHandTypes: [for (final t in (json['focusHandTypes'] as List? ?? [])) t as String],
+      focusHandTypes: [
+        for (final t in (json['focusHandTypes'] as List? ?? []))
+          FocusGoal.fromJson(t)
+      ],
       heroBbStack: json['heroBbStack'] as int? ?? 10,
       playerStacksBb: [
         for (final v in (json['playerStacksBb'] as List? ?? [10, 10]))
@@ -171,7 +176,8 @@ class TrainingPackTemplate {
         if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
         if (tags.isNotEmpty) 'tags': tags,
         if (focusTags.isNotEmpty) 'focusTags': focusTags,
-        if (focusHandTypes.isNotEmpty) 'focusHandTypes': focusHandTypes,
+        if (focusHandTypes.isNotEmpty)
+          'focusHandTypes': [for (final g in focusHandTypes) g.toString()],
         if (heroRange != null) 'heroRange': heroRange,
         'heroBbStack': heroBbStack,
         'playerStacksBb': playerStacksBb,

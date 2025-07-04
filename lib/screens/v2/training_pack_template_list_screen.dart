@@ -80,8 +80,8 @@ class _TrainingPackTemplateListScreenState
   String? _lastOpenedId;
   final Map<String, int> _progress = {};
   final Map<String, int> _streetProgress = {};
-  final Map<String, int> _handGoalProgress = {};
-  final Map<String, int> _handGoalTotal = {};
+  final Map<String, Map<String, int>> _handGoalProgress = {};
+  final Map<String, Map<String, int>> _handGoalTotal = {};
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -134,36 +134,42 @@ class _TrainingPackTemplateListScreenState
     final prefs = await SharedPreferences.getInstance();
     final map = <String, int>{};
     final streetMap = <String, int>{};
-    final handMap = <String, int>{};
-    final handTotalMap = <String, int>{};
+    final handMap = <String, Map<String, int>>{};
+    final handTotalMap = <String, Map<String, int>>{};
     for (final t in _templates) {
       final v = prefs.getInt('tpl_prog_${t.id}');
       if (v != null) map[t.id] = v;
       final sv = prefs.getInt('tpl_street_${t.id}');
       if (sv != null) streetMap[t.id] = sv;
-      final hv = prefs.getInt('tpl_hand_${t.id}');
-      if (hv != null) handMap[t.id] = hv;
+      final hvStr = prefs.getString('tpl_hand_${t.id}');
+      final progress = <String, int>{};
+      if (hvStr != null) {
+        final data = jsonDecode(hvStr);
+        if (data is Map) {
+          for (final e in data.entries) {
+            progress[e.key as String] = (e.value as num).toInt();
+          }
+        }
+      } else {
+        final hv = prefs.getInt('tpl_hand_${t.id}');
+        if (hv != null && t.focusHandTypes.isNotEmpty) {
+          progress[t.focusHandTypes.first.label] = hv;
+        }
+      }
+      handMap[t.id] = progress;
       if (t.focusHandTypes.isNotEmpty) {
-        final cached = prefs.getInt('tpl_total_${t.id}');
-        final cachedCount = prefs.getInt('tpl_total_count_${t.id}');
-        if (cached != null && cachedCount == t.spots.length) {
-          handTotalMap[t.id] = cached;
-        } else {
+        final totals = <String, int>{};
+        for (final g in t.focusHandTypes) {
           int total = 0;
           for (final s in t.spots) {
             final code = handCode(s.hand.heroCards);
-            if (code == null) continue;
-            for (final label in t.focusHandTypes) {
-              if (matchHandTypeLabel(label, code)) {
-                total++;
-                break;
-              }
+            if (code != null && matchHandTypeLabel(g.label, code)) {
+              total++;
             }
           }
-          handTotalMap[t.id] = total;
-          await prefs.setInt('tpl_total_${t.id}', total);
-          await prefs.setInt('tpl_total_count_${t.id}', t.spots.length);
+          totals[g.label] = total;
         }
+        handTotalMap[t.id] = totals;
       }
     }
     if (!mounted) return;
@@ -575,10 +581,14 @@ class _TrainingPackTemplateListScreenState
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  value: _handGoalTotal[t.id] != null && _handGoalTotal[t.id]! > 0
-                      ? (_handGoalProgress[t.id]?.clamp(0, _handGoalTotal[t.id]!) ?? 0) /
-                          _handGoalTotal[t.id]!
-                      : 0,
+                  value: (() {
+                    final totals = _handGoalTotal[t.id] ?? {};
+                    final progress = _handGoalProgress[t.id] ?? {};
+                    final total = totals.values.fold<int>(0, (a, b) => a + b);
+                    final done = progress.entries
+                        .fold<int>(0, (a, e) => a + e.value.clamp(0, totals[e.key] ?? 0));
+                    return total > 0 ? done / total : 0.0;
+                  })(),
                   strokeWidth: 3,
                   backgroundColor: Colors.white24,
                   valueColor:
@@ -648,23 +658,30 @@ class _TrainingPackTemplateListScreenState
           items.add(const SizedBox(height: 4));
         }
         if (t.focusHandTypes.isNotEmpty) {
-          final total = _handGoalTotal[t.id] ?? 0;
-          if (total > 0) {
-            final val =
-                (_handGoalProgress[t.id]?.clamp(0, total) ?? 0) / total;
-            items.add(Row(
-              children: [
-                Expanded(
+          final totals = _handGoalTotal[t.id] ?? {};
+          final progress = _handGoalProgress[t.id] ?? {};
+          for (final g in t.focusHandTypes) {
+            final total = totals[g.label] ?? 0;
+            if (total > 0) {
+              final done = progress[g.label]?.clamp(0, total) ?? 0;
+              final val = done / total;
+              items.add(Row(
+                children: [
+                  Expanded(
                     child: LinearProgressIndicator(
-                        value: val,
-                        color: Colors.purpleAccent,
-                        backgroundColor: Colors.purpleAccent.withOpacity(0.3))),
-                const SizedBox(width: 8),
-                Text('${(val * 100).round()}%',
-                    style: const TextStyle(fontSize: 12)),
-              ],
-            ));
-            items.add(const SizedBox(height: 4));
+                      value: val,
+                      color: Colors.purpleAccent,
+                      backgroundColor:
+                          Colors.purpleAccent.withOpacity(0.3),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text('${g.label} ${(val * 100).round()}%',
+                      style: const TextStyle(fontSize: 12)),
+                ],
+              ));
+              items.add(const SizedBox(height: 4));
+            }
           }
         }
         final ratio = t.goalTarget > 0

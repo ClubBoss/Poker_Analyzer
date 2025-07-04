@@ -33,7 +33,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   bool _loading = true;
   PlayOrder _order = PlayOrder.sequential;
   int _streetCount = 0;
-  int _handCount = 0;
+  final Map<String, int> _handCounts = {};
+  final Map<String, int> _handTotals = {};
 
   @override
   void initState() {
@@ -68,7 +69,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       }
     }
     int streetCount = 0;
-    int handCount = 0;
+    final handCounts = <String, int>{};
+    _handTotals.clear();
     if (widget.template.targetStreet != null) {
       for (final id in results.keys) {
         final s = spots.firstWhereOrNull((e) => e.id == id);
@@ -77,18 +79,51 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       streetCount = max(streetCount, prefs.getInt(streetKey) ?? 0);
     }
     if (widget.template.focusHandTypes.isNotEmpty) {
+      for (final g in widget.template.focusHandTypes) {
+        handCounts[g.label] = 0;
+        for (final s in spots) {
+          final code = handCode(s.hand.heroCards);
+          if (code != null && matchHandTypeLabel(g.label, code)) {
+            _handTotals[g.label] = (_handTotals[g.label] ?? 0) + 1;
+          }
+        }
+      }
       for (final id in results.keys) {
         final s = spots.firstWhereOrNull((e) => e.id == id);
-        if (s != null && _matchHandType(s)) handCount++;
+        if (s != null) {
+          for (final g in widget.template.focusHandTypes) {
+            final code = handCode(s.hand.heroCards);
+            if (code != null && matchHandTypeLabel(g.label, code)) {
+              handCounts[g.label] = (handCounts[g.label] ?? 0) + 1;
+            }
+          }
+        }
       }
-      handCount = max(handCount, prefs.getInt(handKey) ?? 0);
+      final saved = prefs.getString(handKey);
+      if (saved != null) {
+        final data = jsonDecode(saved);
+        if (data is Map) {
+          for (final e in data.entries) {
+            final k = e.key as String;
+            final v = (e.value as num).toInt();
+            if (handCounts.containsKey(k)) {
+              handCounts[k] = max(handCounts[k] ?? 0, v);
+            }
+          }
+        } else if (data is int && widget.template.focusHandTypes.isNotEmpty) {
+          final k = widget.template.focusHandTypes.first.label;
+          handCounts[k] = max(handCounts[k] ?? 0, data);
+        }
+      }
     }
     setState(() {
       _spots = spots;
       _results = results;
       _index = prefs.getInt(progKey)?.clamp(0, spots.length - 1) ?? 0;
       _streetCount = streetCount;
-      _handCount = handCount;
+      _handCounts
+        ..clear()
+        ..addAll(handCounts);
       _loading = false;
     });
   }
@@ -102,7 +137,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       await prefs.setInt('tpl_street_${widget.template.id}', _streetCount);
     }
     if (widget.template.focusHandTypes.isNotEmpty) {
-      await prefs.setInt('tpl_hand_${widget.template.id}', _handCount);
+      await prefs.setString('tpl_hand_${widget.template.id}', jsonEncode(_handCounts));
     }
     if (ts) {
       await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
@@ -128,7 +163,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       _spots = spots;
       _index = 0;
       _streetCount = 0;
-      _handCount = 0;
+      _handCounts
+        ..clear()
+        ..addEntries(widget.template.focusHandTypes.map((e) => MapEntry(e.label, 0)));
     });
     _save();
   }
@@ -154,12 +191,15 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return res;
   }
 
-  bool _matchHandType(TrainingPackSpot spot) {
-    if (widget.template.focusHandTypes.isEmpty) return false;
+  bool _matchHandTypeLabel(TrainingPackSpot spot, String label) {
     final code = handCode(spot.hand.heroCards);
     if (code == null) return false;
-    for (final t in widget.template.focusHandTypes) {
-      if (matchHandTypeLabel(t, code)) return true;
+    return matchHandTypeLabel(label, code);
+  }
+
+  bool _matchHandType(TrainingPackSpot spot) {
+    for (final g in widget.template.focusHandTypes) {
+      if (_matchHandTypeLabel(spot, g.label)) return true;
     }
     return false;
   }
@@ -198,7 +238,13 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       final first = !_results.containsKey(spot.id);
       _results[spot.id] = act.toLowerCase();
       if (first && _matchStreet(spot)) _streetCount++;
-      if (first && _matchHandType(spot)) _handCount++;
+      if (first) {
+        for (final g in widget.template.focusHandTypes) {
+          if (_matchHandTypeLabel(spot, g.label)) {
+            _handCounts[g.label] = (_handCounts[g.label] ?? 0) + 1;
+          }
+        }
+      }
 
       final expected =
           spot.evalResult?.expectedAction ?? _expected(spot) ?? '-';
@@ -348,9 +394,36 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             if (widget.template.focusHandTypes.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  '🎯 Hand Goal: ${widget.template.focusHandTypes.join(', ')}',
-                  style: const TextStyle(color: Colors.white70),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('🎯 Hand Goals',
+                        style: TextStyle(color: Colors.white70)),
+                    for (final g in widget.template.focusHandTypes)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: LinearProgressIndicator(
+                                value: _handTotals[g.label] != null && _handTotals[g.label]! > 0
+                                    ? (_handCounts[g.label]?.clamp(0, _handTotals[g.label]!) ?? 0) /
+                                        _handTotals[g.label]!
+                                    : 0,
+                                color: Colors.purpleAccent,
+                                backgroundColor:
+                                    Colors.purpleAccent.withOpacity(0.3),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${g.label}: ${_handCounts[g.label] ?? 0}/${_handTotals[g.label] ?? 0}',
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
               ),
             if (widget.template.heroRange != null)
