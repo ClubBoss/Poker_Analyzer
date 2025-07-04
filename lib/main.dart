@@ -14,6 +14,7 @@ import 'services/session_note_service.dart';
 import 'services/session_pin_service.dart';
 import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
+import 'services/mistake_pack_cloud_service.dart';
 import 'services/template_storage_service.dart';
 import 'services/training_pack_template_storage_service.dart';
 import 'services/goal_progress_cloud_service.dart';
@@ -96,6 +97,7 @@ Future<void> main() async {
   final packStorage = TrainingPackStorageService(cloud: cloud);
   await packStorage.load();
   final packCloud = TrainingPackCloudSyncService();
+  final mistakeCloud = MistakePackCloudService();
   final goalCloud = GoalProgressCloudService();
   final templateStorage =
       TrainingPackTemplateStorageService(cloud: packCloud, goals: goalCloud);
@@ -129,6 +131,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => MistakeReviewPackService(
             hands: context.read<SavedHandManagerService>(),
+            cloud: mistakeCloud,
           )..load(),
         ),
         ChangeNotifierProvider(
@@ -139,6 +142,7 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider<TrainingPackStorageService>.value(value: packStorage),
         Provider<TrainingPackCloudSyncService>.value(value: packCloud),
+        Provider<MistakePackCloudService>.value(value: mistakeCloud),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
         ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(value: templateStorage),
         ChangeNotifierProvider(
