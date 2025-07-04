@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
+import '../helpers/hand_utils.dart';
+import '../helpers/hand_type_utils.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -18,8 +20,14 @@ class TrainingSessionService extends ChangeNotifier {
   bool _paused = false;
   DateTime? _resumedAt;
   Duration _accumulated = Duration.zero;
+  final List<String> _focusHandTypes = [];
+  int _handGoalTotal = 0;
+  int _handGoalCount = 0;
 
   bool get isPaused => _paused;
+  List<String> get focusHandTypes => List.unmodifiable(_focusHandTypes);
+  int get handGoalTotal => _handGoalTotal;
+  int get handGoalCount => _handGoalCount;
 
   void _startTicker() {
     _timer?.cancel();
@@ -83,6 +91,22 @@ class TrainingSessionService extends ChangeNotifier {
             for (final e in (spots as List? ?? []))
               TrainingPackSpot.fromJson(Map<String, dynamic>.from(e))
           ];
+          _focusHandTypes
+            ..clear()
+            ..addAll([for (final t in (data['focusHandTypes'] as List? ?? [])) t as String]);
+          _handGoalTotal = data['handGoalTotal'] as int? ?? 0;
+          _handGoalCount = data['handGoalProgress'] as int? ?? 0;
+          if (_focusHandTypes.isNotEmpty && _handGoalTotal == 0) {
+            _handGoalTotal = _spots.where(_matchHandType).length;
+          }
+          if (_focusHandTypes.isNotEmpty && _handGoalCount == 0) {
+            var count = 0;
+            for (final id in _session!.results.keys) {
+              final s = _spots.firstWhere((e) => e.id == id, orElse: () => TrainingPackSpot(id: ''));
+              if (s.id.isNotEmpty && _matchHandType(s)) count++;
+            }
+            _handGoalCount = count;
+          }
           _actions
             ..clear()
             ..addAll([
@@ -105,7 +129,10 @@ class TrainingSessionService extends ChangeNotifier {
       _activeBox!.put('session', {
         'session': _session!.toJson(),
         'spots': [for (final s in _spots) s.toJson()],
-        'actions': [for (final a in _actions) a.toJson()]
+        'actions': [for (final a in _actions) a.toJson()],
+        if (_focusHandTypes.isNotEmpty) 'focusHandTypes': _focusHandTypes,
+        if (_handGoalTotal > 0) 'handGoalTotal': _handGoalTotal,
+        if (_handGoalCount > 0) 'handGoalProgress': _handGoalCount
       });
     }
   }
@@ -137,6 +164,12 @@ class TrainingSessionService extends ChangeNotifier {
     if (persist) await _openBox();
     _spots = List<TrainingPackSpot>.from(template.spots);
     _actions.clear();
+    _focusHandTypes
+      ..clear()
+      ..addAll(template.focusHandTypes);
+    _handGoalTotal =
+        _focusHandTypes.isEmpty ? 0 : _spots.where(_matchHandType).length;
+    _handGoalCount = 0;
     _session = TrainingSession.fromTemplate(
       template,
       authorPreview: !persist,
@@ -158,6 +191,7 @@ class TrainingSessionService extends ChangeNotifier {
     bool isCorrect,
   ) async {
     if (_session == null) return;
+    final first = !_session!.results.containsKey(spotId);
     _session!.results[spotId] = isCorrect;
     _actions.add(
       TrainingAction(
@@ -166,6 +200,10 @@ class TrainingSessionService extends ChangeNotifier {
         isCorrect: isCorrect,
       ),
     );
+    if (first && _focusHandTypes.isNotEmpty) {
+      final spot = _spots.firstWhere((e) => e.id == spotId, orElse: () => TrainingPackSpot(id: ''));
+      if (spot.id.isNotEmpty && _matchHandType(spot)) _handGoalCount++;
+    }
     if (_box != null) await _box!.put(_session!.id, _session!.toJson());
     _saveActive();
   }
@@ -207,6 +245,16 @@ class TrainingSessionService extends ChangeNotifier {
       _saveActive();
     }
     notifyListeners();
+  }
+
+  bool _matchHandType(TrainingPackSpot spot) {
+    if (_focusHandTypes.isEmpty) return false;
+    final code = handCode(spot.hand.heroCards);
+    if (code == null) return false;
+    for (final t in _focusHandTypes) {
+      if (matchHandTypeLabel(t, code)) return true;
+    }
+    return false;
   }
 
   @override

@@ -218,6 +218,31 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                     ),
                     const SizedBox(height: 8),
                     Expanded(child: SpotQuizWidget(spot: spot)),
+                    if (service.focusHandTypes.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: LinearProgressIndicator(
+                                value: service.handGoalTotal > 0
+                                    ? service.handGoalCount /
+                                        service.handGoalTotal
+                                    : 0,
+                                color: Colors.purpleAccent,
+                                backgroundColor:
+                                    Colors.purpleAccent.withOpacity(0.3),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${service.handGoalCount}/${service.handGoalTotal} ${service.focusHandTypes.join(', ')}',
+                              style:
+                                  const TextStyle(color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ),
                     if (service.isPaused) ...[
                       const SizedBox(height: 16),
                       const Text('Сессия на паузе',
