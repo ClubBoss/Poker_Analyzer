@@ -76,6 +76,7 @@ class _TrainingPackTemplateListScreenState
   bool _endlessDrill = false;
   String _mixedStreet = 'any';
   bool _mixedHandGoalOnly = false;
+  DateTime? _mixedLastRun;
   String? _lastOpenedId;
   final Map<String, int> _progress = {};
   final Map<String, int> _streetProgress = {};
@@ -305,6 +306,10 @@ class _TrainingPackTemplateListScreenState
         _mixedStreet = prefs.getString(_prefsMixedStreetKey) ?? 'any';
         _mixedAutoOnly = prefs.getBool(_prefsMixedAutoKey) ?? false;
         _endlessDrill = prefs.getBool(_prefsEndlessKey) ?? false;
+        final ts = prefs.getInt('tpl_mixed_last_run');
+        _mixedLastRun = ts == null
+            ? null
+            : DateTime.fromMillisecondsSinceEpoch(ts);
       });
     }
   }
@@ -1994,6 +1999,10 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _runMixedDrill() async {
+    final now = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('tpl_mixed_last_run', now.millisecondsSinceEpoch);
+    setState(() => _mixedLastRun = now);
     final count = _mixedCount;
     final autoOnly = _mixedAutoOnly;
     final byType = _selectedType == null
@@ -2579,6 +2588,15 @@ class _TrainingPackTemplateListScreenState
               ),
             ),
           ),
+          if (_mixedLastRun != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                'Last run: ${timeago.format(_mixedLastRun!)}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: Colors.white54),
+              ),
+            ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
             heroTag: 'pasteRangeTplFab',
