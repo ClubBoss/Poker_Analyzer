@@ -322,6 +322,21 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         centerTitle: true,
         actions: _selectionMode
             ? [
+                IconButton(
+                  onPressed: () {
+                    final all = _selectedIds.length == packs.length;
+                    setState(() {
+                      if (all) {
+                        _selectedIds.clear();
+                      } else {
+                        _selectedIds
+                          ..clear()
+                          ..addAll(packs.map((p) => p.id));
+                      }
+                    });
+                  },
+                  icon: const Icon(Icons.select_all),
+                ),
                 IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
                 IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
                 IconButton(onPressed: _shareSelected, icon: const Icon(Icons.share)),
