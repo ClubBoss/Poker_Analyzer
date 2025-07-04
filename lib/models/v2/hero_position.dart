@@ -20,3 +20,23 @@ extension HeroPositionLabel on HeroPosition {
     }
   }
 }
+
+HeroPosition parseHeroPosition(String s) {
+  final p = s.toUpperCase();
+  if (p.startsWith('SB')) return HeroPosition.sb;
+  if (p.startsWith('BB')) return HeroPosition.bb;
+  if (p.startsWith('BTN')) return HeroPosition.btn;
+  if (p.startsWith('CO')) return HeroPosition.co;
+  if (p.startsWith('MP') || p.startsWith('HJ')) return HeroPosition.mp;
+  if (p.startsWith('UTG')) return HeroPosition.utg;
+  return HeroPosition.unknown;
+}
+
+const kPositionOrder = [
+  HeroPosition.utg,
+  HeroPosition.mp,
+  HeroPosition.co,
+  HeroPosition.btn,
+  HeroPosition.sb,
+  HeroPosition.bb,
+];

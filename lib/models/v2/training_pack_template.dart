@@ -3,6 +3,7 @@ import 'hero_position.dart';
 import '../game_type.dart';
 import '../training_pack.dart' show parseGameType;
 import '../../services/pack_generator_service.dart';
+import '../../helpers/poker_position_helper.dart';
 
 class TrainingPackTemplate {
   final String id;
@@ -186,6 +187,39 @@ class TrainingPackTemplate {
 
   int get evCovered => meta['evCovered'] as int? ?? 0;
   int get icmCovered => meta['icmCovered'] as int? ?? 0;
+
+  String posRangeLabel() {
+    final heroSet = <HeroPosition>{heroPos};
+    final oppSet = <HeroPosition>{};
+    for (final s in spots) {
+      heroSet.add(s.hand.position);
+      final n = s.hand.playerCount;
+      if (n < 2) continue;
+      final order = getPositionList(n);
+      final enums = [for (final o in order) parseHeroPosition(o)];
+      final heroIdx = s.hand.heroIndex;
+      final idx = enums.indexOf(s.hand.position);
+      if (idx == -1) continue;
+      final btn = (heroIdx - idx + n) % n;
+      for (int i = 0; i < n; i++) {
+        if (i == heroIdx) continue;
+        final pos = enums[(i - btn + n) % n];
+        oppSet.add(pos);
+      }
+    }
+    List<HeroPosition> sort(Set<HeroPosition> set) {
+      final list = set.toList();
+      list.sort((a, b) =>
+          kPositionOrder.indexOf(a).compareTo(kPositionOrder.indexOf(b)));
+      return list;
+    }
+    final heroes = sort(heroSet);
+    final opps = sort(oppSet);
+    if (heroes.length == 1 && opps.isNotEmpty) {
+      return '${heroes.first.label} vs ${opps.map((e) => e.label).join('+')}';
+    }
+    return heroes.map((e) => e.label).join('+');
+  }
 
   void recountCoverage([List<TrainingPackSpot>? all]) {
     final list = all ?? spots;
