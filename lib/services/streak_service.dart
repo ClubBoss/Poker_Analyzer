@@ -147,8 +147,8 @@ class StreakService extends ChangeNotifier {
     final today = DateTime(now.year, now.month, now.day);
 
     _verifyTrainingStreak();
-
     bool increased = false;
+    final prev = _count;
 
     if (_lastOpen == null) {
       // First app launch.
@@ -179,6 +179,9 @@ class StreakService extends ChangeNotifier {
       keys.removeAt(0);
     }
     _increased = increased;
+    if (_count != prev) {
+      unawaited(xp.add(xp: 0, source: 'streak_update', streak: _count));
+    }
     await _save();
     notifyListeners();
   }
