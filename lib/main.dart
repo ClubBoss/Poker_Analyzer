@@ -318,6 +318,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
   @override
   void dispose() {
     _sync.dispose();
+    context.read<CloudSyncService>().dispose();
     super.dispose();
   }
 
