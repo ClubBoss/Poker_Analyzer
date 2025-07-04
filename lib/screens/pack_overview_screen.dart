@@ -183,6 +183,10 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
       _invertSelection(visible);
       return true;
     }
+    if (e.logicalKey == LogicalKeyboardKey.backspace) {
+      _deleteSelected();
+      return true;
+    }
     return false;
   }
 
@@ -392,7 +396,11 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                     icon: const Icon(Icons.sync_alt),
                     onPressed: () => _invertSelection({for (final p in packs) p.id}),
                   ),
-                IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
+                IconButton(
+                  tooltip: 'Delete (Ctrl + Backspace)',
+                  onPressed: _deleteSelected,
+                  icon: const Icon(Icons.delete),
+                ),
                 IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
                 IconButton(onPressed: _shareSelected, icon: const Icon(Icons.share)),
                 IconButton(onPressed: _editSelected, icon: const Icon(Icons.edit)),

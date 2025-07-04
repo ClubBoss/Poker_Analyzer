@@ -527,6 +527,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       _invertSelection();
       return true;
     }
+    if (e.logicalKey == LogicalKeyboardKey.backspace) {
+      _deleteSelected();
+      return true;
+    }
     return false;
   }
 
@@ -2272,6 +2276,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           actions: _selectionMode
               ? [
                   IconButton(
+                    tooltip: 'Delete (Ctrl + Backspace)',
                     onPressed: _deleteSelected,
                     icon: const Icon(Icons.delete),
                   ),
