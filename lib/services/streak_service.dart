@@ -1,118 +1,87 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'cloud_retry_policy.dart';
 
-/// Tracks the number of consecutive days the app was opened.
-///
-/// The streak information is persisted using [SharedPreferences] so it
-/// survives app restarts. Every time the service is loaded or explicitly
-/// refreshed it compares today's date with the last stored activity date and
-/// updates the counter accordingly.
 class StreakService extends ChangeNotifier {
-  static const _lastOpenKey = 'streak_last_open';
-  static const _countKey = 'streak_count';
-  static const _errorKey = 'error_free_streak';
-  static const _historyKey = 'streak_history';
-  static const bonusThreshold = 3;
-  static const bonusMultiplier = 1.5;
+  static const _countKey = 'training_streak_current';
+  static const _lastKey = 'training_streak_last';
+  final ValueNotifier<int> streak = ValueNotifier(0);
+  DateTime? _last;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  String? get _uid => FirebaseAuth.instance.currentUser?.uid;
 
-  DateTime? _lastOpen;
-  int _count = 0;
-  bool _increased = false;
-  int _errorFreeStreak = 0;
-  Map<String, int> _history = {};
-
-  int get count => _count;
-  bool get hasBonus => _count >= bonusThreshold;
-  bool get increased => _increased;
-  int get errorFreeStreak => _errorFreeStreak;
-  List<MapEntry<DateTime, int>> get history {
-    final list = _history.entries
-        .map((e) => MapEntry(DateTime.parse(e.key), e.value))
-        .toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
-    return list;
-  }
-
-  /// Returns true if the streak increased since the last check.
-  bool consumeIncreaseFlag() {
-    final value = _increased;
-    _increased = false;
-    return value;
-  }
-
-  /// Loads the persisted streak information and refreshes it for today.
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
-    final lastStr = prefs.getString(_lastOpenKey);
-    _lastOpen = lastStr != null ? DateTime.tryParse(lastStr) : null;
-    _count = prefs.getInt(_countKey) ?? 0;
-    _errorFreeStreak = prefs.getInt(_errorKey) ?? 0;
-    final raw = prefs.getString(_historyKey);
-    if (raw != null) {
-      final data = jsonDecode(raw) as Map<String, dynamic>;
-      _history = {for (final e in data.entries) e.key: e.value as int};
-    }
-    await updateStreak();
+    streak.value = prefs.getInt(_countKey) ?? 0;
+    final lastStr = prefs.getString(_lastKey);
+    _last = lastStr != null ? DateTime.tryParse(lastStr) : null;
+    await _syncFromCloud();
+    _checkReset();
   }
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    if (_lastOpen != null) {
-      await prefs.setString(_lastOpenKey, _lastOpen!.toIso8601String());
+    await prefs.setInt(_countKey, streak.value);
+    if (_last != null) {
+      await prefs.setString(_lastKey, _last!.toIso8601String());
     } else {
-      await prefs.remove(_lastOpenKey);
+      await prefs.remove(_lastKey);
     }
-    await prefs.setInt(_countKey, _count);
-    await prefs.setInt(_errorKey, _errorFreeStreak);
-    await prefs.setString(_historyKey, jsonEncode(_history));
   }
 
-  /// Compares the saved date with today and updates the streak accordingly.
-  Future<void> updateStreak() async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+  Future<void> _syncFromCloud() async {
+    if (_uid == null) return;
+    try {
+      await CloudRetryPolicy.execute<void>(() async {
+        final doc = await _db.collection('stats').doc(_uid).collection('streak').doc('main').get();
+        if (!doc.exists) return;
+        final data = doc.data()!;
+        streak.value = (data['currentStreak'] as num?)?.toInt() ?? streak.value;
+        final ts = data['lastTrainingDate'] as String?;
+        _last = ts != null ? DateTime.tryParse(ts) : _last;
+        await _save();
+      });
+    } catch (_) {}
+  }
 
-    bool increased = false;
+  Future<void> _syncToCloud() async {
+    if (_uid == null) return;
+    try {
+      await CloudRetryPolicy.execute(() => _db.collection('stats').doc(_uid).collection('streak').doc('main').set({
+            'currentStreak': streak.value,
+            'lastTrainingDate': _last?.toIso8601String(),
+          }));
+    } catch (_) {}
+  }
 
-    if (_lastOpen == null) {
-      // First app launch.
-      _count = 1;
-      _lastOpen = today;
-      increased = true;
+  void _checkReset() {
+    if (_last == null) return;
+    final today = DateTime.now();
+    final last = DateTime(_last!.year, _last!.month, _last!.day);
+    if (today.difference(last).inDays > 1) {
+      streak.value = 0;
+    }
+  }
+
+  Future<void> recordTraining() async {
+    final today = DateTime.now();
+    final last = _last != null ? DateTime(_last!.year, _last!.month, _last!.day) : null;
+    if (last == null) {
+      streak.value = 1;
     } else {
-      final last = DateTime(_lastOpen!.year, _lastOpen!.month, _lastOpen!.day);
-      final diff = today.difference(last).inDays;
-
+      final diff = DateTime(today.year, today.month, today.day).difference(last).inDays;
+      if (diff == 0) return;
       if (diff == 1) {
-        _count += 1;
-        _lastOpen = today;
-        increased = true;
-      } else if (diff != 0) {
-        // More than a day has passed or clock was changed.
-        _count = 1;
-        _lastOpen = today;
-        increased = true;
+        streak.value += 1;
+      } else {
+        streak.value = 1;
       }
     }
-
-    final key = today.toIso8601String().split('T').first;
-    _history[key] = _count;
-    final keys = _history.keys.toList()..sort();
-    while (keys.length > 30) {
-      _history.remove(keys.first);
-      keys.removeAt(0);
-    }
-    _increased = increased;
+    _last = DateTime(today.year, today.month, today.day);
     await _save();
-    notifyListeners();
-  }
-
-  Future<void> updateErrorFreeStreak(bool correct) async {
-    final next = correct ? _errorFreeStreak + 1 : 0;
-    if (next == _errorFreeStreak) return;
-    _errorFreeStreak = next;
-    await _save();
+    await _syncToCloud();
     notifyListeners();
   }
 }
