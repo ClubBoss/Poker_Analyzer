@@ -260,6 +260,20 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  List<String> _topTags(TrainingPackTemplate tpl) {
+    final counts = <String, int>{};
+    for (final s in tpl.spots) {
+      for (final tag in s.tags) {
+        final t = tag.trim();
+        if (t.isEmpty) continue;
+        counts[t] = (counts[t] ?? 0) + 1;
+      }
+    }
+    final entries = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return [for (final e in entries.take(3)) e.key];
+  }
+
   Future<void> _showStreetProgress(TrainingPackTemplate tpl) async {
     if (tpl.targetStreet == null || tpl.streetGoal <= 0) return;
     final done = _streetProgress[tpl.id]?.clamp(0, tpl.streetGoal) ?? 0;
@@ -482,6 +496,13 @@ class _TrainingPackTemplateListScreenState
           items.add(Text(
             t.description.split('\n').first,
             style: const TextStyle(fontSize: 12),
+          ));
+        }
+        final tags = _topTags(t);
+        if (tags.isNotEmpty) {
+          items.add(Text(
+            'Tags: ${tags.join(', ')}',
+            style: const TextStyle(fontSize: 12, color: Colors.white70),
           ));
         }
         if (t.lastGeneratedAt != null) {
