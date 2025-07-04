@@ -30,6 +30,7 @@ import '../../widgets/preset_range_buttons.dart';
 import '../training_session_screen.dart';
 import '../../services/training_session_service.dart';
 import '../../helpers/hand_utils.dart';
+import '../../helpers/hand_type_utils.dart';
 import 'training_pack_play_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/mixed_drill_history_service.dart';
@@ -72,6 +73,8 @@ class _TrainingPackTemplateListScreenState
   String? _lastOpenedId;
   final Map<String, int> _progress = {};
   final Map<String, int> _streetProgress = {};
+  final Map<String, int> _handGoalProgress = {};
+  final Map<String, int> _handGoalTotal = {};
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -124,16 +127,36 @@ class _TrainingPackTemplateListScreenState
     final prefs = await SharedPreferences.getInstance();
     final map = <String, int>{};
     final streetMap = <String, int>{};
+    final handMap = <String, int>{};
+    final handTotalMap = <String, int>{};
     for (final t in _templates) {
       final v = prefs.getInt('tpl_prog_${t.id}');
       if (v != null) map[t.id] = v;
       final sv = prefs.getInt('tpl_street_${t.id}');
       if (sv != null) streetMap[t.id] = sv;
+      final hv = prefs.getInt('tpl_hand_${t.id}');
+      if (hv != null) handMap[t.id] = hv;
+      if (t.focusHandTypes.isNotEmpty) {
+        int total = 0;
+        for (final s in t.spots) {
+          final code = handCode(s.hand.heroCards);
+          if (code == null) continue;
+          for (final label in t.focusHandTypes) {
+            if (matchHandTypeLabel(label, code)) {
+              total++;
+              break;
+            }
+          }
+        }
+        handTotalMap[t.id] = total;
+      }
     }
     if (!mounted) return;
     setState(() {
       _progress..clear()..addAll(map);
       _streetProgress..clear()..addAll(streetMap);
+      _handGoalProgress..clear()..addAll(handMap);
+      _handGoalTotal..clear()..addAll(handTotalMap);
     });
     _maybeShowStreetReminder();
     await _maybeShowContinueReminder();
@@ -479,6 +502,24 @@ class _TrainingPackTemplateListScreenState
                 ),
               ),
             ),
+          if (t.focusHandTypes.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  value: _handGoalTotal[t.id] != null && _handGoalTotal[t.id]! > 0
+                      ? (_handGoalProgress[t.id]?.clamp(0, _handGoalTotal[t.id]!) ?? 0) /
+                          _handGoalTotal[t.id]!
+                      : 0,
+                  strokeWidth: 3,
+                  backgroundColor: Colors.white24,
+                  valueColor:
+                      const AlwaysStoppedAnimation(Colors.purpleAccent),
+                ),
+              ),
+            ),
           Expanded(child: Text(t.name)),
           if (isNew)
             const Padding(
@@ -538,6 +579,27 @@ class _TrainingPackTemplateListScreenState
                   style: const TextStyle(fontSize: 12)),
             ],
           ));
+          items.add(const SizedBox(height: 4));
+        }
+        if (t.focusHandTypes.isNotEmpty) {
+          final total = _handGoalTotal[t.id] ?? 0;
+          if (total > 0) {
+            final val =
+                (_handGoalProgress[t.id]?.clamp(0, total) ?? 0) / total;
+            items.add(Row(
+              children: [
+                Expanded(
+                    child: LinearProgressIndicator(
+                        value: val,
+                        color: Colors.purpleAccent,
+                        backgroundColor: Colors.purpleAccent.withOpacity(0.3))),
+                const SizedBox(width: 8),
+                Text('${(val * 100).round()}%',
+                    style: const TextStyle(fontSize: 12)),
+              ],
+            ));
+            items.add(const SizedBox(height: 4));
+          }
         }
         final ratio = t.goalTarget > 0
             ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0)
