@@ -512,6 +512,12 @@ class _TrainingPackTemplateListScreenState
       ),
       subtitle: (() {
         final items = <Widget>[];
+        final pos = t.posRangeLabel();
+        if (pos.isNotEmpty) {
+          items.add(Text(pos,
+              style: const TextStyle(fontSize: 12, color: Colors.white70)));
+          items.add(const SizedBox(height: 4));
+        }
         final progVal =
             total > 0 ? (_progress[t.id]?.clamp(0, total) ?? 0) / total : 0.0;
         final progColor = t.goalAchieved ? Colors.green : Colors.orange;
