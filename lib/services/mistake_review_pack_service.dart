@@ -7,6 +7,7 @@ import 'dart:convert';
 import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import '../models/mistake_pack.dart';
+import '../models/v2/training_pack_template.dart';
 import 'saved_hand_manager_service.dart';
 import 'mistake_pack_cloud_service.dart';
 
@@ -14,6 +15,8 @@ class MistakeReviewPackService extends ChangeNotifier {
   static const _progressKey = 'mistake_review_progress';
   static const _dateKey = 'mistake_review_date';
   static const _packsKey = 'mistake_packs';
+
+  static TrainingPackTemplate? latestTemplate;
 
   final SavedHandManagerService hands;
   final MistakePackCloudService? cloud;
