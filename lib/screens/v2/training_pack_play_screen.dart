@@ -14,6 +14,7 @@ import '../../widgets/common/explanation_text.dart';
 import '../../theme/app_colors.dart';
 import 'training_pack_result_screen.dart';
 import '../../services/streak_service.dart';
+import '../../services/notification_service.dart';
 
 enum PlayOrder { sequential, random, mistakes }
 
@@ -291,6 +292,10 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       _index = _spots.length - 1;
       _save();
       await context.read<StreakService>().onFinish();
+      await NotificationService.cancel(101);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('last_training_day', DateTime.now().toIso8601String().split('T').first);
+      await NotificationService.scheduleDailyReminder();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
