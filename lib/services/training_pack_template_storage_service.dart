@@ -5,13 +5,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/training_pack_template_model.dart';
 import '../repositories/training_pack_template_repository.dart';
 import 'training_pack_cloud_sync_service.dart';
+import 'goal_progress_cloud_service.dart';
 
 class TrainingPackTemplateStorageService extends ChangeNotifier {
   static const _key = 'training_pack_templates';
 
-  TrainingPackTemplateStorageService({this.cloud});
+  TrainingPackTemplateStorageService({this.cloud, this.goals});
 
   final TrainingPackCloudSyncService? cloud;
+  final GoalProgressCloudService? goals;
+
+  final Map<String, Map<String, dynamic>> _goalProgress = {};
+  Map<String, Map<String, dynamic>> get goalProgress =>
+      {for (final e in _goalProgress.entries) e.key: Map.unmodifiable(e.value)};
 
   final List<TrainingPackTemplateModel> _templates = [];
   List<TrainingPackTemplateModel> get templates => List.unmodifiable(_templates);
@@ -26,6 +32,13 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
     if (_templates.isEmpty) {
       _templates.addAll(await TrainingPackTemplateRepository.getAll());
       await _persist();
+    }
+    final list = await goals?.loadGoals() ?? [];
+    for (final g in list) {
+      final tpl = g['templateId'] as String?;
+      final goal = g['goal'] as String?;
+      if (tpl == null || goal == null) continue;
+      _goalProgress.putIfAbsent(tpl, () => {})[goal] = g;
     }
     notifyListeners();
   }
@@ -81,5 +94,25 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
     _templates.clear();
     await _persist();
     notifyListeners();
+  }
+
+  Future<void> saveGoalProgress(
+    String templateId,
+    String goal, {
+    required bool completed,
+    required int attempts,
+    required double accuracy,
+    required DateTime lastTrainedAt,
+  }) async {
+    final data = {
+      'templateId': templateId,
+      'goal': goal,
+      'completed': completed,
+      'attempts': attempts,
+      'accuracy': accuracy,
+      'lastTrainedAt': lastTrainedAt.toIso8601String(),
+    };
+    _goalProgress.putIfAbsent(templateId, () => {})[goal] = data;
+    await goals?.saveGoal(data);
   }
 }
