@@ -20,6 +20,8 @@ import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
 import '../widgets/streak_widget.dart';
+import '../services/training_pack_play_controller.dart';
+import '../widgets/resume_training_card.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
 import 'package:provider/provider.dart';
@@ -60,7 +62,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColors.cardBackground,
-          title: const Text('Daily Goal', style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Daily Goal',
+            style: TextStyle(color: Colors.white),
+          ),
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
@@ -97,8 +102,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   Widget _home() {
+    final ctrl = context.read<TrainingPackPlayController>();
     return Column(
       children: [
+        ValueListenableBuilder<bool>(
+          valueListenable: ctrl.hasIncompleteSession,
+          builder: (_, has, __) => has
+              ? ResumeTrainingCard(controller: ctrl)
+              : const SizedBox.shrink(),
+        ),
         const SpotOfTheDayCard(),
         const StreakChart(),
         const TodayProgressBanner(),
@@ -146,20 +158,26 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poker AI Analyzer'),
-        actions: [StreakWidget(), SyncStatusIcon.of(context),
+        actions: [
+          StreakWidget(),
+          SyncStatusIcon.of(context),
           PopupMenuButton<String>(
             onSelected: (value) {
               switch (value) {
                 case 'settings':
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const SettingsPlaceholderScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const SettingsPlaceholderScreen(),
+                    ),
                   );
                   break;
                 case 'plugins':
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const PluginManagerScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const PluginManagerScreen(),
+                    ),
                   );
                   break;
                 case 'about':
@@ -200,10 +218,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 icon: Icon(Icons.history),
                 label: 'История',
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.flag),
-                label: 'Goal',
-              ),
+              BottomNavigationBarItem(icon: Icon(Icons.flag), label: 'Goal'),
               BottomNavigationBarItem(
                 icon: Icon(Icons.backpack),
                 label: 'My Packs',

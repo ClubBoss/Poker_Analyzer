@@ -43,6 +43,7 @@ import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/drill_history_service.dart';
 import 'services/mixed_drill_history_service.dart';
+import 'services/training_pack_play_controller.dart';
 import 'services/notification_service.dart';
 import 'services/daily_target_service.dart';
 import 'services/daily_tip_service.dart';
@@ -102,8 +103,10 @@ Future<void> main() async {
   final packCloud = TrainingPackCloudSyncService();
   final mistakeCloud = MistakePackCloudService();
   final goalCloud = GoalProgressCloudService();
-  final templateStorage =
-      TrainingPackTemplateStorageService(cloud: packCloud, goals: goalCloud);
+  final templateStorage = TrainingPackTemplateStorageService(
+    cloud: packCloud,
+    goals: goalCloud,
+  );
   await templateStorage.load();
   await packCloud.syncDown(packStorage);
   await packCloud.syncDownTemplates(templateStorage);
@@ -115,15 +118,18 @@ Future<void> main() async {
         Provider<CloudSyncService>.value(value: cloud),
         Provider(create: (_) => CloudTrainingHistoryService()),
         ChangeNotifierProvider(
-          create: (context) =>
-              TrainingSpotStorageService(cloud: context.read<CloudSyncService>()),
+          create: (context) => TrainingSpotStorageService(
+            cloud: context.read<CloudSyncService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) =>
               TrainingStatsService(cloud: context.read<CloudSyncService>())
                 ..load(),
         ),
-        ChangeNotifierProvider(create: (_) => SavedHandStorageService()..load()),
+        ChangeNotifierProvider(
+          create: (_) => SavedHandStorageService()..load(),
+        ),
         ChangeNotifierProvider(
           create: (context) => SavedHandManagerService(
             storage: context.read<SavedHandStorageService>(),
@@ -137,17 +143,17 @@ Future<void> main() async {
             cloud: mistakeCloud,
           )..load(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => SessionNoteService()..load(),
+        ChangeNotifierProvider(create: (_) => SessionNoteService()..load()),
+        ChangeNotifierProvider(create: (_) => SessionPinService()..load()),
+        ChangeNotifierProvider<TrainingPackStorageService>.value(
+          value: packStorage,
         ),
-        ChangeNotifierProvider(
-          create: (_) => SessionPinService()..load(),
-        ),
-        ChangeNotifierProvider<TrainingPackStorageService>.value(value: packStorage),
         Provider<TrainingPackCloudSyncService>.value(value: packCloud),
         Provider<MistakePackCloudService>.value(value: mistakeCloud),
         ChangeNotifierProvider(create: (_) => TemplateStorageService()..load()),
-        ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(value: templateStorage),
+        ChangeNotifierProvider<TrainingPackTemplateStorageService>.value(
+          value: templateStorage,
+        ),
         ChangeNotifierProvider(
           create: (context) => CategoryUsageService(
             templates: context.read<TemplateStorageService>(),
@@ -177,34 +183,34 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => FoldedPlayersService()),
         ChangeNotifierProvider(
           create: (context) => ActionSyncService(
-              foldedPlayers: context.read<FoldedPlayersService>(),
-              allInPlayers: context.read<AllInPlayersService>()),
+            foldedPlayers: context.read<FoldedPlayersService>(),
+            allInPlayers: context.read<AllInPlayersService>(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) {
-            final service =
-                UserPreferencesService(cloud: context.read<CloudSyncService>());
+            final service = UserPreferencesService(
+              cloud: context.read<CloudSyncService>(),
+            );
             UserPreferences.init(service);
             service.load();
             return service;
           },
         ),
-        ChangeNotifierProvider(
-          create: (_) => TagService()..load(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => IgnoredMistakeService()..load(),
-        ),
+        ChangeNotifierProvider(create: (_) => TagService()..load()),
+        ChangeNotifierProvider(create: (_) => IgnoredMistakeService()..load()),
         ChangeNotifierProvider(create: (_) => GoalsService()..load()),
         ChangeNotifierProvider(
-            create: (context) =>
-                StreakService(cloud: context.read<CloudSyncService>())..load()),
+          create: (context) =>
+              StreakService(cloud: context.read<CloudSyncService>())..load(),
+        ),
         ChangeNotifierProvider(
           create: (context) =>
               AchievementEngine(stats: context.read<TrainingStatsService>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => GoalEngine(stats: context.read<TrainingStatsService>()),
+          create: (context) =>
+              GoalEngine(stats: context.read<TrainingStatsService>()),
         ),
         ChangeNotifierProvider(
           create: (context) => ReminderService(
@@ -234,12 +240,17 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider(create: (_) => DrillHistoryService()..load()),
-        ChangeNotifierProvider(create: (_) => MixedDrillHistoryService()..load()),
+        ChangeNotifierProvider(
+          create: (_) => MixedDrillHistoryService()..load(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TrainingPackPlayController()..load(),
+        ),
         ChangeNotifierProvider(create: (_) => TrainingSessionService()..load()),
         ChangeNotifierProvider(
-          create: (context) =>
-              SessionLogService(sessions: context.read<TrainingSessionService>())
-                ..load(),
+          create: (context) => SessionLogService(
+            sessions: context.read<TrainingSessionService>(),
+          )..load(),
         ),
         Provider(create: (_) => EvaluationExecutorService()),
         ChangeNotifierProvider(create: (_) => UserActionLogger()..load()),
@@ -275,8 +286,10 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     }
     if (id == null || ts == 0) return;
     if (DateTime.now()
-        .difference(DateTime.fromMillisecondsSinceEpoch(ts))
-        .inHours > 12) return;
+            .difference(DateTime.fromMillisecondsSinceEpoch(ts))
+            .inHours >
+        12)
+      return;
     final templates = await TrainingPackStorage.load();
     final tpl = templates.firstWhereOrNull((t) => t.id == id);
     if (tpl == null) return;
@@ -340,10 +353,10 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
           scaffoldBackgroundColor: Colors.black,
           textTheme: ThemeData.dark().textTheme.apply(
-                fontFamily: 'Roboto',
-                bodyColor: Colors.white,
-                displayColor: Colors.white,
-              ),
+            fontFamily: 'Roboto',
+            bodyColor: Colors.white,
+            displayColor: Colors.white,
+          ),
         ),
         home: const MainNavigationScreen(),
       ),
