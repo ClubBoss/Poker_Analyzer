@@ -313,6 +313,14 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                   style: const TextStyle(color: Colors.white70),
                 ),
               ),
+            if (widget.template.heroRange != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  widget.template.handTypeSummary(),
+                  style: const TextStyle(color: Colors.white54),
+                ),
+              ),
             Text('Spot ${_index + 1} of ${_spots.length}',
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),

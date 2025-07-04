@@ -3351,6 +3351,12 @@ class _TemplatePreviewCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text('🎯 Focus: ${template.focusTags.join(', ')}'),
               ),
+            if (template.heroRange != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(template.handTypeSummary(),
+                    style: const TextStyle(color: Colors.white70)),
+              ),
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Text('Spots: ${template.spots.length}'),
