@@ -30,6 +30,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   bool _loading = true;
   PlayOrder _order = PlayOrder.sequential;
   int _streetCount = 0;
+  int _handCount = 0;
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     final progKey = 'tpl_prog_${widget.template.id}';
     final resKey = 'tpl_res_${widget.template.id}';
     final streetKey = 'tpl_street_${widget.template.id}';
+    final handKey = 'tpl_hand_${widget.template.id}';
     final seq = prefs.getStringList(seqKey);
     var spots = List<TrainingPackSpot>.from(widget.template.spots);
     if (seq != null && seq.length == spots.length) {
@@ -63,18 +65,27 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       }
     }
     int streetCount = 0;
+    int handCount = 0;
     if (widget.template.targetStreet != null) {
       for (final id in results.keys) {
         final s = spots.firstWhereOrNull((e) => e.id == id);
-        if (s != null && _matchStreet(s)) streetCount++; 
+        if (s != null && _matchStreet(s)) streetCount++;
       }
       streetCount = max(streetCount, prefs.getInt(streetKey) ?? 0);
+    }
+    if (widget.template.focusHandTypes.isNotEmpty) {
+      for (final id in results.keys) {
+        final s = spots.firstWhereOrNull((e) => e.id == id);
+        if (s != null && _matchHandType(s)) handCount++;
+      }
+      handCount = max(handCount, prefs.getInt(handKey) ?? 0);
     }
     setState(() {
       _spots = spots;
       _results = results;
       _index = prefs.getInt(progKey)?.clamp(0, spots.length - 1) ?? 0;
       _streetCount = streetCount;
+      _handCount = handCount;
       _loading = false;
     });
   }
@@ -86,6 +97,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     await prefs.setString('tpl_res_${widget.template.id}', jsonEncode(_results));
     if (widget.template.targetStreet != null) {
       await prefs.setInt('tpl_street_${widget.template.id}', _streetCount);
+    }
+    if (widget.template.focusHandTypes.isNotEmpty) {
+      await prefs.setInt('tpl_hand_${widget.template.id}', _handCount);
     }
     if (ts) {
       await prefs.setInt('tpl_ts_${widget.template.id}', DateTime.now().millisecondsSinceEpoch);
@@ -111,6 +125,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       _spots = spots;
       _index = 0;
       _streetCount = 0;
+      _handCount = 0;
     });
     _save();
   }
@@ -134,6 +149,42 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       }
     }
     return res;
+  }
+
+  bool _matchHandType(TrainingPackSpot spot) {
+    if (widget.template.focusHandTypes.isEmpty) return false;
+    final cards = spot.hand.heroCards.split(RegExp(r'\s+'));
+    if (cards.length < 2) return false;
+    final r1 = cards[0][0];
+    final r2 = cards[1][0];
+    final suited = cards[0][1] == cards[1][1];
+    final ranks = '23456789TJQKA';
+    for (final t in widget.template.focusHandTypes) {
+      switch (t) {
+        case 'AXs':
+          if (suited && (r1 == 'A' || r2 == 'A')) return true;
+          break;
+        case 'KXs':
+          if (suited && (r1 == 'K' || r2 == 'K')) return true;
+          break;
+        case 'QXs':
+          if (suited && (r1 == 'Q' || r2 == 'Q')) return true;
+          break;
+        case 'pairs':
+          if (r1 == r2) return true;
+          break;
+        case 'small pairs':
+          if (r1 == r2 && ranks.indexOf(r1) + 2 <= 6) return true;
+          break;
+        case 'mid pairs':
+          if (r1 == r2 && ranks.indexOf(r1) + 2 > 6 && ranks.indexOf(r1) + 2 <= 10) return true;
+          break;
+        case 'big pairs':
+          if (r1 == r2 && ranks.indexOf(r1) + 2 > 10) return true;
+          break;
+      }
+    }
+    return false;
   }
 
   bool _matchStreet(TrainingPackSpot spot) {
@@ -170,6 +221,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       final first = !_results.containsKey(spot.id);
       _results[spot.id] = act.toLowerCase();
       if (first && _matchStreet(spot)) _streetCount++;
+      if (first && _matchHandType(spot)) _handCount++;
 
       final expected =
           spot.evalResult?.expectedAction ?? _expected(spot) ?? '-';
@@ -281,6 +333,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                   if (widget.template.targetStreet != null) {
                     prefs.remove('tpl_street_${widget.template.id}');
                   }
+                  if (widget.template.focusHandTypes.isNotEmpty) {
+                    prefs.remove('tpl_hand_${widget.template.id}');
+                  }
                   _save(ts: false);
                 }
               } else if (choice is PlayOrder) {
@@ -310,6 +365,14 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   '🎯 Focus: ${widget.template.focusTags.join(', ')}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
+            if (widget.template.focusHandTypes.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  '🎯 Hand Goal: ${widget.template.focusHandTypes.join(', ')}',
                   style: const TextStyle(color: Colors.white70),
                 ),
               ),
