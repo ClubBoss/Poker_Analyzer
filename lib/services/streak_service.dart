@@ -1,6 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+
+import 'cloud_retry_policy.dart';
+import 'cloud_sync_service.dart';
 
 /// Tracks the number of consecutive days the app was opened.
 ///
@@ -9,6 +15,9 @@ import 'dart:convert';
 /// refreshed it compares today's date with the last stored activity date and
 /// updates the counter accordingly.
 class StreakService extends ChangeNotifier {
+  StreakService({this.cloud});
+
+  final CloudSyncService? cloud;
   static const _lastOpenKey = 'streak_last_open';
   static const _countKey = 'streak_count';
   static const _errorKey = 'error_free_streak';
@@ -16,11 +25,16 @@ class StreakService extends ChangeNotifier {
   static const bonusThreshold = 3;
   static const bonusMultiplier = 1.5;
 
+  static const _trainingCountKey = 'training_streak_count';
+  static const _trainingDateKey = 'training_streak_date';
+
   DateTime? _lastOpen;
   int _count = 0;
   bool _increased = false;
   int _errorFreeStreak = 0;
   Map<String, int> _history = {};
+  final ValueNotifier<int> streak = ValueNotifier(0);
+  DateTime? _lastTrainingDate;
 
   int get count => _count;
   bool get hasBonus => _count >= bonusThreshold;
@@ -53,6 +67,32 @@ class StreakService extends ChangeNotifier {
       final data = jsonDecode(raw) as Map<String, dynamic>;
       _history = {for (final e in data.entries) e.key: e.value as int};
     }
+    streak.value = prefs.getInt(_trainingCountKey) ?? 0;
+    final tStr = prefs.getString(_trainingDateKey);
+    _lastTrainingDate = tStr != null ? DateTime.tryParse(tStr) : null;
+    if (_lastTrainingDate != null) {
+      final today = DateTime.now();
+      final last = DateTime(
+          _lastTrainingDate!.year, _lastTrainingDate!.month, _lastTrainingDate!.day);
+      if (today.difference(last).inDays > 1) streak.value = 0;
+    }
+    if (cloud != null && cloud!.uid != null) {
+      try {
+        final doc = await CloudRetryPolicy.execute(() => FirebaseFirestore.instance
+            .collection('users')
+            .doc(cloud!.uid)
+            .collection('stats')
+            .doc('streak')
+            .get());
+        if (doc.exists) {
+          final data = doc.data()!;
+          streak.value = (data['current'] as num?)?.toInt() ?? streak.value;
+          final d = DateTime.tryParse(data['last'] as String? ?? '');
+          if (d != null) _lastTrainingDate = d;
+          await _saveTraining();
+        }
+      } catch (_) {}
+    }
     await updateStreak();
   }
 
@@ -66,6 +106,26 @@ class StreakService extends ChangeNotifier {
     await prefs.setInt(_countKey, _count);
     await prefs.setInt(_errorKey, _errorFreeStreak);
     await prefs.setString(_historyKey, jsonEncode(_history));
+  }
+
+  Future<void> _saveTraining() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_trainingCountKey, streak.value);
+    if (_lastTrainingDate != null) {
+      await prefs.setString(
+          _trainingDateKey, _lastTrainingDate!.toIso8601String());
+    } else {
+      await prefs.remove(_trainingDateKey);
+    }
+    if (cloud != null && cloud!.uid != null) {
+      final data = {
+        'current': streak.value,
+        'last': _lastTrainingDate?.toIso8601String(),
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
+      await cloud!.queueMutation('stats', 'streak', data);
+      unawaited(cloud!.syncUp());
+    }
   }
 
   /// Compares the saved date with today and updates the streak accordingly.
@@ -113,6 +173,26 @@ class StreakService extends ChangeNotifier {
     if (next == _errorFreeStreak) return;
     _errorFreeStreak = next;
     await _save();
+    notifyListeners();
+  }
+
+  Future<void> onFinish() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (_lastTrainingDate != null) {
+      final last = DateTime(
+          _lastTrainingDate!.year, _lastTrainingDate!.month, _lastTrainingDate!.day);
+      final diff = today.difference(last).inDays;
+      if (diff == 1) {
+        streak.value += 1;
+      } else if (diff > 1) {
+        streak.value = 1;
+      }
+    } else {
+      streak.value = 1;
+    }
+    _lastTrainingDate = today;
+    await _saveTraining();
     notifyListeners();
   }
 }

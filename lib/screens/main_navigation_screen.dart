@@ -19,6 +19,7 @@ import '../widgets/spot_of_the_day_card.dart';
 import 'streak_history_screen.dart';
 import '../services/user_action_logger.dart';
 import '../services/daily_target_service.dart';
+import '../widgets/streak_widget.dart';
 import '../theme/app_colors.dart';
 import 'plugin_manager_screen.dart';
 import 'package:provider/provider.dart';
@@ -145,7 +146,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Poker AI Analyzer'),
-        actions: [SyncStatusIcon.of(context), 
+        actions: [const StreakWidget(), SyncStatusIcon.of(context),
           PopupMenuButton<String>(
             onSelected: (value) {
               switch (value) {
