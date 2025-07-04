@@ -136,6 +136,7 @@ class _TrainingPackTemplateListScreenState
       _streetProgress..clear()..addAll(streetMap);
     });
     _maybeShowStreetReminder();
+    _maybeShowContinueReminder();
   }
 
   void _maybeShowStreetReminder() {
@@ -181,6 +182,42 @@ class _TrainingPackTemplateListScreenState
         ),
       ),
     );
+  }
+
+  void _maybeShowContinueReminder() {
+    for (final t in _templates) {
+      final street = t.targetStreet;
+      if (street == null || t.streetGoal <= 0) continue;
+      final val = _streetProgress[t.id];
+      if (val == null) continue;
+      final ratio = val / t.streetGoal;
+      if (ratio >= 0.5 && ratio < 1.0 && !t.goalAchieved) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(days: 1),
+            content: Text('Almost done with ${_streetName(street)} in ${t.name} — Continue?'),
+            action: SnackBarAction(
+              label: 'Continue',
+              onPressed: () async {
+                await _showStreetProgress(t);
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TrainingPackPlayScreen(template: t, original: t),
+                  ),
+                );
+                if (mounted) {
+                  _loadProgress();
+                  _loadGoals();
+                  setState(() {});
+                }
+              },
+            ),
+          ),
+        );
+        break;
+      }
+    }
   }
 
   Future<void> _loadGoals() async {
