@@ -13,6 +13,8 @@ class MistakePackCloudService {
         .collection('mistakes')
         .doc(_uid)
         .collection('packs')
+        .orderBy('createdAt', descending: true)
+        .limit(50)
         .get();
     return [
       for (final d in snap.docs)
