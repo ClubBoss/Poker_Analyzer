@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
+import '../../helpers/hand_utils.dart';
+import '../../helpers/hand_type_utils.dart';
 import '../../theme/app_colors.dart';
 import 'training_pack_play_screen.dart';
 import 'training_pack_template_editor_screen.dart';
@@ -75,6 +78,38 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     final achieved = _correct == _total;
     SharedPreferences.getInstance()
         .then((p) => p.setBool('tpl_goal_${widget.original.id}', achieved));
+    final storage = context.read<TrainingPackTemplateStorageService>();
+    if (widget.original.focusHandTypes.isNotEmpty) {
+      for (final g in widget.original.focusHandTypes) {
+        int attempts = 0;
+        int correct = 0;
+        int total = 0;
+        for (final s in widget.original.spots) {
+          final code = handCode(s.hand.heroCards);
+          if (code != null && matchHandTypeLabel(g.label, code)) {
+            total++;
+            final ans = widget.results[s.id];
+            if (ans != null) {
+              attempts++;
+              final exp = _expected(s);
+              if (exp != null && ans.toLowerCase() == exp.toLowerCase()) {
+                correct++;
+              }
+            }
+          }
+        }
+        final accuracy = attempts > 0 ? correct * 100 / attempts : 0.0;
+        final completed = attempts >= total && total > 0;
+        storage.saveGoalProgress(
+          widget.original.id,
+          g.label,
+          completed: completed,
+          attempts: attempts,
+          accuracy: accuracy,
+          lastTrainedAt: DateTime.now(),
+        );
+      }
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _firstKey.currentContext;
       if (ctx != null) {

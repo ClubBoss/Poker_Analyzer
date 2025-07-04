@@ -16,6 +16,7 @@ import 'services/training_pack_storage_service.dart';
 import 'services/training_pack_cloud_sync_service.dart';
 import 'services/template_storage_service.dart';
 import 'services/training_pack_template_storage_service.dart';
+import 'services/goal_progress_cloud_service.dart';
 import 'services/daily_hand_service.dart';
 import 'services/spot_of_the_day_service.dart';
 import 'services/action_sync_service.dart';
@@ -95,7 +96,9 @@ Future<void> main() async {
   final packStorage = TrainingPackStorageService(cloud: cloud);
   await packStorage.load();
   final packCloud = TrainingPackCloudSyncService();
-  final templateStorage = TrainingPackTemplateStorageService(cloud: packCloud);
+  final goalCloud = GoalProgressCloudService();
+  final templateStorage =
+      TrainingPackTemplateStorageService(cloud: packCloud, goals: goalCloud);
   await templateStorage.load();
   await packCloud.syncDown(packStorage);
   await packCloud.syncDownTemplates(templateStorage);
