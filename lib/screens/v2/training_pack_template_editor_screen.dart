@@ -2653,7 +2653,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     message: 'Invert Selection (Ctrl + I)',
                     child: TextButton(
                       onPressed: _invertSelection,
-                      child: const Text('Invert (Ctrl + I)'),
+                      child: const Text('Invert Selection (Ctrl + I)'),
                     ),
                   ),
                   const SizedBox(width: 12),

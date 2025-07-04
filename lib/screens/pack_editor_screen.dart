@@ -2299,7 +2299,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   ),
                   PopupMenuButton<String>(
                     onSelected: (v) {
-                      if (v == 'all' || v == 'all_shortcut') {
+                      if (v == 'all') {
                         _toggleSelectAll();
                       } else if (v == 'rename') {
                         _showRenameDialog();
@@ -2309,7 +2309,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                     },
                     itemBuilder: (_) => const [
                       PopupMenuItem(value: 'rename', child: Text('Rename…')),
-                      PopupMenuItem(value: 'all_shortcut', child: Text('Select All (Ctrl + A)')),
+                      PopupMenuItem(value: 'all', child: Text('Select All (Ctrl + A)')),
                       PopupMenuItem(value: 'none', child: Text('Select None')),
                     ],
                   ),
