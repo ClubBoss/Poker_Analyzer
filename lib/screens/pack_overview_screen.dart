@@ -30,6 +30,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
   final _searchController = TextEditingController();
   final _sort = PackSortController();
   final Set<String> _selectedIds = {};
+  final FocusNode _focusNode = FocusNode();
   bool get _selectionMode => _selectedIds.isNotEmpty;
 
   void _reconcileSelection(Set<String> ids) {
@@ -84,6 +85,7 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     _filter.dispose();
     _sort.dispose();
     _searchController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -163,6 +165,26 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
         ..clear()
         ..addAll(newSel);
     });
+  }
+
+  bool _onKey(FocusNode _, RawKeyEvent e, Set<String> visible) {
+    if (e is! RawKeyDownEvent) return false;
+    final isCmd = e.isControlPressed || e.isMetaPressed;
+    switch (e.logicalKey.keyLabel.toLowerCase()) {
+      case 'a':
+        if (isCmd) {
+          _toggleSelectAll(visible);
+          return true;
+        }
+        break;
+      case 'i':
+        if (isCmd) {
+          _invertSelection(visible);
+          return true;
+        }
+        break;
+    }
+    return false;
   }
 
   Future<void> _deleteSelected() async {
@@ -343,7 +365,13 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     }
     _reconcileSelection({for (final p in packs) p.id});
     final avg = _calcAverage(packs);
-    return Scaffold(
+    return Focus(
+      autofocus: true,
+      focusNode: _focusNode,
+      onKey: (n, e) => _onKey(n, e, {for (final p in packs) p.id})
+          ? KeyEventResult.handled
+          : KeyEventResult.ignored,
+      child: Scaffold(
       appBar: AppBar(
         leading: _selectionMode
             ? IconButton(icon: const Icon(Icons.close), onPressed: _clearSelection)
