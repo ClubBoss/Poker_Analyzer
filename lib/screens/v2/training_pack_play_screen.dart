@@ -295,7 +295,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       await NotificationService.cancel(101);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('last_training_day', DateTime.now().toIso8601String().split('T').first);
-      await NotificationService.scheduleDailyReminder();
+      await NotificationService.scheduleDailyReminder(context);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

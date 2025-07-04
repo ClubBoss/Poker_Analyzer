@@ -15,13 +15,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   @override
   void initState() {
     super.initState();
-    NotificationService.getReminderTime().then((t) => setState(() => _time = t));
+    NotificationService.getReminderTime(context)
+        .then((t) => setState(() => _time = t));
   }
 
   Future<void> _pick() async {
     final picked = await showTimePicker(context: context, initialTime: _time);
     if (picked != null) {
-      await NotificationService.updateReminderTime(picked);
+      await NotificationService.updateReminderTime(context, picked);
       if (mounted) setState(() => _time = picked);
     }
   }
