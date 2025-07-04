@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/training_pack.dart';
+import '../models/training_pack_template_model.dart';
 import 'training_pack_storage_service.dart';
+import 'training_pack_template_storage_service.dart';
 
 class TrainingPackCloudSyncService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -74,5 +76,55 @@ class TrainingPackCloudSyncService {
   void cancelWatch() {
     _sub?.cancel();
     _sub = null;
+  }
+
+  Future<List<TrainingPackTemplateModel>> loadTemplates() async {
+    if (_uid == null) return [];
+    final snap = await _db
+        .collection('packs')
+        .doc(_uid)
+        .collection('templates')
+        .get();
+    return [
+      for (final d in snap.docs)
+        TrainingPackTemplateModel.fromJson({...d.data(), 'id': d.id})
+    ];
+  }
+
+  Future<void> saveTemplate(TrainingPackTemplateModel tpl) async {
+    if (_uid == null) return;
+    await _db
+        .collection('packs')
+        .doc(_uid)
+        .collection('templates')
+        .doc(tpl.id)
+        .set(tpl.toJson());
+  }
+
+  Future<void> deleteTemplate(String id) async {
+    if (_uid == null) return;
+    await _db
+        .collection('packs')
+        .doc(_uid)
+        .collection('templates')
+        .doc(id)
+        .delete();
+  }
+
+  Future<void> syncDownTemplates(
+      TrainingPackTemplateStorageService storage) async {
+    final remote = await loadTemplates();
+    storage.merge(remote);
+    await storage.saveAll();
+  }
+
+  Future<void> syncUpTemplates(TrainingPackTemplateStorageService storage) async {
+    if (_uid == null) return;
+    final col = _db.collection('packs').doc(_uid).collection('templates');
+    final batch = _db.batch();
+    for (final t in storage.templates) {
+      batch.set(col.doc(t.id), t.toJson());
+    }
+    await batch.commit();
   }
 }
