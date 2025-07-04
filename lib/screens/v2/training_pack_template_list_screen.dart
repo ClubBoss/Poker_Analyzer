@@ -347,6 +347,17 @@ class _TrainingPackTemplateListScreenState
     await prefs.setBool(_prefsMixedHandKey, _mixedHandGoalOnly);
   }
 
+  Future<void> _clearMixedPrefs() async {
+    setState(() {
+      _mixedCount = 20;
+      _mixedStreet = 'any';
+      _mixedAutoOnly = false;
+      _mixedHandGoalOnly = false;
+      _endlessDrill = false;
+    });
+    await _saveMixedPrefs();
+  }
+
   String _streetLabel(String? street) {
     switch (street) {
       case 'preflop':
@@ -2575,17 +2586,27 @@ class _TrainingPackTemplateListScreenState
           ),
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: InkWell(
-              onTap: _runMixedDrill,
-              behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Text.rich(
-                  TextSpan(text: _mixedSummary()),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: _runMixedDrill,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Text.rich(
+                      TextSpan(text: _mixedSummary()),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 12, color: Colors.white70),
+                    ),
+                  ),
                 ),
-              ),
+                IconButton(
+                  icon: const Icon(Icons.clear),
+                  tooltip: 'Clear',
+                  onPressed: _clearMixedPrefs,
+                ),
+              ],
             ),
           ),
           if (_mixedLastRun != null)
