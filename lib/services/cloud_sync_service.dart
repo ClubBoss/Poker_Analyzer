@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'cloud_retry_policy.dart';
+
 class CloudSyncService {
   CloudSyncService();
 
@@ -88,21 +90,23 @@ class CloudSyncService {
       return;
     }
     try {
-      final user = _db.collection('users').doc(uid);
-      for (final col in ['training_spots', 'training_stats', 'preferences']) {
-        final snap = await user.collection(col).doc('main').get();
-        if (!snap.exists) continue;
-        final remote = snap.data()!;
-        final localStr = _prefs.getString('cached_$col');
-        final local = localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
-        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-        if (remoteAt.isAfter(localAt)) {
-          await _prefs.setString('cached_$col', jsonEncode(remote));
+      await CloudRetryPolicy.execute<void>(() async {
+        final user = _db.collection('users').doc(uid);
+        for (final col in ['training_spots', 'training_stats', 'preferences']) {
+          final snap = await user.collection(col).doc('main').get();
+          if (!snap.exists) continue;
+          final remote = snap.data()!;
+          final localStr = _prefs.getString('cached_$col');
+          final local = localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
+          final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+          if (remoteAt.isAfter(localAt)) {
+            await _prefs.setString('cached_$col', jsonEncode(remote));
+          }
         }
-      }
-      final ts = _prefs.getString('last_sync');
-      if (ts != null) lastSync.value = DateTime.tryParse(ts);
+        final ts = _prefs.getString('last_sync');
+        if (ts != null) lastSync.value = DateTime.tryParse(ts);
+      });
     } catch (_) {
       progress.value = -1;
       return;

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'cloud_retry_policy.dart';
+
 import '../models/training_pack.dart';
 import '../models/training_pack_template_model.dart';
 import 'training_pack_storage_service.dart';
@@ -120,11 +122,13 @@ class TrainingPackCloudSyncService {
 
   Future<void> syncUpTemplates(TrainingPackTemplateStorageService storage) async {
     if (_uid == null) return;
-    final col = _db.collection('packs').doc(_uid).collection('templates');
-    final batch = _db.batch();
-    for (final t in storage.templates) {
-      batch.set(col.doc(t.id), t.toJson());
-    }
-    await batch.commit();
+    await CloudRetryPolicy.execute<void>(() async {
+      final col = _db.collection('packs').doc(_uid).collection('templates');
+      final batch = _db.batch();
+      for (final t in storage.templates) {
+        batch.set(col.doc(t.id), t.toJson());
+      }
+      await batch.commit();
+    });
   }
 }

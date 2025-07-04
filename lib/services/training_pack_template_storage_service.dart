@@ -113,6 +113,6 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
       'lastTrainedAt': lastTrainedAt.toIso8601String(),
     };
     _goalProgress.putIfAbsent(templateId, () => {})[goal] = data;
-    await goals?.saveGoal(data);
+    await goals?.saveProgress(data);
   }
 }
