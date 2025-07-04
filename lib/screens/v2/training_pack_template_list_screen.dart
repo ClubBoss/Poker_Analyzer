@@ -70,6 +70,7 @@ class _TrainingPackTemplateListScreenState
   bool _mixedAutoOnly = false;
   bool _endlessDrill = false;
   String _mixedStreet = 'any';
+  bool _mixedHandGoalOnly = false;
   String? _lastOpenedId;
   final Map<String, int> _progress = {};
   final Map<String, int> _streetProgress = {};
@@ -1842,6 +1843,7 @@ class _TrainingPackTemplateListScreenState
     bool autoOnly = _mixedAutoOnly;
     bool endless = _endlessDrill;
     String street = _mixedStreet;
+    bool handOnly = _mixedHandGoalOnly;
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -1876,6 +1878,11 @@ class _TrainingPackTemplateListScreenState
                 onChanged: (v) => setState(() => endless = v ?? false),
                 title: const Text('Endless Drill'),
               ),
+              CheckboxListTile(
+                value: handOnly,
+                onChanged: (v) => setState(() => handOnly = v ?? false),
+                title: const Text('Hand Goal only'),
+              ),
             ],
           ),
           actions: [
@@ -1896,6 +1903,7 @@ class _TrainingPackTemplateListScreenState
     _mixedAutoOnly = autoOnly;
     _endlessDrill = endless;
     _mixedStreet = street;
+    _mixedHandGoalOnly = handOnly;
     await _runMixedDrill();
   }
 
@@ -1931,21 +1939,33 @@ class _TrainingPackTemplateListScreenState
           ];
     final list =
         autoOnly ? [for (final t in shown) if (t.tags.contains('auto')) t] : shown;
-    final spots = <TrainingPackSpot>[
-      for (final t in list)
-        for (final s in t.spots)
-          if (_mixedStreet == 'any')
-            s
-          else
-            {
-              'preflop': 0,
-              'flop': 3,
-              'turn': 4,
-              'river': 5
-            }[_mixedStreet] == s.hand.board.length
-                ? s
-                : null
-        ].whereType<TrainingPackSpot>().toList();
+    final spots = <TrainingPackSpot>[];
+    for (final t in list) {
+      for (final s in t.spots) {
+        if (_mixedStreet != 'any') {
+          final idx = {
+            'preflop': 0,
+            'flop': 3,
+            'turn': 4,
+            'river': 5
+          }[_mixedStreet];
+          if (idx != s.hand.board.length) continue;
+        }
+        if (_mixedHandGoalOnly && t.focusHandTypes.isNotEmpty) {
+          final code = handCode(s.hand.heroCards);
+          if (code == null) continue;
+          var ok = false;
+          for (final label in t.focusHandTypes) {
+            if (matchHandTypeLabel(label, code)) {
+              ok = true;
+              break;
+            }
+          }
+          if (!ok) continue;
+        }
+        spots.add(s);
+      }
+    }
     if (spots.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context)
