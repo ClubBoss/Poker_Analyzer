@@ -1,6 +1,7 @@
 // lib/main.dart
 
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -54,6 +55,7 @@ import 'services/category_usage_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
+import 'services/remote_config_service.dart';
 import 'widgets/sync_status_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
@@ -82,10 +84,11 @@ Future<void> main() async {
   }
   pluginManager.initializeAll(registry);
   final auth = AuthService();
+  final rc = RemoteConfigService();
   if (!CloudSyncService.isLocal) {
     await Firebase.initializeApp();
     await NotificationService.init();
-    await NotificationService.scheduleDailyReminder();
+    await rc.load();
     if (!auth.isSignedIn) {
       final uid = await auth.signInAnonymously();
       if (uid != null) {
@@ -115,6 +118,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthService>.value(value: auth),
+        ChangeNotifierProvider<RemoteConfigService>.value(value: rc),
         Provider<CloudSyncService>.value(value: cloud),
         Provider(create: (_) => CloudTrainingHistoryService()),
         ChangeNotifierProvider(
@@ -332,6 +336,7 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     super.initState();
     _sync = ConnectivitySyncController(cloud: context.read<CloudSyncService>());
     context.read<UserActionLogger>().log('opened_app');
+    unawaited(NotificationService.scheduleDailyReminder(context));
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeResumeTraining());
   }
 
