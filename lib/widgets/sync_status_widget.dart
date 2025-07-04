@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/connectivity_sync_controller.dart';
 import '../services/cloud_sync_service.dart';
+import '../main.dart';
 
 class SyncStatusIcon extends InheritedWidget {
   const SyncStatusIcon({required this.icon, required super.child, super.key});
@@ -27,6 +28,7 @@ class SyncStatusWidget extends StatefulWidget {
 
 class _SyncStatusWidgetState extends State<SyncStatusWidget> {
   late IconData _icon;
+  bool _showing = false;
 
   @override
   void initState() {
@@ -35,6 +37,7 @@ class _SyncStatusWidgetState extends State<SyncStatusWidget> {
     widget.sync.online.addListener(_update);
     widget.cloud.progress.addListener(_update);
     widget.cloud.lastSync.addListener(_update);
+    widget.cloud.syncMessage.addListener(_onMessage);
     _update();
   }
 
@@ -52,11 +55,30 @@ class _SyncStatusWidgetState extends State<SyncStatusWidget> {
     });
   }
 
+  void _onMessage() {
+    final msg = widget.cloud.syncMessage.value;
+    if (msg == null || _showing) return;
+    final ctx = navigatorKey.currentState?.context;
+    if (ctx == null || !ctx.mounted) return;
+    _showing = true;
+    ScaffoldMessenger.of(ctx)
+        .showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        )
+        .closed
+        .then((_) => _showing = false);
+  }
+
   @override
   void dispose() {
     widget.sync.online.removeListener(_update);
     widget.cloud.progress.removeListener(_update);
     widget.cloud.lastSync.removeListener(_update);
+    widget.cloud.syncMessage.removeListener(_onMessage);
     super.dispose();
   }
 
