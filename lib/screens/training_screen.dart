@@ -6,6 +6,7 @@ import '../models/saved_hand.dart';
 import '../models/action_entry.dart';
 import '../models/drill_result.dart';
 import '../services/drill_history_service.dart';
+import '../services/mistake_review_pack_service.dart';
 import 'package:provider/provider.dart';
 import '../widgets/training_spot_diagram.dart';
 import '../widgets/training_spot_preview.dart';
@@ -235,6 +236,11 @@ class _TrainingScreenState extends State<TrainingScreen> {
       wrongSpotIds: [for (final id in _wrongIds) if (id.isNotEmpty) id],
     );
     await context.read<DrillHistoryService>().add(result);
+    if (_wrongIds.isNotEmpty) {
+      await context
+          .read<MistakeReviewPackService>()
+          .addPack([for (final id in _wrongIds) if (id.isNotEmpty) id]);
+    }
     if (!mounted) return;
     if (repeat == true && widget.templateId != null) {
       final templates = await TrainingPackStorage.load();
