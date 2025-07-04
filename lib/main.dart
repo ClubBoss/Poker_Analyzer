@@ -56,6 +56,7 @@ import 'services/category_usage_service.dart';
 import 'user_preferences.dart';
 import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
+import 'services/mistake_streak_service.dart';
 import 'services/remote_config_service.dart';
 import 'services/ab_test_engine.dart';
 import 'widgets/sync_status_widget.dart';
@@ -152,6 +153,9 @@ Future<void> main() async {
             hands: context.read<SavedHandManagerService>(),
             cloud: mistakeCloud,
           )..load(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MistakeStreakService()..load(),
         ),
         ChangeNotifierProvider(create: (_) => SessionNoteService()..load()),
         ChangeNotifierProvider(create: (_) => SessionPinService()..load()),

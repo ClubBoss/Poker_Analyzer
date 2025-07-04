@@ -12,9 +12,25 @@ import '../services/saved_hand_manager_service.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../widgets/saved_hand_tile.dart';
 import '../widgets/sync_status_widget.dart';
+import '../services/mistake_review_pack_service.dart';
+import '../services/mistake_streak_service.dart';
 
-class MistakeRepeatScreen extends StatelessWidget {
+class MistakeRepeatScreen extends StatefulWidget {
   const MistakeRepeatScreen({super.key});
+
+  @override
+  State<MistakeRepeatScreen> createState() => _MistakeRepeatScreenState();
+}
+
+class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    final progress = context.read<MistakeReviewPackService>().progress;
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => context.read<MistakeStreakService>().update(progress));
+  }
 
   Map<String, List<SavedHand>> _groupMistakes(List<SavedHand> hands) {
     final Map<String, List<SavedHand>> grouped = {};
@@ -166,13 +182,14 @@ class MistakeRepeatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
     final grouped = _groupMistakes(hands);
+    final streak = context.watch<MistakeStreakService>().count;
 
     final entries = grouped.entries
         .where((e) => e.value.length > 1)
         .toList()
       ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
-    final body = entries.isEmpty
+    final list = entries.isEmpty
         ? const Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -248,6 +265,25 @@ class MistakeRepeatScreen extends StatelessWidget {
               );
             },
           );
+
+    final body = Column(
+      children: [
+        if (streak > 0)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                const Icon(Icons.local_fire_department, color: Colors.orange),
+                const SizedBox(width: 8),
+                Text('Streak: $streak',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        Expanded(child: list),
+      ],
+    );
 
     return Scaffold(
       appBar: AppBar(
