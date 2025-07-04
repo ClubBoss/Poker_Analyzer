@@ -578,6 +578,12 @@ class _TrainingPackTemplateListScreenState
             style: const TextStyle(fontSize: 12, color: Colors.white70),
           ));
         }
+        if (t.focusHandTypes.isNotEmpty) {
+          items.add(Text(
+            '🃏 Hand Goal: ${t.focusHandTypes.join(', ')}',
+            style: const TextStyle(fontSize: 12, color: Colors.white70),
+          ));
+        }
         if (t.lastGeneratedAt != null) {
           items.add(Text(
             'Last generated: ${timeago.format(t.lastGeneratedAt!)}',
