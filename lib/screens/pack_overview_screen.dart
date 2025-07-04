@@ -13,6 +13,7 @@ import '../helpers/poker_street_helper.dart';
 import '../services/pack_sort_controller.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
+import '../widgets/selectable_list_item.dart';
 import 'pack_editor_screen.dart';
 import 'training_pack_screen.dart';
 
@@ -27,6 +28,8 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
   final _filter = PackFilterController();
   final _searchController = TextEditingController();
   final _sort = PackSortController();
+  final Set<String> _selectedIds = {};
+  bool get _selectionMode => _selectedIds.isNotEmpty;
 
   double _calcAverage(List<TrainingPack> packs) {
     var sum = 0.0;
@@ -114,6 +117,47 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
       context,
       MaterialPageRoute(builder: (_) => PackEditorScreen(pack: copy)),
     );
+  }
+
+  void _toggleSelection(String id) {
+    setState(() {
+      if (_selectedIds.remove(id)) {
+        if (_selectedIds.isEmpty) _selectedIds.clear();
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() => _selectedIds.clear());
+  }
+
+  Future<void> _deleteSelected() async {
+    final service = context.read<TrainingPackStorageService>();
+    final list = [for (final p in service.packs) if (_selectedIds.contains(p.id)) p];
+    for (final p in list) {
+      await _deletePack(p);
+    }
+    if (mounted) _clearSelection();
+  }
+
+  Future<void> _exportSelected() async {
+    final service = context.read<TrainingPackStorageService>();
+    final list = [for (final p in service.packs) if (_selectedIds.contains(p.id)) p];
+    for (final p in list) {
+      await _exportPack(p);
+    }
+    if (mounted) _clearSelection();
+  }
+
+  Future<void> _shareSelected() async {
+    final service = context.read<TrainingPackStorageService>();
+    final list = [for (final p in service.packs) if (_selectedIds.contains(p.id)) p];
+    for (final p in list) {
+      await _sharePack(p);
+    }
+    if (mounted) _clearSelection();
   }
 
   Future<void> _deletePack(TrainingPack pack) async {
@@ -237,31 +281,38 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
     final avg = _calcAverage(packs);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Packs'),
+        leading: _selectionMode
+            ? IconButton(icon: const Icon(Icons.close), onPressed: _clearSelection)
+            : null,
+        title: _selectionMode
+            ? Text('${_selectedIds.length}')
+            : const Text('My Packs'),
         centerTitle: true,
-        actions: [
-          ValueListenableBuilder(
-            valueListenable: _sort,
-            builder: (context, sort, _) => DropdownButton<PackSort>(
-              value: sort,
-              underline: const SizedBox.shrink(),
-              icon: const Icon(Icons.sort, color: Colors.white),
-              dropdownColor: AppColors.cardBackground,
-              onChanged: (v) => v == null ? null : _sort.setSort(v),
-              items: const [
-                DropdownMenuItem(
-                    value: PackSort.nameAsc, child: Text('A-Z')),
-                DropdownMenuItem(
-                    value: PackSort.lastPlayed, child: Text('Последний запуск')),
-                DropdownMenuItem(
-                    value: PackSort.difficulty, child: Text('Сложность')),
-                DropdownMenuItem(
-                    value: PackSort.updatedDesc, child: Text('Обновлено')),
+        actions: _selectionMode
+            ? [
+                IconButton(onPressed: _deleteSelected, icon: const Icon(Icons.delete)),
+                IconButton(onPressed: _exportSelected, icon: const Icon(Icons.upload_file)),
+                IconButton(onPressed: _shareSelected, icon: const Icon(Icons.share)),
+              ]
+            : [
+                ValueListenableBuilder(
+                  valueListenable: _sort,
+                  builder: (context, sort, _) => DropdownButton<PackSort>(
+                    value: sort,
+                    underline: const SizedBox.shrink(),
+                    icon: const Icon(Icons.sort, color: Colors.white),
+                    dropdownColor: AppColors.cardBackground,
+                    onChanged: (v) => v == null ? null : _sort.setSort(v),
+                    items: const [
+                      DropdownMenuItem(value: PackSort.nameAsc, child: Text('A-Z')),
+                      DropdownMenuItem(value: PackSort.lastPlayed, child: Text('Последний запуск')),
+                      DropdownMenuItem(value: PackSort.difficulty, child: Text('Сложность')),
+                      DropdownMenuItem(value: PackSort.updatedDesc, child: Text('Обновлено')),
+                    ],
+                  ),
+                ),
+                SyncStatusIcon.of(context)
               ],
-            ),
-          ),
-          SyncStatusIcon.of(context)
-        ],
       ),
       body: Column(
         children: [
@@ -338,40 +389,46 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                   final color = p.colorTag.isEmpty ? Colors.white24 : colorFromHex(p.colorTag);
                   final progress = p.pctComplete;
                   final date = p.lastAttempted > 0 ? formatDate(p.lastAttemptDate) : '-';
-                  return GestureDetector(
-                    onLongPress: () => _showMenu(p),
+                  final selected = _selectedIds.contains(p.id);
+                  final selection = _selectionMode;
+                  return SelectableListItem(
+                    selectionMode: selection,
+                    selected: selected,
+                    onTap: selection
+                        ? () => _toggleSelection(p.id)
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: p)),
+                            );
+                          },
+                    onLongPress: () => _toggleSelection(p.id),
                     child: ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => TrainingPackScreen(pack: p)),
-                      );
-                    },
-                    leading: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                    ),
-                    title: Text(p.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            backgroundColor: Colors.white24,
-                            valueColor: AlwaysStoppedAnimation<Color>(color),
-                            minHeight: 6,
+                      leading: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                      ),
+                      title: Text(p.name),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              backgroundColor: Colors.white24,
+                              valueColor: AlwaysStoppedAnimation<Color>(color),
+                              minHeight: 6,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text('Последняя: $date',
-                            style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                      ],
+                          const SizedBox(height: 4),
+                          Text('Последняя: $date',
+                              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        ],
+                      ),
                     ),
-                  ),
-                );
+                  );
                 },
               ),
             ),
