@@ -8,6 +8,8 @@ import '../helpers/date_utils.dart';
 import '../models/training_pack.dart';
 import '../services/training_pack_cloud_sync_service.dart';
 import '../services/training_pack_storage_service.dart';
+import '../services/pack_filter_controller.dart';
+import '../helpers/poker_street_helper.dart';
 import '../theme/app_colors.dart';
 import '../widgets/sync_status_widget.dart';
 import 'pack_editor_screen.dart';
@@ -21,6 +23,8 @@ class PackOverviewScreen extends StatefulWidget {
 }
 
 class _PackOverviewScreenState extends State<PackOverviewScreen> {
+  final _filter = PackFilterController();
+  final _searchController = TextEditingController();
 
   double _calcAverage(List<TrainingPack> packs) {
     var sum = 0.0;
@@ -38,6 +42,15 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
   @override
   void initState() {
     super.initState();
+    _filter.load().then((_) {
+      _searchController.text = _filter.query.value;
+      _filter.query.addListener(() {
+        if (_searchController.text != _filter.query.value) {
+          _searchController.text = _filter.query.value;
+        }
+      });
+      if (mounted) setState(() {});
+    });
     final storage = context.read<TrainingPackStorageService>();
     context
         .read<TrainingPackCloudSyncService>()
@@ -50,6 +63,8 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
   @override
   void dispose() {
     context.read<TrainingPackCloudSyncService>().cancelWatch();
+    _filter.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -178,12 +193,28 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final packs = context
+    final all = context
         .watch<TrainingPackStorageService>()
         .packs
         .where((p) => !p.isBuiltIn)
         .toList()
       ..sort((a, b) => a.name.compareTo(b.name));
+    final categories = {for (final p in all) p.category};
+    List<TrainingPack> packs = all.where((p) {
+      final q = _filter.query.value.trim().toLowerCase();
+      if (q.isNotEmpty && !p.name.toLowerCase().contains(q)) return false;
+      if (_filter.categories.isNotEmpty && !_filter.categories.contains(p.category)) {
+        return false;
+      }
+      if (_filter.difficulties.isNotEmpty && !_filter.difficulties.contains(p.difficulty)) {
+        return false;
+      }
+      if (_filter.streets.isNotEmpty) {
+        final streets = {for (final h in p.hands) streetName(h.boardStreet)};
+        if (!_filter.streets.every(streets.contains)) return false;
+      }
+      return true;
+    }).toList();
     final avg = _calcAverage(packs);
     return Scaffold(
       appBar: AppBar(
@@ -206,6 +237,50 @@ class _PackOverviewScreenState extends State<PackOverviewScreen> {
                 Text('Паков: ${packs.length}', style: const TextStyle(color: Colors.white)),
                 Text('Средняя точность: ${avg.toStringAsFixed(1)}%',
                     style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(hintText: 'Поиск'),
+              onChanged: _filter.setQuery,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                for (final c in categories)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: FilterChip(
+                      label: Text(c),
+                      selected: _filter.categories.contains(c),
+                      onSelected: (_) => setState(() => _filter.toggleCategory(c)),
+                    ),
+                  ),
+                for (final s in kStreetNames)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: FilterChip(
+                      label: Text(s),
+                      selected: _filter.streets.contains(s),
+                      onSelected: (_) => setState(() => _filter.toggleStreet(s)),
+                    ),
+                  ),
+                for (final d in [1, 2, 3])
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: FilterChip(
+                      label: Text('D$d'),
+                      selected: _filter.difficulties.contains(d),
+                      onSelected: (_) => setState(() => _filter.toggleDifficulty(d)),
+                    ),
+                  ),
               ],
             ),
           ),
