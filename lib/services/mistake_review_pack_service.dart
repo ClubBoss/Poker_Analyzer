@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
 
 import '../models/training_pack.dart';
@@ -16,6 +17,7 @@ class MistakeReviewPackService extends ChangeNotifier {
 
   final SavedHandManagerService hands;
   final MistakePackCloudService? cloud;
+  Box<dynamic>? _box;
 
   final List<MistakePack> _packs = [];
   List<MistakePack> get packs => List.unmodifiable(_packs);
@@ -50,6 +52,12 @@ class MistakeReviewPackService extends ChangeNotifier {
       a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> load() async {
+    if (!Hive.isBoxOpen('mistake_packs')) {
+      await Hive.initFlutter();
+      _box = await Hive.openBox('mistake_packs');
+    } else {
+      _box = Hive.box('mistake_packs');
+    }
     final prefs = await SharedPreferences.getInstance();
     _progress = prefs.getInt(_progressKey) ?? 0;
     final str = prefs.getString(_dateKey);
@@ -140,6 +148,12 @@ class MistakeReviewPackService extends ChangeNotifier {
       if (p.createdAt.isBefore(cutoff)) {
         await cloud!.deletePack(p.id);
         _packs.remove(p);
+        // cleanup orphaned cached entries
+        try {
+          await SharedPreferences.getInstance()
+              .then((prefs) => prefs.remove('mistake_pack_${p.id}'));
+          if (_box != null) await _box!.delete('mistake_pack_${p.id}');
+        } catch (_) {}
       }
     }
     await _save();
