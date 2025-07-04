@@ -135,9 +135,9 @@ class MistakeReviewPackService extends ChangeNotifier {
   Future<void> syncUp() async {
     if (cloud == null) return;
     _trim();
-    final now = DateTime.now();
+    final cutoff = DateTime.now().subtract(const Duration(days: 30));
     for (final p in List<MistakePack>.from(_packs)) {
-      if (now.difference(p.createdAt).inDays > 30) {
+      if (p.createdAt.isBefore(cutoff)) {
         await cloud!.deletePack(p.id);
         _packs.remove(p);
       }

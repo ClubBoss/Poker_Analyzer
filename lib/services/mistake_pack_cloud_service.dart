@@ -36,13 +36,16 @@ class MistakePackCloudService {
         _db.collection('mistakes').doc(_uid).collection('packs').doc(id).delete());
   }
 
-  Future<void> deletePack(String id) async {
+  Future<void> deleteOlderThan(DateTime cutoff) async {
     if (_uid == null) return;
-    await _db
-        .collection('mistakes')
-        .doc(_uid)
-        .collection('packs')
-        .doc(id)
-        .delete();
+    await CloudRetryPolicy.execute<void>(() async {
+      final col = _db.collection('mistakes').doc(_uid).collection('packs');
+      final snap = await col.where('createdAt', isLessThan: cutoff.toIso8601String()).get();
+      final batch = _db.batch();
+      for (final d in snap.docs) {
+        batch.delete(col.doc(d.id));
+      }
+      await batch.commit();
+    });
   }
 }
