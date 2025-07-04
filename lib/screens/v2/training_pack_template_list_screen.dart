@@ -136,10 +136,11 @@ class _TrainingPackTemplateListScreenState
       _streetProgress..clear()..addAll(streetMap);
     });
     _maybeShowStreetReminder();
-    _maybeShowContinueReminder();
+    await _maybeShowContinueReminder();
   }
 
   void _maybeShowStreetReminder() {
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
     final byStreet = <String, List<double>>{};
     for (final t in _templates) {
       final s = t.targetStreet;
@@ -174,9 +175,10 @@ class _TrainingPackTemplateListScreenState
               ),
             );
             if (mounted) {
-              _loadProgress();
+              await _loadProgress();
               _loadGoals();
               setState(() {});
+              await _maybeShowContinueReminder();
             }
           },
         ),
@@ -184,7 +186,12 @@ class _TrainingPackTemplateListScreenState
     );
   }
 
-  void _maybeShowContinueReminder() {
+  Future<void> _maybeShowContinueReminder() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ts = prefs.getInt('tpl_continue_last');
+    if (ts != null && DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(ts)).inHours < 24) {
+      return;
+    }
     for (final t in _templates) {
       final street = t.targetStreet;
       if (street == null || t.streetGoal <= 0) continue;
@@ -192,12 +199,13 @@ class _TrainingPackTemplateListScreenState
       if (val == null) continue;
       final ratio = val / t.streetGoal;
       if (ratio >= 0.5 && ratio < 1.0 && !t.goalAchieved) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             duration: const Duration(days: 1),
-            content: Text('Almost done with ${_streetName(street)} in ${t.name} — Continue?'),
+            content: Text('${_streetName(street)} почти закрыт в ${t.name} — доиграем?'),
             action: SnackBarAction(
-              label: 'Continue',
+              label: 'Продолжить',
               onPressed: () async {
                 await _showStreetProgress(t);
                 await Navigator.push(
@@ -207,14 +215,16 @@ class _TrainingPackTemplateListScreenState
                   ),
                 );
                 if (mounted) {
-                  _loadProgress();
+                  await _loadProgress();
                   _loadGoals();
                   setState(() {});
+                  await _maybeShowContinueReminder();
                 }
               },
             ),
           ),
         );
+        await prefs.setInt('tpl_continue_last', DateTime.now().millisecondsSinceEpoch);
         break;
       }
     }
@@ -388,7 +398,21 @@ class _TrainingPackTemplateListScreenState
       list.add(t);
     }
     if (list.isEmpty) return null;
-    street ??= (() {
+    if (street != null) {
+      TrainingPackTemplate? result;
+      double ratio = 2;
+      for (final t in list) {
+        final total = t.spots.length;
+        if (total == 0) continue;
+        final r = (_progress[t.id]?.clamp(0, total) ?? 0) / total;
+        if (r < ratio) {
+          ratio = r;
+          result = t;
+        }
+      }
+      return result;
+    }
+    street = (() {
       final byStreet = <String, List<TrainingPackTemplate>>{};
       for (final t in list) {
         byStreet.putIfAbsent(t.targetStreet!, () => []).add(t);
@@ -581,9 +605,10 @@ class _TrainingPackTemplateListScreenState
                 ),
               );
               if (mounted) {
-                _loadProgress();
+                await _loadProgress();
                 _loadGoals();
                 setState(() {});
+                await _maybeShowContinueReminder();
               }
             },
           ),
@@ -667,14 +692,14 @@ class _TrainingPackTemplateListScreenState
     super.initState();
     _searchCtrl = TextEditingController();
     _loading = true;
-    TrainingPackStorage.load().then((list) {
+    TrainingPackStorage.load().then((list) async {
       if (!mounted) return;
       setState(() {
         _templates.addAll(list);
         _sortTemplates();
         _loading = false;
       });
-      _loadProgress();
+      await _loadProgress();
       _loadGoals();
       setState(() {});
       _loadHideCompleted();
@@ -2088,9 +2113,10 @@ class _TrainingPackTemplateListScreenState
                                 ),
                               );
                               if (mounted) {
-                                _loadProgress();
+                                await _loadProgress();
                                 _loadGoals();
                                 setState(() {});
+                                await _maybeShowContinueReminder();
                               }
                             },
                           ),
@@ -2145,9 +2171,10 @@ class _TrainingPackTemplateListScreenState
                               ),
                             );
                             if (mounted) {
-                              _loadProgress();
+                              await _loadProgress();
                               _loadGoals();
                               setState(() {});
+                              await _maybeShowContinueReminder();
                             }
                           },
                           child: const Text('Start Training'),
