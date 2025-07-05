@@ -584,7 +584,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Future<void> _checkClipboard() async {
     final data = await Clipboard.getData('text/plain');
-    final show = containsPokerHistoryMarkers(data?.text ?? '');
+    final txt = data?.text?.trim() ?? '';
+    final show = containsPokerHistoryMarkers(txt);
     if (show != _showPasteBubble) setState(() => _showPasteBubble = show);
   }
 
