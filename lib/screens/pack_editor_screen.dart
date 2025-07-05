@@ -27,6 +27,20 @@ import '../widgets/snapshot_manager_dialog.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
 import '../services/room_hand_history_importer.dart';
 
+bool _containsPokerHistoryMarkers(String text) {
+  final lower = text.toLowerCase();
+  const markers = [
+    '*** hole cards ***',
+    'pokerstars',
+    'hand #',
+    'pokertracker',
+    'карманные карты',
+    'раздача #',
+    'рука #',
+  ];
+  return markers.any(lower.contains);
+}
+
 enum _SortOption { newest, oldest, position, tags, mistakes }
 
 enum _MistakeFilter { any, zero, oneTwo, threePlus }
@@ -188,17 +202,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   Future<void> _checkClipboard() async {
     final data = await Clipboard.getData('text/plain');
     final txt = data?.text?.trim() ?? '';
-    final lower = txt.toLowerCase();
-    const markers = [
-      '*** hole cards ***',
-      'pokerstars',
-      'hand #',
-      'pokertracker',
-      'карманные карты',
-      'раздача #',
-      'рука #'
-    ];
-    final show = markers.any(lower.contains);
+    final show = _containsPokerHistoryMarkers(txt);
     if (show != _showPasteBubble) {
       setState(() => _showPasteBubble = show);
     }
