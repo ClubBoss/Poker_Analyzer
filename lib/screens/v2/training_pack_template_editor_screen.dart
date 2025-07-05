@@ -105,6 +105,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _filterOutdated = false;
   bool _filterEvCovered = false;
   bool _changedOnly = false;
+  bool _duplicatesOnly = false;
   final FocusNode _focusNode = FocusNode();
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
@@ -116,6 +117,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsSortKey = 'sort_mode';
   static const _prefsScrollKey = 'tmpl_scroll';
   static const _prefsSortModeKey = 'templateSortMode';
+  static const _prefsDupOnlyKey = 'dup_only';
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
@@ -166,6 +168,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     prefs.setDouble(_prefsScrollKey, _scrollCtrl.offset);
   }
 
+  void _storeDupOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_prefsDupOnlyKey, _duplicatesOnly);
+  }
+
   Set<String> _templateRange() {
     final set = <String>{};
     for (final s in widget.template.spots) {
@@ -189,10 +196,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   List<TrainingPackSpot> _visibleSpots() {
-    final changed = _changedOnly
-        ? _history.history.map((e) => e.id).toSet()
-        : null;
-    return widget.template.spots.where((s) {
+    final base = _duplicatesOnly
+        ? [for (final s in widget.template.spots) if (_isDup(s)) s]
+        : widget.template.spots;
+    final changed =
+        _changedOnly ? _history.history.map((e) => e.id).toSet() : null;
+    return base.where((s) {
       if (_pinnedOnly && !s.pinned) return false;
       final res = s.evalResult;
       if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
@@ -808,6 +817,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final sortStr = prefs.getString(_prefsSortKey);
       final sortMode = prefs.getString(_prefsSortModeKey);
       final offset = prefs.getDouble(_prefsScrollKey) ?? 0;
+      final dupOnly = prefs.getBool(_prefsDupOnlyKey) ?? false;
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
         final parts = rangeStr.split(',');
@@ -837,6 +847,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _tagFilter = tag?.isEmpty ?? true ? null : tag;
           _quickFilter = quick?.isEmpty ?? true ? null : quick;
           _sortBy = sort;
+          _duplicatesOnly = dupOnly;
           if (sortMode != null) _sortSpots();
           });
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1963,6 +1974,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (FocusManager.instance.primaryFocus?.context?.widget is EditableText) {
       return false;
     }
+    if (e.logicalKey == LogicalKeyboardKey.keyD && e.isAltPressed) {
+      setState(() {
+        _duplicatesOnly = !_duplicatesOnly;
+        _storeDupOnly();
+      });
+      return true;
+    }
     final isCmd = e.isControlPressed || e.isMetaPressed;
     if (!isCmd) return false;
     if (e.logicalKey == LogicalKeyboardKey.keyA) {
@@ -2208,6 +2226,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
       _showDupHint = false;
     });
+    if (_duplicatesOnly) _duplicatesOnly = false;
     _persist();
     setState(() => _selectedSpotIds.clear());
     setState(() => _history.log('Deleted', '${removed.length} spots', ''));
@@ -2266,6 +2285,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
       _showDupHint = false;
     });
+    if (_duplicatesOnly) _duplicatesOnly = false;
     _persist();
     setState(() => _selectedSpotIds.clear());
     setState(() => _history.log('Deleted', '${removed.length} spots', ''));
@@ -2962,6 +2982,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             icon: const Icon(Icons.copy_all),
             tooltip: "Find Duplicates",
             onPressed: _findDuplicateSpots,
+          ),
+          IconButton(
+            icon: Icon(Icons.copy_all,
+                color: _duplicatesOnly ? AppColors.accent : null),
+            tooltip: 'Duplicates Only',
+            onPressed: () {
+              setState(() => _duplicatesOnly = !_duplicatesOnly);
+              _storeDupOnly();
+            },
           ),
           IconButton(icon: const Text('⚙️ Settings'), onPressed: _showTemplateSettings),
           PopupMenuButton<String>(
