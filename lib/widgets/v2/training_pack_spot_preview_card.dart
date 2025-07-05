@@ -9,6 +9,7 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
   final VoidCallback? onHandEdited;
   final ValueChanged<String>? onTagTap;
   final VoidCallback? onDuplicate;
+  final VoidCallback? onNewTap;
   final Color? titleColor;
   final bool isMistake;
   const TrainingPackSpotPreviewCard({
@@ -17,6 +18,7 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
     this.onHandEdited,
     this.onTagTap,
     this.onDuplicate,
+    this.onNewTap,
     this.titleColor,
     this.isMistake = false,
   });
@@ -141,6 +143,15 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (spot.isNew)
+                        Tooltip(
+                          message: 'New',
+                          child: InkWell(
+                            onTap: onNewTap,
+                            child: const Icon(Icons.fiber_new,
+                                color: Colors.orangeAccent),
+                          ),
+                        ),
                       if (spot.hand.playerCount > 2)
                         Container(
                           margin: const EdgeInsets.only(right: 8),

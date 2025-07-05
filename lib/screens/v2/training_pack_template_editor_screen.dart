@@ -504,8 +504,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {
       widget.template.spots.addAll(spots);
       if (_autoSortEv) _sortSpots();
+      for (final s in spots) s.isNew = true;
       _showImportIndicator = true;
       _showPasteBubble = false;
+    });
+    Future.delayed(const Duration(seconds: 30), () {
+      if (!mounted) return;
+      var changed = false;
+      for (final s in spots) {
+        if (s.isNew) {
+          s.isNew = false;
+          changed = true;
+        }
+      }
+      if (changed) setState(() {});
     });
     _importTimer?.cancel();
     _importTimer = Timer(const Duration(seconds: 2), () {
@@ -1674,6 +1686,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           s.tags.add(tag);
           _history.log('Tagged', s.title, s.id);
         }
+        s.isNew = false;
       }
     });
     await _persist();
@@ -1796,6 +1809,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
         if (_autoSortEv) _sortSpots();
       }
+      for (final s in spots) s.isNew = false;
     });
     await _persist();
     if (ids == null) setState(() => _selectedSpotIds.clear());
@@ -1850,6 +1864,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (ok ?? false) {
       _recordSnapshot();
       _lastRemoved = widget.template.spots.where((s) => _selectedSpotIds.contains(s.id)).toList();
+      for (final s in _lastRemoved!) s.isNew = false;
       setState(() {
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
         _selectedSpotIds.clear();
@@ -1886,6 +1901,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ..clear()
           ..addAll(allIds);
       }
+    });
+  }
+
+  void _selectAllNew() {
+    setState(() {
+      _selectedSpotIds
+        ..clear()
+        ..addAll([
+          for (final s in widget.template.spots)
+            if (s.isNew) s.id
+        ]);
     });
   }
 
@@ -3466,6 +3492,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                         _persist();
                                         _focusSpot(copy.id);
                                       },
+                                      onNewTap: _selectAllNew,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
