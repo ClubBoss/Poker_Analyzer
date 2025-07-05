@@ -497,6 +497,15 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     setState(() => _showPasteBubble = false);
   }
 
+  Future<void> _clearClipboard() async {
+    await Clipboard.setData(const ClipboardData(text: ''));
+    if (!mounted) return;
+    setState(() => _showPasteBubble = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Clipboard cleared')),
+    );
+  }
+
   Future<void> _previewHand(SavedHand hand) async {
     await showSavedHandViewerDialog(context, hand);
   }
@@ -2884,11 +2893,21 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             if (_showPasteBubble)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: FloatingActionButton.extended(
-                  heroTag: 'pasteBubble',
-                  mini: true,
-                  onPressed: _importFromClipboard,
-                  label: const Text('Paste Hands'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FloatingActionButton.extended(
+                      heroTag: 'pasteBubble',
+                      mini: true,
+                      onPressed: _importFromClipboard,
+                      label: const Text('Paste Hands'),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: _clearClipboard,
+                      icon: const Icon(Icons.delete_outline, color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
             if (!_selectionMode)
