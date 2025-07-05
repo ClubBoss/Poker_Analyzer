@@ -10,6 +10,8 @@ import 'package:archive/archive.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
+import '../../utils/clipboard_hh_detector.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
@@ -121,6 +123,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _generatingAll = false;
   bool _generatingIcm = false;
   bool _cancelRequested = false;
+  bool _showPasteBubble = false;
+  Timer? _clipboardTimer;
+  bool _showImportIndicator = false;
+  Timer? _importTimer;
+  List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
@@ -476,6 +483,109 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() => _log('Added', spot));
   }
 
+  Future<void> _importFromClipboardSpots() async {
+    final data = await Clipboard.getData('text/plain');
+    final text = data?.text?.trim() ?? '';
+    if (text.isEmpty) return;
+    final importer = await RoomHandHistoryImporter.create();
+    final hands = importer.parse(text);
+    if (hands.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Не удалось распознать раздачи')));
+      }
+      return;
+    }
+    _recordSnapshot();
+    _pasteUndo = [for (final s in widget.template.spots) TrainingPackSpot.fromJson(s.toJson())];
+    final spots = [for (final h in hands) _spotFromHand(h)];
+    setState(() {
+      widget.template.spots.addAll(spots);
+      if (_autoSortEv) _sortSpots();
+      _showImportIndicator = true;
+      _showPasteBubble = false;
+    });
+    _importTimer?.cancel();
+    _importTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _showImportIndicator = false);
+    });
+    await _persist();
+    for (final s in spots) _log('Added', s);
+    final addedIds = [for (final s in spots) s.id];
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Imported ${spots.length} spots'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            if (_pasteUndo != null) {
+              setState(() {
+                widget.template.spots
+                  ..clear()
+                  ..addAll(_pasteUndo!);
+                if (_autoSortEv) _sortSpots();
+              });
+              _persist();
+            }
+          },
+        ),
+      ),
+    );
+    if (addedIds.isNotEmpty) {
+      await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.grey[900],
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (ctx) => SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.label, color: Colors.white),
+                title: const Text('Add Tag', style: TextStyle(color: Colors.white)),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await _bulkAddTag(addedIds);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.drive_file_move, color: Colors.white),
+                title: const Text('Move to Pack', style: TextStyle(color: Colors.white)),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await _bulkTransfer(true, addedIds);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.close, color: Colors.white),
+                title: const Text('Skip', style: TextStyle(color: Colors.white)),
+                onTap: () => Navigator.pop(ctx),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (spots.length <= 3) {
+      await showSpotViewerDialog(context, spots.first);
+    }
+  }
+
+  Future<void> _clearClipboard() async {
+    await Clipboard.setData(const ClipboardData(text: ''));
+    if (!mounted) return;
+    setState(() => _showPasteBubble = false);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Clipboard cleared')));
+  }
+
+  Future<void> _checkClipboard() async {
+    final data = await Clipboard.getData('text/plain');
+    final show = containsPokerHistoryMarkers(data?.text ?? '');
+    if (show != _showPasteBubble) setState(() => _showPasteBubble = show);
+  }
+
   Future<void> _addPackTag() async {
     final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
@@ -642,6 +752,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _history = UndoRedoService(eventsLimit: 50);
     _history.record(widget.template.spots);
     _scrollCtrl.addListener(_storeScroll);
+    _clipboardTimer ??=
+        Timer.periodic(const Duration(seconds: 2), (_) => _checkClipboard());
+    _checkClipboard();
     SharedPreferences.getInstance().then((prefs) {
       final auto = prefs.getBool(_prefsAutoSortKey) ?? false;
       final filter = prefs.getString(_prefsEvFilterKey) ?? 'all';
@@ -711,6 +824,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _tagSearchCtrl.dispose();
     _scrollCtrl.dispose();
     _focusNode.dispose();
+    _clipboardTimer?.cancel();
+    _importTimer?.cancel();
     super.dispose();
   }
 
@@ -1508,7 +1623,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
-  Future<void> _bulkAddTag() async {
+  Future<void> _bulkAddTag([List<String>? ids]) async {
     final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
     final tag = await showDialog<String>(
@@ -1547,8 +1662,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     c.dispose();
     if (tag == null || tag.isEmpty) return;
+    final targets = ids ?? _selectedSpotIds.toList();
+    if (targets.isEmpty) return;
     setState(() {
-      for (final id in _selectedSpotIds) {
+      for (final id in targets) {
         final s = widget.template.spots.firstWhere((e) => e.id == id);
         if (!s.tags.contains(tag)) {
           s.tags.add(tag);
@@ -1557,7 +1674,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     });
     await _persist();
-    setState(() => _selectedSpotIds.clear());
+    if (ids == null) setState(() => _selectedSpotIds.clear());
   }
 
   Future<void> _bulkRemoveTag() async {
@@ -1633,7 +1750,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
-  Future<void> _bulkTransfer(bool move) async {
+  Future<void> _bulkTransfer(bool move, [List<String>? ids]) async {
     final targets = [for (final t in widget.templates) if (t.id != widget.template.id) t];
     if (targets.isEmpty) return;
     TrainingPackTemplate? selected = targets.first;
@@ -1656,7 +1773,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ),
     );
     if (dest == null) return;
-    final spots = [for (final s in widget.template.spots) if (_selectedSpotIds.contains(s.id)) s];
+    final spots = [
+      for (final s in widget.template.spots)
+        if ((ids ?? _selectedSpotIds).contains(s.id)) s
+    ];
     if (spots.isEmpty) return;
     final copies = [
       for (final s in spots)
@@ -1675,7 +1795,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     });
     await _persist();
-    setState(() => _selectedSpotIds.clear());
+    if (ids == null) setState(() => _selectedSpotIds.clear());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${move ? 'Moved' : 'Copied'} ${copies.length} spot(s)')),
     );
@@ -1788,6 +1908,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     if (e.logicalKey == LogicalKeyboardKey.backspace) {
       _bulkDelete();
+      return true;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyV) {
+      _importFromClipboardSpots();
       return true;
     }
     return false;
@@ -2592,6 +2716,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                if (_showPasteBubble) ...[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FloatingActionButton.extended(
+                        heroTag: 'tmplPasteBubble',
+                        mini: true,
+                        onPressed: _importFromClipboardSpots,
+                        label: const Text('Paste Hands'),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.white),
+                        onPressed: _clearClipboard,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 if (narrow)
                   FloatingActionButton(
                     heroTag: 'filterSpotFab',
@@ -2701,9 +2844,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             )
           : null,
       body: hasSpots
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
+          ? Stack(
+              children: [
+                if (_showImportIndicator)
+                  const Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: LinearProgressIndicator(
+                      value: 1,
+                      color: Colors.green,
+                      backgroundColor: Colors.transparent,
+                      minHeight: 4,
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
             _CoverageProgress(
@@ -3451,11 +3608,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             ],
           ),
         ),
-      )
-          : Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+        )
+            : Stack(
                 children: [
+                  if (_showImportIndicator)
+                    const Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: LinearProgressIndicator(
+                        value: 1,
+                        color: Colors.green,
+                        backgroundColor: Colors.transparent,
+                        minHeight: 4,
+                      ),
+                    ),
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                   const Icon(Icons.lightbulb_outline, size: 96, color: Colors.grey),
                   const SizedBox(height: 16),
                   const Text(
