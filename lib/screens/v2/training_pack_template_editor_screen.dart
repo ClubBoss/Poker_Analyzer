@@ -2890,9 +2890,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             : null,
         title: _isMultiSelect
             ? Text('${_selectedSpotIds.length} selected')
-            : GestureDetector(
-                onTap: _renameTemplate,
-                child: Text(_templateName),
+            : Row(
+                children: [
+                  GestureDetector(
+                    onTap: _renameTemplate,
+                    child: Text(_templateName),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '$totalSpots spots',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(color: Colors.white70),
+                  ),
+                ],
               ),
         actions: [
           DropdownButton<GameType>(
