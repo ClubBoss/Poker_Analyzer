@@ -66,7 +66,7 @@ class TrainingPackSpot {
             DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
         pinned: j['pinned'] == true,
         dirty: j['dirty'] == true,
-        isNew: j['isNew'] == true,
+        isNew: false,
         evalResult: j['evalResult'] != null
             ? EvaluationResult.fromJson(
                 Map<String, dynamic>.from(j['evalResult']))
@@ -82,7 +82,6 @@ class TrainingPackSpot {
         'editedAt': editedAt.toIso8601String(),
         if (pinned) 'pinned': true,
         if (dirty) 'dirty': true,
-        if (isNew) 'isNew': true,
         if (evalResult != null) 'evalResult': evalResult!.toJson(),
       };
 
