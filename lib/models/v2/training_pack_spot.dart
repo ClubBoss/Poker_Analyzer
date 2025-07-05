@@ -11,7 +11,7 @@ class TrainingPackSpot {
   DateTime editedAt;
   bool pinned;
   bool dirty;
-  bool isNew;
+  bool isNew = false;
   EvaluationResult? evalResult;
 
   TrainingPackSpot({
@@ -23,9 +23,10 @@ class TrainingPackSpot {
     DateTime? editedAt,
     this.pinned = false,
     this.dirty = false,
-    this.isNew = false,
+    bool? isNew,
     this.evalResult,
-  })  : hand = hand ?? HandData(),
+  })  : isNew = isNew ?? false,
+        hand = hand ?? HandData(),
         tags = tags ?? [],
         editedAt = editedAt ?? DateTime.now();
 
