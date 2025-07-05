@@ -413,6 +413,19 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (confirm != true) return;
     final before = _hands.length;
     await _addHands(parsed);
+    for (final h in _hands.skip(before)) h.isNew = true;
+    setState(() {});
+    Future.delayed(const Duration(seconds: 30), () {
+      if (!mounted) return;
+      bool changed = false;
+      for (final hand in _hands) {
+        if (hand.isNew) {
+          hand.isNew = false;
+          changed = true;
+        }
+      }
+      if (changed) setState(() {});
+    });
     if (!mounted) return;
     final added = _hands.length - before;
     final addedIds = [for (final h in _hands.skip(before)) h.name];
@@ -661,6 +674,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           _hands[idx] = h.copyWith(tags: set.toList());
           _modified = true;
         }
+        h.isNew = false;
       }
       _rebuildStats();
     });
@@ -677,6 +691,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             _modified = true;
           }
         }
+        h.isNew = false;
       }
       _rebuildStats();
     });
@@ -876,6 +891,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           _modified = true;
         }
       }
+      for (final h in list) h.isNew = false;
       if (ids == null) _selected.clear();
       _rebuildStats();
     });
@@ -1022,6 +1038,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         }
         _modified = true;
       }
+      for (final h in selected) h.isNew = false;
       if (ids == null) _selected.clear();
     });
     service.applyDiff(pack, added: toAdd);
@@ -3117,6 +3134,11 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                       title: Row(
                         children: [
                           Expanded(child: Text(title)),
+                          if (hand.isNew)
+                            const Tooltip(
+                              message: 'New',
+                              child: Icon(Icons.fiber_new, color: Colors.orangeAccent),
+                            ),
                           PopupMenuButton<String>(
                             padding: EdgeInsets.zero,
                             onSelected: (p) async {

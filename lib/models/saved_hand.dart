@@ -52,6 +52,7 @@ class SavedHand {
   final int? tagsCursor;
   final bool isFavorite;
   final bool isDuplicate;
+  bool isNew;
   final int sessionId;
   final DateTime savedAt;
   final DateTime date;
@@ -117,6 +118,7 @@ class SavedHand {
     this.tagsCursor,
     this.isFavorite = false,
     this.isDuplicate = false,
+    this.isNew = false,
     this.sessionId = 0,
     DateTime? savedAt,
     DateTime? date,
@@ -180,6 +182,7 @@ class SavedHand {
     int? tagsCursor,
     bool? isFavorite,
     bool? isDuplicate,
+    bool? isNew,
     DateTime? savedAt,
     DateTime? date,
     String? expectedAction,
@@ -244,6 +247,7 @@ class SavedHand {
       tagsCursor: tagsCursor ?? this.tagsCursor,
       isFavorite: isFavorite ?? this.isFavorite,
       isDuplicate: isDuplicate ?? this.isDuplicate,
+      isNew: isNew ?? this.isNew,
       sessionId: sessionId ?? this.sessionId,
       savedAt: savedAt ?? this.savedAt,
       date: date ?? this.date,
@@ -591,6 +595,7 @@ class SavedHand {
       tagsCursor: tagsCursor,
       isFavorite: isFavorite,
       isDuplicate: isDuplicate,
+      isNew: false,
       savedAt: savedAt,
       date: date,
       expectedAction: json['expectedAction'] as String?,
