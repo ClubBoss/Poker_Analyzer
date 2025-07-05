@@ -185,7 +185,17 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   Future<void> _checkClipboard() async {
     final data = await Clipboard.getData('text/plain');
     final txt = data?.text?.trim() ?? '';
-    final show = txt.length > 100;
+    final lower = txt.toLowerCase();
+    const markers = [
+      '*** hole cards ***',
+      'pokerstars',
+      'hand #',
+      'pokertracker',
+      'карманные карты',
+      'раздача #',
+      'рука #'
+    ];
+    final show = markers.any(lower.contains);
     if (show != _showPasteBubble) {
       setState(() => _showPasteBubble = show);
     }
