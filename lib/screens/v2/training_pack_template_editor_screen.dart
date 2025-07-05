@@ -2881,6 +2881,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ? KeyEventResult.handled
               : KeyEventResult.ignored,
           child: Scaffold(
+      // вычисляем число видимых спотов один раз
+      final int visibleCount = _visibleSpots().length;
+
       appBar: AppBar(
         leading: _isMultiSelect
             ? IconButton(
@@ -2898,7 +2901,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   ),
                   const Spacer(),
                   Text(
-                    '$totalSpots spots',
+                    '$visibleCount spots',
                     style: Theme.of(context)
                         .textTheme
                         .labelMedium
