@@ -106,6 +106,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _filterEvCovered = false;
   bool _changedOnly = false;
   bool _duplicatesOnly = false;
+  bool _newOnly = false;
   final FocusNode _focusNode = FocusNode();
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
@@ -119,6 +120,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsSortModeKey = 'templateSortMode';
   static const _prefsDupOnlyKey = 'dup_only';
   static const _prefsPinnedOnlyKey = 'pinned_only';
+  static const _prefsNewOnlyKey = 'new_only';
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
@@ -179,6 +181,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     prefs.setBool(_prefsPinnedOnlyKey, _pinnedOnly);
   }
 
+  void _storeNewOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_prefsNewOnlyKey, _newOnly);
+  }
+
   Set<String> _templateRange() {
     final set = <String>{};
     for (final s in widget.template.spots) {
@@ -202,9 +209,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   List<TrainingPackSpot> _visibleSpots() {
-    final base = _duplicatesOnly
-        ? [for (final s in widget.template.spots) if (_isDup(s)) s]
-        : widget.template.spots;
+    final base = _newOnly
+        ? [for (final s in widget.template.spots) if (s.isNew) s]
+        : _duplicatesOnly
+            ? [for (final s in widget.template.spots) if (_isDup(s)) s]
+            : widget.template.spots;
     final changed =
         _changedOnly ? _history.history.map((e) => e.id).toSet() : null;
     return base.where((s) {
@@ -545,7 +554,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           changed = true;
         }
       }
-      if (changed) setState(() {});
+      if (_newOnly && widget.template.spots.every((s) => !s.isNew)) {
+        setState(() => _newOnly = false);
+        _storeNewOnly();
+      } else if (changed) {
+        setState(() {});
+      }
     });
     _importTimer?.cancel();
     _importTimer = Timer(const Duration(seconds: 2), () {
@@ -825,6 +839,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final offset = prefs.getDouble(_prefsScrollKey) ?? 0;
       final dupOnly = prefs.getBool(_prefsDupOnlyKey) ?? false;
       final pinnedOnly = prefs.getBool(_prefsPinnedOnlyKey) ?? false;
+      final newOnly = prefs.getBool(_prefsNewOnlyKey) ?? false;
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
         final parts = rangeStr.split(',');
@@ -856,6 +871,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _sortBy = sort;
           _duplicatesOnly = dupOnly;
           _pinnedOnly = pinnedOnly;
+          _newOnly = newOnly;
           if (sortMode != null) _sortSpots();
           });
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1738,6 +1754,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
     });
     await _persist();
+    if (_newOnly && widget.template.spots.every((s) => !s.isNew)) {
+      setState(() => _newOnly = false);
+      _storeNewOnly();
+    }
     if (ids == null) setState(() => _selectedSpotIds.clear());
   }
 
@@ -1866,6 +1886,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       for (final s in spots) s.isNew = false;
     });
     await _persist();
+    if (_newOnly && widget.template.spots.every((s) => !s.isNew)) {
+      setState(() => _newOnly = false);
+      _storeNewOnly();
+    }
     if (ids == null) setState(() => _selectedSpotIds.clear());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${move ? 'Moved' : 'Copied'} ${copies.length} spot(s)')),
@@ -1925,6 +1949,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         if (_autoSortEv) _sortSpots();
       });
       _persist();
+      if (_newOnly && widget.template.spots.every((s) => !s.isNew)) {
+        setState(() => _newOnly = false);
+        _storeNewOnly();
+      }
       setState(() =>
           _history.log('Deleted', '${_lastRemoved!.length} spots', ''));
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1992,6 +2020,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       setState(() {
         _pinnedOnly = !_pinnedOnly;
         _storePinnedOnly();
+      });
+      return true;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyN && e.isAltPressed) {
+      setState(() {
+        _newOnly = !_newOnly;
+        _storeNewOnly();
       });
       return true;
     }
@@ -3000,6 +3035,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             onPressed: () {
               setState(() => _pinnedOnly = !_pinnedOnly);
               _storePinnedOnly();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.fiber_new, color: _newOnly ? AppColors.accent : null),
+            tooltip: 'New Only',
+            onPressed: () {
+              setState(() => _newOnly = !_newOnly);
+              _storeNewOnly();
             },
           ),
           IconButton(
