@@ -1,6 +1,6 @@
 // Registry for converter plug-ins.
 
-import 'package:poker_ai_analyzer/models/saved_hand.dart';
+import 'package:poker_analyzer/models/saved_hand.dart';
 
 import 'converter_plugin.dart';
 import 'converter_info.dart';

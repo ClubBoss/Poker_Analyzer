@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/models/card_model.dart';
-import 'package:poker_ai_analyzer/models/training_spot.dart';
-import 'package:poker_ai_analyzer/widgets/eval_result_view.dart';
+import 'package:poker_analyzer/models/card_model.dart';
+import 'package:poker_analyzer/models/training_spot.dart';
+import 'package:poker_analyzer/widgets/eval_result_view.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

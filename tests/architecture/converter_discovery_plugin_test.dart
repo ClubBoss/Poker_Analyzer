@@ -1,11 +1,11 @@
 import 'package:test/test.dart';
-import 'package:poker_ai_analyzer/plugins/converter_discovery_plugin.dart';
-import 'package:poker_ai_analyzer/plugins/converter_plugin.dart';
-import 'package:poker_ai_analyzer/plugins/converter_registry.dart';
-import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
-import 'package:poker_ai_analyzer/plugins/plugin_loader.dart';
-import 'package:poker_ai_analyzer/services/service_registry.dart';
-import 'package:poker_ai_analyzer/models/saved_hand.dart';
+import 'package:poker_analyzer/plugins/converter_discovery_plugin.dart';
+import 'package:poker_analyzer/plugins/converter_plugin.dart';
+import 'package:poker_analyzer/plugins/converter_registry.dart';
+import 'package:poker_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_analyzer/plugins/plugin_loader.dart';
+import 'package:poker_analyzer/services/service_registry.dart';
+import 'package:poker_analyzer/models/saved_hand.dart';
 
 class _DummyConverter implements ConverterPlugin {
   _DummyConverter(this.id);

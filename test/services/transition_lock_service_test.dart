@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
-import 'package:poker_ai_analyzer/services/transition_lock_service.dart';
+import 'package:poker_analyzer/services/transition_lock_service.dart';
 
 class _MockWidget extends StatefulWidget {
   const _MockWidget();

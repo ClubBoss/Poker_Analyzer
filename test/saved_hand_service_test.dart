@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:poker_ai_analyzer/services/saved_hand_storage_service.dart';
-import 'package:poker_ai_analyzer/models/saved_hand.dart';
-import 'package:poker_ai_analyzer/models/card_model.dart';
-import 'package:poker_ai_analyzer/models/action_entry.dart';
-import 'package:poker_ai_analyzer/models/player_model.dart';
+import 'package:poker_analyzer/services/saved_hand_storage_service.dart';
+import 'package:poker_analyzer/models/saved_hand.dart';
+import 'package:poker_analyzer/models/card_model.dart';
+import 'package:poker_analyzer/models/action_entry.dart';
+import 'package:poker_analyzer/models/player_model.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +23,7 @@ void main() {
         []
       ],
       boardCards: [],
+      boardStreet: 0,
       actions: [ActionEntry(0, 0, 'call')],
       stackSizes: {0: 100, 1: 100},
       playerPositions: {0: 'BTN', 1: 'BB'},

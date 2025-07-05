@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../converter_format_capabilities.dart';
 import '../converter_plugin.dart';
-import 'package:poker_ai_analyzer/models/saved_hand.dart';
+import 'package:poker_analyzer/models/saved_hand.dart';
 
 /// Converter for Poker Analyzer's native JSON hand format.
 class PokerAnalyzerJsonConverter extends ConverterPlugin {

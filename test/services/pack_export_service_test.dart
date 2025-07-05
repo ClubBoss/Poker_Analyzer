@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:poker_ai_analyzer/services/pack_export_service.dart';
-import 'package:poker_ai_analyzer/services/pack_generator_service.dart';
-import 'package:poker_ai_analyzer/models/v2/hero_position.dart';
+import 'package:poker_analyzer/services/pack_export_service.dart';
+import 'package:poker_analyzer/services/pack_generator_service.dart';
+import 'package:poker_analyzer/models/v2/hero_position.dart';
 
 class _FakePathProvider extends PathProviderPlatform {
   _FakePathProvider(this.path);

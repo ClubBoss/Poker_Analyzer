@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:test/test.dart';
 import 'package:path/path.dart' as p;
-import 'package:poker_ai_analyzer/models/v2/training_pack_preset.dart';
+import 'package:poker_analyzer/models/v2/training_pack_preset.dart';
 
 void main() {
   test('batch generate presets', () async {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/services/icm_push_ev_service.dart';
+import 'package:poker_analyzer/services/icm_push_ev_service.dart';
 
 void main() {
   test('icm ev positive for strong hand', () {

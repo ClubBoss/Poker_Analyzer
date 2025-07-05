@@ -11,6 +11,7 @@ class TrainingPackSpot {
   DateTime editedAt;
   bool pinned;
   bool dirty;
+  bool isNew;
   EvaluationResult? evalResult;
 
   TrainingPackSpot({
@@ -22,6 +23,7 @@ class TrainingPackSpot {
     DateTime? editedAt,
     this.pinned = false,
     this.dirty = false,
+    this.isNew = false,
     this.evalResult,
   })  : hand = hand ?? HandData(),
         tags = tags ?? [],
@@ -36,6 +38,7 @@ class TrainingPackSpot {
     DateTime? editedAt,
     bool? pinned,
     bool? dirty,
+    bool? isNew,
     EvaluationResult? evalResult,
   }) =>
       TrainingPackSpot(
@@ -47,6 +50,7 @@ class TrainingPackSpot {
         editedAt: editedAt ?? this.editedAt,
         pinned: pinned ?? this.pinned,
         dirty: dirty ?? this.dirty,
+        isNew: isNew ?? this.isNew,
         evalResult: evalResult ?? this.evalResult,
       );
 
@@ -62,6 +66,7 @@ class TrainingPackSpot {
             DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
         pinned: j['pinned'] == true,
         dirty: j['dirty'] == true,
+        isNew: j['isNew'] == true,
         evalResult: j['evalResult'] != null
             ? EvaluationResult.fromJson(
                 Map<String, dynamic>.from(j['evalResult']))
@@ -77,6 +82,7 @@ class TrainingPackSpot {
         'editedAt': editedAt.toIso8601String(),
         if (pinned) 'pinned': true,
         if (dirty) 'dirty': true,
+        if (isNew) 'isNew': true,
         if (evalResult != null) 'evalResult': evalResult!.toJson(),
       };
 
@@ -108,10 +114,11 @@ class TrainingPackSpot {
           const ListEquality().equals(tags, other.tags) &&
           pinned == other.pinned &&
           dirty == other.dirty &&
+          isNew == other.isNew &&
           evalResult == other.evalResult;
 
   @override
   int get hashCode =>
       Object.hash(id, title, note, hand, const ListEquality().hash(tags), pinned,
-          dirty, evalResult);
+          dirty, isNew, evalResult);
 }

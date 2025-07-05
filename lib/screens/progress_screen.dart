@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:pie_chart/pie_chart.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -223,22 +222,26 @@ class _ProgressScreenState extends State<ProgressScreen>
       return const SizedBox.shrink();
     }
 
-    final dataMap = {
-      'Верно': summary.correct.toDouble(),
-      'Ошибка': summary.incorrect.toDouble(),
-    };
-
+    final total = summary.totalHands.toDouble();
     return PieChart(
-      dataMap: dataMap,
-      colorList: const [Colors.green, Colors.red],
-      chartType: ChartType.disc,
-      chartValuesOptions: const ChartValuesOptions(
-        showChartValuesInPercentage: true,
-        showChartValueBackground: false,
-        chartValueStyle: TextStyle(color: Colors.white),
-      ),
-      legendOptions: const LegendOptions(
-        legendTextStyle: TextStyle(color: Colors.white),
+      PieChartData(
+        sectionsSpace: 0,
+        sections: [
+          PieChartSectionData(
+            value: summary.correct.toDouble(),
+            color: Colors.green,
+            title:
+                '${(summary.correct * 100 / total).toStringAsFixed(0)}%',
+            titleStyle: const TextStyle(color: Colors.white),
+          ),
+          PieChartSectionData(
+            value: summary.incorrect.toDouble(),
+            color: Colors.red,
+            title:
+                '${(summary.incorrect * 100 / total).toStringAsFixed(0)}%',
+            titleStyle: const TextStyle(color: Colors.white),
+          ),
+        ],
       ),
     );
   }

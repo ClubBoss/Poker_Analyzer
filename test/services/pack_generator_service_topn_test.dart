@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/services/pack_generator_service.dart';
+import 'package:poker_analyzer/services/pack_generator_service.dart';
 
 void main() {
   test('topNHands returns approx count', () {

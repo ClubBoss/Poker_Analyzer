@@ -1,4 +1,4 @@
-name: poker_ai_analyzer
+name: poker_analyzer
 description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you want to publish to pub.dev

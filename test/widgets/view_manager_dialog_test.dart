@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/models/view_preset.dart';
-import 'package:poker_ai_analyzer/widgets/view_manager_dialog.dart';
+import 'package:poker_analyzer/models/view_preset.dart';
+import 'package:poker_analyzer/widgets/view_manager_dialog.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

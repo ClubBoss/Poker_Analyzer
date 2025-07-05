@@ -1,14 +1,6 @@
 const _hhMarkers = [
-  '*** hole cards ***',
-  'pokerstars',
-  'hand #',
-  'pokertracker',
-  'карманные карты',
-  'раздача #',
-  'рука #',
+  '*** hole cards ***', 'pokerstars', 'hand #', 'pokertracker',
+  'карманные карты', 'раздача #', 'рука #',
 ];
-
-bool containsPokerHistoryMarkers(String text) {
-  final lower = text.toLowerCase();
-  return _hhMarkers.any(lower.contains);
-}
+bool containsPokerHistoryMarkers(String text) =>
+    _hhMarkers.any(text.toLowerCase().contains);

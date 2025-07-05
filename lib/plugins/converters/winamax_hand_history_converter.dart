@@ -1,9 +1,9 @@
 import '../converter_format_capabilities.dart';
 import '../converter_plugin.dart';
-import 'package:poker_ai_analyzer/models/saved_hand.dart';
-import 'package:poker_ai_analyzer/models/card_model.dart';
-import 'package:poker_ai_analyzer/models/action_entry.dart';
-import 'package:poker_ai_analyzer/models/player_model.dart';
+import 'package:poker_analyzer/models/saved_hand.dart';
+import 'package:poker_analyzer/models/card_model.dart';
+import 'package:poker_analyzer/models/action_entry.dart';
+import 'package:poker_analyzer/models/player_model.dart';
 
 class WinamaxHandHistoryConverter extends ConverterPlugin {
   WinamaxHandHistoryConverter()

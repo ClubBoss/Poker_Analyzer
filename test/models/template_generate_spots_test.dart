@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/models/v2/training_pack_template.dart';
+import 'package:poker_analyzer/models/v2/training_pack_template.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/screens/v2/training_pack_template_list_screen.dart';
-import 'package:poker_ai_analyzer/services/training_spot_storage_service.dart';
-import 'package:poker_ai_analyzer/models/training_spot.dart';
-import 'package:poker_ai_analyzer/models/card_model.dart';
-import 'package:poker_ai_analyzer/models/action_entry.dart';
-import 'package:poker_ai_analyzer/models/player_model.dart';
+import 'package:poker_analyzer/screens/v2/training_pack_template_list_screen.dart';
+import 'package:poker_analyzer/services/training_spot_storage_service.dart';
+import 'package:poker_analyzer/models/training_spot.dart';
+import 'package:poker_analyzer/models/card_model.dart';
+import 'package:poker_analyzer/models/action_entry.dart';
+import 'package:poker_analyzer/models/player_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -15,6 +15,7 @@ import '../../utils/clipboard_hh_detector.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
+import "package:flutter/rendering.dart";
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../models/v2/focus_goal.dart';
@@ -438,6 +439,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     };
     return TrainingPackSpot(
       id: const Uuid().v4(),
+      isNew: true,
       hand: HandData(
         heroCards: heroCards,
         position: _posFromString(hand.heroPosition),

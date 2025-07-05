@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import 'package:poker_ai_analyzer/core/error_logger.dart';
-import 'package:poker_ai_analyzer/models/v2/training_pack_preset.dart';
-import 'package:poker_ai_analyzer/services/pack_generator_service.dart';
+import 'package:poker_analyzer/core/error_logger.dart';
+import 'package:poker_analyzer/models/v2/training_pack_preset.dart';
+import 'package:poker_analyzer/services/pack_generator_service.dart';
 
 Future<void> main(List<String> args) async {
   String? src;

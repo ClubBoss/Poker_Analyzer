@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:poker_ai_analyzer/helpers/title_utils.dart';
+import 'package:poker_analyzer/helpers/title_utils.dart';
 
 void main() {
   group('normalizeSpotTitle', () {

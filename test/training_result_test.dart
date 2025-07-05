@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/models/training_result.dart';
+import 'package:poker_analyzer/models/training_result.dart';
 
 void main() {
   test('training result json serialization', () {

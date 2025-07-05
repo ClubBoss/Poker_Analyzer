@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:share_plus_platform_interface/share_plus_platform_interface.dart';
-import 'package:poker_ai_analyzer/screens/v2/training_pack_template_editor_screen.dart';
-import 'package:poker_ai_analyzer/services/pack_generator_service.dart';
-import 'package:poker_ai_analyzer/models/v2/hero_position.dart';
+import 'package:poker_analyzer/screens/v2/training_pack_template_editor_screen.dart';
+import 'package:poker_analyzer/services/pack_generator_service.dart';
+import 'package:poker_analyzer/models/v2/hero_position.dart';
 
 class _FakePathProvider extends PathProviderPlatform {
   _FakePathProvider(this.path);

@@ -6,8 +6,8 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:poker_ai_analyzer/core/error_logger.dart';
-import 'package:poker_ai_analyzer/services/service_registry.dart';
+import 'package:poker_analyzer/core/error_logger.dart';
+import 'package:poker_analyzer/services/service_registry.dart';
 
 import 'converter_discovery_plugin.dart';
 import 'converter_plugin.dart';

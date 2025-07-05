@@ -1,4 +1,4 @@
-import 'package:poker_ai_analyzer/models/saved_hand.dart';
+import 'package:poker_analyzer/models/saved_hand.dart';
 
 import 'abstract_converter_plugin.dart';
 import 'converter_format_capabilities.dart';

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:pie_chart/pie_chart.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import '../helpers/date_utils.dart';
@@ -2300,6 +2299,7 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
     final dataMap = {
       for (final e in actionCounts.entries) e.key: e.value.toDouble()
     };
+    final total = dataMap.values.fold<double>(0, (p, e) => p + e);
     final baseColors = [
       Colors.blue,
       Colors.red,
@@ -2356,20 +2356,22 @@ class _TrainingAnalysisScreenState extends State<TrainingAnalysisScreen> {
                           child: Column(
                               children: [
                                 PieChart(
-                                  dataMap: dataMap,
-                          colorList: [
-                            for (var i = 0; i < dataMap.length; i++)
-                              baseColors[i % baseColors.length],
-                          ],
-                          legendOptions: const LegendOptions(
-                            legendTextStyle: TextStyle(color: Colors.white),
-                          ),
-                          chartValuesOptions: const ChartValuesOptions(
-                            showChartValuesInPercentage: true,
-                            showChartValueBackground: false,
-                            chartValueStyle: TextStyle(color: Colors.white),
-                          ),
-                        ),
+                                  PieChartData(
+                                    sectionsSpace: 0,
+                                    sections: [
+                                      for (var i = 0; i < dataMap.length; i++)
+                                        PieChartSectionData(
+                                          value: dataMap.values.elementAt(i),
+                                          color:
+                                              baseColors[i % baseColors.length],
+                                          title:
+                                              '${(dataMap.values.elementAt(i) * 100 / total).toStringAsFixed(0)}%',
+                                          titleStyle:
+                                              const TextStyle(color: Colors.white),
+                                        ),
+                                    ],
+                                  ),
+                                ),
                         const SizedBox(height: 8),
                         ElevatedButton(
                           onPressed: () => _exportPdf(context),
