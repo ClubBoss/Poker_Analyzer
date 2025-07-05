@@ -110,6 +110,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   bool _skipHistory = false;
   bool _showPasteBubble = false;
   Timer? _clipboardTimer;
+  List<SavedHand>? _pasteUndo;
 
   @override
   void setState(VoidCallback fn) {
@@ -436,8 +437,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       ),
     );
     if (confirm != true) return;
+    final beforeState = List<SavedHand>.from(_hands);
     final before = _hands.length;
     await _addHands(parsed);
+    _pasteUndo = beforeState;
     for (final h in _hands.skip(before)) h.isNew = true;
     setState(() {});
     Future.delayed(const Duration(seconds: 30), () {
@@ -455,7 +458,22 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     final added = _hands.length - before;
     final addedIds = [for (final h in _hands.skip(before)) h.name];
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Добавлено раздач: $added')),
+      SnackBar(
+        content: Text('Imported $added hands'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            if (_pasteUndo != null) {
+              setState(() {
+                _hands = List.from(_pasteUndo!);
+                _modified = true;
+                _rebuildStats();
+              });
+              _pasteUndo = null;
+            }
+          },
+        ),
+      ),
     );
     if (addedIds.isNotEmpty) {
       await showModalBottomSheet(
