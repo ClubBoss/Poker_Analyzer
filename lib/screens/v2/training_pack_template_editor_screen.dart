@@ -498,12 +498,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     _recordSnapshot();
     _pasteUndo = [for (final s in widget.template.spots) TrainingPackSpot.fromJson(s.toJson())];
-    final spots = [for (final h in hands) _spotFromHand(h)];
+    final spots = [for (final h in hands) _spotFromHand(h)..isNew = true];
     setState(() {
       widget.template.spots.addAll(spots);
       if (_autoSortEv) _sortSpots();
       _showImportIndicator = true;
       _showPasteBubble = false;
+    });
+    Future.delayed(const Duration(seconds: 30), () {
+      if (!mounted) return;
+      bool changed = false;
+      for (final s in widget.template.spots) {
+        if (s.isNew) {
+          s.isNew = false;
+          changed = true;
+        }
+      }
+      if (changed) setState(() {});
     });
     _importTimer?.cancel();
     _importTimer = Timer(const Duration(seconds: 2), () {
@@ -1672,6 +1683,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _history.log('Tagged', s.title, s.id);
         }
       }
+      _clearNewFlags(targets);
     });
     await _persist();
     if (ids == null) setState(() => _selectedSpotIds.clear());
@@ -1710,6 +1722,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _history.log('Untagged', s.title, s.id);
         }
       }
+      _clearNewFlags(_selectedSpotIds);
     });
     await _persist();
     setState(() => _selectedSpotIds.clear());
@@ -1728,6 +1741,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _history.log('Untagged', s.title, s.id);
         }
       }
+      _clearNewFlags(_selectedSpotIds);
     });
     await _persist();
     setState(() => _selectedSpotIds.clear());
@@ -1742,6 +1756,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         s.pinned = newState;
       }
       if (_autoSortEv) _sortSpots();
+      _clearNewFlags(_selectedSpotIds);
     });
     await _persist();
     setState(() => _selectedSpotIds.clear());
@@ -1793,6 +1808,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
         if (_autoSortEv) _sortSpots();
       }
+      _clearNewFlags(_selectedSpotIds);
     });
     await _persist();
     if (ids == null) setState(() => _selectedSpotIds.clear());
@@ -1851,6 +1867,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         widget.template.spots.removeWhere((s) => _selectedSpotIds.contains(s.id));
         _selectedSpotIds.clear();
         if (_autoSortEv) _sortSpots();
+        _clearNewFlags();
       });
       _persist();
       setState(() =>
@@ -1886,6 +1903,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     });
   }
 
+  void _selectAllNew() {
+    setState(() {
+      _selectedSpotIds
+        ..clear()
+        ..addAll(widget.template.spots.where((s) => s.isNew).map((s) => s.id));
+    });
+  }
+
+  void _clearNewFlags([Iterable<String>? ids]) {
+    if (ids == null) {
+      for (final s in widget.template.spots) s.isNew = false;
+      return;
+    }
+    for (final id in ids) {
+      final i = widget.template.spots.indexWhere((e) => e.id == id);
+      if (i != -1) widget.template.spots[i].isNew = false;
+    }
+  }
+
   void _invertSelection() {
     final all = widget.template.spots.map((e) => e.id).toSet();
     setState(() => _selectedSpotIds = all.difference(_selectedSpotIds));
@@ -1908,6 +1944,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     if (e.logicalKey == LogicalKeyboardKey.backspace) {
       _bulkDelete();
+      return true;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyN) {
+      _selectAllNew();
       return true;
     }
     if (e.logicalKey == LogicalKeyboardKey.keyV) {
@@ -3465,6 +3505,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                       },
                                     ),
                                   ),
+                                  if (spot.isNew)
+                                    Tooltip(
+                                      message: 'New',
+                                      child: InkWell(
+                                        onTap: _selectAllNew,
+                                        child: const Icon(Icons.fiber_new, color: Colors.orangeAccent),
+                                      ),
+                                    ),
                                   const SizedBox(width: 8),
                                   Column(
                                     mainAxisSize: MainAxisSize.min,

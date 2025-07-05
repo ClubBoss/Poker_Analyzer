@@ -12,6 +12,7 @@ class TrainingPackSpot {
   bool pinned;
   bool dirty;
   EvaluationResult? evalResult;
+  bool isNew;
 
   TrainingPackSpot({
     required this.id,
@@ -23,6 +24,7 @@ class TrainingPackSpot {
     this.pinned = false,
     this.dirty = false,
     this.evalResult,
+    this.isNew = false,
   })  : hand = hand ?? HandData(),
         tags = tags ?? [],
         editedAt = editedAt ?? DateTime.now();
@@ -37,6 +39,7 @@ class TrainingPackSpot {
     bool? pinned,
     bool? dirty,
     EvaluationResult? evalResult,
+    bool? isNew,
   }) =>
       TrainingPackSpot(
         id: id ?? this.id,
@@ -48,6 +51,7 @@ class TrainingPackSpot {
         pinned: pinned ?? this.pinned,
         dirty: dirty ?? this.dirty,
         evalResult: evalResult ?? this.evalResult,
+        isNew: isNew ?? this.isNew,
       );
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
@@ -66,6 +70,7 @@ class TrainingPackSpot {
             ? EvaluationResult.fromJson(
                 Map<String, dynamic>.from(j['evalResult']))
             : null,
+        isNew: false,
       );
 
   Map<String, dynamic> toJson() => {
