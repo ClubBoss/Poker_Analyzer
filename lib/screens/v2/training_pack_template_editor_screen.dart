@@ -118,6 +118,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsScrollKey = 'tmpl_scroll';
   static const _prefsSortModeKey = 'templateSortMode';
   static const _prefsDupOnlyKey = 'dup_only';
+  static const _prefsPinnedOnlyKey = 'pinned_only';
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
@@ -171,6 +172,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   void _storeDupOnly() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool(_prefsDupOnlyKey, _duplicatesOnly);
+  }
+
+  void _storePinnedOnly() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_prefsPinnedOnlyKey, _pinnedOnly);
   }
 
   Set<String> _templateRange() {
@@ -818,6 +824,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final sortMode = prefs.getString(_prefsSortModeKey);
       final offset = prefs.getDouble(_prefsScrollKey) ?? 0;
       final dupOnly = prefs.getBool(_prefsDupOnlyKey) ?? false;
+      final pinnedOnly = prefs.getBool(_prefsPinnedOnlyKey) ?? false;
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
         final parts = rangeStr.split(',');
@@ -848,6 +855,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _quickFilter = quick?.isEmpty ?? true ? null : quick;
           _sortBy = sort;
           _duplicatesOnly = dupOnly;
+          _pinnedOnly = pinnedOnly;
           if (sortMode != null) _sortSpots();
           });
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1800,7 +1808,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    setState(() => _selectedSpotIds.clear());
+    setState(() {
+      _selectedSpotIds.clear();
+      if (!newState) {
+        _pinnedOnly = false;
+        _storePinnedOnly();
+      }
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${newState ? 'Pinned' : 'Unpinned'} ${spots.length} spot(s)')),
     );
@@ -1973,6 +1987,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (e is! RawKeyDownEvent) return false;
     if (FocusManager.instance.primaryFocus?.context?.widget is EditableText) {
       return false;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyP && e.isAltPressed) {
+      setState(() {
+        _pinnedOnly = !_pinnedOnly;
+        _storePinnedOnly();
+      });
+      return true;
     }
     if (e.logicalKey == LogicalKeyboardKey.keyD && e.isAltPressed) {
       setState(() {
@@ -2414,6 +2435,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 value: _pinnedOnly,
                 onChanged: (v) => set(() {
                   this.setState(() => _pinnedOnly = v);
+                  _storePinnedOnly();
                 }),
               ),
               const SizedBox(height: 12),
@@ -2849,12 +2871,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               _persist();
             },
           ),
-          if (!narrow)
-            IconButton(
-              icon: Icon(Icons.push_pin, color: _pinnedOnly ? AppColors.accent : null),
-              tooltip: 'Pinned Only',
-              onPressed: () => setState(() => _pinnedOnly = !_pinnedOnly),
-            ),
           IconButton(icon: const Text('↶'), onPressed: _canUndo ? _undo : null),
           IconButton(icon: const Text('↷'), onPressed: _canRedo ? _redo : null),
           IconButton(
@@ -2978,6 +2994,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
+          IconButton(
+            icon: Icon(Icons.push_pin, color: _pinnedOnly ? AppColors.accent : null),
+            tooltip: 'Pinned Only',
+            onPressed: () {
+              setState(() => _pinnedOnly = !_pinnedOnly);
+              _storePinnedOnly();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.copy_all),
             tooltip: "Find Duplicates",
