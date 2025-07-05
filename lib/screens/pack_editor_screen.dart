@@ -111,6 +111,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   bool _showPasteBubble = false;
   Timer? _clipboardTimer;
   List<SavedHand>? _pasteUndo;
+  bool _showImportIndicator = false;
+  Timer? _importTimer;
 
   @override
   void setState(VoidCallback fn) {
@@ -457,6 +459,13 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (!mounted) return;
     final added = _hands.length - before;
     final addedIds = [for (final h in _hands.skip(before)) h.name];
+    if (added > 0) {
+      setState(() => _showImportIndicator = true);
+      _importTimer?.cancel();
+      _importTimer = Timer(const Duration(seconds: 2), () {
+        if (mounted) setState(() => _showImportIndicator = false);
+      });
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Imported $added hands'),
@@ -509,8 +518,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
               ),
             ],
           ),
-        ),
-      );
+        ],
+      ),
+    );
     }
     if (parsed.length > 0 && parsed.length <= 3) {
       final hand = parsed.first;
@@ -833,8 +843,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             ),
           ],
         ),
-      ),
-    );
+      ],
+    ),
+  );
     c.dispose();
     if (tag != null && tag.isNotEmpty) _applyTagToSelected(tag);
   }
@@ -875,8 +886,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             ),
           ],
         ),
-      ),
-    );
+      ],
+    ),
+  );
     if (tag != null && tag.isNotEmpty) _removeTagFromSelected(tag);
   }
 
@@ -943,8 +955,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             ),
           ],
         ),
-      ),
-    );
+      ],
+    ),
+  );
     c.dispose();
     if (tag == null || tag.isEmpty) return;
     final list = ids == null
@@ -1653,8 +1666,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             ),
           ],
         ),
-      ),
-    );
+      ],
+    ),
+  );
     if (action == null) return;
     if (action == 'snapshot') {
       await _saveSnapshot();
@@ -1728,8 +1742,9 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
               onPressed: () => Navigator.pop(context, (hero, severity)),
               child: const Text('OK'),
             ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -2658,6 +2673,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   void dispose() {
     _autoTimer?.cancel();
     _clipboardTimer?.cancel();
+    _importTimer?.cancel();
     _searchController.dispose();
     _focusNode.dispose();
     _findController.dispose();
@@ -2954,8 +2970,22 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
             ),
           ],
         ),
-        body: Column(
+        body: Stack(
           children: [
+            if (_showImportIndicator)
+              const Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: LinearProgressIndicator(
+                  value: 1,
+                  color: Colors.green,
+                  backgroundColor: Colors.transparent,
+                  minHeight: 4,
+                ),
+              ),
+            Column(
+              children: [
             if (_tagFilter != null ||
                 _heroPosFilter != null ||
                 _mistakeFilter != _MistakeFilter.any)
@@ -3403,10 +3433,10 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                 ],
               ),
             ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
-    );
 
     if (enableShortcuts) {
       child = Shortcuts(
