@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/models/v2/training_pack_template.dart';
-import 'package:poker_ai_analyzer/models/v2/training_pack_spot.dart';
-import 'package:poker_ai_analyzer/models/v2/hand_data.dart';
-import 'package:poker_ai_analyzer/models/v2/hero_position.dart';
-import 'package:poker_ai_analyzer/models/action_entry.dart';
-import 'package:poker_ai_analyzer/services/pack_generator_service.dart';
-import 'package:poker_ai_analyzer/services/training_pack_template_ui_service.dart';
+import 'package:poker_analyzer/models/v2/training_pack_template.dart';
+import 'package:poker_analyzer/models/v2/training_pack_spot.dart';
+import 'package:poker_analyzer/models/v2/hand_data.dart';
+import 'package:poker_analyzer/models/v2/hero_position.dart';
+import 'package:poker_analyzer/models/action_entry.dart';
+import 'package:poker_analyzer/services/pack_generator_service.dart';
+import 'package:poker_analyzer/services/training_pack_template_ui_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

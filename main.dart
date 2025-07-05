@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:poker_ai_analyzer/screens/poker_analyzer_screen.dart';
-import 'package:poker_ai_analyzer/services/action_sync_service.dart';
-import 'package:poker_ai_analyzer/services/all_in_players_service.dart';
-import 'package:poker_ai_analyzer/services/board_editing_service.dart';
-import 'package:poker_ai_analyzer/services/board_manager_service.dart';
-import 'package:poker_ai_analyzer/services/board_reveal_service.dart';
-import 'package:poker_ai_analyzer/services/board_sync_service.dart';
-import 'package:poker_ai_analyzer/services/current_hand_context_service.dart';
-import 'package:poker_ai_analyzer/services/folded_players_service.dart';
-import 'package:poker_ai_analyzer/services/player_editing_service.dart';
-import 'package:poker_ai_analyzer/services/player_manager_service.dart';
-import 'package:poker_ai_analyzer/services/player_profile_service.dart';
-import 'package:poker_ai_analyzer/services/playback_manager_service.dart';
-import 'package:poker_ai_analyzer/services/pot_history_service.dart';
-import 'package:poker_ai_analyzer/services/pot_sync_service.dart';
-import 'package:poker_ai_analyzer/services/stack_manager_service.dart';
-import 'package:poker_ai_analyzer/services/transition_lock_service.dart';
-import 'package:poker_ai_analyzer/services/action_history_service.dart';
-import 'package:poker_ai_analyzer/services/training_import_export_service.dart';
-import 'package:poker_ai_analyzer/services/demo_playback_controller.dart';
+import 'package:poker_analyzer/screens/poker_analyzer_screen.dart';
+import 'package:poker_analyzer/services/action_sync_service.dart';
+import 'package:poker_analyzer/services/all_in_players_service.dart';
+import 'package:poker_analyzer/services/board_editing_service.dart';
+import 'package:poker_analyzer/services/board_manager_service.dart';
+import 'package:poker_analyzer/services/board_reveal_service.dart';
+import 'package:poker_analyzer/services/board_sync_service.dart';
+import 'package:poker_analyzer/services/current_hand_context_service.dart';
+import 'package:poker_analyzer/services/folded_players_service.dart';
+import 'package:poker_analyzer/services/player_editing_service.dart';
+import 'package:poker_analyzer/services/player_manager_service.dart';
+import 'package:poker_analyzer/services/player_profile_service.dart';
+import 'package:poker_analyzer/services/playback_manager_service.dart';
+import 'package:poker_analyzer/services/pot_history_service.dart';
+import 'package:poker_analyzer/services/pot_sync_service.dart';
+import 'package:poker_analyzer/services/stack_manager_service.dart';
+import 'package:poker_analyzer/services/transition_lock_service.dart';
+import 'package:poker_analyzer/services/action_history_service.dart';
+import 'package:poker_analyzer/services/training_import_export_service.dart';
+import 'package:poker_analyzer/services/demo_playback_controller.dart';
 
 void main() {
   runApp(const PokerAnalyzerDemoApp());

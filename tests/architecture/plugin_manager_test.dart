@@ -1,8 +1,8 @@
 import 'package:test/test.dart';
-import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
-import 'package:poker_ai_analyzer/plugins/service_extension.dart';
-import 'package:poker_ai_analyzer/plugins/plugin.dart';
-import 'package:poker_ai_analyzer/services/service_registry.dart';
+import 'package:poker_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_analyzer/plugins/service_extension.dart';
+import 'package:poker_analyzer/plugins/plugin.dart';
+import 'package:poker_analyzer/services/service_registry.dart';
 
 class _IntExtension extends ServiceExtension<int> {
   @override

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../helpers/date_utils.dart';
 import '../models/training_result.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../theme/app_colors.dart';
-import 'package:pie_chart/pie_chart.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -124,11 +124,7 @@ class TrainingDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final accuracy = result.accuracy.toStringAsFixed(1);
     final incorrect = result.total - result.correct;
-    final dataMap = {
-      'Correct': result.correct.toDouble(),
-      'Incorrect': incorrect.toDouble(),
-    };
-    final colorList = [Colors.green, Colors.red];
+    final total = result.total;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Session Details'),
@@ -146,18 +142,27 @@ class TrainingDetailScreen extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 16),
-            if (result.total > 0)
+            if (total > 0)
               PieChart(
-                dataMap: dataMap,
-                colorList: colorList,
-                chartType: ChartType.ring,
-                legendOptions: const LegendOptions(
-                  legendTextStyle: TextStyle(color: Colors.white),
-                ),
-                chartValuesOptions: const ChartValuesOptions(
-                  showChartValuesInPercentage: true,
-                  showChartValueBackground: false,
-                  chartValueStyle: TextStyle(color: Colors.white),
+                PieChartData(
+                  sectionsSpace: 0,
+                  centerSpaceRadius: 40,
+                  sections: [
+                    PieChartSectionData(
+                      value: result.correct.toDouble(),
+                      color: Colors.green,
+                      title:
+                          '${(result.correct * 100 / total).toStringAsFixed(0)}%',
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
+                    PieChartSectionData(
+                      value: incorrect.toDouble(),
+                      color: Colors.red,
+                      title:
+                          '${(incorrect * 100 / total).toStringAsFixed(0)}%',
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
             const SizedBox(height: 16),

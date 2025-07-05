@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/services/push_fold_ev_service.dart';
+import 'package:poker_analyzer/services/push_fold_ev_service.dart';
 
 void main() {
   test('AA push EV positive', () {

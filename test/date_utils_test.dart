@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/helpers/date_utils.dart';
+import 'package:poker_analyzer/helpers/date_utils.dart';
 
 void main() {
   test('formatDateTime formats correctly', () {

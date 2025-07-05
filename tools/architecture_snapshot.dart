@@ -1,7 +1,7 @@
-import 'package:poker_ai_analyzer/plugins/plugin_manager.dart';
-import 'package:poker_ai_analyzer/plugins/sample_logging_plugin.dart';
-import 'package:poker_ai_analyzer/core/error_logger.dart';
-import 'package:poker_ai_analyzer/services/service_registry.dart';
+import 'package:poker_analyzer/plugins/plugin_manager.dart';
+import 'package:poker_analyzer/plugins/sample_logging_plugin.dart';
+import 'package:poker_analyzer/core/error_logger.dart';
+import 'package:poker_analyzer/services/service_registry.dart';
 
 /// Dumps a list of service types currently registered in a [ServiceRegistry].
 ///

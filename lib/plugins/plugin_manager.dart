@@ -1,4 +1,4 @@
-import 'package:poker_ai_analyzer/services/service_registry.dart';
+import 'package:poker_analyzer/services/service_registry.dart';
 
 import 'plugin.dart';
 import 'service_extension.dart';

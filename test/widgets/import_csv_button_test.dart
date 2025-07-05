@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/screens/v2/training_pack_template_list_screen.dart';
+import 'package:poker_analyzer/screens/v2/training_pack_template_list_screen.dart';
 
 class _FakeFilePicker extends FilePicker {
   _FakeFilePicker(this.result);

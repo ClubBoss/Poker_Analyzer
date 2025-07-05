@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/widgets/position_label.dart';
+import 'package:poker_analyzer/widgets/position_label.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/widgets/ev_summary_card.dart';
+import 'package:poker_analyzer/widgets/ev_summary_card.dart';
 
 void main() {
   test('bucketize count', () {

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
-import 'package:poker_ai_analyzer/screens/room_hand_history_import_screen.dart';
-import 'package:poker_ai_analyzer/models/training_pack.dart';
-import 'package:poker_ai_analyzer/services/training_pack_storage_service.dart';
+import 'package:poker_analyzer/screens/room_hand_history_import_screen.dart';
+import 'package:poker_analyzer/models/training_pack.dart';
+import 'package:poker_analyzer/services/training_pack_storage_service.dart';
 
 class _TestPathProvider extends PathProviderPlatform {
   _TestPathProvider(this.path);

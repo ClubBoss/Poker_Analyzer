@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/widgets/range_matrix_picker.dart';
+import 'package:poker_analyzer/widgets/range_matrix_picker.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

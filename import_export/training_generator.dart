@@ -1,5 +1,5 @@
-import 'package:poker_ai_analyzer/models/saved_hand.dart';
-import 'package:poker_ai_analyzer/models/training_spot.dart';
+import 'package:poker_analyzer/models/saved_hand.dart';
+import 'package:poker_analyzer/models/training_spot.dart';
 
 /// Generates [TrainingSpot]s from [SavedHand] instances.
 class TrainingGenerator {

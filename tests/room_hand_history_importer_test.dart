@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:poker_ai_analyzer/services/room_hand_history_importer.dart';
+import 'package:poker_analyzer/services/room_hand_history_importer.dart';
 
 void main() {
   group('RoomHandHistoryImporter', () {

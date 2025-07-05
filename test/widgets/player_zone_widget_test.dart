@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poker_ai_analyzer/models/player_model.dart';
-import 'package:poker_ai_analyzer/widgets/analyzer/player_zone_widget.dart';
+import 'package:poker_analyzer/models/player_model.dart';
+import 'package:poker_analyzer/widgets/analyzer/player_zone_widget.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

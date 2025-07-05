@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:poker_ai_analyzer/services/generated_pack_history_service.dart';
+import 'package:poker_analyzer/services/generated_pack_history_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
