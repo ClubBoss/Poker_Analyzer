@@ -415,9 +415,47 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await _addHands(parsed);
     if (!mounted) return;
     final added = _hands.length - before;
+    final addedIds = [for (final h in _hands.skip(before)) h.name];
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Добавлено раздач: $added')),
     );
+    if (addedIds.isNotEmpty) {
+      await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.grey[900],
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (ctx) => SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.label, color: Colors.white),
+                title: const Text('Add Tag', style: TextStyle(color: Colors.white)),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await _bulkAddTag(addedIds);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.drive_file_move, color: Colors.white),
+                title:
+                    const Text('Move to Pack', style: TextStyle(color: Colors.white)),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await _bulkTransfer('move', addedIds);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.close, color: Colors.white),
+                title: const Text('Skip', style: TextStyle(color: Colors.white)),
+                onTap: () => Navigator.pop(ctx),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _previewHand(SavedHand hand) async {
@@ -758,6 +796,91 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     if (tag != null && tag.isNotEmpty) _removeTagFromSelected(tag);
   }
 
+  Future<void> _bulkAddTag([List<String>? ids]) async {
+    final allTags = context.read<TagService>().tags;
+    final c = TextEditingController();
+    String? selected;
+    final tag = await showDialog<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateDialog) => AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text('Add Tag', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Wrap(
+                spacing: 4,
+                children: [
+                  for (final t in allTags)
+                    ChoiceChip(
+                      label: Text(t, style: const TextStyle(color: Colors.white)),
+                      selected: selected == t,
+                      selectedColor:
+                          Colors.primaries[t.hashCode % Colors.primaries.length],
+                      onSelected: (_) => setStateDialog(() => selected = t),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Autocomplete<String>(
+                optionsBuilder: (v) {
+                  final input = v.text.toLowerCase();
+                  if (input.isEmpty) return allTags;
+                  return allTags.where((e) => e.toLowerCase().contains(input));
+                },
+                onSelected: (s) => setStateDialog(() => selected = s),
+                fieldViewBuilder: (context, controller, focusNode, _) {
+                  controller.text = c.text;
+                  controller.selection = c.selection;
+                  controller.addListener(() {
+                    if (c.text != controller.text) c.value = controller.value;
+                  });
+                  c.addListener(() {
+                    if (controller.text != c.text) controller.value = c.value;
+                  });
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(hintText: 'Tag'),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, selected ?? c.text.trim()),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      ),
+    );
+    c.dispose();
+    if (tag == null || tag.isEmpty) return;
+    final list = ids == null
+        ? _selected.toList()
+        : [for (final h in _hands) if (ids.contains(h.name)) h];
+    if (list.isEmpty) return;
+    setState(() {
+      for (final h in list) {
+        final set = {...h.tags, tag};
+        final idx = _hands.indexOf(h);
+        if (idx != -1) {
+          _hands[idx] = h.copyWith(tags: set.toList());
+          _modified = true;
+        }
+      }
+      if (ids == null) _selected.clear();
+      _rebuildStats();
+    });
+  }
+
   Future<void> _editComment(SavedHand hand) async {
     final idx = _hands.indexOf(hand);
     if (idx == -1) return;
@@ -867,11 +990,13 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     );
   }
 
-  Future<void> _bulkTransfer(String action) async {
-    if (_selected.isEmpty) return;
+  Future<void> _bulkTransfer(String action, [List<String>? ids]) async {
+    final selected = ids != null
+        ? [for (final h in _hands) if (ids.contains(h.name)) h]
+        : _selected.toList();
+    if (selected.isEmpty) return;
     final target = await _pickTargetPack();
     if (target == null) return;
-    final selected = _selected.toList();
     final service = context.read<TrainingPackStorageService>();
     var pack = service.packs.firstWhere(
       (p) => p.id == target.id,
@@ -897,7 +1022,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         }
         _modified = true;
       }
-      _selected.clear();
+      if (ids == null) _selected.clear();
     });
     service.applyDiff(pack, added: toAdd);
     final msg =
