@@ -598,6 +598,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     });
   }
 
+  void _selectAllNew() {
+    setState(() {
+      _selected
+        ..clear()
+        ..addAll(_hands.where((h) => h.isNew));
+    });
+  }
+
   void _invertSelection() {
     final indices = _visibleIndices();
     final visible = {for (final i in indices) _hands[i]};
@@ -3135,9 +3143,12 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                         children: [
                           Expanded(child: Text(title)),
                           if (hand.isNew)
-                            const Tooltip(
+                            Tooltip(
                               message: 'New',
-                              child: Icon(Icons.fiber_new, color: Colors.orangeAccent),
+                              child: InkWell(
+                                onTap: _selectAllNew,
+                                child: const Icon(Icons.fiber_new, color: Colors.orangeAccent),
+                              ),
                             ),
                           PopupMenuButton<String>(
                             padding: EdgeInsets.zero,
