@@ -494,6 +494,14 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         ),
       );
     }
+    if (parsed.length > 0 && parsed.length <= 3) {
+      final hand = parsed.first;
+      if (widget.pack.isBuiltIn) {
+        await _previewHand(hand);
+      } else {
+        await _editHand(hand);
+      }
+    }
     setState(() => _showPasteBubble = false);
   }
 
