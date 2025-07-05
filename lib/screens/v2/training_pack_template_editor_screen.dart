@@ -139,6 +139,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _showPasteBubble = false;
   Timer? _clipboardTimer;
   bool _showImportIndicator = false;
+  bool _showDupHint = false;
   Timer? _importTimer;
   List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
@@ -536,6 +537,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (mounted) setState(() => _showImportIndicator = false);
     });
     await _persist();
+    final hasDup = _importDuplicateGroups(spots);
+    if (hasDup) setState(() => _showDupHint = true);
     for (final s in spots) _log('Added', s);
     final addedIds = [for (final s in spots) s.id];
     ScaffoldMessenger.of(context).showSnackBar(
@@ -621,6 +624,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() {
       widget.template.spots.removeWhere((s) => ids.contains(s.id));
       _selectedSpotIds.removeWhere(ids.contains);
+      _showDupHint = false;
     });
     _persist();
     setState(() => _history.log('Deleted', '${removed.length} spots', ''));
@@ -1964,7 +1968,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _bulkDelete();
       return true;
     }
-    if (e.logicalKey == LogicalKeyboardKey.keyD) {
+    if (e.logicalKey == LogicalKeyboardKey.keyD && e.isShiftPressed) {
+      setState(() => _showDupHint = false);
       _findDuplicateSpots();
       return true;
     }
@@ -2136,6 +2141,26 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   List<List<int>> _duplicateSpotGroups() =>
       duplicateSpotGroupsStatic(widget.template.spots);
 
+  bool _importDuplicateGroups(List<TrainingPackSpot> imported) {
+    final before = _pasteUndo ?? [];
+    final existing = <String>{};
+    for (final s in before) {
+      final h = s.hand;
+      final hero = h.heroCards.replaceAll(' ', '');
+      final board = h.board.join();
+      existing.add('${h.position.name}-$hero-$board');
+    }
+    for (final s in imported) {
+      final h = s.hand;
+      final hero = h.heroCards.replaceAll(' ', '');
+      final board = h.board.join();
+      final key = '${h.position.name}-$hero-$board';
+      if (existing.contains(key)) return true;
+      existing.add('$key-${s.editedAt.millisecondsSinceEpoch}-${s.id}');
+    }
+    return false;
+  }
+
   String _duplicateSpotTitle(int i) {
     final h = widget.template.spots[i].hand;
     final hero = h.heroCards;
@@ -2159,6 +2184,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         }
       }
       if (_autoSortEv) _sortSpots();
+      _showDupHint = false;
     });
     _persist();
     setState(() => _history.log('Deleted', '${removed.length} spots', ''));
@@ -2215,6 +2241,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         }
       }
       if (_autoSortEv) _sortSpots();
+      _showDupHint = false;
     });
     _persist();
     setState(() => _history.log('Deleted', '${removed.length} spots', ''));
@@ -2957,11 +2984,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         label: const Text('Paste Hands'),
                       ),
                       const SizedBox(width: 8),
-                      IconButton(
+                  IconButton(
                         icon: const Icon(Icons.delete_outline, color: Colors.white),
                         onPressed: _clearClipboard,
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (_showDupHint) ...[
+                  FloatingActionButton.extended(
+                    heroTag: 'dupHint',
+                    mini: true,
+                    backgroundColor: Colors.amber,
+                    onPressed: () {
+                      setState(() => _showDupHint = false);
+                      _findDuplicateSpots();
+                    },
+                    icon: const Icon(Icons.copy_all),
+                    label: const Text('Duplicates found'),
                   ),
                   const SizedBox(height: 12),
                 ],
