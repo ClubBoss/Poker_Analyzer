@@ -601,6 +601,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (show != _showPasteBubble) setState(() => _showPasteBubble = show);
   }
 
+  void _undoImport() {
+    final removed = [for (final s in widget.template.spots) if (s.isNew) s];
+    if (removed.isEmpty) return;
+    _recordSnapshot();
+    final ids = {for (final s in removed) s.id};
+    setState(() {
+      widget.template.spots.removeWhere((s) => ids.contains(s.id));
+      _selectedSpotIds.removeWhere(ids.contains);
+    });
+    _persist();
+    setState(() => _history.log('Deleted', '${removed.length} spots', ''));
+  }
+
   Future<void> _addPackTag() async {
     final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
@@ -2598,6 +2611,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             tooltip: 'Jump to last change',
             onPressed: _jumpToLastChange,
           ),
+          if (_showPasteBubble &&
+              widget.template.spots.any((s) => s.isNew))
+            TextButton(onPressed: _undoImport, child: const Text('Undo Import')),
           IconButton(
             icon: Icon(_evAsc ? Icons.arrow_upward : Icons.arrow_downward),
             tooltip: 'Sort by EV',
