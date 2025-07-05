@@ -2484,6 +2484,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ? SortMode.position
           : SortMode.chronological;
     });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _sortMode == SortMode.position
+              ? 'Sorted by position'
+              : 'Sorted by date added',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
     _storeSortMode();
   }
 
