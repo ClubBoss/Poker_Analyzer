@@ -52,6 +52,18 @@ import '../../services/training_pack_template_storage_service.dart';
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
 
+List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
+  final map = <String, List<int>>{};
+  for (int i = 0; i < spots.length; i++) {
+    final h = spots[i].hand;
+    final hero = h.heroCards.replaceAll(' ', '');
+    final board = h.board.join();
+    final key = '${h.position.name}-$hero-$board';
+    map.putIfAbsent(key, () => []).add(i);
+  }
+  return [for (final g in map.values) if (g.length > 1) g];
+}
+
 TrainingPackSpot? _copiedSpot;
 class UndoIntent extends Intent { const UndoIntent(); }
 class RedoIntent extends Intent { const RedoIntent(); }
@@ -1952,6 +1964,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _bulkDelete();
       return true;
     }
+    if (e.logicalKey == LogicalKeyboardKey.keyD) {
+      _findDuplicateSpots();
+      return true;
+    }
     if (e.logicalKey == LogicalKeyboardKey.keyV) {
       _importFromClipboardSpots();
       return true;
@@ -2116,6 +2132,170 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+
+  List<List<int>> _duplicateSpotGroups() =>
+      duplicateSpotGroupsStatic(widget.template.spots);
+
+  String _duplicateSpotTitle(int i) {
+    final h = widget.template.spots[i].hand;
+    final hero = h.heroCards;
+    final board = h.board.join(' ');
+    return '${h.position.label} $hero – $board';
+  }
+
+  void _deleteDuplicateSpotGroups(List<List<int>> groups) {
+    _recordSnapshot();
+    final removed = <(TrainingPackSpot, int)>[];
+    for (final g in groups) {
+      for (final i in g) {
+        widget.template.spots[i].isNew = false;
+      }
+    }
+    setState(() {
+      for (final g in groups) {
+        for (final i in g.skip(1).toList().reversed) {
+          final s = widget.template.spots.removeAt(i);
+          removed.add((s, i));
+        }
+      }
+      if (_autoSortEv) _sortSpots();
+    });
+    _persist();
+    setState(() => _history.log('Deleted', '${removed.length} spots', ''));
+    if (removed.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Removed ${removed.length} spots'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in removed.reversed) {
+                widget.template.spots.insert(
+                    r.$2.clamp(0, widget.template.spots.length), r.$1);
+              }
+              if (_autoSortEv) _sortSpots();
+            });
+            _persist();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _mergeDuplicateSpotGroups(List<List<int>> groups) {
+    _recordSnapshot();
+    final removed = <(TrainingPackSpot, int)>[];
+    for (final g in groups) {
+      for (final i in g) {
+        widget.template.spots[i].isNew = false;
+      }
+    }
+    setState(() {
+      for (final g in groups) {
+        final baseIndex = g.first;
+        var base = widget.template.spots[baseIndex];
+        final tags = {...base.tags};
+        String note = base.note;
+        bool pinned = base.pinned;
+        for (final i in g.skip(1)) {
+          final s = widget.template.spots[i];
+          tags.addAll(s.tags);
+          if (s.note.isNotEmpty) {
+            if (note.isNotEmpty) note += '\n';
+            note += s.note;
+          }
+          if (s.pinned) pinned = true;
+          removed.add((s, i));
+        }
+        base = base.copyWith(tags: tags.toList(), note: note, pinned: pinned);
+        widget.template.spots[baseIndex] = base;
+        for (final i in g.skip(1).toList().reversed) {
+          widget.template.spots.removeAt(i);
+        }
+      }
+      if (_autoSortEv) _sortSpots();
+    });
+    _persist();
+    setState(() => _history.log('Deleted', '${removed.length} spots', ''));
+    if (removed.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Merged ${removed.length} spots'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              for (final r in removed.reversed) {
+                widget.template.spots.insert(
+                    r.$2.clamp(0, widget.template.spots.length), r.$1);
+              }
+              if (_autoSortEv) _sortSpots();
+            });
+            _persist();
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _findDuplicateSpots() async {
+    final groups = _duplicateSpotGroups();
+    if (groups.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No duplicates')));
+      return;
+    }
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: Text(
+          'Duplicates (${groups.length})',
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final g in groups)
+                ListTile(
+                  title: Text(
+                    _duplicateSpotTitle(g.first),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    g.map((i) => widget.template.spots[i].title).join(', '),
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'merge'),
+            child: const Text('Merge'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'delete'),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (result == 'delete') {
+      _deleteDuplicateSpotGroups(groups);
+    } else if (result == 'merge') {
+      _mergeDuplicateSpotGroups(groups);
+    }
+  }
   double _spotEv(TrainingPackSpot s) {
     final acts = s.hand.actions[0] ?? [];
     for (final a in acts) {
@@ -2722,6 +2902,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
+          IconButton(
+            icon: const Icon(Icons.copy_all),
+            tooltip: "Find Duplicates",
+            onPressed: _findDuplicateSpots,
+          ),
           IconButton(icon: const Text('⚙️ Settings'), onPressed: _showTemplateSettings),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
