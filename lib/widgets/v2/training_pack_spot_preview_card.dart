@@ -10,6 +10,8 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
   final ValueChanged<String>? onTagTap;
   final VoidCallback? onDuplicate;
   final VoidCallback? onNewTap;
+  final VoidCallback? onDupTap;
+  final bool showDuplicate;
   final Color? titleColor;
   final bool isMistake;
   const TrainingPackSpotPreviewCard({
@@ -19,8 +21,10 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
     this.onTagTap,
     this.onDuplicate,
     this.onNewTap,
+    this.onDupTap,
     this.titleColor,
     this.isMistake = false,
+    this.showDuplicate = false,
   });
 
   @override
@@ -150,6 +154,15 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                             onTap: onNewTap,
                             child: const Icon(Icons.fiber_new,
                                 color: Colors.orangeAccent),
+                          ),
+                        ),
+                      if (showDuplicate)
+                        Tooltip(
+                          message: 'Duplicate',
+                          child: InkWell(
+                            onTap: onDupTap,
+                            child: const Icon(Icons.copy_all,
+                                color: Colors.redAccent),
                           ),
                         ),
                       if (spot.hand.playerCount > 2)
