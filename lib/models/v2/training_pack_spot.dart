@@ -11,6 +11,9 @@ class TrainingPackSpot {
   DateTime editedAt;
   bool pinned;
   bool dirty;
+
+  /// Ephemeral flag — used only in RAM to highlight freshly imported spots.
+  /// Never written to / read from JSON.
   bool isNew = false;
   EvaluationResult? evalResult;
 
@@ -67,6 +70,7 @@ class TrainingPackSpot {
             DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
         pinned: j['pinned'] == true,
         dirty: j['dirty'] == true,
+        // `isNew` never restored from disk
         isNew: false,
         evalResult: j['evalResult'] != null
             ? EvaluationResult.fromJson(
