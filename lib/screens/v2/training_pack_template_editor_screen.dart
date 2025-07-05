@@ -1944,6 +1944,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     });
   }
 
+  void _selectAllDuplicates() {
+    final dups = _duplicateSpotGroups().expand((g) => g.skip(1));
+    setState(() {
+      _selectedSpotIds
+        ..clear()
+        ..addAll([for (final i in dups) widget.template.spots[i].id]);
+    });
+  }
+
   void _invertSelection() {
     final all = widget.template.spots.map((e) => e.id).toSet();
     setState(() => _selectedSpotIds = all.difference(_selectedSpotIds));
@@ -1966,6 +1975,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     if (e.logicalKey == LogicalKeyboardKey.backspace) {
       _bulkDelete();
+      return true;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyS && e.isShiftPressed) {
+      _selectAllDuplicates();
       return true;
     }
     if (e.logicalKey == LogicalKeyboardKey.keyD && e.isShiftPressed) {
@@ -2141,6 +2154,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   List<List<int>> _duplicateSpotGroups() =>
       duplicateSpotGroupsStatic(widget.template.spots);
 
+  bool _isDup(TrainingPackSpot s) {
+    final index = widget.template.spots.indexOf(s);
+    if (index == -1) return false;
+    for (final g in _duplicateSpotGroups()) {
+      if (g.skip(1).contains(index)) return true;
+    }
+    return false;
+  }
+
   bool _importDuplicateGroups(List<TrainingPackSpot> imported) {
     final before = _pasteUndo ?? [];
     final existing = <String>{};
@@ -2187,6 +2209,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _showDupHint = false;
     });
     _persist();
+    setState(() => _selectedSpotIds.clear());
     setState(() => _history.log('Deleted', '${removed.length} spots', ''));
     if (removed.isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -2244,6 +2267,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _showDupHint = false;
     });
     _persist();
+    setState(() => _selectedSpotIds.clear());
     setState(() => _history.log('Deleted', '${removed.length} spots', ''));
     if (removed.isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -2838,6 +2862,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 CheckedPopupMenuItem(value: f, checked: _quickFilter == f, child: Text(f)),
             ],
           ),
+          if (widget.template.spots.any((s) => !s.isNew && _isDup(s)))
+            TextButton(
+              onPressed: _selectAllDuplicates,
+              child: const Text('Select Duplicates'),
+            ),
           if (_isMultiSelect)
             PopupMenuButton<String>(
               tooltip: 'Move to Tag',
@@ -3672,6 +3701,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             itemBuilder: (context, index) {
                               final spot = spots[index];
                       final selected = _selectedSpotIds.contains(spot.id);
+                      final showDup =
+                          (spot.isNew && _importDuplicateGroups([spot])) ||
+                              _isDup(spot);
                       final content = ReorderableDragStartListener(
                         key: ValueKey(spot.id),
                         index: index,
@@ -3735,6 +3767,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                         _focusSpot(copy.id);
                                       },
                                       onNewTap: _selectAllNew,
+                                      onDupTap: _selectAllDuplicates,
+                                      showDuplicate: showDup,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
