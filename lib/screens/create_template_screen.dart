@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/training_pack_template.dart';
 import '../widgets/sync_status_widget.dart';
+
+class _SaveIntent extends Intent {
+  const _SaveIntent();
+}
 
 class CreateTemplateScreen extends StatefulWidget {
   const CreateTemplateScreen({super.key});
@@ -49,44 +54,55 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
         title: const Text('Создать шаблон'),
         actions: [SyncStatusIcon.of(context)],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Focus(
-              autofocus: true,
-              child: TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Название'),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _descController,
-              decoration: const InputDecoration(labelText: 'Описание'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _categoryController,
-              decoration: const InputDecoration(labelText: 'Категория (опц.)'),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _gameType,
-              decoration: const InputDecoration(labelText: 'Тип игры'),
-              items: const [
-                DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
-                DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+      body: Shortcuts(
+        shortcuts: const {
+          LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.enter): _SaveIntent(),
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.enter): _SaveIntent(),
+        },
+        child: Actions(
+          actions: {
+            _SaveIntent: CallbackAction<_SaveIntent>(onInvoke: (_) => _save()),
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Focus(
+                  autofocus: true,
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: 'Название'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _descController,
+                  decoration: const InputDecoration(labelText: 'Описание'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _categoryController,
+                  decoration: const InputDecoration(labelText: 'Категория (опц.)'),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _gameType,
+                  decoration: const InputDecoration(labelText: 'Тип игры'),
+                  items: const [
+                    DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
+                    DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+                  ],
+                  onChanged: (v) => setState(() => _gameType = v ?? 'Cash Game'),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _save,
+                  child: const Text('Далее'),
+                ),
               ],
-              onChanged: (v) => setState(() => _gameType = v ?? 'Cash Game'),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _save,
-              child: const Text('Далее'),
-            ),
-          ],
+          ),
         ),
       ),
     );
