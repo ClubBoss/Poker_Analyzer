@@ -9,6 +9,7 @@ class TrainingPackSpot {
   HandData hand;
   List<String> tags;
   DateTime editedAt;
+  DateTime createdAt;
   bool pinned;
   bool dirty;
 
@@ -24,14 +25,16 @@ class TrainingPackSpot {
     HandData? hand,
     List<String>? tags,
     DateTime? editedAt,
+    DateTime? createdAt,
     this.pinned = false,
     this.dirty = false,
     bool? isNew,
     this.evalResult,
-  })  : isNew = isNew ?? false,
-        hand = hand ?? HandData(),
-        tags = tags ?? [],
-        editedAt = editedAt ?? DateTime.now();
+  }) : isNew = isNew ?? false,
+       hand = hand ?? HandData(),
+       tags = tags ?? [],
+       editedAt = editedAt ?? DateTime.now(),
+       createdAt = createdAt ?? DateTime.now();
 
   TrainingPackSpot copyWith({
     String? id,
@@ -40,55 +43,58 @@ class TrainingPackSpot {
     HandData? hand,
     List<String>? tags,
     DateTime? editedAt,
+    DateTime? createdAt,
     bool? pinned,
     bool? dirty,
     bool? isNew,
     EvaluationResult? evalResult,
-  }) =>
-      TrainingPackSpot(
-        id: id ?? this.id,
-        title: title ?? this.title,
-        note: note ?? this.note,
-        hand: hand ?? this.hand,
-        tags: tags ?? List<String>.from(this.tags),
-        editedAt: editedAt ?? this.editedAt,
-        pinned: pinned ?? this.pinned,
-        dirty: dirty ?? this.dirty,
-        isNew: isNew ?? this.isNew,
-        evalResult: evalResult ?? this.evalResult,
-      );
+  }) => TrainingPackSpot(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    note: note ?? this.note,
+    hand: hand ?? this.hand,
+    tags: tags ?? List<String>.from(this.tags),
+    editedAt: editedAt ?? this.editedAt,
+    createdAt: createdAt ?? this.createdAt,
+    pinned: pinned ?? this.pinned,
+    dirty: dirty ?? this.dirty,
+    isNew: isNew ?? this.isNew,
+    evalResult: evalResult ?? this.evalResult,
+  );
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
-        id: j['id'] as String? ?? '',
-        title: j['title'] as String? ?? '',
-        note: j['note'] as String? ?? '',
-        hand: j['hand'] != null
-            ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
-            : HandData(),
-        tags: [for (final t in (j['tags'] as List? ?? [])) t as String],
-        editedAt:
-            DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
-        pinned: j['pinned'] == true,
-        dirty: j['dirty'] == true,
-        // `isNew` never restored from disk
-        isNew: false,
-        evalResult: j['evalResult'] != null
-            ? EvaluationResult.fromJson(
-                Map<String, dynamic>.from(j['evalResult']))
-            : null,
-      );
+    id: j['id'] as String? ?? '',
+    title: j['title'] as String? ?? '',
+    note: j['note'] as String? ?? '',
+    hand: j['hand'] != null
+        ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
+        : HandData(),
+    tags: [for (final t in (j['tags'] as List? ?? [])) t as String],
+    editedAt:
+        DateTime.tryParse(j['editedAt'] as String? ?? '') ?? DateTime.now(),
+    createdAt:
+        DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
+    pinned: j['pinned'] == true,
+    dirty: j['dirty'] == true,
+    // `isNew` never restored from disk
+    isNew: false,
+    evalResult: j['evalResult'] != null
+        ? EvaluationResult.fromJson(Map<String, dynamic>.from(j['evalResult']))
+        : null,
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'note': note,
-        'hand': hand.toJson(),
-        if (tags.isNotEmpty) 'tags': tags,
-        'editedAt': editedAt.toIso8601String(),
-        if (pinned) 'pinned': true,
-        if (dirty) 'dirty': true,
-        if (evalResult != null) 'evalResult': evalResult!.toJson(),
-      };
+    'id': id,
+    'title': title,
+    'note': note,
+    'hand': hand.toJson(),
+    if (tags.isNotEmpty) 'tags': tags,
+    'editedAt': editedAt.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+    if (pinned) 'pinned': true,
+    if (dirty) 'dirty': true,
+    if (evalResult != null) 'evalResult': evalResult!.toJson(),
+  };
 
   double? get heroEv {
     final acts = hand.actions[0] ?? [];
@@ -122,7 +128,15 @@ class TrainingPackSpot {
           evalResult == other.evalResult;
 
   @override
-  int get hashCode =>
-      Object.hash(id, title, note, hand, const ListEquality().hash(tags), pinned,
-          dirty, isNew, evalResult);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    note,
+    hand,
+    const ListEquality().hash(tags),
+    pinned,
+    dirty,
+    isNew,
+    evalResult,
+  );
 }

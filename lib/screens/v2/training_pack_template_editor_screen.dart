@@ -51,6 +51,7 @@ import '../../services/training_pack_template_storage_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
+enum SortMode { position, chronological }
 
 List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
   final map = <String, List<int>>{};
@@ -121,10 +122,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsDupOnlyKey = 'dup_only';
   static const _prefsPinnedOnlyKey = 'pinned_only';
   static const _prefsNewOnlyKey = 'new_only';
+  static const _prefsSortMode2Key = 'sort_mode2';
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
   SpotSort _spotSort = SpotSort.original;
+  SortMode _sortMode = SortMode.position;
   static const _quickFilters = [
     'BTN',
     'SB',
@@ -186,6 +189,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     prefs.setBool(_prefsNewOnlyKey, _newOnly);
   }
 
+  void _storeSortMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(_prefsSortMode2Key, _sortMode.name);
+  }
+
   Set<String> _templateRange() {
     final set = <String>{};
     for (final s in widget.template.spots) {
@@ -218,7 +226,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     final changed =
         _changedOnly ? _history.history.map((e) => e.id).toSet() : null;
-    return base.where((s) {
+    final list = base.where((s) {
       if (_pinnedOnly && !s.pinned) return false;
       final res = s.evalResult;
       if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
@@ -264,6 +272,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       return s.title.toLowerCase().contains(_query) ||
           s.tags.any((t) => t.toLowerCase().contains(_query));
     }).toList();
+    if (_sortMode == SortMode.chronological) {
+      list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    }
+    return list;
   }
 
   void _focusSpot(String id) {
@@ -838,6 +850,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final quick = prefs.getString(_prefsQuickFilterKey);
       final sortStr = prefs.getString(_prefsSortKey);
       final sortMode = prefs.getString(_prefsSortModeKey);
+      final mode2 = prefs.getString(_prefsSortMode2Key);
       final offset = prefs.getDouble(_prefsScrollKey) ?? 0;
       final dupOnly = prefs.getBool(_prefsDupOnlyKey) ?? false;
       final pinnedOnly = prefs.getBool(_prefsPinnedOnlyKey) ?? false;
@@ -874,6 +887,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _duplicatesOnly = dupOnly;
           _pinnedOnly = pinnedOnly;
           _newOnly = newOnly;
+          if (mode2 != null) {
+            for (final v in SortMode.values) {
+              if (v.name == mode2) _sortMode = v;
+            }
+          }
           if (sortMode != null) _sortSpots();
           });
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2039,6 +2057,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       });
       return true;
     }
+    if (e.logicalKey == LogicalKeyboardKey.keyS && e.isAltPressed) {
+      _toggleSortMode();
+      return true;
+    }
     final isCmd = e.isControlPressed || e.isMetaPressed;
     if (!isCmd) return false;
     if (e.logicalKey == LogicalKeyboardKey.keyA) {
@@ -2454,6 +2476,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     });
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(_prefsSortModeKey, _evAsc ? 'asc' : 'desc');
+  }
+
+  void _toggleSortMode() {
+    setState(() {
+      _sortMode = _sortMode == SortMode.chronological
+          ? SortMode.position
+          : SortMode.chronological;
+    });
+    _storeSortMode();
   }
 
   void _showFilters() {
@@ -2935,6 +2966,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             icon: Icon(_evAsc ? Icons.arrow_upward : Icons.arrow_downward),
             tooltip: 'Sort by EV',
             onPressed: _toggleEvSort,
+          ),
+          IconButton(
+            icon: Icon(Icons.sort,
+                color:
+                    _sortMode == SortMode.chronological ? AppColors.accent : null),
+            tooltip: 'Sort Mode',
+            onPressed: _toggleSortMode,
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
