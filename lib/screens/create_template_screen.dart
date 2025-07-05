@@ -54,9 +54,12 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Название'),
+            Focus(
+              autofocus: true,
+              child: TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'Название'),
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
