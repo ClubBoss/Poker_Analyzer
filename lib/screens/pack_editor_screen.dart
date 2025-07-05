@@ -25,6 +25,7 @@ import '../widgets/view_manager_dialog.dart';
 import '../models/pack_editor_snapshot.dart';
 import '../widgets/snapshot_manager_dialog.dart';
 import '../widgets/saved_hand_viewer_dialog.dart';
+import '../services/room_hand_history_importer.dart';
 
 enum _SortOption { newest, oldest, position, tags, mistakes }
 
@@ -317,34 +318,38 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     return hands;
   }
 
-  Future<void> _addHands() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: ['json', 'hand.json', 'csv'],
-    );
-    if (result == null || result.files.isEmpty) return;
-    final added = <SavedHand>[];
-    for (final f in result.files) {
-      final path = f.path;
-      if (path == null) continue;
-      try {
-        final content = await File(path).readAsString();
-        if (path.endsWith('.csv')) {
-          added.addAll(_parseCsv(content));
-        } else {
-          final data = jsonDecode(content);
-          if (data is Map<String, dynamic>) {
-            added.add(SavedHand.fromJson(data));
-          } else if (data is List) {
-            for (final e in data) {
-              if (e is Map<String, dynamic>) {
-                added.add(SavedHand.fromJson(e));
+  Future<void> _addHands([List<SavedHand>? newHands]) async {
+    List<SavedHand> added = [];
+    if (newHands == null) {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        allowedExtensions: ['json', 'hand.json', 'csv'],
+      );
+      if (result == null || result.files.isEmpty) return;
+      for (final f in result.files) {
+        final path = f.path;
+        if (path == null) continue;
+        try {
+          final content = await File(path).readAsString();
+          if (path.endsWith('.csv')) {
+            added.addAll(_parseCsv(content));
+          } else {
+            final data = jsonDecode(content);
+            if (data is Map<String, dynamic>) {
+              added.add(SavedHand.fromJson(data));
+            } else if (data is List) {
+              for (final e in data) {
+                if (e is Map<String, dynamic>) {
+                  added.add(SavedHand.fromJson(e));
+                }
               }
             }
           }
-        }
-      } catch (_) {}
+        } catch (_) {}
+      }
+    } else {
+      added = newHands;
     }
     if (added.isEmpty) return;
     setState(() {
@@ -373,6 +378,46 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
       _hands = List.from(updated.hands);
       _rebuildStats();
     });
+  }
+
+  Future<void> _importFromClipboard() async {
+    final data = await Clipboard.getData('text/plain');
+    final text = data?.text?.trim() ?? '';
+    if (text.isEmpty) return;
+    final importer = await RoomHandHistoryImporter.create();
+    final parsed = importer.parse(text);
+    if (parsed.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось распознать раздачи')),
+        );
+      }
+      return;
+    }
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Добавить ${parsed.length} раздач?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Нет'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Да'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    final before = _hands.length;
+    await _addHands(parsed);
+    if (!mounted) return;
+    final added = _hands.length - before;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Добавлено раздач: $added')),
+    );
   }
 
   Future<void> _previewHand(SavedHand hand) async {
@@ -2655,12 +2700,27 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
                   ),
                 ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            final result = await _showAutoTagDialog();
-            if (result != null) _autoTag(result.$1, result.$2);
-          },
-          child: const Icon(Icons.auto_fix_high),
+        floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (!_selectionMode)
+              FloatingActionButton.extended(
+                heroTag: 'pasteFab',
+                onPressed: _importFromClipboard,
+                icon: const Icon(Icons.paste),
+                label: const Text('Вставить'),
+              ),
+            if (!_selectionMode) const SizedBox(height: 12),
+            FloatingActionButton(
+              heroTag: 'autoTagFab',
+              onPressed: () async {
+                final result = await _showAutoTagDialog();
+                if (result != null) _autoTag(result.$1, result.$2);
+              },
+              child: const Icon(Icons.auto_fix_high),
+            ),
+          ],
         ),
         body: Column(
           children: [
