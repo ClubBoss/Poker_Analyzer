@@ -108,6 +108,8 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   List<List<SavedHand>> _history = [];
   int _historyIndex = 0;
   bool _skipHistory = false;
+  bool _showPasteBubble = false;
+  Timer? _clipboardTimer;
 
   @override
   void setState(VoidCallback fn) {
@@ -128,6 +130,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     _history = [List.from(_hands)];
     _historyIndex = 0;
     _loadPrefs();
+    _checkClipboard();
   }
 
   Future<void> _loadPrefs() async {
@@ -174,6 +177,18 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
     await _maybeRestoreAutoSnapshot(prefs);
     _autoTimer ??=
         Timer.periodic(const Duration(seconds: 60), (_) => _autoSaveSnapshot());
+    _clipboardTimer ??=
+        Timer.periodic(const Duration(seconds: 2), (_) => _checkClipboard());
+    _checkClipboard();
+  }
+
+  Future<void> _checkClipboard() async {
+    final data = await Clipboard.getData('text/plain');
+    final txt = data?.text?.trim() ?? '';
+    final show = txt.length > 100;
+    if (show != _showPasteBubble) {
+      setState(() => _showPasteBubble = show);
+    }
   }
 
   LogicalKeySet _primaryCmd(LogicalKeyboardKey key) {
@@ -469,6 +484,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
         ),
       );
     }
+    setState(() => _showPasteBubble = false);
   }
 
   Future<void> _previewHand(SavedHand hand) async {
@@ -2596,6 +2612,7 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
   @override
   void dispose() {
     _autoTimer?.cancel();
+    _clipboardTimer?.cancel();
     _searchController.dispose();
     _focusNode.dispose();
     _findController.dispose();
@@ -2854,6 +2871,16 @@ class _PackEditorScreenState extends State<PackEditorScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            if (_showPasteBubble)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: FloatingActionButton.extended(
+                  heroTag: 'pasteBubble',
+                  mini: true,
+                  onPressed: _importFromClipboard,
+                  label: const Text('Paste Hands'),
+                ),
+              ),
             if (!_selectionMode)
               FloatingActionButton.extended(
                 heroTag: 'pasteFab',
