@@ -209,11 +209,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   List<TrainingPackSpot> _visibleSpots() {
-    final base = _newOnly
-        ? [for (final s in widget.template.spots) if (s.isNew) s]
-        : _duplicatesOnly
-            ? [for (final s in widget.template.spots) if (_isDup(s)) s]
-            : widget.template.spots;
+    var base = widget.template.spots;
+    if (_newOnly) {
+      base = [for (final s in base) if (s.isNew) s];
+    }
+    if (_duplicatesOnly) {
+      base = [for (final s in base) if (_isDup(s)) s];
+    }
     final changed =
         _changedOnly ? _history.history.map((e) => e.id).toSet() : null;
     return base.where((s) {
