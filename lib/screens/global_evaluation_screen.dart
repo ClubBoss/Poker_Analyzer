@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import "dart:math";
+import 'dart:math';
 
 import '../helpers/training_pack_storage.dart';
 import '../services/bulk_evaluator_service.dart';
@@ -48,20 +48,22 @@ class _GlobalEvaluationScreenState extends State<GlobalEvaluationScreen> {
                   setState(() => _progress = base + p / total);
                 },
               )
-              .catchError((_) => 0),
+              .catchError((e) {
+                debugPrint('globalEval: $e');
+                return 0;
+              }),
       ]);
       if (!mounted) return;
+      if (_cancelRequested) break;
       for (var j = 0; j < batch.length; j++) {
         if (results[j] > 0) TemplateCoverageUtils.recountAll(batch[j]);
       }
       setState(() => _progress = (i + batch.length) / total);
     }
+    if (!_cancelRequested) setState(() => _progress = 1);
     await TrainingPackStorage.save(templates);
     if (!mounted) return;
-    setState(() {
-      _running = false;
-      if (!_cancelRequested) _progress = 1;
-    });
+    setState(() => _running = false);
     if (!_cancelRequested) {
       messenger.showSnackBar(
         const SnackBar(content: Text('Пересчёт EV/ICM завершён 🎉')),
@@ -93,7 +95,10 @@ class _GlobalEvaluationScreenState extends State<GlobalEvaluationScreen> {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: () => setState(() => _cancelRequested = true),
+                    onPressed: () => setState(() {
+                      _cancelRequested = true;
+                      _running = false;
+                    }),
                     child: const Text('Отмена'),
                   ),
                 ],
