@@ -3,33 +3,37 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 class PngExporter {
-  static Future<Uint8List?> _capture(BuildContext context, Widget child) async {
-    final key = GlobalKey();
-    final entry = OverlayEntry(
-      builder: (_) => Center(
-        child: Offstage(
-          offstage: true,
-          child: RepaintBoundary(key: key, child: child),
-        ),
+  static Future<Uint8List?> _capture(Widget child) async {
+    final boundary = RenderRepaintBoundary();
+    final renderView = RenderView(
+      configuration: ViewConfiguration(
+        size: ui.window.physicalSize / ui.window.devicePixelRatio,
+        devicePixelRatio: ui.window.devicePixelRatio,
       ),
+      window: ui.window,
+      child: RenderPositionedBox(alignment: Alignment.center, child: boundary),
     );
-    Overlay.of(context, rootOverlay: true).insert(entry);
-    await Future.delayed(Duration.zero);
-    await Future.delayed(const Duration(milliseconds: 50));
-    final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    Uint8List? bytes;
-    if (boundary != null) {
-      final image = await boundary.toImage(pixelRatio: 3);
-      final data = await image.toByteData(format: ui.ImageByteFormat.png);
-      bytes = data?.buffer.asUint8List();
-    }
-    entry.remove();
-    return bytes;
+    final pipelineOwner = PipelineOwner();
+    renderView.attach(pipelineOwner);
+    final buildOwner = BuildOwner(focusManager: FocusManager());
+    final rootWidget = MaterialApp(home: RepaintBoundary(child: child));
+    final adapter = RenderObjectToWidgetAdapter<RenderBox>(
+      container: boundary,
+      child: rootWidget,
+    );
+    adapter.attachToRenderTree(buildOwner);
+    buildOwner.buildScope(null);
+    buildOwner.finalizeTree();
+    pipelineOwner.flushLayout();
+    pipelineOwner.flushCompositingBits();
+    pipelineOwner.flushPaint();
+    final image = await boundary.toImage(pixelRatio: 3);
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+    return data?.buffer.asUint8List();
   }
 
-  static Future<Uint8List?> exportSpot(BuildContext context, Widget spot, {required String label}) {
+  static Future<Uint8List?> exportSpot(Widget spot, {required String label}) {
     return _capture(
-      context,
       Stack(
         children: [
           spot,

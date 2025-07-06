@@ -1018,7 +1018,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         final spot = widget.template.spots[i];
         final preview = TrainingPackSpotPreviewCard(spot: spot);
         final label = spot.title.isNotEmpty ? spot.title : 'Spot ${i + 1}';
-        final bytes = await PngExporter.exportSpot(context, preview, label: label);
+        final bytes = await PngExporter.exportSpot(preview, label: label);
         if (bytes == null) continue;
         final imgFile = File('${dir.path}/spot_$i.png');
         await imgFile.writeAsBytes(bytes);
