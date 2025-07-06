@@ -3347,11 +3347,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             ? Text('${_selectedSpotIds.length} selected')
             : Row(
                 children: [
-                  GestureDetector(
-                    onTap: _renameTemplate,
-                    child: Text(_templateName),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: _renameTemplate,
+                          child: Text(_templateName),
+                        ),
+                        Builder(builder: (context) {
+                          final total = widget.template.spots.length;
+                          final ev = widget.template.evCovered;
+                          final icm = widget.template.icmCovered;
+                          final evPct = total == 0 ? 0 : (ev * 100 / total).round();
+                          final icmPct = total == 0 ? 0 : (icm * 100 / total).round();
+                          return Text.rich(
+                            TextSpan(
+                              text: '$evPct% EV',
+                              children: [
+                                const TextSpan(text: ' • '),
+                                TextSpan(text: '$icmPct% ICM'),
+                              ],
+                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: Colors.white70),
+                          );
+                        }),
+                      ],
+                    ),
                   ),
-                  const Spacer(),
                   Text(
                     '${_visibleSpots().length} spots',
                     style: Theme.of(context)
