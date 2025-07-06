@@ -13,6 +13,10 @@ class BulkEvaluatorService {
   }) async {
     final updated = <TrainingPackSpot>[];
     final total = template.spots.length;
+    if (total == 0) {
+      onProgress?.call(1);
+      return updated;
+    }
     var done = 0;
     var next = 0.1;
     for (final spot in template.spots) {
