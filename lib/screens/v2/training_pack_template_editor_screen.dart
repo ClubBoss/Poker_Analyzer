@@ -1276,10 +1276,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     archive.addFile(ArchiveFile('template.json', jsonData.length, jsonData));
     final dir = await TrainingPackStorage.previewImageDir(widget.template);
     if (await dir.exists()) {
-      for (final file in dir
-          .listSync()
-          .whereType<File>()
-          .where((f) => f.path.toLowerCase().endsWith('.png'))) {
+      for (final file in dir.listSync().whereType<File>().where((f) => f.path.toLowerCase().endsWith('.png'))) {
         final bytes = await file.readAsBytes();
         final name = file.path.split(Platform.pathSeparator).last;
         archive.addFile(ArchiveFile(name, bytes.length, bytes));
