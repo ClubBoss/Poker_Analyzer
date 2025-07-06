@@ -124,6 +124,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsPinnedOnlyKey = 'pinned_only';
   static const _prefsNewOnlyKey = 'new_only';
   static const _prefsSortMode2Key = 'sort_mode2';
+  static const _prefsPreviewModeKey = 'preview_mode';
   String _scrollKeyFor(TrainingPackTemplate t) => '$_prefsScrollPrefix${t.id}';
   String get _scrollKey => _scrollKeyFor(widget.template);
   String _evFilter = 'all';
@@ -175,6 +176,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   void _storeSort() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(_prefsSortKey, _sortBy.name);
+  }
+
+  void _storePreview() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_prefsPreviewModeKey, _previewMode);
   }
 
   void _storeScroll() async {
@@ -886,6 +892,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final dupOnly = prefs.getBool(_prefsDupOnlyKey) ?? false;
       final pinnedOnly = prefs.getBool(_prefsPinnedOnlyKey) ?? false;
       final newOnly = prefs.getBool(_prefsNewOnlyKey) ?? false;
+      final preview = prefs.getBool(_prefsPreviewModeKey) ?? false;
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
         final parts = rangeStr.split(',');
@@ -918,6 +925,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _duplicatesOnly = dupOnly;
           _pinnedOnly = pinnedOnly;
           _newOnly = newOnly;
+          _previewMode = preview;
           if (mode2 != null) {
             for (final v in SortMode.values) {
               if (v.name == mode2) _sortMode = v;
@@ -3256,24 +3264,33 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               PopupMenuItem(value: 'tagMistakes', child: Text('Tag All Mistakes')),
             ],
           ),
-          IconButton(
-            onPressed: () async {
-              await context
-                  .read<TrainingSessionService>()
-                  .startSession(widget.template, persist: false);
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const TrainingSessionScreen()),
-              );
-            },
-            icon: const Text('▶️ Playtest'),
+          FocusTraversalOrder(
+            order: const NumericFocusOrder(1),
+            child: IconButton(
+              onPressed: () async {
+                await context
+                    .read<TrainingSessionService>()
+                    .startSession(widget.template, persist: false);
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const TrainingSessionScreen()),
+                );
+              },
+              icon: const Text('▶️ Playtest'),
+            ),
           ),
-          IconButton(
-            icon:
-                Icon(_previewMode ? Icons.edit : Icons.remove_red_eye_outlined),
-            tooltip: 'Preview Mode',
-            onPressed: () => setState(() => _previewMode = !_previewMode),
+          FocusTraversalOrder(
+            order: const NumericFocusOrder(2),
+            child: IconButton(
+              icon: Icon(
+                  _previewMode ? Icons.edit : Icons.remove_red_eye_outlined),
+              tooltip: 'Preview Mode',
+              onPressed: () {
+                setState(() => _previewMode = !_previewMode);
+                _storePreview();
+              },
+            ),
           ),
           IconButton(icon: const Icon(Icons.save), onPressed: _save)
         ],
@@ -3366,11 +3383,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             )
           : null,
       bottomNavigationBar:
-          (_showScrollIndicator || (hasSpots && _isMultiSelect))
+          ((_showScrollIndicator && !_previewMode) || (hasSpots && _isMultiSelect))
               ? Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_showScrollIndicator)
+                    if (_showScrollIndicator && !_previewMode)
                       Tooltip(
                         waitDuration: const Duration(milliseconds: 500),
                         showDuration: const Duration(seconds: 2),
