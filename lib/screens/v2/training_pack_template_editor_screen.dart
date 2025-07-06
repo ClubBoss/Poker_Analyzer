@@ -1918,6 +1918,29 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Future<void> _bulkMove() => _bulkTransfer(true);
   Future<void> _bulkCopy() => _bulkTransfer(false);
+  Future<void> _bulkDuplicate() async {
+    final spots = [
+      for (final s in widget.template.spots)
+        if (_selectedSpotIds.contains(s.id)) s
+    ];
+    if (spots.isEmpty) return;
+    _recordSnapshot();
+    setState(() {
+      for (final spot in spots) {
+        final i = widget.template.spots.indexOf(spot);
+        final copy = spot.copyWith(
+          id: const Uuid().v4(),
+          editedAt: DateTime.now(),
+          hand: HandData.fromJson(spot.hand.toJson()),
+          tags: List.from(spot.tags),
+        );
+        widget.template.spots.insert(i + 1, copy);
+      }
+      if (_autoSortEv) _sortSpots();
+      _selectedSpotIds.clear();
+    });
+    _persist();
+  }
 
   void _newPackFromSelection() {
     final spots = [
@@ -2075,6 +2098,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _bulkDelete();
       return true;
     }
+    if (e.logicalKey == LogicalKeyboardKey.keyD) {
+      _bulkDuplicate();
+      return true;
+    }
     if (e.logicalKey == LogicalKeyboardKey.keyS && e.isShiftPressed) {
       _selectAllDuplicates();
       return true;
@@ -2106,13 +2133,54 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() => _log('Added', copy));
   }
 
+  /// Универсальное меню для карточки спота
   Widget _buildSpotMenu(TrainingPackSpot spot) {
     return PopupMenuButton<String>(
+      tooltip: 'Actions',
       onSelected: (v) {
-        if (v == 'duplicate') _duplicateSpot(spot);
+        switch (v) {
+          case 'pin':
+            setState(() {
+              spot.pinned = !spot.pinned;
+              if (_autoSortEv) _sortSpots();
+            });
+            _persist();
+            break;
+          case 'copy':
+            _copiedSpot = spot.copyWith(
+              id: const Uuid().v4(),
+              editedAt: DateTime.now(),
+              hand: HandData.fromJson(spot.hand.toJson()),
+              tags: List.from(spot.tags),
+            );
+            break;
+          case 'paste':
+            if (_copiedSpot != null) {
+              final i = widget.template.spots.indexOf(spot);
+              final s = _copiedSpot!.copyWith(
+                id: const Uuid().v4(),
+                editedAt: DateTime.now(),
+                hand: HandData.fromJson(_copiedSpot!.hand.toJson()),
+                tags: List.from(_copiedSpot!.tags),
+              );
+              setState(() => widget.template.spots.insert(i + 1, s));
+              _persist();
+            }
+            break;
+          case 'dup':
+            _duplicateSpot(spot);
+            break;
+        }
       },
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: 'duplicate', child: Text('Duplicate')),
+      itemBuilder: (_) => [
+        PopupMenuItem(
+          value: 'pin',
+          child: Text(spot.pinned ? '📌 Unpin' : '📌 Pin'),
+        ),
+        const PopupMenuItem(value: 'copy',  child: Text('📋 Copy')),
+        if (_copiedSpot != null)
+          const PopupMenuItem(value: 'paste', child: Text('📥 Paste')),
+        const PopupMenuItem(value: 'dup',   child: Text('📄 Duplicate')),
       ],
     );
   }
