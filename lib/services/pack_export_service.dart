@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+import 'package:archive/archive.dart';
 
 import '../models/v2/training_pack_template.dart';
 
@@ -110,6 +112,25 @@ class PackExportService {
     var path = '${dir.path}/$base.pdf';
     if (await File(path).exists()) {
       path = '${dir.path}/${base}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    }
+    final file = File(path);
+    await file.writeAsBytes(bytes, flush: true);
+    return file;
+  }
+
+  static Future<File> exportBundle(TrainingPackTemplate tpl) async {
+    final pdf = await exportToPdf(tpl);
+    final jsonData = utf8.encode(jsonEncode(tpl.toJson()));
+    final pdfBytes = await pdf.readAsBytes();
+    final archive = Archive()
+      ..addFile(ArchiveFile('template.json', jsonData.length, jsonData))
+      ..addFile(ArchiveFile('preview.pdf', pdfBytes.length, pdfBytes));
+    final bytes = ZipEncoder().encode(archive)!;
+    final dir = await getTemporaryDirectory();
+    final base = _toSnakeCase(tpl.name);
+    var path = '${dir.path}/$base.pka';
+    if (await File(path).exists()) {
+      path = '${dir.path}/$base_${DateTime.now().millisecondsSinceEpoch}.pka';
     }
     final file = File(path);
     await file.writeAsBytes(bytes, flush: true);
