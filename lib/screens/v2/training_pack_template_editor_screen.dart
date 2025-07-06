@@ -117,12 +117,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsTagFilterKey = 'tag_filter';
   static const _prefsQuickFilterKey = 'quick_filter';
   static const _prefsSortKey = 'sort_mode';
-  static const _prefsScrollKey = 'tmpl_scroll';
+  static const _prefsScrollPrefix = 'template_scroll_';
   static const _prefsSortModeKey = 'templateSortMode';
   static const _prefsDupOnlyKey = 'dup_only';
   static const _prefsPinnedOnlyKey = 'pinned_only';
   static const _prefsNewOnlyKey = 'new_only';
   static const _prefsSortMode2Key = 'sort_mode2';
+  String get _scrollKey => '$_prefsScrollPrefix${widget.template.id}';
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
@@ -171,7 +172,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   void _storeScroll() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble(_prefsScrollKey, _scrollCtrl.offset);
+    final offset = _scrollCtrl.offset;
+    if (offset > 100) {
+      prefs.setDouble(_scrollKey, offset);
+    } else {
+      prefs.remove(_scrollKey);
+    }
   }
 
   void _storeDupOnly() async {
@@ -838,7 +844,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _tagSearchCtrl = TextEditingController();
     _history = UndoRedoService(eventsLimit: 50);
     _history.record(widget.template.spots);
-    _scrollCtrl.addListener(_storeScroll);
     _clipboardTimer ??=
         Timer.periodic(const Duration(seconds: 2), (_) => _checkClipboard());
     _checkClipboard();
@@ -851,7 +856,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final sortStr = prefs.getString(_prefsSortKey);
       final sortMode = prefs.getString(_prefsSortModeKey);
       final mode2 = prefs.getString(_prefsSortMode2Key);
-      final offset = prefs.getDouble(_prefsScrollKey) ?? 0;
+      final offset = prefs.getDouble(_scrollKey) ?? 0;
       final dupOnly = prefs.getBool(_prefsDupOnlyKey) ?? false;
       final pinnedOnly = prefs.getBool(_prefsPinnedOnlyKey) ?? false;
       final newOnly = prefs.getBool(_prefsNewOnlyKey) ?? false;
@@ -3914,11 +3919,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   }
                   final entries = groups.entries.toList()
                     ..sort((a, b) => a.key.compareTo(b.key));
-                  return ListView.separated(
-                    controller: _scrollCtrl,
-                    itemCount: entries.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 16),
-                    itemBuilder: (context, gIndex) {
+                  return NotificationListener<ScrollEndNotification>(
+                    onNotification: (_) {
+                      _storeScroll();
+                      return false;
+                    },
+                    child: ListView.separated(
+                      controller: _scrollCtrl,
+                      itemCount: entries.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      itemBuilder: (context, gIndex) {
                       final entry = entries[gIndex];
                       final spots = entry.value;
                       final start = sorted.indexOf(spots.first);
