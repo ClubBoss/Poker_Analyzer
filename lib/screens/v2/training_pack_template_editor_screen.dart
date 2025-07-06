@@ -1296,6 +1296,41 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _exportPreviewMarkdown() async {
+    final spots = widget.template.spots;
+    final total = spots.length;
+    final evCovered = spots.where((s) => s.heroEv != null && !s.dirty).length;
+    final icmCovered =
+        spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
+    final buffer = StringBuffer()
+      ..writeln('# ${widget.template.name}')
+      ..writeln('- **ID:** ${widget.template.id}')
+      ..writeln('- **Spots:** $total')
+      ..writeln(
+          '- **EV coverage:** ${total == 0 ? 0 : (evCovered / total * 100).toStringAsFixed(1)}%')
+      ..writeln(
+          '- **ICM coverage:** ${total == 0 ? 0 : (icmCovered / total * 100).toStringAsFixed(1)}%')
+      ..writeln(
+          '- **Created:** ${DateFormat('yyyy-MM-dd').format(widget.template.createdAt)}');
+    final tags = widget.template.tags.toSet().where((e) => e.isNotEmpty).toList();
+    if (tags.isNotEmpty) buffer.writeln('- **Tags:** ${tags.join(', ')}');
+    final md = buffer.toString().trimRight();
+    final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final name = 'preview_$safe';
+    try {
+      await FileSaverService.instance.saveMd(name, md);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Markdown saved')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to save: $e')));
+      }
+    }
+  }
+
   Future<void> _exportPreviewCsv() async {
     final rows = <List<dynamic>>[
       ['Position', 'HeroCards', 'Board', 'EV', 'Tags']
@@ -3673,6 +3708,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           IconButton(
                             icon: const Icon(Icons.info_outline),
                             onPressed: _exportPreviewSummary,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.description),
+                            onPressed: _exportPreviewMarkdown,
                           ),
                           Badge.count(
                             count: mistakeCount,

@@ -4,3 +4,4 @@
 - Fix training resume dialog to load packs before showing confirmation.
 - Remove unused spot storage field from app state.
 - Add "Select All" toggle in the My Packs selection toolbar.
+- Export Markdown summary from pack template preview.
