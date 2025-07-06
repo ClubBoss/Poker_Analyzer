@@ -606,6 +606,16 @@ class _TrainingPackTemplateListScreenState
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
+          if (t.isDraft)
+            const Padding(
+              padding: EdgeInsets.only(left: 4),
+              child: Chip(
+                label: Text('DRAFT', style: TextStyle(fontSize: 12)),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                backgroundColor: Colors.grey,
+              ),
+            ),
           if (allIcm)
             const Padding(
               padding: EdgeInsets.only(left: 4),
@@ -1746,7 +1756,10 @@ class _TrainingPackTemplateListScreenState
   }
 
   Future<void> _export() async {
-    final json = jsonEncode([for (final t in _templates) t.toJson()]);
+    final json = jsonEncode([
+      for (final t in _templates)
+        if (!t.isDraft) t.toJson()
+    ]);
     await Clipboard.setData(ClipboardData(text: json));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Templates copied to clipboard')),
