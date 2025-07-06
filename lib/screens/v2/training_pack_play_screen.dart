@@ -21,6 +21,7 @@ import '../../theme/app_colors.dart';
 import 'training_pack_result_screen.dart';
 import '../../services/streak_service.dart';
 import '../../services/notification_service.dart';
+import '../../services/mistake_review_pack_service.dart';
 
 enum PlayOrder { sequential, random, mistakes }
 
@@ -375,6 +376,17 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     return context.mounted && res == true;
   }
 
+  Future<void> _saveCurrentSpot() async {
+    await context
+        .read<MistakeReviewPackService>()
+        .addSpot(widget.original, _spots[_index]);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Saved to Mistake Review')),
+      );
+    }
+  }
+
   Future<void> _choose(String? act) async {
     final spot = _spots[_index];
     if (act != null) {
@@ -402,6 +414,16 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       final icmDiff =
           heroIcm != null && bestIcm != null ? heroIcm - bestIcm : null;
       _showDiff(evDiff, icmDiff);
+      if ((evDiff != null && evDiff < 0) || (icmDiff != null && icmDiff < 0)) {
+        await context
+            .read<MistakeReviewPackService>()
+            .addSpot(widget.original, spot);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Saved to Mistake Review')),
+          );
+        }
+      }
 
       final expected = evaluation.expectedAction;
       final explanation = spot.note.trim().isNotEmpty
@@ -500,6 +522,10 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         ),
         title: Text(widget.template.name),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.flag),
+            onPressed: _saveCurrentSpot,
+          ),
           PopupMenuButton<dynamic>(
             initialValue: _order,
             onSelected: (choice) async {
