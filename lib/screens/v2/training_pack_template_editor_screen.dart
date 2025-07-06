@@ -158,6 +158,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   double _scrollProgress = 0;
   bool _showScrollIndicator = false;
   Timer? _scrollThrottle;
+  bool _previewMode = false;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
 
@@ -3268,6 +3269,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             },
             icon: const Text('▶️ Playtest'),
           ),
+          IconButton(
+            icon:
+                Icon(_previewMode ? Icons.edit : Icons.remove_red_eye_outlined),
+            tooltip: 'Preview Mode',
+            onPressed: () => setState(() => _previewMode = !_previewMode),
+          ),
           IconButton(icon: const Icon(Icons.save), onPressed: _save)
         ],
       ),
@@ -3439,7 +3446,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         )
         : null,
       body: hasSpots
-          ? Stack(
+          ? _previewMode
+              ? SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                    _CoverageProgress(
+                      label: 'EV Covered',
+                      value: evCoverage,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    const SizedBox(height: 8),
+                    _CoverageProgress(
+                      label: 'ICM Covered',
+                      value: icmCoverage,
+                      color: Colors.purple,
+                    ),
+                    const SizedBox(height: 16),
+                    _TemplateSummaryPanel(
+                      spots: totalSpots,
+                      ev: evCoverage,
+                      icm: icmCoverage,
+                      tags: summaryTags,
+                      avgEv: avgEv,
+                    ),
+                    const SizedBox(height: 16),
+                    if (heroEvsAll.isNotEmpty)
+                      EvDistributionChart(evs: heroEvsAll),
+                  ],
+                )
+              : Stack(
               children: [
                 if (_showImportIndicator)
                   const Positioned(
