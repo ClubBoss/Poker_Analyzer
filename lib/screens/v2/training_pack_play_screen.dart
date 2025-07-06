@@ -562,14 +562,13 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             ],
           ),
         ],
+        bottom: PreferredSize(preferredSize: const Size.fromHeight(4), child: LinearProgressIndicator(value: progress)),
       ),
       backgroundColor: const Color(0xFF1B1C1E),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            LinearProgressIndicator(value: progress),
-            const SizedBox(height: 8),
             if (widget.template.focusTags.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
