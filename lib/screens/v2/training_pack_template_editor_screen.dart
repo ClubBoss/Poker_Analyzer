@@ -1270,6 +1270,36 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _exportPreviewZip() async {
+    final archive = Archive();
+    final jsonData = utf8.encode(jsonEncode(widget.template.toJson()));
+    archive.addFile(ArchiveFile('template.json', jsonData.length, jsonData));
+    final dir = await TrainingPackStorage.previewImageDir(widget.template);
+    if (await dir.exists()) {
+      for (final file in dir.listSync().whereType<File>()) {
+        final bytes = await file.readAsBytes();
+        final name = file.path.split(Platform.pathSeparator).last;
+        archive.addFile(ArchiveFile(name, bytes.length, bytes));
+      }
+    }
+    final bytes = ZipEncoder().encode(archive);
+    if (bytes == null) return;
+    final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final name = 'preview_$safe';
+    try {
+      await FileSaverService.instance.saveZip(name, Uint8List.fromList(bytes));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('ZIP saved')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to save: $e')));
+      }
+    }
+  }
+
   Future<void> _import() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -3531,6 +3561,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           IconButton(
                             icon: const Icon(Icons.download),
                             onPressed: _exportPreviewJson,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.archive),
+                            onPressed: _exportPreviewZip,
                           ),
                         ],
                       ),

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../data/seed_packs.dart';
@@ -31,5 +33,10 @@ class TrainingPackStorage {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, jsonEncode([for (final x in t) x.toJson()]));
+  }
+
+  static Future<Directory> previewImageDir(TrainingPackTemplate t) async {
+    final dir = await getApplicationDocumentsDirectory();
+    return Directory('${dir.path}/template_previews/${t.id}');
   }
 }

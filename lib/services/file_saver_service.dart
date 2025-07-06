@@ -26,4 +26,13 @@ class FileSaverService {
       mimeType: MimeType.csv,
     );
   }
+
+  Future<void> saveZip(String name, Uint8List data) async {
+    await FileSaver.instance.saveAs(
+      name: name,
+      bytes: data,
+      ext: 'zip',
+      mimeType: MimeType.other,
+    );
+  }
 }
