@@ -375,7 +375,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _openEditor(TrainingPackSpot spot) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => TrainingPackSpotEditorScreen(spot: spot)),
+      MaterialPageRoute(
+        builder: (_) => TrainingPackSpotEditorScreen(
+          spot: spot,
+          templateTags: widget.template.tags,
+        ),
+      ),
     );
     setState(() {
       if (_autoSortEv) _sortSpots();
@@ -704,7 +709,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       );
     }
     if (spots.length <= 3) {
-      await showSpotViewerDialog(context, spots.first);
+      await showSpotViewerDialog(
+        context,
+        spots.first,
+        templateTags: widget.template.tags,
+      );
     }
   }
 
@@ -2064,7 +2073,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _bulkAddTag([List<String>? ids]) async {
-    final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
+    final service = context.read<TemplateStorageService>();
+    final allTags = {
+      ...service.templates.expand((t) => t.tags),
+      ...widget.template.tags,
+    }.toList();
     final c = TextEditingController();
     final tag = await showDialog<String>(
       context: context,
@@ -4579,7 +4592,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         index: index,
                         child: InkWell(
                           onTap: () async {
-                            await showSpotViewerDialog(context, spot);
+                            await showSpotViewerDialog(
+                              context,
+                              spot,
+                              templateTags: widget.template.tags,
+                            );
                             if (_autoSortEv) setState(() => _sortSpots());
                             _focusSpot(spot.id);
                           },
