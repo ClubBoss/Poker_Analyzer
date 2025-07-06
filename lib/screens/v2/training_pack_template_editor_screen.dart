@@ -3778,6 +3778,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             },
           ),
           IconButton(
+            icon: Icon(Icons.error_outline,
+                color: _quickFilter == 'Mistake spots' ? AppColors.accent : null),
+            tooltip: 'Mistakes Only',
+            onPressed: () {
+              setState(() => _quickFilter = _quickFilter == 'Mistake spots'
+                  ? null
+                  : 'Mistake spots');
+              _storeQuickFilter();
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.copy_all),
             tooltip: "Find Duplicates",
             onPressed: _findDuplicateSpots,
