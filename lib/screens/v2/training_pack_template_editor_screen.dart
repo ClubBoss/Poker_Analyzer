@@ -3364,12 +3364,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (_showScrollIndicator)
-                      LinearProgressIndicator(
-                        value: _scrollProgress.clamp(0.0, 1.0),
-                        backgroundColor: Colors.white24,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(context).colorScheme.secondary),
-                        minHeight: 2,
+                      Tooltip(
+                        waitDuration: const Duration(milliseconds: 500),
+                        showDuration: const Duration(seconds: 2),
+                        message:
+                            'Scrolled: ${(_scrollProgress * 100).toStringAsFixed(1)}%',
+                        child: LinearProgressIndicator(
+                          value: _scrollProgress.clamp(0.0, 1.0),
+                          backgroundColor: Colors.white24,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.secondary),
+                          minHeight: 2,
+                        ),
                       ),
                     if (hasSpots && _isMultiSelect)
                       BottomAppBar(
