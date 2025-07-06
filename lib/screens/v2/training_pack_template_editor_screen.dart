@@ -11,6 +11,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
+import 'dart:math';
 import '../../utils/clipboard_hh_detector.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -123,7 +124,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsPinnedOnlyKey = 'pinned_only';
   static const _prefsNewOnlyKey = 'new_only';
   static const _prefsSortMode2Key = 'sort_mode2';
-  String get _scrollKey => '$_prefsScrollPrefix${widget.template.id}';
+  String _scrollKeyFor(TrainingPackTemplate t) => '$_prefsScrollPrefix${t.id}';
+  String get _scrollKey => _scrollKeyFor(widget.template);
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
@@ -137,6 +139,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   ];
   String? _quickFilter;
   final ScrollController _scrollCtrl = ScrollController();
+  Timer? _scrollDebounce;
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
   final GlobalKey _previewKey = GlobalKey();
@@ -900,7 +903,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           if (sortMode != null) _sortSpots();
           });
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_scrollCtrl.hasClients) _scrollCtrl.jumpTo(offset);
+          if (_scrollCtrl.hasClients) {
+            final max = _scrollCtrl.position.maxScrollExtent;
+            _scrollCtrl.jumpTo(min(offset, max));
+          }
         });
       }
     });
@@ -917,6 +923,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   @override
   void dispose() {
+    _scrollDebounce?.cancel();
     _storeScroll();
     _descFocus.dispose();
     _descCtr.dispose();
@@ -3921,7 +3928,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     ..sort((a, b) => a.key.compareTo(b.key));
                   return NotificationListener<ScrollEndNotification>(
                     onNotification: (_) {
-                      _storeScroll();
+                      _scrollDebounce?.cancel();
+                      _scrollDebounce =
+                          Timer(const Duration(milliseconds: 300), _storeScroll);
                       return false;
                     },
                     child: ListView.separated(
