@@ -3976,38 +3976,43 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                     ),
                                   Expanded(
                                   child: TrainingPackSpotPreviewCard(
-                                      spot: spot,
-                                      isMistake: spot.evalResult?.correct == false,
-                                      titleColor: spot.evalResult == null
-                                          ? Colors.yellow
-                                          : (spot.evalResult!.correct ? null : Colors.red),
-                                      onHandEdited: () {
-                                        setState(() {
-                                          if (_autoSortEv) _sortSpots();
-                                        });
-                                        _persist();
-                                      },
-                                      onTagTap: (tag) async {
-                                        setState(() => _tagFilter = tag);
-                                        _storeTagFilter();
-                                      },
-                                      onDuplicate: () {
-                                        final i = widget.template.spots.indexOf(spot);
-                                        if (i == -1) return;
-                                        final copy = spot.copyWith(
-                                          id: const Uuid().v4(),
-                                          editedAt: DateTime.now(),
-                                          hand: HandData.fromJson(spot.hand.toJson()),
-                                          tags: List.from(spot.tags),
-                                        );
-                                        setState(() => widget.template.spots.insert(i + 1, copy));
-                                        _persist();
-                                        _focusSpot(copy.id);
-                                      },
-                                      onNewTap: _selectAllNew,
-                                      onDupTap: _selectAllDuplicates,
-                                      showDuplicate: showDup,
-                                    ),
+                                    spot: spot,
+                                    editableTitle: true,
+                                    onTitleChanged: (_) {
+                                      setState(() {});
+                                      _persist();
+                                    },
+                                    isMistake: spot.evalResult?.correct == false,
+                                    titleColor: spot.evalResult == null
+                                        ? Colors.yellow
+                                        : (spot.evalResult!.correct ? null : Colors.red),
+                                    onHandEdited: () {
+                                      setState(() {
+                                        if (_autoSortEv) _sortSpots();
+                                      });
+                                      _persist();
+                                    },
+                                    onTagTap: (tag) async {
+                                      setState(() => _tagFilter = tag);
+                                      _storeTagFilter();
+                                    },
+                                    onDuplicate: () {
+                                      final i = widget.template.spots.indexOf(spot);
+                                      if (i == -1) return;
+                                      final copy = spot.copyWith(
+                                        id: const Uuid().v4(),
+                                        editedAt: DateTime.now(),
+                                        hand: HandData.fromJson(spot.hand.toJson()),
+                                        tags: List.from(spot.tags),
+                                      );
+                                      setState(() => widget.template.spots.insert(i + 1, copy));
+                                      _persist();
+                                      _focusSpot(copy.id);
+                                    },
+                                    onNewTap: _selectAllNew,
+                                    onDupTap: _selectAllDuplicates,
+                                    showDuplicate: showDup,
+                                  ),
                                   ),
                                   const SizedBox(width: 8),
                                   Column(

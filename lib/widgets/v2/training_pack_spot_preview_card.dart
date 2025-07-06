@@ -4,7 +4,7 @@ import '../../models/v2/hero_position.dart';
 import '../../models/action_entry.dart';
 import '../../screens/v2/hand_editor_screen.dart';
 
-class TrainingPackSpotPreviewCard extends StatelessWidget {
+class TrainingPackSpotPreviewCard extends StatefulWidget {
   final TrainingPackSpot spot;
   final VoidCallback? onHandEdited;
   final ValueChanged<String>? onTagTap;
@@ -14,6 +14,8 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
   final bool showDuplicate;
   final Color? titleColor;
   final bool isMistake;
+  final bool editableTitle;
+  final ValueChanged<String>? onTitleChanged;
   const TrainingPackSpotPreviewCard({
     super.key,
     required this.spot,
@@ -25,10 +27,63 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
     this.titleColor,
     this.isMistake = false,
     this.showDuplicate = false,
+    this.editableTitle = false,
+    this.onTitleChanged,
   });
+  @override
+  State<TrainingPackSpotPreviewCard> createState() =>
+      _TrainingPackSpotPreviewCardState();
+}
+
+class _TrainingPackSpotPreviewCardState
+    extends State<TrainingPackSpotPreviewCard> {
+  late final TextEditingController _titleCtr;
+  final FocusNode _titleFocus = FocusNode();
+  bool _editing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleCtr = TextEditingController(text: widget.spot.title);
+    _titleFocus.addListener(() {
+      if (!_titleFocus.hasFocus && _editing) _save();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant TrainingPackSpotPreviewCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_editing && oldWidget.spot.title != widget.spot.title) {
+      _titleCtr.text = widget.spot.title;
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleCtr.dispose();
+    _titleFocus.dispose();
+    super.dispose();
+  }
+
+  void _startEdit() {
+    if (!widget.editableTitle) return;
+    setState(() => _editing = true);
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _titleFocus.requestFocus());
+  }
+
+  void _save() {
+    final t = _titleCtr.text.trim();
+    setState(() {
+      widget.spot.title = t;
+      _editing = false;
+    });
+    widget.onTitleChanged?.call(t);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final spot = widget.spot;
     final hero = spot.hand.heroCards;
     final pos = spot.hand.position;
     final h = spot.hand.heroIndex;
@@ -139,13 +194,27 @@ class TrainingPackSpotPreviewCard extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          spot.title.isEmpty ? 'Untitled spot' : spot.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: titleColor,
-                          ),
-                        ),
+                        child: _editing
+                            ? TextField(
+                                controller: _titleCtr,
+                                focusNode: _titleFocus,
+                                decoration: const InputDecoration(
+                                    isDense: true, border: InputBorder.none),
+                                onSubmitted: (_) => _save(),
+                              )
+                            : GestureDetector(
+                                onTap: _startEdit,
+                                onDoubleTap: _startEdit,
+                                child: Text(
+                                  widget.spot.title.isEmpty
+                                      ? 'Untitled spot'
+                                      : widget.spot.title,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: widget.titleColor,
+                                  ),
+                                ),
+                              ),
                       ),
                       if (spot.isNew)
                         Tooltip(
