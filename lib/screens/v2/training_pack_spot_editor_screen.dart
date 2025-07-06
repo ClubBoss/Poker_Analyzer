@@ -7,10 +7,16 @@ import '../../widgets/card_picker_widget.dart';
 import '../../models/evaluation_result.dart';
 import 'package:provider/provider.dart';
 import '../../services/evaluation_executor_service.dart';
+import '../../services/template_storage_service.dart';
 
 class TrainingPackSpotEditorScreen extends StatefulWidget {
   final TrainingPackSpot spot;
-  const TrainingPackSpotEditorScreen({super.key, required this.spot});
+  final List<String> templateTags;
+  const TrainingPackSpotEditorScreen({
+    super.key,
+    required this.spot,
+    this.templateTags = const [],
+  });
 
   @override
   State<TrainingPackSpotEditorScreen> createState() => _TrainingPackSpotEditorScreenState();
@@ -108,12 +114,40 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
   }
 
   Future<void> _addTagDialog() async {
+    final service = context.read<TemplateStorageService>();
+    final allTags = {
+      ...service.templates.expand((t) => t.tags),
+      ...widget.templateTags,
+    }.toList();
     final c = TextEditingController();
     final tag = await showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Add Tag'),
-        content: TextField(controller: c, autofocus: true),
+        content: Autocomplete<String>(
+          optionsBuilder: (v) {
+            final text = v.text.toLowerCase();
+            if (text.isEmpty) return allTags;
+            return allTags.where((e) => e.toLowerCase().contains(text));
+          },
+          onSelected: (s) => Navigator.pop(context, s),
+          fieldViewBuilder: (context, controller, focus, _) {
+            controller.text = c.text;
+            controller.selection = c.selection;
+            controller.addListener(() {
+              if (c.text != controller.text) c.value = controller.value;
+            });
+            c.addListener(() {
+              if (controller.text != c.text) controller.value = c.value;
+            });
+            return TextField(
+              controller: controller,
+              focusNode: focus,
+              autofocus: true,
+              onSubmitted: (v) => Navigator.pop(context, v.trim()),
+            );
+          },
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
@@ -121,7 +155,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
       ),
     );
     c.dispose();
-    if (tag != null && tag.isNotEmpty) {
+    if (tag != null && tag.isNotEmpty && !widget.spot.tags.contains(tag)) {
       setState(() => widget.spot.tags.add(tag));
     }
   }

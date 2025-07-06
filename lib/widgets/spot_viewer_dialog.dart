@@ -13,10 +13,12 @@ import '../screens/v2/training_pack_spot_editor_screen.dart';
 class SpotViewerDialog extends StatefulWidget {
   final TrainingPackSpot spot;
   final BuildContext parentContext;
+  final List<String> templateTags;
   const SpotViewerDialog({
     super.key,
     required this.spot,
     required this.parentContext,
+    this.templateTags = const [],
   });
 
   @override
@@ -258,7 +260,10 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
             Navigator.pop(context);
             await Navigator.of(widget.parentContext).push(
               MaterialPageRoute(
-                builder: (_) => TrainingPackSpotEditorScreen(spot: spot),
+                builder: (_) => TrainingPackSpotEditorScreen(
+                  spot: spot,
+                  templateTags: widget.templateTags,
+                ),
               ),
             );
           },
@@ -277,9 +282,17 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
   }
 }
 
-Future<void> showSpotViewerDialog(BuildContext context, TrainingPackSpot spot) {
+Future<void> showSpotViewerDialog(
+  BuildContext context,
+  TrainingPackSpot spot, {
+  List<String> templateTags = const [],
+}) {
   return showDialog(
     context: context,
-    builder: (_) => SpotViewerDialog(spot: spot, parentContext: context),
+    builder: (_) => SpotViewerDialog(
+      spot: spot,
+      parentContext: context,
+      templateTags: templateTags,
+    ),
   );
 }
