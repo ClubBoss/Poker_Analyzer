@@ -3087,6 +3087,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
     final totalSpots = shown.length;
+    final mistakeCount =
+        widget.template.spots.where((s) => s.tags.contains('Mistake')).length;
     final evCovered = shown.where((s) => s.heroEv != null && !s.dirty).length;
     final icmCovered = shown.where((s) => s.heroIcmEv != null && !s.dirty).length;
     final evCoverage = totalSpots == 0 ? 0.0 : evCovered / totalSpots;
@@ -3346,7 +3348,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           IconButton(icon: const Text('📥 Paste Hand'), onPressed: _pasteHandHistory),
           IconButton(icon: const Icon(Icons.upload), onPressed: _import),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
-          IconButton(icon: const Text('📂 Preview Bundle'), onPressed: _previewBundle),
+          Badge.count(
+            count: mistakeCount,
+            isLabelVisible: mistakeCount > 0,
+            child: IconButton(
+              icon: const Text('📂 Preview Bundle'),
+              onPressed: _previewBundle,
+            ),
+          ),
           IconButton(icon: const Icon(Icons.archive), onPressed: () => _exportBundle()),
           IconButton(icon: const Text('📤 Share'), onPressed: _shareBundle),
           IconButton(
@@ -3624,9 +3633,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             icon: const Icon(Icons.info_outline),
                             onPressed: _exportPreviewSummary,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.archive),
-                            onPressed: _exportPreviewZip,
+                          Badge.count(
+                            count: mistakeCount,
+                            isLabelVisible: mistakeCount > 0,
+                            child: IconButton(
+                              icon: const Icon(Icons.archive),
+                              onPressed: _exportPreviewZip,
+                            ),
                           ),
                           IconButton(
                             icon: const Icon(Icons.share),
