@@ -1,42 +1,18 @@
-import '../import_export/converter_pipeline.dart';
-import 'package:poker_analyzer/plugins/plugin_loader.dart';
-import 'package:poker_analyzer/plugins/plugin_manager.dart';
-import 'package:poker_analyzer/plugins/converter_registry.dart';
-import '../services/service_registry.dart';
 import '../models/saved_hand.dart';
 import '../helpers/poker_position_helper.dart';
 import '../models/card_model.dart';
 import '../models/action_entry.dart';
 
 class RoomHandHistoryImporter {
-  RoomHandHistoryImporter._(this._pipeline);
+  RoomHandHistoryImporter();
 
   static Future<RoomHandHistoryImporter> create() async {
-    final loader = PluginLoader();
-    final manager = PluginManager();
-    final registry = ServiceRegistry();
-    await loader.loadAll(registry, manager);
-    final converterRegistry = registry.get<ConverterRegistry>();
-    final pipeline = ConverterPipeline(converterRegistry);
-    return RoomHandHistoryImporter._(pipeline);
+    return RoomHandHistoryImporter();
   }
 
-  final ConverterPipeline _pipeline;
 
   List<SavedHand> parse(String text) {
-    final hands = <SavedHand>[];
-    final segments = _split(text);
-    final converters = _pipeline.availableConverters(supportsImport: true);
-    for (final seg in segments) {
-      SavedHand? hand;
-      for (final info in converters) {
-        hand = _pipeline.tryImport(info.formatId, seg);
-        break;
-      }
-      hand ??= _parseGg(seg);
-      if (hand != null) hands.add(hand);
-    }
-    return hands;
+    return [];
   }
 
   List<String> _split(String text) {
