@@ -78,7 +78,7 @@ class _TrainingPackTemplateListScreenState
   bool _groupByStreet = false;
   bool _groupByType = false;
   bool _icmOnly = false;
-  String _sort = 'name';
+  String _sort = 'coverage';
   List<GeneratedPackInfo> _history = [];
   int _mixedCount = 20;
   bool _mixedAutoOnly = false;
@@ -113,6 +113,26 @@ class _TrainingPackTemplateListScreenState
 
   void _sortTemplates() {
     switch (_sort) {
+      case 'coverage':
+        _templates.sort((a, b) {
+          double cover(TrainingPackTemplate t) {
+            final total = t.spots.length;
+            if (total == 0) return 0;
+            final evPct =
+                t.spots.where((s) => s.heroEv != null && !s.dirty).length / total;
+            final icmPct = t.spots
+                    .where((s) => s.heroIcmEv != null && !s.dirty)
+                    .length /
+                total;
+            return (evPct + icmPct) / 2;
+          }
+
+          final r = cover(b).compareTo(cover(a));
+          return r == 0
+              ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
+              : r;
+        });
+        break;
       case 'created':
         _templates.sort((a, b) {
           final r = b.createdAt.compareTo(a.createdAt);
@@ -2688,6 +2708,7 @@ class _TrainingPackTemplateListScreenState
               });
             },
             itemBuilder: (_) => const [
+              PopupMenuItem(value: 'coverage', child: Text('Best Coverage')),
               PopupMenuItem(value: 'name', child: Text('Name A–Z')),
               PopupMenuItem(value: 'created', child: Text('Newest First')),
               PopupMenuItem(value: 'last_trained', child: Text('Last Trained')),
