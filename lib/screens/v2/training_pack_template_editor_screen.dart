@@ -1220,8 +1220,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _exportPreviewJson() async {
-    final safe =
-        widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final name = 'preview_$safe';
     try {
       await FileSaverService.instance.saveJson(name, widget.template.toJson());
