@@ -37,6 +37,7 @@ import '../../services/mistake_review_pack_service.dart';
 import '../../services/mixed_drill_history_service.dart';
 import '../../models/mixed_drill_stat.dart';
 import '../../services/theme_service.dart';
+import '../../services/session_log_service.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -126,6 +127,24 @@ class _TrainingPackTemplateListScreenState
           final tagA = a.tags.isNotEmpty ? a.tags.first.toLowerCase() : '';
           final tagB = b.tags.isNotEmpty ? b.tags.first.toLowerCase() : '';
           final r = tagA.compareTo(tagB);
+          return r == 0
+              ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
+              : r;
+        });
+        break;
+      case 'last_trained':
+        final logs = context.read<SessionLogService>().logs;
+        final map = <String, DateTime>{};
+        for (final l in logs) {
+          final cur = map[l.templateId];
+          if (cur == null || l.completedAt.isAfter(cur)) {
+            map[l.templateId] = l.completedAt;
+          }
+        }
+        _templates.sort((a, b) {
+          final aDt = map[a.id] ?? a.createdAt;
+          final bDt = map[b.id] ?? b.createdAt;
+          final r = bDt.compareTo(aDt);
           return r == 0
               ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
               : r;
@@ -2580,6 +2599,7 @@ class _TrainingPackTemplateListScreenState
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'name', child: Text('Name A–Z')),
               PopupMenuItem(value: 'created', child: Text('Newest First')),
+              PopupMenuItem(value: 'last_trained', child: Text('Last Trained')),
               PopupMenuItem(value: 'spots', child: Text('Most Spots')),
               PopupMenuItem(value: 'tag', child: Text('Tag A–Z')),
             ],
