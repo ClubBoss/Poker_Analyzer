@@ -1239,6 +1239,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _exportPreviewSummary() async {
+    final spots = widget.template.spots;
+    final total = spots.length;
+    final evCovered = spots.where((s) => s.heroEv != null && !s.dirty).length;
+    final icmCovered =
+        spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
+    final data = {
+      'id': widget.template.id,
+      'name': widget.template.name,
+      'spotCount': total,
+      'evCoverage': total == 0 ? 0.0 : evCovered / total,
+      'icmCoverage': total == 0 ? 0.0 : icmCovered / total,
+    };
+    final safe =
+        widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final name = 'preview_summary_$safe';
+    try {
+      await FileSaverService.instance.saveJson(name, data);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Summary saved')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to save: $e')));
+      }
+    }
+  }
+
   Future<void> _exportPreviewCsv() async {
     final rows = <List<dynamic>>[
       ['Position', 'HeroCards', 'Board', 'EV', 'Tags']
@@ -3588,6 +3619,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           IconButton(
                             icon: const Icon(Icons.download),
                             onPressed: _exportPreviewJson,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline),
+                            onPressed: _exportPreviewSummary,
                           ),
                           IconButton(
                             icon: const Icon(Icons.archive),
