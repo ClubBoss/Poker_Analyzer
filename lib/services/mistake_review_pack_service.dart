@@ -8,6 +8,7 @@ import '../models/training_pack.dart';
 import '../models/saved_hand.dart';
 import '../models/mistake_pack.dart';
 import '../models/v2/training_pack_template.dart';
+import '../models/v2/training_pack_spot.dart';
 import 'saved_hand_manager_service.dart';
 import 'mistake_pack_cloud_service.dart';
 
@@ -129,6 +130,11 @@ class MistakeReviewPackService extends ChangeNotifier {
     await _save();
     await syncUp();
     _generate();
+  }
+
+  Future<void> addSpot(
+      TrainingPackTemplate template, TrainingPackSpot spot) async {
+    await addPack([spot.id], note: template.name);
   }
 
   Future<void> syncDown() async {
