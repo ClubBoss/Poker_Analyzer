@@ -16,6 +16,7 @@ import '../services/training_spot_storage_service.dart';
 import 'training_pack_template_editor_screen.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../services/theme_service.dart';
 
 enum _SortOption { name, category, difficulty, createdAt }
 
@@ -563,6 +564,20 @@ class _TrainingPackTemplateListScreenState
             : Text('${_selectedIds.length} выбрано'),
         actions: _selectedIds.isEmpty
             ? [
+                Builder(
+                  builder: (context) {
+                    final themeService = context.watch<ThemeService>();
+                    return IconButton(
+                      icon: Icon(themeService.mode == ThemeMode.dark
+                          ? Icons.dark_mode
+                          : Icons.light_mode),
+                      onPressed: () {
+                        themeService.toggle();
+                        setState(() {});
+                      },
+                    );
+                  },
+                ),
                 IconButton(
                   onPressed: () => _setShowFavoritesOnly(!_showFavoritesOnly),
                   icon: Icon(

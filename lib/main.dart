@@ -58,6 +58,7 @@ import 'services/user_action_logger.dart';
 import 'services/mistake_review_pack_service.dart';
 import 'services/mistake_streak_service.dart';
 import 'services/remote_config_service.dart';
+import 'services/theme_service.dart';
 import 'services/ab_test_engine.dart';
 import 'widgets/sync_status_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -126,6 +127,7 @@ Future<void> main() async {
         ChangeNotifierProvider<AuthService>.value(value: auth),
         ChangeNotifierProvider<RemoteConfigService>.value(value: rc),
         ChangeNotifierProvider<AbTestEngine>.value(value: ab),
+        ChangeNotifierProvider(create: (_) => ThemeService()..load()),
         Provider<CloudSyncService>.value(value: cloud),
         Provider(create: (_) => CloudTrainingHistoryService()),
         ChangeNotifierProvider(
@@ -363,20 +365,34 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     return SyncStatusWidget(
       sync: _sync,
       cloud: context.read<CloudSyncService>(),
-      child: MaterialApp(
-        navigatorKey: navigatorKey,
-        title: 'Poker AI Analyzer',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark().copyWith(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-          scaffoldBackgroundColor: Colors.black,
-          textTheme: ThemeData.dark().textTheme.apply(
-            fontFamily: 'Roboto',
-            bodyColor: Colors.white,
-            displayColor: Colors.white,
-          ),
-        ),
-        home: const MainNavigationScreen(),
+      child: Builder(
+        builder: (context) {
+          final theme = context.watch<ThemeService>().mode;
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            title: 'Poker AI Analyzer',
+            debugShowCheckedModeBanner: false,
+            themeMode: theme,
+            theme: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+              textTheme: ThemeData.light().textTheme.apply(
+                fontFamily: 'Roboto',
+                bodyColor: Colors.black,
+                displayColor: Colors.black,
+              ),
+            ),
+            darkTheme: ThemeData.dark().copyWith(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+              scaffoldBackgroundColor: Colors.black,
+              textTheme: ThemeData.dark().textTheme.apply(
+                fontFamily: 'Roboto',
+                bodyColor: Colors.white,
+                displayColor: Colors.white,
+              ),
+            ),
+            home: const MainNavigationScreen(),
+          );
+        },
       ),
     );
   }

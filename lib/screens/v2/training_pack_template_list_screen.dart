@@ -36,6 +36,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/mistake_review_pack_service.dart';
 import '../../services/mixed_drill_history_service.dart';
 import '../../models/mixed_drill_stat.dart';
+import '../../services/theme_service.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 class TrainingPackTemplateListScreen extends StatefulWidget {
@@ -2529,6 +2530,20 @@ class _TrainingPackTemplateListScreenState
       appBar: AppBar(
         title: const Text('Training Packs'),
         actions: [
+          Builder(
+            builder: (context) {
+              final themeService = context.watch<ThemeService>();
+              return IconButton(
+                icon: Icon(themeService.mode == ThemeMode.dark
+                    ? Icons.dark_mode
+                    : Icons.light_mode),
+                onPressed: () {
+                  themeService.toggle();
+                  setState(() {});
+                },
+              );
+            },
+          ),
           IconButton(
             icon: Icon(
               _showFavoritesOnly ? Icons.star : Icons.star_border,
