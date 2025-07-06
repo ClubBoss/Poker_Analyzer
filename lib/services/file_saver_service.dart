@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_saver/file_saver.dart';
+import 'package:share_plus/share_plus.dart';
 
 class FileSaverService {
   const FileSaverService._();
@@ -53,5 +54,9 @@ class FileSaverService {
       ext: 'md',
       mimeType: MimeType.other,
     );
+  }
+
+  Future<void> sharePdf(String path) async {
+    await Share.shareXFiles([XFile(path)]);
   }
 }
