@@ -3093,6 +3093,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final icmCovered = shown.where((s) => s.heroIcmEv != null && !s.dirty).length;
     final evCoverage = totalSpots == 0 ? 0.0 : evCovered / totalSpots;
     final icmCoverage = totalSpots == 0 ? 0.0 : icmCovered / totalSpots;
+    final coverageWarningNeeded = evCoverage < 0.8 || icmCoverage < 0.8;
     final bothCoverage = evCoverage < icmCoverage ? evCoverage : icmCoverage;
     final heroEvsAll = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final avgEv = heroEvsAll.isEmpty
@@ -3653,6 +3654,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                    if (coverageWarningNeeded) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orangeAccent.withOpacity(.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Coverage incomplete: EV/ICM not computed for all spots',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     _CoverageProgress(
                       label: 'EV Covered',
                       value: evCoverage,
@@ -3698,6 +3713,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+            if (coverageWarningNeeded) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orangeAccent.withOpacity(.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Coverage incomplete: EV/ICM not computed for all spots',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             _CoverageProgress(
               label: 'EV Covered',
               value: evCoverage,
