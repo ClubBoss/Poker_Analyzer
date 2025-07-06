@@ -71,9 +71,9 @@ class BulkEvaluatorService {
   }
 
   Future<int> generateMissingForTemplate(
-    TrainingPackTemplate template,
+    TrainingPackTemplate template, {
     void Function(double progress)? onProgress,
-  ) async {
+  }) async {
     final res = await generateMissing(template, onProgress: onProgress);
     return res.length;
   }
