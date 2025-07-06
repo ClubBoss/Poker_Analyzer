@@ -12,14 +12,15 @@ class BulkEvaluatorService {
     void Function(double progress)? onProgress,
   }) async {
     final updated = <TrainingPackSpot>[];
-    final total = template.spots.length;
+    final spots = template.spots;
+    final total = spots.length;
     if (total == 0) {
       onProgress?.call(1.0);
       return updated;
     }
     var done = 0;
     var next = 0.1;
-    for (final spot in template.spots) {
+    for (final spot in spots) {
       final hadEv = spot.heroEv;
       final hadIcm = spot.heroIcmEv;
       if (hadEv == null) {
