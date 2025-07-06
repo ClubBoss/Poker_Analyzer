@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 class PngExporter {
   static Future<Uint8List?> _capture(Widget child) async {
