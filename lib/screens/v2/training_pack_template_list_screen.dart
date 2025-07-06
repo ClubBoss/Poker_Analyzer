@@ -416,6 +416,17 @@ class _TrainingPackTemplateListScreenState
     return [for (final e in entries.take(3)) e.key];
   }
 
+  String _spotSummary(TrainingPackSpot s) {
+    final acts = s.hand.actions[0] ?? [];
+    final parts = <String>[];
+    for (final a in acts) {
+      if (a.action == 'board') continue;
+      final label = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+      parts.add('${label}${a.amount != null ? ' ${a.amount}' : ''}');
+    }
+    return parts.join(' – ');
+  }
+
   Future<void> _showStreetProgress(TrainingPackTemplate tpl) async {
     if (tpl.targetStreet == null || tpl.streetGoal <= 0) return;
     final done = _streetProgress[tpl.id]?.clamp(0, tpl.streetGoal) ?? 0;
@@ -552,10 +563,9 @@ class _TrainingPackTemplateListScreenState
     final allIcm = total > 0 && t.icmCovered >= total;
     final isNew = t.lastGeneratedAt != null &&
         DateTime.now().difference(t.lastGeneratedAt!).inHours < 48;
-    final tile = ListTile(
+    final header = ListTile(
       tileColor:
           t.id == _lastOpenedId ? Theme.of(context).highlightColor : null,
-      onLongPress: () => _duplicate(t),
       title: Row(
         children: [
           if (t.streetGoal > 0)
@@ -842,6 +852,126 @@ class _TrainingPackTemplateListScreenState
             onPressed: () => _delete(t),
           ),
         ],
+      ),
+    );
+    final children = [
+      for (final s in t.spots)
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 2),
+          decoration: BoxDecoration(
+            color: Colors.black26,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ListTile(
+            dense: true,
+            title: Text(
+              '${s.hand.position.label} ${s.hand.heroCards}',
+              style: const TextStyle(color: Colors.white),
+            ),
+            subtitle: Text(
+              _spotSummary(s),
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ),
+        ),
+    ];
+    final tile = GestureDetector(
+      onLongPress: () => _duplicate(t),
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        title: header,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (t.targetStreet != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Text(
+                  t.streetGoal > 0
+                      ? '${_streetName(t.targetStreet!)} Goal: ${t.streetGoal}%'
+                      : '${_streetName(t.targetStreet!)} Focus',
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                ),
+              ),
+            IconButton(
+              icon: const Icon(Icons.play_arrow),
+              tooltip: 'Start training',
+              onPressed: () async {
+                await _showStreetProgress(t);
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TrainingPackPlayScreen(template: t, original: t),
+                  ),
+                );
+                if (mounted) {
+                  await _loadProgress();
+                  _loadGoals();
+                  setState(() {});
+                  await _maybeShowContinueReminder();
+                }
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.auto_fix_high),
+              tooltip: 'Generate spots',
+              onPressed: () async {
+                final service = TrainingPackTemplateUiService();
+                final generated =
+                    await service.generateSpotsWithProgress(context, t);
+                if (!mounted) return;
+                setState(() => t.spots.addAll(generated));
+                TrainingPackStorage.save(_templates);
+              },
+            ),
+            PopupMenuButton<String>(
+              onSelected: (v) {
+                if (v == 'rename') _rename(t);
+                if (v == 'duplicate') _duplicate(t);
+                if (v == 'missing') _generateMissing(t);
+                if (v == 'delete') _delete(t);
+              },
+              itemBuilder: (_) => const [
+                PopupMenuItem(
+                  value: 'rename',
+                  child: Text('✏️ Rename'),
+                ),
+                PopupMenuItem(
+                  value: 'duplicate',
+                  child: Text('📄 Duplicate'),
+                ),
+                PopupMenuItem(
+                  value: 'missing',
+                  child: Text('Generate Missing'),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text('🗑️ Delete'),
+                ),
+              ],
+            ),
+            if (narrow)
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => _edit(t),
+              )
+            else
+              TextButton(
+                onPressed: () => _edit(t),
+                child: const Text('📝 Edit'),
+              ),
+            IconButton(
+              icon: const Icon(Icons.copy),
+              onPressed: () => _duplicate(t),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _delete(t),
+            ),
+          ],
+        ),
+        children: children,
       ),
     );
     if (index == null) return tile;
