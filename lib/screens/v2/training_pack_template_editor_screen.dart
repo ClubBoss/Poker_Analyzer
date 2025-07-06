@@ -46,6 +46,7 @@ import '../../services/evaluation_executor_service.dart';
 import '../../services/pack_generator_service.dart';
 import '../../services/training_pack_template_ui_service.dart';
 import '../../services/bulk_evaluator_service.dart';
+import '../../services/offline_evaluator_service.dart';
 import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
 import '../../services/training_pack_template_storage_service.dart';
@@ -3765,12 +3766,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               if (v == 'exportCsv') _exportCsv();
               if (v == 'tagMistakes') _tagAllMistakes();
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'regenEv', child: Text('Regenerate EV')),
-              PopupMenuItem(value: 'regenIcm', child: Text('Regenerate ICM')),
-              PopupMenuItem(value: 'reEval', child: Text('Re-evaluate All')),
-              PopupMenuItem(value: 'exportCsv', child: Text('Export CSV')),
-              PopupMenuItem(value: 'tagMistakes', child: Text('Tag All Mistakes')),
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                enabled: false,
+                child: StatefulBuilder(
+                  builder: (context, set) => SwitchListTile(
+                    title: const Text('Offline Mode'),
+                    value: OfflineEvaluatorService.isOffline,
+                    onChanged: (v) => set(() => OfflineEvaluatorService.isOffline = v),
+                  ),
+                ),
+              ),
+              const PopupMenuItem(value: 'regenEv', child: Text('Regenerate EV')),
+              const PopupMenuItem(value: 'regenIcm', child: Text('Regenerate ICM')),
+              const PopupMenuItem(value: 'reEval', child: Text('Re-evaluate All')),
+              const PopupMenuItem(value: 'exportCsv', child: Text('Export CSV')),
+              const PopupMenuItem(value: 'tagMistakes', child: Text('Tag All Mistakes')),
             ],
           ),
           FocusTraversalOrder(
