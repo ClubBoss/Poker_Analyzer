@@ -3544,18 +3544,32 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               child: Text(_templateName),
                             ),
                             const SizedBox(width: 8),
-                            Builder(builder: (context) {
-                              final total = widget.template.spots.length;
-                              final done = widget.template.spots
-                                  .where((s) => s.heroEv != null || s.heroIcmEv != null)
-                                  .length;
-                              final pct = total == 0 ? 0 : (done * 100 / total).round();
-                              return Text(
-                                'EV: $pct%',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(color: Colors.white70),
+                            Builder(builder: (_) {
+                              int evPct = (evCoverage * 100).round();
+                              int icmPct = (icmCoverage * 100).round();
+                              Color colorFor(int p) {
+                                if (p < 70) return Colors.red;
+                                if (p < 90) return Colors.amber;
+                                return Colors.green;
+                              }
+                              return Row(
+                                children: [
+                                  Chip(
+                                    label: Text('EV $evPct%',
+                                        style: const TextStyle(fontSize: 12, color: Colors.white)),
+                                    backgroundColor: colorFor(evPct),
+                                    visualDensity: VisualDensity.compact,
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Chip(
+                                    label: Text('ICM $icmPct%',
+                                        style: const TextStyle(fontSize: 12, color: Colors.white)),
+                                    backgroundColor: colorFor(icmPct),
+                                    visualDensity: VisualDensity.compact,
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                ],
                               );
                             }),
                           ],
