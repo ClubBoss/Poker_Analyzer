@@ -2304,6 +2304,68 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _persist();
   }
 
+  Future<void> _recalcSelected() async {
+    final spots = [
+      for (final s in widget.template.spots)
+        if (_selectedSpotIds.contains(s.id)) s
+    ];
+    if (spots.isEmpty) return;
+    setState(() {
+      _calculatingMissing = true;
+      _calcProgress = 0;
+    });
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setDialog) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                var done = 0;
+                for (final spot in spots) {
+                  await const BulkEvaluatorService().generateMissing(
+                    spot,
+                    anteBb: widget.template.anteBb,
+                  );
+                  done++;
+                  _calcProgress = done / spots.length;
+                  if (mounted) setDialog(() {});
+                }
+                await _persist();
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LinearProgressIndicator(value: _calcProgress),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${(_calcProgress * 100).toStringAsFixed(0)}%',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (!mounted) return;
+    setState(() {
+      _calculatingMissing = false;
+      _selectedSpotIds.clear();
+      if (_autoSortEv) _sortSpots();
+    });
+  }
+
   Future<void> _newPackFromSelection() async {
     final ctrl = TextEditingController(text: '${widget.template.name} Subset');
     final name = await showDialog<String>(
@@ -3541,6 +3603,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               icon: const Icon(Icons.delete, color: Colors.red),
               tooltip: 'Delete (Ctrl + Backspace)',
               onPressed: _bulkDelete,
+            ),
+          if (_isMultiSelect)
+            IconButton(
+              icon: const Icon(Icons.auto_fix_high),
+              tooltip: 'Recalc EV/ICM',
+              onPressed: _recalcSelected,
             ),
           PopupMenuButton<SortBy>(
             icon: const Icon(Icons.sort),
