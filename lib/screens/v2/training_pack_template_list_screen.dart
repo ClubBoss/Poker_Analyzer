@@ -36,6 +36,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/mistake_review_pack_service.dart';
 import '../../services/mixed_drill_history_service.dart';
 import '../../models/mixed_drill_stat.dart';
+import '../../services/bulk_evaluator_service.dart';
 import '../../services/theme_service.dart';
 import '../../services/session_log_service.dart';
 
@@ -90,6 +91,7 @@ class _TrainingPackTemplateListScreenState
   final Set<String> _favorites = {};
   bool _showFavoritesOnly = false;
   bool _showNeedsEvalOnly = false;
+  bool _autoEvalRunning = false;
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -539,6 +541,63 @@ class _TrainingPackTemplateListScreenState
       if (!s.tags.contains('icm')) return false;
     }
     return true;
+  }
+
+  List<TrainingPackTemplate> _visibleTemplates() {
+    final byType = _selectedType == null
+        ? _templates
+        : [for (final t in _templates) if (t.gameType == _selectedType) t];
+    final filtered = _selectedTag == null
+        ? byType
+        : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
+    final icmFiltered = !_icmOnly
+        ? filtered
+        : [for (final t in filtered) if (_isIcmTemplate(t)) t];
+    final evalFiltered = !_showNeedsEvalOnly
+        ? icmFiltered
+        : [
+            for (final t in icmFiltered)
+              if (t.evCovered < t.spots.length ||
+                  t.icmCovered < t.spots.length)
+                t
+          ];
+    final completed = _completedOnly
+        ? [for (final t in evalFiltered) if (t.goalAchieved) t]
+        : evalFiltered;
+    final visible = _hideCompleted
+        ? [
+            for (final t in completed)
+              if ((t.spots.isEmpty
+                      ? 0.0
+                      : (_progress[t.id] ?? 0) / t.spots.length) < 1.0 ||
+                  !t.goalAchieved)
+                t
+          ]
+        : completed;
+    return [
+      for (final t in visible)
+        if ((_query.isEmpty || t.name.toLowerCase().contains(_query)) &&
+            (_tagFilters.isEmpty ||
+                t.tags.any((tag) => _tagFilters.contains(tag))))
+          t
+    ];
+  }
+
+  Future<void> _autoUpdateEval() async {
+    if (_autoEvalRunning) return;
+    _autoEvalRunning = true;
+    final list = [
+      for (final t in _visibleTemplates())
+        if (t.evCovered < t.spots.length || t.icmCovered < t.spots.length) t
+    ];
+    if (list.isNotEmpty) {
+      await Future.wait([
+        for (final t in list) BulkEvaluatorService().generateMissingForTemplate(t)
+      ]);
+      await TrainingPackStorage.save(_templates);
+    }
+    if (mounted) setState(() {});
+    _autoEvalRunning = false;
   }
 
   TrainingPackTemplate? _suggestTemplate([String? street]) {
@@ -2468,6 +2527,7 @@ class _TrainingPackTemplateListScreenState
       _filtersShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) => _showFilters());
     }
+    Future.microtask(_autoUpdateEval);
   }
 
   @override
