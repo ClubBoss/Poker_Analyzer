@@ -168,6 +168,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Timer? _importTimer;
   List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
+  bool _loadingEval = false;
   double _scrollProgress = 0;
   bool _showScrollIndicator = false;
   Timer? _scrollThrottle;
@@ -986,7 +987,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             }
           }
           if (sortMode != null) _sortSpots();
-          });
+        });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollCtrl.hasClients) {
             final max = _scrollCtrl.position.maxScrollExtent;
@@ -994,6 +995,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             _updateScroll();
           }
         });
+        _ensureEval();
       }
     });
   }
@@ -2055,6 +2057,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ],
       ),
     );
+  }
+
+  Future<void> _ensureEval() async {
+    final needs = widget.template.spots.any((s) =>
+        s.heroEv == null || s.heroIcmEv == null || s.dirty);
+    if (!needs) return;
+    setState(() => _loadingEval = true);
+    await BulkEvaluatorService()
+        .generateMissingForTemplate(widget.template, onProgress: null)
+        .catchError((_) {});
+    TemplateCoverageUtils.recountAll(widget.template);
+    if (mounted) setState(() => _loadingEval = false);
   }
 
   Future<void> _calculateMissingEvIcm() async {
@@ -3394,6 +3408,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   @override
   Widget build(BuildContext context) {
+    if (_loadingEval) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     final narrow = MediaQuery.of(context).size.width < 400;
     final hasSpots = widget.template.spots.isNotEmpty;
     final shown = _visibleSpots();
