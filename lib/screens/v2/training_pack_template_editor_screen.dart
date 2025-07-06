@@ -144,6 +144,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     'Mistake spots'
   ];
   String? _quickFilter;
+  String? _positionFilter;
   final ScrollController _scrollCtrl = ScrollController();
   Timer? _scrollDebounce;
   final Map<String, GlobalKey> _itemKeys = {};
@@ -262,7 +263,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     return res;
   }
 
-  List<TrainingPackSpot> _visibleSpots() {
+  List<TrainingPackSpot> _filterSpots() {
     var base = widget.template.spots;
     if (_newOnly) {
       base = [for (final s in base) if (s.isNew) s];
@@ -320,9 +321,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           s.hand.position.label.toLowerCase().contains(q) ||
           s.tags.any((t) => t.toLowerCase().contains(q));
     }).toList();
+    return list;
+  }
+
+  List<TrainingPackSpot> _visibleSpots() {
+    var list = _filterSpots();
+    if (_positionFilter != null) {
+      list = [for (final s in list) if (s.hand.position.label == _positionFilter) s];
+    }
     if (_sortMode == SortMode.chronological) {
       list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     }
+    return list;
+  }
+
+  List<String> _positionsInView() {
+    final set = {for (final s in _filterSpots()) s.hand.position.label};
+    final list = set.toList()..sort();
     return list;
   }
 
@@ -3659,18 +3674,39 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               },
             ),
           ),
-          IconButton(icon: const Icon(Icons.save), onPressed: _save)
+          IconButton(icon: const Icon(Icons.save), onPressed: _save),
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: () async {
+              try {
+                final file =
+                    await PackExportService.exportToPdf(widget.template);
+                if (!mounted) return;
+                await FileSaverService.instance.sharePdf(file.path);
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text('PDF exported')));
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+                }
+              }
+            },
+          )
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
+          preferredSize: const Size.fromHeight(kToolbarHeight + 48),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: 'Search…',
-                prefixIcon: const Icon(Icons.search),
-                fillColor: _tagFilter == null ? null : Colors.yellow[50],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _searchCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Search…',
+                    prefixIcon: const Icon(Icons.search),
+                    fillColor: _tagFilter == null ? null : Colors.yellow[50],
                 filled: _tagFilter != null,
                 suffixIcon: _tagFilter != null
                     ? IconButton(
@@ -3690,7 +3726,31 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             }),
                           ),
               ),
-              onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+                  onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+                ),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      ChoiceChip(
+                        label: const Text('All'),
+                        selected: _positionFilter == null,
+                        onSelected: (_) => setState(() => _positionFilter = null),
+                      ),
+                      const SizedBox(width: 8),
+                      for (final p in _positionsInView()) ...[
+                        ChoiceChip(
+                          label: Text(p),
+                          selected: _positionFilter == p,
+                          onSelected: (_) => setState(() => _positionFilter = _positionFilter == p ? null : p),
+                        ),
+                        const SizedBox(width: 8),
+                      ]
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
