@@ -855,10 +855,10 @@ class _TrainingPackTemplateListScreenState
                                                   Text('Шаблон применён')));
                                       break;
                                     case 'export':
-                                      await _exportTemplate(t);
+                                      if (!t.isDraft) await _exportTemplate(t);
                                       break;
                                     case 'share':
-                                      await _shareTemplate(t);
+                                      if (!t.isDraft) await _shareTemplate(t);
                                       break;
                                     case 'rename':
                                       await _renameTemplate(t);
@@ -875,23 +875,32 @@ class _TrainingPackTemplateListScreenState
                                       break;
                                   }
                                 },
-                                itemBuilder: (_) => const [
-                                  PopupMenuItem(
-                                      value: 'apply',
-                                      child: Text('Применить шаблон')),
-                                  PopupMenuItem(
-                                      value: 'export',
-                                      child: Text('📤 Экспортировать')),
-                                  PopupMenuItem(
-                                      value: 'share',
-                                      child: Text('📤 Поделиться')),
-                                  PopupMenuItem(
-                                      value: 'rename',
-                                      child: Text('✏️ Переименовать')),
-                                  PopupMenuItem(
-                                      value: 'duplicate',
-                                      child: Text('📄 Дублировать')),
-                                ],
+                                itemBuilder: (_) {
+                                  final items = <PopupMenuEntry<String>>[
+                                    const PopupMenuItem(
+                                        value: 'apply',
+                                        child: Text('Применить шаблон')),
+                                  ];
+                                  if (!t.isDraft) {
+                                    items.addAll(const [
+                                      PopupMenuItem(
+                                          value: 'export',
+                                          child: Text('📤 Экспортировать')),
+                                      PopupMenuItem(
+                                          value: 'share',
+                                          child: Text('📤 Поделиться')),
+                                    ]);
+                                  }
+                                  items.addAll(const [
+                                    PopupMenuItem(
+                                        value: 'rename',
+                                        child: Text('✏️ Переименовать')),
+                                    PopupMenuItem(
+                                        value: 'duplicate',
+                                        child: Text('📄 Дублировать')),
+                                  ]);
+                                  return items;
+                                },
                               ),
                       );
                       return selection
