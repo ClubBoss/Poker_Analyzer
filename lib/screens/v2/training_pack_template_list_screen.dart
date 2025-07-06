@@ -86,6 +86,7 @@ class _TrainingPackTemplateListScreenState
   final Map<String, Map<String, int>> _handGoalTotal = {};
   final Set<String> _favorites = {};
   bool _showFavoritesOnly = false;
+  bool _showNeedsEvalOnly = false;
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -585,6 +586,7 @@ class _TrainingPackTemplateListScreenState
     final total = t.spots.length;
     final allEv = total > 0 && t.evCovered >= total;
     final allIcm = total > 0 && t.icmCovered >= total;
+    final needsEval = total > 0 && (t.evCovered < total || t.icmCovered < total);
     final isNew = t.lastGeneratedAt != null &&
         DateTime.now().difference(t.lastGeneratedAt!).inHours < 48;
     final header = ListTile(
@@ -592,6 +594,11 @@ class _TrainingPackTemplateListScreenState
           t.id == _lastOpenedId ? Theme.of(context).highlightColor : null,
       title: Row(
         children: [
+          if (needsEval)
+            const Padding(
+              padding: EdgeInsets.only(right: 4),
+              child: Icon(Icons.warning, color: Colors.amber, size: 16),
+            ),
           if (t.streetGoal > 0)
             Padding(
               padding: const EdgeInsets.only(right: 8),
@@ -2378,9 +2385,17 @@ class _TrainingPackTemplateListScreenState
             for (final t in filtered)
               if (_isIcmTemplate(t)) t
           ];
+    final evalFiltered = !_showNeedsEvalOnly
+        ? icmFiltered
+        : [
+            for (final t in icmFiltered)
+              if (t.evCovered < t.spots.length ||
+                  t.icmCovered < t.spots.length)
+                t
+          ];
     final completed = _completedOnly
-        ? [for (final t in icmFiltered) if (t.goalAchieved) t]
-        : icmFiltered;
+        ? [for (final t in evalFiltered) if (t.goalAchieved) t]
+        : evalFiltered;
     final visible = _hideCompleted
         ? [
             for (final t in completed)
@@ -2419,6 +2434,14 @@ class _TrainingPackTemplateListScreenState
               color: _showFavoritesOnly ? Colors.amber : null,
             ),
             onPressed: () => setState(() => _showFavoritesOnly = !_showFavoritesOnly),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.auto_fix_high,
+              color: _showNeedsEvalOnly ? Colors.amber : null,
+            ),
+            tooltip: 'Needs EV/ICM',
+            onPressed: () => setState(() => _showNeedsEvalOnly = !_showNeedsEvalOnly),
           ),
           IconButton(
             icon: const Icon(Icons.upload),
