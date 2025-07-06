@@ -3,6 +3,12 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../../models/training_spot.dart';
+import '../../models/action_entry.dart';
+import '../../models/card_model.dart';
+import '../../models/player_model.dart';
+import '../../services/evaluation_executor_service.dart';
 
 import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
@@ -220,6 +226,141 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     }
   }
 
+  double? _actionEv(TrainingPackSpot spot, String action) {
+    for (final a in spot.hand.actions[0] ?? []) {
+      if (a.playerIndex == spot.hand.heroIndex &&
+          a.action.toLowerCase() == action.toLowerCase()) {
+        return a.ev;
+      }
+    }
+    return null;
+  }
+
+  double? _actionIcmEv(TrainingPackSpot spot, String action) {
+    for (final a in spot.hand.actions[0] ?? []) {
+      if (a.playerIndex == spot.hand.heroIndex &&
+          a.action.toLowerCase() == action.toLowerCase()) {
+        return a.icmEv;
+      }
+    }
+    return null;
+  }
+
+  double? _bestEv(TrainingPackSpot spot) {
+    double? best;
+    for (final a in spot.hand.actions[0] ?? []) {
+      if (a.playerIndex == spot.hand.heroIndex && a.ev != null) {
+        best = best == null ? a.ev! : max(best!, a.ev!);
+      }
+    }
+    return best;
+  }
+
+  double? _bestIcmEv(TrainingPackSpot spot) {
+    double? best;
+    for (final a in spot.hand.actions[0] ?? []) {
+      if (a.playerIndex == spot.hand.heroIndex && a.icmEv != null) {
+        best = best == null ? a.icmEv! : max(best!, a.icmEv!);
+      }
+    }
+    return best;
+  }
+
+  TrainingSpot _toSpot(TrainingPackSpot spot) {
+    final hand = spot.hand;
+    final heroCards = hand.heroCards
+        .split(RegExp(r'\s+'))
+        .where((e) => e.isNotEmpty)
+        .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
+        .toList();
+    final playerCards = [
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+    ];
+    if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
+      playerCards[hand.heroIndex] = heroCards;
+    }
+    final boardCards = [
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+    ];
+    final actions = <ActionEntry>[];
+    for (final list in hand.actions.values) {
+      for (final a in list) {
+        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
+            amount: a.amount,
+            generated: a.generated,
+            manualEvaluation: a.manualEvaluation,
+            customLabel: a.customLabel));
+      }
+    }
+    final stacks = [
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0
+    ];
+    final positions = List.generate(hand.playerCount, (_) => '');
+    if (hand.heroIndex < positions.length) {
+      positions[hand.heroIndex] = hand.position.label;
+    }
+    return TrainingSpot(
+      playerCards: playerCards,
+      boardCards: boardCards,
+      actions: actions,
+      heroIndex: hand.heroIndex,
+      numberOfPlayers: hand.playerCount,
+      playerTypes: List.generate(hand.playerCount, (_) => PlayerType.unknown),
+      positions: positions,
+      stacks: stacks,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  void _showDiff(double? ev, double? icm) {
+    final evText = ev == null
+        ? '--'
+        : '${ev >= 0 ? '+' : ''}${ev.toStringAsFixed(1)} BB';
+    final icmText = icm == null
+        ? '--'
+        : '${icm >= 0 ? '+' : ''}${icm.toStringAsFixed(1)}';
+    final text = 'EV: $evText | ICM: $icmText';
+    final goodEv = ev == null || ev >= 0;
+    final goodIcm = icm == null || icm >= 0;
+    Color color;
+    if (goodEv && goodIcm) {
+      color = Colors.green;
+    } else if (goodEv || goodIcm) {
+      color = Colors.amber;
+    } else {
+      color = Colors.red;
+    }
+    final narrow = MediaQuery.of(context).size.width < 400;
+    if (narrow) {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: color,
+        builder: (ctx) {
+          Future.delayed(const Duration(seconds: 2), () {
+            if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
+          });
+          return GestureDetector(
+            onTap: () => Navigator.pop(ctx),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              alignment: Alignment.center,
+              child: Text(text, style: const TextStyle(color: Colors.white)),
+            ),
+          );
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(text),
+          backgroundColor: color,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   Future<bool> _confirmStartOver(BuildContext context) async {
     final res = await showDialog<bool>(
       context: context,
@@ -248,11 +389,24 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         }
       }
 
-      final expected =
-          spot.evalResult?.expectedAction ?? _expected(spot) ?? '-';
+      final evalSpot = _toSpot(spot);
+      final evaluation = context
+          .read<EvaluationExecutorService>()
+          .evaluateSpot(context, evalSpot, act);
+      final heroEv = _actionEv(spot, act);
+      final bestEv = _bestEv(spot);
+      final heroIcm = _actionIcmEv(spot, act);
+      final bestIcm = _bestIcmEv(spot);
+      final evDiff =
+          heroEv != null && bestEv != null ? heroEv - bestEv : null;
+      final icmDiff =
+          heroIcm != null && bestIcm != null ? heroIcm - bestIcm : null;
+      _showDiff(evDiff, icmDiff);
+
+      final expected = evaluation.expectedAction;
       final explanation = spot.note.trim().isNotEmpty
           ? spot.note.trim()
-          : (spot.evalResult?.hint ?? '');
+          : (evaluation.hint ?? spot.evalResult?.hint ?? '');
 
       await showModalBottomSheet(
         context: context,
