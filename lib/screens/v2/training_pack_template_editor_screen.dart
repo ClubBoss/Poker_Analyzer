@@ -1227,12 +1227,28 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _exportPreviewJson() async {
     final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final name = 'preview_$safe';
+    var pngName = name;
+    if (_previewJsonPng) {
+      final c = TextEditingController(text: pngName);
+      final res = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('PNG name'),
+          content: TextField(controller: c, autofocus: true),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(ctx, c.text.trim()), child: const Text('Save')),
+          ],
+        ),
+      );
+      if (res != null && res.isNotEmpty) pngName = res;
+    }
     try {
       await FileSaverService.instance.saveJson(name, widget.template.toJson());
       if (_previewJsonPng) {
         final bytes = await _capturePreview();
         if (bytes != null) {
-          await FileSaverService.instance.savePng(name, bytes);
+          await FileSaverService.instance.savePng(pngName, bytes);
         }
       }
       if (mounted) {
