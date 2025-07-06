@@ -35,4 +35,13 @@ class FileSaverService {
       mimeType: MimeType.other,
     );
   }
+
+  Future<void> savePng(String name, Uint8List data) async {
+    await FileSaver.instance.saveAs(
+      name: name,
+      bytes: data,
+      ext: 'png',
+      mimeType: MimeType.other,
+    );
+  }
 }

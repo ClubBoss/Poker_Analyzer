@@ -126,6 +126,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsNewOnlyKey = 'new_only';
   static const _prefsSortMode2Key = 'sort_mode2';
   static const _prefsPreviewModeKey = 'preview_mode';
+  static const _prefsPreviewJsonPngKey = 'preview_json_png';
   String _scrollKeyFor(TrainingPackTemplate t) => '$_prefsScrollPrefix${t.id}';
   String get _scrollKey => _scrollKeyFor(widget.template);
   String _evFilter = 'all';
@@ -162,6 +163,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _showScrollIndicator = false;
   Timer? _scrollThrottle;
   bool _previewMode = false;
+  bool _previewJsonPng = false;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
 
@@ -183,6 +185,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   void _storePreview() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool(_prefsPreviewModeKey, _previewMode);
+  }
+
+  void _storePreviewJsonPng() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_prefsPreviewJsonPngKey, _previewJsonPng);
   }
 
   void _storeScroll() async {
@@ -895,6 +902,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final pinnedOnly = prefs.getBool(_prefsPinnedOnlyKey) ?? false;
       final newOnly = prefs.getBool(_prefsNewOnlyKey) ?? false;
       final preview = prefs.getBool(_prefsPreviewModeKey) ?? false;
+      final png = prefs.getBool(_prefsPreviewJsonPngKey) ?? false;
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
         final parts = rangeStr.split(',');
@@ -928,6 +936,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _pinnedOnly = pinnedOnly;
           _newOnly = newOnly;
           _previewMode = preview;
+          _previewJsonPng = png;
           if (mode2 != null) {
             for (final v in SortMode.values) {
               if (v.name == mode2) _sortMode = v;
@@ -1220,6 +1229,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final name = 'preview_$safe';
     try {
       await FileSaverService.instance.saveJson(name, widget.template.toJson());
+      if (_previewJsonPng) {
+        final bytes = await _capturePreview();
+        if (bytes != null) {
+          await FileSaverService.instance.savePng(name, bytes);
+        }
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Preview saved')),
@@ -2993,6 +3008,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           ),
                   ),
                 ],
+              ),
+              SwitchListTile(
+                title: const Text('PNG with JSON'),
+                value: _previewJsonPng,
+                onChanged: (v) => set(() {
+                  this.setState(() => _previewJsonPng = v);
+                  _storePreviewJsonPng();
+                }),
               ),
             ];
             final content = narrow
