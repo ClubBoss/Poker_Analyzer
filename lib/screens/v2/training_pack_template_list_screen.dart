@@ -844,8 +844,29 @@ class _TrainingPackTemplateListScreenState
               if (v == 'duplicate') _duplicate(t);
               if (v == 'missing') _generateMissing(t);
               if (v == 'delete') _delete(t);
+              if (v == 'quick') {
+                final spots = List<TrainingPackSpot>.from(t.spots)..shuffle();
+                final quick = t.copyWith(
+                  id: const Uuid().v4(),
+                  name: 'Quick Drill: ${t.name}',
+                  spots: spots.take(5).toList(),
+                  targetStreet: null,
+                  streetGoal: 0,
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        TrainingPackPlayScreen(template: quick, original: t),
+                  ),
+                );
+              }
             },
             itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'quick',
+                child: Text('Quick Drill (5 spots)'),
+              ),
               PopupMenuItem(
                 value: 'rename',
                 child: Text('✏️ Rename'),
@@ -970,8 +991,29 @@ class _TrainingPackTemplateListScreenState
                 if (v == 'duplicate') _duplicate(t);
                 if (v == 'missing') _generateMissing(t);
                 if (v == 'delete') _delete(t);
+                if (v == 'quick') {
+                  final spots = List<TrainingPackSpot>.from(t.spots)..shuffle();
+                  final quick = t.copyWith(
+                    id: const Uuid().v4(),
+                    name: 'Quick Drill: ${t.name}',
+                    spots: spots.take(5).toList(),
+                    targetStreet: null,
+                    streetGoal: 0,
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          TrainingPackPlayScreen(template: quick, original: t),
+                    ),
+                  );
+                }
               },
               itemBuilder: (_) => const [
+                PopupMenuItem(
+                  value: 'quick',
+                  child: Text('Quick Drill (5 spots)'),
+                ),
                 PopupMenuItem(
                   value: 'rename',
                   child: Text('✏️ Rename'),
