@@ -609,12 +609,11 @@ class _TrainingPackTemplateListScreenState
       var refreshed = 0;
       for (final t in list) {
         final n = await BulkEvaluatorService()
-            .generateMissingForTemplate(t)
+            .generateMissingForTemplate(t, onProgress: null)
             .catchError((_) => 0);
         if (!mounted) return;
         t.recountCoverage();
         refreshed += n;
-        setState(() {});
       }
       if (refreshed > 0) {
         await TrainingPackStorage.save(_templates);
@@ -2224,13 +2223,12 @@ class _TrainingPackTemplateListScreenState
                   final tpl = list[i];
                   await BulkEvaluatorService().generateMissingForTemplate(
                     tpl,
-                    (p) {
+                    onProgress: (p) {
                       progress = (i + p) / list.length;
                       if (mounted) setDialog(() {});
                     },
                   );
                   tpl.recountCoverage();
-                  if (mounted) setState(() {});
                 }
                 await TrainingPackStorage.save(_templates);
                 if (Navigator.canPop(ctx)) Navigator.pop(ctx);
