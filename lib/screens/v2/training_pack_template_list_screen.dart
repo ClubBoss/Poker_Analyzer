@@ -55,6 +55,7 @@ class _TrainingPackTemplateListScreenState
   static const _prefsMixedStreetKey = 'tpl_mixed_street';
   static const _prefsMixedAutoKey = 'tpl_mixed_auto';
   static const _prefsEndlessKey = 'tpl_endless_drill';
+  static const _prefsFavoritesKey = 'tpl_favorites';
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = false;
   String _query = '';
@@ -83,6 +84,8 @@ class _TrainingPackTemplateListScreenState
   final Map<String, int> _streetProgress = {};
   final Map<String, Map<String, int>> _handGoalProgress = {};
   final Map<String, Map<String, int>> _handGoalTotal = {};
+  final Set<String> _favorites = {};
+  bool _showFavoritesOnly = false;
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -363,6 +366,26 @@ class _TrainingPackTemplateListScreenState
       _endlessDrill = false;
     });
     await _saveMixedPrefs();
+  }
+
+  Future<void> _loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_prefsFavoritesKey) ?? [];
+    if (mounted) setState(() => _favorites.addAll(list));
+  }
+
+  Future<void> _saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_prefsFavoritesKey, _favorites.toList());
+  }
+
+  Future<void> _toggleFavorite(String id) async {
+    setState(() {
+      if (!_favorites.add(id)) {
+        _favorites.remove(id);
+      }
+    });
+    await _saveFavorites();
   }
 
   String _streetLabel(String? street) {
@@ -885,6 +908,14 @@ class _TrainingPackTemplateListScreenState
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            IconButton(
+              icon: Icon(
+                _favorites.contains(t.id) ? Icons.star : Icons.star_border,
+              ),
+              color:
+                  _favorites.contains(t.id) ? Colors.amber : Colors.white54,
+              onPressed: () => _toggleFavorite(t.id),
+            ),
             if (t.targetStreet != null)
               Padding(
                 padding: const EdgeInsets.only(right: 8),
@@ -1010,6 +1041,7 @@ class _TrainingPackTemplateListScreenState
       _loadMixedPrefs();
       _loadGroupByStreet();
       _loadGroupByType();
+      _loadFavorites();
     });
     GeneratedPackHistoryService.load().then((list) {
       if (!mounted) return;
@@ -1149,8 +1181,10 @@ class _TrainingPackTemplateListScreenState
         _lastRemoved = t;
         _lastIndex = idx;
         _templates.removeAt(idx);
+        _favorites.remove(t.id);
       });
       TrainingPackStorage.save(_templates);
+      _saveFavorites();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Deleted'),
@@ -2326,12 +2360,12 @@ class _TrainingPackTemplateListScreenState
     final topTags = tagCounts.keys.toList()
       ..sort((a, b) => tagCounts[b]!.compareTo(tagCounts[a]!));
     final tags = topTags.take(10).toList();
+    final base = _showFavoritesOnly
+        ? [for (final t in _templates) if (_favorites.contains(t.id)) t]
+        : _templates;
     final byType = _selectedType == null
-        ? _templates
-        : [
-            for (final t in _templates)
-              if (t.gameType == _selectedType) t
-          ];
+        ? base
+        : [for (final t in base) if (t.gameType == _selectedType) t];
     final filtered = _selectedTag == null
         ? byType
         : [
@@ -2379,6 +2413,13 @@ class _TrainingPackTemplateListScreenState
       appBar: AppBar(
         title: const Text('Training Packs'),
         actions: [
+          IconButton(
+            icon: Icon(
+              _showFavoritesOnly ? Icons.star : Icons.star_border,
+              color: _showFavoritesOnly ? Colors.amber : null,
+            ),
+            onPressed: () => setState(() => _showFavoritesOnly = !_showFavoritesOnly),
+          ),
           IconButton(
             icon: const Icon(Icons.upload),
             tooltip: 'Import',
