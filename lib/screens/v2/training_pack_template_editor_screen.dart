@@ -155,6 +155,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Timer? _importTimer;
   List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
+  double _scrollProgress = 0;
+  bool _showScrollIndicator = false;
+  Timer? _scrollThrottle;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
 
@@ -180,6 +183,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       prefs.setDouble(_scrollKey, offset);
     } else {
       prefs.remove(_scrollKey);
+    }
+  }
+
+  void _updateScroll() {
+    if (!_scrollCtrl.hasClients) return;
+    final max = _scrollCtrl.position.maxScrollExtent;
+    final progress = max > 0 ? _scrollCtrl.position.pixels / max : 0.0;
+    final show = max >= 200;
+    if (progress != _scrollProgress || show != _showScrollIndicator) {
+      setState(() {
+        _scrollProgress = progress;
+        _showScrollIndicator = show;
+      });
     }
   }
 
@@ -847,6 +863,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _tagSearchCtrl = TextEditingController();
     _history = UndoRedoService(eventsLimit: 50);
     _history.record(widget.template.spots);
+    _scrollCtrl.addListener(() {
+      if (_scrollThrottle?.isActive ?? false) return;
+      _scrollThrottle =
+          Timer(const Duration(milliseconds: 100), _updateScroll);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateScroll());
     _clipboardTimer ??=
         Timer.periodic(const Duration(seconds: 2), (_) => _checkClipboard());
     _checkClipboard();
@@ -906,6 +928,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           if (_scrollCtrl.hasClients) {
             final max = _scrollCtrl.position.maxScrollExtent;
             _scrollCtrl.jumpTo(min(offset, max));
+            _updateScroll();
           }
         });
       }
@@ -933,6 +956,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _handTypeCtr.dispose();
     _searchCtrl.dispose();
     _tagSearchCtrl.dispose();
+    _scrollThrottle?.cancel();
     _scrollCtrl.dispose();
     _focusNode.dispose();
     _clipboardTimer?.cancel();
@@ -3334,9 +3358,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ],
             )
           : null,
-      bottomNavigationBar: hasSpots && _isMultiSelect
-          ? BottomAppBar(
-              child: Row(
+      bottomNavigationBar:
+          (_showScrollIndicator || (hasSpots && _isMultiSelect))
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_showScrollIndicator)
+                      LinearProgressIndicator(
+                        value: _scrollProgress.clamp(0.0, 1.0),
+                        backgroundColor: Colors.white24,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.secondary),
+                        minHeight: 2,
+                      ),
+                    if (hasSpots && _isMultiSelect)
+                      BottomAppBar(
+                        child: Row(
                 children: [
                   Tooltip(
                     message: 'Select All (Ctrl + A)',
@@ -3391,8 +3428,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   ),
                 ],
               ),
-            )
-          : null,
+            ),
+          ]
+        )
+        : null,
       body: hasSpots
           ? Stack(
               children: [
