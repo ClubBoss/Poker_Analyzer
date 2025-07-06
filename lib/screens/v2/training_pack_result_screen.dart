@@ -226,14 +226,15 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                     name: 'Review mistakes',
                     spots: [for (final s in widget.template.spots) if (_mistakeIds.contains(s.id)) s],
                   );
-                  MistakeReviewPackService.latestTemplate = template;
+                  MistakeReviewPackService.setLatestTemplate(template);
                   await context.read<MistakeReviewPackService>().addPack(_mistakeIds);
                   if (!mounted) return;
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => TrainingPackPlayScreen(
-                        template: MistakeReviewPackService.latestTemplate!,
+                        template:
+                            MistakeReviewPackService.cachedTemplate!,
                         original: null,
                       ),
                     ),

@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
@@ -9,6 +11,8 @@ import '../models/saved_hand.dart';
 import '../models/mistake_pack.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
+import '../services/template_storage_service.dart';
+import 'package:uuid/uuid.dart';
 import 'saved_hand_manager_service.dart';
 import 'mistake_pack_cloud_service.dart';
 
@@ -17,7 +21,39 @@ class MistakeReviewPackService extends ChangeNotifier {
   static const _dateKey = 'mistake_review_date';
   static const _packsKey = 'mistake_packs';
 
-  static TrainingPackTemplate? latestTemplate;
+  static TrainingPackTemplate? _latestTemplate;
+
+  static void setLatestTemplate(TrainingPackTemplate template) {
+    _latestTemplate = template;
+  }
+
+  static TrainingPackTemplate? get cachedTemplate => _latestTemplate;
+
+  static Future<TrainingPackTemplate?> latestTemplate(BuildContext context) async {
+    if (_latestTemplate != null) return _latestTemplate;
+    final service = context.read<MistakeReviewPackService>();
+    if (service.packs.isEmpty) return null;
+    final templates = context.read<TemplateStorageService>().templates;
+    final map = <String, TrainingPackSpot>{};
+    for (final t in templates) {
+      for (final s in t.spots) {
+        map[s.id] = s;
+      }
+    }
+    final spots = <TrainingPackSpot>[];
+    for (final id in service.packs.first.spotIds) {
+      final s = map[id];
+      if (s != null) spots.add(TrainingPackSpot.fromJson(s.toJson()));
+    }
+    if (spots.isEmpty) return null;
+    _latestTemplate = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: 'Review Mistakes',
+      createdAt: DateTime.now(),
+      spots: spots,
+    );
+    return _latestTemplate;
+  }
 
   final SavedHandManagerService hands;
   final MistakePackCloudService? cloud;
