@@ -50,6 +50,7 @@ import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
 import '../../services/training_pack_template_storage_service.dart';
 import '../../services/file_saver_service.dart';
+import 'package:csv/csv.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
@@ -1234,6 +1235,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to save: $e')),
         );
+      }
+    }
+  }
+
+  Future<void> _exportPreviewCsv() async {
+    final rows = <List<dynamic>>[
+      ['Position', 'HeroCards', 'Board', 'EV', 'Tags']
+    ];
+    for (final s in widget.template.spots) {
+      final h = s.hand;
+      rows.add([
+        h.position.name,
+        h.heroCards,
+        h.board.join(' '),
+        s.heroEv?.toStringAsFixed(2) ?? '',
+        s.tags.join('|'),
+      ]);
+    }
+    final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
+    final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final name = 'preview_$safe';
+    try {
+      await FileSaverService.instance.saveCsv(name, csvStr);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('CSV saved')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to save: $e')));
       }
     }
   }
@@ -3489,9 +3521,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: IconButton(
-                        icon: const Icon(Icons.download),
-                        onPressed: _exportPreviewJson,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.table_chart),
+                            onPressed: _exportPreviewCsv,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.download),
+                            onPressed: _exportPreviewJson,
+                          ),
+                        ],
                       ),
                     ),
                     SingleChildScrollView(

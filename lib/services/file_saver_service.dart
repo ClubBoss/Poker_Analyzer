@@ -16,4 +16,14 @@ class FileSaverService {
       mimeType: MimeType.other,
     );
   }
+
+  Future<void> saveCsv(String name, String data) async {
+    final bytes = Uint8List.fromList(utf8.encode(data));
+    await FileSaver.instance.saveAs(
+      name: name,
+      bytes: bytes,
+      ext: 'csv',
+      mimeType: MimeType.csv,
+    );
+  }
 }
