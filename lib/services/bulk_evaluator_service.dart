@@ -11,29 +11,28 @@ class BulkEvaluatorService {
     TrainingPackTemplate template, {
     void Function(double progress)? onProgress,
   }) async {
-    final spots = template.spots;
     final updated = <TrainingPackSpot>[];
-    final total = spots.length;
+    final total = template.spots.length;
     var done = 0;
     var next = 0.1;
-    for (final s in spots) {
-      final hadEv = s.heroEv;
-      final hadIcm = s.heroIcmEv;
+    for (final spot in template.spots) {
+      final hadEv = spot.heroEv;
+      final hadIcm = spot.heroIcmEv;
       if (hadEv == null) {
-        await evaluator.evaluate(s, anteBb: template.anteBb);
+        await evaluator.evaluate(spot, anteBb: template.anteBb);
       }
       if (hadIcm == null) {
-        await evaluator.evaluateIcm(s, anteBb: template.anteBb);
+        await evaluator.evaluateIcm(spot, anteBb: template.anteBb);
       }
-      if ((hadEv == null && s.heroEv != null) ||
-          (hadIcm == null && s.heroIcmEv != null)) {
-        s.dirty = true;
-        updated.add(s);
+      if ((hadEv == null && spot.heroEv != null) ||
+          (hadIcm == null && spot.heroIcmEv != null)) {
+        spot.dirty = true;
+        updated.add(spot);
       }
       done++;
       final progress = done / total;
       if (progress >= next || done == total) {
-        onProgress?.call(progress > 1.0 ? 1.0 : progress);
+        onProgress?.call(progress.clamp(0, 1));
         next += 0.1;
       }
     }
