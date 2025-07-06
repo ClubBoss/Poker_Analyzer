@@ -364,6 +364,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _persist() async {
+    widget.template.isDraft = true;
     widget.template.recountCoverage();
     await TrainingPackStorage.save(widget.templates);
   }
@@ -991,7 +992,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name is required')));
       return;
     }
-    _persist();
+    final ready = validateTrainingPackTemplate(widget.template).isEmpty;
+    widget.template.isDraft = !ready;
+    widget.template.recountCoverage();
+    TrainingPackStorage.save(widget.templates);
     Navigator.pop(context);
   }
 
