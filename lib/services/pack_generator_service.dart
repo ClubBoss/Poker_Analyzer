@@ -172,6 +172,7 @@ class PackGeneratorService {
     const idxBB = 1;
     final callCutoff =
         (PackGeneratorService.handRanking.length * bbCallPct / 100).round();
+    final evService = const PushFoldEvService();
     for (var i = 0; i < heroRange.length; i++) {
       final hand = heroRange[i];
       final heroCards = _firstCombo(hand);
@@ -187,46 +188,42 @@ class PackGeneratorService {
               ActionEntry(0, j, 'fold'),
         ]
       };
-      final ev = computePushEV(
-        heroBbStack: heroBbStack,
-        bbCount: playerStacksBb.length - 1,
-        heroHand: hand,
-        anteBb: anteBb,
-      );
-      actions[0]![0].ev = ev;
-      actions[0]![0].icmEv = computeIcmPushEV(
-        chipStacksBb: playerStacksBb,
-        heroIndex: 0,
-        heroHand: hand,
-        chipPushEv: ev,
-      );
       final stacks = {
         for (var j = 0; j < playerStacksBb.length; j++)
           '$j': playerStacksBb[j].toDouble()
       };
-      spots.add(
-        TrainingPackSpot(
-          id: '${id}_${i + 1}',
-          title: '$hand push',
-          hand: HandData(
-            heroCards: heroCards,
-            position: heroPos,
-            heroIndex: 0,
-            playerCount: playerStacksBb.length,
-            stacks: stacks,
-            actions: actions,
-            anteBb: anteBb,
-          ),
-          tags: const ['pushfold'],
+      final spot = TrainingPackSpot(
+        id: '${id}_${i + 1}',
+        title: '$hand push',
+        hand: HandData(
+          heroCards: heroCards,
+          position: heroPos,
+          heroIndex: 0,
+          playerCount: playerStacksBb.length,
+          stacks: stacks,
+          actions: actions,
+          anteBb: anteBb,
         ),
+        tags: const ['pushfold'],
       );
+      evService.evaluate(spot, anteBb: anteBb);
+      evService.evaluateIcm(spot, anteBb: anteBb);
+      spots.add(spot);
     }
     final tpl = TrainingPackTemplate(
       id: id,
       name: name,
       gameType: GameType.tournament,
       spots: spots,
+      heroBbStack: heroBbStack,
+      playerStacksBb: List<int>.from(playerStacksBb),
+      heroPos: heroPos,
+      spotCount: spots.length,
+      bbCallPct: bbCallPct,
+      anteBb: anteBb,
+      heroRange: List<String>.from(heroRange),
       createdAt: createdAt,
+      lastGeneratedAt: DateTime.now(),
     );
     TemplateCoverageUtils.recountAll(tpl);
     return tpl;
