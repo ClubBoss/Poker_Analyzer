@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import "dart:math";
 
 import '../helpers/training_pack_storage.dart';
 import '../services/bulk_evaluator_service.dart';
+import '../services/offline_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
 
 class GlobalEvaluationScreen extends StatefulWidget {
@@ -14,28 +16,56 @@ class GlobalEvaluationScreen extends StatefulWidget {
 class _GlobalEvaluationScreenState extends State<GlobalEvaluationScreen> {
   double _progress = 0;
   bool _running = false;
+  bool _cancelRequested = false;
 
   Future<void> _run() async {
     if (_running) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final templates = await TrainingPackStorage.load();
+    if (OfflineEvaluatorService.isOffline || templates.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Глобальный пересчёт недоступен оффлайн')),
+      );
+      return;
+    }
     setState(() {
       _running = true;
       _progress = 0;
+      _cancelRequested = false;
     });
-    final templates = await TrainingPackStorage.load();
+    const batchSize = 4;
     final total = templates.length;
-    for (var i = 0; i < templates.length; i++) {
-      final t = templates[i];
-      await BulkEvaluatorService().generateMissingForTemplate(
-        t,
-        onProgress: (p) {
-          setState(() => _progress = (i + p) / total);
-        },
-      );
-      TemplateCoverageUtils.recountAll(t);
-      await TrainingPackStorage.save(templates);
+    for (var i = 0; i < total && !_cancelRequested; i += batchSize) {
+      final batch = templates.sublist(i, min(i + batchSize, total));
+      final results = await Future.wait([
+        for (var j = 0; j < batch.length; j++)
+          BulkEvaluatorService()
+              .generateMissingForTemplate(
+                batch[j],
+                onProgress: (p) {
+                  if (!mounted || _cancelRequested) return;
+                  final base = (i + j) / total;
+                  setState(() => _progress = base + p / total);
+                },
+              )
+              .catchError((_) => 0),
+      ]);
+      if (!mounted) return;
+      for (var j = 0; j < batch.length; j++) {
+        if (results[j] > 0) TemplateCoverageUtils.recountAll(batch[j]);
+      }
+      setState(() => _progress = (i + batch.length) / total);
     }
-    if (mounted) {
-      setState(() => _running = false);
+    await TrainingPackStorage.save(templates);
+    if (!mounted) return;
+    setState(() {
+      _running = false;
+      if (!_cancelRequested) _progress = 1;
+    });
+    if (!_cancelRequested) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Пересчёт EV/ICM завершён 🎉')),
+      );
     }
   }
 
@@ -44,7 +74,7 @@ class _GlobalEvaluationScreenState extends State<GlobalEvaluationScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
-        title: const Text('Global Evaluation'),
+        title: const Text('Глобальный пересчёт EV/ICM'),
         centerTitle: true,
       ),
       body: Center(
@@ -61,11 +91,16 @@ class _GlobalEvaluationScreenState extends State<GlobalEvaluationScreen> {
                     '${(_progress * 100).toStringAsFixed(0)}%',
                     style: const TextStyle(color: Colors.white),
                   ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () => setState(() => _cancelRequested = true),
+                    child: const Text('Отмена'),
+                  ),
                 ],
               )
             : ElevatedButton(
                 onPressed: _run,
-                child: const Text('Recalculate EV/ICM for All Templates'),
+                child: const Text('Пересчитать EV/ICM для всех шаблонов'),
               ),
       ),
     );
