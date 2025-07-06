@@ -34,6 +34,7 @@ import '../../widgets/spot_viewer_dialog.dart';
 import '../../services/training_session_service.dart';
 import '../training_session_screen.dart';
 import '../../helpers/training_pack_validator.dart';
+import '../../utils/template_coverage_utils.dart';
 import '../../widgets/common/ev_distribution_chart.dart';
 import '../../widgets/ev_summary_card.dart';
 import '../../theme/app_colors.dart';
@@ -393,7 +394,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Future<void> _persist() async {
     widget.template.isDraft = true;
-    widget.template.recountCoverage();
+    TemplateCoverageUtils.recountAll(widget.template);
     await TrainingPackStorage.save(widget.templates);
   }
 
@@ -1034,7 +1035,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     final ready = validateTrainingPackTemplate(widget.template).isEmpty;
     widget.template.isDraft = !ready;
-    widget.template.recountCoverage();
+    TemplateCoverageUtils.recountAll(widget.template);
     TrainingPackStorage.save(widget.templates);
     unawaited(
       BulkEvaluatorService()
@@ -1913,8 +1914,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     if (s.heroEv == null) {
                       await const PushFoldEvService()
                           .evaluate(s, anteBb: widget.template.anteBb);
-                      widget.template.meta['evCovered'] =
-                          (widget.template.meta['evCovered'] ?? 0) + 1;
+                      TemplateCoverageUtils.recountAll(widget.template);
                       if (!mounted) return;
                       setState(() {
                         if (_autoSortEv) _sortSpots();
@@ -1981,8 +1981,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     if (s.heroIcmEv == null) {
                       await const PushFoldEvService()
                           .evaluateIcm(s, anteBb: widget.template.anteBb);
-                      widget.template.meta['icmCovered'] =
-                          (widget.template.meta['icmCovered'] ?? 0) + 1;
+                      TemplateCoverageUtils.recountAll(widget.template);
                       if (!mounted) return;
                       setState(() {
                         if (_autoSortEv) _sortSpots();
