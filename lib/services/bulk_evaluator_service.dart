@@ -31,11 +31,12 @@ class BulkEvaluatorService {
       }
       done++;
       final progress = done / total;
-      if (progress >= next || done == total) {
-        onProgress?.call(progress.clamp(0, 1));
+      while (progress >= next && next <= 1) {
+        onProgress?.call(next);
         next += 0.1;
       }
     }
+    if (next <= 1) onProgress?.call(1.0);
     template.recountCoverage();
     return updated;
   }
