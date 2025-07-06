@@ -747,7 +747,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _addPackTag() async {
-    final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
+    final service = context.read<TemplateStorageService>();
+    final allTags = {
+      ...service.templates.expand((t) => t.tags),
+      ...widget.template.tags,
+    }.toList();
     final c = TextEditingController();
     final tag = await showDialog<String>(
       context: context,
@@ -785,7 +789,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
     c.dispose();
     if (tag == null || tag.isEmpty) return;
-    setState(() => widget.template.tags.add(tag));
+    setState(() {
+      if (!widget.template.tags.contains(tag)) {
+        widget.template.tags.add(tag);
+      }
+    });
     _persist();
   }
 
