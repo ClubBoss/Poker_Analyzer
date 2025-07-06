@@ -135,7 +135,7 @@ class PackGeneratorService {
       anteBb: p.anteBb,
       range: p.heroRange,
     );
-    return TrainingPackTemplate(
+    final tpl = TrainingPackTemplate(
       id: p.id,
       name: p.name,
       description: p.description,
@@ -150,7 +150,9 @@ class PackGeneratorService {
       heroRange: p.heroRange,
       createdAt: p.createdAt,
       lastGeneratedAt: DateTime.now(),
-    )..recountCoverage();
+    );
+    TemplateCoverageUtils.recountAll(tpl);
+    return tpl;
   }
 
   static TrainingPackTemplate generatePushFoldPackSync({
@@ -218,13 +220,15 @@ class PackGeneratorService {
         ),
       );
     }
-    return TrainingPackTemplate(
+    final tpl = TrainingPackTemplate(
       id: id,
       name: name,
       gameType: GameType.tournament,
       spots: spots,
       createdAt: createdAt,
-    )..recountCoverage();
+    );
+    TemplateCoverageUtils.recountAll(tpl);
+    return tpl;
   }
 
   static String _firstCombo(String hand) {
@@ -301,12 +305,14 @@ class PackGeneratorService {
       );
     }
 
-    return TrainingPackTemplate(
+    final tpl = TrainingPackTemplate(
       id: 'final_table_co',
       name: 'Final Table ICM',
       gameType: GameType.tournament,
       spots: spots,
       createdAt: createdAt,
-    )..recountCoverage();
+    );
+    TemplateCoverageUtils.recountAll(tpl);
+    return tpl;
   }
 }

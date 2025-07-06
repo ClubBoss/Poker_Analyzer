@@ -5,6 +5,7 @@ import '../game_type.dart';
 import '../training_pack.dart' show parseGameType;
 import '../../services/pack_generator_service.dart';
 import '../../helpers/poker_position_helper.dart';
+import '../../helpers/template_coverage_utils.dart';
 
 class TrainingPackTemplate {
   final String id;
@@ -66,7 +67,7 @@ class TrainingPackTemplate {
         playerStacksBb = playerStacksBb ?? const [10, 10],
         meta = meta ?? {},
         createdAt = createdAt ?? DateTime.now() {
-    recountCoverage();
+    TemplateCoverageUtils.recountAll(this);
   }
 
   TrainingPackTemplate copyWith({
@@ -168,7 +169,7 @@ class TrainingPackTemplate {
       isDraft: json['isDraft'] as bool? ?? false,
     );
     if (!tpl.meta.containsKey('evCovered') || !tpl.meta.containsKey('icmCovered')) {
-      tpl.recountCoverage();
+      TemplateCoverageUtils.recountAll(tpl);
     }
     return tpl;
   }
@@ -240,15 +241,14 @@ class TrainingPackTemplate {
   }
 
   void recountCoverage([List<TrainingPackSpot>? all]) {
-    final list = all ?? spots;
-    int ev = 0;
-    int icm = 0;
-    for (final s in list) {
-      if (!s.dirty && s.heroEv != null) ev++;
-      if (!s.dirty && s.heroIcmEv != null) icm++;
+    if (all != null) {
+      final tmp = copyWith(spots: all);
+      TemplateCoverageUtils.recountAll(tmp);
+      meta['evCovered'] = tmp.evCovered;
+      meta['icmCovered'] = tmp.icmCovered;
+    } else {
+      TemplateCoverageUtils.recountAll(this);
     }
-    meta['evCovered'] = ev;
-    meta['icmCovered'] = icm;
   }
 
   Future<List<TrainingPackSpot>> generateSpots() async {
@@ -264,7 +264,10 @@ class TrainingPackTemplate {
       anteBb: anteBb,
     );
     final spots = tpl.spots.take(spotCount).toList();
-    recountCoverage([...this.spots, ...spots]);
+    final tmp = copyWith(spots: [...this.spots, ...spots]);
+    TemplateCoverageUtils.recountAll(tmp);
+    meta['evCovered'] = tmp.evCovered;
+    meta['icmCovered'] = tmp.icmCovered;
     return spots;
   }
 

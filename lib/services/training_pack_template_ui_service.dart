@@ -7,6 +7,7 @@ import '../models/action_entry.dart';
 import '../helpers/hand_utils.dart';
 import 'pack_generator_service.dart';
 import 'push_fold_ev_service.dart';
+import '../helpers/template_coverage_utils.dart';
 
 class TrainingPackTemplateUiService {
   const TrainingPackTemplateUiService();
@@ -111,7 +112,7 @@ class TrainingPackTemplateUiService {
         );
       },
     );
-    template.recountCoverage([...template.spots, ...generated]);
+    TemplateCoverageUtils.recountAll(template);
     template.lastGeneratedAt = DateTime.now();
     return generated;
   }
@@ -223,7 +224,7 @@ class TrainingPackTemplateUiService {
         );
       },
     );
-    template.recountCoverage([...template.spots, ...generated]);
+    TemplateCoverageUtils.recountAll(template);
     template.lastGeneratedAt = DateTime.now();
     return generated;
   }

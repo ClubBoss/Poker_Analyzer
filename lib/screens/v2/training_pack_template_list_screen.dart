@@ -18,6 +18,7 @@ import '../../helpers/training_pack_storage.dart';
 import '../../services/pack_generator_service.dart';
 import '../../services/training_spot_storage_service.dart';
 import '../../services/saved_hand_manager_service.dart';
+import '../../helpers/template_coverage_utils.dart';
 import '../../services/training_pack_template_ui_service.dart';
 import '../../models/saved_hand.dart';
 import '../../models/action_entry.dart';
@@ -612,7 +613,7 @@ class _TrainingPackTemplateListScreenState
             .generateMissingForTemplate(t)
             .catchError((_) => 0);
         if (!mounted) return;
-        t.recountCoverage();
+        TemplateCoverageUtils.recountAll(t);
         refreshed += n;
         setState(() {});
       }
@@ -2229,7 +2230,7 @@ class _TrainingPackTemplateListScreenState
                       if (mounted) setDialog(() {});
                     },
                   );
-                  tpl.recountCoverage();
+                  TemplateCoverageUtils.recountAll(tpl);
                   if (mounted) setState(() {});
                 }
                 await TrainingPackStorage.save(_templates);

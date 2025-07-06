@@ -22,6 +22,7 @@ import '../../services/template_undo_redo_service.dart';
 import 'package:collection/collection.dart';
 import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
+import '../../helpers/template_coverage_utils.dart';
 import '../../helpers/title_utils.dart';
 import '../../models/v2/hand_data.dart';
 import '../../models/v2/hero_position.dart';
@@ -393,7 +394,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   Future<void> _persist() async {
     widget.template.isDraft = true;
-    widget.template.recountCoverage();
+    TemplateCoverageUtils.recountAll(widget.template);
     await TrainingPackStorage.save(widget.templates);
   }
 
@@ -1034,7 +1035,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     final ready = validateTrainingPackTemplate(widget.template).isEmpty;
     widget.template.isDraft = !ready;
-    widget.template.recountCoverage();
+    TemplateCoverageUtils.recountAll(widget.template);
     TrainingPackStorage.save(widget.templates);
     unawaited(
       BulkEvaluatorService()

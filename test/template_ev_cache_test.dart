@@ -7,6 +7,7 @@ import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/services/pack_generator_service.dart';
 import 'package:poker_analyzer/services/training_pack_template_ui_service.dart';
+import 'package:poker_analyzer/helpers/template_coverage_utils.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +52,7 @@ void main() {
     final service = TrainingPackTemplateUiService();
     final generated = await service.generateMissingSpotsWithProgress(ctx, tpl);
     tpl.spots.addAll(generated);
-    tpl.recountCoverage();
+    TemplateCoverageUtils.recountAll(tpl);
     expect(tpl.evCovered, 4 + generated.length);
   });
 }
