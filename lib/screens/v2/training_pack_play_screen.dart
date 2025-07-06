@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../../models/training_spot.dart';
@@ -425,6 +426,15 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           heroEv != null && bestEv != null ? heroEv - bestEv : null;
       final icmDiff =
           heroIcm != null && bestIcm != null ? heroIcm - bestIcm : null;
+      final goodEv = evDiff == null || evDiff >= 0;
+      final goodIcm = icmDiff == null || icmDiff >= 0;
+      if (goodEv && goodIcm) {
+        HapticFeedback.lightImpact();
+      } else if (!goodEv && !goodIcm) {
+        HapticFeedback.heavyImpact();
+      } else {
+        HapticFeedback.mediumImpact();
+      }
       _showDiff(evDiff, icmDiff);
       if ((evDiff != null && evDiff < 0) || (icmDiff != null && icmDiff < 0)) {
         await context
