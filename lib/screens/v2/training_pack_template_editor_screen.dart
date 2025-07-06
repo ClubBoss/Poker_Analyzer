@@ -1313,11 +1313,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         archive.addFile(ArchiveFile(name, bytes.length, bytes));
       }
     }
+    await Future.delayed(Duration.zero);
     final bytes = ZipEncoder().encode(archive);
     if (bytes == null) return;
     final tmp = await getTemporaryDirectory();
     final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
-    final file = File('${tmp.path}/preview_$safe.zip');
+    final file = File(
+        '${tmp.path}/preview_${safe}_${DateTime.now().millisecondsSinceEpoch}.zip');
     await file.writeAsBytes(bytes, flush: true);
     try {
       await Share.shareXFiles([XFile(file.path)]);
