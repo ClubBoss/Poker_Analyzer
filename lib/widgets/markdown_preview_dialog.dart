@@ -19,9 +19,8 @@ class MarkdownPreviewDialog extends StatelessWidget {
         TextButton(
           onPressed: () {
             Clipboard.setData(ClipboardData(text: markdown));
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Copied to clipboard')),
-            );
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text('Copied')));
           },
           child: const Text('Copy'),
         ),
