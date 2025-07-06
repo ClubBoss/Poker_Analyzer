@@ -601,25 +601,28 @@ class _TrainingPackTemplateListScreenState
     if (_autoEvalRunning || OfflineEvaluatorService.isOffline || !mounted) return;
     _autoEvalRunning = true;
     try {
+      final messenger = ScaffoldMessenger.maybeOf(context);
       final list = [
         for (final t in _visibleTemplates())
           if (t.evCovered < t.spots.length || t.icmCovered < t.spots.length) t
       ];
+      const _batchSize = 4;
       var refreshed = 0;
-      for (var i = 0; i < list.length; i += 4) {
-        final batch = list.sublist(i, min(i + 4, list.length));
+      for (var i = 0; i < list.length; i += _batchSize) {
+        final batch = list.sublist(i, min(i + _batchSize, list.length));
         final res = await Future.wait([
-          for (final t in batch) BulkEvaluatorService().generateMissingForTemplate(t)
+          for (final t in batch)
+            BulkEvaluatorService().generateMissingForTemplate(t).catchError((_) {})
         ]);
+        if (!mounted) return;
         refreshed += res.fold<int>(0, (a, b) => a + b);
       }
       if (refreshed > 0) {
         await TrainingPackStorage.save(_templates);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('EV/ICM refreshed for $refreshed packs')),
-          );
-        }
+        if (!mounted) return;
+        messenger?.showSnackBar(
+          SnackBar(content: Text('EV/ICM refreshed for $refreshed spot${refreshed == 1 ? '' : 's'}')),
+        );
       }
       if (mounted) setState(() {});
     } finally {
