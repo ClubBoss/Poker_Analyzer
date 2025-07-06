@@ -7,7 +7,9 @@ class OfflineEvaluatorService {
   OfflineEvaluatorService({this.remote = const PushFoldEvService()});
 
   final PushFoldEvService remote;
-  bool isOffline = false;
+  static bool _offline = false;
+  static bool get isOffline => _offline;
+  static set isOffline(bool v) => _offline = v;
   Box<dynamic>? _box;
 
   Future<void> _open() async {
@@ -29,15 +31,18 @@ class OfflineEvaluatorService {
     await _open();
     final key = '${spot.id}|$anteBb';
     final cached = (_box!.get(key) as Map?)?.cast<String, dynamic>();
-    if (!await _online() && cached != null && cached['ev'] != null) {
-      final hero = spot.hand.heroIndex;
-      final acts = spot.hand.actions[0] ?? [];
-      for (final a in acts) {
-        if (a.playerIndex == hero && a.action == 'push') {
-          a.ev = (cached['ev'] as num).toDouble();
-          return;
+    if (!await _online()) {
+      if (cached != null && cached['ev'] != null) {
+        final hero = spot.hand.heroIndex;
+        final acts = spot.hand.actions[0] ?? [];
+        for (final a in acts) {
+          if (a.playerIndex == hero && a.action == 'push') {
+            a.ev = (cached['ev'] as num).toDouble();
+            return;
+          }
         }
       }
+      return;
     }
     await remote.evaluate(spot, anteBb: anteBb);
     final ev = spot.heroEv;
@@ -52,16 +57,19 @@ class OfflineEvaluatorService {
     await _open();
     final key = '${spot.id}|$anteBb';
     final cached = (_box!.get(key) as Map?)?.cast<String, dynamic>();
-    if (!await _online() && cached != null && cached['icm'] != null) {
-      final hero = spot.hand.heroIndex;
-      final acts = spot.hand.actions[0] ?? [];
-      for (final a in acts) {
-        if (a.playerIndex == hero && a.action == 'push') {
-          a.icmEv = (cached['icm'] as num).toDouble();
-          if (cached['ev'] != null) a.ev ??= (cached['ev'] as num).toDouble();
-          return;
+    if (!await _online()) {
+      if (cached != null && cached['icm'] != null) {
+        final hero = spot.hand.heroIndex;
+        final acts = spot.hand.actions[0] ?? [];
+        for (final a in acts) {
+          if (a.playerIndex == hero && a.action == 'push') {
+            a.icmEv = (cached['icm'] as num).toDouble();
+            if (cached['ev'] != null) a.ev ??= (cached['ev'] as num).toDouble();
+            return;
+          }
         }
       }
+      return;
     }
     await remote.evaluateIcm(spot, anteBb: anteBb);
     final ev = spot.heroEv;
