@@ -2090,6 +2090,64 @@ class _TrainingPackTemplateListScreenState
     }
   }
 
+  Future<void> _generateMissingEvIcmAll() async {
+    final list = [
+      for (final t in _templates)
+        if (t.evCovered < t.spots.length || t.icmCovered < t.spots.length) t
+    ];
+    if (list.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Nothing to update')));
+      return;
+    }
+    double progress = 0;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setDialog) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                for (var i = 0; i < list.length; i++) {
+                  await const BulkEvaluatorService().generateMissingForTemplate(
+                    list[i],
+                    (p) {
+                      progress = (i + p) / list.length;
+                      if (mounted) setDialog(() {});
+                    },
+                  );
+                  if (mounted) setState(() {});
+                }
+                await TrainingPackStorage.save(_templates);
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LinearProgressIndicator(value: progress),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${(progress * 100).toStringAsFixed(0)}%',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (mounted) setState(() {});
+  }
+
   void _showFilters() {
     final tags = <String>{for (final t in _templates) ...t.tags};
     showModalBottomSheet(
@@ -2513,9 +2571,14 @@ class _TrainingPackTemplateListScreenState
           PopupMenuButton<String>(
             onSelected: (v) {
               if (v == 'paste') _pasteCsv();
+              if (v == 'calc_ev_icm') _generateMissingEvIcmAll();
             },
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'paste', child: Text('Paste CSV')),
+              PopupMenuItem(
+                value: 'calc_ev_icm',
+                child: Text('Generate Missing EV/ICM for All'),
+              ),
             ],
           ),
         ],
