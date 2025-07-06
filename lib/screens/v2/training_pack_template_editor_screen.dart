@@ -54,6 +54,7 @@ import '../../services/template_storage_service.dart';
 import '../../services/file_saver_service.dart';
 import 'package:csv/csv.dart';
 import '../../widgets/markdown_preview_dialog.dart';
+import '../../main.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
@@ -1035,6 +1036,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     widget.template.isDraft = !ready;
     widget.template.recountCoverage();
     TrainingPackStorage.save(widget.templates);
+    unawaited(
+      BulkEvaluatorService()
+          .generateMissing(widget.template, onProgress: null)
+          .then((_) {
+        final ctx = navigatorKey.currentState?.context;
+        if (ctx != null && ctx.mounted) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            const SnackBar(
+              content: Text('EV/ICM updated'),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }),
+    );
     Navigator.pop(context);
   }
 
