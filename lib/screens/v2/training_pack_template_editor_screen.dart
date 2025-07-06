@@ -2106,6 +2106,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     setState(() => _log('Added', copy));
   }
 
+  Widget _buildSpotMenu(TrainingPackSpot spot) {
+    return PopupMenuButton<String>(
+      onSelected: (v) {
+        if (v == 'duplicate') _duplicateSpot(spot);
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(value: 'duplicate', child: Text('Duplicate')),
+      ],
+    );
+  }
+
   Future<void> _renameTag() async {
     final tags = widget.template.spots.expand((s) => s.tags).toSet().toList()
       ..sort((a, b) => a.compareTo(b));
@@ -3934,42 +3945,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                   Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      PopupMenuButton<String>(
-                                        onSelected: (v) {
-                                          if (v == 'copy') {
-                                            _copiedSpot = spot.copyWith(
-                                              id: const Uuid().v4(),
-                                              editedAt: DateTime.now(),
-                                              hand: HandData.fromJson(spot.hand.toJson()),
-                                              tags: List.from(spot.tags),
-                                            );
-                                          } else if (v == 'paste' && _copiedSpot != null) {
-                                            final i = widget.template.spots.indexOf(spot);
-                                            final s = _copiedSpot!.copyWith(
-                                              id: const Uuid().v4(),
-                                              editedAt: DateTime.now(),
-                                              hand: HandData.fromJson(_copiedSpot!.hand.toJson()),
-                                              tags: List.from(_copiedSpot!.tags),
-                                            );
-                                            setState(() => widget.template.spots.insert(i + 1, s));
-                                            _persist();
-                                          } else if (v == 'dup') {
-                                            _duplicateSpot(spot);
-                                          } else if (v == 'pin') {
-                                            setState(() {
-                                              spot.pinned = !spot.pinned;
-                                              if (_autoSortEv) _sortSpots();
-                                            });
-                                            _persist();
-                                          }
-                                        },
-                                        itemBuilder: (_) => [
-                                          PopupMenuItem(value: 'pin', child: Text(spot.pinned ? '📌 Unpin' : '📌 Pin')),
-                                          const PopupMenuItem(value: 'copy', child: Text('📋 Copy')),
-                                          if (_copiedSpot != null) const PopupMenuItem(value: 'paste', child: Text('📥 Paste')),
-                                          const PopupMenuItem(value: 'dup', child: Text('📄 Duplicate')),
-                                        ],
-                                      ),
+                                      _buildSpotMenu(spot),
                                       TextButton(
                                         onPressed: () => _openEditor(spot),
                                         child: const Text('📝 Edit'),
