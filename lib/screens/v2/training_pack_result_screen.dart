@@ -63,6 +63,14 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
 
   List<double> get _evs => [for (final s in widget.template.spots) if (s.heroEv != null && widget.results.containsKey(s.id)) s.heroEv!];
 
+  List<double> get _icmEvs => [
+        for (final s in widget.template.spots)
+          if (s.heroIcmEv != null && widget.results.containsKey(s.id)) s.heroIcmEv!
+      ];
+
+  double get _evSum => _evs.fold(0.0, (a, b) => a + b);
+  double get _icmSum => _icmEvs.fold(0.0, (a, b) => a + b);
+
   List<TrainingPackSpot> get _mistakeSpots => widget.template.spots
       .where((s) {
         final exp = _expected(s);
@@ -131,6 +139,45 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                children: [
+                  Text("Spots: $_total", style: const TextStyle(color: Colors.white)),
+                  Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                  Text("Accuracy: ${_rate.toStringAsFixed(0)}%", style: const TextStyle(color: Colors.white)),
+                  Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                  Text(
+                    "EV: ${_evSum >= 0 ? '+' : ''}${_evSum.toStringAsFixed(1)} BB",
+                    style: TextStyle(
+                      color: _evSum > 0
+                          ? Colors.greenAccent
+                          : (_evSum < 0 ? Colors.redAccent : Colors.amber),
+                    ),
+                  ),
+                  if (_icmEvs.isNotEmpty) ...[
+                    Text("•", style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                    Text(
+                      "ICM: ${_icmSum >= 0 ? '+' : ''}${_icmSum.toStringAsFixed(1)}",
+                      style: TextStyle(
+                        color: _icmSum > 0
+                            ? Colors.greenAccent
+                            : (_icmSum < 0 ? Colors.redAccent : Colors.amber),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: _correct.toDouble()),
               duration: const Duration(milliseconds: 800),
