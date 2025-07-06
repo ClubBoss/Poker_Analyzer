@@ -48,7 +48,18 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    _prepare();
+  }
+
+  Future<void> _prepare() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seqKey = 'tpl_seq_${widget.template.id}';
+    final resKey = 'tpl_res_${widget.template.id}';
+    if (prefs.containsKey(seqKey) || prefs.containsKey(resKey)) {
+      await _load();
+    } else {
+      await _startNew();
+    }
   }
 
   Future<void> _load() async {
@@ -153,7 +164,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     }
   }
 
-  void _startNew() {
+  Future<void> _startNew() async {
     var spots = List<TrainingPackSpot>.from(widget.template.spots);
     if (_order == PlayOrder.random) {
       spots.shuffle();
@@ -175,8 +186,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       _handCounts
         ..clear()
         ..addEntries(widget.template.focusHandTypes.map((e) => MapEntry(e.label, 0)));
+      _loading = false;
     });
-    _save();
+    await _save();
   }
 
   String? _expected(TrainingPackSpot spot) {
@@ -539,7 +551,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                   final prefs = await SharedPreferences.getInstance();
                   prefs
                     ..remove('tpl_seq_${widget.template.id}')
-                    ..remove('tpl_res_${widget.template.id}');
+                    ..remove('tpl_res_${widget.template.id}')
+                    ..remove('tpl_prog_${widget.template.id}');
                   if (widget.template.targetStreet != null) {
                     prefs.remove('tpl_street_${widget.template.id}');
                   }
@@ -550,7 +563,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                 }
               } else if (choice is PlayOrder) {
                 setState(() => _order = choice);
-                _startNew();
+                await _startNew();
               }
             },
             itemBuilder: (_) => const [
