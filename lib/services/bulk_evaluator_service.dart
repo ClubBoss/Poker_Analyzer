@@ -8,42 +8,64 @@ class BulkEvaluatorService {
   final PushFoldEvService evaluator;
 
   Future<List<TrainingPackSpot>> generateMissing(
-    TrainingPackTemplate template, {
+    dynamic target, {
     void Function(double progress)? onProgress,
+    int anteBb = 0,
   }) async {
-    final updated = <TrainingPackSpot>[];
-    final spots = template.spots;
-    final total = spots.length;
-    if (total == 0) {
-      onProgress?.call(1.0);
+    if (target is TrainingPackTemplate) {
+      final template = target;
+      final updated = <TrainingPackSpot>[];
+      final spots = template.spots;
+      final total = spots.length;
+      if (total == 0) {
+        onProgress?.call(1.0);
+        return updated;
+      }
+      var done = 0;
+      var next = 0.1;
+      for (final spot in spots) {
+        final hadEv = spot.heroEv;
+        final hadIcm = spot.heroIcmEv;
+        if (hadEv == null) {
+          await evaluator.evaluate(spot, anteBb: template.anteBb);
+        }
+        if (hadIcm == null) {
+          await evaluator.evaluateIcm(spot, anteBb: template.anteBb);
+        }
+        if ((hadEv == null && spot.heroEv != null) ||
+            (hadIcm == null && spot.heroIcmEv != null)) {
+          spot.dirty = true;
+          updated.add(spot);
+        }
+        done++;
+        final progress = done / total;
+        while (progress >= next && next <= 1) {
+          onProgress?.call(next);
+          next += 0.1;
+        }
+      }
+      if (next <= 1) onProgress?.call(1.0);
+      template.recountCoverage();
       return updated;
-    }
-    var done = 0;
-    var next = 0.1;
-    for (final spot in spots) {
+    } else if (target is TrainingPackSpot) {
+      final spot = target;
       final hadEv = spot.heroEv;
       final hadIcm = spot.heroIcmEv;
       if (hadEv == null) {
-        await evaluator.evaluate(spot, anteBb: template.anteBb);
+        await evaluator.evaluate(spot, anteBb: anteBb);
       }
       if (hadIcm == null) {
-        await evaluator.evaluateIcm(spot, anteBb: template.anteBb);
+        await evaluator.evaluateIcm(spot, anteBb: anteBb);
       }
+      onProgress?.call(1.0);
       if ((hadEv == null && spot.heroEv != null) ||
           (hadIcm == null && spot.heroIcmEv != null)) {
         spot.dirty = true;
-        updated.add(spot);
+        return [spot];
       }
-      done++;
-      final progress = done / total;
-      while (progress >= next && next <= 1) {
-        onProgress?.call(next);
-        next += 0.1;
-      }
+      return [];
     }
-    if (next <= 1) onProgress?.call(1.0);
-    template.recountCoverage();
-    return updated;
+    return [];
   }
 
   Future<int> generateMissingForTemplate(
