@@ -2,12 +2,9 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'
-    show
-        PipelineOwner,
-        RenderObjectToWidgetAdapter,
-        RenderPositionedBox,
-        RenderRepaintBoundary,
-        RenderView;
+    show PipelineOwner, RenderObjectToWidgetAdapter, RenderPositionedBox, RenderRepaintBoundary, RenderView;
+import '../models/v2/training_pack_template.dart';
+import '../widgets/hero_range_grid_widget.dart';
 
 class PngExporter {
   static Future<Uint8List?> _capture(Widget child) async {
@@ -65,6 +62,72 @@ class PngExporter {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  static Future<Uint8List?> exportTemplatePreview(TrainingPackTemplate template) {
+    return _capture(_TemplatePreview(template));
+  }
+}
+
+class _TemplatePreview extends StatelessWidget {
+  final TrainingPackTemplate template;
+  const _TemplatePreview(this.template);
+
+  static const _ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+
+  List<List<double>> _matrix() {
+    final idx = {for (var i = 0; i < _ranks.length; i++) _ranks[i]: i};
+    final m = [for (var i = 0; i < 13; i++) List.filled(13, 0.0)];
+    for (final h in template.heroRange ?? []) {
+      if (h.length < 2) continue;
+      final r1 = h[0];
+      final r2 = h[1];
+      final i1 = idx[r1];
+      final i2 = idx[r2];
+      if (i1 == null || i2 == null) continue;
+      if (h.length == 2 || r1 == r2) {
+        m[i1][i2] = 1;
+      } else if (h.endsWith('s')) {
+        final row = i1 < i2 ? i1 : i2;
+        final col = i1 < i2 ? i2 : i1;
+        m[row][col] = 1;
+      } else {
+        final row = i1 > i2 ? i1 : i2;
+        final col = i1 > i2 ? i2 : i1;
+        m[row][col] = 1;
+      }
+    }
+    return m;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black,
+      padding: const EdgeInsets.all(16),
+      child: DefaultTextStyle(
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(template.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text('ID: ${template.id}'),
+                Text('Spots: ${template.spots.length}'),
+                Text('Position: ${template.heroPos.label}'),
+                Text('Stack: ${template.heroBbStack} BB'),
+              ],
+            ),
+            const SizedBox(width: 16),
+            HeroRangeGridWidget(rangeMatrix: _matrix()),
+          ],
+        ),
       ),
     );
   }
