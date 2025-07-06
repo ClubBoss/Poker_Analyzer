@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../data/seed_packs.dart';
+import '../utils/template_coverage_utils.dart';
 
 class TrainingPackStorage {
   static const _key = 'training_pack_templates';
@@ -19,7 +20,7 @@ class TrainingPackStorage {
     bool changed = false;
     for (final t in templates) {
       if (!t.meta.containsKey('evCovered') || !t.meta.containsKey('icmCovered')) {
-        t.recountCoverage();
+        TemplateCoverageUtils.recountAll(t);
         changed = true;
       }
     }
@@ -29,7 +30,7 @@ class TrainingPackStorage {
 
   static Future<void> save(List<TrainingPackTemplate> t) async {
     for (final tpl in t) {
-      tpl.recountCoverage();
+      TemplateCoverageUtils.recountAll(tpl);
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, jsonEncode([for (final x in t) x.toJson()]));
