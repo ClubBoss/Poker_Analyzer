@@ -49,6 +49,7 @@ import '../../services/bulk_evaluator_service.dart';
 import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
 import '../../services/training_pack_template_storage_service.dart';
+import '../../services/template_storage_service.dart';
 import '../../services/file_saver_service.dart';
 import 'package:csv/csv.dart';
 import '../../widgets/markdown_preview_dialog.dart';
@@ -2267,7 +2268,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _persist();
   }
 
-  void _newPackFromSelection() {
+  Future<void> _newPackFromSelection() async {
+    final ctrl = TextEditingController(text: '${widget.template.name} Subset');
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('New Pack'),
+        content: TextField(controller: ctrl, autofocus: true),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () =>
+                  Navigator.pop(context, ctrl.text.trim()),
+              child: const Text('OK')),
+        ],
+      ),
+    );
+    if (name == null) return;
     final spots = [
       for (final s in widget.template.spots)
         if (_selectedSpotIds.contains(s.id))
@@ -2281,17 +2300,29 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (spots.isEmpty) return;
     final tpl = TrainingPackTemplate(
       id: const Uuid().v4(),
-      name: '${widget.template.name} Subset',
+      name: name.isEmpty ? 'New Pack' : name,
       gameType: widget.template.gameType,
       spots: spots,
       createdAt: DateTime.now(),
     );
+    final service = context.read<TemplateStorageService>();
+    service.addTemplate(tpl);
     final index = widget.templates.indexOf(widget.template);
     setState(() {
       widget.templates.insert(index + 1, tpl);
       _selectedSpotIds.clear();
     });
-    _persist();
+    await _persist();
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackTemplateEditorScreen(
+          template: tpl,
+          templates: widget.templates,
+        ),
+      ),
+    );
   }
 
   Future<void> _bulkDelete() async {
@@ -3465,6 +3496,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             ),
           if (_isMultiSelect)
             IconButton(
+              icon: const Icon(Icons.copy_all),
+              tooltip: 'New Pack',
+              onPressed: _newPackFromSelection,
+            ),
+          if (_isMultiSelect)
+            IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               tooltip: 'Delete (Ctrl + Backspace)',
               onPressed: _bulkDelete,
@@ -3825,7 +3862,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   const SizedBox(width: 12),
                   TextButton(
                     onPressed: _newPackFromSelection,
-                    child: const Text('New Pack from Selection'),
+                    child: const Text('New Pack'),
                   ),
                   const SizedBox(width: 12),
                   TextButton.icon(
