@@ -33,6 +33,7 @@ import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
 import 'training_pack_play_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/mistake_review_pack_service.dart';
 import '../../services/mixed_drill_history_service.dart';
 import '../../models/mixed_drill_stat.dart';
 
@@ -2940,6 +2941,30 @@ class _TrainingPackTemplateListScreenState
             onPressed: _generateTopMistakes,
             tooltip: 'Generate Top Mistakes Pack',
             label: const Text('Top 10 Mistakes'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'reviewMistakesTplFab',
+            icon: const Icon(Icons.error),
+            label: const Text('Review Mistakes'),
+            onPressed: () async {
+              final tpl =
+                  await MistakeReviewPackService.latestTemplate(context);
+              if (!mounted) return;
+              if (tpl != null && tpl.spots.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        TrainingPackPlayScreen(template: tpl, original: tpl),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('No mistakes to review')),
+                );
+              }
+            },
           ),
           const SizedBox(height: 12),
           FloatingActionButton.extended(
