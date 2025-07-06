@@ -2133,7 +2133,7 @@ class _TrainingPackTemplateListScreenState
               started = true;
               Future.microtask(() async {
                 for (var i = 0; i < list.length; i++) {
-                  await const BulkEvaluatorService().generateMissingForTemplate(
+                  await BulkEvaluatorService().generateMissingForTemplate(
                     list[i],
                     (p) {
                       progress = (i + p) / list.length;
