@@ -1300,6 +1300,31 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _sharePreviewZip() async {
+    final archive = Archive();
+    final jsonData = utf8.encode(jsonEncode(widget.template.toJson()));
+    archive.addFile(ArchiveFile('template.json', jsonData.length, jsonData));
+    final dir = await TrainingPackStorage.previewImageDir(widget.template);
+    if (await dir.exists()) {
+      for (final file
+          in dir.listSync().whereType<File>().where((f) => f.path.toLowerCase().endsWith('.png'))) {
+        final bytes = await file.readAsBytes();
+        final name = file.path.split(Platform.pathSeparator).last;
+        archive.addFile(ArchiveFile(name, bytes.length, bytes));
+      }
+    }
+    final bytes = ZipEncoder().encode(archive);
+    if (bytes == null) return;
+    final tmp = await getTemporaryDirectory();
+    final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final file = File('${tmp.path}/preview_$safe.zip');
+    await file.writeAsBytes(bytes, flush: true);
+    try {
+      await Share.shareXFiles([XFile(file.path)]);
+    } catch (_) {}
+    if (await file.exists()) await file.delete();
+  }
+
   Future<void> _import() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -3565,6 +3590,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           IconButton(
                             icon: const Icon(Icons.archive),
                             onPressed: _exportPreviewZip,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.share),
+                            onPressed: _sharePreviewZip,
                           ),
                         ],
                       ),
