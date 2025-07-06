@@ -59,6 +59,7 @@ class _TrainingPackTemplateListScreenState
   bool _loading = false;
   String _query = '';
   late TextEditingController _searchCtrl;
+  final Set<String> _tagFilters = {};
   TrainingPackTemplate? _lastRemoved;
   int _lastIndex = 0;
   GameType? _selectedType;
@@ -2316,7 +2317,15 @@ class _TrainingPackTemplateListScreenState
   @override
   Widget build(BuildContext context) {
     final narrow = MediaQuery.of(context).size.width < 400;
-    final tags = <String>{for (final t in _templates) ...t.tags};
+    final tagCounts = <String, int>{};
+    for (final t in _templates) {
+      for (final tag in t.tags) {
+        tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+      }
+    }
+    final topTags = tagCounts.keys.toList()
+      ..sort((a, b) => tagCounts[b]!.compareTo(tagCounts[a]!));
+    final tags = topTags.take(10).toList();
     final byType = _selectedType == null
         ? _templates
         : [
@@ -2348,14 +2357,13 @@ class _TrainingPackTemplateListScreenState
                 t
           ]
         : completed;
-    final shown = _query.isEmpty
-        ? visible
-        : [
-            for (final t in visible)
-              if (t.name.toLowerCase().contains(_query) ||
-                  t.description.toLowerCase().contains(_query))
-                t
-          ];
+    final shown = [
+      for (final t in visible)
+        if ((_query.isEmpty || t.name.toLowerCase().contains(_query)) &&
+            (_tagFilters.isEmpty ||
+                t.tags.any((tag) => _tagFilters.contains(tag))))
+          t
+    ];
     final streetGroups = <String, List<TrainingPackTemplate>>{};
     if (_groupByStreet) {
       for (final t in shown) {
@@ -2406,25 +2414,54 @@ class _TrainingPackTemplateListScreenState
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
+          preferredSize: const Size.fromHeight(kToolbarHeight * 2),
           child: Padding(
             padding: const EdgeInsets.all(8),
-            child: TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: 'Search…',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _query.isEmpty
-                    ? null
-                    : IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () => setState(() {
-                          _searchCtrl.clear();
-                          _query = '';
-                        }),
-                      ),
-              ),
-              onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _searchCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Search…',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _query.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () => setState(() {
+                              _searchCtrl.clear();
+                              _query = '';
+                            }),
+                          ),
+                  ),
+                  onChanged: (v) =>
+                      setState(() => _query = v.trim().toLowerCase()),
+                ),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (final tag in tags)
+                        Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 4),
+                          child: FilterChip(
+                            label: Text(tag),
+                            selected: _tagFilters.contains(tag),
+                            onSelected: (_) => setState(() {
+                              if (_tagFilters.contains(tag)) {
+                                _tagFilters.remove(tag);
+                              } else {
+                                _tagFilters.add(tag);
+                              }
+                            }),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
