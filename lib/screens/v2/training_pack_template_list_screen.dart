@@ -47,6 +47,9 @@ import 'package:timeago/timeago.dart' as timeago;
 class TrainingPackTemplateListScreen extends StatefulWidget {
   const TrainingPackTemplateListScreen({super.key});
 
+  static _TrainingPackTemplateListScreenState? maybeOf(BuildContext context) =>
+      context.findAncestorStateOfType<_TrainingPackTemplateListScreenState>();
+
   @override
   State<TrainingPackTemplateListScreen> createState() =>
       _TrainingPackTemplateListScreenState();
@@ -97,6 +100,17 @@ class _TrainingPackTemplateListScreenState
   bool _autoEvalRunning = false;
   Timer? _autoEvalTimer;
   bool _autoEvalQueued = false;
+
+  Future<void> refreshFromStorage() async {
+    final list = await TrainingPackStorage.load();
+    if (!mounted) return;
+    setState(() {
+      _templates
+        ..clear()
+        ..addAll(list);
+      _sortTemplates();
+    });
+  }
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
