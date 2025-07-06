@@ -42,6 +42,7 @@ import '../../theme/app_colors.dart';
 import '../../services/room_hand_history_importer.dart';
 import '../../services/push_fold_ev_service.dart';
 import '../../services/pack_export_service.dart';
+import '../../services/png_exporter.dart';
 import '../../widgets/range_matrix_picker.dart';
 import '../../services/evaluation_executor_service.dart';
 import '../../services/pack_generator_service.dart';
@@ -1015,12 +1016,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       await jsonFile.writeAsString(jsonEncode(widget.template.toJson()));
       for (int i = 0; i < widget.template.spots.length; i++) {
         final spot = widget.template.spots[i];
-        final key = _itemKeys[spot.id];
-        final boundary = key?.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-        if (boundary == null) continue;
-        final image = await boundary.toImage(pixelRatio: 3);
-        final data = await image.toByteData(format: ui.ImageByteFormat.png);
-        final bytes = data?.buffer.asUint8List();
+        final preview = TrainingPackSpotPreviewCard(spot: spot);
+        final label = spot.title.isNotEmpty ? spot.title : 'Spot ${i + 1}';
+        final bytes = await PngExporter.exportSpot(context, preview, label: label);
         if (bytes == null) continue;
         final imgFile = File('${dir.path}/spot_$i.png');
         await imgFile.writeAsBytes(bytes);
