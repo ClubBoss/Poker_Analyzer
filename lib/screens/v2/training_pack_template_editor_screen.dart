@@ -2056,7 +2056,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             if (!started) {
               started = true;
               Future.microtask(() async {
-                final res = await const BulkEvaluatorService().generateMissing(
+                final res = await BulkEvaluatorService().generateMissing(
                   widget.template,
                   onProgress: (p) {
                     _calcProgress = p;
@@ -2345,7 +2345,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               Future.microtask(() async {
                 var done = 0;
                 for (final spot in spots) {
-                  await const BulkEvaluatorService().generateMissing(
+                  await BulkEvaluatorService().generateMissing(
                     spot,
                     anteBb: widget.template.anteBb,
                   );

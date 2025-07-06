@@ -1,11 +1,13 @@
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
 import 'push_fold_ev_service.dart';
+import 'offline_evaluator_service.dart';
 
 class BulkEvaluatorService {
-  const BulkEvaluatorService({this.evaluator = const PushFoldEvService()});
+  BulkEvaluatorService({OfflineEvaluatorService? evaluator})
+      : evaluator = evaluator ?? OfflineEvaluatorService();
 
-  final PushFoldEvService evaluator;
+  final OfflineEvaluatorService evaluator;
 
   Future<List<TrainingPackSpot>> generateMissing(
     dynamic target, {
