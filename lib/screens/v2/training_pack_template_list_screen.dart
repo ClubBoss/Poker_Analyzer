@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ import '../../services/mistake_review_pack_service.dart';
 import '../../services/mixed_drill_history_service.dart';
 import '../../models/mixed_drill_stat.dart';
 import '../../services/bulk_evaluator_service.dart';
+import '../../services/offline_evaluator_service.dart';
 import '../../services/theme_service.dart';
 import '../../services/session_log_service.dart';
 
@@ -92,6 +94,8 @@ class _TrainingPackTemplateListScreenState
   bool _showFavoritesOnly = false;
   bool _showNeedsEvalOnly = false;
   bool _autoEvalRunning = false;
+  Timer? _autoEvalTimer;
+  bool _autoEvalQueued = false;
 
   List<GeneratedPackInfo> _dedupHistory() {
     final map = <String, GeneratedPackInfo>{};
@@ -583,21 +587,44 @@ class _TrainingPackTemplateListScreenState
     ];
   }
 
+  void _scheduleAutoEval() {
+    if (_autoEvalQueued) return;
+    _autoEvalQueued = true;
+    _autoEvalTimer?.cancel();
+    _autoEvalTimer = Timer(const Duration(milliseconds: 400), () async {
+      await _autoUpdateEval();
+      _autoEvalQueued = false;
+    });
+  }
+
   Future<void> _autoUpdateEval() async {
-    if (_autoEvalRunning) return;
+    if (_autoEvalRunning || OfflineEvaluatorService.isOffline || !mounted) return;
     _autoEvalRunning = true;
-    final list = [
-      for (final t in _visibleTemplates())
-        if (t.evCovered < t.spots.length || t.icmCovered < t.spots.length) t
-    ];
-    if (list.isNotEmpty) {
-      await Future.wait([
-        for (final t in list) BulkEvaluatorService().generateMissingForTemplate(t)
-      ]);
-      await TrainingPackStorage.save(_templates);
+    try {
+      final list = [
+        for (final t in _visibleTemplates())
+          if (t.evCovered < t.spots.length || t.icmCovered < t.spots.length) t
+      ];
+      var refreshed = 0;
+      for (var i = 0; i < list.length; i += 4) {
+        final batch = list.sublist(i, min(i + 4, list.length));
+        final res = await Future.wait([
+          for (final t in batch) BulkEvaluatorService().generateMissingForTemplate(t)
+        ]);
+        refreshed += res.fold<int>(0, (a, b) => a + b);
+      }
+      if (refreshed > 0) {
+        await TrainingPackStorage.save(_templates);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('EV/ICM refreshed for $refreshed packs')),
+          );
+        }
+      }
+      if (mounted) setState(() {});
+    } finally {
+      _autoEvalRunning = false;
     }
-    if (mounted) setState(() {});
-    _autoEvalRunning = false;
   }
 
   TrainingPackTemplate? _suggestTemplate([String? street]) {
@@ -2527,11 +2554,12 @@ class _TrainingPackTemplateListScreenState
       _filtersShown = true;
       WidgetsBinding.instance.addPostFrameCallback((_) => _showFilters());
     }
-    Future.microtask(_autoUpdateEval);
+    _scheduleAutoEval();
   }
 
   @override
   void dispose() {
+    _autoEvalTimer?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
