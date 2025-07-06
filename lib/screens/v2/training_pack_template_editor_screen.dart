@@ -50,6 +50,7 @@ import '../../helpers/hand_type_utils.dart';
 import '../../services/training_pack_template_storage_service.dart';
 import '../../services/file_saver_service.dart';
 import 'package:csv/csv.dart';
+import '../../widgets/markdown_preview_dialog.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
@@ -1296,7 +1297,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
-  Future<void> _exportPreviewMarkdown() async {
+  String _generatePreviewMarkdown() {
     final spots = widget.template.spots;
     final total = spots.length;
     final evCovered = spots.where((s) => s.heroEv != null && !s.dirty).length;
@@ -1314,7 +1315,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           '- **Created:** ${DateFormat('yyyy-MM-dd').format(widget.template.createdAt)}');
     final tags = widget.template.tags.toSet().where((e) => e.isNotEmpty).toList();
     if (tags.isNotEmpty) buffer.writeln('- **Tags:** ${tags.join(', ')}');
-    final md = buffer.toString().trimRight();
+    return buffer.toString().trimRight();
+  }
+
+  Future<void> _exportPreviewMarkdown([String? md]) async {
+    md ??= _generatePreviewMarkdown();
     final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final name = 'preview_$safe';
     try {
@@ -1329,6 +1334,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             .showSnackBar(SnackBar(content: Text('Failed to save: $e')));
       }
     }
+  }
+
+  Future<void> _previewMarkdown() async {
+    final md = _generatePreviewMarkdown();
+    final ok = await showMarkdownPreviewDialog(context, md);
+    if (ok == true) await _exportPreviewMarkdown(md);
   }
 
   Future<void> _exportPreviewCsv() async {
@@ -3712,6 +3723,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           IconButton(
                             icon: const Icon(Icons.description),
                             onPressed: _exportPreviewMarkdown,
+                            onLongPress: _previewMarkdown,
                           ),
                           Badge.count(
                             count: mistakeCount,
