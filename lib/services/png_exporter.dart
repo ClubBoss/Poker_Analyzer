@@ -1,26 +1,32 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/rendering.dart'
+    show
+        PipelineOwner,
+        RenderObjectToWidgetAdapter,
+        RenderPositionedBox,
+        RenderRepaintBoundary,
+        RenderView;
 
 class PngExporter {
   static Future<Uint8List?> _capture(Widget child) async {
+    final view = WidgetsBinding.instance.platformDispatcher.implicitView!;
     final boundary = RenderRepaintBoundary();
     final renderView = RenderView(
+      view: view,
       configuration: ViewConfiguration(
-        size: ui.window.physicalSize / ui.window.devicePixelRatio,
-        devicePixelRatio: ui.window.devicePixelRatio,
+        size: view.physicalSize / view.devicePixelRatio,
+        devicePixelRatio: view.devicePixelRatio,
       ),
-      window: ui.window,
       child: RenderPositionedBox(alignment: Alignment.center, child: boundary),
     );
     final pipelineOwner = PipelineOwner();
     renderView.attach(pipelineOwner);
     final buildOwner = BuildOwner(focusManager: FocusManager());
-    final rootWidget = MaterialApp(home: RepaintBoundary(child: child));
     final adapter = RenderObjectToWidgetAdapter<RenderBox>(
       container: boundary,
-      child: rootWidget,
+      child: MaterialApp(home: child),
     );
     adapter.attachToRenderTree(buildOwner);
     buildOwner.buildScope(null);
@@ -28,9 +34,13 @@ class PngExporter {
     pipelineOwner.flushLayout();
     pipelineOwner.flushCompositingBits();
     pipelineOwner.flushPaint();
-    final image = await boundary.toImage(pixelRatio: 3);
+    final image = await boundary.toImage(pixelRatio: view.devicePixelRatio);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
     return data?.buffer.asUint8List();
+  }
+
+  static Future<Uint8List?> exportWidget(Widget child) {
+    return _capture(child);
   }
 
   static Future<Uint8List?> exportSpot(Widget spot, {required String label}) {

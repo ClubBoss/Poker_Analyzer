@@ -15,8 +15,6 @@ import 'dart:math';
 import '../../utils/clipboard_hh_detector.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'dart:ui' as ui;
-import "package:flutter/rendering.dart";
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../models/v2/focus_goal.dart';
@@ -146,7 +144,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Timer? _scrollDebounce;
   final Map<String, GlobalKey> _itemKeys = {};
   String? _highlightId;
-  final GlobalKey _previewKey = GlobalKey();
   bool _summaryIcm = false;
   bool _evaluatingAll = false;
   bool _generatingAll = false;
@@ -1157,30 +1154,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
-  Future<Uint8List?> _capturePreview() async {
-    final entry = OverlayEntry(
-      builder: (_) => Center(
-        child: Opacity(
-          opacity: 0,
-          child: RepaintBoundary(
-            key: _previewKey,
-            child: _TemplatePreviewCard(template: widget.template),
-          ),
-        ),
-      ),
+  Future<Uint8List?> _capturePreview() {
+    return PngExporter.exportWidget(
+      _TemplatePreviewCard(template: widget.template),
     );
-    Overlay.of(context, rootOverlay: true).insert(entry);
-    await Future.delayed(const Duration(milliseconds: 50));
-    final boundary =
-        _previewKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    Uint8List? bytes;
-    if (boundary != null) {
-      final image = await boundary.toImage(pixelRatio: 3);
-      final data = await image.toByteData(format: ui.ImageByteFormat.png);
-      bytes = data?.buffer.asUint8List();
-    }
-    entry.remove();
-    return bytes;
   }
 
   Future<void> _exportPreview() async {
