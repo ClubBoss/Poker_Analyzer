@@ -1155,6 +1155,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _exportPackBundle() async {
+    if (_exportingBundle) return;
+    setState(() => _exportingBundle = true);
+    try {
+      final file = await PackExportService.exportBundle(widget.template);
+      if (!mounted) return;
+      await FileSaverService.instance.saveZip(file.path);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Bundle exported')));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _exportingBundle = false);
+    }
+  }
+
   Future<void> _exportCsv() async {
     try {
       final file = await PackExportService.exportToCsv(widget.template);
@@ -3674,7 +3693,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(
             icon: const Icon(Icons.archive),
-            onPressed: _exportingBundle ? null : () => _exportBundle(),
+            onPressed: _exportingBundle ? null : _exportPackBundle,
           ),
           IconButton(
             icon: const Text('📤 Share'),

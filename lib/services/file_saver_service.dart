@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:file_saver/file_saver.dart';
 import 'package:share_plus/share_plus.dart';
@@ -28,10 +29,20 @@ class FileSaverService {
     );
   }
 
-  Future<void> saveZip(String name, Uint8List data) async {
+  Future<void> saveZip(String name, [Uint8List? data]) async {
+    Uint8List bytes;
+    String fileName;
+    if (data == null) {
+      final file = File(name);
+      bytes = await file.readAsBytes();
+      fileName = file.path.split(Platform.pathSeparator).last.split('.').first;
+    } else {
+      bytes = data;
+      fileName = name;
+    }
     await FileSaver.instance.saveAs(
-      name: name,
-      bytes: data,
+      name: fileName,
+      bytes: bytes,
       ext: 'zip',
       mimeType: MimeType.other,
     );
