@@ -152,6 +152,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _generatingAll = false;
   bool _generatingIcm = false;
   bool _cancelRequested = false;
+  bool _exportingBundle = false;
+  bool _exportingPreview = false;
   bool _showPasteBubble = false;
   Timer? _clipboardTimer;
   bool _showImportIndicator = false;
@@ -1007,6 +1009,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<String?> _exportBundle({bool notify = true}) async {
+    if (_exportingBundle) return null;
+    setState(() => _exportingBundle = true);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
     try {
       final tmp = await getTemporaryDirectory();
       final dir = Directory('${tmp.path}/template_bundle');
@@ -1076,6 +1085,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         );
       }
       return null;
+    } finally {
+      if (mounted && Navigator.canPop(context)) Navigator.pop(context);
+      if (mounted) setState(() => _exportingBundle = false);
     }
   }
 
@@ -1172,16 +1184,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _exportPreview() async {
-    final bytes = await _capturePreview();
-    if (bytes == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось создать превью')),
-        );
-      }
-      return;
-    }
+    if (_exportingPreview) return;
+    setState(() => _exportingPreview = true);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
     try {
+      final bytes = await _capturePreview();
+      if (bytes == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Не удалось создать превью')));
+        }
+        return;
+      }
       final dir =
           await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
       final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
@@ -1211,10 +1229,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       );
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось сохранить превью')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Не удалось сохранить превью')));
       }
+    } finally {
+      if (mounted && Navigator.canPop(context)) Navigator.pop(context);
+      if (mounted) setState(() => _exportingPreview = false);
     }
   }
 
@@ -3352,15 +3372,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             isLabelVisible: mistakeCount > 0,
             child: IconButton(
               icon: const Text('📂 Preview Bundle'),
-              onPressed: _previewBundle,
+              onPressed: _exportingBundle ? null : _previewBundle,
             ),
           ),
-          IconButton(icon: const Icon(Icons.archive), onPressed: () => _exportBundle()),
-          IconButton(icon: const Text('📤 Share'), onPressed: _shareBundle),
+          IconButton(
+            icon: const Icon(Icons.archive),
+            onPressed: _exportingBundle ? null : () => _exportBundle(),
+          ),
+          IconButton(
+            icon: const Text('📤 Share'),
+            onPressed: _exportingBundle ? null : _shareBundle,
+          ),
           IconButton(
             icon: const Text('🖼️'),
             tooltip: 'Export PNG Preview',
-            onPressed: _exportPreview,
+            onPressed: _exportingPreview ? null : _exportPreview,
           ),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
