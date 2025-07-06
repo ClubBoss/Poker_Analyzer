@@ -4636,27 +4636,33 @@ class _CoverageProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percent = (value * 100).round();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: value,
-            backgroundColor: Colors.white24,
-            valueColor: AlwaysStoppedAnimation(color),
-            minHeight: 6,
+    final percent = '${(value * 100).toStringAsFixed(0)}%';
+    return Tooltip(
+      message:
+          'This shows how many spots have calculated EV/ICM. Aim for 100% before training or publishing.',
+      child: Row(
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white70)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: value,
+                    backgroundColor: Colors.white24,
+                    valueColor: AlwaysStoppedAnimation(color),
+                    minHeight: 6,
+                  ),
+                ),
+                Text(percent, style: const TextStyle(color: Colors.white)),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Tooltip(
-          message:
-              'This shows how many spots have calculated EV/ICM. Aim for 100% before training or publishing.',
-          child: Text('$label $percent%',
-              style: const TextStyle(color: Colors.white70)),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
