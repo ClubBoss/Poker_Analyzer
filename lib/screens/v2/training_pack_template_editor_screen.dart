@@ -3501,9 +3501,28 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: _renameTemplate,
-                          child: Text(_templateName),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: _renameTemplate,
+                              child: Text(_templateName),
+                            ),
+                            const SizedBox(width: 8),
+                            Builder(builder: (context) {
+                              final total = widget.template.spots.length;
+                              final done = widget.template.spots
+                                  .where((s) => s.heroEv != null || s.heroIcmEv != null)
+                                  .length;
+                              final pct = total == 0 ? 0 : (done * 100 / total).round();
+                              return Text(
+                                'EV: $pct%',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(color: Colors.white70),
+                              );
+                            }),
+                          ],
                         ),
                         Builder(builder: (context) {
                           final total = widget.template.spots.length;
