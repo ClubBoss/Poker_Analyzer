@@ -7,13 +7,14 @@ class PngExporter {
     final key = GlobalKey();
     final entry = OverlayEntry(
       builder: (_) => Center(
-        child: Opacity(
-          opacity: 0,
+        child: Offstage(
+          offstage: true,
           child: RepaintBoundary(key: key, child: child),
         ),
       ),
     );
     Overlay.of(context, rootOverlay: true).insert(entry);
+    await Future.delayed(Duration.zero);
     await Future.delayed(const Duration(milliseconds: 50));
     final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     Uint8List? bytes;
