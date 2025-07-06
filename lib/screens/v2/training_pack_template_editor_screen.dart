@@ -45,6 +45,7 @@ import '../../widgets/range_matrix_picker.dart';
 import '../../services/evaluation_executor_service.dart';
 import '../../services/pack_generator_service.dart';
 import '../../services/training_pack_template_ui_service.dart';
+import '../../services/bulk_evaluator_service.dart';
 import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
 import '../../services/training_pack_template_storage_service.dart';
@@ -150,6 +151,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _evaluatingAll = false;
   bool _generatingAll = false;
   bool _generatingIcm = false;
+  bool _calculatingMissing = false;
+  double _calcProgress = 0;
   bool _cancelRequested = false;
   bool _exportingBundle = false;
   bool _exportingPreview = false;
@@ -1983,6 +1986,65 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  Future<void> _calculateMissingEvIcm() async {
+    setState(() {
+      _calculatingMissing = true;
+      _calcProgress = 0;
+    });
+    int updated = 0;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setDialog) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                final res = await const BulkEvaluatorService().generateMissing(
+                  widget.template,
+                  onProgress: (p) {
+                    _calcProgress = p;
+                    if (mounted) setDialog(() {});
+                  },
+                );
+                updated = res.length;
+                await _persist();
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LinearProgressIndicator(value: _calcProgress),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${(_calcProgress * 100).toStringAsFixed(0)}%',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (!mounted) return;
+    setState(() => _calculatingMissing = false);
+    if (updated > 0) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Updated $updated spots')));
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Nothing to update')));
+    }
+  }
+
   Future<void> _bulkAddTag([List<String>? ids]) async {
     final allTags = widget.templates.expand((t) => t.tags).toSet().toList();
     final c = TextEditingController();
@@ -3618,6 +3680,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       : const Icon(Icons.playlist_play),
                   label: const Text('Evaluate All'),
                   onPressed: _evaluatingAll ? null : _evaluateAllSpots,
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: 'calcMissingFab',
+                  icon: _calculatingMissing
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.calculate),
+                  label: const Text('Calculate Missing EV/ICM'),
+                  onPressed:
+                      _calculatingMissing ? null : _calculateMissingEvIcm,
                 ),
               ],
             )
