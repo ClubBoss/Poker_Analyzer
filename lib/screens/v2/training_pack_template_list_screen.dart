@@ -606,16 +606,15 @@ class _TrainingPackTemplateListScreenState
         for (final t in _visibleTemplates())
           if (t.evCovered < t.spots.length || t.icmCovered < t.spots.length) t
       ];
-      const _batchSize = 4;
       var refreshed = 0;
-      for (var i = 0; i < list.length; i += _batchSize) {
-        final batch = list.sublist(i, min(i + _batchSize, list.length));
-        final res = await Future.wait([
-          for (final t in batch)
-            BulkEvaluatorService().generateMissingForTemplate(t).catchError((_) {})
-        ]);
+      for (final t in list) {
+        final n = await BulkEvaluatorService()
+            .generateMissingForTemplate(t)
+            .catchError((_) => 0);
         if (!mounted) return;
-        refreshed += res.fold<int>(0, (a, b) => a + b);
+        t.recountCoverage();
+        refreshed += n;
+        setState(() {});
       }
       if (refreshed > 0) {
         await TrainingPackStorage.save(_templates);
@@ -2222,13 +2221,15 @@ class _TrainingPackTemplateListScreenState
               started = true;
               Future.microtask(() async {
                 for (var i = 0; i < list.length; i++) {
+                  final tpl = list[i];
                   await BulkEvaluatorService().generateMissingForTemplate(
-                    list[i],
+                    tpl,
                     (p) {
                       progress = (i + p) / list.length;
                       if (mounted) setDialog(() {});
                     },
                   );
+                  tpl.recountCoverage();
                   if (mounted) setState(() {});
                 }
                 await TrainingPackStorage.save(_templates);
