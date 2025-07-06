@@ -45,4 +45,12 @@ class BulkEvaluatorService {
     template.recountCoverage();
     return updated;
   }
+
+  Future<int> generateMissingForTemplate(
+    TrainingPackTemplate template,
+    void Function(double progress)? onProgress,
+  ) async {
+    final res = await generateMissing(template, onProgress: onProgress);
+    return res.length;
+  }
 }
