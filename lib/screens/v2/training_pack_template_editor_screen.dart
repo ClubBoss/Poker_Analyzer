@@ -49,6 +49,7 @@ import '../../services/training_pack_template_ui_service.dart';
 import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
 import '../../services/training_pack_template_storage_service.dart';
+import '../../services/file_saver_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
@@ -1216,6 +1217,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         );
       }
     }
+  }
+
+  Future<void> _exportPreviewJson() async {
+    final safe = widget.template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final name = 'preview_$safe';
+    await FileSaverService.instance
+        .saveJson(name, widget.template.toJson());
   }
 
   Future<void> _import() async {
@@ -3464,11 +3472,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         : null,
       body: hasSpots
           ? _previewMode
-              ? SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+              ? Stack(
+                  children: [
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: IconButton(
+                        icon: const Icon(Icons.download),
+                        onPressed: _exportPreviewJson,
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                     _CoverageProgress(
                       label: 'EV Covered',
                       value: evCoverage,
@@ -3491,6 +3509,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     const SizedBox(height: 16),
                     if (heroEvsAll.isNotEmpty)
                       EvDistributionChart(evs: heroEvsAll),
+                  ],
+                    ),
                   ],
                 )
               : Stack(
