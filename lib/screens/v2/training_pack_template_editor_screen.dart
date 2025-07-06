@@ -314,8 +314,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       }
       if (changed != null && !changed.contains(s.id)) return false;
       if (_query.isEmpty) return true;
-      return s.title.toLowerCase().contains(_query) ||
-          s.tags.any((t) => t.toLowerCase().contains(_query));
+      final q = _query;
+      return s.hand.heroCards.toLowerCase().contains(q) ||
+          s.hand.position.label.toLowerCase().contains(q) ||
+          s.tags.any((t) => t.toLowerCase().contains(q));
     }).toList();
     if (_sortMode == SortMode.chronological) {
       list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -3622,6 +3624,39 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Icon(Icons.save), onPressed: _save)
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: 'Search…',
+                prefixIcon: const Icon(Icons.search),
+                fillColor: _tagFilter == null ? null : Colors.yellow[50],
+                filled: _tagFilter != null,
+                suffixIcon: _tagFilter != null
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() => _tagFilter = null);
+                          _storeTagFilter();
+                        },
+                      )
+                    : _query.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () => setState(() {
+                              _query = '';
+                              _searchCtrl.clear();
+                            }),
+                          ),
+              ),
+              onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
+            ),
+          ),
+        ),
       ),
       floatingActionButton: hasSpots
           ? Column(
@@ -4154,36 +4189,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ],
             ),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: TextField(
-                controller: _searchCtrl,
-                decoration: InputDecoration(
-                  labelText: 'Search by title/tag',
-                  prefixIcon: const Icon(Icons.search),
-                  fillColor: _tagFilter == null ? null : Colors.yellow[50],
-                  filled: _tagFilter != null,
-                  suffixIcon: _tagFilter != null
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () async {
-                            setState(() => _tagFilter = null);
-                            _storeTagFilter();
-                          },
-                        )
-                      : _query.isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () => setState(() {
-                                _query = '';
-                                _searchCtrl.clear();
-                              }),
-                            ),
-                ),
-                onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
-              ),
-            ),
             if (!narrow)
               Builder(
                 builder: (context) {
