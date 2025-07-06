@@ -44,4 +44,14 @@ class FileSaverService {
       mimeType: MimeType.other,
     );
   }
+
+  Future<void> saveMd(String name, String data) async {
+    final bytes = Uint8List.fromList(utf8.encode(data));
+    await FileSaver.instance.saveAs(
+      name: name,
+      bytes: bytes,
+      ext: 'md',
+      mimeType: MimeType.other,
+    );
+  }
 }
