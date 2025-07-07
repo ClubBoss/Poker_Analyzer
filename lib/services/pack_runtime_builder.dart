@@ -10,6 +10,20 @@ import 'range_library_service.dart';
 class PackRuntimeBuilder {
   const PackRuntimeBuilder();
 
+  static final _cache = <String, List<TrainingPackSpot>>{};
+
+  Future<List<TrainingPackSpot>> buildIfNeeded(
+    TrainingPackTemplate tpl,
+    TrainingPackVariant variant,
+  ) async {
+    final key = '${tpl.id}_${variant.rangeId}';
+    final cached = _cache[key];
+    if (cached != null) return cached;
+    final spots = await generateFromVariant(tpl, variant);
+    _cache[key] = spots;
+    return spots;
+  }
+
   Future<List<TrainingPackSpot>> generateFromVariant(
     TrainingPackTemplate tpl,
     TrainingPackVariant variant,
