@@ -152,6 +152,17 @@ class PackExportService {
       ..writeln('- **Created:** ${DateFormat('yyyy-MM-dd').format(tpl.createdAt)}');
     final tags = tpl.tags.toSet().where((e) => e.isNotEmpty).toList();
     if (tags.isNotEmpty) buffer.writeln('- **Tags:** ${tags.join(', ')}');
+    final preview = spots.where((s) => s.heroEv != null && !s.dirty).take(5);
+    if (preview.isNotEmpty) {
+      buffer
+        ..writeln()
+        ..writeln('|Pos|Hero|Board|EV|Tags|')
+        ..writeln('|---|---|---|---|---|');
+      for (final spot in preview) {
+        buffer.writeln(
+            '|${spot.hand.position.name}|${spot.hand.heroCards}|${spot.hand.board.join(' ')}|${spot.heroEv!.toStringAsFixed(2)}|${spot.tags.join(', ')}|');
+      }
+    }
     return buffer.toString().trimRight();
   }
 
