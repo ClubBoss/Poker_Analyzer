@@ -27,6 +27,7 @@ class TrainingPackTemplate {
   List<String>? heroRange;
   final DateTime createdAt;
   DateTime? lastGeneratedAt;
+  DateTime? lastTrainedAt;
   Map<String, dynamic> meta;
   bool goalAchieved;
   int goalTarget;
@@ -56,6 +57,7 @@ class TrainingPackTemplate {
     this.heroRange,
     DateTime? createdAt,
     this.lastGeneratedAt,
+    this.lastTrainedAt,
     Map<String, dynamic>? meta,
     this.goalAchieved = false,
     this.goalTarget = 0,
@@ -94,6 +96,7 @@ class TrainingPackTemplate {
     List<String>? heroRange,
     DateTime? createdAt,
     DateTime? lastGeneratedAt,
+    DateTime? lastTrainedAt,
     Map<String, dynamic>? meta,
     bool? goalAchieved,
     int? goalTarget,
@@ -124,6 +127,7 @@ class TrainingPackTemplate {
       heroRange: heroRange ?? this.heroRange,
       createdAt: createdAt ?? this.createdAt,
       lastGeneratedAt: lastGeneratedAt ?? this.lastGeneratedAt,
+      lastTrainedAt: lastTrainedAt ?? this.lastTrainedAt,
       meta: meta ?? Map<String, dynamic>.from(this.meta),
       goalAchieved: goalAchieved ?? this.goalAchieved,
       goalTarget: goalTarget ?? this.goalTarget,
@@ -172,6 +176,8 @@ class TrainingPackTemplate {
           DateTime.now(),
       lastGeneratedAt:
           DateTime.tryParse(json['lastGeneratedAt'] as String? ?? ''),
+      lastTrainedAt:
+          DateTime.tryParse(json['lastTrainedAt'] as String? ?? ''),
       meta: json['meta'] != null ? Map<String, dynamic>.from(json['meta']) : {},
       goalAchieved: json['goalAchieved'] as bool? ?? false,
       goalTarget: json['goalTarget'] as int? ?? 0,
@@ -210,6 +216,8 @@ class TrainingPackTemplate {
         'createdAt': createdAt.toIso8601String(),
         if (lastGeneratedAt != null)
           'lastGeneratedAt': lastGeneratedAt!.toIso8601String(),
+        if (lastTrainedAt != null)
+          'lastTrainedAt': lastTrainedAt!.toIso8601String(),
         if (meta.isNotEmpty) 'meta': meta,
         if (goalAchieved) 'goalAchieved': true,
         if (goalTarget > 0) 'goalTarget': goalTarget,
