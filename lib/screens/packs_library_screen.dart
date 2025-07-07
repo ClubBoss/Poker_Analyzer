@@ -85,7 +85,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         : Colors.red;
                 return ListTile(
                   title: Text(t.name),
-                  subtitle: Text('${t.description}'),
+                  subtitle: Text(t.description),
                   leading: CircleAvatar(child: Text(total.toString())),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
