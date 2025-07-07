@@ -290,11 +290,11 @@ class _TrainingPackSpotPreviewCardState
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      if (heroEv != null) ...[
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                  ),
+                  if (heroEv != null) ...[
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Container(
                               key: const ValueKey('evBadge'),
@@ -335,14 +335,24 @@ class _TrainingPackSpotPreviewCardState
                             ]
                           ],
                         ),
-                      ],
                     ],
+                  ],
+                ),
+                if (spot.evalResult?.correct == false &&
+                    (spot.evalResult?.hint?.isNotEmpty ?? false))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      spot.evalResult!.hint!,
+                      style: const TextStyle(
+                          fontSize: 12, color: Colors.redAccent),
+                    ),
                   ),
-                  if (hero.isNotEmpty || pos != HeroPosition.unknown || legacy)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        legacy ? '(legacy)' : '$hero ${pos.label}'.trim(),
+                if (hero.isNotEmpty || pos != HeroPosition.unknown || legacy)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      legacy ? '(legacy)' : '$hero ${pos.label}'.trim(),
                         style: const TextStyle(fontSize: 16),
                       ),
                     ),
