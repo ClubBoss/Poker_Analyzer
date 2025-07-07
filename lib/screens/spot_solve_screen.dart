@@ -215,7 +215,7 @@ class _SpotSolveScreenState extends State<SpotSolveScreen> {
                 ],
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context, _correct),
                   child: const Text('Next'),
                 ),
               ],
