@@ -3688,6 +3688,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final avgEv = heroEvsAll.isEmpty
         ? null
         : heroEvsAll.reduce((a, b) => a + b) / heroEvsAll.length;
+    final mistakesVisible =
+        shown.where((s) => s.tags.contains('Mistake')).length;
     final tagCounts = <String, int>{};
     for (final t in shown.expand((s) => s.tags)) {
       tagCounts[t] = (tagCounts[t] ?? 0) + 1;
@@ -3867,6 +3869,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                       ?.copyWith(color: avgColor(avgEv!)),
                                 ),
                               ],
+                              const SizedBox(width: 8),
+                              Chip(
+                                label: Text('Mistakes $mistakesVisible/${shown.length}',
+                                    style: const TextStyle(fontSize: 12, color: Colors.white)),
+                                backgroundColor: mistakesVisible > 0
+                                    ? Colors.redAccent
+                                    : Colors.grey,
+                                visualDensity: VisualDensity.compact,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                             ],
                           );
                         }),
