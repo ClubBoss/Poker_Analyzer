@@ -56,6 +56,7 @@ import '../../services/file_saver_service.dart';
 import 'package:csv/csv.dart';
 import '../../widgets/markdown_preview_dialog.dart';
 import '../../main.dart';
+import '../../services/preview_cache_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
@@ -174,6 +175,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Timer? _scrollThrottle;
   bool _previewMode = false;
   bool _previewJsonPng = false;
+  String? _previewPath;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
 
@@ -979,9 +981,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _duplicatesOnly = dupOnly;
           _pinnedOnly = pinnedOnly;
           _newOnly = newOnly;
-          _previewMode = preview;
-          _previewJsonPng = png;
-          if (mode2 != null) {
+      _previewMode = preview;
+      _previewJsonPng = png;
+      _loadPreview();
+      if (mode2 != null) {
             for (final v in SortMode.values) {
               if (v.name == mode2) _sortMode = v;
             }
@@ -2057,6 +2060,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ],
       ),
     );
+  }
+
+  void _loadPreview() async {
+    final png = widget.template.png;
+    if (png != null) {
+      final path = await PreviewCacheService.instance.getPreviewPath(png);
+      if (mounted) setState(() => _previewPath = path);
+    }
   }
 
   Future<void> _ensureEval() async {
@@ -4138,6 +4149,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ? _previewMode
               ? Stack(
                   children: [
+                    if (_previewPath != null)
+                      Positioned.fill(
+                        child: Image.file(File(_previewPath!), fit: BoxFit.cover),
+                      ),
+                    if (_previewPath != null)
+                      Positioned.fill(child: Container(color: Colors.black54)),
                     Positioned(
                       top: 8,
                       right: 8,
@@ -5010,48 +5027,83 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 }
 
-class _TemplatePreviewCard extends StatelessWidget {
+class _TemplatePreviewCard extends StatefulWidget {
   final TrainingPackTemplate template;
   const _TemplatePreviewCard({required this.template});
 
   @override
+  State<_TemplatePreviewCard> createState() => _TemplatePreviewCardState();
+}
+
+class _TemplatePreviewCardState extends State<_TemplatePreviewCard> {
+  String? previewPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  void _load() async {
+    final png = widget.template.png;
+    if (png != null) {
+      final path = await PreviewCacheService.instance.getPreviewPath(png);
+      if (!mounted) return;
+      setState(() => previewPath = path);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    final content = Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(template.name,
+            Text(widget.template.name,
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            if (template.description.trim().isNotEmpty)
+            if (widget.template.description.trim().isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(template.description),
+                child: Text(widget.template.description),
               ),
-            if (template.focusTags.isNotEmpty)
+            if (widget.template.focusTags.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text('🎯 Focus: ${template.focusTags.join(', ')}'),
+                child: Text('🎯 Focus: ${widget.template.focusTags.join(', ')}'),
               ),
-            if (template.focusHandTypes.isNotEmpty)
+            if (widget.template.focusHandTypes.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text('🎯 Hand Goal: ${template.focusHandTypes.join(', ')}'),
+                child: Text('🎯 Hand Goal: ${widget.template.focusHandTypes.join(', ')}'),
               ),
-            if (template.heroRange != null)
+            if (widget.template.heroRange != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text(template.handTypeSummary(),
+                child: Text(widget.template.handTypeSummary(),
                     style: const TextStyle(color: Colors.white70)),
               ),
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text('Spots: ${template.spots.length}'),
-            ),
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text('Spots: ${widget.template.spots.length}'),
+              ),
           ],
         ),
+      ),
+    );
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          if (previewPath != null)
+            Positioned.fill(
+              child: Image.file(File(previewPath!), fit: BoxFit.cover),
+            ),
+          if (previewPath != null)
+            Positioned.fill(child: Container(color: Colors.black45)),
+          content,
+        ],
       ),
     );
   }

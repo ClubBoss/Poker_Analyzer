@@ -33,6 +33,7 @@ class TrainingPackTemplate {
   String? targetStreet;
   int streetGoal;
   bool isDraft;
+  String? png;
 
   TrainingPackTemplate({
     required this.id,
@@ -60,6 +61,7 @@ class TrainingPackTemplate {
     this.targetStreet,
     this.streetGoal = 0,
     this.isDraft = false,
+    this.png,
   })  : spots = spots ?? [],
         tags = tags ?? [],
         focusTags = focusTags ?? [],
@@ -96,6 +98,7 @@ class TrainingPackTemplate {
     String? targetStreet,
     int? streetGoal,
     bool? isDraft,
+    String? png,
   }) {
     return TrainingPackTemplate(
       id: id ?? this.id,
@@ -123,6 +126,7 @@ class TrainingPackTemplate {
       targetStreet: targetStreet ?? this.targetStreet,
       streetGoal: streetGoal ?? this.streetGoal,
       isDraft: isDraft ?? this.isDraft,
+      png: png ?? this.png,
     );
   }
 
@@ -167,6 +171,7 @@ class TrainingPackTemplate {
       targetStreet: json['targetStreet'] as String?,
       streetGoal: json['streetGoal'] as int? ?? 0,
       isDraft: json['isDraft'] as bool? ?? false,
+      png: json['png'] as String?,
     );
     if (!tpl.meta.containsKey('evCovered') || !tpl.meta.containsKey('icmCovered')) {
       TemplateCoverageUtils.recountAll(tpl);
@@ -202,6 +207,7 @@ class TrainingPackTemplate {
         if (targetStreet != null) 'targetStreet': targetStreet,
         if (streetGoal > 0) 'streetGoal': streetGoal,
         if (isDraft) 'isDraft': true,
+        if (png != null) 'png': png,
       };
 
   int get evCovered => meta['evCovered'] as int? ?? 0;
