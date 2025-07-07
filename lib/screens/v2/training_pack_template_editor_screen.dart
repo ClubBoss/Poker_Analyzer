@@ -288,7 +288,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_evFilter == 'ok' && !(res != null && res.correct)) return false;
       if (_evFilter == 'error' && !(res != null && !res.correct)) return false;
       if (_evFilter == 'empty' && res != null) return false;
-      if (_filterMistakes && !(res != null && !res.correct)) return false;
       if (_filterOutdated && !s.dirty) return false;
       if (_filterEvCovered && !(s.heroEv != null && !s.dirty)) return false;
       if (_quickFilter == 'BTN' && s.hand.position != HeroPosition.btn) {
@@ -338,6 +337,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (_positionFilter != null) {
       list = [for (final s in list) if (s.hand.position.label == _positionFilter) s];
     }
+    if (_filterMistakes) {
+      list = [
+        for (final s in list)
+          if (s.tags.contains('Mistake') || s.evalResult?.correct == false) s
+      ];
+    }
     if (_showMissingOnly) {
       list = [
         for (final s in list)
@@ -354,6 +359,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     var list = _filterSpots();
     if (_positionFilter != null) {
       list = [for (final s in list) if (s.hand.position.label == _positionFilter) s];
+    }
+    if (_filterMistakes) {
+      list = [
+        for (final s in list)
+          if (s.tags.contains('Mistake') || s.evalResult?.correct == false) s
+      ];
+    }
+    if (_showMissingOnly) {
+      list = [
+        for (final s in list)
+          if (s.heroEv == null || s.heroIcmEv == null || s.dirty) s
+      ];
     }
     return list.length;
   }
@@ -3712,6 +3729,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           selected: _showMissingOnly,
                           onSelected: (_) =>
                               setState(() => _showMissingOnly = !_showMissingOnly),
+                        ),
+                        const SizedBox(width: 8),
+                        FilterChip(
+                          label: const Text('Mistakes'),
+                          selected: _filterMistakes,
+                          onSelected: (_) =>
+                              setState(() => _filterMistakes = !_filterMistakes),
                         ),
                       ],
                     );
