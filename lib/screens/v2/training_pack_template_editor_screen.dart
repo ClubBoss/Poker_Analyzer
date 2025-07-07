@@ -427,6 +427,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _persist() async {
     widget.template.isDraft = true;
     TemplateCoverageUtils.recountAll(widget.template);
+    setState(() {});
     await TrainingPackStorage.save(widget.templates);
   }
 
@@ -3502,6 +3503,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
+    final total = widget.template.spots.length;
+    final evTotal = total == 0 ? 0.0 : widget.template.evCovered / total;
+    final icmTotal = total == 0 ? 0.0 : widget.template.icmCovered / total;
+    final primaryColor = Theme.of(context).primaryColor;
     final totalSpots = shown.length;
     final mistakeCount =
         widget.template.spots.where((s) => s.tags.contains('Mistake')).length;
@@ -4307,6 +4312,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          Stack(
+                            children: [
+                              LinearProgressIndicator(
+                                value: evTotal,
+                                color: primaryColor,
+                                backgroundColor: Colors.white24,
+                                minHeight: 4,
+                              ),
+                              LinearProgressIndicator(
+                                value: icmTotal,
+                                color: primaryColor.withOpacity(0.4),
+                                backgroundColor: Colors.transparent,
+                                minHeight: 4,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
                     if (coverageWarningNeeded) ...[
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -4366,6 +4388,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Stack(
+                    children: [
+                      LinearProgressIndicator(
+                        value: evTotal,
+                        color: primaryColor,
+                        backgroundColor: Colors.white24,
+                        minHeight: 4,
+                      ),
+                      LinearProgressIndicator(
+                        value: icmTotal,
+                        color: primaryColor.withOpacity(0.4),
+                        backgroundColor: Colors.transparent,
+                        minHeight: 4,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
             if (coverageWarningNeeded) ...[
               Container(
                 padding: const EdgeInsets.all(12),
