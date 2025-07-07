@@ -71,12 +71,18 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
     );
   }
 
+  Widget _emptyResultState() => const Center(
+        child: Text('Нет данных', style: TextStyle(color: Colors.white70)),
+      );
+
+
   @override
   Widget build(BuildContext context) {
     final spots = template.spots;
+    if (spots.isEmpty) return _emptyResultState();
     int correct = 0;
     final diffs = <double>[];
-    final mistakes = <TrainingPackSpot>[];
+    final mistakes = <_MistakeData>[];
     for (final s in spots) {
       final ans = results[s.id];
       final exp = _expected(s);
@@ -87,12 +93,17 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
       if (ans.toLowerCase() == exp.toLowerCase()) {
         correct++;
       } else {
-        mistakes.add(s);
+        mistakes.add(_MistakeData(s, ans, exp, heroEv, bestEv));
       }
     }
     final total = spots.length;
     final accuracy = total == 0 ? 0 : correct * 100 / total;
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context);
+        return false;
+      },
+      child: Scaffold(
       appBar: AppBar(title: const Text('Результаты')),
       backgroundColor: AppColors.background,
       body: Padding(
@@ -126,39 +137,36 @@ class TrainingPackResultScreenV2 extends StatelessWidget {
                 child: ListView.builder(
                   itemCount: mistakes.length,
                   itemBuilder: (context, i) {
-                    final s = mistakes[i];
-                    final board = s.hand.board.join(' ');
-                    final hero = s.hand.heroCards;
-                    final best = _expected(s) ?? '';
-                    final ans = results[s.id] ?? '';
-                    final heroEv = _actionEv(s, ans);
-                    final bestEv = _bestEv(s);
-                    final diff = heroEv != null && bestEv != null
-                        ? heroEv - bestEv
-                        : null;
+                    final m = mistakes[i];
+                    final board = m.spot.hand.board.join(' ');
+                    final hero = m.spot.hand.heroCards;
+                    final diff =
+                        m.heroEv != null && m.bestEv != null ? m.heroEv! - m.bestEv! : null;
                     final diffText = diff == null
                         ? '--'
                         : '${diff >= 0 ? '+' : ''}${diff.toStringAsFixed(1)}';
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
-                        color: AppColors.cardBackground,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: ListTile(
-                        title: Text(
-                          board.isEmpty ? '(Preflop)' : board,
-                          style: const TextStyle(color: Colors.white),
-                          overflow: TextOverflow.ellipsis,
+                        title: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            board.isEmpty ? '(Preflop)' : board,
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Hero: $hero',
                                 style: const TextStyle(color: Colors.white70)),
-                            Text('Ваше действие: $ans',
+                            Text('Ваше действие: ${m.ans}',
                                 style: const TextStyle(color: Colors.redAccent)),
-                            Text('Лучшее действие: $best',
+                            Text('Лучшее действие: ${m.exp}',
                                 style:
                                     const TextStyle(color: Colors.greenAccent)),
                             Text('EV diff: $diffText',
@@ -200,7 +208,11 @@ class _EvDiffChart extends StatelessWidget {
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < diffs.length; i++) {
       final d = diffs[i];
-      final color = d >= 0 ? Colors.greenAccent : Colors.redAccent;
+      final color = d > 0
+          ? Colors.greenAccent
+          : d < 0
+              ? Colors.redAccent
+              : Colors.blueGrey;
       groups.add(
         BarChartGroupData(x: i, barRods: [
           BarChartRodData(
@@ -221,7 +233,7 @@ class _EvDiffChart extends StatelessWidget {
       height: 200,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: BarChart(
@@ -243,7 +255,7 @@ class _EvDiffChart extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 interval: interval,
-                reservedSize: 40,
+                reservedSize: 48,
                 getTitlesWidget: (value, _) => Text(
                   value.toStringAsFixed(1),
                   style: const TextStyle(color: Colors.white, fontSize: 10),
@@ -277,4 +289,13 @@ class _EvDiffChart extends StatelessWidget {
       ),
     );
   }
+}
+
+class _MistakeData {
+  final TrainingPackSpot spot;
+  final String ans;
+  final String exp;
+  final double? heroEv;
+  final double? bestEv;
+  const _MistakeData(this.spot, this.ans, this.exp, this.heroEv, this.bestEv);
 }
