@@ -17,6 +17,7 @@ class PacksLibraryScreen extends StatefulWidget {
 
 class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final List<TrainingPackTemplate> _packs = [];
+  final Set<String> _newPacks = {};
   bool _loaded = false;
   String _query = '';
   String? _difficultyFilter;
@@ -50,7 +51,11 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     for (final p in paths) {
       final data = jsonDecode(await bundle.loadString(p));
       if (data is Map<String, dynamic>) {
-        list.add(TrainingPackTemplate.fromJson(data));
+        final tpl = TrainingPackTemplate.fromJson(data);
+        if (DateTime.now().difference(tpl.createdAt).inDays < 3) {
+          _newPacks.add(tpl.id);
+        }
+        list.add(tpl);
       }
     }
     list.sort((a, b) {
@@ -130,10 +135,11 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                           (_query.isNotEmpty || _difficultyFilter != null)
                       ? const Center(child: Text('No packs match'))
                       : ListView.builder(
-                          itemCount: _filtered.length,
-                          itemBuilder: (_, i) {
-                            final t = _filtered[i];
-                final total = t.spots.length;
+                      itemCount: _filtered.length,
+                      itemBuilder: (_, i) {
+                        final t = _filtered[i];
+                        final isNew = _newPacks.contains(t.id);
+                        final total = t.spots.length;
                 final evDone =
                     t.spots.where((s) => s.heroEv != null && !s.dirty).length;
                 final icmDone =
@@ -166,6 +172,16 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                           child: Text(
                             t.difficulty!,
                             style: const TextStyle(fontSize: 10, color: Colors.white),
+                          ),
+                        ),
+                      if (isNew)
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          child: const Chip(
+                            label: Text('NEW'),
+                            backgroundColor: Colors.yellow,
+                            visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                         ),
                     ],
