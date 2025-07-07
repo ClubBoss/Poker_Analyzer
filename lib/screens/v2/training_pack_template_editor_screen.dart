@@ -503,6 +503,19 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     await _openEditor(spot);
   }
 
+  Future<void> _newSpot() async {
+    _recordSnapshot();
+    final spot = TrainingPackSpot(
+      id: const Uuid().v4(),
+      createdAt: DateTime.now(),
+    );
+    setState(() => widget.template.spots.insert(0, spot));
+    await _persist();
+    setState(() => _log('Added', spot));
+    await _openEditor(spot);
+    if (mounted) setState(() {});
+  }
+
   Future<void> _generateSpot() async {
     _recordSnapshot();
     final spot = TrainingPackSpot(
@@ -4160,6 +4173,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   heroTag: 'addSpotFab',
                   onPressed: _addSpot,
                   child: const Icon(Icons.add),
+                ),
+                const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: 'newSpotFab',
+                  onPressed: _newSpot,
+                  icon: const Icon(Icons.add),
+                  label: const Text('+ New Spot'),
                 ),
                 const SizedBox(height: 12),
                 FloatingActionButton(
