@@ -19,12 +19,16 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final List<TrainingPackTemplate> _packs = [];
   bool _loaded = false;
   String _query = '';
+  String? _difficultyFilter;
 
   List<TrainingPackTemplate> get _filtered =>
       _packs.where((p) {
         final q = _query.toLowerCase();
-        return p.name.toLowerCase().contains(q) ||
-            (p.difficulty?.toLowerCase().contains(q) ?? false);
+        final diffOk =
+            _difficultyFilter == null || p.difficulty == _difficultyFilter;
+        return diffOk &&
+            (p.name.toLowerCase().contains(q) ||
+                (p.difficulty?.toLowerCase().contains(q) ?? false));
       }).toList();
 
   @override
@@ -100,11 +104,35 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     onChanged: (v) => setState(() => _query = v.trim()),
                   ),
                 ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      for (final d in ['Beginner', 'Intermediate', 'Advanced'])
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(d),
+                            selected: _difficultyFilter == d,
+                            onSelected: (_) => setState(() =>
+                                _difficultyFilter == d
+                                    ? _difficultyFilter = null
+                                    : _difficultyFilter = d),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: _filtered.length,
-                    itemBuilder: (_, i) {
-                      final t = _filtered[i];
+                  child: _filtered.isEmpty &&
+                          (_query.isNotEmpty || _difficultyFilter != null)
+                      ? const Center(child: Text('No packs match'))
+                      : ListView.builder(
+                          itemCount: _filtered.length,
+                          itemBuilder: (_, i) {
+                            final t = _filtered[i];
                 final total = t.spots.length;
                 final evDone =
                     t.spots.where((s) => s.heroEv != null && !s.dirty).length;
