@@ -54,6 +54,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   final Map<String, int> _handCounts = {};
   final Map<String, int> _handTotals = {};
   bool _summaryShown = false;
+  bool _autoAdvance = false;
 
   @override
   void initState() {
@@ -427,6 +428,23 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     );
   }
 
+  Future<void> _next() async {
+    if (_index + 1 < _spots.length) {
+      setState(() => _index++);
+      _save();
+    } else {
+      _index = _spots.length - 1;
+      _save();
+      await context.read<StreakService>().onFinish();
+      await NotificationService.cancel(101);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('last_training_day',
+          DateTime.now().toIso8601String().split('T').first);
+      await NotificationService.scheduleDailyReminder(context);
+      await _showCompletion();
+    }
+  }
+
   Future<void> _choose(String? act) async {
     final spot = _spots[_index];
     if (act != null) {
@@ -477,6 +495,12 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           );
         }
       }
+      if (_autoAdvance && !incorrect) {
+        await Future.delayed(const Duration(seconds: 2));
+        if (!mounted) return;
+        await _next();
+        return;
+      }
 
       final expected = evaluation.expectedAction;
       final explanation = spot.note.trim().isNotEmpty
@@ -514,19 +538,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
 
       if (!mounted) return;
     }
-    if (_index + 1 < _spots.length) {
-      setState(() => _index++);
-      _save();
-    } else {
-      _index = _spots.length - 1;
-      _save();
-      await context.read<StreakService>().onFinish();
-      await NotificationService.cancel(101);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('last_training_day', DateTime.now().toIso8601String().split('T').first);
-      await NotificationService.scheduleDailyReminder(context);
-      await _showCompletion();
-    }
+    await _next();
   }
 
   @override
@@ -569,6 +581,10 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           IconButton(
             icon: const Icon(Icons.flag),
             onPressed: _saveCurrentSpot,
+          ),
+          IconButton(
+            icon: Icon(_autoAdvance ? Icons.pause : Icons.play_arrow),
+            onPressed: () => setState(() => _autoAdvance = !_autoAdvance),
           ),
           PopupMenuButton<dynamic>(
             initialValue: _order,
