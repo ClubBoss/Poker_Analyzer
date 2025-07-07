@@ -3561,6 +3561,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final hasSpots = widget.template.spots.isNotEmpty;
     final variants = widget.template.playableVariants();
     final showExample = !hasSpots && variants.length == 1;
+    const _posLabels = ['UTG', 'MP', 'CO', 'BTN', 'SB', 'BB'];
     final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
@@ -4141,17 +4142,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      ChoiceChip(
-                        label: const Text('All'),
-                        selected: _positionFilter == null,
-                        onSelected: (_) => setState(() => _positionFilter = null),
-                      ),
-                      const SizedBox(width: 8),
-                      for (final p in _positionsInView()) ...[
-                        ChoiceChip(
-                          label: Text(p),
-                          selected: _positionFilter == p,
-                          onSelected: (_) => setState(() => _positionFilter = _positionFilter == p ? null : p),
+                      for (final label in _posLabels) ...[
+                        FilterChip(
+                          label: Text(label),
+                          selected: _positionFilter == label,
+                          onSelected: (_) => setState(() => _positionFilter = _positionFilter == label ? null : label),
                         ),
                         const SizedBox(width: 8),
                       ]
