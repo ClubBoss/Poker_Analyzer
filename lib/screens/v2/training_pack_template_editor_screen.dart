@@ -4640,7 +4640,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     ],
                   ),
                   Tooltip(
-                    message: 'Mistake-free = количество раздач без ошибок',
+                    message: 'Mistake-free = number of spots without mistakes',
                     child: LinearProgressIndicator(
                       value: mistakePct,
                       color: Colors.redAccent,
