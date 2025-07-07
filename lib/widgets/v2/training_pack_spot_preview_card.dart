@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../../models/v2/training_pack_spot.dart';
+import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/hero_position.dart';
 import '../../models/action_entry.dart';
 import '../../screens/v2/hand_editor_screen.dart';
@@ -22,6 +24,9 @@ class TrainingPackSpotPreviewCard extends StatefulWidget {
   final bool editableTitle;
   final ValueChanged<String>? onTitleChanged;
   final VoidCallback? onPersist;
+  final TrainingPackTemplate? template;
+  final Future<void> Function()? persist;
+  final void Function(String id)? focusSpot;
   const TrainingPackSpotPreviewCard({
     super.key,
     required this.spot,
@@ -36,6 +41,9 @@ class TrainingPackSpotPreviewCard extends StatefulWidget {
     this.editableTitle = false,
     this.onTitleChanged,
     this.onPersist,
+    this.template,
+    this.persist,
+    this.focusSpot,
   });
   @override
   State<TrainingPackSpotPreviewCard> createState() =>
@@ -47,6 +55,25 @@ class _TrainingPackSpotPreviewCardState
   late final TextEditingController _titleCtr;
   final FocusNode _titleFocus = FocusNode();
   bool _editing = false;
+
+  void _duplicate() {
+    final tpl = widget.template;
+    final persist = widget.persist;
+    final focus = widget.focusSpot;
+    if (tpl == null || persist == null || focus == null) {
+      widget.onDuplicate?.call();
+      return;
+    }
+    final i = tpl.spots.indexOf(widget.spot);
+    if (i == -1) return;
+    final copy = widget.spot.copyWith(
+      id: const Uuid().v4(),
+      createdAt: DateTime.now(),
+    );
+    tpl.spots.insert(i + 1, copy);
+    persist();
+    focus(copy.id);
+  }
 
   @override
   void initState() {
@@ -401,9 +428,10 @@ class _TrainingPackSpotPreviewCardState
                         child: const Text('✏️ Edit Hand'),
                       ),
                       const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: widget.onDuplicate,
-                        child: const Text('📄 Duplicate'),
+                      IconButton(
+                        tooltip: 'Duplicate',
+                        icon: const Icon(Icons.copy),
+                        onPressed: _duplicate,
                       ),
                       PopupMenuButton<String>(
                         onSelected: (v) async {
