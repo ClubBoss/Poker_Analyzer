@@ -22,6 +22,7 @@ void main() {
     );
     final builder = PackRuntimeBuilder();
     final list1 = await builder.buildIfNeeded(tpl, variant);
+    await Future.delayed(Duration.zero);
     final list2 = await builder.buildIfNeeded(tpl, variant);
     expect(identical(list1, list2), isTrue);
   });
