@@ -11,17 +11,36 @@ class PackRuntimeBuilder {
   const PackRuntimeBuilder();
 
   static final _cache = <String, List<TrainingPackSpot>>{};
+  static final _pending = <String, Future<List<TrainingPackSpot>>>{};
 
   Future<List<TrainingPackSpot>> buildIfNeeded(
     TrainingPackTemplate tpl,
     TrainingPackVariant variant,
   ) async {
-    final key = '${tpl.id}_${variant.rangeId}';
+    final key =
+        '${tpl.id}_${variant.gameType.name}_${variant.position.name}_${variant.rangeId ?? 'default'}';
     final cached = _cache[key];
     if (cached != null) return cached;
-    final spots = await generateFromVariant(tpl, variant);
-    _cache[key] = spots;
-    return spots;
+    final pending = _pending[key];
+    if (pending != null) return pending;
+    final future = _generateSafe(tpl, variant, key);
+    _pending[key] = future;
+    return future.whenComplete(() => _pending.remove(key));
+  }
+
+  Future<List<TrainingPackSpot>> _generateSafe(
+    TrainingPackTemplate tpl,
+    TrainingPackVariant variant,
+    String key,
+  ) async {
+    try {
+      final spots = await generateFromVariant(tpl, variant);
+      _cache[key] = spots;
+      return spots;
+    } catch (e, st) {
+      ErrorLogger.instance.logError('Build variant failed', e, st);
+      return [];
+    }
   }
 
   Future<List<TrainingPackSpot>> generateFromVariant(
@@ -43,6 +62,7 @@ class PackRuntimeBuilder {
     final pos = variant.position == HeroPosition.unknown
         ? tpl.heroPos
         : variant.position;
+    List<TrainingPackSpot> spots;
     switch (variant.gameType) {
       case GameType.tournament:
         final tplGen = PackGeneratorService.generatePushFoldPackSync(
@@ -55,9 +75,11 @@ class PackRuntimeBuilder {
           bbCallPct: tpl.bbCallPct,
           anteBb: tpl.anteBb,
         );
-        return tplGen.spots.take(tpl.spotCount).toList();
+        spots = tplGen.spots;
+        break;
       default:
         throw UnimplementedError('Generator for ${variant.gameType}');
     }
+    return spots.take(tpl.spotCount).toList();
   }
 }
