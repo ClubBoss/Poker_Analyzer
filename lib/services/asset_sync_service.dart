@@ -38,7 +38,7 @@ class AssetSyncService {
     if (manifestBytes == null) throw Exception('manifest empty');
     final manifestPath = p.join(root.path, 'manifest.json');
     await File(manifestPath).writeAsBytes(manifestBytes);
-    List manifest;
+    late final List manifest;
     try {
       manifest = jsonDecode(utf8.decode(manifestBytes)) as List;
     } on FormatException catch (e, st) {
@@ -65,15 +65,14 @@ class AssetSyncService {
     for (var i = 0; i < toDownload.length; i += 8) {
       final batch = toDownload.skip(i).take(8);
       await Future.wait(batch.map((png) async {
-        final data =
-            await storage.ref('${_prefix}preview/$png').getData();
+        final data = await storage.ref('${_prefix}preview/$png').getData();
         if (data != null) {
-          final file = File(p.join(previewDir.path, png));
-          await file.writeAsBytes(data, flush: true);
+          final out = File(p.join(previewDir.path, png));
+          await out.writeAsBytes(data, flush: true);
         }
       }));
     }
     await prefs.setInt(_tsKey, DateTime.now().millisecondsSinceEpoch);
-    print('Asset sync complete');
+    ErrorLogger.instance.logError('Asset sync complete');
   }
 }
