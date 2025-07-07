@@ -85,10 +85,12 @@ class RedoIntent extends Intent { const RedoIntent(); }
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplate template;
   final List<TrainingPackTemplate> templates;
+  final bool readOnly;
   const TrainingPackTemplateEditorScreen({
     super.key,
     required this.template,
     required this.templates,
+    this.readOnly = false,
   });
 
   @override
@@ -460,6 +462,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   Future<void> _persist() async {
+    if (widget.readOnly) return;
     widget.template.isDraft = true;
     TemplateCoverageUtils.recountAll(widget.template);
     setState(() {});
@@ -485,7 +488,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       builder: (ctx) => AlertDialog(
         title: const Text('Save Snapshot'),
         content: TextField(controller: c, autofocus: true),
-        actions: [
+        actions: widget.readOnly
+            ? [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Close'))
+              ]
+            : [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(onPressed: () => Navigator.pop(ctx, c.text.trim()), child: const Text('Save')),
         ],
@@ -1180,6 +1189,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _previewMode = preview;
           _previewJsonPng = png;
           _loadPreview();
+          if (widget.readOnly) _previewMode = true;
       if (mode2 != null) {
             for (final v in SortMode.values) {
               if (v.name == mode2) _sortMode = v;
@@ -3834,10 +3844,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       children: [
                         Row(
                           children: [
-                            GestureDetector(
-                              onTap: _renameTemplate,
-                              child: Text(_templateName),
-                            ),
+                            if (widget.readOnly)
+                              Text(_templateName)
+                            else
+                              GestureDetector(
+                                onTap: _renameTemplate,
+                                child: Text(_templateName),
+                              ),
                             const SizedBox(width: 8),
                             Builder(builder: (_) {
                               int evPct = (evCoverage * 100).round();
@@ -3974,7 +3987,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   }),
                 ],
               ),
-        actions: [
+        actions: widget.readOnly
+            ? [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
+              ]
+            : [
           DropdownButton<GameType>(
             value: widget.template.gameType,
             underline: const SizedBox(),
@@ -4331,7 +4348,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
         ),
       ),
-      floatingActionButton: hasSpots
+      floatingActionButton: widget.readOnly
+          ? null
+          : hasSpots
           ? Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -4452,8 +4471,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   label: const Text('Generate Example Spot'),
                 )
               : null,
-      bottomNavigationBar:
-          ((_showScrollIndicator && !_previewMode) || (hasSpots && _isMultiSelect))
+      bottomNavigationBar: widget.readOnly
+          ? null
+          : ((_showScrollIndicator && !_previewMode) || (hasSpots && _isMultiSelect))
               ? Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

@@ -184,6 +184,27 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         label: '${pct(icmDone).round()} % ICM',
                         color: col(pct(icmDone)),
                       ),
+                      PopupMenuButton<String>(
+                        onSelected: (v) {
+                          if (v == 'import') _import(t);
+                          if (v == 'preview') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => TrainingPackTemplateEditorScreen(
+                                  template: t,
+                                  templates: [t],
+                                  readOnly: true,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        itemBuilder: (_) => const [
+                          PopupMenuItem(value: 'import', child: Text('Import')),
+                          PopupMenuItem(value: 'preview', child: Text('Preview')),
+                        ],
+                      )
                     ],
                   ),
                   onTap: () => _import(t),
