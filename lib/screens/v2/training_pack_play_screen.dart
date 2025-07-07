@@ -20,7 +20,6 @@ import '../../models/v2/training_pack_variant.dart';
 import '../../widgets/spot_quiz_widget.dart';
 import '../../widgets/common/explanation_text.dart';
 import '../../theme/app_colors.dart';
-import 'training_pack_result_screen.dart';
 import '../../services/streak_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/mistake_review_pack_service.dart';
@@ -53,6 +52,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   int _streetCount = 0;
   final Map<String, int> _handCounts = {};
   final Map<String, int> _handTotals = {};
+  bool _summaryShown = false;
 
   @override
   void initState() {
@@ -192,6 +192,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       _spots = spots;
       _index = 0;
       _streetCount = 0;
+      _summaryShown = false;
       _handCounts
         ..clear()
         ..addEntries(widget.template.focusHandTypes.map((e) => MapEntry(e.label, 0)));
@@ -408,6 +409,77 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     }
   }
 
+  Future<void> _showCompletion() async {
+    if (_summaryShown) return;
+    _summaryShown = true;
+    final spots = widget.template.spots;
+    int correct = 0;
+    for (final s in spots) {
+      final exp = _expected(s);
+      final ans = _results[s.id];
+      if (exp != null && ans != null && ans.toLowerCase() == exp.toLowerCase()) {
+        correct++;
+      }
+    }
+    final total = spots.length;
+    final mistakes = total - correct;
+    final rate = total == 0 ? 0 : (correct * 100 / total).round();
+    await showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Тренировка завершена',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Text('Точность: $rate%',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white)),
+            Text('Ошибки: $mistakes',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white)),
+            if (widget.template.targetStreet != null &&
+                widget.template.streetGoal > 0)
+              Text(
+                'Прогресс: ${_streetCount.clamp(0, widget.template.streetGoal)}/${widget.template.streetGoal}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white),
+              ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _startNew();
+              },
+              child: const Text('Повторить тренировку'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                Navigator.pop(context);
+              },
+              child: const Text('Выход'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _choose(String? act) async {
     final spot = _spots[_index];
     if (act != null) {
@@ -502,16 +574,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('last_training_day', DateTime.now().toIso8601String().split('T').first);
       await NotificationService.scheduleDailyReminder(context);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => TrainingPackResultScreen(
-            template: widget.template,
-            results: _results,
-            original: widget.original,
-          ),
-        ),
-      );
+      await _showCompletion();
     }
   }
 
