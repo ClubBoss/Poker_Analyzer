@@ -64,7 +64,7 @@ class AssetSyncService {
       if (!await file.exists()) toDownload.add(png);
     }
     for (var i = 0; i < toDownload.length; i += 8) {
-      final batch = toDownload.skip(i).take(8);
+      final batch = toDownload.skip(i).take(8).toList();
       await Future.wait(batch.map((png) async {
         final data = await storage.ref('${_prefix}preview/$png').getData();
         if (data != null) {
