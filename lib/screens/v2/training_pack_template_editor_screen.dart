@@ -118,6 +118,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _changedOnly = false;
   bool _duplicatesOnly = false;
   bool _newOnly = false;
+  bool _showMissingOnly = false;
   final FocusNode _focusNode = FocusNode();
   bool _filtersShown = false;
   List<TrainingPackSpot>? _lastRemoved;
@@ -337,10 +338,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (_positionFilter != null) {
       list = [for (final s in list) if (s.hand.position.label == _positionFilter) s];
     }
+    if (_showMissingOnly) {
+      list = [
+        for (final s in list)
+          if (s.heroEv == null || s.heroIcmEv == null || s.dirty) s
+      ];
+    }
     if (_sortMode == SortMode.chronological) {
       list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     }
     return list;
+  }
+
+  int _visibleSpotsCount() {
+    var list = _filterSpots();
+    if (_positionFilter != null) {
+      list = [for (final s in list) if (s.hand.position.label == _positionFilter) s];
+    }
+    return list.length;
   }
 
   List<String> _positionsInView() {
@@ -3660,7 +3675,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     return Row(
                       children: [
                         Text(
-                          '${_visibleSpots().length} spots',
+                          '${_visibleSpotsCount()} spots',
                           style: Theme.of(context)
                               .textTheme
                               .labelMedium
@@ -3673,6 +3688,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               .textTheme
                               .labelMedium
                               ?.copyWith(color: Colors.white70),
+                        ),
+                        const SizedBox(width: 8),
+                        FilterChip(
+                          label: const Text('Missing only'),
+                          selected: _showMissingOnly,
+                          onSelected: (_) =>
+                              setState(() => _showMissingOnly = !_showMissingOnly),
                         ),
                       ],
                     );
