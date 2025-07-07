@@ -59,6 +59,7 @@ import 'package:csv/csv.dart';
 import '../../widgets/markdown_preview_dialog.dart';
 import '../../main.dart';
 import '../../services/preview_cache_service.dart';
+import '../../widgets/snapshot_list_dialog.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
@@ -526,6 +527,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       return;
     }
     _focusSpot(spot.id);
+  }
+
+  Future<void> _showSnapshots() async {
+    final snap =
+        await showSnapshotListDialog(context, _history.snapshots);
+    if (snap == null) return;
+    setState(() {
+      widget.template.spots
+        ..clear()
+        ..addAll([for (final s in snap.spots) TrainingPackSpot.fromJson(s.toJson())]);
+    });
+    await _persist();
+    _history.record(widget.template.spots);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Snapshot restored')));
+    }
   }
 
   Future<void> _addSpot() async {
@@ -3886,6 +3904,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             icon: const Icon(Icons.bookmark_add),
             tooltip: 'Save Snapshot',
             onPressed: _saveSnapshotAction,
+          ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Snapshots',
+            onPressed: _showSnapshots,
           ),
           if (_showPasteBubble &&
               widget.template.spots.any((s) => s.isNew))
