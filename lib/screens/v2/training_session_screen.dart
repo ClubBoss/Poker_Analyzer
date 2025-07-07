@@ -8,6 +8,7 @@ import '../../models/player_model.dart';
 import '../spot_solve_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../helpers/training_pack_storage.dart';
+import 'training_summary_screen.dart';
 
 class TrainingSessionScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -24,6 +25,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   final Map<String, bool> _results = {};
   bool _mistakesOnly = false;
   int _correct = 0;
+  Set<String> _initialMistakes = {};
 
   @override
   void initState() {
@@ -102,25 +104,44 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       _packSpots = spots;
       _spots = [for (final s in _packSpots) _toSpot(s)];
       _index = 0;
+      _correct = 0;
     });
+    _initialMistakes = {
+      for (final s in _packSpots)
+        if (s.tags.contains('Mistake')) s.id
+    };
     await _showSpot();
   }
 
   Future<void> _showSpot() async {
     if (_index >= _spots.length) {
-      await showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Training Complete'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            )
-          ],
+      final remaining = {
+        for (final s in _packSpots)
+          if (s.tags.contains('Mistake')) s.id
+      };
+      final fixed =
+          _initialMistakes.where((id) => !remaining.contains(id)).length;
+      final review = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TrainingSummaryScreen(
+            correct: _correct,
+            total: _spots.length,
+            fixedCount: fixed,
+            remainingMistakeCount: remaining.length,
+          ),
         ),
       );
-      if (mounted) Navigator.pop(context, _results);
+      if (!mounted) return;
+      if (review == true) {
+        setState(() {
+          _mistakesOnly = true;
+          _index = -1;
+        });
+        await _start();
+      } else {
+        Navigator.pop(context, _results);
+      }
       return;
     }
     final solved = await Navigator.push<bool>(
