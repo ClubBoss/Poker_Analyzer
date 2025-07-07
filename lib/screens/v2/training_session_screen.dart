@@ -7,6 +7,7 @@ import '../../models/action_entry.dart';
 import '../../models/player_model.dart';
 import '../spot_solve_screen.dart';
 import '../../theme/app_colors.dart';
+import '../../helpers/training_pack_storage.dart';
 
 class TrainingSessionScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -22,6 +23,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   int _index = -1;
   final Map<String, bool> _results = {};
   bool _mistakesOnly = false;
+  int _correct = 0;
 
   @override
   void initState() {
@@ -121,7 +123,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       if (mounted) Navigator.pop(context, _results);
       return;
     }
-    final res = await Navigator.push<bool>(
+    final solved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => SpotSolveScreen(
@@ -132,7 +134,16 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       ),
     );
     if (!mounted) return;
-    if (res != null) _results[_packSpots[_index].id] = res;
+    final p = _packSpots[_index];
+    if (solved == true) {
+      _correct++;
+      p.tags.remove('Mistake');
+    } else if (solved == false) {
+      if (!p.tags.contains('Mistake')) p.tags.add('Mistake');
+    }
+    final changed = solved != null;
+    if (changed) await TrainingPackStorage.save([widget.template]);
+    _results[p.id] = solved ?? false;
     _index++;
     await _showSpot();
   }
@@ -142,22 +153,38 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.template.name)),
       backgroundColor: AppColors.background,
-      body: Center(
-        child: _index == -1
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SwitchListTile(
-                    title: const Text('Review Mistakes Only'),
-                    value: _mistakesOnly,
-                    onChanged: (v) => setState(() => _mistakesOnly = v),
-                    activeColor: Colors.orange,
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(onPressed: _start, child: const Text('Start')),
-                ],
-              )
-            : const CircularProgressIndicator(),
+      body: Column(
+        children: [
+          if (_index >= 0) ...[
+            LinearProgressIndicator(
+              value: (_index) / _spots.length,
+              minHeight: 4,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text('Correct $_correct / ${_spots.length}'),
+            ),
+          ],
+          Expanded(
+            child: Center(
+              child: _index == -1
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SwitchListTile(
+                          title: const Text('Review Mistakes Only'),
+                          value: _mistakesOnly,
+                          onChanged: (v) => setState(() => _mistakesOnly = v),
+                          activeColor: Colors.orange,
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton(onPressed: _start, child: const Text('Start')),
+                      ],
+                    )
+                  : const CircularProgressIndicator(),
+            ),
+          ),
+        ],
       ),
     );
   }
