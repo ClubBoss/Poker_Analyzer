@@ -100,13 +100,13 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         return;
       }
     }
-    final firstUnsolved = spots.indexWhere(
+    final firstUnsolved = _packSpots.indexWhere(
         (p) => p.heroEv == null || p.heroIcmEv == null);
     if (firstUnsolved == -1) {
       final review = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          content: const Text('Everything in this pack is solved.\nReview mistakes instead?'),
+          content: const Text('Everything is solved. Review mistakes instead?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -119,13 +119,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           ],
         ),
       );
-      if (review == true) {
-        _mistakesOnly = true;
-        await _start();
-      } else {
-        Navigator.pop(context);
-      }
-      return;
+      if (review != true) return;
+      _mistakesOnly = true;
+      return _start();
     }
     setState(() {
       _packSpots = spots;
