@@ -4639,11 +4639,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       ),
                     ],
                   ),
-                  LinearProgressIndicator(
-                    value: mistakePct,
-                    color: Colors.redAccent,
-                    backgroundColor: Colors.transparent,
-                    minHeight: 4,
+                  Tooltip(
+                    message: 'Mistake-free = количество раздач без ошибок',
+                    child: LinearProgressIndicator(
+                      value: mistakePct,
+                      color: Colors.redAccent,
+                      backgroundColor: Colors.transparent,
+                      minHeight: 4,
+                    ),
                   ),
                   const SizedBox(height: 16),
             if (coverageWarningNeeded) ...[
