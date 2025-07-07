@@ -1521,6 +1521,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (ok == true) await _exportPreviewMarkdown(md);
   }
 
+  void _showMarkdownPreview() {
+    showDialog(
+      context: context,
+      builder: (_) => MarkdownPreviewDialog(template: widget.template),
+    );
+  }
+
   Future<void> _exportPreviewCsv() async {
     final rows = <List<dynamic>>[
       ['Position', 'HeroCards', 'Board', 'EV', 'Tags']
@@ -4041,14 +4048,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 setState(() => _previewMode = !_previewMode);
                 _storePreview();
               },
-            ),
           ),
-          IconButton(icon: const Icon(Icons.save), onPressed: _save),
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf),
-            onPressed: () async {
-              try {
-                final file =
+        ),
+        IconButton(icon: const Icon(Icons.save), onPressed: _save),
+        IconButton(icon: const Icon(Icons.description), onPressed: _showMarkdownPreview),
+        IconButton(
+          icon: const Icon(Icons.picture_as_pdf),
+          onPressed: () async {
+            try {
+              final file =
                     await PackExportService.exportToPdf(widget.template);
                 if (!mounted) return;
                 await FileSaverService.instance.sharePdf(file.path);

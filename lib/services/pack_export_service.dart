@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:archive/archive.dart';
+import 'package:intl/intl.dart';
 
 import '../models/v2/training_pack_template.dart';
 
@@ -135,6 +136,23 @@ class PackExportService {
     final file = File(path);
     await file.writeAsBytes(bytes, flush: true);
     return file;
+  }
+
+  static String toMarkdown(TrainingPackTemplate tpl) {
+    final spots = tpl.spots;
+    final total = spots.length;
+    final evCovered = spots.where((s) => s.heroEv != null && !s.dirty).length;
+    final icmCovered = spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
+    final buffer = StringBuffer()
+      ..writeln('# ${tpl.name}')
+      ..writeln('- **ID:** ${tpl.id}')
+      ..writeln('- **Spots:** $total')
+      ..writeln('- **EV coverage:** ${total == 0 ? 0 : (evCovered / total * 100).toStringAsFixed(1)}%')
+      ..writeln('- **ICM coverage:** ${total == 0 ? 0 : (icmCovered / total * 100).toStringAsFixed(1)}%')
+      ..writeln('- **Created:** ${DateFormat('yyyy-MM-dd').format(tpl.createdAt)}');
+    final tags = tpl.tags.toSet().where((e) => e.isNotEmpty).toList();
+    if (tags.isNotEmpty) buffer.writeln('- **Tags:** ${tags.join(', ')}');
+    return buffer.toString().trimRight();
   }
 
   static String _toSnakeCase(String input) {
