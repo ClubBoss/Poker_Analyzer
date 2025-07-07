@@ -5049,6 +5049,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                     },
                                     onNewTap: _selectAllNew,
                                     onDupTap: _selectAllDuplicates,
+                                    onPersist: _persist,
                                     showDuplicate: showDup,
                                   ),
                                   ),

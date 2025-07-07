@@ -21,6 +21,7 @@ class TrainingPackSpotPreviewCard extends StatefulWidget {
   final bool isMistake;
   final bool editableTitle;
   final ValueChanged<String>? onTitleChanged;
+  final VoidCallback? onPersist;
   const TrainingPackSpotPreviewCard({
     super.key,
     required this.spot,
@@ -34,6 +35,7 @@ class TrainingPackSpotPreviewCard extends StatefulWidget {
     this.showDuplicate = false,
     this.editableTitle = false,
     this.onTitleChanged,
+    this.onPersist,
   });
   @override
   State<TrainingPackSpotPreviewCard> createState() =>
@@ -164,7 +166,7 @@ class _TrainingPackSpotPreviewCardState
                 ),
               ),
             ),
-          if (isMistake)
+          if (widget.isMistake)
             Container(
               width: 4,
               decoration: const BoxDecoration(
@@ -228,16 +230,16 @@ class _TrainingPackSpotPreviewCardState
                         Tooltip(
                           message: 'New',
                           child: InkWell(
-                            onTap: onNewTap,
+                            onTap: widget.onNewTap,
                             child: const Icon(Icons.fiber_new,
                                 color: Colors.orangeAccent),
                           ),
                         ),
-                      if (showDuplicate)
+                      if (widget.showDuplicate)
                         Tooltip(
                           message: 'Duplicate',
                           child: InkWell(
-                            onTap: onDupTap,
+                            onTap: widget.onDupTap,
                             child: const Icon(Icons.copy_all,
                                 color: Colors.redAccent),
                           ),
@@ -361,7 +363,7 @@ class _TrainingPackSpotPreviewCardState
                               label: Text(tag,
                                   style: const TextStyle(fontSize: 12)),
                               onPressed: () =>
-                                  onTagTap?.call(tag.toLowerCase()),
+                                  widget.onTagTap?.call(tag.toLowerCase()),
                             ),
                         ],
                       ),
@@ -394,14 +396,33 @@ class _TrainingPackSpotPreviewCardState
                             MaterialPageRoute(
                                 builder: (_) => HandEditorScreen(spot: spot)),
                           );
-                          onHandEdited?.call();
+                          widget.onHandEdited?.call();
                         },
                         child: const Text('✏️ Edit Hand'),
                       ),
                       const SizedBox(width: 8),
                       TextButton(
-                        onPressed: onDuplicate,
+                        onPressed: widget.onDuplicate,
                         child: const Text('📄 Duplicate'),
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (v) async {
+                          if (v == 'mistake') {
+                            if (!spot.tags.contains('Mistake')) {
+                              setState(() => spot.tags.add('Mistake'));
+                              await context
+                                  .read<EvaluationExecutorService>()
+                                  .evaluateSingle(spot);
+                              widget.onPersist?.call();
+                            }
+                          }
+                        },
+                        itemBuilder: (_) => const [
+                          PopupMenuItem(
+                            value: 'mistake',
+                            child: Text('Mark as Mistake'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
