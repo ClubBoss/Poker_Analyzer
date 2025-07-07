@@ -412,7 +412,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   Future<void> _showCompletion() async {
     if (_summaryShown) return;
     _summaryShown = true;
-    final spots = widget.template.spots;
+    final spots = widget.spots ?? widget.template.spots;
     int correct = 0;
     for (final s in spots) {
       final exp = _expected(s);

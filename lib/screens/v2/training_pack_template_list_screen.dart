@@ -700,6 +700,7 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _startVariant(TrainingPackTemplate tpl, TrainingPackVariant v,
       {bool force = false}) async {
+    if (const PackRuntimeBuilder().isPending(tpl, v)) return;
     await Navigator.push(
       context,
       MaterialPageRoute(
