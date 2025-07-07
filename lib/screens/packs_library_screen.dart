@@ -20,15 +20,29 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   bool _loaded = false;
   String _query = '';
   String? _difficultyFilter;
+  final Set<String> _statusFilters = {};
 
-  List<TrainingPackTemplate> get _filtered =>
-      _packs.where((p) {
+  List<TrainingPackTemplate> get _filtered => _packs.where((p) {
         final q = _query.toLowerCase();
         final diffOk =
             _difficultyFilter == null || p.difficulty == _difficultyFilter;
-        return diffOk &&
-            (p.name.toLowerCase().contains(q) ||
-                (p.difficulty?.toLowerCase().contains(q) ?? false));
+        final textOk = p.name.toLowerCase().contains(q) ||
+            (p.difficulty?.toLowerCase().contains(q) ?? false);
+        var statusOk = true;
+        if (_statusFilters.isNotEmpty) {
+          final now = DateTime.now();
+          final total = p.spots.length;
+          final evPct = total == 0 ? 0 : p.evCovered * 100 / total;
+          final icmPct = total == 0 ? 0 : p.icmCovered * 100 / total;
+          final isNew = now.difference(p.createdAt).inDays < 3;
+          final isCompleted = p.evCovered + p.icmCovered >= total * 2;
+          final isIncomplete = evPct < 50 || icmPct < 50;
+          statusOk = false;
+          if (_statusFilters.contains('New') && isNew) statusOk = true;
+          if (_statusFilters.contains('Completed') && isCompleted) statusOk = true;
+          if (_statusFilters.contains('Incomplete') && isIncomplete) statusOk = true;
+        }
+        return diffOk && textOk && statusOk;
       }).toList();
 
   @override
@@ -121,6 +135,24 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                                     ? _difficultyFilter = null
                                     : _difficultyFilter = d),
                           ),
+                        ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final s in ['New', 'Completed', 'Incomplete'])
+                        FilterChip(
+                          label: Text(s),
+                          selected: _statusFilters.contains(s),
+                          onSelected: (_) => setState(() {
+                            _statusFilters.contains(s)
+                                ? _statusFilters.remove(s)
+                                : _statusFilters.add(s);
+                          }),
                         ),
                     ],
                   ),
