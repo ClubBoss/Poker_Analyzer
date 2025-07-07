@@ -298,4 +298,28 @@ class TrainingPackTemplate {
     return list.join(', ');
   }
 
+  List<TrainingPackVariant> playableVariants({bool groupByPosition = false}) {
+    final list = <TrainingPackVariant>[];
+    final raw = meta['variants'];
+    if (raw is List) {
+      for (final v in raw) {
+        final variant = v is TrainingPackVariant
+            ? v
+            : TrainingPackVariant.fromJson(Map<String, dynamic>.from(v));
+        if (variant.rangeId != null) list.add(variant);
+      }
+    }
+    if (groupByPosition && list.length > 1) {
+      final items = list.asMap().entries.toList();
+      items.sort((a, b) {
+        final pa = kPositionOrder.indexOf(a.value.position);
+        final pb = kPositionOrder.indexOf(b.value.position);
+        if (pa == pb) return a.key.compareTo(b.key);
+        return pa.compareTo(pb);
+      });
+      return [for (final e in items) e.value];
+    }
+    return list;
+  }
+
 }
