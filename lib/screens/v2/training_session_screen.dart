@@ -140,6 +140,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         });
         await _start();
       } else {
+        widget.template.lastTrainedAt = DateTime.now();
+        await TrainingPackStorage.save([widget.template]);
         Navigator.pop(context, _results);
       }
       return;
