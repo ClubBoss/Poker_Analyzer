@@ -28,6 +28,16 @@ class PackRuntimeBuilder {
     return future.whenComplete(() => _pending.remove(key));
   }
 
+  void clearCache(
+    TrainingPackTemplate tpl,
+    TrainingPackVariant variant,
+  ) {
+    final key =
+        '${tpl.id}_${variant.gameType.name}_${variant.position.name}_${variant.rangeId ?? 'default'}';
+    _cache.remove(key);
+    _pending.remove(key);
+  }
+
   Future<List<TrainingPackSpot>> _generateSafe(
     TrainingPackTemplate tpl,
     TrainingPackVariant variant,
