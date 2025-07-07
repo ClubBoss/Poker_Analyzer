@@ -141,6 +141,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   String _evFilter = 'all';
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
+  bool _sortEvAsc = false;
   SpotSort _spotSort = SpotSort.original;
   SortMode _sortMode = SortMode.position;
   static const _quickFilters = [
@@ -351,6 +352,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     if (_sortMode == SortMode.chronological) {
       list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    }
+    if (_sortEvAsc) {
+      list.sort((a, b) => (a.heroEv ?? 0).compareTo(b.heroEv ?? 0));
     }
     return list;
   }
@@ -3798,6 +3802,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           selected: _filterMistakes,
                           onSelected: (_) =>
                               setState(() => _filterMistakes = !_filterMistakes),
+                        ),
+                        const SizedBox(width: 8),
+                        FilterChip(
+                          label: Text(_sortEvAsc ? 'Manual ↺' : 'Sort EV ↑'),
+                          selected: _sortEvAsc,
+                          onSelected: (_) =>
+                              setState(() => _sortEvAsc = !_sortEvAsc),
                         ),
                       ],
                     );
