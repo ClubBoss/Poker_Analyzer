@@ -47,13 +47,13 @@ Future<void> main(List<String> args) async {
   }
   final manifest = jsonDecode(await manifestFile.readAsString()) as List;
   final keep = <String>{
-    storage.ref('${kPrefix}manifest.json').fullPath,
+    storage.ref(p.join(kPrefix, 'manifest.json')).fullPath,
   };
   final manifestRegex = RegExp(r"manifest.*\.json$");
   for (final item in manifest) {
     final name = (item as Map<String, dynamic>)['png'] as String?;
     if (name != null) {
-      keep.add(storage.ref('$kPrefix/preview/$name').fullPath);
+      keep.add(storage.ref(p.join(kPrefix, 'preview', name)).fullPath);
     }
   }
 
