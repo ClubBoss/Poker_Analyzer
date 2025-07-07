@@ -2695,6 +2695,39 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  Future<void> _makeMistakePack() async {
+    final mistakes = widget.template.spots
+        .where((s) => s.tags.contains('Mistake'))
+        .map((s) => s.copyWith(id: const Uuid().v4()))
+        .toList();
+    if (mistakes.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('No mistakes found')));
+      return;
+    }
+    final newTpl = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name: '${widget.template.name} – Mistakes',
+      gameType: widget.template.gameType,
+      spots: mistakes,
+      createdAt: DateTime.now(),
+    );
+    final service = context.read<TemplateStorageService>();
+    service.addTemplate(newTpl);
+    widget.templates.add(newTpl);
+    await TrainingPackStorage.save(widget.templates);
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackTemplateEditorScreen(
+          template: newTpl,
+          templates: widget.templates,
+        ),
+      ),
+    );
+  }
+
   Future<void> _bulkDelete() async {
     final count = _selectedSpotIds.length;
     if (count == 0) return;
@@ -4216,6 +4249,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 _storePreview();
               },
           ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.bug_report),
+          tooltip: 'Make Mistake Pack',
+          onPressed: _makeMistakePack,
         ),
         IconButton(icon: const Icon(Icons.save), onPressed: _save),
         IconButton(icon: const Icon(Icons.description), onPressed: _showMarkdownPreview),
