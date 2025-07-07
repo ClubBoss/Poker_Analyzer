@@ -17,10 +17,11 @@ class TrainingSessionScreen extends StatefulWidget {
 }
 
 class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
-  late final List<TrainingPackSpot> _packSpots;
-  late final List<TrainingSpot> _spots;
+  late List<TrainingPackSpot> _packSpots;
+  late List<TrainingSpot> _spots;
   int _index = -1;
   final Map<String, bool> _results = {};
+  bool _mistakesOnly = false;
 
   @override
   void initState() {
@@ -76,7 +77,30 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   }
 
   Future<void> _start() async {
-    setState(() => _index = 0);
+    var spots = _packSpots;
+    if (_mistakesOnly) {
+      spots = [for (final s in spots) if (s.tags.contains('Mistake')) s];
+      if (spots.isEmpty) {
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('No mistakes to review'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              )
+            ],
+          ),
+        );
+        return;
+      }
+    }
+    setState(() {
+      _packSpots = spots;
+      _spots = [for (final s in _packSpots) _toSpot(s)];
+      _index = 0;
+    });
     await _showSpot();
   }
 
@@ -120,7 +144,19 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       backgroundColor: AppColors.background,
       body: Center(
         child: _index == -1
-            ? ElevatedButton(onPressed: _start, child: const Text('Start'))
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SwitchListTile(
+                    title: const Text('Review Mistakes Only'),
+                    value: _mistakesOnly,
+                    onChanged: (v) => setState(() => _mistakesOnly = v),
+                    activeColor: Colors.orange,
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(onPressed: _start, child: const Text('Start')),
+                ],
+              )
             : const CircularProgressIndicator(),
       ),
     );
