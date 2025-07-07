@@ -174,6 +174,8 @@ class _TrainingPackSpotPreviewCardState
     }
     final needsWarning =
         spot.heroEv == null || spot.heroIcmEv == null || spot.dirty;
+    final recent = DateTime.now().difference(spot.editedAt) <
+        const Duration(minutes: 5);
 
     return Container(
       decoration: BoxDecoration(
@@ -459,6 +461,13 @@ class _TrainingPackSpotPreviewCardState
             ),
             if (barColor != null)
               Container(height: 4, color: barColor),
+            if (recent && !needsWarning && !spot.pinned)
+              Positioned(
+                right: 4,
+                bottom: barColor != null ? 8 : 4,
+                child: const Icon(Icons.edit_note,
+                    color: Colors.blue, size: 16),
+              ),
           ),
           if (spot.pinned)
             Positioned(
