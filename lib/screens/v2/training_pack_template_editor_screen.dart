@@ -1961,6 +1961,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         if (_autoSortEv) _sortSpots();
                       });
                     }
+                    if (mounted) setState(() {});
                   } catch (_) {
                     failed.add('${i + 1}. ${s.title.isEmpty ? 'Spot' : s.title}');
                   }
@@ -2028,6 +2029,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         if (_autoSortEv) _sortSpots();
                       });
                     }
+                    if (mounted) setState(() {});
                   } catch (_) {
                     failed.add('${i + 1}. ${s.title.isEmpty ? 'Spot' : s.title}');
                   }
@@ -2138,7 +2140,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   widget.template,
                   onProgress: (p) {
                     _calcProgress = p;
-                    if (mounted) setDialog(() {});
+                    if (mounted) {
+                      setDialog(() {});
+                      setState(() {});
+                    }
                   },
                 );
                 updated = res.length;
@@ -2429,7 +2434,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   );
                   done++;
                   _calcProgress = done / spots.length;
-                  if (mounted) setDialog(() {});
+                  if (mounted) {
+                    setDialog(() {});
+                    setState(() {});
+                  }
                 }
                 await _persist();
                 if (Navigator.canPop(ctx)) Navigator.pop(ctx);
