@@ -40,6 +40,9 @@ import '../../services/mixed_drill_history_service.dart';
 import '../../models/mixed_drill_stat.dart';
 import '../../services/bulk_evaluator_service.dart';
 import '../../services/offline_evaluator_service.dart';
+import '../../services/training_pack_play_service.dart';
+import '../../services/pack_runtime_builder.dart';
+import '../../services/range_library_service.dart';
 import '../../services/theme_service.dart';
 import '../../services/session_log_service.dart';
 
@@ -276,22 +279,7 @@ class _TrainingPackTemplateListScreenState
         content: Text('Low ${_streetName(street)} progress'),
         action: SnackBarAction(
           label: 'Try Now',
-          onPressed: () async {
-            await _showStreetProgress(tpl);
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>
-                    TrainingPackPlayScreen(template: tpl, original: tpl),
-              ),
-            );
-            if (mounted) {
-              await _loadProgress();
-              _loadGoals();
-              setState(() {});
-              await _maybeShowContinueReminder();
-            }
-          },
+          onPressed: () => _chooseVariant(tpl),
         ),
       ),
     );
@@ -317,21 +305,7 @@ class _TrainingPackTemplateListScreenState
             content: Text('${_streetName(street)} почти закрыт в ${t.name} — доиграем?'),
             action: SnackBarAction(
               label: 'Продолжить',
-              onPressed: () async {
-                await _showStreetProgress(t);
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TrainingPackPlayScreen(template: t, original: t),
-                  ),
-                );
-                if (mounted) {
-                  await _loadProgress();
-                  _loadGoals();
-                  setState(() {});
-                  await _maybeShowContinueReminder();
-                }
-              },
+              onPressed: () => _chooseVariant(t),
             ),
           ),
         );
@@ -724,6 +698,92 @@ class _TrainingPackTemplateListScreenState
     return result;
   }
 
+  Future<void> _startVariant(TrainingPackTemplate tpl, TrainingPackVariant v,
+      {bool force = false}) async {
+    final service = TrainingPackPlayService();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    final spots = await service.loadSpots(tpl, v, forceReload: force);
+    if (!mounted) return;
+    Navigator.pop(context);
+    if (spots.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось сгенерировать споты')));
+      return;
+    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackPlayScreen(
+          template: tpl.copyWith(spots: spots),
+          original: tpl,
+          variant: v,
+          spots: spots,
+        ),
+      ),
+    );
+    if (mounted) {
+      await _loadProgress();
+      _loadGoals();
+      setState(() {});
+    }
+  }
+
+  Future<void> _chooseVariant(TrainingPackTemplate tpl) async {
+    final variants = tpl.playableVariants();
+    if (variants.isEmpty) return;
+    if (variants.length == 1) {
+      await _startVariant(tpl, variants.first);
+      return;
+    }
+    await showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final v in variants)
+              FutureBuilder<List<String>>(
+                future: v.rangeId == null
+                    ? Future.value([])
+                    : RangeLibraryService.instance.getRange(v.rangeId!),
+                builder: (context, snap) {
+                  final enabled =
+                      (snap.data?.isNotEmpty ?? false) &&
+                          !const PackRuntimeBuilder().isPending(tpl, v);
+                  return ListTile(
+                    enabled: enabled,
+                    title: Text(v.tag == null
+                        ? v.position.label
+                        : '${v.position.label} • ${v.tag}'),
+                    subtitle: Text(v.gameType.name),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: enabled
+                          ? () {
+                              Navigator.pop(context);
+                              _startVariant(tpl, v, force: true);
+                            }
+                          : null,
+                    ),
+                    onTap: enabled
+                        ? () {
+                            Navigator.pop(context);
+                            _startVariant(tpl, v);
+                          }
+                        : null,
+                  );
+                },
+              ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildTemplateTile(TrainingPackTemplate t, bool narrow,
       {int? index}) {
     final total = t.spots.length;
@@ -949,26 +1009,17 @@ class _TrainingPackTemplateListScreenState
                 style: const TextStyle(fontSize: 12, color: Colors.white70),
               ),
             ),
-          IconButton(
-            icon: const Icon(Icons.play_arrow),
-            tooltip: 'Start training',
-            onPressed: () async {
-              await _showStreetProgress(t);
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      TrainingPackPlayScreen(template: t, original: t),
+          t.hasPlayableContent()
+              ? IconButton(
+                  icon: const Icon(Icons.play_arrow),
+                  tooltip: 'Start training',
+                  onPressed: () => _chooseVariant(t),
+                )
+              : const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text('Нет контента',
+                      style: TextStyle(color: Colors.white54)),
                 ),
-              );
-              if (mounted) {
-                await _loadProgress();
-                _loadGoals();
-                setState(() {});
-                await _maybeShowContinueReminder();
-              }
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.auto_fix_high),
             tooltip: 'Generate spots',
@@ -1097,25 +1148,17 @@ class _TrainingPackTemplateListScreenState
                   style: const TextStyle(fontSize: 12, color: Colors.white70),
                 ),
               ),
-            IconButton(
-              icon: const Icon(Icons.play_arrow),
-              tooltip: 'Start training',
-              onPressed: () async {
-                await _showStreetProgress(t);
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TrainingPackPlayScreen(template: t, original: t),
+            t.hasPlayableContent()
+                ? IconButton(
+                    icon: const Icon(Icons.play_arrow),
+                    tooltip: 'Start training',
+                    onPressed: () => _chooseVariant(t),
+                  )
+                : const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child:
+                        Text('Нет контента', style: TextStyle(color: Colors.white54)),
                   ),
-                );
-                if (mounted) {
-                  await _loadProgress();
-                  _loadGoals();
-                  setState(() {});
-                  await _maybeShowContinueReminder();
-                }
-              },
-            ),
             IconButton(
               icon: const Icon(Icons.auto_fix_high),
               tooltip: 'Generate spots',
@@ -2817,40 +2860,31 @@ class _TrainingPackTemplateListScreenState
                     title: const Text('Recent Generated Packs'),
                     children: [
                       for (final h in history)
-                        ListTile(
+                        () {
+                          final tpl =
+                              _templates.firstWhereOrNull((t) => t.id == h.id);
+                          return ListTile(
                           tileColor: h.id == _lastOpenedId
                               ? Theme.of(context).highlightColor
                               : null,
                           title: Text(h.name),
                           subtitle: Text(
                               '${h.type} • ${DateFormat.yMMMd().add_Hm().format(h.ts)}'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.play_arrow),
-                            tooltip: 'Start training',
-                            onPressed: () {
-                              final tpl =
-                                  _templates.firstWhereOrNull((t) => t.id == h.id);
-                              if (tpl == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Pack not found')));
-                                return;
-                              }
-                              await _showStreetProgress(tpl);
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => TrainingPackPlayScreen(
-                                      template: tpl, original: tpl),
-                                ),
-                              );
-                              if (mounted) {
-                                await _loadProgress();
-                                _loadGoals();
-                                setState(() {});
-                                await _maybeShowContinueReminder();
-                              }
-                            },
-                          ),
+                          trailing: tpl == null
+                              ? const SizedBox.shrink()
+                              : tpl.hasPlayableContent()
+                                  ? IconButton(
+                                      icon: const Icon(Icons.play_arrow),
+                                      tooltip: 'Start training',
+                                      onPressed: () => _chooseVariant(tpl),
+                                    )
+                                  : const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 8),
+                                      child: Text('Нет контента',
+                                          style:
+                                              TextStyle(color: Colors.white54)),
+                                    ),
                           onTap: () {
                             final tpl =
                                 _templates.firstWhereOrNull((t) => t.id == h.id);
@@ -2861,7 +2895,7 @@ class _TrainingPackTemplateListScreenState
                                   const SnackBar(content: Text('Pack not found')));
                             }
                           },
-                        ),
+                        )();
                     ],
                   ),
                 if (suggestion != null)
@@ -2892,22 +2926,7 @@ class _TrainingPackTemplateListScreenState
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
-                          onPressed: () async {
-                            await _showStreetProgress(suggestion);
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => TrainingPackPlayScreen(
-                                    template: suggestion, original: suggestion),
-                              ),
-                            );
-                            if (mounted) {
-                              await _loadProgress();
-                              _loadGoals();
-                              setState(() {});
-                              await _maybeShowContinueReminder();
-                            }
-                          },
+                          onPressed: () => _chooseVariant(suggestion),
                           child: const Text('Start Training'),
                         ),
                       ],

@@ -13,12 +13,14 @@ class PackRuntimeBuilder {
   static final _cache = <String, List<TrainingPackSpot>>{};
   static final _pending = <String, Future<List<TrainingPackSpot>>>{};
 
+  static String _key(TrainingPackTemplate tpl, TrainingPackVariant v) =>
+      '${tpl.id}_${v.gameType.name}_${v.position.name}_${v.rangeId ?? 'default'}';
+
   Future<List<TrainingPackSpot>> buildIfNeeded(
     TrainingPackTemplate tpl,
     TrainingPackVariant variant,
   ) async {
-    final key =
-        '${tpl.id}_${variant.gameType.name}_${variant.position.name}_${variant.rangeId ?? 'default'}';
+    final key = _key(tpl, variant);
     final cached = _cache[key];
     if (cached != null) return cached;
     final pending = _pending[key];
@@ -32,10 +34,14 @@ class PackRuntimeBuilder {
     TrainingPackTemplate tpl,
     TrainingPackVariant variant,
   ) {
-    final key =
-        '${tpl.id}_${variant.gameType.name}_${variant.position.name}_${variant.rangeId ?? 'default'}';
+    final key = _key(tpl, variant);
     _cache.remove(key);
     _pending.remove(key);
+  }
+
+  bool isPending(TrainingPackTemplate tpl, TrainingPackVariant variant) {
+    final key = _key(tpl, variant);
+    return _pending.containsKey(key);
   }
 
   Future<List<TrainingPackSpot>> _generateSafe(
