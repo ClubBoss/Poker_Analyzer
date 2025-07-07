@@ -3646,13 +3646,29 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       ],
                     ),
                   ),
-                  Text(
-                    '${_visibleSpots().length} spots',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelMedium
-                        ?.copyWith(color: Colors.white70),
-                  ),
+                  Builder(builder: (_) {
+                    final missing =
+                        BulkEvaluatorService().countMissing(widget.template);
+                    return Row(
+                      children: [
+                        Text(
+                          '${_visibleSpots().length} spots',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.copyWith(color: Colors.white70),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '$missing missing',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.copyWith(color: Colors.white70),
+                        ),
+                      ],
+                    );
+                  }),
                 ],
               ),
         actions: [
