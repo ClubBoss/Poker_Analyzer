@@ -70,5 +70,25 @@ class HandData {
         if (stacks.isNotEmpty) 'stacks': stacks,
         if (board.isNotEmpty) 'board': board,
         'anteBb': anteBb,
-      };
+      }; 
 }
+
+  factory HandData.fromSimpleInput(
+    String cards,
+    HeroPosition pos,
+    int stack,
+  ) {
+    return HandData(
+      heroCards: cards,
+      position: pos,
+      heroIndex: 0,
+      playerCount: 2,
+      stacks: {'0': stack.toDouble(), '1': stack.toDouble()},
+      actions: {
+        0: [
+          ActionEntry(0, 0, 'push', amount: stack.toDouble()),
+          ActionEntry(0, 1, 'fold'),
+        ]
+      },
+    );
+  }

@@ -102,6 +102,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       MaterialPageRoute(
         builder: (_) => SpotSolveScreen(
           spot: _spots[_index],
+          packSpot: _packSpots[_index],
           template: widget.template,
         ),
       ),

@@ -642,6 +642,69 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (mounted) setState(() {});
   }
 
+  Future<void> _quickSpot() async {
+    final cardCtr = TextEditingController();
+    final stackCtr = TextEditingController(text: '10');
+    HeroPosition pos = widget.template.heroPos;
+    final ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: StatefulBuilder(
+          builder: (context, set) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: cardCtr,
+                decoration: const InputDecoration(labelText: 'Hero cards'),
+              ),
+              const SizedBox(height: 8),
+              DropdownButton<HeroPosition>(
+                value: pos,
+                items: [
+                  for (final p in kPositionOrder)
+                    DropdownMenuItem(value: p, child: Text(p.label)),
+                ],
+                onChanged: (v) => set(() => pos = v!),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: stackCtr,
+                decoration: const InputDecoration(labelText: 'Stacks (BB)'),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Add'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (ok != true) return;
+    final cards = cardCtr.text.trim();
+    final stack = int.tryParse(stackCtr.text) ?? 10;
+    final spot = TrainingPackSpot(
+      id: const Uuid().v4(),
+      hand: HandData.fromSimpleInput(cards, pos, stack),
+    );
+    await context.read<EvaluationExecutorService>().evaluateSingle(
+      spot,
+      template: widget.template,
+      anteBb: widget.template.anteBb,
+    );
+    setState(() => widget.template.spots.insert(0, spot));
+    await _persist();
+  }
+
   Future<void> _generateSpot() async {
     _recordSnapshot();
     final spot = TrainingPackSpot(
@@ -2801,7 +2864,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SpotSolveScreen(spot: evalSpot, template: widget.template),
+        builder: (_) => SpotSolveScreen(
+          spot: evalSpot,
+          packSpot: spot,
+          template: widget.template,
+        ),
       ),
     );
   }
@@ -4482,6 +4549,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   label: const Text('+ New Spot'),
                 ),
                 const SizedBox(height: 12),
+                FloatingActionButton.extended(
+                  heroTag: 'quickSpotFab',
+                  onPressed: _quickSpot,
+                  icon: const Icon(Icons.flash_on),
+                  label: const Text('+ Quick Spot'),
+                ),
+                const SizedBox(height: 12),
                 FloatingActionButton(
                   heroTag: 'generateSpotFab',
                   tooltip: 'Generate Spot',
@@ -5415,8 +5489,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                             context,
                                             MaterialPageRoute(
                                               builder: (_) => SpotSolveScreen(
-                                                  spot: evalSpot,
-                                                  template: widget.template),
+                                                spot: evalSpot,
+                                                packSpot: spot,
+                                                template: widget.template,
+                                              ),
                                             ),
                                           );
                                         },

@@ -374,6 +374,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
   }) async {
     await BulkEvaluatorService().generateMissing(spot, anteBb: anteBb);
     final prev = spot.evalResult;
+    final prevAction = spot.correctAction;
+    final prevExpl = spot.explanation;
     final settings = EvaluationSettingsService.instance;
     spot.evalResult = EvaluationLogicService.evaluateDecision(
       spot,
@@ -386,6 +388,12 @@ class EvaluationExecutorService implements EvaluationExecutor {
     } else if (spot.evalResult != null && spot.evalResult!.correct && hadTag) {
       spot.tags.remove('Mistake');
     }
+    final heroPushEv = spot.heroEv ?? 0;
+    const foldEv = 0.0;
+    spot.correctAction = heroPushEv >= foldEv ? 'push' : 'fold';
+    spot.explanation = spot.correctAction == 'push'
+        ? '+${(heroPushEv - foldEv).toStringAsFixed(2)} BB vs fold'
+        : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
     if (template != null) {
       TemplateCoverageUtils.recountAll(template);
       final changed = prev == null ||
@@ -394,7 +402,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
             spot.evalResult!.toJson(),
           );
       final tagChanged = hadTag != spot.tags.contains('Mistake');
-      if (changed || tagChanged) {
+      final autoChanged =
+          prevAction != spot.correctAction || prevExpl != spot.explanation;
+      if (changed || tagChanged || autoChanged) {
         await TrainingPackStorage.save([template]);
       }
     }

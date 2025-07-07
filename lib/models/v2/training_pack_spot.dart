@@ -17,6 +17,8 @@ class TrainingPackSpot {
   /// Never written to / read from JSON.
   bool isNew = false;
   EvaluationResult? evalResult;
+  String? correctAction;
+  String? explanation;
 
   TrainingPackSpot({
     required this.id,
@@ -30,6 +32,8 @@ class TrainingPackSpot {
     this.dirty = false,
     bool? isNew,
     this.evalResult,
+    this.correctAction,
+    this.explanation,
   }) : isNew = isNew ?? false,
        hand = hand ?? HandData(),
        tags = tags ?? [],
@@ -48,6 +52,8 @@ class TrainingPackSpot {
     bool? dirty,
     bool? isNew,
     EvaluationResult? evalResult,
+    String? correctAction,
+    String? explanation,
   }) => TrainingPackSpot(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -60,6 +66,8 @@ class TrainingPackSpot {
     dirty: dirty ?? this.dirty,
     isNew: isNew ?? this.isNew,
     evalResult: evalResult ?? this.evalResult,
+    correctAction: correctAction ?? this.correctAction,
+    explanation: explanation ?? this.explanation,
   );
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
@@ -81,6 +89,8 @@ class TrainingPackSpot {
     evalResult: j['evalResult'] != null
         ? EvaluationResult.fromJson(Map<String, dynamic>.from(j['evalResult']))
         : null,
+    correctAction: j['correctAction'] as String?,
+    explanation: j['explanation'] as String?,
   );
 
   Map<String, dynamic> toJson() => {
@@ -94,6 +104,8 @@ class TrainingPackSpot {
     if (pinned) 'pinned': true,
     if (dirty) 'dirty': true,
     if (evalResult != null) 'evalResult': evalResult!.toJson(),
+    if (correctAction != null) 'correctAction': correctAction,
+    if (explanation != null) 'explanation': explanation,
   };
 
   double? get heroEv {
@@ -125,7 +137,9 @@ class TrainingPackSpot {
           pinned == other.pinned &&
           dirty == other.dirty &&
           isNew == other.isNew &&
-          evalResult == other.evalResult;
+          evalResult == other.evalResult &&
+          correctAction == other.correctAction &&
+          explanation == other.explanation;
 
   @override
   int get hashCode => Object.hash(
@@ -138,5 +152,7 @@ class TrainingPackSpot {
     dirty,
     isNew,
     evalResult,
+    correctAction,
+    explanation,
   );
 }

@@ -1,9 +1,7 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../models/training_spot.dart';
 import '../models/v2/training_pack_template.dart';
-import '../services/evaluation_executor_service.dart';
+import '../models/v2/training_pack_spot.dart';
 import '../widgets/board_cards_widget.dart';
 import '../widgets/player_info_widget.dart';
 import '../helpers/table_geometry_helper.dart';
@@ -12,8 +10,14 @@ import '../theme/app_colors.dart';
 
 class SpotSolveScreen extends StatefulWidget {
   final TrainingSpot spot;
+  final TrainingPackSpot packSpot;
   final TrainingPackTemplate? template;
-  const SpotSolveScreen({super.key, required this.spot, this.template});
+  const SpotSolveScreen({
+    super.key,
+    required this.spot,
+    required this.packSpot,
+    this.template,
+  });
 
   @override
   State<SpotSolveScreen> createState() => _SpotSolveScreenState();
@@ -26,38 +30,16 @@ class _SpotSolveScreenState extends State<SpotSolveScreen> {
   String? _hint;
   double? _evDiff;
 
-  double? _actionEv(String action) {
-    for (final a in widget.spot.actions) {
-      if (a.playerIndex == widget.spot.heroIndex &&
-          a.action.toLowerCase() == action.toLowerCase()) {
-        return a.ev;
-      }
-    }
-    return null;
-  }
-
-  double? _bestEv() {
-    double? best;
-    for (final a in widget.spot.actions) {
-      if (a.playerIndex == widget.spot.heroIndex && a.ev != null) {
-        best = best == null ? a.ev! : max(best!, a.ev!);
-      }
-    }
-    return best;
-  }
-
   void _choose(String action) {
-    final eval = context
-        .read<EvaluationExecutorService>()
-        .evaluateSpot(context, widget.spot, action);
-    final heroEv = _actionEv(action);
-    final bestEv = _bestEv();
+    final isCorrect = action == widget.packSpot.correctAction;
+    final heroEv = widget.packSpot.heroEv ?? 0;
+    final diffEv = action == 'push' ? heroEv : -heroEv;
     setState(() {
       _selected = action;
-      _correct = eval.correct;
-      _expected = eval.expectedAction;
-      _hint = eval.hint;
-      _evDiff = heroEv != null && bestEv != null ? heroEv - bestEv : null;
+      _correct = isCorrect;
+      _expected = widget.packSpot.correctAction;
+      _hint = widget.packSpot.explanation;
+      _evDiff = diffEv;
     });
   }
 
