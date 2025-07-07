@@ -18,6 +18,14 @@ class PacksLibraryScreen extends StatefulWidget {
 class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final List<TrainingPackTemplate> _packs = [];
   bool _loaded = false;
+  String _query = '';
+
+  List<TrainingPackTemplate> get _filtered =>
+      _packs.where((p) {
+        final q = _query.toLowerCase();
+        return p.name.toLowerCase().contains(q) ||
+            (p.difficulty?.toLowerCase().contains(q) ?? false);
+      }).toList();
 
   @override
   void didChangeDependencies() {
@@ -67,10 +75,31 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       appBar: AppBar(title: const Text('Pack Library')),
       body: _packs.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _packs.length,
-              itemBuilder: (_, i) {
-                final t = _packs[i];
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.search),
+                      hintText: 'Search packs…',
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                      suffixIcon: _query.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () => setState(() => _query = ''),
+                            ),
+                    ),
+                    onChanged: (v) => setState(() => _query = v.trim()),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _filtered.length,
+                    itemBuilder: (_, i) {
+                      final t = _filtered[i];
                 final total = t.spots.length;
                 final evDone =
                     t.spots.where((s) => s.heroEv != null && !s.dirty).length;
@@ -105,6 +134,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                 );
               },
             ),
+          ),
+        ],
+      ),
     );
   }
 }
