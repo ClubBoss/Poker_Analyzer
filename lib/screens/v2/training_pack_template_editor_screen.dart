@@ -61,6 +61,10 @@ import '../../main.dart';
 import '../../services/preview_cache_service.dart';
 import '../../widgets/snapshot_list_dialog.dart';
 import '../../services/evaluation_settings_service.dart';
+import '../spot_solve_screen.dart';
+import '../../models/training_spot.dart';
+import '../../models/card_model.dart';
+import '../../models/player_model.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
@@ -459,6 +463,53 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     });
     await _persist();
     if (mounted) setState(() => _log('Edited', spot));
+  }
+
+  TrainingSpot _toSpot(TrainingPackSpot spot) {
+    final hand = spot.hand;
+    final heroCards = hand.heroCards
+        .split(RegExp(r'\s+'))
+        .where((e) => e.isNotEmpty)
+        .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
+        .toList();
+    final playerCards = [
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+    ];
+    if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
+      playerCards[hand.heroIndex] = heroCards;
+    }
+    final boardCards = [
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+    ];
+    final actions = <ActionEntry>[];
+    for (final list in hand.actions.values) {
+      for (final a in list) {
+        actions.add(ActionEntry(a.street, a.playerIndex, a.action,
+            amount: a.amount,
+            generated: a.generated,
+            manualEvaluation: a.manualEvaluation,
+            customLabel: a.customLabel));
+      }
+    }
+    final stacks = [
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0
+    ];
+    final positions = List.generate(hand.playerCount, (_) => '');
+    if (hand.heroIndex < positions.length) {
+      positions[hand.heroIndex] = hand.position.label;
+    }
+    return TrainingSpot(
+      playerCards: playerCards,
+      boardCards: boardCards,
+      actions: actions,
+      heroIndex: hand.heroIndex,
+      numberOfPlayers: hand.playerCount,
+      playerTypes: List.generate(hand.playerCount, (_) => PlayerType.unknown),
+      positions: positions,
+      stacks: stacks,
+      createdAt: DateTime.now(),
+    );
   }
 
   Future<void> _persist() async {
@@ -5332,6 +5383,20 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                       TextButton(
                                         onPressed: () => _openEditor(spot),
                                         child: const Text('📝 Edit'),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.play_arrow),
+                                        onPressed: () {
+                                          final evalSpot = _toSpot(spot);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => SpotSolveScreen(
+                                                  spot: evalSpot,
+                                                  template: widget.template),
+                                            ),
+                                          );
+                                        },
                                       ),
                                       IconButton(
                                         icon: const Icon(Icons.delete, color: Colors.red),
