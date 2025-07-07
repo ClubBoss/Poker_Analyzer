@@ -41,8 +41,7 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
       widget.variant,
       forceReload: widget.forceReload,
     );
-    if (!mounted) return;
-    if (_canceled) return;
+    if (_canceled || !mounted) return;
     final rootCtx = context;
     if (spots.isEmpty) {
       Navigator.pop(rootCtx);
