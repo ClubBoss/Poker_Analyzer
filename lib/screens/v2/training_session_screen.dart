@@ -103,7 +103,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     setState(() {
       _packSpots = spots;
       _spots = [for (final s in _packSpots) _toSpot(s)];
-      _index = 0;
+      final idx = _packSpots.indexWhere(
+          (p) => p.heroEv == null || p.heroIcmEv == null);
+      _index = idx == -1 ? 0 : idx;
       _correct = 0;
     });
     _initialMistakes = {

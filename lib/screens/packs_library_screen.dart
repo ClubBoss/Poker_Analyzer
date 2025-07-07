@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../models/v2/training_pack_template.dart';
 import '../services/template_storage_service.dart';
 import '../helpers/training_pack_storage.dart';
 import 'v2/training_pack_template_editor_screen.dart';
+import 'v2/training_session_screen.dart';
 
 class PacksLibraryScreen extends StatefulWidget {
   const PacksLibraryScreen({super.key});
@@ -69,10 +71,12 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       }
     }
     list.sort((a, b) {
-      final aCov = a.evCovered + a.icmCovered;
-      final bCov = b.evCovered + b.icmCovered;
-      final cmpDate = b.createdAt.compareTo(a.createdAt);
-      return cmpDate != 0 ? cmpDate : bCov.compareTo(aCov);
+      final d1 = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final d2 = a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      if (d1 != d2) return d1.compareTo(d2);
+      final covA = a.evCovered + a.icmCovered;
+      final covB = b.evCovered + b.icmCovered;
+      return covB.compareTo(covA);
     });
     if (mounted) setState(() => _packs.addAll(list));
   }
@@ -217,7 +221,18 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       ),
                     ],
                   ),
-                  subtitle: Text(t.description),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (t.lastTrainedAt != null)
+                        Text(
+                          'Trained ${timeago.format(t.lastTrainedAt!)}',
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.white54),
+                        ),
+                      Text(t.description),
+                    ],
+                  ),
                   leading: CircleAvatar(child: Text(total.toString())),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -230,6 +245,18 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       _StatChip(
                         label: '${pct(icmDone).round()} % ICM',
                         color: col(pct(icmDone)),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.play_circle_fill),
+                        tooltip: 'Resume',
+                        onPressed: () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TrainingSessionScreen(template: t),
+                            ),
+                          );
+                        },
                       ),
                       PopupMenuButton<String>(
                         onSelected: (v) {
