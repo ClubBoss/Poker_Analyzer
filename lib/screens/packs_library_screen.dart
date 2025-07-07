@@ -71,13 +71,56 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
               itemCount: _packs.length,
               itemBuilder: (_, i) {
                 final t = _packs[i];
+                final total = t.spots.length;
+                final evDone =
+                    t.spots.where((s) => s.heroEv != null && !s.dirty).length;
+                final icmDone =
+                    t.spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
+                double pct(int done) =>
+                    total == 0 ? 0 : done * 100 / total;
+                Color col(double p) => p >= 80
+                    ? Colors.green
+                    : p >= 50
+                        ? Colors.orange
+                        : Colors.red;
                 return ListTile(
                   title: Text(t.name),
-                  subtitle: Text(t.description),
+                  subtitle: Text('${t.description}'),
+                  leading: CircleAvatar(child: Text(total.toString())),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _StatChip(
+                        label: '${pct(evDone).round()} % EV',
+                        color: col(pct(evDone)),
+                      ),
+                      const SizedBox(width: 4),
+                      _StatChip(
+                        label: '${pct(icmDone).round()} % ICM',
+                        color: col(pct(icmDone)),
+                      ),
+                    ],
+                  ),
                   onTap: () => _import(t),
                 );
               },
             ),
     );
   }
+}
+
+class _StatChip extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _StatChip({required this.label, required this.color});
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration:
+            BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: Colors.white),
+        ),
+      );
 }
