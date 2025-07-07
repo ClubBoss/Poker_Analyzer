@@ -142,6 +142,8 @@ class _TrainingPackSpotPreviewCardState
         barColor = Colors.yellow;
       }
     }
+    final needsWarning =
+        spot.heroEv == null || spot.heroIcmEv == null || spot.dirty;
 
     return Container(
       decoration: BoxDecoration(
@@ -423,6 +425,12 @@ class _TrainingPackSpotPreviewCardState
                   ),
                 ),
               ),
+            ),
+          if (needsWarning)
+            Positioned(
+              top: 4,
+              right: 4,
+              child: const Icon(Icons.error_outline, color: Colors.redAccent),
             ),
           if (spot.dirty)
             Positioned(
