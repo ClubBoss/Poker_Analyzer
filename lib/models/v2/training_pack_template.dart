@@ -322,4 +322,6 @@ class TrainingPackTemplate {
     return list;
   }
 
+  bool hasPlayableContent() => playableVariants().isNotEmpty;
+
 }
