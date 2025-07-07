@@ -535,7 +535,6 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           ),
         ),
       );
-
       if (!mounted) return;
     }
     if (!_autoAdvance) await _next();
