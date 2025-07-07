@@ -43,6 +43,7 @@ class _NewTrainingPackTemplateDialogState extends State<NewTrainingPackTemplateD
       gameType: _type,
       targetStreet: _street == 'any' ? null : _street,
       streetGoal: int.tryParse(_streetCtrl.text) ?? 0,
+      meta: {},
       createdAt: DateTime.now(),
     );
     final range = _rangeCtrl.text.trim();
@@ -78,7 +79,7 @@ class _NewTrainingPackTemplateDialogState extends State<NewTrainingPackTemplateD
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               value: _street,
-              decoration: const InputDecoration(labelText: 'Target Street'),
+              decoration: const InputDecoration(labelText: 'Улица целью'),
               items: const [
                 DropdownMenuItem(value: 'any', child: Text('Any')),
                 DropdownMenuItem(value: 'flop', child: Text('Flop')),
@@ -128,7 +129,7 @@ class _NewTrainingPackTemplateDialogState extends State<NewTrainingPackTemplateD
                 const SizedBox(height: 12),
                 TextField(
                   controller: _rangeCtrl,
-                  decoration: const InputDecoration(labelText: 'Range ID'),
+                  decoration: const InputDecoration(labelText: 'ID диапазона'),
                 ),
               ],
             ),
