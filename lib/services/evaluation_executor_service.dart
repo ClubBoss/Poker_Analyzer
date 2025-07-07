@@ -22,6 +22,7 @@ import 'bulk_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
 import '../helpers/training_pack_storage.dart';
 import '../services/evaluation_logic_service.dart';
+import 'evaluation_settings_service.dart';
 import '../models/evaluation_mode.dart';
 
 /// Interface for evaluation execution logic.
@@ -373,10 +374,11 @@ class EvaluationExecutorService implements EvaluationExecutor {
   }) async {
     await BulkEvaluatorService().generateMissing(spot, anteBb: anteBb);
     final prev = spot.evalResult;
+    final settings = EvaluationSettingsService.instance;
     spot.evalResult = EvaluationLogicService.evaluateDecision(
       spot,
-      evThreshold: -0.01,
-      useIcm: mode == EvaluationMode.icm,
+      evThreshold: settings.evThreshold,
+      useIcm: settings.useIcm,
     );
     if (template != null) {
       TemplateCoverageUtils.recountAll(template);

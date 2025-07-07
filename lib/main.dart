@@ -61,6 +61,7 @@ import 'services/remote_config_service.dart';
 import 'services/theme_service.dart';
 import 'services/ab_test_engine.dart';
 import 'services/asset_sync_service.dart';
+import 'services/evaluation_settings_service.dart';
 import 'widgets/sync_status_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
@@ -128,6 +129,7 @@ Future<void> main() async {
       (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
     ),
   );
+  await EvaluationSettingsService.instance.load();
   runApp(
     MultiProvider(
       providers: [
