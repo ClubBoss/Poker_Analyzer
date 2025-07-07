@@ -16,6 +16,9 @@ import '../models/player_model.dart';
 import '../models/mistake_severity.dart';
 import 'goals_service.dart';
 import 'training_stats_service.dart';
+import '../models/v2/training_pack_template.dart';
+import 'bulk_evaluator_service.dart';
+import '../utils/template_coverage_utils.dart';
 
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
@@ -356,6 +359,15 @@ class EvaluationExecutorService implements EvaluationExecutor {
     }
     final action = heroAct?.action ?? '-';
     return evaluateSpot(ctx, spotData, action);
+  }
+
+  Future<void> evaluateSingle(
+    TrainingPackSpot spot,
+    TrainingPackTemplate template,
+  ) async {
+    await BulkEvaluatorService()
+        .generateMissing(spot, anteBb: template.anteBb);
+    TemplateCoverageUtils.recountAll(template);
   }
 
   /// Classifies [mistakeCount] into a [MistakeSeverity] level.
