@@ -3533,7 +3533,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final icmCoverage = totalSpots == 0 ? 0.0 : icmCovered / totalSpots;
     final coverageWarningNeeded = evCoverage < 0.8 || icmCoverage < 0.8;
     final bothCoverage = evCoverage < icmCoverage ? evCoverage : icmCoverage;
-    final heroEvsAll = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
+    final heroEvsAll = [
+      for (final s in shown)
+        if (s.heroEv != null && !s.dirty) s.heroEv!
+    ];
     final avgEv = heroEvsAll.isEmpty
         ? null
         : heroEvsAll.reduce((a, b) => a + b) / heroEvsAll.length;
@@ -3686,18 +3689,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           final icm = widget.template.icmCovered;
                           final evPct = total == 0 ? 0 : (ev * 100 / total).round();
                           final icmPct = total == 0 ? 0 : (icm * 100 / total).round();
-                          return Text.rich(
-                            TextSpan(
-                              text: '$evPct% EV',
-                              children: [
-                                const TextSpan(text: ' • '),
-                                TextSpan(text: '$icmPct% ICM'),
+                          Color avgColor(double v) {
+                            if (v >= 0.5) return Colors.green;
+                            if (v <= -0.5) return Colors.red;
+                            return Colors.yellow;
+                          }
+                          return Row(
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  text: '$evPct% EV',
+                                  children: [
+                                    const TextSpan(text: ' • '),
+                                    TextSpan(text: '$icmPct% ICM'),
+                                  ],
+                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(color: Colors.white70),
+                              ),
+                              if (avgEv != null) ...[
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${avgEv! >= 0 ? '+' : ''}${avgEv!.toStringAsFixed(2)} BB',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(color: avgColor(avgEv!)),
+                                ),
                               ],
-                            ),
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(color: Colors.white70),
+                            ],
                           );
                         }),
                       ],
