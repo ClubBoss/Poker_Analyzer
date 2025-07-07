@@ -531,6 +531,26 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _generateExampleSpot() async {
     final variants = widget.template.playableVariants();
     if (variants.length != 1) return;
+    if (widget.template.spots.any((s) => s.dirty)) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: const Text(
+              'Discard unsaved changes and generate new spot?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      if (ok != true) return;
+    }
     setState(() => _generatingExample = true);
     try {
       final spot =
