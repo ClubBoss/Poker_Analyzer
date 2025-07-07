@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as p;
+
+const kPrefix = 'store/v1/';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
@@ -31,7 +34,7 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Bucket not specified');
     exit(1);
   }
-  if (!bucket.startsWith('gs://')) bucket = 'gs://$bucket';
+  bucket = bucket.replaceAll(RegExp(r'^gs://'), '').replaceAll(RegExp(r'/$'), '');
   final storage = FirebaseStorage.instanceFor(bucket: bucket);
   final manifestFile = File(p.join(dir.path, 'manifest.json'));
   if (!manifestFile.existsSync()) {
@@ -48,11 +51,18 @@ Future<void> main(List<String> args) async {
   var uploaded = 0;
   var skipped = 0;
   var errors = 0;
-  Future<void> handle(File file, Reference ref, String name, String type) async {
+  Future<void> handle(
+    File file,
+    Reference ref,
+    String name,
+    String type, {
+    String? encoding,
+  }) async {
     var same = false;
     try {
       final meta = await ref.getMetadata();
-      if (meta.size == file.lengthSync()) same = true;
+      final local = md5.convert(file.readAsBytesSync()).toString();
+      if (meta.md5Hash != null && meta.md5Hash == local) same = true;
     } catch (_) {}
     if (same) {
       stdout.writeln('[SKIP] $name  (unchanged)');
@@ -60,7 +70,7 @@ Future<void> main(List<String> args) async {
       return;
     }
     if (dry) {
-      stdout.writeln('[OK]  $name');
+      stdout.writeln('[DRY] $name');
       uploaded++;
       return;
     }
@@ -71,6 +81,7 @@ Future<void> main(List<String> args) async {
         SettableMetadata(
           cacheControl: 'public, max-age=86400',
           contentType: type,
+          contentEncoding: encoding,
         ),
       );
       stdout.writeln('[OK]  $name');
@@ -80,23 +91,28 @@ Future<void> main(List<String> args) async {
       errors++;
     }
   }
-  for (final name in pngNames) {
-    final file = File(p.join(dir.path, name));
-    if (!file.existsSync()) {
-      stdout.writeln('[ERROR] preview/$name  (missing)');
-      errors++;
-      continue;
-    }
-    final ref = storage.ref('preview/$name');
-    await handle(file, ref, 'preview/$name', 'image/png');
+  for (var i = 0; i < pngNames.length; i += 8) {
+    final batch = pngNames.skip(i).take(8).toList();
+    await Future.wait(batch.map((name) async {
+      final file = File(p.join(dir.path, name));
+      if (!file.existsSync()) {
+        stdout.writeln('[ERROR] ${kPrefix}preview/$name  (missing)');
+        errors++;
+        return;
+      }
+      final ref = storage.ref('${kPrefix}preview/$name');
+      await handle(file, ref, '${kPrefix}preview/$name', 'image/png');
+    }));
   }
   await handle(
     manifestFile,
-    storage.ref('manifest.json'),
-    'manifest.json',
+    storage.ref('${kPrefix}manifest.json'),
+    '${kPrefix}manifest.json',
     'application/json',
+    encoding: 'utf-8',
   );
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;
   stdout.writeln('Uploaded: $uploaded  |  Skipped: $skipped  |  Errors: $errors');
   stdout.writeln('Time: ${elapsed.toStringAsFixed(1)} s');
+  if (errors > 0) exitCode = 1;
 }
