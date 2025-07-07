@@ -5076,19 +5076,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                       setState(() => _tagFilter = tag);
                                       _storeTagFilter();
                                     },
-                                    onDuplicate: () {
-                                      final i = widget.template.spots.indexOf(spot);
-                                      if (i == -1) return;
-                                      final copy = spot.copyWith(
-                                        id: const Uuid().v4(),
-                                        editedAt: DateTime.now(),
-                                        hand: HandData.fromJson(spot.hand.toJson()),
-                                        tags: List.from(spot.tags),
-                                      );
-                                      setState(() => widget.template.spots.insert(i + 1, copy));
-                                      _persist();
-                                      _focusSpot(copy.id);
-                                    },
+                                    template: widget.template,
+                                    persist: _persist,
+                                    focusSpot: _focusSpot,
                                     onNewTap: _selectAllNew,
                                     onDupTap: _selectAllDuplicates,
                                     onPersist: _persist,
