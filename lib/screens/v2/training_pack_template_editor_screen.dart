@@ -60,6 +60,7 @@ import '../../widgets/markdown_preview_dialog.dart';
 import '../../main.dart';
 import '../../services/preview_cache_service.dart';
 import '../../widgets/snapshot_list_dialog.dart';
+import '../../services/evaluation_settings_service.dart';
 
 enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
@@ -3376,6 +3377,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     String rangeMode = 'simple';
     final rangeCtr = TextEditingController(text: _rangeStr);
     bool rangeErr = false;
+    final eval = EvaluationSettingsService.instance;
+    final thresholdCtr =
+        TextEditingController(text: eval.evThreshold.toStringAsFixed(2));
+    bool icm = eval.useIcm;
     final formKey = GlobalKey<FormState>();
     final ok = await showModalBottomSheet<bool>(
       context: context,
@@ -3474,6 +3479,26 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   final n = int.tryParse(v ?? '') ?? -1;
                   return n < 0 || n > 5 ? '' : null;
                 },
+              ),
+              TextFormField(
+                controller: thresholdCtr,
+                decoration: const InputDecoration(labelText: 'EV Threshold'),
+                keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true, signed: true),
+                onChanged: (v) => set(() {
+                  final val = double.tryParse(v) ?? eval.evThreshold;
+                  eval.update(threshold: val);
+                  this.setState(() {});
+                }),
+              ),
+              SwitchListTile(
+                title: const Text('ICM mode'),
+                value: icm,
+                onChanged: (v) => set(() {
+                  icm = v;
+                  eval.update(icm: v);
+                  this.setState(() {});
+                }),
               ),
               Row(
                 children: [
@@ -3619,6 +3644,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     countCtr.dispose();
     anteCtr.dispose();
     rangeCtr.dispose();
+    thresholdCtr.dispose();
   }
 
   @override
