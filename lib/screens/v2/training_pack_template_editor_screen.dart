@@ -405,11 +405,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ),
       ),
     );
+    try {
+      spot.dirty = false;
+      await context
+          .read<EvaluationExecutorService>()
+          .evaluateSingle(spot, anteBb: widget.template.anteBb);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Evaluation failed')));
+      }
+    }
+    if (!mounted) return;
     setState(() {
       if (_autoSortEv) _sortSpots();
     });
     await _persist();
-    setState(() => _log('Edited', spot));
+    if (mounted) setState(() => _log('Edited', spot));
   }
 
   Future<void> _persist() async {
@@ -4935,10 +4947,25 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                         ? Colors.yellow
                                         : (spot.evalResult!.correct ? null : Colors.red),
                                     onHandEdited: () {
-                                      setState(() {
-                                        if (_autoSortEv) _sortSpots();
-                                      });
-                                      _persist();
+                                      unawaited(() async {
+                                        try {
+                                          spot.dirty = false;
+                                          await context
+                                              .read<EvaluationExecutorService>()
+                                              .evaluateSingle(spot,
+                                                  anteBb: widget.template.anteBb);
+                                        } catch (_) {
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Evaluation failed')));
+                                          }
+                                        }
+                                        if (!mounted) return;
+                                        setState(() {
+                                          if (_autoSortEv) _sortSpots();
+                                        });
+                                        await _persist();
+                                      }());
                                     },
                                     onTagTap: (tag) async {
                                       setState(() => _tagFilter = tag);
