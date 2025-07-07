@@ -17,7 +17,6 @@ class PacksLibraryScreen extends StatefulWidget {
 
 class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final List<TrainingPackTemplate> _packs = [];
-  final Set<String> _newPacks = {};
   bool _loaded = false;
   String _query = '';
   String? _difficultyFilter;
@@ -49,12 +48,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         .where((e) => e.startsWith('assets/packs/') && e.endsWith('.json'));
     final list = <TrainingPackTemplate>[];
     for (final p in paths) {
-      final data = jsonDecode(await bundle.loadString(p));
-      if (data is Map<String, dynamic>) {
-        final tpl = TrainingPackTemplate.fromJson(data);
-        if (DateTime.now().difference(tpl.createdAt).inDays < 3) {
-          _newPacks.add(tpl.id);
-        }
+      final json = jsonDecode(await bundle.loadString(p));
+      if (json is Map<String, dynamic>) {
+        final tpl = TrainingPackTemplate.fromJson(json);
         list.add(tpl);
       }
     }
@@ -138,7 +134,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       itemCount: _filtered.length,
                       itemBuilder: (_, i) {
                         final t = _filtered[i];
-                        final isNew = _newPacks.contains(t.id);
+                        final isNew =
+                            DateTime.now().difference(t.createdAt).inDays < 3;
                         final total = t.spots.length;
                 final evDone =
                     t.spots.where((s) => s.heroEv != null && !s.dirty).length;
@@ -151,39 +148,41 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     : p >= 50
                         ? Colors.orange
                         : Colors.red;
-                return ListTile(
+                  return ListTile(
                   title: Row(
                     children: [
                       Expanded(child: Text(t.name)),
-                      if (t.difficulty != null)
-                        Container(
-                          margin: const EdgeInsets.only(left: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: t.difficulty == 'Beginner'
-                                ? Colors.green
-                                : t.difficulty == 'Intermediate'
-                                    ? Colors.orange
-                                    : t.difficulty == 'Advanced'
-                                        ? Colors.red
-                                        : Colors.grey,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            t.difficulty!,
-                            style: const TextStyle(fontSize: 10, color: Colors.white),
-                          ),
-                        ),
-                      if (isNew)
-                        Container(
-                          margin: const EdgeInsets.only(left: 8),
-                          child: const Chip(
-                            label: Text('NEW'),
-                            backgroundColor: Colors.yellow,
-                            visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: [
+                          if (t.difficulty != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: t.difficulty == 'Beginner'
+                                    ? Colors.green
+                                    : t.difficulty == 'Intermediate'
+                                        ? Colors.orange
+                                        : t.difficulty == 'Advanced'
+                                            ? Colors.red
+                                            : Colors.grey,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                t.difficulty!,
+                                style: const TextStyle(fontSize: 10, color: Colors.white),
+                              ),
+                            ),
+                          if (isNew)
+                            Chip(
+                              label: const Text('NEW'),
+                              backgroundColor: Colors.amber,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
                   subtitle: Text(t.description),
