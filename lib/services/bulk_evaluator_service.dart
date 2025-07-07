@@ -78,4 +78,10 @@ class BulkEvaluatorService {
     final res = await generateMissing(template, onProgress: onProgress);
     return res.length;
   }
+
+  int countMissing(TrainingPackTemplate template) {
+    return template.spots
+        .where((s) => s.heroEv == null || s.heroIcmEv == null || s.dirty)
+        .length;
+  }
 }
