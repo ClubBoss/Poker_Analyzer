@@ -405,7 +405,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         .addSpot(widget.original, _spots[_index]);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Saved to Mistake Review')),
+        const SnackBar(content: Text('Сохранено в Повторы ошибок')),
       );
     }
   }
@@ -463,13 +463,17 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         HapticFeedback.mediumImpact();
       }
       _showDiff(evDiff, icmDiff);
-      if ((evDiff != null && evDiff < 0) || (icmDiff != null && icmDiff < 0)) {
+      final incorrect =
+          (evDiff != null && evDiff < 0) ||
+          (icmDiff != null && icmDiff < 0) ||
+          !evaluation.correct;
+      if (incorrect && first) {
         await context
             .read<MistakeReviewPackService>()
             .addSpot(widget.original, spot);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Saved to Mistake Review')),
+            const SnackBar(content: Text('Сохранено в Повторы ошибок')),
           );
         }
       }
