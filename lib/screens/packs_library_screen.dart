@@ -113,7 +113,30 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         ? Colors.orange
                         : Colors.red;
                 return ListTile(
-                  title: Text(t.name),
+                  title: Row(
+                    children: [
+                      Expanded(child: Text(t.name)),
+                      if (t.difficulty != null)
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: t.difficulty == 'Beginner'
+                                ? Colors.green
+                                : t.difficulty == 'Intermediate'
+                                    ? Colors.orange
+                                    : t.difficulty == 'Advanced'
+                                        ? Colors.red
+                                        : Colors.grey,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            t.difficulty!,
+                            style: const TextStyle(fontSize: 10, color: Colors.white),
+                          ),
+                        ),
+                    ],
+                  ),
                   subtitle: Text(t.description),
                   leading: CircleAvatar(child: Text(total.toString())),
                   trailing: Row(
