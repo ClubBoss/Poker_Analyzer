@@ -16,6 +16,7 @@ import '../../helpers/hand_type_utils.dart';
 
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
+import '../../models/v2/training_pack_variant.dart';
 import '../../widgets/spot_quiz_widget.dart';
 import '../../widgets/common/explanation_text.dart';
 import '../../theme/app_colors.dart';
@@ -29,8 +30,15 @@ enum PlayOrder { sequential, random, mistakes }
 class TrainingPackPlayScreen extends StatefulWidget {
   final TrainingPackTemplate template;
   final TrainingPackTemplate original;
-  const TrainingPackPlayScreen({super.key, required this.template, TrainingPackTemplate? original})
-      : original = original ?? template;
+  final TrainingPackVariant? variant;
+  final List<TrainingPackSpot>? spots;
+  const TrainingPackPlayScreen({
+    super.key,
+    required this.template,
+    this.variant,
+    this.spots,
+    TrainingPackTemplate? original,
+  }) : original = original ?? template;
 
   @override
   State<TrainingPackPlayScreen> createState() => _TrainingPackPlayScreenState();
@@ -71,7 +79,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     final streetKey = 'tpl_street_${widget.template.id}';
     final handKey = 'tpl_hand_${widget.template.id}';
     final seq = prefs.getStringList(seqKey);
-    var spots = List<TrainingPackSpot>.from(widget.template.spots);
+    var spots = List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
     if (seq != null && seq.length == spots.length) {
       final map = {for (final s in spots) s.id: s};
       final ordered = <TrainingPackSpot>[];
@@ -166,7 +174,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   }
 
   Future<void> _startNew() async {
-    var spots = List<TrainingPackSpot>.from(widget.template.spots);
+    var spots = List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
     if (_order == PlayOrder.random) {
       spots.shuffle();
     } else if (_order == PlayOrder.mistakes) {
@@ -178,7 +186,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             ans != 'false' &&
             exp.toLowerCase() != ans.toLowerCase();
       }).toList();
-      if (spots.isEmpty) spots = List<TrainingPackSpot>.from(widget.template.spots);
+      if (spots.isEmpty) spots = List<TrainingPackSpot>.from(widget.spots ?? widget.template.spots);
     }
     setState(() {
       _spots = spots;
