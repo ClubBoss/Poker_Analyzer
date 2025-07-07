@@ -41,7 +41,8 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
       widget.variant,
       forceReload: widget.forceReload,
     );
-    if (_canceled || !mounted) return;
+    if (!mounted) return;
+    if (_canceled) return;
     final rootCtx = context;
     if (spots.isEmpty) {
       Navigator.pop(rootCtx);
@@ -52,7 +53,7 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
     }
     final playTpl = widget.template.copyWith(spots: spots);
     Navigator.pushReplacement(
-      context,
+      rootCtx,
       MaterialPageRoute(
         builder: (_) => TrainingPackPlayScreen(
           template: playTpl,
