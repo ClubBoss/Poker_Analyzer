@@ -101,8 +101,8 @@ class _TrainingPackSpotPreviewCardState
         break;
       }
     }
-    final double? heroEv = heroAct?.ev;
-    final double? heroIcmEv = heroAct?.icmEv;
+    final double? heroEv = spot.heroEv;
+    final double? heroIcmEv = spot.heroIcmEv;
     final borderColor = heroEv == null
         ? Colors.grey
         : (heroEv.abs() <= 0.01
@@ -133,12 +133,11 @@ class _TrainingPackSpotPreviewCardState
         .expand((e) => e)
         .where((a) => a.action != 'board' && !a.generated)
         .length;
-    final ev = spot.evalResult?.ev;
     Color? barColor;
-    if (ev != null) {
-      if (ev >= 0.5) {
+    if (heroEv != null) {
+      if (heroEv > 0.5) {
         barColor = Colors.green;
-      } else if (ev <= -0.5) {
+      } else if (heroEv < -0.5) {
         barColor = Colors.red;
       } else {
         barColor = Colors.yellow;
@@ -193,9 +192,11 @@ class _TrainingPackSpotPreviewCardState
                 Card(
                   margin: EdgeInsets.zero,
                   elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
@@ -407,6 +408,8 @@ class _TrainingPackSpotPreviewCardState
                 ],
               ),
             ),
+            if (barColor != null)
+              Container(height: 4, color: barColor),
           ),
           if (spot.pinned)
             Positioned(
