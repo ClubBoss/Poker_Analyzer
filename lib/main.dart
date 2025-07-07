@@ -66,6 +66,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 import 'helpers/training_pack_storage.dart';
 import 'screens/v2/training_pack_play_screen.dart';
+import 'core/error_logger.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -122,7 +123,11 @@ Future<void> main() async {
   await packCloud.syncDown(packStorage);
   await packCloud.syncDownTemplates(templateStorage);
   await packCloud.syncUpTemplates(templateStorage);
-  unawaited(AssetSyncService.instance.syncIfNeeded());
+  unawaited(
+    AssetSyncService.instance.syncIfNeeded().catchError(
+      (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
+    ),
+  );
   runApp(
     MultiProvider(
       providers: [
