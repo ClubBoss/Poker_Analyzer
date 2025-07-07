@@ -60,6 +60,7 @@ import 'services/mistake_streak_service.dart';
 import 'services/remote_config_service.dart';
 import 'services/theme_service.dart';
 import 'services/ab_test_engine.dart';
+import 'services/asset_sync_service.dart';
 import 'widgets/sync_status_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
@@ -121,6 +122,7 @@ Future<void> main() async {
   await packCloud.syncDown(packStorage);
   await packCloud.syncDownTemplates(templateStorage);
   await packCloud.syncUpTemplates(templateStorage);
+  unawaited(AssetSyncService.instance.syncIfNeeded());
   runApp(
     MultiProvider(
       providers: [
