@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../models/v2/hero_position.dart';
 import '../../models/action_entry.dart';
 import '../../screens/v2/hand_editor_screen.dart';
+import '../../services/evaluation_executor_service.dart';
 
 /// ***Only the new Stateful implementation below is kept.
 ///   The former Stateless version has been removed to avoid a duplicate-class error.***
@@ -430,7 +432,28 @@ class _TrainingPackSpotPreviewCardState
             Positioned(
               top: 4,
               right: 4,
-              child: const Icon(Icons.error_outline, color: Colors.redAccent),
+              child: GestureDetector(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text(
+                        'EV or ICM is missing or outdated',
+                      ),
+                      action: SnackBarAction(
+                        label: 'Fix',
+                        onPressed: () async {
+                          await context
+                              .read<EvaluationExecutorService>()
+                              .evaluateSingle(widget.spot);
+                          if (mounted) setState(() {});
+                        },
+                      ),
+                    ),
+                  );
+                },
+                child:
+                    const Icon(Icons.error_outline, color: Colors.redAccent),
+              ),
             ),
           if (spot.dirty)
             Positioned(
