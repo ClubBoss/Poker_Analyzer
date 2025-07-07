@@ -7,13 +7,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/error_logger.dart';
+import '../utils/asset_paths.dart';
 
 class AssetSyncService {
   AssetSyncService._();
   static final instance = AssetSyncService._();
   static const _tsKey = 'asset_sync_ts';
-  static const _prefix = 'store/v1/';
   static const kSyncInterval = Duration(hours: 24);
+  static const _prefix = kAssetPrefix;
 
   Future<void> syncIfNeeded() async {
     final prefs = await SharedPreferences.getInstance();
