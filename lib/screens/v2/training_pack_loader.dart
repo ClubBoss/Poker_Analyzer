@@ -20,10 +20,18 @@ class TrainingPackLoader extends StatefulWidget {
 }
 
 class _TrainingPackLoaderState extends State<TrainingPackLoader> {
+  bool _canceled = false;
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _canceled = true;
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -33,20 +41,21 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
       widget.variant,
       forceReload: widget.forceReload,
     );
-    if (!mounted) return;
+    if (_canceled || !mounted) return;
+    final rootCtx = context;
     if (spots.isEmpty) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
+      Navigator.pop(rootCtx);
+      ScaffoldMessenger.of(rootCtx).showSnackBar(
         const SnackBar(content: Text('Не удалось сгенерировать споты')),
       );
       return;
     }
-    widget.template.spots = spots;
+    final playTpl = widget.template.copyWith(spots: spots);
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => TrainingPackPlayScreen(
-          template: widget.template,
+          template: playTpl,
           original: widget.template,
           variant: widget.variant,
           spots: spots,
