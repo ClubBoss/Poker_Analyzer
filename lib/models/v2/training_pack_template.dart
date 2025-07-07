@@ -108,7 +108,8 @@ class TrainingPackTemplate {
       spots: spots ?? List<TrainingPackSpot>.from(this.spots),
       tags: tags ?? List<String>.from(this.tags),
       focusTags: focusTags ?? List<String>.from(this.focusTags),
-      focusHandTypes: focusHandTypes ?? List<FocusGoal>.from(this.focusHandTypes),
+      focusHandTypes:
+          focusHandTypes ?? List<FocusGoal>.from(this.focusHandTypes),
       heroBbStack: heroBbStack ?? this.heroBbStack,
       playerStacksBb: playerStacksBb ?? List<int>.from(this.playerStacksBb),
       heroPos: heroPos ?? this.heroPos,
@@ -141,7 +142,9 @@ class TrainingPackTemplate {
           TrainingPackSpot.fromJson(Map<String, dynamic>.from(s))
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
-      focusTags: [for (final t in (json['focusTags'] as List? ?? [])) t as String],
+      focusTags: [
+        for (final t in (json['focusTags'] as List? ?? [])) t as String
+      ],
       focusHandTypes: [
         for (final t in (json['focusHandTypes'] as List? ?? []))
           FocusGoal.fromJson(t)
@@ -173,7 +176,8 @@ class TrainingPackTemplate {
       isDraft: json['isDraft'] as bool? ?? false,
       png: json['png'] as String?,
     );
-    if (!tpl.meta.containsKey('evCovered') || !tpl.meta.containsKey('icmCovered')) {
+    if (!tpl.meta.containsKey('evCovered') ||
+        !tpl.meta.containsKey('icmCovered')) {
       TemplateCoverageUtils.recountAll(tpl);
     }
     return tpl;
@@ -238,6 +242,7 @@ class TrainingPackTemplate {
           kPositionOrder.indexOf(a).compareTo(kPositionOrder.indexOf(b)));
       return list;
     }
+
     final heroes = sort(heroSet);
     final opps = sort(oppSet);
     if (heroes.length == 1 && opps.isNotEmpty) {
@@ -322,6 +327,12 @@ class TrainingPackTemplate {
     return list;
   }
 
-  bool hasPlayableContent() => playableVariants().isNotEmpty;
+  Set<String> playableRangeIds() {
+    return {
+      for (final v in playableVariants())
+        if (v.rangeId != null) v.rangeId!
+    };
+  }
 
+  bool hasPlayableContent() => playableVariants().isNotEmpty;
 }
