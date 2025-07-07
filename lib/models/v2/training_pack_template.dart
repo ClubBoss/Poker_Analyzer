@@ -16,6 +16,7 @@ class TrainingPackTemplate {
   List<String> tags;
   List<String> focusTags;
   List<FocusGoal> focusHandTypes;
+  String? difficulty;
   int heroBbStack;
   List<int> playerStacksBb;
   HeroPosition heroPos;
@@ -44,6 +45,7 @@ class TrainingPackTemplate {
     List<String>? tags,
     List<String>? focusTags,
     List<FocusGoal>? focusHandTypes,
+    this.difficulty,
     this.heroBbStack = 10,
     List<int>? playerStacksBb,
     this.heroPos = HeroPosition.sb,
@@ -81,6 +83,7 @@ class TrainingPackTemplate {
     List<String>? tags,
     List<String>? focusTags,
     List<FocusGoal>? focusHandTypes,
+    String? difficulty,
     int? heroBbStack,
     List<int>? playerStacksBb,
     HeroPosition? heroPos,
@@ -110,6 +113,7 @@ class TrainingPackTemplate {
       focusTags: focusTags ?? List<String>.from(this.focusTags),
       focusHandTypes:
           focusHandTypes ?? List<FocusGoal>.from(this.focusHandTypes),
+      difficulty: difficulty ?? this.difficulty,
       heroBbStack: heroBbStack ?? this.heroBbStack,
       playerStacksBb: playerStacksBb ?? List<int>.from(this.playerStacksBb),
       heroPos: heroPos ?? this.heroPos,
@@ -149,6 +153,7 @@ class TrainingPackTemplate {
         for (final t in (json['focusHandTypes'] as List? ?? []))
           FocusGoal.fromJson(t)
       ],
+      difficulty: json['difficulty'] as String?,
       heroBbStack: json['heroBbStack'] as int? ?? 10,
       playerStacksBb: [
         for (final v in (json['playerStacksBb'] as List? ?? [10, 10]))
@@ -194,6 +199,7 @@ class TrainingPackTemplate {
         if (focusHandTypes.isNotEmpty)
           'focusHandTypes': [for (final g in focusHandTypes) g.toString()],
         if (heroRange != null) 'heroRange': heroRange,
+        if (difficulty != null) 'difficulty': difficulty,
         'heroBbStack': heroBbStack,
         'playerStacksBb': playerStacksBb,
         'heroPos': heroPos.name,
