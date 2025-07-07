@@ -3675,6 +3675,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final totalSpots = shown.length;
     final mistakeCount =
         widget.template.spots.where((s) => s.tags.contains('Mistake')).length;
+    final mistakeFree =
+        shown.where((s) => !s.tags.contains('Mistake')).length;
+    final mistakePct = totalSpots == 0 ? 0 : mistakeFree / totalSpots;
     final evCovered = shown.where((s) => s.heroEv != null && !s.dirty).length;
     final icmCovered = shown.where((s) => s.heroIcmEv != null && !s.dirty).length;
     final evCoverage = totalSpots == 0 ? 0.0 : evCovered / totalSpots;
@@ -4623,6 +4626,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                         minHeight: 4,
                       ),
                     ],
+                  ),
+                  LinearProgressIndicator(
+                    value: mistakePct,
+                    color: Colors.redAccent,
+                    backgroundColor: Colors.transparent,
+                    minHeight: 4,
                   ),
                   const SizedBox(height: 16),
             if (coverageWarningNeeded) ...[
