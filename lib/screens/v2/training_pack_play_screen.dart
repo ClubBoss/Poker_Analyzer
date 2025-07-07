@@ -538,7 +538,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
 
       if (!mounted) return;
     }
-    await _next();
+    if (!_autoAdvance) await _next();
   }
 
   @override
@@ -583,6 +583,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             onPressed: _saveCurrentSpot,
           ),
           IconButton(
+            tooltip:
+                _autoAdvance ? 'Авто-переход включён' : 'Авто-переход выключён',
             icon: Icon(_autoAdvance ? Icons.pause : Icons.play_arrow),
             onPressed: () => setState(() => _autoAdvance = !_autoAdvance),
           ),
