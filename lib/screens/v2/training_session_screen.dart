@@ -100,12 +100,37 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         return;
       }
     }
+    final firstUnsolved = spots.indexWhere(
+        (p) => p.heroEv == null || p.heroIcmEv == null);
+    if (firstUnsolved == -1) {
+      final review = await showDialog<bool>(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: const Text('Everything in this pack is solved.\nReview mistakes instead?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Review Mistakes'),
+            )
+          ],
+        ),
+      );
+      if (review == true) {
+        _mistakesOnly = true;
+        await _start();
+      } else {
+        Navigator.pop(context);
+      }
+      return;
+    }
     setState(() {
       _packSpots = spots;
       _spots = [for (final s in _packSpots) _toSpot(s)];
-      final idx = _packSpots.indexWhere(
-          (p) => p.heroEv == null || p.heroIcmEv == null);
-      _index = idx == -1 ? 0 : idx;
+      _index = firstUnsolved;
       _correct = 0;
     });
     _initialMistakes = {

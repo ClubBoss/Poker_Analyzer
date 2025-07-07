@@ -177,6 +177,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     t.spots.where((s) => s.heroEv != null && !s.dirty).length;
                 final icmDone =
                     t.spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
+                final solvedAll = t.spots.every(
+                    (s) => s.heroEv != null && s.heroIcmEv != null);
                 double pct(int done) =>
                     total == 0 ? 0 : done * 100 / total;
                 Color col(double p) => p >= 80
@@ -226,7 +228,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     children: [
                       if (t.lastTrainedAt != null)
                         Text(
-                          'Trained ${timeago.format(t.lastTrainedAt!)}',
+                          'Trained ${timeago.format(t.lastTrainedAt!, locale: 'en_short')}',
                           style: const TextStyle(
                               fontSize: 11, color: Colors.white54),
                         ),
@@ -248,15 +250,17 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.play_circle_fill),
-                        tooltip: 'Resume',
-                        onPressed: () async {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => TrainingSessionScreen(template: t),
-                            ),
-                          );
-                        },
+                        tooltip: solvedAll ? 'All solved' : 'Resume',
+                        onPressed: solvedAll
+                            ? null
+                            : () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => TrainingSessionScreen(template: t),
+                                  ),
+                                );
+                              },
                       ),
                       PopupMenuButton<String>(
                         onSelected: (v) {
