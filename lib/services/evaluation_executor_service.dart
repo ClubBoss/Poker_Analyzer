@@ -380,6 +380,12 @@ class EvaluationExecutorService implements EvaluationExecutor {
       evThreshold: settings.evThreshold,
       useIcm: settings.useIcm,
     );
+    final hadTag = spot.tags.contains('Mistake');
+    if (spot.evalResult != null && !spot.evalResult!.correct && !hadTag) {
+      spot.tags.add('Mistake');
+    } else if (spot.evalResult != null && spot.evalResult!.correct && hadTag) {
+      spot.tags.remove('Mistake');
+    }
     if (template != null) {
       TemplateCoverageUtils.recountAll(template);
       final changed = prev == null ||
@@ -387,7 +393,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
             prev.toJson(),
             spot.evalResult!.toJson(),
           );
-      if (changed) {
+      final tagChanged = hadTag != spot.tags.contains('Mistake');
+      if (changed || tagChanged) {
         await TrainingPackStorage.save([template]);
       }
     }
