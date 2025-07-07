@@ -481,6 +481,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       setState(() => widget.template.spots.add(spot));
       await _persist();
       setState(() => _log('Added', spot));
+      try {
+        await context
+            .read<EvaluationExecutorService>()
+            .evaluateSingle(spot, widget.template);
+        await _persist();
+        if (mounted) setState(() {});
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Evaluation failed')));
+        }
+      }
       await _openEditor(spot);
     } catch (e) {
       if (mounted) {
