@@ -158,6 +158,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _evaluatingAll = false;
   bool _generatingAll = false;
   bool _generatingIcm = false;
+  bool _generatingExample = false;
   bool _calculatingMissing = false;
   double _calcProgress = 0;
   bool _cancelRequested = false;
@@ -472,11 +473,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Future<void> _generateExampleSpot() async {
     final variants = widget.template.playableVariants();
     if (variants.length != 1) return;
-    final spot = await PackGeneratorService.generateExampleSpot(variants.first);
-    setState(() => widget.template.spots.add(spot));
-    await _persist();
-    setState(() => _log('Added', spot));
-    await _openEditor(spot);
+    setState(() => _generatingExample = true);
+    try {
+      final spot =
+          await PackGeneratorService.generateExampleSpot(widget.template, variants.first);
+      if (!mounted) return;
+      setState(() => widget.template.spots.add(spot));
+      await _persist();
+      setState(() => _log('Added', spot));
+      await _openEditor(spot);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to generate: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _generatingExample = false);
+    }
   }
 
   Future<void> _generateSpots() async {
@@ -4080,8 +4093,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           : showExample
               ? FloatingActionButton.extended(
                   heroTag: 'exampleFab',
-                  onPressed: _generateExampleSpot,
-                  icon: const Icon(Icons.auto_fix_high),
+                  onPressed: _generatingExample ? null : _generateExampleSpot,
+                  icon: _generatingExample
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.auto_fix_high),
                   label: const Text('Generate Example Spot'),
                 )
               : null,
@@ -5026,8 +5045,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                     children: [
                       if (showExample) ...[
                         ElevatedButton.icon(
-                          onPressed: _generateExampleSpot,
-                          icon: const Icon(Icons.auto_fix_high),
+                          onPressed:
+                              _generatingExample ? null : _generateExampleSpot,
+                          icon: _generatingExample
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.auto_fix_high),
                           label: const Text('Example'),
                         ),
                         const SizedBox(width: 12),

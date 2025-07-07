@@ -318,7 +318,7 @@ class PackGeneratorService {
   }
 
   static Future<TrainingPackSpot> generateExampleSpot(
-      TrainingPackVariant variant) async {
+      TrainingPackTemplate template, TrainingPackVariant variant) async {
     var range = <String>[];
     if (variant.rangeId != null) {
       range = await RangeLibraryService.instance.getRange(variant.rangeId!);
@@ -327,17 +327,46 @@ class PackGeneratorService {
       range = topNHands(25).toList();
     }
     final hand = range.first;
-    final tpl = generatePushFoldPackSync(
+    final pos =
+        variant.position == HeroPosition.unknown ? template.heroPos : variant.position;
+    switch (variant.gameType) {
+      case GameType.tournament:
+        final tpl = generatePushFoldPackSync(
+          id: const Uuid().v4(),
+          name: 'Example',
+          heroBbStack: 10,
+          playerStacksBb: const [10, 10],
+          heroPos: pos,
+          heroRange: [hand],
+          anteBb: 0,
+          bbCallPct: 20,
+        );
+        return tpl.spots.first;
+      case GameType.cash:
+        return _generateCashExample(pos, hand);
+    }
+  }
+
+  static TrainingPackSpot _generateCashExample(HeroPosition pos, String hand) {
+    final stacks = {'0': 100.0, '1': 100.0};
+    final actions = {
+      0: [
+        ActionEntry(0, 0, 'raise', amount: 3),
+        ActionEntry(0, 1, 'call', amount: 3),
+      ]
+    };
+    return TrainingPackSpot(
       id: const Uuid().v4(),
-      name: 'Example',
-      heroBbStack: 10,
-      playerStacksBb: const [10, 10],
-      heroPos:
-          variant.position == HeroPosition.unknown ? HeroPosition.sb : variant.position,
-      heroRange: [hand],
-      anteBb: 0,
-      bbCallPct: 20,
+      title: 'Example',
+      hand: HandData(
+        heroCards: _firstCombo(hand),
+        position: pos,
+        heroIndex: 0,
+        playerCount: 2,
+        stacks: stacks,
+        actions: actions,
+      ),
+      tags: const ['cash'],
     );
-    return tpl.spots.first;
   }
 }
