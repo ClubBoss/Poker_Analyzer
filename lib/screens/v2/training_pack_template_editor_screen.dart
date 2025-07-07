@@ -433,7 +433,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       spot.dirty = false;
       await context
           .read<EvaluationExecutorService>()
-          .evaluateSingle(spot, anteBb: widget.template.anteBb);
+          .evaluateSingle(
+            spot,
+            template: widget.template,
+            anteBb: widget.template.anteBb,
+          );
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -617,7 +621,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       try {
         await context
             .read<EvaluationExecutorService>()
-            .evaluateSingle(spot, widget.template);
+            .evaluateSingle(
+              spot,
+              template: widget.template,
+              anteBb: widget.template.anteBb,
+            );
         await _persist();
         if (mounted) setState(() {});
       } catch (_) {
@@ -5164,8 +5172,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                           spot.dirty = false;
                                           await context
                                               .read<EvaluationExecutorService>()
-                                              .evaluateSingle(spot,
-                                                  anteBb: widget.template.anteBb);
+                                              .evaluateSingle(
+                                                spot,
+                                                template: widget.template,
+                                                anteBb: widget.template.anteBb,
+                                              );
                                         } catch (_) {
                                           if (mounted) {
                                             ScaffoldMessenger.of(context).showSnackBar(

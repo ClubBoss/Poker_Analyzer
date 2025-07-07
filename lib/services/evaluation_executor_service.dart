@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 
 import '../models/action_evaluation_request.dart';
 import '../models/evaluation_result.dart';
@@ -19,6 +20,9 @@ import 'training_stats_service.dart';
 import '../models/v2/training_pack_template.dart';
 import 'bulk_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
+import '../helpers/training_pack_storage.dart';
+import '../services/evaluation_logic_service.dart';
+import '../models/evaluation_mode.dart';
 
 /// Interface for evaluation execution logic.
 abstract class EvaluationExecutor {
@@ -362,12 +366,29 @@ class EvaluationExecutorService implements EvaluationExecutor {
   }
 
   Future<void> evaluateSingle(
-    TrainingPackSpot spot,
-    TrainingPackTemplate template,
-  ) async {
-    await BulkEvaluatorService()
-        .generateMissing(spot, anteBb: template.anteBb);
-    TemplateCoverageUtils.recountAll(template);
+    TrainingPackSpot spot, {
+    TrainingPackTemplate? template,
+    int anteBb = 0,
+    EvaluationMode mode = EvaluationMode.ev,
+  }) async {
+    await BulkEvaluatorService().generateMissing(spot, anteBb: anteBb);
+    final prev = spot.evalResult;
+    spot.evalResult = EvaluationLogicService.evaluateDecision(
+      spot,
+      evThreshold: -0.01,
+      useIcm: mode == EvaluationMode.icm,
+    );
+    if (template != null) {
+      TemplateCoverageUtils.recountAll(template);
+      final changed = prev == null ||
+          !const DeepCollectionEquality().equals(
+            prev.toJson(),
+            spot.evalResult!.toJson(),
+          );
+      if (changed) {
+        await TrainingPackStorage.save([template]);
+      }
+    }
   }
 
   /// Classifies [mistakeCount] into a [MistakeSeverity] level.
