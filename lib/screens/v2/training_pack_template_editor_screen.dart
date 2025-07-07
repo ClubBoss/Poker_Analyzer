@@ -19,6 +19,7 @@ import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/training_pack_spot.dart';
 import '../../models/v2/focus_goal.dart';
 import '../../services/template_undo_redo_service.dart';
+import '../../models/template_snapshot.dart';
 import 'package:collection/collection.dart';
 import '../../models/game_type.dart';
 import '../../helpers/training_pack_storage.dart';
@@ -173,6 +174,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Timer? _importTimer;
   List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
+  List<TemplateSnapshot> _snapshots = [];
   bool _loadingEval = false;
   double _scrollProgress = 0;
   bool _showScrollIndicator = false;
@@ -454,6 +456,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
 
   void _saveOnly() {
     TrainingPackStorage.save(widget.templates);
+  }
+
+  Future<void> _saveSnapshots() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'tpl_snapshots_${widget.template.id}',
+      jsonEncode([for (final s in _snapshots) s.toJson()]),
+    );
+  }
+
+  Future<void> _saveSnapshotAction() async {
+    final c = TextEditingController();
+    final comment = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Save Snapshot'),
+        content: TextField(controller: c, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, c.text.trim()), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (comment == null) return;
+    final snap = _history.saveSnapshot(widget.template.spots, comment);
+    setState(() => _snapshots.add(snap));
+    await _saveSnapshots();
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Snapshot saved')));
+    }
   }
 
   Future<void> _undo() async {
@@ -1067,6 +1100,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final newOnly = prefs.getBool(_prefsNewOnlyKey) ?? false;
       final preview = prefs.getBool(_prefsPreviewModeKey) ?? false;
       final png = prefs.getBool(_prefsPreviewJsonPngKey) ?? false;
+      final snapsRaw = prefs.getString('tpl_snapshots_${widget.template.id}');
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
         final parts = rangeStr.split(',');
@@ -1077,6 +1111,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             range = RangeValues(start, end);
           }
         }
+      }
+      List<TemplateSnapshot> snaps = [];
+      if (snapsRaw != null) {
+        try {
+          final list = jsonDecode(snapsRaw) as List;
+          snaps = [
+            for (final s in list)
+              TemplateSnapshot.fromJson(Map<String, dynamic>.from(s as Map))
+          ];
+        } catch (_) {}
       }
       SortBy sort = SortBy.manual;
       if (sortStr != null) {
@@ -1099,9 +1143,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _duplicatesOnly = dupOnly;
           _pinnedOnly = pinnedOnly;
           _newOnly = newOnly;
-      _previewMode = preview;
-      _previewJsonPng = png;
-      _loadPreview();
+          _snapshots = snaps;
+          _previewMode = preview;
+          _previewJsonPng = png;
+          _loadPreview();
       if (mode2 != null) {
             for (final v in SortMode.values) {
               if (v.name == mode2) _sortMode = v;
@@ -3836,6 +3881,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             icon: const Text('🔄'),
             tooltip: 'Jump to last change',
             onPressed: _jumpToLastChange,
+          ),
+          IconButton(
+            icon: const Icon(Icons.bookmark_add),
+            tooltip: 'Save Snapshot',
+            onPressed: _saveSnapshotAction,
           ),
           if (_showPasteBubble &&
               widget.template.spots.any((s) => s.isNew))

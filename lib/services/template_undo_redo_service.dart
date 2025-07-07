@@ -1,4 +1,5 @@
 import "../models/v2/training_pack_spot.dart";
+import '../models/template_snapshot.dart';
 
 class ChangeEntry {
   final String action;
@@ -14,6 +15,7 @@ class UndoRedoService {
   final List<List<TrainingPackSpot>> _undo = [];
   final List<List<TrainingPackSpot>> _redo = [];
   final List<ChangeEntry> _events = [];
+  final List<TemplateSnapshot> _snapshots = [];
   UndoRedoService({this.limit = 30, this.eventsLimit = 50});
 
   bool get canUndo => _undo.isNotEmpty;
@@ -50,6 +52,14 @@ class UndoRedoService {
   }
 
   List<ChangeEntry> get history => List.unmodifiable(_events.reversed);
+
+  List<TemplateSnapshot> get snapshots => List.unmodifiable(_snapshots);
+
+  TemplateSnapshot saveSnapshot(List<TrainingPackSpot> spots, String comment) {
+    final snap = TemplateSnapshot(comment: comment, spots: _clone(spots));
+    _snapshots.add(snap);
+    return snap;
+  }
 
   List<TrainingPackSpot> _clone(List<TrainingPackSpot> src) =>
       [for (final s in src) TrainingPackSpot.fromJson(s.toJson())];
