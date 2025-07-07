@@ -145,6 +145,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   RangeValues _evRange = const RangeValues(-5, 5);
   bool _evAsc = false;
   bool _sortEvAsc = false;
+  bool _mistakeFirst = false;
   SpotSort _spotSort = SpotSort.original;
   SortMode _sortMode = SortMode.position;
   static const _quickFilters = [
@@ -359,6 +360,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     if (_sortEvAsc) {
       list.sort((a, b) => (a.heroEv ?? 0).compareTo(b.heroEv ?? 0));
+    }
+    if (_mistakeFirst) {
+      final m = [for (final s in list) if (s.tags.contains('Mistake')) s];
+      final o = [for (final s in list) if (!s.tags.contains('Mistake')) s];
+      list = [...m, ...o];
     }
     return list;
   }
@@ -3900,6 +3906,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           selected: _filterMistakes,
                           onSelected: (_) =>
                               setState(() => _filterMistakes = !_filterMistakes),
+                        ),
+                        const SizedBox(width: 8),
+                        FilterChip(
+                          label: const Text('Mistakes ↑'),
+                          selected: _mistakeFirst,
+                          onSelected: (_) =>
+                              setState(() => _mistakeFirst = !_mistakeFirst),
                         ),
                         const SizedBox(width: 8),
                         FilterChip(
