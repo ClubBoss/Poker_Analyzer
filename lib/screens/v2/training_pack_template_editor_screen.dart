@@ -45,6 +45,7 @@ import '../../services/png_exporter.dart';
 import '../../widgets/range_matrix_picker.dart';
 import '../../services/evaluation_executor_service.dart';
 import '../../services/pack_generator_service.dart';
+import '../../models/v2/training_pack_variant.dart';
 import '../../services/training_pack_template_ui_service.dart';
 import '../../services/bulk_evaluator_service.dart';
 import '../../services/offline_evaluator_service.dart';
@@ -462,6 +463,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       id: const Uuid().v4(),
       title: 'New Spot',
     );
+    setState(() => widget.template.spots.add(spot));
+    await _persist();
+    setState(() => _log('Added', spot));
+    await _openEditor(spot);
+  }
+
+  Future<void> _generateExampleSpot() async {
+    final variants = widget.template.playableVariants();
+    if (variants.length != 1) return;
+    final spot = await PackGeneratorService.generateExampleSpot(variants.first);
     setState(() => widget.template.spots.add(spot));
     await _persist();
     setState(() => _log('Added', spot));
@@ -3426,6 +3437,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
     final narrow = MediaQuery.of(context).size.width < 400;
     final hasSpots = widget.template.spots.isNotEmpty;
+    final variants = widget.template.playableVariants();
+    final showExample = !hasSpots && variants.length == 1;
     final shown = _visibleSpots();
     final chipVals = [for (final s in shown) if (s.heroEv != null) s.heroEv!];
     final icmVals = [for (final s in shown) if (s.heroIcmEv != null) s.heroIcmEv!];
@@ -4064,7 +4077,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 ),
               ],
             )
-          : null,
+          : showExample
+              ? FloatingActionButton.extended(
+                  heroTag: 'exampleFab',
+                  onPressed: _generateExampleSpot,
+                  icon: const Icon(Icons.auto_fix_high),
+                  label: const Text('Generate Example Spot'),
+                )
+              : null,
       bottomNavigationBar:
           ((_showScrollIndicator && !_previewMode) || (hasSpots && _isMultiSelect))
               ? Column(
@@ -4994,14 +5014,24 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       children: [
                   const Icon(Icons.lightbulb_outline, size: 96, color: Colors.grey),
                   const SizedBox(height: 16),
-                  const Text(
-                    'This pack is empty. Tap + to add your first spot or 📋 to paste from JSON',
+                  Text(
+                    showExample
+                        ? 'This pack is empty. Tap + to add a spot, 📋 to paste from JSON or use the wand to generate an example'
+                        : 'This pack is empty. Tap + to add your first spot or 📋 to paste from JSON',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      if (showExample) ...[
+                        ElevatedButton.icon(
+                          onPressed: _generateExampleSpot,
+                          icon: const Icon(Icons.auto_fix_high),
+                          label: const Text('Example'),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
                       ElevatedButton.icon(
                         onPressed: _addSpot,
                         icon: const Icon(Icons.add),

@@ -3,11 +3,14 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_preset.dart';
+import '../models/v2/training_pack_variant.dart';
 import '../models/action_entry.dart';
 import '../models/game_type.dart';
 import 'push_fold_ev_service.dart';
 import 'icm_push_ev_service.dart';
 import '../utils/template_coverage_utils.dart';
+import 'range_library_service.dart';
+import 'package:uuid/uuid.dart';
 
 class PackGeneratorService {
   static const _ranks = [
@@ -312,5 +315,29 @@ class PackGeneratorService {
     );
     TemplateCoverageUtils.recountAll(tpl);
     return tpl;
+  }
+
+  static Future<TrainingPackSpot> generateExampleSpot(
+      TrainingPackVariant variant) async {
+    var range = <String>[];
+    if (variant.rangeId != null) {
+      range = await RangeLibraryService.instance.getRange(variant.rangeId!);
+    }
+    if (range.isEmpty) {
+      range = topNHands(25).toList();
+    }
+    final hand = range.first;
+    final tpl = generatePushFoldPackSync(
+      id: const Uuid().v4(),
+      name: 'Example',
+      heroBbStack: 10,
+      playerStacksBb: const [10, 10],
+      heroPos:
+          variant.position == HeroPosition.unknown ? HeroPosition.sb : variant.position,
+      heroRange: [hand],
+      anteBb: 0,
+      bbCallPct: 20,
+    );
+    return tpl.spots.first;
   }
 }
