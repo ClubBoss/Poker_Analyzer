@@ -2789,6 +2789,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  Future<void> _startTraining() async {
+    final spot = widget.template.spots
+        .firstWhereOrNull((s) => s.heroEv == null || s.heroIcmEv == null);
+    if (spot == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('All spots solved')));
+      return;
+    }
+    final evalSpot = _toSpot(spot);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SpotSolveScreen(spot: evalSpot, template: widget.template),
+      ),
+    );
+  }
+
   Future<void> _bulkDelete() async {
     final count = _selectedSpotIds.length;
     if (count == 0) return;
@@ -4040,6 +4057,9 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               ),
         actions: widget.readOnly
             ? [
+                IconButton(
+                    onPressed: _startTraining,
+                    icon: const Text('Start Training')),
                 TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
               ]
             : [
@@ -4325,11 +4345,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ),
         IconButton(icon: const Icon(Icons.save), onPressed: _save),
         IconButton(icon: const Icon(Icons.description), onPressed: _showMarkdownPreview),
-        IconButton(
-          icon: const Icon(Icons.picture_as_pdf),
-          onPressed: () async {
-            try {
-              final file =
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: () async {
+              try {
+                final file =
                     await PackExportService.exportToPdf(widget.template);
                 if (!mounted) return;
                 await FileSaverService.instance.sharePdf(file.path);
@@ -4342,7 +4362,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                 }
               }
             },
-          )
+          ),
+          IconButton(
+              onPressed: _startTraining,
+              icon: const Text('Start Training'))
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight + 48),
