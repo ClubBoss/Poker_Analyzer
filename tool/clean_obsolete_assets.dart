@@ -9,7 +9,8 @@ const kPrefix = 'store/v1/';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
-    stderr.writeln('Usage: dart run tool/clean_obsolete_assets.dart <assetsDir> [--bucket=bucket-name] [--dry]');
+    stderr.writeln(
+        'Usage: dart run tool/clean_obsolete_assets.dart <assetsDir> [--bucket=bucket-name] [--dry]');
     exit(1);
   }
   final dir = Directory(args.first);
@@ -19,11 +20,14 @@ Future<void> main(List<String> args) async {
   }
   String? bucket;
   var dry = false;
+  var verbose = false;
   for (final a in args.skip(1)) {
     if (a.startsWith('--bucket=')) {
       bucket = a.substring(9);
     } else if (a == '--dry') {
       dry = true;
+    } else if (a == '--verbose') {
+      verbose = true;
     }
   }
   await Firebase.initializeApp();
@@ -32,7 +36,8 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Bucket not specified');
     exit(1);
   }
-  bucket = bucket.replaceAll(RegExp(r'^gs://'), '').replaceAll(RegExp(r'/$'), '');
+  bucket =
+      bucket.replaceAll(RegExp(r'^gs://'), '').replaceAll(RegExp(r'/$'), '');
   final storage = FirebaseStorage.instanceFor(bucket: bucket);
 
   final manifestFile = File(p.join(dir.path, 'manifest.json'));
@@ -41,10 +46,15 @@ Future<void> main(List<String> args) async {
     exit(1);
   }
   final manifest = jsonDecode(await manifestFile.readAsString()) as List;
-  final keep = <String>{'${kPrefix}manifest.json'};
+  final keep = <String>{
+    storage.ref('${kPrefix}manifest.json').fullPath,
+  };
+  final manifestRegex = RegExp(r"manifest.*\.json$");
   for (final item in manifest) {
     final name = (item as Map<String, dynamic>)['png'] as String?;
-    if (name != null) keep.add('${kPrefix}preview/$name');
+    if (name != null) {
+      keep.add(storage.ref('$kPrefix/preview/$name').fullPath);
+    }
   }
 
   stdout.writeln('Fetching remote files…');
@@ -52,30 +62,37 @@ Future<void> main(List<String> args) async {
   final remote = <Reference>[];
   while (queue.isNotEmpty) {
     final ref = queue.removeLast();
-    final res = await ref.listAll();
-    remote.addAll(res.items);
-    queue.addAll(res.prefixes);
+    String? token;
+    do {
+      final res =
+          await ref.list(ListOptions(maxResults: 1000, pageToken: token));
+      remote.addAll(res.items);
+      queue.addAll(res.prefixes);
+      token = res.nextPageToken;
+    } while (token != null);
   }
   final start = DateTime.now();
   var deleted = 0;
   var skipped = 0;
   var errors = 0;
-  for (final ref in remote) {
+  var wouldDelete = 0;
+  Future<void> handle(Reference ref) async {
     final path = ref.fullPath;
     final lower = path.toLowerCase();
     final isPng = lower.endsWith('.png');
     final isJson = lower.endsWith('.json');
-    final keepIt = keep.contains(path);
-    final shouldDelete = (isPng && !keepIt) || (isJson && path != '${kPrefix}manifest.json');
+    final isManifest = manifestRegex.hasMatch(p.basename(lower));
+    final keepIt = keep.contains(path) || isManifest;
+    final shouldDelete = (isPng || isJson) && !keepIt;
     if (!shouldDelete) {
-      stdout.writeln('[SKIP] $path');
+      if (verbose) stdout.writeln('[SKIP] $path');
       skipped++;
-      continue;
+      return;
     }
     if (dry) {
       stdout.writeln('[DRY] $path');
-      deleted++;
-      continue;
+      wouldDelete++;
+      return;
     }
     try {
       await ref.delete();
@@ -86,8 +103,14 @@ Future<void> main(List<String> args) async {
       errors++;
     }
   }
+
+  for (var i = 0; i < remote.length; i += 8) {
+    final batch = remote.skip(i).take(8).toList();
+    await Future.wait(batch.map(handle));
+  }
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;
-  stdout.writeln('Deleted: $deleted  |  Skipped: $skipped  |  Errors: $errors');
+  stdout.writeln(
+      'Deleted: $deleted${dry ? '  |  Would delete: $wouldDelete' : ''}  |  Skipped: $skipped  |  Errors: $errors');
   stdout.writeln('Time: ${elapsed.toStringAsFixed(1)} s');
   if (errors > 0) exitCode = 1;
 }
