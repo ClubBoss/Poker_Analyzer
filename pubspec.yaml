@@ -78,6 +78,7 @@ flutter:
     - assets/spots/spots.json
     - assets/training_packs/
     - assets/training_templates/
+    - assets/ranges/
 
 # Release build configuration for the demo entry point. Run
 # `flutter build apk --target=main.dart` to compile the demo
