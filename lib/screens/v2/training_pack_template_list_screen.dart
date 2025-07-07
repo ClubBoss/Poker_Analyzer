@@ -34,13 +34,13 @@ import '../../services/training_session_service.dart';
 import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
 import 'training_pack_play_screen.dart';
+import 'training_pack_loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/mistake_review_pack_service.dart';
 import '../../services/mixed_drill_history_service.dart';
 import '../../models/mixed_drill_stat.dart';
 import '../../services/bulk_evaluator_service.dart';
 import '../../services/offline_evaluator_service.dart';
-import '../../services/training_pack_play_service.dart';
 import '../../services/pack_runtime_builder.dart';
 import '../../services/range_library_service.dart';
 import '../../services/theme_service.dart';
@@ -700,28 +700,13 @@ class _TrainingPackTemplateListScreenState
 
   Future<void> _startVariant(TrainingPackTemplate tpl, TrainingPackVariant v,
       {bool force = false}) async {
-    final service = TrainingPackPlayService();
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
-    final spots = await service.loadSpots(tpl, v, forceReload: force);
-    if (!mounted) return;
-    Navigator.pop(context);
-    if (spots.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось сгенерировать споты')));
-      return;
-    }
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingPackPlayScreen(
-          template: tpl.copyWith(spots: spots),
-          original: tpl,
+        builder: (_) => TrainingPackLoader(
+          template: tpl,
           variant: v,
-          spots: spots,
+          forceReload: force,
         ),
       ),
     );
