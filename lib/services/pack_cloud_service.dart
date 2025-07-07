@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32,5 +33,22 @@ class PackCloudService {
           'bundle': bytes,
         }));
     return true;
+  }
+
+  Future<List<Map<String, dynamic>>> listBundles() async {
+    final snap =
+        await CloudRetryPolicy.execute(() => _db.collection('bundles').get());
+    return [for (final d in snap.docs) {...d.data(), 'id': d.id}];
+  }
+
+  Future<Uint8List?> downloadBundle(String id) async {
+    final doc = await CloudRetryPolicy.execute(
+        () => _db.collection('bundles').doc(id).get());
+    if (!doc.exists) return null;
+    final data = doc.data();
+    final bytes = data?['bundle'];
+    if (bytes is Uint8List) return bytes;
+    if (bytes is List<int>) return Uint8List.fromList(bytes);
+    return null;
   }
 }
