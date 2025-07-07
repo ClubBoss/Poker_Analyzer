@@ -49,7 +49,12 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
         list.add(TrainingPackTemplate.fromJson(data));
       }
     }
-    list.sort((a, b) => a.name.compareTo(b.name));
+    list.sort((a, b) {
+      final aCov = a.evCovered + a.icmCovered;
+      final bCov = b.evCovered + b.icmCovered;
+      final cmpDate = b.createdAt.compareTo(a.createdAt);
+      return cmpDate != 0 ? cmpDate : bCov.compareTo(aCov);
+    });
     if (mounted) setState(() => _packs.addAll(list));
   }
 
