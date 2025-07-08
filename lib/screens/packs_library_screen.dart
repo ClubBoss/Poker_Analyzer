@@ -7,6 +7,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../models/v2/training_pack_template.dart';
 import '../services/template_storage_service.dart';
 import '../helpers/training_pack_storage.dart';
+import '../services/training_pack_author_service.dart';
 import 'v2/training_pack_template_editor_screen.dart';
 import 'v2/training_session_screen.dart';
 
@@ -97,10 +98,59 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     );
   }
 
+  Future<void> _createFromPreset(String id) async {
+    final templates = await TrainingPackStorage.load();
+    final tpl = TrainingPackAuthorService.generateFromPreset(id)
+        .copyWith(id: const Uuid().v4(), createdAt: DateTime.now());
+    templates.add(tpl);
+    await TrainingPackStorage.save(templates);
+    context.read<TemplateStorageService>().addTemplate(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            TrainingPackTemplateEditorScreen(template: tpl, templates: templates),
+      ),
+    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Pack "${tpl.name}" created')));
+  }
+
+  void _showPresetSheet() {
+    final presets = TrainingPackAuthorService.presets;
+    showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final e in presets.entries)
+              ListTile(
+                title: Text(e.value),
+                onTap: () => Navigator.pop(ctx, e.key),
+              )
+          ],
+        ),
+      ),
+    ).then((id) {
+      if (id != null) _createFromPreset(id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pack Library')),
+      appBar: AppBar(
+        title: const Text('Pack Library'),
+        actions: [
+          TextButton.icon(
+            onPressed: _showPresetSheet,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text('New', style: TextStyle(color: Colors.white)),
+          )
+        ],
+      ),
       body: _packs.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : Column(
