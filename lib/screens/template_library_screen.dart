@@ -459,6 +459,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (_selectedTag != null) {
       visible = [for (final t in visible) if (t.tags.contains(_selectedTag)) t];
     }
+    final hasResults = visible.isNotEmpty;
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
     for (final t in visible) {
@@ -635,28 +636,30 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           ),
         if (_loadingNeedsPractice) const LinearProgressIndicator(minHeight: 2),
         Expanded(
-          child: ListView(
-            children: [
-              if (sortedFav.isNotEmpty) ...[
-                const ListTile(title: Text('★ Favorites')),
-                for (final t in sortedFav) _item(t),
-                if (builtIn.isNotEmpty || user.isNotEmpty) const Divider(),
-              ],
-              if (builtIn.isNotEmpty) ...[
-                const ListTile(title: Text('Built-in Packs')),
-                for (final t in builtIn) _item(t),
-                if (user.isNotEmpty) const Divider(),
-              ],
-              if (user.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text('Your Packs',
-                      style: Theme.of(context).textTheme.titleMedium),
-                ),
-                for (final t in user) _item(t),
-              ],
-            ],
-          ),
+          child: hasResults
+              ? ListView(
+                  children: [
+                    if (sortedFav.isNotEmpty) ...[
+                      const ListTile(title: Text('★ Favorites')),
+                      for (final t in sortedFav) _item(t),
+                      if (builtIn.isNotEmpty || user.isNotEmpty) const Divider(),
+                    ],
+                    if (builtIn.isNotEmpty) ...[
+                      const ListTile(title: Text('Built-in Packs')),
+                      for (final t in builtIn) _item(t),
+                      if (user.isNotEmpty) const Divider(),
+                    ],
+                    if (user.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child:
+                            Text('Your Packs', style: Theme.of(context).textTheme.titleMedium),
+                      ),
+                      for (final t in user) _item(t),
+                    ],
+                  ],
+                )
+              : const Center(child: Text('Нет подходящих паков')),
         ),
         ],
       ),
