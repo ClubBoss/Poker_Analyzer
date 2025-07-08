@@ -27,6 +27,7 @@ import '../services/bulk_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
 import 'package:intl/intl.dart';
+import 'training_stats_screen.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -332,6 +333,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const SessionHistoryScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Text('📊', style: TextStyle(fontSize: 20)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TrainingStatsScreen()),
               );
             },
           ),

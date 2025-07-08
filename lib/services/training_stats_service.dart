@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
+import '../models/training_stats.dart';
+import '../services/template_storage_service.dart';
+import '../services/training_pack_stats_service.dart';
+import '../services/streak_service.dart';
 
 class TrainingStatsService extends ChangeNotifier {
   static TrainingStatsService? _instance;
@@ -285,6 +289,33 @@ class TrainingStatsService extends ChangeNotifier {
     _evalHistory.clear();
     await _save();
     notifyListeners();
+  }
+
+  Future<TrainingStats> aggregate({
+    required TemplateStorageService templates,
+    required StreakService streak,
+    int limit = 3,
+  }) async {
+    final packs = <PackAccuracy>[];
+    for (final t in templates.templates) {
+      final stat = await TrainingPackStatsService.getStats(t.id);
+      if (stat != null) {
+        packs.add(PackAccuracy(id: t.id, name: t.name, accuracy: stat.accuracy));
+      }
+    }
+    final avg = packs.isNotEmpty
+        ? packs.map((e) => e.accuracy).reduce((a, b) => a + b) / packs.length
+        : 0.0;
+    packs.sort((a, b) => b.accuracy.compareTo(a.accuracy));
+    final top = packs.take(limit).toList();
+    final bottom = packs.reversed.take(limit).toList();
+    return TrainingStats(
+      totalSpots: handsReviewed,
+      avgAccuracy: avg,
+      streakDays: streak.streak.value,
+      topPacks: top,
+      bottomPacks: bottom,
+    );
   }
 
   @override
