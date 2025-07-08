@@ -164,6 +164,7 @@ class PackGeneratorService {
       heroRange: p.heroRange,
       createdAt: p.createdAt,
       lastGeneratedAt: DateTime.now(),
+      isBuiltIn: true,
     );
     TemplateCoverageUtils.recountAll(tpl);
     return tpl;

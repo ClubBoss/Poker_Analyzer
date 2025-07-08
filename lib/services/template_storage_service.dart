@@ -267,6 +267,7 @@ class TemplateStorageService extends ChangeNotifier {
 
   Future<void> exportTemplateToFile(
       BuildContext context, TrainingPackTemplate template) async {
+    if (template.isBuiltIn) return;
     try {
       final dir =
           await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
