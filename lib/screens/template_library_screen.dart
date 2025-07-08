@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 
 import '../helpers/color_utils.dart';
 import '../services/template_storage_service.dart';
@@ -82,16 +83,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _selectedTag = prefs.getString(_selTagKey);
     });
     final cloud = context.read<CloudSyncService>();
-    final remote = await cloud.load(_favKey);
-    if (remote != null) {
-      try {
-        final list = List<String>.from(jsonDecode(remote));
-        final before = _favorites.length;
-        _favorites.addAll(list);
-        if (_favorites.length != before) {
-          await prefs.setStringList(_favKey, _favorites.toList());
-        }
-      } catch (_) {}
+    final remoteRaw = await cloud.load(_favKey);
+    List<String> remote = [];
+    try {
+      if (remoteRaw != null) remote = List<String>.from(jsonDecode(remoteRaw));
+    } catch (_) {}
+    final before = {..._favorites};
+    _favorites.addAll(remote);
+    final merged = _favorites.toList();
+    if (!setEquals(before, _favorites)) {
+      await prefs.setStringList(_favKey, merged);
+    }
+    if (!setEquals(remote.toSet(), _favorites)) {
+      unawaited(cloud.save(_favKey, jsonEncode(merged)));
     }
     if (_needsPractice) _updateNeedsPractice(true);
   }
