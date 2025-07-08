@@ -26,5 +26,7 @@ jobs:
           fi
       - name: Install dependencies
         run: flutter pub get
-      - name: Test
-        run: flutter test --no-pub
+      - name: Dart unit tests
+        run: dart test
+      - name: Flutter widget tests
+        run: flutter test
