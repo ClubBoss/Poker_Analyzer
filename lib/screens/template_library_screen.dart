@@ -347,10 +347,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         title: Row(
           children: [
             if (t.isBuiltIn) ...[
-              const Icon(Icons.auto_awesome, size: 16, color: Colors.orange),
+              const Icon(Icons.shield, size: 18, color: Colors.grey),
               const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  t.name,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ] else ...[
+              Expanded(child: Text(t.name)),
             ],
-            Expanded(child: Text(t.name)),
           ],
         ),
         subtitle: FutureBuilder<TrainingPackStat?>(
