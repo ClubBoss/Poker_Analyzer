@@ -44,6 +44,9 @@ class TrainingPackAuthorService {
     ),
   };
 
+  static Map<String, String> get presets =>
+      {for (final e in _presets.entries) e.key: e.value.name};
+
   TrainingPackTemplate generateFromPreset(String presetId) {
     final config = _presets[presetId];
     if (config == null) {
