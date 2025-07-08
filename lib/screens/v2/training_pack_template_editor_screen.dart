@@ -415,6 +415,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  double _itemOffset(int index) {
+    final id = widget.template.spots[index].id;
+    final ctx = _itemKeys[id]?.currentContext;
+    if (ctx == null) return 0;
+    final box = ctx.findRenderObject() as RenderBox;
+    final ancestor = context.findRenderObject() as RenderBox;
+    final pos = box.localToGlobal(Offset.zero, ancestor: ancestor).dy;
+    return _scrollCtrl.offset + pos;
+  }
+
   void _recordSnapshot() => _history.record(widget.template.spots);
 
   void _markAllDirty() {
@@ -5379,7 +5389,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             ),
                           ),
                           ReorderableListView.builder(
-                            key: const PageStorageKey('spots'),
+                            key: const PageStorageKey('spotsList'),
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: spots.length,
@@ -5414,18 +5424,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _isMultiSelect
-                                      ? Checkbox(
-                                          value: selected,
-                                          onChanged: (_) => setState(() {
-                                            if (selected) {
-                                              _selectedSpotIds.remove(spot.id);
-                                            } else {
-                                              _selectedSpotIds.add(spot.id);
-                                            }
-                                          }),
-                                        )
-                                      : const Icon(Icons.drag_handle),
+                                  Icon(
+                                    Icons.drag_handle,
+                                    color: _isMultiSelect
+                                        ? Colors.white24
+                                        : Colors.white54,
+                                  ),
+                                  if (_isMultiSelect)
+                                    Checkbox(
+                                      value: selected,
+                                      onChanged: (_) => setState(() {
+                                        if (selected) {
+                                          _selectedSpotIds.remove(spot.id);
+                                        } else {
+                                          _selectedSpotIds.add(spot.id);
+                                        }
+                                      }),
+                                    ),
                                   Expanded(
                                   child: TrainingPackSpotPreviewCard(
                                     spot: spot,
@@ -5593,6 +5608,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                 newIndex > oldIndex ? newIndex - 1 : newIndex, s);
                           });
                           _persist();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final idx = newIndex > oldIndex ? newIndex - 1 : newIndex;
+                            _scrollCtrl.animateTo(
+                              _itemOffset(idx),
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                            );
+                          });
                         },
                           ),
                         ],
