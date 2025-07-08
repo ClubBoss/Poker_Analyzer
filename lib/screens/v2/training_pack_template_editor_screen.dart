@@ -3182,6 +3182,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  Future<void> _addToLibrary() async {
+    final list = await TrainingPackStorage.load();
+    list.add(widget.template);
+    await TrainingPackStorage.save(list);
+    context.read<TemplateStorageService>().addTemplate(widget.template);
+    if (mounted) Navigator.pop(context);
+  }
+
   Future<void> _bulkDelete() async {
     final count = _selectedSpotIds.length;
     if (count == 0) return;
@@ -4223,6 +4231,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       for (final s in shown)
         if (s.heroEv != null && !s.dirty) s.heroEv!
     ];
+    final inLibrary = context
+        .watch<TemplateStorageService>()
+        .templates
+        .any((t) => t.id == widget.template.id);
+    final canAddToLibrary = _originPreset != null && !inLibrary;
     final avgEv = heroEvsAll.isEmpty
         ? null
         : heroEvsAll.reduce((a, b) => a + b) / heroEvsAll.length;
@@ -4979,6 +4992,15 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   onPressed:
                       _calculatingMissing ? null : _calculateMissingEvIcm,
                 ),
+                if (canAddToLibrary) ...[
+                  const SizedBox(height: 12),
+                  FloatingActionButton.extended(
+                    heroTag: 'addToLibFab',
+                    onPressed: _addToLibrary,
+                    label: const Text('Add to Library'),
+                    icon: const Icon(Icons.library_add),
+                  ),
+                ],
               ],
             )
           : showExample
