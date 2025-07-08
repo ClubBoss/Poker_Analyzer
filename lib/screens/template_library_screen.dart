@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:math';
+import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +25,7 @@ import '../repositories/training_pack_preset_repository.dart';
 import '../models/v2/training_pack_preset.dart';
 import '../services/training_pack_template_service.dart';
 import '../services/training_pack_stats_service.dart';
+import '../services/cloud_sync_service.dart';
 import '../services/bulk_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
@@ -78,6 +81,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _favoritesOnly = prefs.getBool(_favOnlyKey) ?? false;
       _selectedTag = prefs.getString(_selTagKey);
     });
+    final cloud = context.read<CloudSyncService>();
+    final remote = await cloud.load(_favKey);
+    if (remote != null) {
+      try {
+        final list = List<String>.from(jsonDecode(remote));
+        final merged = {..._favorites, ...list};
+        if (merged.length != _favorites.length) {
+          _favorites
+            ..clear()
+            ..addAll(merged);
+          await prefs.setStringList(_favKey, _favorites.toList());
+        }
+      } catch (_) {}
+    }
     if (_needsPractice) _updateNeedsPractice(true);
   }
 
@@ -130,6 +147,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_favKey, _favorites.toList());
+    unawaited(context.read<CloudSyncService>()
+        .save(_favKey, jsonEncode(_favorites.toList())));
   }
 
   Future<void> _setFavoritesOnly(bool value) async {
