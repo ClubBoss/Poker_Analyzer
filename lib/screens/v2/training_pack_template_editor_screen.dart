@@ -1295,7 +1295,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _scrollThrottle =
           Timer(const Duration(milliseconds: 100), _updateScroll);
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateScroll());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateScroll();
+      _maybeStartTraining();
+    });
     _clipboardTimer ??=
         Timer.periodic(const Duration(seconds: 2), (_) => _checkClipboard());
     _checkClipboard();
@@ -2552,6 +2555,37 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         .catchError((_) {});
     TemplateCoverageUtils.recountAll(widget.template);
     if (mounted) setState(() => _loadingEval = false);
+  }
+
+  void _maybeStartTraining() async {
+    final has = widget.template.spots
+        .any((s) => s.tags.contains('push') && s.tags.contains('fold'));
+    if (!has) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: const Text('Start training session now?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Skip'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Start'),
+          )
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    await context
+        .read<TrainingSessionService>()
+        .startSession(widget.template, persist: false);
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
   }
 
   Future<void> _calculateMissingEvIcm() async {
