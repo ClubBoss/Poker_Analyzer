@@ -7,7 +7,8 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../models/v2/training_pack_template.dart';
 import '../services/template_storage_service.dart';
 import '../helpers/training_pack_storage.dart';
-import '../services/training_pack_author_service.dart';
+import '../services/training_pack_author_service.dart'
+    show TrainingPackAuthorService, PresetConfig;
 import 'v2/training_pack_template_editor_screen.dart';
 import 'v2/training_session_screen.dart';
 
@@ -113,8 +114,10 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
             TrainingPackTemplateEditorScreen(template: tpl, templates: templates),
       ),
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pack "${tpl.name}" created (${tpl.heroBbStack} bb)')));
+    final suffix = tpl.name.split(' ').skip(1).join(' ');
+    final title = '${tpl.heroBbStack}bb $suffix';
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Pack "$title" created')));
   }
 
   void _showPresetSheet() {

@@ -14,6 +14,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '3.22.2'
+      - uses: dart-lang/setup-dart@v1
       - name: Verify pubspec lock
         run: |
           set +e
