@@ -227,11 +227,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (t.lastTrainedAt != null)
-                        Text(
-                          'Trained ${timeago.format(t.lastTrainedAt!, locale: 'en_short')}',
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.white54),
-                        ),
+                        Text('Trained ${timeago.format(t.lastTrainedAt!, locale: "en_short")}',
+                            style: const TextStyle(fontSize: 11, color: Colors.white54)),
                       Text(t.description),
                     ],
                   ),
@@ -251,16 +248,11 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       IconButton(
                         icon: const Icon(Icons.play_circle_fill),
                         tooltip: solvedAll ? 'All solved' : 'Resume',
-                        onPressed: solvedAll
-                            ? null
-                            : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => TrainingSessionScreen(template: t),
-                                  ),
-                                );
-                              },
+                        onPressed: solvedAll ? null : () {
+                          Navigator.push(context,
+                            MaterialPageRoute(builder: (_) =>
+                              TrainingSessionScreen(template: t)));
+                        },
                       ),
                       PopupMenuButton<String>(
                         onSelected: (v) {

@@ -106,16 +106,12 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final review = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          content: const Text('Everything is solved. Review mistakes instead?'),
+          content: const Text('Everything is solved.\nReview mistakes instead?'),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Review Mistakes'),
-            )
+            TextButton(onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(context, true),
+                child: const Text('Review Mistakes')),
           ],
         ),
       );
@@ -123,10 +119,10 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       _mistakesOnly = true;
       return _start();
     }
+    _index = firstUnsolved;
     setState(() {
       _packSpots = spots;
       _spots = [for (final s in _packSpots) _toSpot(s)];
-      _index = firstUnsolved;
       _correct = 0;
     });
     _initialMistakes = {
