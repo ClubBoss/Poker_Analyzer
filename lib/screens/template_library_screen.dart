@@ -39,12 +39,15 @@ class TemplateLibraryScreen extends StatefulWidget {
 class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _key = 'lib_game_type';
   static const _sortKey = 'lib_sort';
+  static const _favKey = 'fav_tpl_ids';
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
   String _sort = 'edited';
   bool _needsPractice = false;
   bool _loadingNeedsPractice = false;
   final Set<String> _needsPracticeIds = {};
+  final Set<String> _favorites = {};
+  bool _favoritesOnly = false;
 
   @override
   void initState() {
@@ -64,6 +67,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() {
       _filter = prefs.getString(_key) ?? 'all';
       _sort = prefs.getString(_sortKey) ?? 'edited';
+      _favorites
+        ..clear()
+        ..addAll(prefs.getStringList(_favKey) ?? []);
     });
   }
 
@@ -104,6 +110,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         ..addAll(ids);
       _loadingNeedsPractice = false;
     });
+  }
+
+  Future<void> _toggleFavorite(String id) async {
+    setState(() {
+      if (!_favorites.add(id)) {
+        _favorites.remove(id);
+      }
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_favKey, _favorites.toList());
   }
 
   List<TrainingPackTemplate> _applySorting(List<TrainingPackTemplate> list) {
@@ -301,6 +317,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (_needsPracticeIds.contains(t.id)) t
       ];
     }
+    if (_favoritesOnly) {
+      visible = [
+        for (final t in visible)
+          if (_favorites.contains(t.id)) t
+      ];
+    }
     visible = _applySorting(visible);
     return Scaffold(
       appBar: AppBar(
@@ -423,18 +445,23 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             },
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Wrap(
-              spacing: 8,
-              children: [
-                FilterChip(
-                  label: const Text('Needs Practice'),
-                  selected: _needsPractice,
-                  onSelected: (v) => _updateNeedsPractice(v),
-                ),
-              ],
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Wrap(
+            spacing: 8,
+            children: [
+              FilterChip(
+                label: const Text('Needs Practice'),
+                selected: _needsPractice,
+                onSelected: (v) => _updateNeedsPractice(v),
+              ),
+              FilterChip(
+                label: const Text('Favorites'),
+                selected: _favoritesOnly,
+                onSelected: (v) => setState(() => _favoritesOnly = v),
+              ),
+            ],
           ),
+        ),
           if (_loadingNeedsPractice)
             const LinearProgressIndicator(minHeight: 2),
           Expanded(
@@ -487,16 +514,32 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         );
                       },
                     ),
-                    trailing: TextButton(
-                      onPressed: () {
-                        context.read<TrainingSessionService>().startSession(t);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const TrainingSessionScreen()),
-                        );
-                      },
-                      child: const Text('▶️ Train'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            _favorites.contains(t.id)
+                                ? Icons.star
+                                : Icons.star_border,
+                          ),
+                          color: _favorites.contains(t.id)
+                              ? Colors.amber
+                              : Colors.white54,
+                          onPressed: () => _toggleFavorite(t.id),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            context.read<TrainingSessionService>().startSession(t);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const TrainingSessionScreen()),
+                            );
+                          },
+                          child: const Text('▶️ Train'),
+                        ),
+                      ],
                     ),
                     onTap: () async {
                       final create = await showDialog<bool>(
