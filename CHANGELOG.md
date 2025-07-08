@@ -5,3 +5,4 @@
 - Remove unused spot storage field from app state.
 - Add "Select All" toggle in the My Packs selection toolbar.
 - Export Markdown summary from pack template preview.
+- Add Import Starter Packs button to Template Library.
