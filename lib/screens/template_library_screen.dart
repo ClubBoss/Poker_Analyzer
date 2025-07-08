@@ -17,6 +17,7 @@ import 'template_hands_editor_screen.dart';
 import 'template_preview_dialog.dart';
 import '../widgets/sync_status_widget.dart';
 import 'session_history_screen.dart';
+import 'v2/training_pack_template_editor_screen.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -126,6 +127,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<TrainingPackTemplate?> _loadLastPack(BuildContext context) async {
+    final service = context.read<TemplateStorageService>();
+    final list = [for (final t in service.templates) if (!t.isBuiltIn) t];
+    list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return list.isNotEmpty ? list.first : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final templates = context.watch<TemplateStorageService>().templates;
@@ -199,6 +207,32 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ),
       body: Column(
         children: [
+          FutureBuilder<TrainingPackTemplate?>(
+            future: _loadLastPack(context),
+            builder: (context, snap) {
+              if (!snap.hasData) return const SizedBox.shrink();
+              final t = snap.data!;
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TrainingPackTemplateEditorScreen(
+                          template: t,
+                          templates: context
+                              .read<TemplateStorageService>()
+                              .templates,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text('Continue: ${t.name}'),
+                ),
+              );
+            },
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: visible.length,
