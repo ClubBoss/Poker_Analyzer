@@ -114,10 +114,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
             TrainingPackTemplateEditorScreen(template: tpl, templates: templates),
       ),
     );
-    final suffix = tpl.name.split(' ').skip(1).join(' ');
-    final title = '${tpl.heroBbStack}bb $suffix';
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Pack "$title" created')));
+        .showSnackBar(SnackBar(content: Text('Pack "${tpl.name}" created')));
   }
 
   void _showPresetSheet() {

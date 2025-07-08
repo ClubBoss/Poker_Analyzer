@@ -184,9 +184,11 @@ class TrainingPackAuthorService {
       );
       if (validateSpot(spot, i).isEmpty) spots.add(spot);
     }
+    final dynamicName =
+        '${stackValue}bb ${config.name.split(' ').skip(1).join(' ')}';
     return TrainingPackTemplate(
       id: presetId,
-      name: config.name,
+      name: dynamicName,
       gameType: config.gameType,
       spots: spots,
       heroBbStack: isIcm ? 12 : stackValue,
