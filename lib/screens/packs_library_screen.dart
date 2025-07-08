@@ -98,9 +98,9 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     );
   }
 
-  Future<void> _createFromPreset(String id) async {
+  Future<void> _createFromPreset(String id, {int? stack}) async {
     final templates = await TrainingPackStorage.load();
-    final tpl = TrainingPackAuthorService.generateFromPreset(id)
+    final tpl = TrainingPackAuthorService.generateFromPreset(id, stack: stack)
         .copyWith(id: const Uuid().v4(), createdAt: DateTime.now());
     templates.add(tpl);
     await TrainingPackStorage.save(templates);
@@ -113,28 +113,70 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
             TrainingPackTemplateEditorScreen(template: tpl, templates: templates),
       ),
     );
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Pack "${tpl.name}" created')));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pack "${tpl.name}" created (${tpl.heroBbStack} bb)')));
   }
 
   void _showPresetSheet() {
-    final presets = TrainingPackAuthorService.presets;
-    showModalBottomSheet<String>(
+    final presets = TrainingPackAuthorService.presetConfigs;
+    final byCategory = <String, List<MapEntry<String, PresetConfig>>>{};
+    for (final e in presets.entries) {
+      (byCategory[e.value.category] ??= []).add(e);
+    }
+    final categories = byCategory.keys.toList()..sort();
+    showModalBottomSheet<MapEntry<String, int?>>( 
       context: context,
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: ListView(
+          shrinkWrap: true,
           children: [
-            for (final e in presets.entries)
-              ListTile(
-                title: Text(e.value),
-                onTap: () => Navigator.pop(ctx, e.key),
-              )
+            for (final cat in categories) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: Text(cat, style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              for (final e in byCategory[cat]!)
+                ListTile(
+                  title: Text(e.value.name),
+                  subtitle: Text(
+                    e.value.description,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                  onTap: () => Navigator.pop(ctx, MapEntry(e.key, null)),
+                  onLongPress: () async {
+                    var v = e.value.stack.toDouble();
+                    final res = await showDialog<int>(
+                      context: context,
+                      builder: (dCtx) => StatefulBuilder(
+                        builder: (dCtx, set) => AlertDialog(
+                          content: Slider(
+                            value: v,
+                            min: 5,
+                            max: 30,
+                            divisions: 25,
+                            label: '${v.round()} bb',
+                            onChanged: (nv) => set(() => v = nv),
+                          ),
+                          actions: [
+                            TextButton(
+                                onPressed: () => Navigator.pop(dCtx),
+                                child: const Text('Cancel')),
+                            TextButton(
+                                onPressed: () => Navigator.pop(dCtx, v.round()),
+                                child: const Text('Generate')),
+                          ],
+                        ),
+                      ),
+                    );
+                    if (res != null) Navigator.pop(ctx, MapEntry(e.key, res));
+                  },
+                ),
+            ]
           ],
         ),
       ),
-    ).then((id) {
-      if (id != null) _createFromPreset(id);
+    ).then((res) {
+      if (res != null) _createFromPreset(res.key, stack: res.value);
     });
   }
 
