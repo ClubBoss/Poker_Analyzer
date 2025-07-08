@@ -52,6 +52,8 @@ import '../../services/bulk_evaluator_service.dart';
 import '../../services/offline_evaluator_service.dart';
 import '../../helpers/hand_utils.dart';
 import '../../helpers/hand_type_utils.dart';
+import '../../models/v2/training_pack_preset.dart';
+import '../../repositories/training_pack_preset_repository.dart';
 import '../../services/training_pack_template_storage_service.dart';
 import '../../services/template_storage_service.dart';
 import '../../services/file_saver_service.dart';
@@ -211,6 +213,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   bool _previewMode = false;
   bool _previewJsonPng = false;
   String? _previewPath;
+  TrainingPackPreset? _originPreset;
   bool get _canUndo => _history.canUndo;
   bool get _canRedo => _history.canRedo;
 
@@ -674,6 +677,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Snapshot restored')));
     }
+  }
+
+  Widget _buildPresetBanner() {
+    final p = _originPreset;
+    if (p == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        color: AppColors.cardBackground,
+        child: ListTile(
+          title: Text(p.name, style: const TextStyle(color: Colors.white)),
+          subtitle:
+              Text(p.description, style: const TextStyle(color: Colors.white70)),
+        ),
+      ),
+    );
   }
 
   Future<void> _addSpot() async {
@@ -1384,6 +1403,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         });
         _ensureEval();
       }
+    });
+    TrainingPackPresetRepository.getAll().then((list) {
+      final p = list.firstWhereOrNull((e) => e.id == widget.template.id);
+      if (p != null && mounted) setState(() => _originPreset = p);
     });
   }
 
@@ -5045,6 +5068,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          if (_originPreset != null) _buildPresetBanner(),
                           Stack(
                             children: [
                               LinearProgressIndicator(
@@ -5126,6 +5150,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (_originPreset != null) _buildPresetBanner(),
                   Stack(
                     children: [
                       LinearProgressIndicator(
