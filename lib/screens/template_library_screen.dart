@@ -191,6 +191,24 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Future<void> _importStarterPacks() async {
+    final presets = await TrainingPackPresetRepository.getAll();
+    if (!mounted) return;
+    final service = context.read<TemplateStorageService>();
+    var added = 0;
+    for (final p in presets) {
+      final exists = service.templates.any((t) => t.id == p.id || t.name == p.name);
+      if (exists) continue;
+      final tpl = await TrainingPackTemplateService.generateFromPreset(p);
+      tpl.isBuiltIn = true;
+      service.addTemplate(tpl);
+      added++;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Added $added packs')));
+  }
+
   Future<TrainingPackTemplate?> _loadLastPack(BuildContext context) async {
     final service = context.read<TemplateStorageService>();
     final list = [for (final t in service.templates) if (!t.isBuiltIn) t];
@@ -302,6 +320,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ),
               );
             },
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton(
+              onPressed: _importStarterPacks,
+              child: const Text('Import Starter Packs'),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
