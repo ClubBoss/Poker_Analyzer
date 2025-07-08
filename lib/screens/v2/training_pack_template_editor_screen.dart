@@ -6030,6 +6030,8 @@ class _CoverageProgress extends StatelessWidget {
     final percent = '${(value * 100).toStringAsFixed(0)}%';
     return Tooltip(
       message: message,
+      preferBelow: false,
+      verticalOffset: 20,
       child: Row(
         children: [
           Text(label, style: const TextStyle(color: Colors.white70)),
@@ -6092,6 +6094,7 @@ class _TemplateSummaryPanel extends StatelessWidget {
                 Tooltip(
                   message: 'Calculated expected value (EV) for this spot',
                   preferBelow: false,
+                  verticalOffset: 20,
                   child: Text(
                     'EV: $evCount/$spots ($evPct%)',
                     style: const TextStyle(color: Colors.white70),
@@ -6101,6 +6104,7 @@ class _TemplateSummaryPanel extends StatelessWidget {
                 Tooltip(
                   message: 'Calculated equity in tournament ICM model',
                   preferBelow: false,
+                  verticalOffset: 20,
                   child: Text(
                     'ICM: $icmCount/$spots ($icmPct%)',
                     style: const TextStyle(color: Colors.white70),
