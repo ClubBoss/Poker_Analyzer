@@ -4948,12 +4948,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       label: 'EV Covered',
                       value: evCoverage,
                       color: Theme.of(context).colorScheme.secondary,
+                      message: 'Calculated expected value (EV) for this spot',
                     ),
                     const SizedBox(height: 8),
                     _CoverageProgress(
                       label: 'ICM Covered',
                       value: icmCoverage,
                       color: Colors.purple,
+                      message: 'Calculated equity in tournament ICM model',
                     ),
                     const SizedBox(height: 16),
             _TemplateSummaryPanel(
@@ -5033,12 +5035,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               label: 'EV Covered',
               value: evCoverage,
               color: Theme.of(context).colorScheme.secondary,
+              message: 'Calculated expected value (EV) for this spot',
             ),
             const SizedBox(height: 8),
             _CoverageProgress(
               label: 'ICM Covered',
               value: icmCoverage,
               color: Colors.purple,
+              message: 'Calculated equity in tournament ICM model',
             ),
             const SizedBox(height: 16),
             TextField(
@@ -6013,18 +6017,19 @@ class _CoverageProgress extends StatelessWidget {
   final String label;
   final double value;
   final Color color;
+  final String message;
   const _CoverageProgress({
     required this.label,
     required this.value,
     required this.color,
+    required this.message,
   });
 
   @override
   Widget build(BuildContext context) {
     final percent = '${(value * 100).toStringAsFixed(0)}%';
     return Tooltip(
-      message:
-          'This shows how many spots have calculated EV/ICM. Aim for 100% before training or publishing.',
+      message: message,
       child: Row(
         children: [
           Text(label, style: const TextStyle(color: Colors.white70)),
@@ -6082,9 +6087,26 @@ class _TemplateSummaryPanel extends StatelessWidget {
           Builder(builder: (_) {
             final evPct = spots == 0 ? 0 : (evCount / spots * 100).round();
             final icmPct = spots == 0 ? 0 : (icmCount / spots * 100).round();
-            return Text(
-              'EV: $evCount/$spots ($evPct%) • ICM: $icmCount/$spots ($icmPct%)',
-              style: const TextStyle(color: Colors.white70),
+            return Row(
+              children: [
+                Tooltip(
+                  message: 'Calculated expected value (EV) for this spot',
+                  preferBelow: false,
+                  child: Text(
+                    'EV: $evCount/$spots ($evPct%)',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+                const Text(' • ', style: TextStyle(color: Colors.white70)),
+                Tooltip(
+                  message: 'Calculated equity in tournament ICM model',
+                  preferBelow: false,
+                  child: Text(
+                    'ICM: $icmCount/$spots ($icmPct%)',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ],
             );
           }),
           if (tags.isNotEmpty)
