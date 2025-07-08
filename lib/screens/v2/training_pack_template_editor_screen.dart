@@ -4837,13 +4837,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       color: Colors.purple,
                     ),
                     const SizedBox(height: 16),
-                    _TemplateSummaryPanel(
-                      spots: totalSpots,
-                      ev: evCoverage,
-                      icm: icmCoverage,
-                      tags: summaryTags,
-                      avgEv: avgEv,
-                    ),
+            _TemplateSummaryPanel(
+              spots: totalSpots,
+              evCount: evCovered,
+              icmCount: icmCovered,
+              tags: summaryTags,
+              avgEv: avgEv,
+            ),
                     const SizedBox(height: 16),
                     if (heroEvsAll.isNotEmpty)
                       EvDistributionChart(evs: heroEvsAll),
@@ -5301,8 +5301,8 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             const SizedBox(height: 8),
             _TemplateSummaryPanel(
               spots: totalSpots,
-              ev: evCoverage,
-              icm: icmCoverage,
+              evCount: evCovered,
+              icmCount: icmCovered,
               tags: summaryTags,
               avgEv: avgEv,
             ),
@@ -5924,14 +5924,14 @@ class _CoverageProgress extends StatelessWidget {
 
 class _TemplateSummaryPanel extends StatelessWidget {
   final int spots;
-  final double ev;
-  final double icm;
+  final int evCount;
+  final int icmCount;
   final List<String> tags;
   final double? avgEv;
   const _TemplateSummaryPanel({
     required this.spots,
-    required this.ev,
-    required this.icm,
+    required this.evCount,
+    required this.icmCount,
     required this.tags,
     required this.avgEv,
   });
@@ -5949,8 +5949,14 @@ class _TemplateSummaryPanel extends StatelessWidget {
         children: [
           Text('Spots: $spots', style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 4),
-          Text('EV ${(ev * 100).round()}%  •  ICM ${(icm * 100).round()}%',
-              style: const TextStyle(color: Colors.white70)),
+          Builder(builder: (_) {
+            final evPct = spots == 0 ? 0 : (evCount / spots * 100).round();
+            final icmPct = spots == 0 ? 0 : (icmCount / spots * 100).round();
+            return Text(
+              'EV: $evCount/$spots ($evPct%) • ICM: $icmCount/$spots ($icmPct%)',
+              style: const TextStyle(color: Colors.white70),
+            );
+          }),
           if (tags.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
