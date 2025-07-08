@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:collection/collection.dart';
@@ -25,7 +26,17 @@ import '../../services/notification_service.dart';
 import '../../services/mistake_review_pack_service.dart';
 import 'training_pack_result_screen_v2.dart';
 
+
 enum PlayOrder { sequential, random, mistakes }
+
+class _SpotFeedback {
+  final String action;
+  final double? heroEv;
+  final double? evDiff;
+  final double? icmDiff;
+  final bool correct;
+  const _SpotFeedback(this.action, this.heroEv, this.evDiff, this.icmDiff, this.correct);
+}
 
 class TrainingPackPlayScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -55,6 +66,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   final Map<String, int> _handTotals = {};
   bool _summaryShown = false;
   bool _autoAdvance = false;
+  _SpotFeedback? _feedback;
+  Timer? _feedbackTimer;
 
   @override
   void initState() {
@@ -338,53 +351,29 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     );
   }
 
-  void _showDiff(double? ev, double? icm) {
-    final evText = ev == null
-        ? '--'
-        : '${ev >= 0 ? '+' : ''}${ev.toStringAsFixed(1)} BB';
-    final icmText = icm == null
-        ? '--'
-        : '${icm >= 0 ? '+' : ''}${icm.toStringAsFixed(1)}';
-    final text = 'EV: $evText | ICM: $icmText';
-    final goodEv = ev == null || ev >= 0;
-    final goodIcm = icm == null || icm >= 0;
-    Color color;
-    if (goodEv && goodIcm) {
-      color = Colors.green;
-    } else if (goodEv || goodIcm) {
-      color = Colors.amber;
-    } else {
-      color = Colors.red;
-    }
-    final narrow = MediaQuery.of(context).size.width < 400;
-    if (narrow) {
-      showModalBottomSheet(
-        context: context,
-        backgroundColor: color,
-        builder: (ctx) {
-          Future.delayed(const Duration(seconds: 2), () {
-            if (Navigator.of(ctx).canPop()) Navigator.of(ctx).pop();
-          });
-          return GestureDetector(
-            onTap: () => Navigator.pop(ctx),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              alignment: Alignment.center,
-              child: Text(text, style: const TextStyle(color: Colors.white)),
-            ),
-          );
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(text),
-          backgroundColor: color,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+  void _showFeedback(String action, double? heroEv, double? evDiff, double? icmDiff,
+      bool correct) {
+    _feedbackTimer?.cancel();
+    setState(() {
+      _feedback = _SpotFeedback(action, heroEv, evDiff, icmDiff, correct);
+    });
+    _feedbackTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) _hideFeedback();
+    });
+  }
+
+  void _hideFeedback() {
+    _feedbackTimer?.cancel();
+    if (_feedback != null) {
+      setState(() => _feedback = null);
     }
   }
+
+  String _fmt(double? v, [String suffix = '']) {
+    if (v == null) return '--';
+    return '${v >= 0 ? '+' : ''}${v.toStringAsFixed(1)}$suffix';
+  }
+
 
   Future<bool> _confirmStartOver(BuildContext context) async {
     final res = await showDialog<bool>(
@@ -429,6 +418,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
   }
 
   Future<void> _next() async {
+    _hideFeedback();
     if (_index + 1 < _spots.length) {
       setState(() => _index++);
       _save();
@@ -480,7 +470,6 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       } else {
         HapticFeedback.mediumImpact();
       }
-      _showDiff(evDiff, icmDiff);
       final incorrect =
           (evDiff != null && evDiff < 0) ||
           (icmDiff != null && icmDiff < 0) ||
@@ -536,6 +525,8 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         ),
       );
       if (!mounted) return;
+      _showFeedback(_expected(spot) ?? '', heroEv, evDiff, icmDiff,
+          evaluation.correct);
     }
     if (!_autoAdvance) await _next();
   }
@@ -627,10 +618,12 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
         bottom: PreferredSize(preferredSize: const Size.fromHeight(4), child: LinearProgressIndicator(value: progress)),
       ),
       backgroundColor: const Color(0xFF1B1C1E),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
             if (widget.template.focusTags.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -740,6 +733,38 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             ),
           ],
         ),
+          if (_feedback != null)
+            Positioned(
+              top: 16,
+              left: 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: _hideFeedback,
+                child: Card(
+                  color: _feedback!.correct ? Colors.green : Colors.red,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Correct: ${_feedback!.action.toUpperCase()}',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "EV: ${_fmt(_feedback!.heroEv, ' BB')}  \u0394EV: ${_fmt(_feedback!.evDiff, ' BB')}${_feedback!.icmDiff != null ? '  \u0394ICM: ${_fmt(_feedback!.icmDiff)}' : ''}",
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
