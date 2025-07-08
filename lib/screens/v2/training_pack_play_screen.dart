@@ -35,7 +35,9 @@ class _SpotFeedback {
   final double? evDiff;
   final double? icmDiff;
   final bool correct;
-  const _SpotFeedback(this.action, this.heroEv, this.evDiff, this.icmDiff, this.correct);
+  final bool repeated;
+  const _SpotFeedback(this.action, this.heroEv, this.evDiff, this.icmDiff,
+      this.correct, this.repeated);
 }
 
 class TrainingPackPlayScreen extends StatefulWidget {
@@ -354,11 +356,12 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
     );
   }
 
-  void _showFeedback(String action, double? heroEv, double? evDiff, double? icmDiff,
-      bool correct) {
+  void _showFeedback(String action, double? heroEv, double? evDiff,
+      double? icmDiff, bool correct, bool repeated) {
     _feedbackTimer?.cancel();
     setState(() {
-      _feedback = _SpotFeedback(action, heroEv, evDiff, icmDiff, correct);
+      _feedback =
+          _SpotFeedback(action, heroEv, evDiff, icmDiff, correct, repeated);
     });
     _feedbackTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) _hideFeedback();
@@ -477,6 +480,11 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
           (evDiff != null && evDiff < 0) ||
           (icmDiff != null && icmDiff < 0) ||
           !evaluation.correct;
+      final repeated = incorrect &&
+          context
+              .read<MistakeReviewPackService>()
+              .packs
+              .any((p) => p.spotIds.contains(spot.id));
       if (incorrect && first) {
         await context
             .read<MistakeReviewPackService>()
@@ -529,7 +537,7 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
       );
       if (!mounted) return;
       _showFeedback(_expected(spot) ?? '', heroEv, evDiff, icmDiff,
-          evaluation.correct);
+          evaluation.correct, repeated);
     }
     if (!_autoAdvance) await _next();
   }
@@ -756,6 +764,19 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (_feedback!.repeated)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            color: Colors.redAccent,
+                            child: const Text(
+                              'Repeated Mistake',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         Text(
                           'Correct: ${_feedback!.action.toUpperCase()}',
                           style: const TextStyle(
