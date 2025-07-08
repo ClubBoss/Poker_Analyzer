@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/training_session_service.dart';
 import '../widgets/spot_quiz_widget.dart';
 import 'session_result_screen.dart';
+import 'training_summary_screen.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -41,6 +42,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   bool? _correct;
   Timer? _timer;
   bool _continue = false;
+  bool _summaryShown = false;
 
   @override
   void initState() {
@@ -99,17 +101,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         Navigator.pop(context);
         widget.onSessionEnd!();
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => SessionResultScreen(
-              total: service.totalCount,
-              correct: service.correctCount,
-              elapsed: service.elapsedTime,
-              authorPreview: service.session?.authorPreview ?? false,
-            ),
-          ),
-        );
+        _summaryShown = true;
+        _showSummary(service);
       }
     } else {
       setState(() {
@@ -133,6 +126,33 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         }
       });
     }
+  }
+
+  Future<void> _showSummary(TrainingSessionService service) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => TrainingSummaryScreen(
+          correct: service.correctCount,
+          total: service.totalCount,
+          elapsed: service.elapsedTime,
+          onRepeat: () {
+            Navigator.pop(context);
+            service.startSession(service.template!);
+            setState(() {
+              _selected = null;
+              _correct = null;
+              _summaryShown = false;
+            });
+          },
+          onBack: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
   }
 
   void _showEndlessSummary() {
@@ -179,6 +199,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       },
       child: Consumer<TrainingSessionService>(
         builder: (context, service, _) {
+        if (!_summaryShown &&
+            service.session != null &&
+            service.template != null &&
+            service.session!.index >= service.template!.spots.length) {
+          _summaryShown = true;
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => _showSummary(service));
+        }
         final spot = service.currentSpot;
         if (spot == null) {
           return const Scaffold(
