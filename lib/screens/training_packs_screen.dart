@@ -11,8 +11,8 @@ import '../widgets/info_tooltip.dart';
 import '../theme/app_colors.dart';
 import "../widgets/progress_chip.dart";
 import '../widgets/color_picker_dialog.dart';
-import 'template_library_screen.dart';
 import 'training_pack_screen.dart';
+import '../helpers/training_onboarding.dart';
 import 'training_pack_comparison_screen.dart';
 import 'create_pack_screen.dart';
 import '../widgets/sync_status_widget.dart';
@@ -207,12 +207,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
               const Icon(Icons.auto_awesome, size: 96, color: Colors.white30),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const TemplateLibraryScreen()),
-                  );
-                },
+                onPressed: () => openTrainingTemplates(context),
                 child: const Text('Создать из шаблона'),
               ),
               const SizedBox(height: 12),
@@ -352,14 +347,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const TemplateLibraryScreen(),
-                      ),
-                    );
-                  },
+                onPressed: () => openTrainingTemplates(context),
                   child: const Text('📑 Шаблоны'),
                 ),
               ],

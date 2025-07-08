@@ -12,7 +12,7 @@ import '../widgets/xp_progress_bar.dart';
 import '../widgets/quick_continue_card.dart';
 import '../widgets/progress_summary_box.dart';
 import 'training_progress_analytics_screen.dart';
-import 'template_library_screen.dart';
+import '../helpers/training_onboarding.dart';
 import '../widgets/sync_status_widget.dart';
 
 class TrainingHomeScreen extends StatefulWidget {
@@ -60,12 +60,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TemplateLibraryScreen()),
-          );
-        },
+        onPressed: () => openTrainingTemplates(context),
         child: const Icon(Icons.auto_awesome_motion),
       ),
       bottomNavigationBar: SafeArea(
