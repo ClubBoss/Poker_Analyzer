@@ -4,7 +4,7 @@ import 'package:poker_analyzer/helpers/training_pack_validator.dart';
 
 void main() {
   group('generateFromPreset', () {
-    for (final id in TrainingPackAuthorService.presets.keys) {
+    for (final id in TrainingPackAuthorService.presetConfigs.keys) {
       test(id, () {
         final tpl = TrainingPackAuthorService.generateFromPreset(id);
         expect(tpl.spots, isNotEmpty);
