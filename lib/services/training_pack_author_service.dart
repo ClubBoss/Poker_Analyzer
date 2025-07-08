@@ -9,8 +9,8 @@ import 'push_fold_ev_service.dart';
 import 'icm_push_ev_service.dart';
 
 class TrainingPackAuthorService {
-  static final Map<String, _PresetConfig> _presets = {
-    '10bb_co_vs_bb': _PresetConfig(
+  static final Map<String, PresetConfig> _presets = {
+    '10bb_co_vs_bb': PresetConfig(
       '10bb CO vs BB',
       HeroPosition.co,
       10,
@@ -26,8 +26,10 @@ class TrainingPackAuthorService {
         '66',
         '55',
       ],
+      category: 'Push/Fold',
+      description: '10 bb, CO vs BB push-fold',
     ),
-    '10bb_sb_vs_bb': _PresetConfig(
+    '10bb_sb_vs_bb': PresetConfig(
       '10bb SB vs BB',
       HeroPosition.sb,
       10,
@@ -43,8 +45,10 @@ class TrainingPackAuthorService {
         '55',
         '44',
       ],
+      category: 'Push/Fold',
+      description: '10 bb, SB vs BB push-fold',
     ),
-    '15bb_hj_vs_bb': _PresetConfig(
+    '15bb_hj_vs_bb': PresetConfig(
       '15bb HJ vs BB',
       HeroPosition.mp,
       15,
@@ -59,8 +63,10 @@ class TrainingPackAuthorService {
         '99',
         '88',
       ],
+      category: 'Push/Fold',
+      description: '15 bb, HJ vs BB push-fold',
     ),
-    '25bb_co_vs_btn_3bet': _PresetConfig(
+    '25bb_co_vs_btn_3bet': PresetConfig(
       '25bb CO vs BTN 3bet',
       HeroPosition.co,
       25,
@@ -74,8 +80,10 @@ class TrainingPackAuthorService {
         'A5s',
         'KQo',
       ],
+      category: '3bet',
+      description: '25 bb, CO vs BTN 3bet',
     ),
-    'icm_final_table_6max_12bb_co': _PresetConfig(
+    'icm_final_table_6max_12bb_co': PresetConfig(
       'ICM Final Table 6max 12bb CO',
       HeroPosition.co,
       12,
@@ -87,17 +95,22 @@ class TrainingPackAuthorService {
         'QTs',
         'JTs',
       ],
+      category: 'ICM',
+      description: 'ICM FT 6-max, CO 12 bb push-fold',
     ),
   };
 
   static Map<String, String> get presets =>
       {for (final e in _presets.entries) e.key: e.value.name};
 
-  TrainingPackTemplate generateFromPreset(String presetId) {
+  static Map<String, PresetConfig> get presetConfigs => _presets;
+
+  TrainingPackTemplate generateFromPreset(String presetId, {int? stack}) {
     final config = _presets[presetId];
     if (config == null) {
       throw ArgumentError('Unknown preset');
     }
+    final stackValue = stack ?? config.stack;
     final is3bet = presetId == '25bb_co_vs_btn_3bet';
     final isIcm = presetId == 'icm_final_table_6max_12bb_co';
     final spots = <TrainingPackSpot>[];
@@ -108,7 +121,7 @@ class TrainingPackAuthorService {
       int playerCount;
       int heroIndex = 0;
       if (is3bet) {
-        stacks = {'0': config.stack.toDouble(), '1': config.stack.toDouble()};
+        stacks = {'0': stackValue.toDouble(), '1': stackValue.toDouble()};
         actions = {
           0: [
             ActionEntry(0, 0, 'raise', amount: 2.5, ev: 0, icmEv: 0),
@@ -146,11 +159,11 @@ class TrainingPackAuthorService {
         };
         playerCount = playerStacks.length;
       } else {
-        stacks = {'0': config.stack.toDouble(), '1': config.stack.toDouble()};
+        stacks = {'0': stackValue.toDouble(), '1': stackValue.toDouble()};
         actions = {
           0: [
             ActionEntry(0, 0, 'push',
-                amount: config.stack.toDouble(), ev: 0, icmEv: 0),
+                amount: stackValue.toDouble(), ev: 0, icmEv: 0),
             ActionEntry(0, 1, 'fold'),
           ]
         };
@@ -176,10 +189,10 @@ class TrainingPackAuthorService {
       name: config.name,
       gameType: config.gameType,
       spots: spots,
-      heroBbStack: isIcm ? 12 : config.stack,
+      heroBbStack: isIcm ? 12 : stackValue,
       playerStacksBb: isIcm
           ? const [25, 20, 12, 18, 9, 6]
-          : [config.stack, config.stack],
+          : [stackValue, stackValue],
       heroPos: config.pos,
       spotCount: spots.length,
       bbCallPct: 0,
@@ -202,12 +215,21 @@ class TrainingPackAuthorService {
   }
 }
 
-class _PresetConfig {
+class PresetConfig {
   final String name;
   final HeroPosition pos;
   final int stack;
   final List<String> hands;
+  final String category;
+  final String description;
   final GameType gameType;
-  const _PresetConfig(this.name, this.pos, this.stack, this.hands,
-      {this.gameType = GameType.tournament});
+  const PresetConfig(
+    this.name,
+    this.pos,
+    this.stack,
+    this.hands, {
+    required this.category,
+    required this.description,
+    this.gameType = GameType.tournament,
+  });
 }
