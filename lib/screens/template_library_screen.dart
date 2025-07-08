@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -242,6 +243,32 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     return list.isNotEmpty ? list.first : null;
   }
 
+  Future<void> _quickPractice() async {
+    final templates = context.read<TemplateStorageService>().templates;
+    TrainingPackTemplate? tpl;
+    if (_needsPracticeIds.isNotEmpty) {
+      tpl = templates.firstWhere(
+        (t) => _needsPracticeIds.contains(t.id),
+        orElse: () => TrainingPackTemplate(id: '', name: ''),
+      );
+      if (tpl.id.isEmpty) tpl = null;
+    }
+    tpl ??= (
+      () {
+        final builtIn = [for (final t in templates) if (t.isBuiltIn) t];
+        if (builtIn.isEmpty) return null;
+        return builtIn[Random().nextInt(builtIn.length)];
+      }()
+    );
+    if (tpl == null) return;
+    await context.read<TrainingSessionService>().startSession(tpl);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final templates = context.watch<TemplateStorageService>().templates;
@@ -455,6 +482,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          FloatingActionButton.extended(
+            heroTag: 'quickPracticeFab',
+            onPressed: _quickPractice,
+            label: const Text('Quick Practice'),
+            icon: const Icon(Icons.play_arrow),
+          ),
+          const SizedBox(height: 12),
           FloatingActionButton.extended(
             heroTag: 'genFromPresetFab',
             onPressed: _generateFromPreset,
