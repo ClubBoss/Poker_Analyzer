@@ -25,6 +25,7 @@ import '../services/training_pack_template_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/bulk_evaluator_service.dart';
 import '../utils/template_coverage_utils.dart';
+import '../services/mistake_review_pack_service.dart';
 import 'package:intl/intl.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
@@ -380,6 +381,36 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               onPressed: _importStarterPacks,
               child: const Text('Import Starter Packs'),
             ),
+          ),
+          Builder(
+            builder: (context) {
+              final service = context.watch<MistakeReviewPackService>();
+              if (!service.hasMistakes()) return const SizedBox.shrink();
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Card(
+                  child: ListTile(
+                    leading:
+                        const Icon(Icons.error, color: Colors.orangeAccent),
+                    title: const Text('Review Mistakes'),
+                    onTap: () async {
+                      final tpl = await service.buildPack(context);
+                      if (tpl == null) return;
+                      await context
+                          .read<TrainingSessionService>()
+                          .startSession(tpl, persist: false);
+                      if (!context.mounted) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen()),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
