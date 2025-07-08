@@ -183,4 +183,36 @@ class CloudSyncService {
   void dispose() {
     _connSub?.cancel();
   }
+
+  Future<void> save(String key, String value) async {
+    if (_local) {
+      await _box!.put(key, value);
+      return;
+    }
+    await _prefs.setString(key, value);
+    if (uid == null) return;
+    await CloudRetryPolicy.execute(() =>
+        _db.collection('users').doc(uid).collection('prefs').doc(key).set({'v': value}));
+  }
+
+  Future<String?> load(String key) async {
+    if (_local) {
+      final val = _box!.get(key);
+      if (val is String) return val;
+      return null;
+    }
+    final local = _prefs.getString(key);
+    if (uid == null) return local;
+    try {
+      final snap = await CloudRetryPolicy.execute(() =>
+          _db.collection('users').doc(uid).collection('prefs').doc(key).get());
+      final data = snap.data();
+      if (data != null && data['v'] is String) {
+        final v = data['v'] as String;
+        await _prefs.setString(key, v);
+        return v;
+      }
+    } catch (_) {}
+    return local;
+  }
 }
