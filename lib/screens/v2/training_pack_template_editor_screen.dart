@@ -4933,15 +4933,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           ),
                           const SizedBox(height: 16),
                     if (coverageWarningNeeded) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.orangeAccent.withOpacity(.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          'Coverage incomplete: EV/ICM not computed for all spots',
-                          style: TextStyle(color: Colors.white),
+                      GestureDetector(
+                        onTap: _calculateMissingEvIcm,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orangeAccent.withOpacity(.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'Coverage incomplete: EV/ICM not computed for all spots',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -5020,15 +5023,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                   ),
                   const SizedBox(height: 16),
             if (coverageWarningNeeded) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.orangeAccent.withOpacity(.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'Coverage incomplete: EV/ICM not computed for all spots',
-                  style: TextStyle(color: Colors.white),
+              GestureDetector(
+                onTap: _calculateMissingEvIcm,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent.withOpacity(.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Coverage incomplete: EV/ICM not computed for all spots',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
