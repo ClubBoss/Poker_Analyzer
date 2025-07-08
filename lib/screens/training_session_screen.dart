@@ -5,6 +5,7 @@ import '../services/training_session_service.dart';
 import '../widgets/spot_quiz_widget.dart';
 import 'session_result_screen.dart';
 import 'training_session_summary_screen.dart';
+import '../services/training_pack_stats_service.dart';
 import 'package:uuid/uuid.dart';
 
 class _EndlessStats {
@@ -190,6 +191,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         ),
       ),
     );
+    final tpl = service.template;
+    if (tpl != null) {
+      unawaited(TrainingPackStatsService.recordSession(
+          tpl.id, service.correctCount, service.totalCount));
+    }
   }
 
   void _showEndlessSummary() {

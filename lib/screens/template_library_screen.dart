@@ -21,6 +21,8 @@ import 'v2/training_pack_template_editor_screen.dart';
 import '../repositories/training_pack_preset_repository.dart';
 import '../models/v2/training_pack_preset.dart';
 import '../services/training_pack_template_service.dart';
+import '../services/training_pack_stats_service.dart';
+import 'package:intl/intl.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -279,8 +281,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
                 return Card(
                   child: ListTile(
-                    leading:
-                        CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
+                    leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
                     title: Row(
                       children: [
                         if (t.isBuiltIn) ...[
@@ -290,8 +291,36 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         Expanded(child: Text(t.name)),
                       ],
                     ),
-                    subtitle: Text(
-                        '${t.category ?? 'Без категории'} • ${t.hands.length} рук • v$version'),
+                    subtitle: FutureBuilder<TrainingPackStat?>(
+                      future: TrainingPackStatsService.getStats(t.id),
+                      builder: (context, snap) {
+                        final main = '${t.category ?? 'Без категории'} • ${t.hands.length} рук • v$version';
+                        final stat = snap.data;
+                        if (stat == null) return Text(main);
+                        final date = DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
+                        final color = stat.accuracy >= 1
+                            ? Colors.green
+                            : stat.accuracy >= .5
+                                ? Colors.amber
+                                : Colors.red;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(main),
+                            const SizedBox(height: 4),
+                            LinearProgressIndicator(
+                              value: stat.accuracy,
+                              backgroundColor: Colors.white12,
+                              color: color,
+                              minHeight: 4,
+                            ),
+                            const SizedBox(height: 2),
+                            Text('Last trained: $date',
+                                style: const TextStyle(fontSize: 12, color: Colors.white60)),
+                          ],
+                        );
+                      },
+                    ),
                     trailing: TextButton(
                       onPressed: () {
                         context.read<TrainingSessionService>().startSession(t);
