@@ -40,6 +40,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _key = 'lib_game_type';
   static const _sortKey = 'lib_sort';
   static const _favKey = 'fav_tpl_ids';
+  static const _needsPracticeKey = 'lib_needs_practice';
+  static const _favOnlyKey = 'lib_fav_only';
+  static const _selTagKey = 'lib_sel_tag';
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
   String _sort = 'edited';
@@ -71,7 +74,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _favorites
         ..clear()
         ..addAll(prefs.getStringList(_favKey) ?? []);
+      _needsPractice = prefs.getBool(_needsPracticeKey) ?? false;
+      _favoritesOnly = prefs.getBool(_favOnlyKey) ?? false;
+      _selectedTag = prefs.getString(_selTagKey);
     });
+    if (_needsPractice) _updateNeedsPractice(true);
   }
 
   Future<void> _setFilter(String value) async {
@@ -91,6 +98,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   Future<void> _updateNeedsPractice(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_needsPracticeKey, value);
     setState(() {
       _needsPractice = value;
       if (!value) _needsPracticeIds.clear();
@@ -121,6 +130,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_favKey, _favorites.toList());
+  }
+
+  Future<void> _setFavoritesOnly(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_favOnlyKey, value);
+    setState(() => _favoritesOnly = value);
+  }
+
+  Future<void> _setSelectedTag(String? tag) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (tag == null) {
+      await prefs.remove(_selTagKey);
+    } else {
+      await prefs.setString(_selTagKey, tag);
+    }
+    setState(() => _selectedTag = tag);
   }
 
   List<TrainingPackTemplate> _applySorting(List<TrainingPackTemplate> list) {
@@ -554,7 +579,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               FilterChip(
                 label: const Text('Favorites'),
                 selected: _favoritesOnly,
-                onSelected: (v) => setState(() => _favoritesOnly = v),
+                onSelected: (v) => _setFavoritesOnly(v),
               ),
             ],
           ),
@@ -571,13 +596,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     child: FilterChip(
                       label: Text(tag),
                       selected: _selectedTag == tag,
-                      onSelected: (_) => setState(() {
+                      onSelected: (_) {
                         if (_selectedTag == tag) {
-                          _selectedTag = null;
+                          _setSelectedTag(null);
                         } else {
-                          _selectedTag = tag;
+                          _setSelectedTag(tag);
                         }
-                      }),
+                      },
                     ),
                   ),
               ],
