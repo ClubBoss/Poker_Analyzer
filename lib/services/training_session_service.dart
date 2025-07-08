@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../helpers/hand_utils.dart';
 import '../helpers/hand_type_utils.dart';
+import '../helpers/training_pack_storage.dart';
 
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -15,6 +16,7 @@ class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
   Box<dynamic>? _activeBox;
   TrainingSession? _session;
+  TrainingPackTemplate? _template;
   List<TrainingPackSpot> _spots = [];
   final List<TrainingAction> _actions = [];
   Timer? _timer;
@@ -56,6 +58,7 @@ class TrainingSessionService extends ChangeNotifier {
   int get totalCount => results.length;
   List<TrainingAction> get actionLog => List.unmodifiable(_actions);
   List<TrainingPackSpot> get spots => List.unmodifiable(_spots);
+  TrainingPackTemplate? get template => _template;
 
   Future<void> _openBox() async {
     if (!Hive.isBoxOpen('sessions')) {
@@ -84,6 +87,16 @@ class TrainingSessionService extends ChangeNotifier {
         final session = TrainingSession.fromJson(Map<String, dynamic>.from(s));
         if (session.completedAt == null) {
           _session = session;
+          try {
+            final templates = await TrainingPackStorage.load();
+            _template = templates.firstWhere(
+              (t) => t.id == session.templateId,
+              orElse: () => TrainingPackTemplate(id: '', name: ''),
+            );
+            if (_template!.id.isEmpty) _template = null;
+          } catch (_) {
+            _template = null;
+          }
           _paused = false;
           _accumulated = Duration.zero;
           _resumedAt = DateTime.now();
@@ -187,6 +200,7 @@ class TrainingSessionService extends ChangeNotifier {
     bool persist = true,
   }) async {
     if (persist) await _openBox();
+    _template = template;
     _spots = List<TrainingPackSpot>.from(template.spots);
     _actions.clear();
     _focusHandTypes

@@ -204,14 +204,19 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        '${(service.session?.index ?? 0) + 1} / ${service.totalCount}',
+                    if (service.session != null && service.template != null) ...[
+                      Text(
+                        service.template!.name,
+                        style: const TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${service.session!.index + 1} / ${service.template!.spots.length}',
                         style: const TextStyle(color: Colors.white70),
                       ),
-                    ),
-                    const SizedBox(height: 4),
+                      const SizedBox(height: 4),
+                    ],
                     Text(
                       'Elapsed: ${_format(service.elapsedTime)}',
                       style: const TextStyle(color: Colors.white70),
