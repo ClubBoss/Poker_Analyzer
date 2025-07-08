@@ -90,12 +90,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     } catch (_) {}
     final before = {..._favorites};
     _favorites.addAll(remote);
-    final merged = _favorites.toList();
+    final merged = _favorites.toList()..sort();
     if (!setEquals(before, _favorites)) {
       await prefs.setStringList(_favKey, merged);
     }
     if (!setEquals(remote.toSet(), _favorites)) {
-      unawaited(cloud.save(_favKey, jsonEncode(merged)));
+      unawaited(
+          cloud.save(_favKey, jsonEncode(merged)).catchError((_) {}));
     }
     if (_needsPractice) _updateNeedsPractice(true);
   }
@@ -148,9 +149,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       }
     });
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_favKey, _favorites.toList());
-    unawaited(context.read<CloudSyncService>()
-        .save(_favKey, jsonEncode(_favorites.toList())));
+    final list = _favorites.toList()..sort();
+    await prefs.setStringList(_favKey, list);
+    unawaited(context
+        .read<CloudSyncService>()
+        .save(_favKey, jsonEncode(list))
+        .catchError((_) {}));
   }
 
   Future<void> _setFavoritesOnly(bool value) async {
