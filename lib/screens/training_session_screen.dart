@@ -91,7 +91,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     });
   }
 
-  void _next(service) {
+  Future<void> _next(service) async {
     final next = service.nextSpot();
     if (!mounted) return;
     if (next == null) {
@@ -101,8 +101,32 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         Navigator.pop(context);
         widget.onSessionEnd!();
       } else {
-        _summaryShown = true;
-        _showSummary(service);
+        final restart = await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Close'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Restart Pack'),
+              ),
+            ],
+          ),
+        );
+        if (restart == true) {
+          service.session?.index = 0;
+          service.session?.completedAt = null;
+          setState(() {
+            _selected = null;
+            _correct = null;
+          });
+        } else {
+          _summaryShown = true;
+          _showSummary(service);
+        }
       }
     } else {
       setState(() {
