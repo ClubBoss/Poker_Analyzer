@@ -2041,6 +2041,59 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
+  void _validateAllSpots() {
+    final issues = <String>[];
+    for (int i = 0; i < widget.template.spots.length; i++) {
+      final s = widget.template.spots[i];
+      final prefix = '${i + 1}. ${s.title.isEmpty ? 'Untitled spot' : s.title}';
+      if (s.hand.heroCards.trim().isEmpty) {
+        issues.add('$prefix - no hero cards');
+      }
+      final stacks = s.hand.stacks;
+      final heroStack = stacks['${s.hand.heroIndex}'];
+      final stackCount = stacks.values.where((v) => v > 0).length;
+      if (heroStack == null || heroStack <= 0 || stackCount < 2) {
+        issues.add('$prefix - invalid stacks');
+      } else {
+        if (heroStack < 1) issues.add('$prefix - stack too small');
+        if (heroStack > 200) issues.add('$prefix - stack too large');
+      }
+      if (s.heroEv == null || s.heroIcmEv == null) {
+        issues.add('$prefix - missing EV/ICM');
+      }
+    }
+    if (issues.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All spots valid'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Validation'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [for (final e in issues) Text(e)],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
 
 
   void _regenerateEv() {
@@ -4524,6 +4577,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ),
           IconButton(icon: const Icon(Icons.info_outline), onPressed: _showSummary),
           IconButton(icon: const Text('🚦 Validate'), onPressed: _validateTemplate),
+          IconButton(icon: const Text('✅ All'), tooltip: 'Validate All', onPressed: _validateAllSpots),
           IconButton(
             icon: Icon(Icons.push_pin, color: _pinnedOnly ? AppColors.accent : null),
             tooltip: 'Pinned Only',
