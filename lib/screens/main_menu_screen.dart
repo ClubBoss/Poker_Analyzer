@@ -16,10 +16,10 @@ import 'daily_hand_screen.dart';
 import 'spot_of_the_day_screen.dart';
 import 'create_pack_screen.dart';
 import 'edit_pack_screen.dart';
-import 'template_library_screen.dart';
 import 'my_training_packs_screen.dart';
 import 'training_screen.dart';
 import 'start_training_from_pack_screen.dart';
+import '../helpers/training_onboarding.dart';
 import 'package:provider/provider.dart';
 import '../services/hand_history_file_service.dart';
 import '../services/saved_hand_manager_service.dart';
@@ -641,14 +641,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const TemplateLibraryScreen(),
-                  ),
-                );
-              },
+              onPressed: () => openTrainingTemplates(context),
               child: const Text('📑 Шаблоны'),
             ),
             const SizedBox(height: 16),
