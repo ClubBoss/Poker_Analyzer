@@ -4,6 +4,9 @@ import '../../helpers/training_pack_storage.dart';
 import '../../helpers/title_utils.dart';
 import '../../models/card_model.dart';
 import '../../widgets/card_picker_widget.dart';
+import '../../widgets/action_editor_list.dart';
+import '../../models/action_entry.dart';
+import '../../models/v2/hero_position.dart';
 import '../../models/evaluation_result.dart';
 import 'package:provider/provider.dart';
 import '../../services/evaluation_executor_service.dart';
@@ -25,12 +28,15 @@ class TrainingPackSpotEditorScreen extends StatefulWidget {
 class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScreen> {
   late final TextEditingController _titleCtr;
   late final TextEditingController _noteCtr;
+  late final TextEditingController _heroStackCtr;
+  late final TextEditingController _villainStackCtr;
+  late List<CardModel> _heroCards;
+  late HeroPosition _position;
+  late List<ActionEntry> _actions;
   bool _loading = false;
 
   Set<String> _usedCards() {
-    final hero = widget.spot.hand.heroCards
-        .split(RegExp(r'\s+'))
-        .where((e) => e.isNotEmpty);
+    final hero = _heroCards.map((c) => '${c.rank}${c.suit}');
     return {
       ...hero,
       ...widget.spot.hand.board,
@@ -50,6 +56,18 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
       } else if (index == b.length) {
         b.add(v);
       }
+    });
+  }
+
+  void _setHeroCard(int index, CardModel card) {
+    setState(() {
+      if (_heroCards.length > index) {
+        _heroCards[index] = card;
+      } else if (_heroCards.length == index) {
+        _heroCards.add(card);
+      }
+      widget.spot.hand.heroCards =
+          _heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
     });
   }
 
@@ -166,16 +184,47 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     widget.spot.title = normalizeSpotTitle(widget.spot.title);
     _titleCtr = TextEditingController(text: widget.spot.title);
     _noteCtr = TextEditingController(text: widget.spot.note);
+    final stacks = widget.spot.hand.stacks;
+    _heroStackCtr =
+        TextEditingController(text: (stacks['0'] ?? 10).round().toString());
+    _villainStackCtr =
+        TextEditingController(text: (stacks['1'] ?? 10).round().toString());
+    _heroCards = widget.spot.hand.heroCards
+        .split(RegExp(r'\s+'))
+        .where((e) => e.isNotEmpty)
+        .map(_toCard)
+        .toList();
+    _position = widget.spot.hand.position;
+    if (_position == HeroPosition.unknown) _position = HeroPosition.sb;
+    _actions = List<ActionEntry>.from(widget.spot.hand.actions[0] ?? []);
+    widget.spot.hand.playerCount = 2;
+    widget.spot.hand.heroIndex = 0;
   }
 
   @override
   void dispose() {
     _titleCtr.dispose();
     _noteCtr.dispose();
+    _heroStackCtr.dispose();
+    _villainStackCtr.dispose();
     super.dispose();
   }
 
+  void _sync() {
+    widget.spot.hand.heroCards =
+        _heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
+    widget.spot.hand.position = _position;
+    widget.spot.hand.stacks['0'] =
+        double.tryParse(_heroStackCtr.text) ?? 0;
+    widget.spot.hand.stacks['1'] =
+        double.tryParse(_villainStackCtr.text) ?? 0;
+    widget.spot.hand.playerCount = 2;
+    widget.spot.hand.heroIndex = 0;
+    widget.spot.hand.actions[0] = List<ActionEntry>.from(_actions);
+  }
+
   Future<void> _save() async {
+    _sync();
     final normalized = normalizeSpotTitle(_titleCtr.text);
     widget.spot.title = normalized;
     _titleCtr.text = normalized;
@@ -197,6 +246,7 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
   }
 
   Future<void> _evaluate() async {
+    _sync();
     setState(() => _loading = true);
     try {
       final res = await context.read<EvaluationExecutorService>().evaluate(widget.spot);
@@ -220,9 +270,10 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
         title: const Text('Edit spot'),
         actions: [IconButton(icon: const Icon(Icons.save), onPressed: _save)],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: _titleCtr,
@@ -251,6 +302,60 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
                   onPressed: _addTagDialog,
                 ),
               ],
+            ),
+            const SizedBox(height: 24),
+            const Text('Hero Cards', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            CardPickerWidget(
+              cards: _heroCards,
+              onChanged: _setHeroCard,
+              disabledCards: _usedCards(),
+            ),
+            const SizedBox(height: 16),
+            DropdownButton<HeroPosition>(
+              value: _position,
+              items: [
+                for (final p in HeroPosition.values)
+                  DropdownMenuItem(value: p, child: Text(p.label))
+              ],
+              onChanged: (v) => setState(() {
+                _position = v ?? _position;
+                widget.spot.hand.position = _position;
+              }),
+            ),
+            const SizedBox(height: 16),
+            const Text('Stacks (BB)', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _heroStackCtr,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Hero'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _villainStackCtr,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Villain'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text('Preflop Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            ActionEditorList(
+              initial: _actions,
+              players: 2,
+              positions: [_position.label, 'Villain'],
+              onChanged: (v) => setState(() {
+                _actions = v;
+                widget.spot.hand.actions[0] = List.from(v);
+              }),
             ),
             const SizedBox(height: 24),
             _streetPicker('Flop', 0, 3),
