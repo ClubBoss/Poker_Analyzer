@@ -163,6 +163,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsPreviewModeKey = 'preview_mode';
   static const _prefsPreviewJsonPngKey = 'preview_json_png';
   static const _prefsMultiTipKey = 'multi_tip_shown';
+  static String _trainedPromptKey(String tplId) => '_trainPrompt_$tplId';
   String _scrollKeyFor(TrainingPackTemplate t) => '$_prefsScrollPrefix${t.id}';
   String get _scrollKey => _scrollKeyFor(widget.template);
   String _evFilter = 'all';
@@ -2558,11 +2559,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   }
 
   void _maybeStartTraining() async {
-    final has = widget.template.spots
-        .any((s) => s.tags.contains('push') && s.tags.contains('fold'));
-    if (!has) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_trainedPromptKey(widget.template.id)) ?? false) return;
+    final hasPush =
+        widget.template.spots.any((s) => s.tags.contains('push'));
+    final hasFold =
+        widget.template.spots.any((s) => s.tags.contains('fold'));
+    if (!(hasPush && hasFold)) return;
     final ok = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (_) => AlertDialog(
         content: const Text('Start training session now?'),
         actions: [
@@ -2577,6 +2583,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ],
       ),
     );
+    prefs.setBool(_trainedPromptKey(widget.template.id), true);
     if (ok != true || !mounted) return;
     await context
         .read<TrainingSessionService>()
@@ -2586,6 +2593,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       context,
       MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
     );
+    if (!mounted) return;
   }
 
   Future<void> _calculateMissingEvIcm() async {
