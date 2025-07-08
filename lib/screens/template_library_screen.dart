@@ -287,6 +287,90 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
   }
 
+  Widget _item(TrainingPackTemplate t) {
+    final parts = t.version.split('.');
+    final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
+    return Card(
+      child: ListTile(
+        leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
+        title: Row(
+          children: [
+            if (t.isBuiltIn) ...[
+              const Icon(Icons.auto_awesome, size: 16, color: Colors.orange),
+              const SizedBox(width: 4),
+            ],
+            Expanded(child: Text(t.name)),
+          ],
+        ),
+        subtitle: FutureBuilder<TrainingPackStat?>(
+          future: TrainingPackStatsService.getStats(t.id),
+          builder: (context, snap) {
+            final main = '${t.category ?? 'Без категории'} • ${t.hands.length} рук • v$version';
+            final stat = snap.data;
+            if (stat == null) return Text(main);
+            final date = DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
+            final color = stat.accuracy >= 1
+                ? Colors.green
+                : stat.accuracy >= .5
+                    ? Colors.amber
+                    : Colors.red;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(main),
+                const SizedBox(height: 4),
+                LinearProgressIndicator(
+                  value: stat.accuracy,
+                  backgroundColor: Colors.white12,
+                  color: color,
+                  minHeight: 4,
+                ),
+                const SizedBox(height: 2),
+                Text('Last trained: $date',
+                    style: const TextStyle(fontSize: 12, color: Colors.white60)),
+              ],
+            );
+          },
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(
+                _favorites.contains(t.id) ? Icons.star : Icons.star_border,
+              ),
+              color: _favorites.contains(t.id) ? Colors.amber : Colors.white54,
+              onPressed: () => _toggleFavorite(t.id),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<TrainingSessionService>().startSession(t);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                );
+              },
+              child: const Text('▶️ Train'),
+            ),
+          ],
+        ),
+        onTap: () async {
+          final create = await showDialog<bool>(
+            context: context,
+            builder: (_) => TemplatePreviewDialog(template: t),
+          );
+          if (create == true && context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => CreatePackFromTemplateScreen(template: t)),
+            );
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final templates = context.watch<TemplateStorageService>().templates;
@@ -318,12 +402,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ];
     }
     if (_favoritesOnly) {
-      visible = [
-        for (final t in visible)
-          if (_favorites.contains(t.id)) t
-      ];
+      visible = [for (final t in visible) if (_favorites.contains(t.id)) t];
     }
-    visible = _applySorting(visible);
+    final fav = <TrainingPackTemplate>[];
+    final nonFav = <TrainingPackTemplate>[];
+    for (final t in visible) {
+      if (_favorites.contains(t.id)) {
+        fav.add(t);
+      } else {
+        nonFav.add(t);
+      }
+    }
+    final sortedFav = _applySorting(fav);
+    final sortedNonFav = _applySorting(nonFav);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -462,104 +553,19 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ],
           ),
         ),
-          if (_loadingNeedsPractice)
-            const LinearProgressIndicator(minHeight: 2),
-          Expanded(
-            child: ListView.builder(
-              itemCount: visible.length,
-              itemBuilder: (context, i) {
-                final t = visible[i];
-                final parts = t.version.split('.');
-                final version =
-                    parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
-                return Card(
-                  child: ListTile(
-                    leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
-                    title: Row(
-                      children: [
-                        if (t.isBuiltIn) ...[
-                          const Icon(Icons.auto_awesome, size: 16, color: Colors.orange),
-                          const SizedBox(width: 4),
-                        ],
-                        Expanded(child: Text(t.name)),
-                      ],
-                    ),
-                    subtitle: FutureBuilder<TrainingPackStat?>(
-                      future: TrainingPackStatsService.getStats(t.id),
-                      builder: (context, snap) {
-                        final main = '${t.category ?? 'Без категории'} • ${t.hands.length} рук • v$version';
-                        final stat = snap.data;
-                        if (stat == null) return Text(main);
-                        final date = DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
-                        final color = stat.accuracy >= 1
-                            ? Colors.green
-                            : stat.accuracy >= .5
-                                ? Colors.amber
-                                : Colors.red;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(main),
-                            const SizedBox(height: 4),
-                            LinearProgressIndicator(
-                              value: stat.accuracy,
-                              backgroundColor: Colors.white12,
-                              color: color,
-                              minHeight: 4,
-                            ),
-                            const SizedBox(height: 2),
-                            Text('Last trained: $date',
-                                style: const TextStyle(fontSize: 12, color: Colors.white60)),
-                          ],
-                        );
-                      },
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            _favorites.contains(t.id)
-                                ? Icons.star
-                                : Icons.star_border,
-                          ),
-                          color: _favorites.contains(t.id)
-                              ? Colors.amber
-                              : Colors.white54,
-                          onPressed: () => _toggleFavorite(t.id),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            context.read<TrainingSessionService>().startSession(t);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const TrainingSessionScreen()),
-                            );
-                          },
-                          child: const Text('▶️ Train'),
-                        ),
-                      ],
-                    ),
-                    onTap: () async {
-                      final create = await showDialog<bool>(
-                        context: context,
-                        builder: (_) => TemplatePreviewDialog(template: t),
-                      );
-                      if (create == true && context.mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) =>
-                                  CreatePackFromTemplateScreen(template: t)),
-                        );
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
+        if (_loadingNeedsPractice) const LinearProgressIndicator(minHeight: 2),
+        Expanded(
+          child: ListView(
+            children: [
+              if (sortedFav.isNotEmpty) ...[
+                const ListTile(title: Text('★ Favorites')),
+                for (final t in sortedFav) _item(t),
+                if (sortedNonFav.isNotEmpty) const Divider(),
+              ],
+              for (final t in sortedNonFav) _item(t),
+            ],
           ),
+        ),
         ],
       ),
       floatingActionButton: Column(
