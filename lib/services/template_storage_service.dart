@@ -42,6 +42,9 @@ class TemplateStorageService extends ChangeNotifier {
   }
 
   void addTemplate(TrainingPackTemplate template) {
+    final exists = _templates.any(
+        (t) => t.id == template.id || t.name.trim() == template.name.trim());
+    if (exists) return;
     _templates.add(template);
     _resort();
     notifyListeners();

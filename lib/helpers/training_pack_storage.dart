@@ -4,18 +4,40 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../models/v2/training_pack_template.dart';
-import '../data/seed_packs.dart';
 import '../utils/template_coverage_utils.dart';
+import '../services/training_pack_author_service.dart';
 
 class TrainingPackStorage {
   static const _key = 'training_pack_templates';
 
+  static const _presetIds = [
+    '10bb_co_vs_bb',
+    '10bb_sb_vs_bb',
+    '15bb_hj_vs_bb',
+    '25bb_co_vs_btn_3bet',
+    'icm_final_table_6max_12bb_co',
+  ];
+
   static Future<List<TrainingPackTemplate>> load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key);
-    if (raw == null) return List<TrainingPackTemplate>.from(seedPacks);
+    if (raw == null || raw.isEmpty) {
+      final generated = [
+        for (final id in _presetIds)
+          TrainingPackAuthorService.generateFromPreset(id)
+      ];
+      await save(generated);
+      return generated;
+    }
     final list = jsonDecode(raw) as List;
-    if (list.isEmpty) return List<TrainingPackTemplate>.from(seedPacks);
+    if (list.isEmpty) {
+      final generated = [
+        for (final id in _presetIds)
+          TrainingPackAuthorService.generateFromPreset(id)
+      ];
+      await save(generated);
+      return generated;
+    }
     final templates = [for (final m in list) TrainingPackTemplate.fromJson(m)];
     bool changed = false;
     for (final t in templates) {
