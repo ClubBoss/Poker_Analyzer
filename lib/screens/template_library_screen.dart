@@ -22,6 +22,8 @@ import '../repositories/training_pack_preset_repository.dart';
 import '../models/v2/training_pack_preset.dart';
 import '../services/training_pack_template_service.dart';
 import '../services/training_pack_stats_service.dart';
+import '../services/bulk_evaluator_service.dart';
+import '../utils/template_coverage_utils.dart';
 import 'package:intl/intl.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
@@ -196,14 +198,38 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (!mounted) return;
     final service = context.read<TemplateStorageService>();
     var added = 0;
-    for (final p in presets) {
-      final exists = service.templates.any((t) => t.id == p.id || t.name == p.name);
-      if (exists) continue;
-      final tpl = await TrainingPackTemplateService.generateFromPreset(p);
-      tpl.isBuiltIn = true;
-      service.addTemplate(tpl);
-      added++;
-    }
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                for (final p in presets) {
+                  final exists = service.templates
+                      .any((t) => t.id == p.id || t.name == p.name);
+                  if (exists) continue;
+                  final tpl =
+                      await TrainingPackTemplateService.generateFromPreset(p);
+                  tpl.isBuiltIn = true;
+                  await BulkEvaluatorService().generateMissing(tpl);
+                  TemplateCoverageUtils.recountAll(tpl);
+                  service.addTemplate(tpl);
+                  added++;
+                }
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return const AlertDialog(
+              content: LinearProgressIndicator(),
+            );
+          },
+        );
+      },
+    );
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Added $added packs')));
