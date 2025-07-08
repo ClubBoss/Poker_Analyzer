@@ -7,8 +7,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../models/v2/training_pack_template.dart';
 import '../services/template_storage_service.dart';
 import '../helpers/training_pack_storage.dart';
-import '../services/training_pack_author_service.dart'
-    show TrainingPackAuthorService, PresetConfig;
+import '../services/training_pack_author_service.dart' show TrainingPackAuthorService, PresetConfig;
 import 'v2/training_pack_template_editor_screen.dart';
 import 'v2/training_session_screen.dart';
 
