@@ -2934,6 +2934,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           )
     ];
     if (spots.isEmpty) return;
+    _recordSnapshot();
     final tpl = TrainingPackTemplate(
       id: const Uuid().v4(),
       name:
@@ -2950,6 +2951,21 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _selectedSpotIds.clear();
     });
     await _persist();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Exported ${spots.length} spot(s)'),
+          action: SnackBarAction(
+            label: 'UNDO',
+            onPressed: () async {
+              service.removeTemplate(tpl);
+              setState(() => widget.templates.remove(tpl));
+              await _persist();
+            },
+          ),
+        ),
+      );
+    }
     if (!mounted) return;
     await Navigator.push(
       context,
