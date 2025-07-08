@@ -1,29 +1,60 @@
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
 
-List<String> validateTrainingPackTemplate(TrainingPackTemplate tpl) {
-  final issues = <String>[];
-  for (int i = 0; i < tpl.spots.length; i++) {
-    final TrainingPackSpot spot = tpl.spots[i];
-    final prefix = '${i + 1}. ${spot.title.isEmpty ? 'Untitled spot' : spot.title}';
-    if (spot.hand.heroCards.trim().isEmpty) {
-      issues.add('$prefix - no hero cards');
-    }
+class SpotIssue {
+  final String spotId;
+  final int index;
+  final String message;
+  SpotIssue(this.spotId, this.index, this.message);
+}
+
+typedef SpotRule = String? Function(TrainingPackSpot s, int idx);
+
+final List<SpotRule> spotRules = [
+  (s, i) => s.hand.heroCards.trim().isEmpty ? 'no hero cards' : null,
+  (s, i) {
     final board = [
       for (final street in [1, 2, 3])
-        for (final a in spot.hand.actions[street] ?? [])
+        for (final a in s.hand.actions[street] ?? [])
           if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
             ...a.customLabel!.split(' ')
     ];
     if (board.isNotEmpty && ![3, 4, 5].contains(board.length)) {
-      issues.add('$prefix - invalid board');
+      return 'invalid board';
     }
-    final hasActs = spot.hand.actions.values
+    return null;
+  },
+  (s, i) {
+    final hasActs = s.hand.actions.values
         .expand((e) => e)
         .any((a) => a.action != 'board' && !a.generated);
-    if (!hasActs) {
-      issues.add('$prefix - no actions');
+    return hasActs ? null : 'no actions';
+  },
+  (s, i) {
+    final stacks = s.hand.stacks;
+    final heroStack = stacks['${s.hand.heroIndex}'];
+    final stackCount = stacks.values.where((v) => v > 0).length;
+    if (heroStack == null || heroStack <= 0 || stackCount < 2) {
+      return 'invalid stacks';
     }
+    if (heroStack < 1) return 'stack too small';
+    if (heroStack > 200) return 'stack too large';
+    return null;
+  },
+  (s, i) => s.heroEv == null || s.heroIcmEv == null ? 'missing EV/ICM' : null,
+];
+
+List<SpotIssue> validateSpot(TrainingPackSpot s, int idx) {
+  final prefix = '${idx + 1}. ${s.title.isEmpty ? 'Untitled spot' : s.title}';
+  final list = <SpotIssue>[];
+  for (final r in spotRules) {
+    final msg = r(s, idx);
+    if (msg != null) list.add(SpotIssue(s.id, idx, '$prefix - $msg'));
   }
-  return issues;
+  return list;
 }
+
+List<String> validateTrainingPackTemplate(TrainingPackTemplate tpl) => [
+      for (int i = 0; i < tpl.spots.length; i++)
+        for (final e in validateSpot(tpl.spots[i], i)) e.message,
+    ];

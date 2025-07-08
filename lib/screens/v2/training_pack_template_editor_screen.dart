@@ -2041,27 +2041,48 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     );
   }
 
-  void _validateAllSpots() {
-    final issues = <String>[];
-    for (int i = 0; i < widget.template.spots.length; i++) {
-      final s = widget.template.spots[i];
-      final prefix = '${i + 1}. ${s.title.isEmpty ? 'Untitled spot' : s.title}';
-      if (s.hand.heroCards.trim().isEmpty) {
-        issues.add('$prefix - no hero cards');
-      }
-      final stacks = s.hand.stacks;
-      final heroStack = stacks['${s.hand.heroIndex}'];
-      final stackCount = stacks.values.where((v) => v > 0).length;
-      if (heroStack == null || heroStack <= 0 || stackCount < 2) {
-        issues.add('$prefix - invalid stacks');
-      } else {
-        if (heroStack < 1) issues.add('$prefix - stack too small');
-        if (heroStack > 200) issues.add('$prefix - stack too large');
-      }
-      if (s.heroEv == null || s.heroIcmEv == null) {
-        issues.add('$prefix - missing EV/ICM');
-      }
-    }
+  Future<void> _validateAllSpots() async {
+    final issues = <SpotIssue>[];
+    var progress = 0.0;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        var started = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            if (!started) {
+              started = true;
+              Future.microtask(() async {
+                final spots = widget.template.spots;
+                for (var i = 0; i < spots.length; i++) {
+                  issues.addAll(validateSpot(spots[i], i));
+                  progress = (i + 1) / spots.length;
+                  setState(() {});
+                  await Future.delayed(const Duration(milliseconds: 1));
+                }
+                if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+              });
+            }
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(value: progress),
+                  const SizedBox(height: 12),
+                  Text(
+                    '${(progress * 100).toStringAsFixed(0)}%',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (!mounted) return;
     if (issues.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -2069,29 +2090,38 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           backgroundColor: Colors.green,
         ),
       );
-    } else {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('Validation'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [for (final e in issues) Text(e)],
-              ),
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Validation'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final i in issues)
+                  ListTile(
+                    title: Text(i.message),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _focusSpot(i.spotId);
+                    },
+                  ),
+              ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
         ),
-      );
-    }
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
 
@@ -3236,6 +3266,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _toggleSortMode();
       return true;
     }
+    if (e.logicalKey == LogicalKeyboardKey.keyV && e.isAltPressed) {
+      _importFromClipboardSpots();
+      return true;
+    }
     final isCmd = e.isControlPressed || e.isMetaPressed;
     if (!isCmd) return false;
     if (e.logicalKey == LogicalKeyboardKey.keyA) {
@@ -3256,7 +3290,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       return true;
     }
     if (e.logicalKey == LogicalKeyboardKey.keyV) {
-      _importFromClipboardSpots();
+      _validateAllSpots();
       return true;
     }
     return false;
