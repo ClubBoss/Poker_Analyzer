@@ -37,6 +37,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
   String _sort = 'edited';
+  bool _needsPractice = false;
+  bool _loadingNeedsPractice = false;
+  final Set<String> _needsPracticeIds = {};
 
   @override
   void initState() {
@@ -73,6 +76,29 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     setState(() => _sort = value);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_sortKey, value);
+  }
+
+  Future<void> _updateNeedsPractice(bool value) async {
+    setState(() {
+      _needsPractice = value;
+      if (!value) _needsPracticeIds.clear();
+    });
+    if (!value) return;
+    setState(() => _loadingNeedsPractice = true);
+    final templates = context.read<TemplateStorageService>().templates;
+    final ids = <String>{};
+    for (final t in templates) {
+      final acc =
+          (await TrainingPackStatsService.getStats(t.id))?.accuracy ?? 1.0;
+      if (acc < .8) ids.add(t.id);
+    }
+    if (!mounted) return;
+    setState(() {
+      _needsPracticeIds
+        ..clear()
+        ..addAll(ids);
+      _loadingNeedsPractice = false;
+    });
   }
 
   List<TrainingPackTemplate> _applySorting(List<TrainingPackTemplate> list) {
@@ -196,6 +222,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             t
       ];
     }
+    if (_needsPractice) {
+      visible = [
+        for (final t in visible)
+          if (_needsPracticeIds.contains(t.id)) t
+      ];
+    }
     visible = _applySorting(visible);
     return Scaffold(
       appBar: AppBar(
@@ -271,6 +303,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               );
             },
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Wrap(
+              spacing: 8,
+              children: [
+                FilterChip(
+                  label: const Text('Needs Practice'),
+                  selected: _needsPractice,
+                  onSelected: (v) => _updateNeedsPractice(v),
+                ),
+              ],
+            ),
+          ),
+          if (_loadingNeedsPractice)
+            const LinearProgressIndicator(minHeight: 2),
           Expanded(
             child: ListView.builder(
               itemCount: visible.length,
