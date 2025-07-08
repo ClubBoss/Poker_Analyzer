@@ -18,6 +18,9 @@ import 'template_preview_dialog.dart';
 import '../widgets/sync_status_widget.dart';
 import 'session_history_screen.dart';
 import 'v2/training_pack_template_editor_screen.dart';
+import '../repositories/training_pack_preset_repository.dart';
+import '../models/v2/training_pack_preset.dart';
+import '../services/training_pack_template_service.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -123,6 +126,39 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => TemplateHandsEditorScreen(template: template),
+      ),
+    );
+  }
+
+  Future<void> _generateFromPreset() async {
+    final presets = await TrainingPackPresetRepository.getAll();
+    if (!mounted) return;
+    final preset = await showModalBottomSheet<TrainingPackPreset>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (final p in presets)
+              ListTile(
+                title: Text(p.name),
+                subtitle: Text(p.description),
+                onTap: () => Navigator.pop(ctx, p),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (preset == null) return;
+    final tpl = await TrainingPackTemplateService.generateFromPreset(preset);
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackTemplateEditorScreen(
+          template: tpl,
+          templates: context.read<TemplateStorageService>().templates,
+        ),
       ),
     );
   }
@@ -284,6 +320,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          FloatingActionButton.extended(
+            heroTag: 'genFromPresetFab',
+            onPressed: _generateFromPreset,
+            label: const Text('Generate from Preset'),
+            icon: const Icon(Icons.auto_awesome),
+          ),
+          const SizedBox(height: 12),
           FloatingActionButton(
             heroTag: 'importTemplateFab',
             onPressed: _importTemplate,
