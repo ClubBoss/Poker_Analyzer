@@ -281,7 +281,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   child: ListTile(
                     leading:
                         CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
-                    title: Text(t.name),
+                    title: Row(
+                      children: [
+                        if (t.isBuiltIn) ...[
+                          const Icon(Icons.auto_awesome, size: 16, color: Colors.orange),
+                          const SizedBox(width: 4),
+                        ],
+                        Expanded(child: Text(t.name)),
+                      ],
+                    ),
                     subtitle: Text(
                         '${t.category ?? 'Без категории'} • ${t.hands.length} рук • v$version'),
                     trailing: TextButton(

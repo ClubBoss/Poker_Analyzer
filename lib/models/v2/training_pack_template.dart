@@ -35,6 +35,7 @@ class TrainingPackTemplate {
   String? targetStreet;
   int streetGoal;
   bool isDraft;
+  bool isBuiltIn;
   String? png;
 
   TrainingPackTemplate({
@@ -65,6 +66,7 @@ class TrainingPackTemplate {
     this.targetStreet,
     this.streetGoal = 0,
     this.isDraft = false,
+    this.isBuiltIn = false,
     this.png,
   })  : spots = spots ?? [],
         tags = tags ?? [],
@@ -104,6 +106,7 @@ class TrainingPackTemplate {
     String? targetStreet,
     int? streetGoal,
     bool? isDraft,
+    bool? isBuiltIn,
     String? png,
   }) {
     return TrainingPackTemplate(
@@ -135,6 +138,7 @@ class TrainingPackTemplate {
       targetStreet: targetStreet ?? this.targetStreet,
       streetGoal: streetGoal ?? this.streetGoal,
       isDraft: isDraft ?? this.isDraft,
+      isBuiltIn: isBuiltIn ?? this.isBuiltIn,
       png: png ?? this.png,
     );
   }
@@ -185,6 +189,7 @@ class TrainingPackTemplate {
       targetStreet: json['targetStreet'] as String?,
       streetGoal: json['streetGoal'] as int? ?? 0,
       isDraft: json['isDraft'] as bool? ?? false,
+      isBuiltIn: json['isBuiltIn'] as bool? ?? false,
       png: json['png'] as String?,
     );
     if (!tpl.meta.containsKey('evCovered') ||
@@ -225,6 +230,7 @@ class TrainingPackTemplate {
         if (targetStreet != null) 'targetStreet': targetStreet,
         if (streetGoal > 0) 'streetGoal': streetGoal,
         if (isDraft) 'isDraft': true,
+        if (isBuiltIn) 'isBuiltIn': true,
         if (png != null) 'png': png,
       };
 
