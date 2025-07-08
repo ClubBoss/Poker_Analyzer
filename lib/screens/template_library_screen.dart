@@ -86,11 +86,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (remote != null) {
       try {
         final list = List<String>.from(jsonDecode(remote));
-        final merged = {..._favorites, ...list};
-        if (merged.length != _favorites.length) {
-          _favorites
-            ..clear()
-            ..addAll(merged);
+        final before = _favorites.length;
+        _favorites.addAll(list);
+        if (_favorites.length != before) {
           await prefs.setStringList(_favKey, _favorites.toList());
         }
       } catch (_) {}
