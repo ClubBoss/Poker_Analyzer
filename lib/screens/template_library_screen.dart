@@ -48,6 +48,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _needsPracticeIds = {};
   final Set<String> _favorites = {};
   bool _favoritesOnly = false;
+  String? _selectedTag;
 
   @override
   void initState() {
@@ -374,6 +375,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final templates = context.watch<TemplateStorageService>().templates;
+    final tagList = <String>{for (final t in templates) ...t.tags}.toList()..sort();
     List<TrainingPackTemplate> visible = templates;
     if (_filter == 'tournament') {
       visible = [
@@ -403,6 +405,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     }
     if (_favoritesOnly) {
       visible = [for (final t in visible) if (_favorites.contains(t.id)) t];
+    }
+    if (_selectedTag != null) {
+      visible = [for (final t in visible) if (t.tags.contains(_selectedTag)) t];
     }
     final fav = <TrainingPackTemplate>[];
     final nonFav = <TrainingPackTemplate>[];
@@ -554,6 +559,30 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             ],
           ),
         ),
+        if (tagList.isNotEmpty)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                for (final tag in tagList)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: FilterChip(
+                      label: Text(tag),
+                      selected: _selectedTag == tag,
+                      onSelected: (_) => setState(() {
+                        if (_selectedTag == tag) {
+                          _selectedTag = null;
+                        } else {
+                          _selectedTag = tag;
+                        }
+                      }),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         if (_loadingNeedsPractice) const LinearProgressIndicator(minHeight: 2),
         Expanded(
           child: ListView(
