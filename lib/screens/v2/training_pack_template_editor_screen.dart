@@ -5379,6 +5379,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                             ),
                           ),
                           ReorderableListView.builder(
+                            key: const PageStorageKey('spots'),
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: spots.length,
@@ -5413,17 +5414,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (_isMultiSelect)
-                                    Checkbox(
-                                      value: selected,
-                                      onChanged: (_) => setState(() {
-                                        if (selected) {
-                                          _selectedSpotIds.remove(spot.id);
-                                        } else {
-                                          _selectedSpotIds.add(spot.id);
-                                        }
-                                      }),
-                                    ),
+                                  _isMultiSelect
+                                      ? Checkbox(
+                                          value: selected,
+                                          onChanged: (_) => setState(() {
+                                            if (selected) {
+                                              _selectedSpotIds.remove(spot.id);
+                                            } else {
+                                              _selectedSpotIds.add(spot.id);
+                                            }
+                                          }),
+                                        )
+                                      : const Icon(Icons.drag_handle),
                                   Expanded(
                                   child: TrainingPackSpotPreviewCard(
                                     spot: spot,
