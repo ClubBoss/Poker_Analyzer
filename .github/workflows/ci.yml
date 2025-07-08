@@ -19,7 +19,5 @@ jobs:
         run: flutter pub get
       - name: Verify pubspec lock
         run: dart pub get --dry-run
-      - name: Dart unit tests
-        run: dart test
-      - name: Flutter widget tests
-        run: flutter test
+      - name: Run tests
+        run: flutter test --run-skipped
