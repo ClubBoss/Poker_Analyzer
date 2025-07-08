@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import '../services/training_session_service.dart';
 import '../widgets/spot_quiz_widget.dart';
 import 'session_result_screen.dart';
-import 'training_summary_screen.dart';
+import 'training_session_summary_screen.dart';
+import 'package:uuid/uuid.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -157,13 +158,25 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       context,
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => TrainingSummaryScreen(
+        builder: (_) => TrainingSessionSummaryScreen(
           correct: service.correctCount,
           total: service.totalCount,
           elapsed: service.elapsedTime,
-          onRepeat: () {
+          onReview: () {
             Navigator.pop(context);
-            service.startSession(service.template!);
+            final ids = service.results.keys
+                .where((k) => service.results[k] == false)
+                .toSet();
+            final spots = service.spots
+                .where((s) => ids.contains(s.id))
+                .toList();
+            if (spots.isEmpty) return;
+            final tpl = service.template!.copyWith(
+              id: const Uuid().v4(),
+              name: 'Review mistakes',
+              spots: spots,
+            );
+            service.startSession(tpl, persist: false);
             setState(() {
               _selected = null;
               _correct = null;
