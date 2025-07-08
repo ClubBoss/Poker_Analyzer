@@ -414,7 +414,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       }
     }
     final sortedFav = _applySorting(fav);
-    final sortedNonFav = _applySorting(nonFav);
+    final builtIn = _applySorting([for (final t in nonFav) if (t.isBuiltIn) t]);
+    final user = _applySorting([for (final t in nonFav) if (!t.isBuiltIn) t]);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -560,9 +561,21 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               if (sortedFav.isNotEmpty) ...[
                 const ListTile(title: Text('★ Favorites')),
                 for (final t in sortedFav) _item(t),
-                if (sortedNonFav.isNotEmpty) const Divider(),
+                if (builtIn.isNotEmpty || user.isNotEmpty) const Divider(),
               ],
-              for (final t in sortedNonFav) _item(t),
+              if (builtIn.isNotEmpty) ...[
+                const ListTile(title: Text('Built-in Packs')),
+                for (final t in builtIn) _item(t),
+                if (user.isNotEmpty) const Divider(),
+              ],
+              if (user.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text('Your Packs',
+                      style: Theme.of(context).textTheme.titleMedium),
+                ),
+                for (final t in user) _item(t),
+              ],
             ],
           ),
         ),
