@@ -1310,6 +1310,17 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     _tagSearchCtrl = TextEditingController();
     _history = UndoRedoService(eventsLimit: 50);
     _history.record(widget.template.spots);
+    final needs = widget.template.spots
+        .any((s) => s.heroEv == null || s.heroIcmEv == null);
+    if (needs) {
+      setState(() => _loadingEval = true);
+      BulkEvaluatorService()
+          .generateMissing(widget.template, onProgress: null)
+          .then((_) {
+        TemplateCoverageUtils.recountAll(widget.template);
+        if (mounted) setState(() => _loadingEval = false);
+      });
+    }
     _scrollCtrl.addListener(() {
       if (_scrollThrottle?.isActive ?? false) return;
       _scrollThrottle =
