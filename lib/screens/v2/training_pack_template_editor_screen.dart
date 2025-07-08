@@ -516,6 +516,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (widget.readOnly) return;
     widget.template.isDraft = true;
     TemplateCoverageUtils.recountAll(widget.template);
+    context.read<TemplateStorageService>().updateTemplate(widget.template);
     setState(() {});
     await TrainingPackStorage.save(widget.templates);
   }
@@ -5503,17 +5504,23 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                           final ok = await showDialog<bool>(
                                             context: context,
                                             builder: (_) => AlertDialog(
-                                              title: const Text('Delete spot?'),
+                                              title: const Text('Remove this spot from the pack?'),
                                               actions: [
-                                                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                                                TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, false),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, true),
+                                                  child: const Text('Remove'),
+                                                ),
                                               ],
                                             ),
                                           );
                                           if (ok ?? false) {
                                             final t = spot.title;
                                             setState(() => widget.template.spots.removeAt(index));
-                                            _persist();
+                                            await _persist();
                                             setState(() => _history.log('Deleted', t, spot.id));
                                           }
                                         },
