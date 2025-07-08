@@ -1,5 +1,6 @@
 import 'hero_position.dart';
 import '../game_type.dart';
+import '../training_spot.dart';
 
 class TrainingPackPreset {
   final String id;
@@ -15,6 +16,7 @@ class TrainingPackPreset {
   final int anteBb;
   final List<String>? heroRange;
   final DateTime createdAt;
+  final List<TrainingSpot> spots;
 
   TrainingPackPreset({
     required this.id,
@@ -30,8 +32,10 @@ class TrainingPackPreset {
     this.anteBb = 0,
     this.heroRange,
     DateTime? createdAt,
+    List<TrainingSpot>? spots,
   })  : playerStacksBb = playerStacksBb ?? const [10, 10],
-        createdAt = createdAt ?? DateTime.now();
+        createdAt = createdAt ?? DateTime.now(),
+        spots = spots ?? const [];
 
   factory TrainingPackPreset.fromJson(Map<String, dynamic> j) => TrainingPackPreset(
         id: j['id'] as String? ?? '',
@@ -55,6 +59,10 @@ class TrainingPackPreset {
         heroRange: (j['heroRange'] as List?)?.map((e) => e as String).toList(),
         createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
         category: j['category'] as String? ?? '',
+        spots: [
+          for (final s in (j['spots'] as List? ?? []))
+            TrainingSpot.fromJson(Map<String, dynamic>.from(s))
+        ],
       );
 
   Map<String, dynamic> toJson() => {
@@ -71,5 +79,6 @@ class TrainingPackPreset {
         'anteBb': anteBb,
         if (heroRange != null) 'heroRange': heroRange,
         'createdAt': createdAt.toIso8601String(),
+        if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
       };
 }

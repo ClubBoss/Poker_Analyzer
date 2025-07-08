@@ -4,6 +4,8 @@ import '../models/v2/hand_data.dart';
 import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_preset.dart';
 import '../models/v2/training_pack_variant.dart';
+import '../models/training_spot.dart';
+import '../models/card_model.dart';
 import '../models/action_entry.dart';
 import '../models/game_type.dart';
 import 'push_fold_ev_service.dart';
@@ -129,16 +131,24 @@ class PackGeneratorService {
 
   static Future<TrainingPackTemplate> generatePackFromPreset(
       TrainingPackPreset p) async {
-    final spots = await autoGenerateSpots(
-      id: p.id,
-      stack: p.heroBbStack,
-      players: p.playerStacksBb,
-      pos: p.heroPos,
-      count: p.spotCount,
-      bbCallPct: p.bbCallPct,
-      anteBb: p.anteBb,
-      range: p.heroRange,
-    );
+    List<TrainingPackSpot> spots;
+    if (p.spots.isNotEmpty) {
+      spots = [
+        for (var i = 0; i < p.spots.length; i++)
+          _fromTrainingSpot(p.spots[i], '${p.id}_${i + 1}')
+      ];
+    } else {
+      spots = await autoGenerateSpots(
+        id: p.id,
+        stack: p.heroBbStack,
+        players: p.playerStacksBb,
+        pos: p.heroPos,
+        count: p.spotCount,
+        bbCallPct: p.bbCallPct,
+        anteBb: p.anteBb,
+        range: p.heroRange,
+      );
+    }
     final tpl = TrainingPackTemplate(
       id: p.id,
       name: p.name,
@@ -255,6 +265,47 @@ class PackGeneratorService {
   }
 
   static String serializeRange(Set<String> range) => range.join(' ');
+
+  static TrainingPackSpot _fromTrainingSpot(TrainingSpot spot, String id) {
+    final heroCards = spot.heroIndex < spot.playerCards.length
+        ? spot.playerCards[spot.heroIndex]
+        : <CardModel>[];
+    final hero = heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
+    final board = [for (final c in spot.boardCards) '${c.rank}${c.suit}'];
+    final actions = <int, List<ActionEntry>>{};
+    for (final a in spot.actions) {
+      actions.putIfAbsent(a.street, () => []).add(ActionEntry(
+        a.street,
+        a.playerIndex,
+        a.action,
+        amount: a.amount,
+        generated: a.generated,
+        manualEvaluation: a.manualEvaluation,
+        customLabel: a.customLabel,
+      ));
+    }
+    final stacks = <String, double>{};
+    for (var i = 0; i < spot.stacks.length; i++) {
+      stacks['$i'] = spot.stacks[i].toDouble();
+    }
+    final pos = spot.heroIndex < spot.positions.length
+        ? parseHeroPosition(spot.positions[spot.heroIndex])
+        : HeroPosition.unknown;
+    return TrainingPackSpot(
+      id: id,
+      hand: HandData(
+        heroCards: hero,
+        position: pos,
+        heroIndex: spot.heroIndex,
+        playerCount: spot.numberOfPlayers,
+        board: board,
+        actions: actions,
+        stacks: stacks,
+        anteBb: spot.anteBb,
+      ),
+      tags: List<String>.from(spot.tags),
+    );
+  }
 
   static TrainingPackTemplate generateFinalTablePack({DateTime? createdAt}) {
     const stacks = [5, 10, 20, 30, 40, 50, 60, 70, 80];
