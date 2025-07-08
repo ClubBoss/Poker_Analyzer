@@ -8,6 +8,7 @@ import '../models/v2/training_pack_template.dart';
 import '../services/template_storage_service.dart';
 import '../helpers/training_pack_storage.dart';
 import '../services/training_pack_author_service.dart' show TrainingPackAuthorService, PresetConfig;
+import '../models/v2/hero_position.dart';
 import 'v2/training_pack_template_editor_screen.dart';
 import 'v2/training_session_screen.dart';
 
@@ -98,10 +99,17 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     );
   }
 
-  Future<void> _createFromPreset(String id, {int? stack}) async {
+  Future<void> _createFromPreset(String id,
+      {int? stack, HeroPosition? pos}) async {
     final templates = await TrainingPackStorage.load();
     final tpl = TrainingPackAuthorService.generateFromPreset(id, stack: stack)
         .copyWith(id: const Uuid().v4(), createdAt: DateTime.now());
+    if (pos != null) {
+      tpl.heroPos = pos;
+      for (final s in tpl.spots) {
+        s.hand.position = pos;
+      }
+    }
     templates.add(tpl);
     await TrainingPackStorage.save(templates);
     context.read<TemplateStorageService>().addTemplate(tpl);
@@ -119,64 +127,78 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
 
   void _showPresetSheet() {
     final presets = TrainingPackAuthorService.presetConfigs;
-    final byCategory = <String, List<MapEntry<String, PresetConfig>>>{};
-    for (final e in presets.entries) {
-      (byCategory[e.value.category] ??= []).add(e);
-    }
-    final categories = byCategory.keys.toList()..sort();
-    showModalBottomSheet<MapEntry<String, int?>>( 
+    var id = presets.keys.first;
+    var stack = presets[id]!.stack.toDouble();
+    var pos = presets[id]!.pos;
+    showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            for (final cat in categories) ...[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                child: Text(cat, style: const TextStyle(fontWeight: FontWeight.bold)),
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, set) => Padding(
+          padding: EdgeInsets.fromLTRB(
+              16, 16, 16, MediaQuery.of(ctx).viewInsets.bottom + 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: id,
+                decoration: const InputDecoration(labelText: 'Type'),
+                items: [
+                  for (final e in presets.entries)
+                    DropdownMenuItem(value: e.key, child: Text(e.value.name))
+                ],
+                onChanged: (v) {
+                  if (v != null) {
+                    set(() {
+                      id = v;
+                      stack = presets[v]!.stack.toDouble();
+                      pos = presets[v]!.pos;
+                    });
+                  }
+                },
               ),
-              for (final e in byCategory[cat]!)
-                ListTile(
-                  title: Text(e.value.name),
-                  subtitle: Text(
-                    e.value.description,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Slider(
+                      value: stack,
+                      min: 5,
+                      max: 30,
+                      divisions: 25,
+                      label: '${stack.round()} bb',
+                      onChanged: (v) => set(() => stack = v),
+                    ),
                   ),
-                  onTap: () => Navigator.pop(ctx, MapEntry(e.key, null)),
-                  onLongPress: () async {
-                    var v = e.value.stack.toDouble();
-                    final res = await showDialog<int>(
-                      context: context,
-                      builder: (dCtx) => StatefulBuilder(
-                        builder: (dCtx, set) => AlertDialog(
-                          content: Slider(
-                            value: v,
-                            min: 5,
-                            max: 30,
-                            divisions: 25,
-                            label: '${v.round()} bb',
-                            onChanged: (nv) => set(() => v = nv),
-                          ),
-                          actions: [
-                            TextButton(
-                                onPressed: () => Navigator.pop(dCtx),
-                                child: const Text('Cancel')),
-                            TextButton(
-                                onPressed: () => Navigator.pop(dCtx, v.round()),
-                                child: const Text('Generate')),
-                          ],
-                        ),
-                      ),
-                    );
-                    if (res != null) Navigator.pop(ctx, MapEntry(e.key, res));
-                  },
-                ),
-            ]
-          ],
+                  SizedBox(width: 8),
+                  Text('${stack.round()} bb')
+                ],
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<HeroPosition>(
+                value: pos,
+                decoration: const InputDecoration(labelText: 'Position'),
+                items: [
+                  for (final p in HeroPosition.values)
+                    DropdownMenuItem(value: p, child: Text(p.label))
+                ],
+                onChanged: (v) => set(() => pos = v ?? pos),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx,
+                    {'id': id, 'stack': stack.round(), 'pos': pos}),
+                child: const Text('Generate'),
+              )
+            ],
+          ),
         ),
       ),
     ).then((res) {
-      if (res != null) _createFromPreset(res.key, stack: res.value);
+      if (res != null) {
+        _createFromPreset(res['id'] as String,
+            stack: res['stack'] as int, pos: res['pos'] as HeroPosition);
+      }
     });
   }
 
