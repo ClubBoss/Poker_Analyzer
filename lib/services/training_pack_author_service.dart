@@ -5,6 +5,8 @@ import '../models/v2/hero_position.dart';
 import '../models/action_entry.dart';
 import '../models/game_type.dart';
 import '../helpers/training_pack_validator.dart';
+import 'push_fold_ev_service.dart';
+import 'icm_push_ev_service.dart';
 
 class TrainingPackAuthorService {
   static final Map<String, _PresetConfig> _presets = {
@@ -42,6 +44,50 @@ class TrainingPackAuthorService {
         '44',
       ],
     ),
+    '15bb_hj_vs_bb': _PresetConfig(
+      '15bb HJ vs BB',
+      HeroPosition.mp,
+      15,
+      [
+        'AJs',
+        'ATo',
+        'KQo',
+        'KJs',
+        'QJs',
+        'JTs',
+        'T9s',
+        '99',
+        '88',
+      ],
+    ),
+    '25bb_co_vs_btn_3bet': _PresetConfig(
+      '25bb CO vs BTN 3bet',
+      HeroPosition.co,
+      25,
+      [
+        'AQo',
+        'AJs',
+        'KQs',
+        'TT',
+        '99',
+        '88',
+        'A5s',
+        'KQo',
+      ],
+    ),
+    'icm_final_table_6max_12bb_co': _PresetConfig(
+      'ICM Final Table 6max 12bb CO',
+      HeroPosition.co,
+      12,
+      [
+        'ATo',
+        'A9s',
+        'KQo',
+        'KJs',
+        'QTs',
+        'JTs',
+      ],
+    ),
   };
 
   static Map<String, String> get presets =>
@@ -52,24 +98,72 @@ class TrainingPackAuthorService {
     if (config == null) {
       throw ArgumentError('Unknown preset');
     }
+    final is3bet = presetId == '25bb_co_vs_btn_3bet';
+    final isIcm = presetId == 'icm_final_table_6max_12bb_co';
     final spots = <TrainingPackSpot>[];
     for (var i = 0; i < config.hands.length; i++) {
       final hand = config.hands[i];
-      final stacks = {'0': config.stack.toDouble(), '1': config.stack.toDouble()};
-      final actions = {
-        0: [
-          ActionEntry(0, 0, 'push', amount: config.stack.toDouble(), ev: 0, icmEv: 0),
-          ActionEntry(0, 1, 'fold'),
-        ]
-      };
+      Map<String, double> stacks;
+      Map<int, List<ActionEntry>> actions;
+      int playerCount;
+      int heroIndex = 0;
+      if (is3bet) {
+        stacks = {'0': config.stack.toDouble(), '1': config.stack.toDouble()};
+        actions = {
+          0: [
+            ActionEntry(0, 0, 'raise', amount: 2.5, ev: 0, icmEv: 0),
+            ActionEntry(0, 1, 'raise', amount: 7.5),
+          ]
+        };
+        playerCount = 2;
+      } else if (isIcm) {
+        const playerStacks = [25, 20, 12, 18, 9, 6];
+        heroIndex = 2;
+        actions = {
+          0: [
+            ActionEntry(0, heroIndex, 'push',
+                amount: playerStacks[heroIndex].toDouble()),
+            for (var j = 0; j < playerStacks.length; j++)
+              if (j != heroIndex) ActionEntry(0, j, 'fold'),
+          ]
+        };
+        final chipEv = computePushEV(
+          heroBbStack: playerStacks[heroIndex],
+          bbCount: playerStacks.length - 1,
+          heroHand: hand,
+          anteBb: 0,
+        );
+        actions[0]![0].ev = chipEv;
+        actions[0]![0].icmEv = computeIcmPushEV(
+          chipStacksBb: playerStacks,
+          heroIndex: heroIndex,
+          heroHand: hand,
+          chipPushEv: chipEv,
+        );
+        stacks = {
+          for (var j = 0; j < playerStacks.length; j++)
+            '$j': playerStacks[j].toDouble()
+        };
+        playerCount = playerStacks.length;
+      } else {
+        stacks = {'0': config.stack.toDouble(), '1': config.stack.toDouble()};
+        actions = {
+          0: [
+            ActionEntry(0, 0, 'push',
+                amount: config.stack.toDouble(), ev: 0, icmEv: 0),
+            ActionEntry(0, 1, 'fold'),
+          ]
+        };
+        playerCount = 2;
+      }
       final spot = TrainingPackSpot(
         id: '${presetId}_${i + 1}',
-        title: '$hand push',
+        title: is3bet ? '$hand open 3bet' : '$hand push',
         hand: HandData(
           heroCards: _firstCombo(hand),
           position: config.pos,
-          heroIndex: 0,
-          playerCount: 2,
+          heroIndex: heroIndex,
+          playerCount: playerCount,
           stacks: stacks,
           actions: actions,
           anteBb: 0,
@@ -82,8 +176,10 @@ class TrainingPackAuthorService {
       name: config.name,
       gameType: config.gameType,
       spots: spots,
-      heroBbStack: config.stack,
-      playerStacksBb: [config.stack, config.stack],
+      heroBbStack: isIcm ? 12 : config.stack,
+      playerStacksBb: isIcm
+          ? const [25, 20, 12, 18, 9, 6]
+          : [config.stack, config.stack],
       heroPos: config.pos,
       spotCount: spots.length,
       bbCallPct: 0,
