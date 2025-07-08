@@ -15,17 +15,10 @@ jobs:
         with:
           flutter-version: '3.22.2'
       - uses: dart-lang/setup-dart@v1
-      - name: Verify pubspec lock
-        run: |
-          set +e
-          output=$(dart pub get --dry-run 2>&1)
-          echo "$output"
-          if echo "$output" | grep -q 'pubspec.yaml is inconsistent with pubspec.lock'; then
-            echo "::error::pubspec.yaml is inconsistent with pubspec.lock. Run 'dart pub get' locally to update the lock file."
-            exit 1
-          fi
       - name: Install dependencies
         run: flutter pub get
+      - name: Verify pubspec lock
+        run: dart pub get --dry-run
       - name: Dart unit tests
         run: dart test
       - name: Flutter widget tests
