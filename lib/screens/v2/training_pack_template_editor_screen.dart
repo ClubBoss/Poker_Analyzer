@@ -4651,12 +4651,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               icon: const Text('Start Training'))
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight + 48),
+          preferredSize: const Size.fromHeight(kToolbarHeight + 72),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Text('🟡 New, 🔵 Edited', style: TextStyle(color: Colors.white70)),
+                const SizedBox(height: 8),
                 TextField(
                   controller: _searchCtrl,
                   decoration: InputDecoration(
@@ -5576,8 +5578,12 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 500),
                                   color: spot.id == _highlightId
-                                      ? Colors.yellow.withOpacity(0.3)
-                                      : null,
+                                          ? Colors.yellow.withOpacity(0.3)
+                                          : spot.isNew
+                                              ? Colors.yellow.withOpacity(0.1)
+                                              : spot.dirty
+                                                  ? Colors.blue.withOpacity(0.05)
+                                                  : null,
                                   padding: const EdgeInsets.all(8),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
