@@ -2961,6 +2961,38 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
+  Future<void> _deleteSelectedQuick() async {
+    final ids = _selectedSpotIds.toSet();
+    if (ids.isEmpty) return;
+    _recordSnapshot();
+    setState(() {
+      widget.template.spots.removeWhere((s) => ids.contains(s.id));
+      _selectedSpotIds.clear();
+      if (_autoSortEv) _sortSpots();
+    });
+    await _persist();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Removed ${ids.length} spot(s)'),
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            final snap = _history.undo(widget.template.spots);
+            if (snap != null) {
+              setState(() {
+                widget.template.spots
+                  ..clear()
+                  ..addAll(snap);
+                if (_autoSortEv) _sortSpots();
+              });
+              await _persist();
+            }
+          },
+        ),
+      ),
+    );
+  }
+
   void _toggleSelectAll() {
     final allIds = {for (final s in widget.template.spots) s.id};
     setState(() {
@@ -5568,6 +5600,11 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                               }
                                             },
                                           ),
+                                          if (_isMultiSelect)
+                                            IconButton(
+                                              icon: const Icon(Icons.delete_forever, color: Colors.red),
+                                              onPressed: _deleteSelectedQuick,
+                                            ),
                                         ],
                                       ),
                                     ],
