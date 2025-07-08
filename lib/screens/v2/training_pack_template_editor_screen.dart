@@ -4953,14 +4953,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                       label: 'EV Covered',
                       value: evCoverage,
                       color: Theme.of(context).colorScheme.secondary,
-                      message: 'Calculated expected value (EV) for this spot',
+                      message: _evTooltip,
                     ),
                     const SizedBox(height: 8),
                     _CoverageProgress(
                       label: 'ICM Covered',
                       value: icmCoverage,
                       color: Colors.purple,
-                      message: 'Calculated equity in tournament ICM model',
+                      message: _icmTooltip,
                     ),
                     const SizedBox(height: 16),
             _TemplateSummaryPanel(
@@ -5043,14 +5043,14 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               label: 'EV Covered',
               value: evCoverage,
               color: Theme.of(context).colorScheme.secondary,
-              message: 'Calculated expected value (EV) for this spot',
+              message: _evTooltip,
             ),
             const SizedBox(height: 8),
             _CoverageProgress(
               label: 'ICM Covered',
               value: icmCoverage,
               color: Colors.purple,
-              message: 'Calculated equity in tournament ICM model',
+              message: _icmTooltip,
             ),
             const SizedBox(height: 16),
             TextField(
@@ -6025,6 +6025,9 @@ class _EvCoverageBar extends StatelessWidget {
   }
 }
 
+const _evTooltip = 'Calculated expected value (EV) for this spot';
+const _icmTooltip = 'Calculated equity in tournament ICM model';
+
 class _CoverageProgress extends StatelessWidget {
   final String label;
   final double value;
@@ -6040,10 +6043,13 @@ class _CoverageProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final percent = '${(value * 100).toStringAsFixed(0)}%';
+    final offset = MediaQuery.of(context).padding.top;
     return Tooltip(
       message: message,
+      waitDuration: const Duration(milliseconds: 300),
       preferBelow: false,
-      verticalOffset: 20,
+      preferAbove: false,
+      verticalOffset: offset,
       child: Row(
         children: [
           Text(label, style: const TextStyle(color: Colors.white70)),
@@ -6101,25 +6107,36 @@ class _TemplateSummaryPanel extends StatelessWidget {
           Builder(builder: (_) {
             final evPct = spots == 0 ? 0 : (evCount / spots * 100).round();
             final icmPct = spots == 0 ? 0 : (icmCount / spots * 100).round();
+            final off = MediaQuery.of(context).padding.top;
             return Row(
               children: [
                 Tooltip(
-                  message: 'Calculated expected value (EV) for this spot',
+                  message: _evTooltip,
+                  waitDuration: const Duration(milliseconds: 300),
                   preferBelow: false,
-                  verticalOffset: 20,
-                  child: Text(
-                    'EV: $evCount/$spots ($evPct%)',
-                    style: const TextStyle(color: Colors.white70),
+                  preferAbove: false,
+                  verticalOffset: off,
+                  child: Semantics(
+                    label: _evTooltip,
+                    child: Text(
+                      'EV: $evCount/$spots ($evPct%)',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                   ),
                 ),
                 const Text(' • ', style: TextStyle(color: Colors.white70)),
                 Tooltip(
-                  message: 'Calculated equity in tournament ICM model',
+                  message: _icmTooltip,
+                  waitDuration: const Duration(milliseconds: 300),
                   preferBelow: false,
-                  verticalOffset: 20,
-                  child: Text(
-                    'ICM: $icmCount/$spots ($icmPct%)',
-                    style: const TextStyle(color: Colors.white70),
+                  preferAbove: false,
+                  verticalOffset: off,
+                  child: Semantics(
+                    label: _icmTooltip,
+                    child: Text(
+                      'ICM: $icmCount/$spots ($icmPct%)',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                   ),
                 ),
               ],
