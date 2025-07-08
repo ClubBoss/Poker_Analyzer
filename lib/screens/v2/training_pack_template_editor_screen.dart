@@ -99,6 +99,9 @@ List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
 TrainingPackSpot? _copiedSpot;
 class UndoIntent extends Intent { const UndoIntent(); }
 class RedoIntent extends Intent { const RedoIntent(); }
+class DeleteBulkIntent extends Intent { const DeleteBulkIntent(); }
+class DuplicateBulkIntent extends Intent { const DuplicateBulkIntent(); }
+class TagBulkIntent extends Intent { const TagBulkIntent(); }
 
 class TrainingPackTemplateEditorScreen extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -159,6 +162,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   static const _prefsSortMode2Key = 'sort_mode2';
   static const _prefsPreviewModeKey = 'preview_mode';
   static const _prefsPreviewJsonPngKey = 'preview_json_png';
+  static const _prefsMultiTipKey = 'multi_tip_shown';
   String _scrollKeyFor(TrainingPackTemplate t) => '$_prefsScrollPrefix${t.id}';
   String get _scrollKey => _scrollKeyFor(widget.template);
   String _evFilter = 'all';
@@ -194,6 +198,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
   Timer? _clipboardTimer;
   bool _showImportIndicator = false;
   bool _showDupHint = false;
+  bool _multiTipShown = false;
   Timer? _importTimer;
   List<TrainingPackSpot>? _pasteUndo;
   late final UndoRedoService _history;
@@ -253,6 +258,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         _scrollProgress = progress;
         _showScrollIndicator = show;
       });
+    }
+  }
+
+  Future<void> _maybeShowMultiTip() async {
+    if (_multiTipShown || _selectedSpotIds.isEmpty) return;
+    _multiTipShown = true;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_prefsMultiTipKey, true);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tip: Ctrl + click to multi-select, Ctrl + D to duplicate…')),
+      );
     }
   }
 
@@ -1297,6 +1314,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       final newOnly = prefs.getBool(_prefsNewOnlyKey) ?? false;
       final preview = prefs.getBool(_prefsPreviewModeKey) ?? false;
       final png = prefs.getBool(_prefsPreviewJsonPngKey) ?? false;
+      final multiTip = prefs.getBool(_prefsMultiTipKey) ?? false;
       final snapsRaw = prefs.getString('tpl_snapshots_${widget.template.id}');
       var range = const RangeValues(-5, 5);
       if (rangeStr != null) {
@@ -1343,6 +1361,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           _snapshots = snaps;
           _previewMode = preview;
           _previewJsonPng = png;
+          _multiTipShown = multiTip;
           _loadPreview();
           if (widget.readOnly) _previewMode = true;
       if (mode2 != null) {
@@ -2559,6 +2578,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     if (tag == null || tag.isEmpty) return;
     final targets = ids ?? _selectedSpotIds.toList();
     if (targets.isEmpty) return;
+    _recordSnapshot();
     setState(() {
       for (final id in targets) {
         final s = widget.template.spots.firstWhere((e) => e.id == id);
@@ -2568,14 +2588,36 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         }
         s.isNew = false;
       }
+      if (ids == null) _selectedSpotIds.clear();
     });
     await _persist();
     if (_newOnly && widget.template.spots.every((s) => !s.isNew)) {
       setState(() => _newOnly = false);
       _storeNewOnly();
     }
-    if (ids == null) setState(() => _selectedSpotIds.clear());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Tagged ${targets.length} spot(s)'),
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            final snap = _history.undo(widget.template.spots);
+            if (snap != null) {
+              setState(() {
+                widget.template.spots
+                  ..clear()
+                  ..addAll(snap);
+                if (_autoSortEv) _sortSpots();
+              });
+              await _persist();
+            }
+          },
+        ),
+      ),
+    );
   }
+
+  Future<void> _bulkTag() => _bulkAddTag();
 
   Future<void> _bulkRemoveTag() async {
     final spots = [for (final s in widget.template.spots) if (_selectedSpotIds.contains(s.id)) s];
@@ -2735,7 +2777,27 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       if (_autoSortEv) _sortSpots();
       _selectedSpotIds.clear();
     });
-    _persist();
+    await _persist();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Duplicated ${spots.length} spot(s)'),
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async {
+            final snap = _history.undo(widget.template.spots);
+            if (snap != null) {
+              setState(() {
+                widget.template.spots
+                  ..clear()
+                  ..addAll(snap);
+                if (_autoSortEv) _sortSpots();
+              });
+              await _persist();
+            }
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _recalcSelected() async {
@@ -2836,6 +2898,46 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final tpl = TrainingPackTemplate(
       id: const Uuid().v4(),
       name: name.isEmpty ? 'New Pack' : name,
+      gameType: widget.template.gameType,
+      spots: spots,
+      createdAt: DateTime.now(),
+    );
+    final service = context.read<TemplateStorageService>();
+    service.addTemplate(tpl);
+    final index = widget.templates.indexOf(widget.template);
+    setState(() {
+      widget.templates.insert(index + 1, tpl);
+      _selectedSpotIds.clear();
+    });
+    await _persist();
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TrainingPackTemplateEditorScreen(
+          template: tpl,
+          templates: widget.templates,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _bulkExport() async {
+    final spots = [
+      for (final s in widget.template.spots)
+        if (_selectedSpotIds.contains(s.id))
+          s.copyWith(
+            id: const Uuid().v4(),
+            editedAt: DateTime.now(),
+            hand: HandData.fromJson(s.hand.toJson()),
+            tags: List.from(s.tags),
+          )
+    ];
+    if (spots.isEmpty) return;
+    final tpl = TrainingPackTemplate(
+      id: const Uuid().v4(),
+      name:
+          '${widget.template.name} – Export ${DateFormat.yMd().format(DateTime.now())}',
       gameType: widget.template.gameType,
       spots: spots,
       createdAt: DateTime.now(),
@@ -2961,7 +3063,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     }
   }
 
-  Future<void> _deleteSelectedQuick() async {
+  Future<void> _bulkDeleteQuick() async {
     final ids = _selectedSpotIds.toSet();
     if (ids.isEmpty) return;
     _recordSnapshot();
@@ -3004,6 +3106,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
           ..addAll(allIds);
       }
     });
+    _maybeShowMultiTip();
   }
 
   void _selectAllNew() {
@@ -3015,6 +3118,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             if (s.isNew) s.id
         ]);
     });
+    _maybeShowMultiTip();
   }
 
   void _selectAllDuplicates() {
@@ -3024,11 +3128,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         ..clear()
         ..addAll([for (final i in dups) widget.template.spots[i].id]);
     });
+    _maybeShowMultiTip();
   }
 
   void _invertSelection() {
     final all = widget.template.spots.map((e) => e.id).toSet();
     setState(() => _selectedSpotIds = all.difference(_selectedSpotIds));
+    _maybeShowMultiTip();
   }
 
   bool _onKey(FocusNode _, RawKeyEvent e) {
@@ -3071,14 +3177,6 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       _invertSelection();
       return true;
     }
-    if (e.logicalKey == LogicalKeyboardKey.backspace) {
-      _bulkDelete();
-      return true;
-    }
-    if (e.logicalKey == LogicalKeyboardKey.keyD) {
-      _bulkDuplicate();
-      return true;
-    }
     if (e.logicalKey == LogicalKeyboardKey.keyS && e.isShiftPressed) {
       _selectAllDuplicates();
       return true;
@@ -3093,6 +3191,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
       return true;
     }
     return false;
+  }
+
+  PreferredSizeWidget _bulkBar() {
+    final n = _selectedSpotIds.length;
+    if (n == 0) return const SizedBox.shrink();
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.grey[900],
+      title: Text('$n selected'),
+      actions: [
+        IconButton(icon: const Icon(Icons.delete), tooltip: 'Delete', onPressed: _bulkDeleteQuick),
+        IconButton(icon: const Icon(Icons.copy_all), tooltip: 'Duplicate', onPressed: _bulkDuplicate),
+        IconButton(icon: const Icon(Icons.label), tooltip: 'Tag', onPressed: _bulkTag),
+        IconButton(icon: const Icon(Icons.open_in_new), tooltip: 'Export to Pack', onPressed: _bulkExport),
+      ],
+    );
   }
 
   void _duplicateSpot(TrainingPackSpot spot) {
@@ -4021,11 +4135,18 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ): const UndoIntent(),
         LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyY): const RedoIntent(),
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyY): const RedoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.delete): const DeleteBulkIntent(),
+        LogicalKeySet(LogicalKeyboardKey.backspace): const DeleteBulkIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyD): const DuplicateBulkIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyT): const TagBulkIntent(),
       },
       child: Actions(
         actions: {
           UndoIntent: CallbackAction<UndoIntent>(onInvoke: (_) => _undo()),
           RedoIntent: CallbackAction<RedoIntent>(onInvoke: (_) => _redo()),
+          DeleteBulkIntent: CallbackAction(onInvoke: (_) => _selectedSpotIds.isEmpty ? null : _bulkDeleteQuick()),
+          DuplicateBulkIntent: CallbackAction(onInvoke: (_) => _selectedSpotIds.isEmpty ? null : _bulkDuplicate()),
+          TagBulkIntent: CallbackAction(onInvoke: (_) => _selectedSpotIds.isEmpty ? null : _bulkTag()),
         },
         child: Focus(
           autofocus: true,
@@ -4035,7 +4156,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               : KeyEventResult.ignored,
           child: Scaffold(
 
-      appBar: AppBar(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight + (_isMultiSelect ? kToolbarHeight : 0)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isMultiSelect) _bulkBar(),
+            AppBar(
         leading: _isMultiSelect
             ? IconButton(
                 icon: const Icon(Icons.close),
@@ -4561,10 +4688,13 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             ),
           ),
         ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: widget.readOnly
           ? null
-          : hasSpots
+          : hasSpots && !_isMultiSelect
           ? Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -4694,85 +4824,26 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
               : null,
       bottomNavigationBar: widget.readOnly
           ? null
-          : ((_showScrollIndicator && !_previewMode) || (hasSpots && _isMultiSelect))
+          : (_showScrollIndicator && !_previewMode)
               ? Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_showScrollIndicator && !_previewMode)
-                      Tooltip(
-                        waitDuration: const Duration(milliseconds: 500),
-                        showDuration: const Duration(seconds: 2),
-                        message:
-                            'Scrolled: ${(_scrollProgress * 100).toStringAsFixed(1)}%',
-                        child: LinearProgressIndicator(
-                          value: _scrollProgress.clamp(0.0, 1.0),
-                          backgroundColor: Colors.white24,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              Theme.of(context).colorScheme.secondary),
-                          minHeight: 2,
-                        ),
+                    Tooltip(
+                      waitDuration: const Duration(milliseconds: 500),
+                      showDuration: const Duration(seconds: 2),
+                      message:
+                          'Scrolled: ${(_scrollProgress * 100).toStringAsFixed(1)}%',
+                      child: LinearProgressIndicator(
+                        value: _scrollProgress.clamp(0.0, 1.0),
+                        backgroundColor: Colors.white24,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.secondary),
+                        minHeight: 2,
                       ),
-                    if (hasSpots && _isMultiSelect)
-                      BottomAppBar(
-                        child: Row(
-                children: [
-                  Tooltip(
-                    message: 'Select All (Ctrl + A)',
-                    child: TextButton(
-                      onPressed: _toggleSelectAll,
-                      child: const Text('Select All (Ctrl + A)'),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Tooltip(
-                    message: 'Invert Selection (Ctrl + I)',
-                    child: TextButton(
-                      onPressed: _invertSelection,
-                      child: const Text('Invert Selection (Ctrl + I)'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    onPressed: _bulkAddTag,
-                    child: const Text('Add Tag'),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    onPressed: _bulkRemoveTag,
-                    child: const Text('Remove Tag'),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    onPressed: _bulkTogglePin,
-                    child: const Text('Pin / Unpin'),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    onPressed: _bulkMove,
-                    child: const Text('Move to Pack'),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    onPressed: _bulkCopy,
-                    child: const Text('Copy to Pack'),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton(
-                    onPressed: _newPackFromSelection,
-                    child: const Text('New Pack'),
-                  ),
-                  const SizedBox(width: 12),
-                  TextButton.icon(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    label: const Text('Delete (Ctrl + Backspace)'),
-                    onPressed: _bulkDelete,
-                  ),
-                ],
-              ),
-            ),
-          ]
-        )
-        : null,
+                  ],
+                )
+              : null,
       body: hasSpots
           ? _previewMode
               ? Stack(
@@ -5474,7 +5545,10 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                               if (_autoSortEv) setState(() => _sortSpots());
                               _focusSpot(spot.id);
                             },
-                            onLongPress: () => setState(() => _selectedSpotIds.add(spot.id)),
+                            onLongPress: () {
+                              setState(() => _selectedSpotIds.add(spot.id));
+                              _maybeShowMultiTip();
+                            },
                             child: Card(
                               margin: const EdgeInsets.symmetric(vertical: 4),
                               child: RepaintBoundary(
@@ -5492,13 +5566,16 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                       if (_isMultiSelect)
                                         Checkbox(
                                           value: selected,
-                                          onChanged: (_) => setState(() {
-                                            if (selected) {
-                                              _selectedSpotIds.remove(spot.id);
-                                            } else {
-                                              _selectedSpotIds.add(spot.id);
-                                            }
-                                          }),
+                                          onChanged: (_) {
+                                            setState(() {
+                                              if (selected) {
+                                                _selectedSpotIds.remove(spot.id);
+                                              } else {
+                                                _selectedSpotIds.add(spot.id);
+                                              }
+                                            });
+                                            _maybeShowMultiTip();
+                                          },
                                         ),
                                       Expanded(
                                         child: TrainingPackSpotPreviewCard(
@@ -5603,7 +5680,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                                           if (_isMultiSelect)
                                             IconButton(
                                               icon: const Icon(Icons.delete_forever, color: Colors.red),
-                                              onPressed: _deleteSelectedQuick,
+                                              onPressed: _bulkDeleteQuick,
                                             ),
                                         ],
                                       ),
