@@ -77,6 +77,9 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
 
   Future<void> _prepare() async {
     final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _autoAdvance = prefs.getBool('auto_adv_${widget.template.id}') ?? false;
+    });
     final seqKey = 'tpl_seq_${widget.template.id}';
     final resKey = 'tpl_res_${widget.template.id}';
     if (prefs.containsKey(seqKey) || prefs.containsKey(resKey)) {
@@ -573,10 +576,16 @@ class _TrainingPackPlayScreenState extends State<TrainingPackPlayScreen> {
             onPressed: _saveCurrentSpot,
           ),
           IconButton(
-            tooltip:
-                _autoAdvance ? 'Авто-переход включён' : 'Авто-переход выключён',
-            icon: Icon(_autoAdvance ? Icons.pause : Icons.play_arrow),
-            onPressed: () => setState(() => _autoAdvance = !_autoAdvance),
+            tooltip: 'Auto-Advance on Correct',
+            icon: Icon(Icons.bolt,
+                color: _autoAdvance
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.white70),
+            onPressed: () async {
+              setState(() => _autoAdvance = !_autoAdvance);
+              final prefs = await SharedPreferences.getInstance();
+              prefs.setBool('auto_adv_${widget.template.id}', _autoAdvance);
+            },
           ),
           PopupMenuButton<dynamic>(
             initialValue: _order,
