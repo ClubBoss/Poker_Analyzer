@@ -62,6 +62,11 @@ class MistakeReviewPackService extends ChangeNotifier {
   final List<MistakePack> _packs = [];
   List<MistakePack> get packs => List.unmodifiable(_packs);
 
+  bool hasMistakes() => _packs.isNotEmpty;
+
+  Future<TrainingPackTemplate?> buildPack(BuildContext context) =>
+      MistakeReviewPackService.latestTemplate(context);
+
   void _trim() {
     _packs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     final seen = <String>{};
