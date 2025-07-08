@@ -70,6 +70,20 @@ enum SortBy { manual, title, evDesc, edited, autoEv }
 enum SpotSort { original, evDesc, evAsc, icmDesc, icmAsc }
 enum SortMode { position, chronological }
 
+enum _RowKind { header, spot }
+
+class _Row {
+  final _RowKind kind;
+  final String tag;
+  final TrainingPackSpot? spot;
+  const _Row.header(this.tag)
+      : kind = _RowKind.header,
+        spot = null;
+  const _Row.spot(this.spot)
+      : kind = _RowKind.spot,
+        tag = '';
+}
+
 List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
   final map = <String, List<int>>{};
   for (int i = 0; i < spots.length; i++) {
@@ -399,6 +413,22 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
     final set = {for (final s in _filterSpots()) s.hand.position.label};
     final list = set.toList()..sort();
     return list;
+  }
+
+  List<_Row> _buildRows(List<TrainingPackSpot> list) {
+    final rows = <_Row>[];
+    final map = <String, List<TrainingPackSpot>>{};
+    for (final s in list) {
+      final tag = s.tags.isEmpty ? '' : s.tags.first;
+      map.putIfAbsent(tag, () => []).add(s);
+    }
+    final entries = map.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    for (final e in entries) {
+      rows.add(_Row.header(e.key));
+      for (final s in e.value) rows.add(_Row.spot(s));
+    }
+    return rows;
   }
 
   void _focusSpot(String id) {
@@ -5356,13 +5386,7 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
             Expanded(
               child: Builder(
                 builder: (context) {
-                  final groups = <String, List<TrainingPackSpot>>{};
-                  for (final s in sorted) {
-                    final tag = s.tags.isNotEmpty ? s.tags.first : '';
-                    groups.putIfAbsent(tag, () => []).add(s);
-                  }
-                  final entries = groups.entries.toList()
-                    ..sort((a, b) => a.key.compareTo(b.key));
+                  final rows = _buildRows(sorted);
                   return NotificationListener<ScrollEndNotification>(
                     onNotification: (_) {
                       _scrollDebounce?.cancel();
@@ -5370,261 +5394,238 @@ class _TrainingPackTemplateEditorScreenState extends State<TrainingPackTemplateE
                           Timer(const Duration(milliseconds: 300), _storeScroll);
                       return false;
                     },
-                    child: ListView.separated(
+                    child: _DragAutoScroll(
                       controller: _scrollCtrl,
-                      itemCount: entries.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 16),
-                      itemBuilder: (context, gIndex) {
-                      final entry = entries[gIndex];
-                      final spots = entry.value;
-                      final start = sorted.indexOf(spots.first);
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: Text(
-                              entry.key.isEmpty ? 'Untagged' : entry.key,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ),
-                          ReorderableListView.builder(
-                            key: const PageStorageKey('spotsList'),
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: spots.length,
-                            itemBuilder: (context, index) {
-                              final spot = spots[index];
-                      final selected = _selectedSpotIds.contains(spot.id);
-                      final showDup =
-                          (spot.isNew && _importDuplicateGroups([spot])) ||
-                              _isDup(spot);
-                      final content = ReorderableDragStartListener(
-                        key: ValueKey(spot.id),
-                        index: index,
-                        child: InkWell(
-                          onTap: () async {
-                            await showSpotViewerDialog(
-                              context,
-                              spot,
-                              templateTags: widget.template.tags,
-                            );
-                            if (_autoSortEv) setState(() => _sortSpots());
-                            _focusSpot(spot.id);
-                          },
-                          onLongPress: () => setState(() => _selectedSpotIds.add(spot.id)),
-                          child: Card(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            child: RepaintBoundary(
-                              key: _itemKeys.putIfAbsent(spot.id, () => GlobalKey()),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 500),
-                                color: spot.id == _highlightId ? Colors.yellow.withOpacity(0.3) : null,
-                                padding: const EdgeInsets.all(8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.drag_handle,
-                                    color: _isMultiSelect
-                                        ? Colors.white24
-                                        : Colors.white54,
-                                  ),
-                                  if (_isMultiSelect)
-                                    Checkbox(
-                                      value: selected,
-                                      onChanged: (_) => setState(() {
-                                        if (selected) {
-                                          _selectedSpotIds.remove(spot.id);
-                                        } else {
-                                          _selectedSpotIds.add(spot.id);
-                                        }
-                                      }),
-                                    ),
-                                  Expanded(
-                                  child: TrainingPackSpotPreviewCard(
-                                    spot: spot,
-                                    editableTitle: true,
-                                    onTitleChanged: (_) {
-                                      setState(() {});
-                                      _persist();
-                                    },
-                                    isMistake: spot.evalResult?.correct == false,
-                                    titleColor: spot.evalResult == null
-                                        ? Colors.yellow
-                                        : (spot.evalResult!.correct ? null : Colors.red),
-                                    onHandEdited: () {
-                                      unawaited(() async {
-                                        try {
-                                          spot.dirty = false;
-                                          await context
-                                              .read<EvaluationExecutorService>()
-                                              .evaluateSingle(
-                                                spot,
-                                                template: widget.template,
-                                                anteBb: widget.template.anteBb,
-                                              );
-                                        } catch (_) {
-                                          if (mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text('Evaluation failed')));
-                                          }
-                                        }
-                                        if (!mounted) return;
-                                        setState(() {
-                                          if (_autoSortEv) _sortSpots();
-                                        });
-                                        await _persist();
-                                      }());
-                                    },
-                                    onTagTap: (tag) async {
-                                      setState(() => _tagFilter = tag);
-                                      _storeTagFilter();
-                                    },
-                                    template: widget.template,
-                                    persist: _persist,
-                                    focusSpot: _focusSpot,
-                                    onNewTap: _selectAllNew,
-                                    onDupTap: _selectAllDuplicates,
-                                    onPersist: _persist,
-                                    showDuplicate: showDup,
-                                  ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      _buildSpotMenu(spot),
-                                      TextButton(
-                                        onPressed: () => _openEditor(spot),
-                                        child: const Text('📝 Edit'),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.play_arrow),
-                                        onPressed: () {
-                                          final evalSpot = _toSpot(spot);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => SpotSolveScreen(
-                                                spot: evalSpot,
-                                                packSpot: spot,
-                                                template: widget.template,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () async {
-                                          final ok = await showDialog<bool>(
-                                            context: context,
-                                            builder: (_) => AlertDialog(
-                                              title: const Text('Remove this spot from the pack?'),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(context, false),
-                                                  child: const Text('Cancel'),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(context, true),
-                                                  child: const Text('Remove'),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                          if (ok ?? false) {
-                                            final t = spot.title;
-                                            setState(() => widget.template.spots.removeAt(index));
-                                            await _persist();
-                                            setState(() => _history.log('Deleted', t, spot.id));
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                              return Dismissible(
-                                key: ValueKey(spot.id),
-                        background: Container(
-                          color: Colors.green,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: const Icon(Icons.copy, color: Colors.white),
-                        ),
-                        secondaryBackground: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        confirmDismiss: (dir) async {
-                          if (dir == DismissDirection.startToEnd) {
-                            _duplicateSpot(spot);
-                          } else {
-                            _lastRemoved = [spot];
-                            final t = spot.title;
-                            setState(() => widget.template.spots.remove(spot));
-                            _persist();
-                            setState(() => _history.log('Deleted', t, spot.id));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('Deleted'),
-                                action: SnackBarAction(
-                                  label: 'UNDO',
-                                  onPressed: () {
-                                    setState(() {
-                                      widget.template.spots.addAll(_lastRemoved!);
-                                      if (_autoSortEv) _sortSpots();
-                                    });
-                                    _persist();
-                                  },
-                                ),
+                      child: ReorderableListView.builder(
+                        key: const PageStorageKey('spotsList'),
+                        padding: const EdgeInsets.only(bottom: 120),
+                        itemCount: rows.length,
+                        proxyDecorator: _proxyLift,
+                        onReorder: (oldIndex, newIndex) {
+                          final moved = rows.removeAt(oldIndex);
+                          rows.insert(newIndex > oldIndex ? newIndex - 1 : newIndex, moved);
+                          _recordSnapshot();
+                          widget.template.spots
+                            ..clear()
+                            ..addAll(rows.where((r) => r.kind == _RowKind.spot).map((r) => r.spot!));
+                          _persist();
+                          WidgetsBinding.instance.addPostFrameCallback((_) =>
+                              _focusSpot(moved.spot?.id ?? ''));
+                        },
+                        itemBuilder: (context, i) {
+                          final r = rows[i];
+                          if (r.kind == _RowKind.header) {
+                            return Padding(
+                              key: ValueKey('hdr_${r.tag}'),
+                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                              child: Text(
+                                r.tag.isEmpty ? 'Untagged' : r.tag,
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
                             );
                           }
-                          return false;
-                        },
-                                child: content,
+                          final spot = r.spot!;
+                          final selected = _selectedSpotIds.contains(spot.id);
+                          final showDup =
+                              (spot.isNew && _importDuplicateGroups([spot])) ||
+                                  _isDup(spot);
+                          final content = ReorderableDragStartListener(
+                            key: ValueKey(spot.id),
+                            index: i,
+                            child: InkWell(
+                            onTap: () async {
+                              await showSpotViewerDialog(
+                                context,
+                                spot,
+                                templateTags: widget.template.tags,
                               );
+                              if (_autoSortEv) setState(() => _sortSpots());
+                              _focusSpot(spot.id);
                             },
-                        onReorder: (o, n) {
-                          _recordSnapshot();
-                          final spot = spots[o];
-                          final oldIndex = widget.template.spots.indexOf(spot);
-                          final newSorted = n < spots.length ? start + n : start + spots.length;
-                          final newIndex = newSorted < sorted.length
-                              ? widget.template.spots.indexOf(sorted[newSorted])
-                              : widget.template.spots.length;
-                          setState(() {
-                            final s = widget.template.spots.removeAt(oldIndex);
-                            widget.template.spots.insert(
-                                newIndex > oldIndex ? newIndex - 1 : newIndex, s);
-                          });
-                          _persist();
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            final idx = newIndex > oldIndex ? newIndex - 1 : newIndex;
-                            _scrollCtrl.animateTo(
-                              _itemOffset(idx),
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOut,
-                            );
-                          });
+                            onLongPress: () => setState(() => _selectedSpotIds.add(spot.id)),
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              child: RepaintBoundary(
+                                key: _itemKeys.putIfAbsent(spot.id, () => GlobalKey()),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 500),
+                                  color: spot.id == _highlightId
+                                      ? Colors.yellow.withOpacity(0.3)
+                                      : null,
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.drag_handle_rounded, color: Colors.white54),
+                                      if (_isMultiSelect)
+                                        Checkbox(
+                                          value: selected,
+                                          onChanged: (_) => setState(() {
+                                            if (selected) {
+                                              _selectedSpotIds.remove(spot.id);
+                                            } else {
+                                              _selectedSpotIds.add(spot.id);
+                                            }
+                                          }),
+                                        ),
+                                      Expanded(
+                                        child: TrainingPackSpotPreviewCard(
+                                          spot: spot,
+                                          editableTitle: true,
+                                          onTitleChanged: (_) {
+                                            setState(() {});
+                                            _persist();
+                                          },
+                                          isMistake: spot.evalResult?.correct == false,
+                                          titleColor: spot.evalResult == null
+                                              ? Colors.yellow
+                                              : (spot.evalResult!.correct ? null : Colors.red),
+                                          onHandEdited: () {
+                                            unawaited(() async {
+                                              try {
+                                                spot.dirty = false;
+                                                await context.read<EvaluationExecutorService>().evaluateSingle(
+                                                      spot,
+                                                      template: widget.template,
+                                                      anteBb: widget.template.anteBb,
+                                                    );
+                                              } catch (_) {
+                                                if (mounted) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(content: Text('Evaluation failed')));
+                                                }
+                                              }
+                                              if (!mounted) return;
+                                              setState(() {
+                                                if (_autoSortEv) _sortSpots();
+                                              });
+                                              await _persist();
+                                            }());
+                                          },
+                                          onTagTap: (tag) async {
+                                            setState(() => _tagFilter = tag);
+                                            _storeTagFilter();
+                                          },
+                                          template: widget.template,
+                                          persist: _persist,
+                                          focusSpot: _focusSpot,
+                                          onNewTap: _selectAllNew,
+                                          onDupTap: _selectAllDuplicates,
+                                          onPersist: _persist,
+                                          showDuplicate: showDup,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          _buildSpotMenu(spot),
+                                          TextButton(
+                                            onPressed: () => _openEditor(spot),
+                                            child: const Text('📝 Edit'),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.play_arrow),
+                                            onPressed: () {
+                                              final evalSpot = _toSpot(spot);
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => SpotSolveScreen(
+                                                    spot: evalSpot,
+                                                    packSpot: spot,
+                                                    template: widget.template,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete, color: Colors.red),
+                                            onPressed: () async {
+                                              final ok = await showDialog<bool>(
+                                                context: context,
+                                                builder: (_) => AlertDialog(
+                                                  title: const Text('Remove this spot from the pack?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () => Navigator.pop(context, false),
+                                                      child: const Text('Cancel'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () => Navigator.pop(context, true),
+                                                      child: const Text('Remove'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                              if (ok ?? false) {
+                                                final t = spot.title;
+                                                setState(() => widget.template.spots.removeAt(
+                                                    widget.template.spots.indexOf(spot)));
+                                                await _persist();
+                                                setState(() => _history.log('Deleted', t, spot.id));
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                          return Dismissible(
+                            key: ValueKey(spot.id),
+                            background: Container(
+                              color: Colors.green,
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: const Icon(Icons.copy, color: Colors.white),
+                            ),
+                            secondaryBackground: Container(
+                              color: Colors.red,
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            confirmDismiss: (dir) async {
+                              if (dir == DismissDirection.startToEnd) {
+                                _duplicateSpot(spot);
+                              } else {
+                                _lastRemoved = [spot];
+                                final t = spot.title;
+                                setState(() => widget.template.spots.remove(spot));
+                                _persist();
+                                setState(() => _history.log('Deleted', t, spot.id));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text('Deleted'),
+                                    action: SnackBarAction(
+                                      label: 'UNDO',
+                                      onPressed: () {
+                                        setState(() {
+                                          widget.template.spots.addAll(_lastRemoved!);
+                                          if (_autoSortEv) _sortSpots();
+                                        });
+                                        _persist();
+                                      },
+                                    ),
+                                  ),
+                                );
+                              }
+                              return false;
+                            },
+                            child: content,
+                          );
                         },
-                          ),
-                        ],
-                      );
-                    },
+                      ),
+                    ),
                   );
                 },
               ),
-              ),
+            ),
             ],
           ),
         ),
@@ -6044,6 +6045,38 @@ class _MatrixPickerPageState extends State<_MatrixPickerPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+Widget _proxyLift(Widget child, int index, Animation<double> anim) =>
+    Material(elevation: 6, child: child);
+
+class _DragAutoScroll extends StatefulWidget {
+  final Widget child;
+  final ScrollController controller;
+  const _DragAutoScroll({required this.child, required this.controller});
+
+  @override
+  State<_DragAutoScroll> createState() => _DragAutoScrollState();
+}
+
+class _DragAutoScrollState extends State<_DragAutoScroll> {
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerMove: (e) {
+        final y = e.position.dy;
+        final h = MediaQuery.of(context).size.height;
+        const speed = 26;
+        if (y < 100) {
+          widget.controller.jumpTo(widget.controller.offset - speed);
+        }
+        if (y > h - 100) {
+          widget.controller.jumpTo(widget.controller.offset + speed);
+        }
+      },
+      child: Scrollbar(controller: widget.controller, child: widget.child),
     );
   }
 }
