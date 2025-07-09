@@ -56,6 +56,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const kSortEdited = 'edited';
   static const kSortSpots = 'spots';
   static const kSortName = 'name';
+  static const kNewDays = 7;
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -490,11 +491,24 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   Widget _item(TrainingPackTemplate t) {
+    final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
     final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
     final tags = t.tags.take(3).toList();
     final isNew =
-        t.isBuiltIn && DateTime.now().difference(t.createdAt).inDays < 7;
+        t.isBuiltIn && DateTime.now().difference(t.createdAt).inDays < kNewDays;
+    final badge = Container(
+      key: const ValueKey('new'),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      decoration: BoxDecoration(
+        color: Colors.redAccent,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        l.newBadge,
+        style: const TextStyle(fontSize: 11, color: Colors.white),
+      ),
+    );
     final card = Card(
       child: ListTile(
         leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
@@ -530,17 +544,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),
-                  transitionBuilder: (child, animation) =>
-                      FadeTransition(opacity: animation, child: child),
-                  child: isNew
-                      ? const Padding(
-                          key: ValueKey('new'),
-                          padding: EdgeInsets.only(left: 4),
-                          child: Text('New',
-                              style:
-                                  TextStyle(color: Colors.red, fontSize: 12)),
-                        )
-                      : const SizedBox.shrink(key: ValueKey('notNew')),
+                  transitionBuilder: (c, a) =>
+                      FadeTransition(opacity: a, child: c),
+                  child:
+                      isNew ? Padding(padding: const EdgeInsets.only(left: 4), child: badge) : const SizedBox.shrink(key: ValueKey('notNew')),
                 ),
               ],
             ),
