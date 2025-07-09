@@ -178,12 +178,12 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
                     ],
                   ),
                 ),
+                _summary(data),
                 Expanded(
                   child: data.isEmpty
                       ? const Center(child: Text('Нет результатов', style: TextStyle(color: Colors.white70)))
                       : _list(data),
                 ),
-                _summary(data),
               ],
             ),
     );
