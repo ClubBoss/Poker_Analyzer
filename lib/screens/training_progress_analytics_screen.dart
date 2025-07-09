@@ -25,10 +25,23 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
       final c = translateCategory(raw);
       map.putIfAbsent(c, () => _CategoryStats()).add(p);
     }
+    const priority = {
+      'Пуш/Фолд': 1,
+      'ICM': 2,
+      'Постфлоп': 3,
+      '3-бет': 4,
+    };
     final stats = map.entries
         .where((e) => e.value.attempts > 0)
         .toList()
-      ..sort((a, b) => b.value.attempts.compareTo(a.value.attempts));
+      ..sort((a, b) {
+        final pa = priority[a.key];
+        final pb = priority[b.key];
+        if (pa != null && pb != null) return pa.compareTo(pb);
+        if (pa != null) return -1;
+        if (pb != null) return 1;
+        return a.key.compareTo(b.key);
+      });
     return Scaffold(
       appBar: AppBar(
         title: const Text('Аналитика по категориям'),
