@@ -77,6 +77,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   List<TrainingPackTemplate> _recent = [];
   List<TrainingPackTemplate> _popular = [];
+  final Map<String, TrainingPackStat?> _stats = {};
 
   @override
   void initState() {
@@ -96,6 +97,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _autoImport(prefs);
     await _updateRecent();
     await _updatePopular();
+    await _loadStats();
   }
 
   @override
@@ -230,6 +232,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         await TrainingPackStatsService.mostPlayedTemplates(templates, 5);
     if (!mounted) return;
     setState(() => _popular = popular);
+  }
+
+  Future<void> _loadStats() async {
+    final templates = context.read<TemplateStorageService>().templates;
+    final map = <String, TrainingPackStat?>{};
+    for (final t in templates) {
+      map[t.id] = await TrainingPackStatsService.getStats(t.id);
+    }
+    if (!mounted) return;
+    setState(() {
+      _stats
+        ..clear()
+        ..addAll(map);
+    });
+  }
+
+  Color _colorFor(double val) {
+    if (val >= .99) return Colors.green;
+    if (val >= .5) return Colors.amber;
+    return Colors.red;
   }
 
 
@@ -614,46 +636,53 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ),
           ],
         ),
-        subtitle: FutureBuilder<TrainingPackStat?>(
-          future: TrainingPackStatsService.getStats(t.id),
-          builder: (context, snap) {
-            final c = translateCategory(t.category);
-            final main = '${c.isEmpty ? 'Без категории' : c} • ${t.hands.length} ${l.hands} • v$version';
-            final stat = snap.data;
-            if (stat == null) return Text(main);
-            final date = DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
-            final color = stat.accuracy >= 1
-                ? Colors.green
-                : stat.accuracy >= .5
-                    ? Colors.amber
-                    : Colors.red;
+        subtitle: () {
+          final c = translateCategory(t.category);
+          final main = '${c.isEmpty ? 'Без категории' : c} • ${t.hands.length} ${l.hands} • v$version';
+          final stat = _stats[t.id];
+          if (stat == null) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(main),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Expanded(
+                const SizedBox(height: 24),
+              ],
+            );
+          }
+          final date = DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(main),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      label: l.accuracySemantics((stat.accuracy * 100).round()),
                       child: LinearProgressIndicator(
-                        value: stat.accuracy,
+                        value: stat.accuracy.clamp(0.0, 1.0),
                         backgroundColor: Colors.white12,
-                        color: color,
+                        color: _colorFor(stat.accuracy),
                         minHeight: 4,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Text('${(stat.accuracy * 100).round()}%',
-                        style: const TextStyle(fontSize: 12)),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text('${l.lastTrained}: $date',
-                    style: const TextStyle(fontSize: 12, color: Colors.white60)),
-              ],
-            );
-          },
-        ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    l.percentLabel((stat.accuracy * 100).round()),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${l.lastTrained}: $date',
+                style: const TextStyle(fontSize: 12, color: Colors.white60),
+              ),
+            ],
+          );
+        }(),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
