@@ -206,17 +206,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   Future<void> _importTemplate() async {
+    if (_importing) return;
+    _importing = true;
+    setState(() {});
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
-    if (result == null || result.files.isEmpty) return;
+    if (result == null || result.files.isEmpty) {
+      if (mounted) setState(() => _importing = false);
+      return;
+    }
     Uint8List? data = result.files.single.bytes;
     final path = result.files.single.path;
     if (data == null && path != null) data = await File(path).readAsBytes();
     final service = context.read<TemplateStorageService>();
     final error = service.importTemplate(data);
-    if (!mounted) return;
+    if (!mounted) {
+      _importing = false;
+      return;
+    }
     if (error != null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('⚠️ $error')));
@@ -224,6 +233,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Шаблон импортирован')));
     }
+    setState(() => _importing = false);
   }
 
   Future<void> _createTemplate() async {
