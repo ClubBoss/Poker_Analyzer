@@ -13,6 +13,8 @@ import '../helpers/training_pack_validator.dart';
 import '../services/training_pack_author_service.dart' show TrainingPackAuthorService, PresetConfig;
 import '../models/v2/hero_position.dart';
 import '../services/favorite_pack_service.dart';
+import '../services/training_stats_service.dart';
+import '../utils/template_coverage_utils.dart';
 import 'v2/training_pack_template_editor_screen.dart';
 import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
@@ -228,6 +230,47 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
     );
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Pack "${tpl.name}" created')));
+  }
+
+  Future<void> _resetPack(TrainingPackTemplate pack) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Reset progress for '${pack.name}'?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    for (final s in pack.spots) {
+      final hero = s.hand.heroIndex;
+      for (final a in s.hand.actions[0] ?? []) {
+        if (a.playerIndex == hero) {
+          a.ev = null;
+          a.icmEv = null;
+        }
+      }
+      s.evalResult = null;
+      s.correctAction = null;
+      s.explanation = null;
+      s.dirty = false;
+    }
+    pack.lastTrainedAt = null;
+    TemplateCoverageUtils.recountAll(pack);
+    final list = await TrainingPackStorage.load();
+    final idx = list.indexWhere((e) => e.id == pack.id);
+    if (idx != -1) list[idx] = pack;
+    await TrainingPackStorage.save(list);
+    if (mounted) setState(() {});
+    TrainingStatsService.instance?.notifyListeners();
   }
 
   void _showPresetSheet() {
@@ -614,10 +657,12 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                               ),
                             );
                           }
+                          if (v == 'reset') _resetPack(t);
                         },
                         itemBuilder: (_) => const [
                           PopupMenuItem(value: 'import', child: Text('Import')),
                           PopupMenuItem(value: 'preview', child: Text('Preview')),
+                          PopupMenuItem(value: 'reset', child: Text('Reset progress')),
                         ],
                       )
                     ],
