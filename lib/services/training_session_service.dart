@@ -32,6 +32,9 @@ class TrainingSessionService extends ChangeNotifier {
   Map<String, int> get handGoalTotal => Map.unmodifiable(_handGoalTotal);
   Map<String, int> get handGoalCount => Map.unmodifiable(_handGoalCount);
 
+  TrainingSession? get currentSession => _session;
+  bool get isCompleted => _session?.completedAt != null;
+
   void _startTicker() {
     _timer?.cancel();
     _timer =
