@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import '../asset_manifest.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'dart:typed_data';
@@ -12,8 +13,7 @@ import 'package:open_filex/open_filex.dart';
 import '../models/training_pack_template.dart';
 
 class TemplateStorageService extends ChangeNotifier {
-  static late final Future<Map<String, dynamic>> _manifestFuture =
-      rootBundle.loadString('AssetManifest.json').then(jsonDecode);
+  static final _manifestFuture = AssetManifest.instance;
   final List<TrainingPackTemplate> _templates = [];
   List<TrainingPackTemplate> get templates => List.unmodifiable(_templates);
 

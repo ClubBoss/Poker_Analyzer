@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import '../asset_manifest.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'cloud_sync_service.dart';
@@ -18,8 +19,7 @@ import '../models/saved_hand.dart';
 
 class TrainingPackStorageService extends ChangeNotifier {
   static const _storageFile = 'training_packs.json';
-  static late final Future<Map<String, dynamic>> _manifestFuture =
-      rootBundle.loadString('AssetManifest.json').then(jsonDecode);
+  static final _manifestFuture = AssetManifest.instance;
 
   Timer? _persistTimer;
 
