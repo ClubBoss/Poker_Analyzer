@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:uuid/uuid.dart';
-import '../models/training_pack.dart';
-import '../models/training_spot.dart';
-import '../models/action_entry.dart';
-import '../models/saved_hand.dart';
-import '../models/card_model.dart';
-import '../models/v2/hand_data.dart';
-import '../models/v2/hero_position.dart';
-import '../models/v2/training_pack_spot.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/v2/training_pack_template.dart';
-import '../services/training_pack_storage_service.dart';
 import '../services/training_session_service.dart';
+import '../services/template_storage_service.dart';
+import '../services/training_pack_stats_service.dart';
+import '../utils/template_priority.dart';
 import 'training_session_screen.dart';
 
 import '../services/spot_of_the_day_service.dart';
@@ -47,7 +41,8 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training'),
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.analytics),
             onPressed: () {
@@ -62,15 +57,7 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
       ),
       body: ListView(
         children: [
-          _RecommendedPacks(
-            packs: [
-              for (final p in context
-                  .read<TrainingPackStorageService>()
-                  .packs
-                  .where((p) => p.isBuiltIn))
-                p
-            ],
-          ),
+          const _RecommendedCarousel(),
           const QuickContinueCard(),
           const SpotOfTheDayCard(),
           const ProgressSummaryBox(),
@@ -99,13 +86,47 @@ class _TrainingHomeScreenState extends State<TrainingHomeScreen> {
   }
 }
 
-class _RecommendedPacks extends StatelessWidget {
-  final List<TrainingPack> packs;
-  const _RecommendedPacks({required this.packs});
+class _RecommendedCarousel extends StatefulWidget {
+  const _RecommendedCarousel();
+
+  @override
+  State<_RecommendedCarousel> createState() => _RecommendedCarouselState();
+}
+
+class _RecommendedCarouselState extends State<_RecommendedCarousel> {
+  List<TrainingPackTemplate> _tpls = [];
+  final Map<String, TrainingPackStat?> _stats = {};
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final templates = context
+        .read<TemplateStorageService>()
+        .templates
+        .where((t) => t.isBuiltIn)
+        .sortedByPriority()
+        .take(3);
+    final list = <TrainingPackTemplate>[];
+    for (final t in templates) {
+      final done = prefs.getBool('completed_tpl_${t.id}') ?? false;
+      if (!done) list.add(t);
+      _stats[t.id] = await TrainingPackStatsService.getStats(t.id);
+    }
+    setState(() {
+      _tpls = list;
+      _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (packs.isEmpty) return const SizedBox.shrink();
+    if (_loading || _tpls.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -114,115 +135,93 @@ class _RecommendedPacks extends StatelessWidget {
           child: Text('Рекомендуем для старта',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         ),
-        for (final p in packs.take(3)) _PackCard(pack: p),
+        SizedBox(
+          height: 140,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (_, i) => _PackCard(
+              template: _tpls[i],
+              stat: _stats[_tpls[i].id],
+              onDone: _load,
+            ),
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemCount: _tpls.length,
+          ),
+        ),
       ],
     );
   }
 }
 
 class _PackCard extends StatelessWidget {
-  final TrainingPack pack;
-  const _PackCard({required this.pack});
+  final TrainingPackTemplate template;
+  final TrainingPackStat? stat;
+  final VoidCallback onDone;
+  const _PackCard(
+      {required this.template, required this.stat, required this.onDone});
 
   @override
   Widget build(BuildContext context) {
+    final progress = stat?.accuracy ?? 0;
+    final completed = progress >= 0.8;
+    final label = completed
+        ? 'Пройдено'
+        : progress > 0
+            ? 'Продолжить'
+            : 'Начать';
+    final color = completed ? Colors.green : Colors.orange;
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      padding: const EdgeInsets.all(12),
+      width: 120,
+      height: 120,
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.backpack, color: Colors.orange),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(pack.name,
-                    style:
-                        const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(pack.category,
-                    style: const TextStyle(color: Colors.white70)),
-              ],
-            ),
+          Icon(Icons.shield, color: color),
+          const Spacer(),
+          Text(
+            template.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () => _startPack(context, pack),
-            child: const Text('Начать'),
+          const SizedBox(height: 4),
+          LinearProgressIndicator(
+            value: progress,
+            backgroundColor: Colors.white12,
+            color: color,
+            minHeight: 6,
+          ),
+          const SizedBox(height: 4),
+          ElevatedButton.icon(
+            onPressed: completed
+                ? null
+                : () async {
+                    await context
+                        .read<TrainingSessionService>()
+                        .startSession(template);
+                    if (context.mounted) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen()),
+                      );
+                    }
+                    onDone();
+                  },
+            icon: Icon(
+              completed ? Icons.check : Icons.play_arrow,
+              color: completed ? Colors.green : null,
+              size: 16,
+            ),
+            label: Text(label),
           ),
         ],
       ),
     );
   }
-}
-
-Future<void> _startPack(BuildContext context, TrainingPack pack) async {
-  final template = TrainingPackTemplate(
-    id: pack.id,
-    name: pack.name,
-    description: pack.description,
-    gameType: pack.gameType,
-    spots: [
-      for (final h in pack.hands)
-        _spotFromHand(h),
-    ],
-    isBuiltIn: true,
-  );
-  await context.read<TrainingSessionService>().startSession(template);
-  if (context.mounted) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-    );
-  }
-}
-
-TrainingPackSpot _spotFromHand(SavedHand h) {
-  return _spotFromTrainingSpot(TrainingSpot.fromSavedHand(h));
-}
-
-TrainingPackSpot _spotFromTrainingSpot(TrainingSpot spot) {
-  final heroCards = spot.heroIndex < spot.playerCards.length
-      ? spot.playerCards[spot.heroIndex]
-      : <CardModel>[];
-  final hero = heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
-  final board = [for (final c in spot.boardCards) '${c.rank}${c.suit}'];
-  final actions = <int, List<ActionEntry>>{};
-  for (final a in spot.actions) {
-    actions.putIfAbsent(a.street, () => []).add(ActionEntry(
-      a.street,
-      a.playerIndex,
-      a.action,
-      amount: a.amount?.toDouble(),
-      generated: a.generated,
-      manualEvaluation: a.manualEvaluation,
-      customLabel: a.customLabel,
-    ));
-  }
-  final stacks = <String, double>{};
-  for (var i = 0; i < spot.stacks.length; i++) {
-    stacks['$i'] = spot.stacks[i].toDouble();
-  }
-  final pos = spot.heroIndex < spot.positions.length
-      ? parseHeroPosition(spot.positions[spot.heroIndex])
-      : HeroPosition.unknown;
-  return TrainingPackSpot(
-    id: const Uuid().v4(),
-    hand: HandData(
-      heroCards: hero,
-      position: pos,
-      heroIndex: spot.heroIndex,
-      playerCount: spot.numberOfPlayers,
-      board: board,
-      actions: actions,
-      stacks: stacks,
-      anteBb: spot.anteBb,
-    ),
-    tags: List<String>.from(spot.tags),
-  );
 }

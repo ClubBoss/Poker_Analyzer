@@ -6,6 +6,8 @@ import '../widgets/spot_quiz_widget.dart';
 import 'session_result_screen.dart';
 import 'training_session_summary_screen.dart';
 import '../services/training_pack_stats_service.dart';
+import '../services/cloud_sync_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class _EndlessStats {
@@ -49,7 +51,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.onSessionEnd != null && _endlessStats.total == 0 && _endlessStats.elapsed == Duration.zero) {
+    if (widget.onSessionEnd != null &&
+        _endlessStats.total == 0 &&
+        _endlessStats.elapsed == Duration.zero) {
       _endlessStats.reset();
     }
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -168,9 +172,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             final ids = service.results.keys
                 .where((k) => service.results[k] == false)
                 .toSet();
-            final spots = service.spots
-                .where((s) => ids.contains(s.id))
-                .toList();
+            final spots =
+                service.spots.where((s) => ids.contains(s.id)).toList();
             if (spots.isEmpty) return;
             final tpl = service.template!.copyWith(
               id: const Uuid().v4(),
@@ -193,8 +196,18 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     );
     final tpl = service.template;
     if (tpl != null) {
-      unawaited(TrainingPackStatsService.recordSession(
-          tpl.id, service.correctCount, service.totalCount));
+      final correct = service.correctCount;
+      final total = service.totalCount;
+      final acc = total == 0 ? 0.0 : correct / total;
+      unawaited(TrainingPackStatsService.recordSession(tpl.id, correct, total));
+      if (acc >= 0.8) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('completed_tpl_${tpl.id}', true);
+        final cloud = context.read<CloudSyncService?>();
+        if (cloud != null) {
+          unawaited(cloud.save('completed_tpl_${tpl.id}', '1'));
+        }
+      }
     }
   }
 
@@ -224,8 +237,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         final confirm = await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(
-            title:
-                const Text('Exit training? Unsaved progress will be lost.'),
+            title: const Text('Exit training? Unsaved progress will be lost.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
@@ -242,180 +254,201 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       },
       child: Consumer<TrainingSessionService>(
         builder: (context, service, _) {
-        if (!_summaryShown &&
-            service.session != null &&
-            service.template != null &&
-            service.session!.index >= service.template!.spots.length) {
-          _summaryShown = true;
-          WidgetsBinding.instance
-              .addPostFrameCallback((_) => _showSummary(service));
-        }
-        final spot = service.currentSpot;
-        if (spot == null) {
-          return const Scaffold(
-            backgroundColor: Color(0xFF1B1C1E),
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        final expected = _expectedAction(spot);
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Training'),
-            actions: [
-              IconButton(
-                onPressed: service.isPaused ? service.resume : service.pause,
-                icon: Icon(service.isPaused ? Icons.play_arrow : Icons.pause),
-              )
-            ],
-          ),
-          backgroundColor: const Color(0xFF1B1C1E),
-          body: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    if (service.session != null && service.template != null) ...[
-                      Text(
-                        service.template!.name,
-                        style: const TextStyle(color: Colors.white70),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${service.session!.index + 1} / ${service.template!.spots.length}',
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                    Text(
-                      'Elapsed: ${_format(service.elapsedTime)}',
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(child: SpotQuizWidget(spot: spot)),
-                    if (service.focusHandTypes.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (final g in service.focusHandTypes)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: LinearProgressIndicator(
-                                    value: service.handGoalTotal[g.label] != null && service.handGoalTotal[g.label]! > 0
-                                        ? (service.handGoalCount[g.label]?.clamp(0, service.handGoalTotal[g.label]!) ?? 0) /
-                                            service.handGoalTotal[g.label]!
-                                        : 0,
-                                    color: Colors.purpleAccent,
-                                    backgroundColor:
-                                        Colors.purpleAccent.withOpacity(0.3),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '${g.label} ${service.handGoalCount[g.label] ?? 0}/${service.handGoalTotal[g.label] ?? 0}',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                              ],
-                            ),
-                          ),
+          if (!_summaryShown &&
+              service.session != null &&
+              service.template != null &&
+              service.session!.index >= service.template!.spots.length) {
+            _summaryShown = true;
+            WidgetsBinding.instance
+                .addPostFrameCallback((_) => _showSummary(service));
+          }
+          final spot = service.currentSpot;
+          if (spot == null) {
+            return const Scaffold(
+              backgroundColor: Color(0xFF1B1C1E),
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          final expected = _expectedAction(spot);
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Training'),
+              actions: [
+                IconButton(
+                  onPressed: service.isPaused ? service.resume : service.pause,
+                  icon: Icon(service.isPaused ? Icons.play_arrow : Icons.pause),
+                )
+              ],
+            ),
+            backgroundColor: const Color(0xFF1B1C1E),
+            body: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      if (service.session != null &&
+                          service.template != null) ...[
+                        Text(
+                          service.template!.name,
+                          style: const TextStyle(color: Colors.white70),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${service.session!.index + 1} / ${service.template!.spots.length}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 4),
                       ],
-                    ),
+                      Text(
+                        'Elapsed: ${_format(service.elapsedTime)}',
+                        style: const TextStyle(color: Colors.white70),
                       ),
-                    if (service.isPaused) ...[
-                      const SizedBox(height: 16),
-                      const Text('Сессия на паузе',
-                          style: TextStyle(color: Colors.white54)),
-                    ] else if (_selected == null) ...[
-                      const SizedBox(height: 16),
-                      const Text('Ваше действие?',
-                          style: TextStyle(color: Colors.white70)),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          for (final a in ['fold', 'call', 'raise', 'check', 'bet'])
-                            ElevatedButton(
-                              onPressed: () => _choose(a, service, spot),
-                              child: Text(a.toUpperCase()),
-                            ),
-                        ],
-                      ),
-                      if (service.session?.index != null &&
-                          service.session!.index > 0)
+                      Expanded(child: SpotQuizWidget(spot: spot)),
+                      if (service.focusHandTypes.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: ElevatedButton(
-                              onPressed: () => _prev(service),
-                              child: const Text('Prev'),
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (final g in service.focusHandTypes)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: LinearProgressIndicator(
+                                          value: service.handGoalTotal[
+                                                          g.label] !=
+                                                      null &&
+                                                  service.handGoalTotal[
+                                                          g.label]! >
+                                                      0
+                                              ? (service.handGoalCount[g.label]
+                                                          ?.clamp(
+                                                              0,
+                                                              service.handGoalTotal[
+                                                                  g.label]!) ??
+                                                      0) /
+                                                  service
+                                                      .handGoalTotal[g.label]!
+                                              : 0,
+                                          color: Colors.purpleAccent,
+                                          backgroundColor: Colors.purpleAccent
+                                              .withOpacity(0.3),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${g.label} ${service.handGoalCount[g.label] ?? 0}/${service.handGoalTotal[g.label] ?? 0}',
+                                        style: const TextStyle(
+                                            color: Colors.white70),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                    ] else ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        _correct! ? 'Верно!' : 'Неверно. Надо ${expected ?? '-'}',
-                        style: TextStyle(
-                          color: _correct! ? Colors.green : Colors.red,
-                          fontWeight: FontWeight.bold,
+                      if (service.isPaused) ...[
+                        const SizedBox(height: 16),
+                        const Text('Сессия на паузе',
+                            style: TextStyle(color: Colors.white54)),
+                      ] else if (_selected == null) ...[
+                        const SizedBox(height: 16),
+                        const Text('Ваше действие?',
+                            style: TextStyle(color: Colors.white70)),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            for (final a in [
+                              'fold',
+                              'call',
+                              'raise',
+                              'check',
+                              'bet'
+                            ])
+                              ElevatedButton(
+                                onPressed: () => _choose(a, service, spot),
+                                child: Text(a.toUpperCase()),
+                              ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (service.session?.index != null &&
-                              service.session!.index > 0)
+                        if (service.session?.index != null &&
+                            service.session!.index > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: ElevatedButton(
+                                onPressed: () => _prev(service),
+                                child: const Text('Prev'),
+                              ),
+                            ),
+                          ),
+                      ] else ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          _correct!
+                              ? 'Верно!'
+                              : 'Неверно. Надо ${expected ?? '-'}',
+                          style: TextStyle(
+                            color: _correct! ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (service.session?.index != null &&
+                                service.session!.index > 0)
+                              ElevatedButton(
+                                onPressed: () => _prev(service),
+                                child: const Text('Prev'),
+                              ),
                             ElevatedButton(
-                              onPressed: () => _prev(service),
-                              child: const Text('Prev'),
+                              onPressed: () => _next(service),
+                              child: const Text('Next'),
                             ),
-                          ElevatedButton(
-                            onPressed: () => _next(service),
-                            child: const Text('Next'),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
-                ),
-              ),
-              if (widget.onSessionEnd != null)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    color: Colors.black54,
-                    padding: const EdgeInsets.all(8),
-                    child: Text(
-                      'Total: ${_endlessStats.total}  ${(_endlessStats.accuracy * 100).toStringAsFixed(0)}%  ${_format(_endlessStats.elapsed + service.elapsedTime)}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
                   ),
                 ),
-            ],
-          ),
-          floatingActionButton: widget.onSessionEnd != null
-              ? FloatingActionButton(
-                  heroTag: 'stopDrillFab',
-                  tooltip: 'Stop Drill & show summary',
-                  child: const Icon(Icons.stop),
-                  onPressed: _showEndlessSummary,
-                )
-              : null,
-        );
-      },
-    ),
-  );
+                if (widget.onSessionEnd != null)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      color: Colors.black54,
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        'Total: ${_endlessStats.total}  ${(_endlessStats.accuracy * 100).toStringAsFixed(0)}%  ${_format(_endlessStats.elapsed + service.elapsedTime)}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            floatingActionButton: widget.onSessionEnd != null
+                ? FloatingActionButton(
+                    heroTag: 'stopDrillFab',
+                    tooltip: 'Stop Drill & show summary',
+                    child: const Icon(Icons.stop),
+                    onPressed: _showEndlessSummary,
+                  )
+                : null,
+          );
+        },
+      ),
+    );
   }
 }
