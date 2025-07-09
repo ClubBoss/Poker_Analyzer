@@ -14,6 +14,32 @@ import 'v2/training_pack_template_editor_screen.dart';
 import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
 
+enum _StackRange { l8, b9_12, b13_20 }
+
+extension _StackRangeExt on _StackRange {
+  String get label {
+    switch (this) {
+      case _StackRange.l8:
+        return '≤8 BB';
+      case _StackRange.b9_12:
+        return '9-12 BB';
+      case _StackRange.b13_20:
+        return '13-20 BB';
+    }
+  }
+
+  bool contains(int v) {
+    switch (this) {
+      case _StackRange.l8:
+        return v <= 8;
+      case _StackRange.b9_12:
+        return v >= 9 && v <= 12;
+      case _StackRange.b13_20:
+        return v >= 13 && v <= 20;
+    }
+  }
+}
+
 class PacksLibraryScreen extends StatefulWidget {
   const PacksLibraryScreen({super.key});
 
@@ -27,6 +53,8 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   String _query = '';
   String? _difficultyFilter;
   final Set<String> _statusFilters = {};
+  final Set<HeroPosition> _posFilters = {};
+  final Set<_StackRange> _stackFilters = {};
 
   List<TrainingPackTemplate> get _filtered => _packs.where((p) {
         final q = _query.toLowerCase();
@@ -48,7 +76,18 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           if (_statusFilters.contains('Completed') && isCompleted) statusOk = true;
           if (_statusFilters.contains('Incomplete') && isIncomplete) statusOk = true;
         }
-        return diffOk && textOk && statusOk;
+        final posOk = _posFilters.isEmpty || _posFilters.contains(p.heroPos);
+        var stackOk = true;
+        if (_stackFilters.isNotEmpty) {
+          stackOk = false;
+          for (final r in _stackFilters) {
+            if (r.contains(p.heroBbStack)) {
+              stackOk = true;
+              break;
+            }
+          }
+        }
+        return diffOk && textOk && statusOk && posOk && stackOk;
       }).toList();
 
   @override
@@ -260,6 +299,42 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                             _statusFilters.contains(s)
                                 ? _statusFilters.remove(s)
                                 : _statusFilters.add(s);
+                          }),
+                        ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final p in kPositionOrder)
+                        FilterChip(
+                          label: Text(p.label),
+                          selected: _posFilters.contains(p),
+                          onSelected: (_) => setState(() {
+                            _posFilters.contains(p)
+                                ? _posFilters.remove(p)
+                                : _posFilters.add(p);
+                          }),
+                        ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final r in _StackRange.values)
+                        FilterChip(
+                          label: Text(r.label),
+                          selected: _stackFilters.contains(r),
+                          onSelected: (_) => setState(() {
+                            _stackFilters.contains(r)
+                                ? _stackFilters.remove(r)
+                                : _stackFilters.add(r);
                           }),
                         ),
                     ],
