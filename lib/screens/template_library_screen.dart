@@ -684,10 +684,74 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       );
     }
     return GestureDetector(
-      onLongPress: () => showDialog(
-        context: context,
-        builder: (_) => TemplatePreviewDialog(template: t),
-      ),
+      onLongPress: () {
+        showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.grey[900],
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          builder: (ctx) {
+            final diffVal = (t as dynamic).difficulty;
+            String? diff;
+            if (diffVal != null) {
+              final v = int.tryParse('$diffVal');
+              if (v != null) {
+                diff = '★' * v + '☆' * (3 - v);
+              } else {
+                diff = diffVal.toString();
+              }
+            }
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(t.name,
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold)),
+                  if (t.description.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(t.description),
+                  ],
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Text('${t.hands.length} рук'),
+                      if (diff != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[800],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(diff),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      context.read<TrainingSessionService>().startSession(t);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const TrainingSessionScreen()),
+                      );
+                    },
+                    child: const Text('Начать тренировку'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
       child: card,
     );
   }
