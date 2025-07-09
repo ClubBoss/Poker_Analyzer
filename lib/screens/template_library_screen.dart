@@ -768,6 +768,58 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           child: _PackSheetContent(
             template: t,
             showReview: service.hasMistakes(t.id),
+            onStart: () async {
+              Navigator.pop(context);
+              final hasMistakes = service.hasMistakes(t.id);
+              final choice = await showDialog<int>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  backgroundColor: Colors.grey[850],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  title: Text(l.startTraining),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 1),
+                      child: Text(l.startTraining),
+                    ),
+                    if (hasMistakes)
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 2),
+                        child: Text(l.reviewMistakesOnly),
+                      ),
+                  ],
+                ),
+              );
+              if (!context.mounted) return;
+              if (choice == 2) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (_) => const Center(child: CircularProgressIndicator()),
+                );
+                final tpl = await service.review(context, t.id);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                if (tpl == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.noMistakesLeft)),
+                  );
+                  return;
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => MistakeReviewScreen(template: tpl)),
+                );
+              } else if (choice == 1) {
+                context.read<TrainingSessionService>().startSession(t);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                );
+              }
+            },
             onReview: () async {
               Navigator.pop(context);
               showDialog(
@@ -1204,10 +1256,12 @@ class _PackSheetContent extends StatelessWidget {
   const _PackSheetContent({
     required this.template,
     this.showReview = false,
+    required this.onStart,
     this.onReview,
   });
   final TrainingPackTemplate template;
   final bool showReview;
+  final VoidCallback onStart;
   final VoidCallback? onReview;
 
   @override
@@ -1242,14 +1296,7 @@ class _PackSheetContent extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-            context.read<TrainingSessionService>().startSession(template);
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
-            );
-          },
+          onPressed: onStart,
           child: Text(l.startTraining),
         ),
         if (showReview) ...[
