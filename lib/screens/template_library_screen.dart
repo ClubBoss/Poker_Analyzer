@@ -52,10 +52,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _selTagKey = 'lib_sel_tag';
   static const kStarterTag = 'starter';
   static const kFeaturedTag = 'featured';
+  static const kSortEdited = 'edited';
+  static const kSortSpots = 'spots';
+  static const kSortName = 'name';
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
-  String _sort = 'edited';
+  String _sort = kSortEdited;
   bool _needsPractice = false;
   bool _loadingNeedsPractice = false;
   final Set<String> _needsPracticeIds = {};
@@ -73,9 +76,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => _sort = prefs.getString(_sortKey) ?? 'edited');
-    final loaded = await _load();
-    await _autoImport(loaded);
+    await _load(prefs);
+    await _autoImport(prefs);
   }
 
   @override
@@ -84,11 +86,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     super.dispose();
   }
 
-  Future<SharedPreferences> _load() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> _load([SharedPreferences? prefs]) async {
+    prefs ??= await SharedPreferences.getInstance();
     setState(() {
       _filter = prefs.getString(_key) ?? 'all';
-      _sort = prefs.getString(_sortKey) ?? 'edited';
+      _sort = prefs.getString(_sortKey) ?? kSortEdited;
       _favorites
         ..clear()
         ..addAll(prefs.getStringList(_favKey) ?? []);
@@ -113,7 +115,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           cloud.save(_favKey, jsonEncode(merged)).catchError((_) {}));
     }
     if (_needsPractice) _updateNeedsPractice(true);
-    return prefs;
   }
 
   Future<void> _setFilter(String value) async {
@@ -129,7 +130,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Future<void> _setSort(String value) async {
     setState(() => _sort = value);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_sortKey, _sort);
+    await prefs.setString(_sortKey, value);
   }
 
   Future<void> _updateNeedsPractice(bool value) async {
@@ -191,10 +192,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   List<TrainingPackTemplate> _applySorting(List<TrainingPackTemplate> list) {
     final copy = [...list];
     switch (_sort) {
-      case 'name':
+      case kSortName:
         copy.sort((a, b) => a.name.compareTo(b.name));
         break;
-      case 'spots':
+      case kSortSpots:
         copy.sort((a, b) {
           final cmp = b.hands.length.compareTo(a.hands.length);
           return cmp == 0 ? a.name.compareTo(b.name) : cmp;
@@ -639,9 +640,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               onSelected: _setSort,
               initialValue: _sort,
               itemBuilder: (_) => const [
-                PopupMenuItem(value: 'edited', child: Text('Newest')),
-                PopupMenuItem(value: 'spots', child: Text('Most Hands')),
-                PopupMenuItem(value: 'name', child: Text('Name A-Z')),
+                PopupMenuItem(value: kSortEdited, child: Text('Newest')),
+                PopupMenuItem(value: kSortSpots, child: Text('Most Hands')),
+                PopupMenuItem(value: kSortName, child: Text('Name A-Z')),
               ],
             ),
           ],
