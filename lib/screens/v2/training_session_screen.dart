@@ -8,6 +8,7 @@ import '../../models/player_model.dart';
 import '../spot_solve_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../helpers/training_pack_storage.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'training_summary_screen.dart';
 
 class TrainingSessionScreen extends StatefulWidget {
@@ -110,8 +111,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           actions: [
             TextButton(onPressed: () => Navigator.pop(context, false),
                 child: const Text('Cancel')),
-            TextButton(onPressed: () => Navigator.pop(context, true),
-                child: const Text('Review Mistakes')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(AppLocalizations.of(context)!.reviewMistakes)),
           ],
         ),
       );
@@ -192,6 +194,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(widget.template.name)),
       backgroundColor: AppColors.background,
@@ -214,7 +217,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SwitchListTile(
-                          title: const Text('Review Mistakes Only'),
+                          title: Text(AppLocalizations.of(context)!.reviewMistakesOnly),
                           value: _mistakesOnly,
                           onChanged: (v) => setState(() => _mistakesOnly = v),
                           activeColor: Colors.orange,

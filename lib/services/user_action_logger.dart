@@ -11,6 +11,8 @@ class UserActionLogger extends ChangeNotifier {
   static const _prefsKey = 'user_action_log';
   final List<Map<String, dynamic>> _events = [];
   List<Map<String, dynamic>> get events => List.unmodifiable(_events);
+  DateTime? _last;
+  String? _lastAction;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,6 +35,16 @@ class UserActionLogger extends ChangeNotifier {
       _events.map((e) => jsonEncode(e)).toList(),
     );
     notifyListeners();
+  }
+
+  Future<void> logThrottled(String action, [Duration delay = const Duration(seconds: 2)]) async {
+    final now = DateTime.now();
+    if (_lastAction == action && _last != null && now.difference(_last!) < delay) {
+      return;
+    }
+    _lastAction = action;
+    _last = now;
+    await log(action);
   }
 
   List<Map<String, dynamic>> export() => events;

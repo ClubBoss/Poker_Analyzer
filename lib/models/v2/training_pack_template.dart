@@ -17,6 +17,7 @@ class TrainingPackTemplate {
   List<String> focusTags;
   List<FocusGoal> focusHandTypes;
   String? difficulty;
+  int get difficultyLevel => int.tryParse(difficulty ?? '') ?? 0;
   int heroBbStack;
   List<int> playerStacksBb;
   HeroPosition heroPos;

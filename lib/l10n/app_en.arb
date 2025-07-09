@@ -11,4 +11,8 @@
   ,"newBadge": "New"
   ,"hands": "hands"
   ,"startTraining": "Start training"
+  ,"lastTrained": "Last trained"
+  ,"needsPractice": "Needs Practice"
+  ,"reviewMistakes": "Review Mistakes"
+  ,"reviewMistakesOnly": "Review Mistakes Only"
 }

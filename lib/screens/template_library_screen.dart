@@ -17,6 +17,7 @@ import '../services/template_storage_service.dart';
 import '../models/training_pack_template.dart';
 import '../models/training_pack_template_model.dart';
 import '../models/v2/training_pack_template.dart' as v2;
+import '../utils/template_difficulty.dart';
 import '../services/training_session_service.dart';
 import 'training_session_screen.dart';
 import 'create_pack_from_template_screen.dart';
@@ -549,6 +550,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 ],
               ),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.ideographic,
               children: [
                 if (t.isBuiltIn) ...[
                   const Icon(Icons.shield, size: 18, color: Colors.grey),
@@ -636,7 +639,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   minHeight: 4,
                 ),
                 const SizedBox(height: 2),
-                Text('Last trained: $date',
+                Text('${l.lastTrained}: $date',
                     style: const TextStyle(fontSize: 12, color: Colors.white60)),
               ],
             );
@@ -695,7 +698,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   void _showPackSheet(BuildContext context, TrainingPackTemplate t) {
-    UserActionLogger.instance.log('sheet_open:${t.id}');
+    UserActionLogger.instance.logThrottled('sheet_open:${t.id}');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -877,7 +880,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   child: ListTile(
                     leading:
                         const Icon(Icons.error, color: Colors.orangeAccent),
-                    title: const Text('Review Mistakes'),
+                    title: Text(l.reviewMistakes),
                     onTap: () async {
                       final tpl = await service.buildPack(context);
                       if (tpl == null) return;
@@ -902,7 +905,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             spacing: 8,
             children: [
               FilterChip(
-                label: const Text('Needs Practice'),
+                label: Text(l.needsPractice),
                 selected: _needsPractice,
                 onSelected: (v) => _updateNeedsPractice(v),
               ),
@@ -1119,16 +1122,8 @@ class _PackSheetContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    int? diffVal;
-    if (template is TrainingPackTemplateModel) {
-      diffVal = (template as TrainingPackTemplateModel).difficulty;
-    } else if (template is v2.TrainingPackTemplate) {
-      diffVal = int.tryParse((template as v2.TrainingPackTemplate).difficulty ?? '');
-    }
-    String? diff;
-    if (diffVal != null) {
-      diff = '★' * diffVal + '☆' * (3 - diffVal);
-    }
+    final diffVal = (template as dynamic).difficultyLevel;
+    final diff = '★' * diffVal + '☆' * (3 - diffVal);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1143,17 +1138,15 @@ class _PackSheetContent extends StatelessWidget {
         Row(
           children: [
             Text('${template.hands.length} ${l.hands}'),
-            if (diff != null) ...[
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(diff),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.grey[800],
+                borderRadius: BorderRadius.circular(8),
               ),
-            ],
+              child: Text(diff),
+            ),
           ],
         ),
         const SizedBox(height: 16),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrainingSummaryScreen extends StatelessWidget {
   final int correct;
@@ -16,6 +17,7 @@ class TrainingSummaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final rate = total == 0 ? 0 : correct * 100 / total;
     return Scaffold(
       appBar: AppBar(title: const Text('Summary')),
@@ -41,7 +43,7 @@ class TrainingSummaryScreen extends StatelessWidget {
             const Spacer(),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Review Mistakes'),
+              child: Text(l.reviewMistakes),
             ),
             const SizedBox(height: 8),
             OutlinedButton(
