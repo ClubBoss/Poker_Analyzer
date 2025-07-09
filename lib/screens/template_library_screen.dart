@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../helpers/color_utils.dart';
 import '../services/template_storage_service.dart';
@@ -306,6 +307,36 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         .showSnackBar(SnackBar(content: Text('Added $added packs')));
   }
 
+  Future<void> _importInitialTemplates() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('imported_initial_templates') == true) return;
+    final manifest =
+        jsonDecode(await rootBundle.loadString('AssetManifest.json')) as Map;
+    final paths = manifest.keys.where((e) =>
+        e.startsWith('assets/templates/initial/') && e.endsWith('.json'));
+    final service = context.read<TemplateStorageService>();
+    var added = 0;
+    for (final p in paths) {
+      try {
+        final data = jsonDecode(await rootBundle.loadString(p));
+        if (data is Map<String, dynamic>) {
+          final tpl =
+              TrainingPackTemplate.fromJson(Map<String, dynamic>.from(data));
+          final exists = service.templates
+              .any((t) => t.id == tpl.id || t.name == tpl.name);
+          if (!exists) {
+            service.addTemplate(tpl);
+            added++;
+          }
+        }
+      } catch (_) {}
+    }
+    await prefs.setBool('imported_initial_templates', true);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Added $added packs')));
+  }
+
   Future<TrainingPackTemplate?> _loadLastPack(BuildContext context) async {
     final service = context.read<TemplateStorageService>();
     final list = [for (final t in service.templates) if (!t.isBuiltIn) t];
@@ -572,6 +603,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             child: ElevatedButton(
               onPressed: _importStarterPacks,
               child: const Text('Import Starter Packs'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton(
+              onPressed: _importInitialTemplates,
+              child: const Text('Импортировать базовые паки'),
             ),
           ),
           Builder(
