@@ -539,6 +539,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   const Icon(Icons.shield, size: 18, color: Colors.grey),
                   const SizedBox(width: 4),
                 ],
+                if (_recent.any((e) => e.id == t.id)) ...[
+                  const Icon(Icons.schedule, size: 16, color: Colors.grey),
+                  const SizedBox(width: 4),
+                ],
                 Expanded(
                   child: Text(
                     t.name,
