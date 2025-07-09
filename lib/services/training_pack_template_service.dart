@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/v2/training_pack_preset.dart';
 import '../models/v2/training_pack_template.dart';
 import '../models/v2/training_pack_spot.dart';
@@ -30,7 +32,7 @@ class TrainingPackTemplateService {
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -45,7 +47,7 @@ class TrainingPackTemplateService {
           playerCount: 2,
           stacks: {'0': 10, '1': 10},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold', ev: 0.5)]
           },
         ),
       ),
@@ -78,7 +80,7 @@ class TrainingPackTemplateService {
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -95,7 +97,7 @@ class TrainingPackTemplateService {
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -112,7 +114,7 @@ class TrainingPackTemplateService {
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -129,7 +131,7 @@ class TrainingPackTemplateService {
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -146,7 +148,7 @@ class TrainingPackTemplateService {
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 10),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -161,7 +163,7 @@ class TrainingPackTemplateService {
           playerCount: 2,
           stacks: {'0': 10, '1': 10},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold', ev: 0.5)]
           },
         ),
       ),
@@ -185,13 +187,21 @@ class TrainingPackTemplateService {
     ],
   );
 
-  static final TrainingPackTemplate starterPushfold12bb = TrainingPackTemplate(
+  static TrainingPackTemplate starterPushfold12bb([BuildContext? ctx]) {
+    if (ctx == null) return _starterPushfold12bb;
+    return _starterPushfold12bb.copyWith(
+      name: AppLocalizations.of(ctx)!.packPushFold12,
+    );
+  }
+
+  static final TrainingPackTemplate _starterPushfold12bb = TrainingPackTemplate(
     id: 'starter_pushfold_12bb',
     name: 'Push/Fold 12BB (No Ante)',
     gameType: GameType.tournament,
     heroBbStack: 12,
     playerStacksBb: const [12, 12],
     heroPos: HeroPosition.sb,
+    anteBb: 0,
     tags: const ['starter', 'push', '12bb', 'no_ante'],
     difficulty: '1',
     isBuiltIn: true,
@@ -207,8 +217,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -224,8 +234,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -240,7 +250,7 @@ class TrainingPackTemplateService {
           playerCount: 2,
           stacks: {'0': 12, '1': 12},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold', ev: 0.5)]
           },
         ),
       ),
@@ -255,8 +265,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'call', amount: 11.5),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'call', amount: 12, ev: 0.0),
             ]
           },
         ),
@@ -271,7 +281,7 @@ class TrainingPackTemplateService {
           playerCount: 2,
           stacks: {'0': 12, '1': 12},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold', ev: 0.5)]
           },
         ),
       ),
@@ -286,8 +296,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -303,8 +313,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -320,8 +330,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -337,8 +347,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'call', amount: 11.5),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'call', amount: 12, ev: 0.0),
             ]
           },
         ),
@@ -354,8 +364,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -370,7 +380,7 @@ class TrainingPackTemplateService {
           playerCount: 2,
           stacks: {'0': 12, '1': 12},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold', ev: 0.5)]
           },
         ),
       ),
@@ -385,8 +395,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -402,8 +412,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -419,8 +429,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -434,5 +444,5 @@ class TrainingPackTemplateService {
   }
 
   static List<TrainingPackTemplate> getAllTemplates() =>
-      [starterPushfold10bb, starterPushfold12bb];
+      [starterPushfold10bb, starterPushfold12bb()];
 }
