@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 
-import 'template_library_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/training_session_service.dart';
@@ -167,6 +167,49 @@ class _PackCard extends StatelessWidget {
       required this.stat,
       required this.onDone});
 
+  Future<void> _onDone(BuildContext context) async {
+    onDone();
+    final prefs = await SharedPreferences.getInstance();
+    final done = prefs.getBool('completed_tpl_${template.id}') ?? false;
+    if (!done || !context.mounted) return;
+    final templates = context.read<TemplateStorageService>().templates;
+    final next = templates.firstWhereOrNull(
+      (t) =>
+          t.isBuiltIn &&
+          t.category == template.category &&
+          t.id != template.id &&
+          !(prefs.getBool('completed_tpl_${t.id}') ?? false),
+    );
+    if (next == null) return;
+    final start = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+            "Следующий пак в категории '\${template.category}' готов — начать сейчас?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Начать'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Позже'),
+          ),
+        ],
+      ),
+    );
+    if (start == true && context.mounted) {
+      await context.read<TrainingSessionService>().startSession(next);
+      if (context.mounted) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+        );
+      }
+      onDone();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final progress = stat?.accuracy ?? 0;
@@ -226,35 +269,7 @@ class _PackCard extends StatelessWidget {
                             builder: (_) => const TrainingSessionScreen()),
                       );
                     }
-                    onDone();
-                    final prefs = await SharedPreferences.getInstance();
-                    final done = prefs.getBool('completed_tpl_${template.id}') ?? false;
-                    if (done && context.mounted) {
-                      final next = await showDialog<bool>(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text('Вы завершили ${template.name}!'),
-                          content: const Text('Отличная работа! Хотите продолжить следующую категорию?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Выбрать следующий пак'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text('Позже'),
-                            )
-                          ],
-                        ),
-                      );
-                      if (next == true && context.mounted) {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const TemplateLibraryScreen()),
-                        );
-                      }
-                    }
+                    await _onDone(context);
                   },
             icon: Icon(
               completed ? Icons.check : Icons.play_arrow,
