@@ -329,7 +329,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   Future<void> _importInitialTemplates([SharedPreferences? prefs]) async {
     if (_importing) return;
-    setState(() => _importing = true);
+    _importing = true;
+    setState(() {});
     prefs ??= await SharedPreferences.getInstance();
     if (prefs.getBool('imported_initial_templates') == true) {
       setState(() => _importing = false);
