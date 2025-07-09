@@ -32,6 +32,7 @@ import '../utils/template_coverage_utils.dart';
 import '../services/mistake_review_pack_service.dart';
 import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
+import '../helpers/category_translations.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -366,7 +367,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         subtitle: FutureBuilder<TrainingPackStat?>(
           future: TrainingPackStatsService.getStats(t.id),
           builder: (context, snap) {
-            final main = '${t.category ?? 'Без категории'} • ${t.hands.length} рук • v$version';
+            final c = translateCategory(t.category);
+            final main = '${c.isEmpty ? 'Без категории' : c} • ${t.hands.length} рук • v$version';
             final stat = snap.data;
             if (stat == null) return Text(main);
             final date = DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
