@@ -232,6 +232,32 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     _endlessStats.reset();
   }
 
+  Widget _progressBar(TrainingSessionService service) {
+    final total = service.template?.spots.length ?? 0;
+    if (total == 0) return const SizedBox(height: 4);
+    final index = service.session?.index ?? 0;
+    final correct = service.results.values.where((e) => e).length;
+    final incorrect = service.results.values.where((e) => !e).length;
+    final remaining = (total - index).clamp(0, total);
+    final segments = <Widget>[];
+    if (correct > 0) {
+      segments.add(Expanded(
+          flex: correct,
+          child: Container(height: 4, color: Colors.green)));
+    }
+    if (incorrect > 0) {
+      segments.add(Expanded(
+          flex: incorrect,
+          child: Container(height: 4, color: Colors.red)));
+    }
+    if (remaining > 0) {
+      segments.add(Expanded(
+          flex: remaining,
+          child: Container(height: 4, color: Colors.grey)));
+    }
+    return Row(children: segments);
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -298,6 +324,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                           style: const TextStyle(color: Colors.white70),
                           textAlign: TextAlign.center,
                         ),
+                        const SizedBox(height: 4),
+                        _progressBar(service),
                         const SizedBox(height: 4),
                         Text(
                           '${service.session!.index + 1} / ${service.template!.spots.length}',
