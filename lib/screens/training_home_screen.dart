@@ -141,6 +141,7 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
             itemBuilder: (_, i) => _PackCard(
+              key: ValueKey(_tpls[i].id),
               template: _tpls[i],
               stat: _stats[_tpls[i].id],
               onDone: _load,
@@ -159,7 +160,10 @@ class _PackCard extends StatelessWidget {
   final TrainingPackStat? stat;
   final VoidCallback onDone;
   const _PackCard(
-      {required this.template, required this.stat, required this.onDone});
+      {super.key,
+      required this.template,
+      required this.stat,
+      required this.onDone});
 
   @override
   Widget build(BuildContext context) {
@@ -191,13 +195,17 @@ class _PackCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           TweenAnimationBuilder<double>(
+            curve: Curves.easeOutCubic,
             duration: const Duration(milliseconds: 600),
             tween: Tween(begin: 0.0, end: progress),
-            builder: (context, value, _) => LinearProgressIndicator(
-              value: value,
-              backgroundColor: Colors.white12,
-              color: color,
-              minHeight: 6,
+            builder: (context, value, _) => Semantics(
+              label: 'Прогресс ${(progress * 100).round()} %',
+              child: LinearProgressIndicator(
+                value: value,
+                backgroundColor: Colors.white12,
+                color: color,
+                minHeight: 6,
+              ),
             ),
           ),
           const SizedBox(height: 4),
