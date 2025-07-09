@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/training_pack_template.dart';
 import '../helpers/color_utils.dart';
+import '../helpers/category_translations.dart';
 
 class TemplatePreviewDialog extends StatelessWidget {
   final TrainingPackTemplate template;
@@ -32,7 +33,7 @@ class TemplatePreviewDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(template.category ?? 'Без категории'),
+              Text(translateCategory(template.category) ?? 'Без категории'),
             ],
           ),
           const SizedBox(height: 8),
