@@ -117,6 +117,24 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
     );
   }
 
+  Widget _overallSummary(List<HandAnalysisRecord> data) {
+    if (data.isEmpty) return const SizedBox.shrink();
+    final ev = data.map((e) => e.ev).reduce((a, b) => a + b) / data.length;
+    final icm = data.map((e) => e.icm).reduce((a, b) => a + b) / data.length;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        'Всего EV ${ev.toStringAsFixed(2)} BB • ICM ${icm.toStringAsFixed(2)}',
+        style: const TextStyle(color: Colors.white70),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final records = context.watch<HandAnalysisHistoryService>().records;
@@ -128,30 +146,34 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
           ? const Center(child: Text('История пуста', style: TextStyle(color: Colors.white70)))
           : Column(
               children: [
+                _overallSummary(records),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DropdownButton<String>(
-                        value: _period,
-                        underline: const SizedBox(),
-                        dropdownColor: AppColors.cardBackground,
-                        style: const TextStyle(color: Colors.white),
-                        items: const ['Все', '7 дней', '30 дней']
-                            .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                            .toList(),
-                        onChanged: (v) => setState(() => _period = v ?? 'Все'),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          for (final p in ['Все', '7 дней', '30 дней'])
+                            ChoiceChip(
+                              label: Text(p),
+                              selected: _period == p,
+                              onSelected: (_) => setState(() => _period = p),
+                            ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      DropdownButton<String>(
-                        value: _result,
-                        underline: const SizedBox(),
-                        dropdownColor: AppColors.cardBackground,
-                        style: const TextStyle(color: Colors.white),
-                        items: const ['Все', 'Push', 'Fold']
-                            .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                            .toList(),
-                        onChanged: (v) => setState(() => _result = v ?? 'Все'),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          for (final r in ['Все', 'Push', 'Fold'])
+                            ChoiceChip(
+                              label: Text(r),
+                              selected: _result == r,
+                              onSelected: (_) => setState(() => _result = r),
+                            ),
+                        ],
                       ),
                     ],
                   ),
