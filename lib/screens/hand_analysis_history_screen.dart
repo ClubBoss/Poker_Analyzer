@@ -14,9 +14,33 @@ class HandAnalysisHistoryScreen extends StatefulWidget {
 }
 
 class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
+  late HandAnalysisHistoryService _service;
+  late final ValueNotifier<List<HandAnalysisRecord>> _filtered;
   String _period = 'Все';
   String _result = 'Все';
   bool _desc = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _filtered = ValueNotifier(const []);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _service = context.read<HandAnalysisHistoryService>();
+      _service.addListener(_update);
+      _update();
+    });
+  }
+
+  @override
+  void dispose() {
+    _service.removeListener(_update);
+    _filtered.dispose();
+    super.dispose();
+  }
+
+  void _update() {
+    _filtered.value = _filter(_service.records);
+  }
 
   List<HandAnalysisRecord> _filter(List<HandAnalysisRecord> all) {
     Duration? d;
@@ -141,25 +165,29 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final records = context.watch<HandAnalysisHistoryService>().records;
-    final data = _filter(records);
     return Scaffold(
       appBar: AppBar(
         title: const Text('История анализов'),
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () => setState(() => _desc = !_desc),
+            onPressed: () {
+              setState(() => _desc = !_desc);
+              _update();
+            },
             icon: Icon(_desc ? Icons.arrow_downward : Icons.arrow_upward),
           ),
         ],
       ),
       backgroundColor: AppColors.background,
-      body: records.isEmpty
-          ? const Center(child: Text('История пуста', style: TextStyle(color: Colors.white70)))
-          : Column(
-              children: [
-                _overallSummary(records),
+      body: ValueListenableBuilder<List<HandAnalysisRecord>>(
+        valueListenable: _filtered,
+        builder: (context, data, _) {
+          return _service.records.isEmpty
+              ? const Center(child: Text('История пуста', style: TextStyle(color: Colors.white70)))
+              : Column(
+                  children: [
+                    _overallSummary(_service.records),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                   child: Column(
@@ -172,7 +200,10 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
                             ChoiceChip(
                               label: Text(p),
                               selected: _period == p,
-                              onSelected: (_) => setState(() => _period = p),
+                              onSelected: (_) {
+                                setState(() => _period = p);
+                                _update();
+                              },
                             ),
                         ],
                       ),
@@ -184,7 +215,10 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
                             ChoiceChip(
                               label: Text(r),
                               selected: _result == r,
-                              onSelected: (_) => setState(() => _result = r),
+                              onSelected: (_) {
+                                setState(() => _result = r);
+                                _update();
+                              },
                             ),
                         ],
                       ),
@@ -198,7 +232,9 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
                       : _list(data),
                 ),
               ],
-            ),
+                );
+        },
+      ),
     );
   }
 }
