@@ -49,7 +49,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _needsPracticeKey = 'lib_needs_practice';
   static const _favOnlyKey = 'lib_fav_only';
   static const _selTagKey = 'lib_sel_tag';
-  static String? _manifestCache;
+  static late final Future<Map<String, dynamic>> _manifestFuture =
+      rootBundle.loadString('AssetManifest.json').then(jsonDecode);
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
   String _sort = 'edited';
@@ -311,8 +312,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Future<void> _importInitialTemplates() async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool('imported_initial_templates') == true) return;
-    _manifestCache ??= await rootBundle.loadString('AssetManifest.json');
-    final manifest = jsonDecode(_manifestCache!) as Map;
+    final manifest = await _manifestFuture;
     final paths = manifest.keys.where(
         (e) => e.startsWith('assets/templates/initial/') && e.endsWith('.json'));
     final service = context.read<TemplateStorageService>();
@@ -334,6 +334,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       }
     }
     await prefs.setBool('imported_initial_templates', true);
+    context.read<CloudSyncService>().save('imported_initial_templates', '1');
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Добавлено $added паков')));
