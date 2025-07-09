@@ -15,6 +15,8 @@ import '../asset_manifest.dart';
 import '../helpers/color_utils.dart';
 import '../services/template_storage_service.dart';
 import '../models/training_pack_template.dart';
+import '../models/training_pack_template_model.dart';
+import '../models/v2/training_pack_template.dart' as v2;
 import '../services/training_session_service.dart';
 import 'training_session_screen.dart';
 import 'create_pack_from_template_screen.dart';
@@ -36,6 +38,7 @@ import 'package:intl/intl.dart';
 import 'training_stats_screen.dart';
 import '../helpers/category_translations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../services/user_action_logger.dart';
 
 class TemplateLibraryScreen extends StatefulWidget {
   const TemplateLibraryScreen({super.key});
@@ -522,6 +525,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   }
 
   Widget _item(TrainingPackTemplate t) {
+    final l = AppLocalizations.of(context)!;
     final parts = t.version.split('.');
     final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
     final tags = t.tags.take(3).toList();
@@ -535,12 +539,13 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           children: [
             if (_isStarter(t))
               Row(
-                children: const [
-                  Icon(Icons.rocket_launch,
+                children: [
+                  const Icon(Icons.rocket_launch,
                       size: 16, color: Colors.blueAccent),
-                  SizedBox(width: 4),
-                  Text('Starter',
-                      style: TextStyle(fontSize: 12, color: Colors.blueAccent)),
+                  const SizedBox(width: 4),
+                  Text(l.starterBadge,
+                      style: const TextStyle(
+                          fontSize: 12, color: Colors.blueAccent)),
                 ],
               ),
             Row(
@@ -569,12 +574,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                   transitionBuilder: (child, animation) =>
                       FadeTransition(opacity: animation, child: child),
                   child: isNew
-                      ? const Padding(
-                          key: ValueKey('new'),
-                          padding: EdgeInsets.only(left: 4),
-                          child: Text('New',
-                              style:
-                                  TextStyle(color: Colors.red, fontSize: 12)),
+                      ? Padding(
+                          key: const ValueKey('new'),
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Text(l.newBadge,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 12)),
                         )
                       : const SizedBox.shrink(key: ValueKey('notNew')),
                 ),
@@ -610,7 +615,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           future: TrainingPackStatsService.getStats(t.id),
           builder: (context, snap) {
             final c = translateCategory(t.category);
-            final main = '${c.isEmpty ? 'Без категории' : c} • ${t.hands.length} рук • v$version';
+            final main = '${c.isEmpty ? 'Без категории' : c} • ${t.hands.length} ${l.hands} • v$version';
             final stat = snap.data;
             if (stat == null) return Text(main);
             final date = DateFormat('dd MMM', Intl.getCurrentLocale()).format(stat.last);
@@ -684,75 +689,26 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       );
     }
     return GestureDetector(
-      onLongPress: () {
-        showModalBottomSheet(
-          context: context,
-          backgroundColor: Colors.grey[900],
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          builder: (ctx) {
-            final diffVal = (t as dynamic).difficulty;
-            String? diff;
-            if (diffVal != null) {
-              final v = int.tryParse('$diffVal');
-              if (v != null) {
-                diff = '★' * v + '☆' * (3 - v);
-              } else {
-                diff = diffVal.toString();
-              }
-            }
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(t.name,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-                  if (t.description.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(t.description),
-                  ],
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text('${t.hands.length} рук'),
-                      if (diff != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[800],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(diff),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      context.read<TrainingSessionService>().startSession(t);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
-                      );
-                    },
-                    child: const Text('Начать тренировку'),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+      onLongPress: () => _showPackSheet(context, t),
       child: card,
+    );
+  }
+
+  void _showPackSheet(BuildContext context, TrainingPackTemplate t) {
+    UserActionLogger.instance.log('sheet_open:${t.id}');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.grey[900],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: _PackSheetContent(template: t),
+        ),
+      ),
     );
   }
 
@@ -1150,6 +1106,67 @@ class _ImportOverlay extends StatelessWidget {
             label: 'Импорт паков…',
             child: CircularProgressIndicator(),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PackSheetContent extends StatelessWidget {
+  const _PackSheetContent({required this.template});
+  final TrainingPackTemplate template;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    int? diffVal;
+    if (template is TrainingPackTemplateModel) {
+      diffVal = (template as TrainingPackTemplateModel).difficulty;
+    } else if (template is v2.TrainingPackTemplate) {
+      diffVal = int.tryParse((template as v2.TrainingPackTemplate).difficulty ?? '');
+    }
+    String? diff;
+    if (diffVal != null) {
+      diff = '★' * diffVal + '☆' * (3 - diffVal);
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(template.name,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        if (template.description.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(template.description),
+        ],
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Text('${template.hands.length} ${l.hands}'),
+            if (diff != null) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(diff),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+            context.read<TrainingSessionService>().startSession(template);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+            );
+          },
+          child: Text(l.startTraining),
         ),
       ],
     );
