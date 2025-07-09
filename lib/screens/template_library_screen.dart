@@ -60,12 +60,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _favorites = {};
   bool _favoritesOnly = false;
   String? _selectedTag;
+  bool _importing = false;
 
   @override
   void initState() {
     super.initState();
     _searchCtrl.addListener(() => setState(() {}));
-    _load().then((_) => _autoImport());
+    _init();
+  }
+
+  Future<void> _init() async {
+    final prefs = await _load();
+    await _autoImport(prefs);
   }
 
   @override
@@ -74,7 +80,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     super.dispose();
   }
 
-  Future<void> _load() async {
+  Future<SharedPreferences> _load() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _filter = prefs.getString(_key) ?? 'all';
@@ -103,6 +109,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           cloud.save(_favKey, jsonEncode(merged)).catchError((_) {}));
     }
     if (_needsPractice) _updateNeedsPractice(true);
+    return prefs;
   }
 
   Future<void> _setFilter(String value) async {
@@ -309,19 +316,25 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         .showSnackBar(SnackBar(content: Text('Added $added packs')));
   }
 
-  Future<void> _autoImport() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> _autoImport([SharedPreferences? prefs]) async {
+    prefs ??= await SharedPreferences.getInstance();
+    if (_importing) return;
     if (prefs.getBool('imported_initial_templates') == true) return;
     final list = context.read<TemplateStorageService>().templates;
     if (list.isEmpty) {
-      await _importInitialTemplates();
+      await _importInitialTemplates(prefs);
       if (mounted) setState(() {});
     }
   }
 
-  Future<void> _importInitialTemplates() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('imported_initial_templates') == true) return;
+  Future<void> _importInitialTemplates([SharedPreferences? prefs]) async {
+    if (_importing) return;
+    setState(() => _importing = true);
+    prefs ??= await SharedPreferences.getInstance();
+    if (prefs.getBool('imported_initial_templates') == true) {
+      setState(() => _importing = false);
+      return;
+    }
     final manifest = await _manifestFuture;
     final paths = manifest.keys.where(
         (e) => e.startsWith('assets/templates/initial/') && e.endsWith('.json'));
@@ -337,6 +350,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           if (service.templates.every((t) => t.id != tpl.id)) {
             service.addTemplate(tpl);
             added++;
+          } else {
+            debugPrint('⚠️  Skip ${tpl.name}: duplicate id');
           }
         }
       } catch (e, st) {
@@ -346,9 +361,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await prefs.setBool('imported_initial_templates', true);
     unawaited(
         context.read<CloudSyncService>().save('imported_initial_templates', '1'));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Добавлено $added паков')));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(Intl.plural(added,
+              zero: 'Паки не импортированы',
+              one: 'Добавлён $added пак',
+              few: 'Добавлено $added пака',
+              many: 'Добавлено $added паков'))));
+    });
+    setState(() => _importing = false);
   }
 
   Future<TrainingPackTemplate?> _loadLastPack(BuildContext context) async {
