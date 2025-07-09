@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 
 import 'package:url_launcher/url_launcher.dart';
+import '../helpers/category_translations.dart';
 import '../models/v2/training_pack_template.dart';
 import '../services/training_session_service.dart';
 import '../services/template_storage_service.dart';
@@ -173,23 +174,30 @@ class _PackCard extends StatelessWidget {
     final done = prefs.getBool('completed_tpl_${template.id}') ?? false;
     if (!done || !context.mounted) return;
     final templates = context.read<TemplateStorageService>().templates;
-    final next = templates.firstWhereOrNull(
-      (t) =>
-          t.isBuiltIn &&
-          t.category == template.category &&
-          t.id != template.id &&
-          !(prefs.getBool('completed_tpl_${t.id}') ?? false),
-    );
+    final next = templates
+        .where(
+          (t) =>
+              t.isBuiltIn &&
+              t.category == template.category &&
+              t.id != template.id &&
+              !(prefs.getBool('completed_tpl_${t.id}') ?? false),
+        )
+        .sortedByPriority()
+        .firstOrNull;
     if (next == null) return;
     final start = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(
-            "Следующий пак в категории '\${template.category}' готов — начать сейчас?"),
+        title: Text('Следующий пак «${next.name}» готов!'),
+        content: Text('Категория: ${translateCategory(next.category)}. Начать прямо сейчас?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Начать'),
+          Semantics(
+            label: 'Начать ${next.name}',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Начать'),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
