@@ -72,6 +72,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   bool _importing = false;
 
   List<TrainingPackTemplate> _recent = [];
+  List<TrainingPackTemplate> _popular = [];
 
   @override
   void initState() {
@@ -90,6 +91,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await _load(prefs);
     await _autoImport(prefs);
     await _updateRecent();
+    await _updatePopular();
   }
 
   @override
@@ -216,6 +218,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     );
     if (!mounted) return;
     setState(() => _recent = recent);
+  }
+
+  Future<void> _updatePopular() async {
+    final templates = context.read<TemplateStorageService>().templates;
+    final popular =
+        await TrainingPackStatsService.mostPlayedTemplates(templates, 5);
+    if (!mounted) return;
+    setState(() => _popular = popular);
   }
 
 
@@ -943,6 +953,14 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     ]
                     else if (filteringActive) ...[
                       _emptyTile,
+                      if (builtInStarter.isNotEmpty ||
+                          builtInOther.isNotEmpty ||
+                          user.isNotEmpty)
+                        const Divider(),
+                    ],
+                    if (_popular.isNotEmpty) ...[
+                      ListTile(title: Text(l.popularPacks)),
+                      for (final t in _popular) _item(t),
                       if (builtInStarter.isNotEmpty ||
                           builtInOther.isNotEmpty ||
                           user.isNotEmpty)

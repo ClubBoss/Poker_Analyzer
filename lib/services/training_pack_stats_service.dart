@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../models/training_pack_template.dart';
+import '../models/session_log.dart';
 
 class TrainingPackStat {
   final double accuracy;
@@ -68,5 +70,26 @@ class TrainingPackStatsService {
     }
     list.sort((a, b) => b.value.compareTo(a.value));
     return [for (final e in list) e.key];
+  }
+
+  static Future<List<TrainingPackTemplate>> mostPlayedTemplates(
+      List<TrainingPackTemplate> templates, int limit) async {
+    if (!Hive.isBoxOpen('session_logs')) {
+      await Hive.initFlutter();
+      await Hive.openBox('session_logs');
+    }
+    final box = Hive.box('session_logs');
+    final count = <String, int>{};
+    for (final v in box.values.whereType<Map>()) {
+      final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
+      count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
+    }
+    final list = [for (final t in templates) if (count[t.id] != null) t];
+    list.sort((a, b) {
+      final r = (count[b.id] ?? 0).compareTo(count[a.id] ?? 0);
+      return r == 0 ? a.name.compareTo(b.name) : r;
+    });
+    if (limit < list.length) return list.sublist(0, limit);
+    return list;
   }
 }
