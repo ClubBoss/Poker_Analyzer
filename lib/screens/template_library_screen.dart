@@ -51,6 +51,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _favOnlyKey = 'lib_fav_only';
   static const _selTagKey = 'lib_sel_tag';
   static const kStarterTag = 'starter';
+  static const kFeaturedTag = 'featured';
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
@@ -208,6 +209,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
 
   bool _isStarter(TrainingPackTemplate t) =>
       t.tags.any((tag) => tag.toLowerCase() == kStarterTag);
+
+  bool _isFeatured(TrainingPackTemplate t) =>
+      t.tags.any((tag) => tag.toLowerCase() == kFeaturedTag);
 
   Future<void> _importTemplate() async {
     if (_importing) return;
@@ -575,11 +579,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       (_favorites.contains(t.id) ? fav : nonFav).add(t);
     }
     final sortedFav = _applySorting(fav);
-    final builtInStarter =
-        _applySorting([for (final t in nonFav) if (t.isBuiltIn && _isStarter(t)) t]);
-    final builtInOther = _applySorting(
-        [for (final t in nonFav) if (t.isBuiltIn && !_isStarter(t)) t]);
-    final user = _applySorting([for (final t in nonFav) if (!t.isBuiltIn) t]);
+    final featured =
+        _applySorting([for (final t in nonFav) if (_isFeatured(t)) t]);
+    final builtInStarter = _applySorting([
+      for (final t in nonFav)
+        if (t.isBuiltIn && _isStarter(t) && !_isFeatured(t)) t
+    ]);
+    final builtInOther = _applySorting([
+      for (final t in nonFav)
+        if (t.isBuiltIn && !_isStarter(t) && !_isFeatured(t)) t
+    ]);
+    final user =
+        _applySorting([for (final t in nonFav) if (!t.isBuiltIn && !_isFeatured(t)) t]);
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Row(
@@ -754,6 +765,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
           child: hasResults
               ? ListView(
                   children: [
+                    if (featured.isNotEmpty) ...[
+                      const ListTile(title: Text('Featured Packs')),
+                      for (final t in featured) _item(t),
+                      if (sortedFav.isNotEmpty ||
+                          builtInStarter.isNotEmpty ||
+                          builtInOther.isNotEmpty ||
+                          user.isNotEmpty)
+                        const Divider(),
+                    ],
                     if (sortedFav.isNotEmpty) ...[
                       const ListTile(title: Text('★ Favorites')),
                       for (final t in sortedFav) _item(t),
