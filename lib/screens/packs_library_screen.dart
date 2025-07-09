@@ -374,6 +374,59 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                Builder(
+                  builder: (context) {
+                    final session =
+                        context.read<TrainingSessionService>().currentSession;
+                    final template = context.read<TrainingSessionService>().template;
+                    if (session == null || session.isCompleted || template == null) {
+                      return const SizedBox.shrink();
+                    }
+                    final progress =
+                        (session.index / template.spots.length * 100).clamp(0, 100);
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(template.name,
+                                        style: const TextStyle(fontSize: 16)),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${session.index + 1} / ${template.spots.length}',
+                                      style: const TextStyle(color: Colors.white70),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    CombinedProgressBar(progress, progress),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          TrainingSessionScreen(session: session),
+                                    ),
+                                  );
+                                },
+                                child: const Text('Resume'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(

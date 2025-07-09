@@ -9,6 +9,7 @@ class TrainingSession {
   int index;
   final Map<String, bool> results;
   final bool authorPreview;
+  bool get isCompleted => completedAt != null;
 
   TrainingSession({
     required this.id,
