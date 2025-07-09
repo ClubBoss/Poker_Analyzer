@@ -528,11 +528,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         : null,
                   ),
                 ),
-                if (isNew) ...[
-                  const SizedBox(width: 4),
-                  const Text('New',
-                      style: TextStyle(color: Colors.red, fontSize: 12)),
-                ],
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder: (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
+                  child: isNew
+                      ? const Padding(
+                          key: ValueKey('new'),
+                          padding: EdgeInsets.only(left: 4),
+                          child: Text('New',
+                              style:
+                                  TextStyle(color: Colors.red, fontSize: 12)),
+                        )
+                      : const SizedBox.shrink(key: ValueKey('notNew')),
+                ),
               ],
             ),
             if (tags.isNotEmpty)
