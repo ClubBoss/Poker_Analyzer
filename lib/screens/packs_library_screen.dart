@@ -65,6 +65,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
   final Set<String> _tagFilters = {};
+  final Set<String> _mistakePacks = {};
   _SortMode _sortMode = _SortMode.name;
   static const _PrefsKey = 'pack_library_state';
 
@@ -143,6 +144,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   }
 
   Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
     final list = TrainingPackAssetLoader.instance.getAll();
     list.sort((a, b) {
       final d1 = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -152,7 +154,20 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       final covB = b.evCovered + b.icmCovered;
       return covB.compareTo(covA);
     });
-    if (mounted) setState(() => _packs.addAll(list));
+    final mistakes = <String>{};
+    for (final p in list) {
+      if (prefs.getBool('mistakes_tpl_${p.id}') ?? false) {
+        mistakes.add(p.id);
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _packs.addAll(list);
+        _mistakePacks
+          ..clear()
+          ..addAll(mistakes);
+      });
+    }
   }
 
   Future<void> _restoreState() async {
@@ -778,6 +793,36 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                           child: const Text('Preview'),
                         ),
                       ),
+                      if (_mistakePacks.contains(t.id))
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              final session = await context
+                                  .read<TrainingSessionService>()
+                                  .startFromPastMistakes(t);
+                              if (session == null) {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setBool(
+                                    'mistakes_tpl_${t.id}', false);
+                                if (mounted) {
+                                  setState(() => _mistakePacks.remove(t.id));
+                                }
+                                return;
+                              }
+                              if (!context.mounted) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      TrainingSessionScreen(session: session),
+                                ),
+                              );
+                            },
+                            child: const Text('Review Mistakes'),
+                          ),
+                        ),
                       IconButton(
                         icon: const Icon(Icons.play_circle_fill),
                         tooltip: solvedAll ? 'All solved' : 'Resume',
