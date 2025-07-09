@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/training_pack_template.dart';
 
 class TrainingPackStat {
   final double accuracy;
@@ -43,5 +44,29 @@ class TrainingPackStatsService {
       }
     } catch (_) {}
     return null;
+  }
+
+  static Future<List<TrainingPackTemplate>> recentlyPractisedTemplates(
+    List<TrainingPackTemplate> templates, {
+    int days = 3,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cutoff = DateTime.now().subtract(Duration(days: days));
+    final list = <MapEntry<TrainingPackTemplate, DateTime>>[];
+    for (final t in templates) {
+      final raw = prefs.getString('$_prefix${t.id}');
+      if (raw == null) continue;
+      try {
+        final data = jsonDecode(raw);
+        if (data is Map<String, dynamic>) {
+          final stat = TrainingPackStat.fromJson(data);
+          if (stat.last.isAfter(cutoff)) {
+            list.add(MapEntry(t, stat.last));
+          }
+        }
+      } catch (_) {}
+    }
+    list.sort((a, b) => b.value.compareTo(a.value));
+    return [for (final e in list) e.key];
   }
 }
