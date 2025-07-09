@@ -330,6 +330,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Future<void> _importInitialTemplates([SharedPreferences? prefs]) async {
     if (_importing) return;
     _importing = true;
+    FocusScope.of(context).unfocus();
     setState(() {});
     prefs ??= await SharedPreferences.getInstance();
     if (prefs.getBool('imported_initial_templates') == true) {
@@ -786,10 +787,31 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       fit: StackFit.expand,
       children: [
         scaffold,
-        if (_importing) ...[
-          const ModalBarrier(color: Colors.black54, dismissible: false),
-          const Center(child: CircularProgressIndicator()),
-        ],
+        AnimatedOpacity(
+          opacity: _importing ? 1 : 0,
+          duration: const Duration(milliseconds: 200),
+          child: _importing ? const _ImportOverlay() : const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+}
+
+class _ImportOverlay extends StatelessWidget {
+  const _ImportOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: const [
+        ModalBarrier(color: Colors.black45, dismissible: false),
+        Center(
+          child: Semantics(
+            label: 'Импорт паков…',
+            child: CircularProgressIndicator(),
+          ),
+        ),
       ],
     );
   }
