@@ -18,5 +18,8 @@
   ,"percentLabel": "{value} %"
   ,"accuracySemantics": "Accuracy {value} percent"
   ,"sortProgress": "Progress"
+  ,"sortNewest": "Newest"
+  ,"sortMostHands": "Most Hands"
+  ,"sortName": "Name A–Z"
   ,"noMistakesLeft": "All mistakes already fixed!"
 }

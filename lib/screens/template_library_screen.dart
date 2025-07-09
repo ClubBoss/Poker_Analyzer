@@ -299,17 +299,17 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         spacing: 8,
         children: [
           ChoiceChip(
-            label: const Text('Newest'),
+            label: Text(l.sortNewest),
             selected: _sort == kSortEdited,
             onSelected: (_) => _setSort(kSortEdited),
           ),
           ChoiceChip(
-            label: const Text('Most Hands'),
+            label: Text(l.sortMostHands),
             selected: _sort == kSortSpots,
             onSelected: (_) => _setSort(kSortSpots),
           ),
           ChoiceChip(
-            label: const Text('Name A-Z'),
+            label: Text(l.sortName),
             selected: _sort == kSortName,
             onSelected: (_) => _setSort(kSortName),
           ),
@@ -956,9 +956,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               onSelected: _setSort,
               initialValue: _sort,
               itemBuilder: (ctx) => [
-                const PopupMenuItem(value: kSortEdited, child: Text('Newest')),
-                const PopupMenuItem(value: kSortSpots, child: Text('Most Hands')),
-                const PopupMenuItem(value: kSortName, child: Text('Name A-Z')),
+                PopupMenuItem(
+                  value: kSortEdited,
+                  child: Text(AppLocalizations.of(ctx)!.sortNewest),
+                ),
+                PopupMenuItem(
+                  value: kSortSpots,
+                  child: Text(AppLocalizations.of(ctx)!.sortMostHands),
+                ),
+                PopupMenuItem(
+                  value: kSortName,
+                  child: Text(AppLocalizations.of(ctx)!.sortName),
+                ),
                 PopupMenuItem(
                   value: kSortProgress,
                   child: Text(AppLocalizations.of(ctx)!.sortProgress),
