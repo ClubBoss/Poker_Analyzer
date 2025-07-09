@@ -484,26 +484,56 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   Widget _item(TrainingPackTemplate t) {
     final parts = t.version.split('.');
     final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : t.version;
+    final tags = t.tags.take(3).toList();
     return Card(
       child: ListTile(
         leading: CircleAvatar(backgroundColor: colorFromHex(t.defaultColor)),
-        title: Row(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (t.isBuiltIn) ...[
-              const Icon(Icons.shield, size: 18, color: Colors.grey),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  t.name,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+            Row(
+              children: [
+                if (t.isBuiltIn) ...[
+                  const Icon(Icons.shield, size: 18, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      t.name,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
+                ] else ...[
+                  Expanded(child: Text(t.name)),
+                ],
+              ],
+            ),
+            if (tags.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: [
+                    for (final tag in tags)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          tag,
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.white70),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            ] else ...[
-              Expanded(child: Text(t.name)),
-            ],
           ],
         ),
         subtitle: FutureBuilder<TrainingPackStat?>(
