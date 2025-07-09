@@ -356,8 +356,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             debugPrint('⚠️  Skip ${tpl.name}: duplicate id');
           }
         }
-      } catch (e, st) {
-        debugPrint('🛑  Cannot import $p: $e\n$st');
+      } catch (e) {
+        debugPrint('Импорт не удался для $p: $e');
       }
     }
     await prefs.setBool('imported_initial_templates', true);
@@ -365,12 +365,18 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         context.read<CloudSyncService>().save('imported_initial_templates', '1'));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(Intl.plural(added,
-              zero: 'Паки не импортированы',
-              one: 'Добавлён $added пак',
-              few: 'Добавлено $added пака',
-              many: 'Добавлено $added паков'))));
+      final messenger = ScaffoldMessenger.of(context);
+      if (added == 0) {
+        messenger.showSnackBar(
+            const SnackBar(content: Text('Не удалось импортировать некоторые паки')));
+      } else {
+        messenger.showSnackBar(SnackBar(
+            content: Text(Intl.plural(added,
+                zero: 'Паки не импортированы',
+                one: 'Добавлён $added пак',
+                few: 'Добавлено $added пака',
+                many: 'Добавлено $added паков'))));
+      }
     });
     setState(() => _importing = false);
   }
