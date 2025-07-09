@@ -15,4 +15,6 @@
   ,"needsPractice": "Needs Practice"
   ,"reviewMistakes": "Review Mistakes"
   ,"reviewMistakesOnly": "Review Mistakes Only"
+  ,"percentLabel": "{value} %"
+  ,"accuracySemantics": "Accuracy {value} percent"
 }
