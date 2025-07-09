@@ -62,6 +62,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const kSortSpots = 'spots';
   static const kSortName = 'name';
   static const kSortProgress = 'progress';
+  static const _sortIcons = {
+    kSortEdited: Icons.update,
+    kSortSpots: Icons.format_list_numbered,
+    kSortName: Icons.sort_by_alpha,
+    kSortProgress: Icons.bar_chart,
+  };
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -836,6 +842,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ],
             ),
             PopupMenuButton<String>(
+              icon: Icon(_sortIcons[_sort], color: Colors.white70),
               onSelected: _setSort,
               initialValue: _sort,
               itemBuilder: (ctx) => [
