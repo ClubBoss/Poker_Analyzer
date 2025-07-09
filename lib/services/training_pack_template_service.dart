@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrainingPackTemplateService {
-  static final TrainingPackTemplate starterPushfold10bb = TrainingPackTemplate(
+  static final TrainingPackTemplate _starterPushfold10bb = TrainingPackTemplate(
     id: 'starter_pushfold_10bb',
     name: 'Push/Fold 10BB (No Ante)',
     gameType: GameType.tournament,
@@ -184,8 +184,15 @@ class TrainingPackTemplateService {
           },
         ),
       ),
-    ],
-  );
+      ],
+    );
+
+  static TrainingPackTemplate starterPushfold10bb([BuildContext? ctx]) {
+    if (ctx == null) return _starterPushfold10bb;
+    return _starterPushfold10bb.copyWith(
+      name: AppLocalizations.of(ctx)!.packPushFold10,
+    );
+  }
 
   static final TrainingPackTemplate _starterPushfold12bb = TrainingPackTemplate(
     id: 'starter_pushfold_12bb',
@@ -443,6 +450,6 @@ class TrainingPackTemplateService {
     return PackGeneratorService.generatePackFromPreset(preset);
   }
 
-  static List<TrainingPackTemplate> getAllTemplates() =>
-      [starterPushfold10bb, starterPushfold12bb()];
+  static List<TrainingPackTemplate> getAllTemplates([BuildContext? ctx]) =>
+      [starterPushfold10bb(ctx), starterPushfold12bb(ctx)];
 }
