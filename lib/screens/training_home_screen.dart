@@ -198,8 +198,9 @@ class _PackCard extends StatelessWidget {
             curve: Curves.easeOutCubic,
             duration: const Duration(milliseconds: 600),
             tween: Tween(begin: 0.0, end: progress),
-            builder: (context, value, _) => Semantics(
-              label: 'Прогресс ${(progress * 100).round()} %',
+            builder: (_, value, __) => Semantics(
+              label: 'Прогресс ${(value * 100).round()} %',
+              value: '${(value * 100).round()}',
               child: LinearProgressIndicator(
                 value: value,
                 backgroundColor: Colors.white12,
