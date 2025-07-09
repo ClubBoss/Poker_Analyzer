@@ -50,6 +50,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _favKey = 'fav_tpl_ids';
   static const _needsPracticeKey = 'lib_needs_practice';
   static const _favOnlyKey = 'lib_fav_only';
+  static const _recentOnlyKey = 'lib_recent_only';
   static const _selTagKey = 'lib_sel_tag';
   static const kStarterTag = 'starter';
   static const kFeaturedTag = 'featured';
@@ -66,8 +67,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   final Set<String> _needsPracticeIds = {};
   final Set<String> _favorites = {};
   bool _favoritesOnly = false;
+  bool _showRecent = true;
   String? _selectedTag;
   bool _importing = false;
+
+  List<TrainingPackTemplate> _recent = [];
 
   @override
   void initState() {
@@ -85,6 +89,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final prefs = await SharedPreferences.getInstance();
     await _load(prefs);
     await _autoImport(prefs);
+    await _updateRecent();
   }
 
   @override
@@ -105,6 +110,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       _needsPractice = prefs.getBool(_needsPracticeKey) ?? false;
       _favoritesOnly = prefs.getBool(_favOnlyKey) ?? false;
       _selectedTag = prefs.getString(_selTagKey);
+      _showRecent = prefs.getBool(_recentOnlyKey) ?? true;
     });
     final cloud = context.read<CloudSyncService>();
     final remoteRaw = await cloud.load(_favKey);
@@ -196,6 +202,22 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     }
     setState(() => _selectedTag = tag);
   }
+
+  Future<void> _setShowRecent(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_recentOnlyKey, value);
+    setState(() => _showRecent = value);
+  }
+
+  Future<void> _updateRecent() async {
+    final templates = context.read<TemplateStorageService>().templates;
+    final recent = await TrainingPackStatsService.recentlyPractisedTemplates(
+      templates,
+    );
+    if (!mounted) return;
+    setState(() => _recent = recent);
+  }
+
 
   List<TrainingPackTemplate> _applySorting(List<TrainingPackTemplate> list) {
     final copy = [...list];
@@ -855,6 +877,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 selected: _favoritesOnly,
                 onSelected: (v) => _setFavoritesOnly(v),
               ),
+              FilterChip(
+                label: Text(l.recentPacks),
+                selected: _showRecent,
+                onSelected: (v) => _setShowRecent(v),
+              ),
             ],
           ),
         ),
@@ -895,6 +922,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                     else if (filteringActive) ...[
                       _emptyTile,
                       if (builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty) const Divider(),
+                    ],
+                    if (_recent.isNotEmpty && !_needsPractice && _showRecent) ...[
+                      ListTile(title: Text(l.recentPacks)),
+                      for (final t in _recent) _item(t),
+                      if (featured.isNotEmpty || builtInStarter.isNotEmpty || builtInOther.isNotEmpty || user.isNotEmpty)
+                        const Divider(),
                     ],
                     if (featured.isNotEmpty) ...[
                       ListTile(title: Text(l.recommended)),
