@@ -632,11 +632,20 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               children: [
                 Text(main),
                 const SizedBox(height: 4),
-                LinearProgressIndicator(
-                  value: stat.accuracy,
-                  backgroundColor: Colors.white12,
-                  color: color,
-                  minHeight: 4,
+                Row(
+                  children: [
+                    Expanded(
+                      child: LinearProgressIndicator(
+                        value: stat.accuracy,
+                        backgroundColor: Colors.white12,
+                        color: color,
+                        minHeight: 4,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('${(stat.accuracy * 100).round()}%',
+                        style: const TextStyle(fontSize: 12)),
+                  ],
                 ),
                 const SizedBox(height: 2),
                 Text('${l.lastTrained}: $date',
