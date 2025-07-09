@@ -17,4 +17,5 @@
   ,"reviewMistakesOnly": "Review Mistakes Only"
   ,"percentLabel": "{value} %"
   ,"accuracySemantics": "Accuracy {value} percent"
+  ,"sortProgress": "Progress"
 }
