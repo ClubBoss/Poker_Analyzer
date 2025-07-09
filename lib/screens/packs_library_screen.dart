@@ -18,6 +18,8 @@ import '../widgets/combined_progress_bar.dart';
 
 enum _StackRange { l8, b9_12, b13_20 }
 
+enum _SortMode { name, newest, progress, favorite }
+
 extension _StackRangeExt on _StackRange {
   String get label {
     switch (this) {
@@ -57,10 +59,11 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<String> _statusFilters = {};
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
+  _SortMode _sortMode = _SortMode.name;
 
   List<TrainingPackTemplate> get _filtered {
     final fav = context.read<FavoritePackService>();
-    return _packs.where((p) {
+    final res = _packs.where((p) {
       final q = _query.toLowerCase();
       final diffOk =
           _difficultyFilter == null || p.difficulty == _difficultyFilter;
@@ -96,6 +99,29 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
       }
       return diffOk && textOk && statusOk && posOk && stackOk;
     }).toList();
+    res.sort((a, b) {
+      switch (_sortMode) {
+        case _SortMode.name:
+          return a.name.compareTo(b.name);
+        case _SortMode.newest:
+          return b.createdAt.compareTo(a.createdAt);
+        case _SortMode.progress:
+          final pa = a.spots.isEmpty
+              ? 0
+              : (a.evCovered + a.icmCovered) / a.spots.length;
+          final pb = b.spots.isEmpty
+              ? 0
+              : (b.evCovered + b.icmCovered) / b.spots.length;
+          final cmp = pb.compareTo(pa);
+          return cmp != 0 ? cmp : a.name.compareTo(b.name);
+        case _SortMode.favorite:
+          final fa = fav.isFavorite(a.id);
+          final fb = fav.isFavorite(b.id);
+          if (fa != fb) return fa ? -1 : 1;
+          return a.name.compareTo(b.name);
+      }
+    });
+    return res;
   }
 
   @override
@@ -258,20 +284,40 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: 'Search packs…',
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      suffixIcon: _query.isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () => setState(() => _query = ''),
-                            ),
-                    ),
-                    onChanged: (v) => setState(() => _query = v.trim()),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.search),
+                            hintText: 'Search packs…',
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                            suffixIcon: _query.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () => setState(() => _query = ''),
+                                  ),
+                          ),
+                          onChanged: (v) => setState(() => _query = v.trim()),
+                        ),
+                      ),
+                      PopupMenuButton<_SortMode>(
+                        icon: const Icon(Icons.sort),
+                        onSelected: (v) => setState(() => _sortMode = v),
+                        itemBuilder: (_) => const [
+                          PopupMenuItem(
+                              value: _SortMode.name, child: Text('Name')),
+                          PopupMenuItem(
+                              value: _SortMode.newest, child: Text('Newest')),
+                          PopupMenuItem(
+                              value: _SortMode.progress, child: Text('Progress')),
+                          PopupMenuItem(
+                              value: _SortMode.favorite, child: Text('Favorites')),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 SingleChildScrollView(
