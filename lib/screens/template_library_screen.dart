@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import '../asset_manifest.dart';
 
 import '../helpers/color_utils.dart';
 import '../services/template_storage_service.dart';
@@ -49,8 +50,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const _needsPracticeKey = 'lib_needs_practice';
   static const _favOnlyKey = 'lib_fav_only';
   static const _selTagKey = 'lib_sel_tag';
-  static late final Future<Map<String, dynamic>> _manifestFuture =
-      rootBundle.loadString('AssetManifest.json').then(jsonDecode);
+  static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
   String _filter = 'all';
   String _sort = 'edited';

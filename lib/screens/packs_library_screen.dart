@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import '../asset_manifest.dart';
 import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -26,8 +27,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   String _query = '';
   String? _difficultyFilter;
   final Set<String> _statusFilters = {};
-  static late final Future<Map<String, dynamic>> _manifestFuture =
-      rootBundle.loadString('AssetManifest.json').then(jsonDecode);
+  static final _manifestFuture = AssetManifest.instance;
 
   List<TrainingPackTemplate> get _filtered => _packs.where((p) {
         final q = _query.toLowerCase();
