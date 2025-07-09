@@ -185,10 +185,254 @@ class TrainingPackTemplateService {
     ],
   );
 
+  static final TrainingPackTemplate starterPushfold12bb = TrainingPackTemplate(
+    id: 'starter_pushfold_12bb',
+    name: 'Push/Fold 12BB (No Ante)',
+    gameType: GameType.tournament,
+    heroBbStack: 12,
+    playerStacksBb: const [12, 12],
+    heroPos: HeroPosition.sb,
+    tags: const ['starter', 'push', '12bb', 'no_ante'],
+    difficulty: '1',
+    isBuiltIn: true,
+    spots: [
+      TrainingPackSpot(
+        id: 'pf12_1',
+        title: 'AJo push',
+        hand: HandData(
+          heroCards: 'Ah Jd',
+          position: HeroPosition.sb,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_2',
+        title: 'Q9s push',
+        hand: HandData(
+          heroCards: 'Qs 9s',
+          position: HeroPosition.sb,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_3',
+        title: 'KTo fold',
+        hand: HandData(
+          heroCards: 'Kd Td',
+          position: HeroPosition.sb,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [ActionEntry(0, 0, 'fold')]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_4',
+        title: '66 push call',
+        hand: HandData(
+          heroCards: '6h 6c',
+          position: HeroPosition.sb,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'call', amount: 11.5),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_5',
+        title: 'T8o fold',
+        hand: HandData(
+          heroCards: 'Td 8c',
+          position: HeroPosition.sb,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [ActionEntry(0, 0, 'fold')]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_6',
+        title: '98s push',
+        hand: HandData(
+          heroCards: '9h 8h',
+          position: HeroPosition.sb,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_7',
+        title: 'A7s push',
+        hand: HandData(
+          heroCards: 'Ad 7d',
+          position: HeroPosition.sb,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_8',
+        title: 'A8o push',
+        hand: HandData(
+          heroCards: 'Ah 8d',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_9',
+        title: 'KJs push call',
+        hand: HandData(
+          heroCards: 'Ks Js',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'call', amount: 11.5),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_10',
+        title: 'QTs push',
+        hand: HandData(
+          heroCards: 'Qd Td',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_11',
+        title: 'J9o fold',
+        hand: HandData(
+          heroCards: 'Jh 9c',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [ActionEntry(0, 0, 'fold')]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_12',
+        title: '44 push',
+        hand: HandData(
+          heroCards: '4s 4d',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_13',
+        title: 'A5s push',
+        hand: HandData(
+          heroCards: 'Ac 5c',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+      TrainingPackSpot(
+        id: 'pf12_14',
+        title: 'KQo push',
+        hand: HandData(
+          heroCards: 'Kh Qh',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 2,
+          stacks: {'0': 12, '1': 12},
+          actions: {
+            0: [
+              ActionEntry(0, 0, 'push', amount: 12),
+              ActionEntry(0, 1, 'fold'),
+            ]
+          },
+        ),
+      ),
+    ],
+  );
+
   static Future<TrainingPackTemplate> generateFromPreset(
       TrainingPackPreset preset) {
     return PackGeneratorService.generatePackFromPreset(preset);
   }
 
-  static List<TrainingPackTemplate> getAllTemplates() => [starterPushfold10bb];
+  static List<TrainingPackTemplate> getAllTemplates() =>
+      [starterPushfold10bb, starterPushfold12bb];
 }
