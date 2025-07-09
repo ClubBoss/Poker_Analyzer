@@ -633,6 +633,15 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 DropdownMenuItem(value: 'cash', child: Text('Cash')),
               ],
             ),
+            PopupMenuButton<String>(
+              onSelected: (v) => setState(() => _sort = v),
+              initialValue: _sort,
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'edited', child: Text('Newest')),
+                PopupMenuItem(value: 'spots', child: Text('Most Hands')),
+                PopupMenuItem(value: 'name', child: Text('Name A-Z')),
+              ],
+            ),
           ],
         ),
         actions: [
@@ -653,15 +662,6 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                 MaterialPageRoute(builder: (_) => const TrainingStatsScreen()),
               );
             },
-          ),
-          PopupMenuButton<String>(
-            onSelected: _setSort,
-            initialValue: _sort,
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'name', child: Text('Name')),
-              PopupMenuItem(value: 'spots', child: Text('Spots')),
-              PopupMenuItem(value: 'edited', child: Text('Edited')),
-            ],
           ),
           SyncStatusIcon.of(context),
         ],
