@@ -828,6 +828,16 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
                         child:
                             Text('Your Packs', style: Theme.of(context).textTheme.titleMedium),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.add),
+                            title: const Text('Создать новый пак'),
+                            onTap: _createTemplate,
+                          ),
+                        ),
+                      ),
                       for (final t in user) _item(t),
                     ]
                     else if (filteringActive) ...[
