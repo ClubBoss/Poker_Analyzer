@@ -634,7 +634,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               ],
             ),
             PopupMenuButton<String>(
-              onSelected: (v) => setState(() => _sort = v),
+              onSelected: _setSort,
               initialValue: _sort,
               itemBuilder: (_) => const [
                 PopupMenuItem(value: 'edited', child: Text('Newest')),
