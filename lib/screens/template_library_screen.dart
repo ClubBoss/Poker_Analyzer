@@ -209,6 +209,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     if (_importing) return;
     _importing = true;
     if (mounted) setState(() {});
+    String? path;
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -217,7 +218,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       if (result == null || result.files.isEmpty) return;
 
       Uint8List? data = result.files.single.bytes;
-      final path = result.files.single.path;
+      path = result.files.single.path;
       data ??= path != null ? await File(path).readAsBytes() : null;
       if (data == null) throw 'Пустой файл';
 
@@ -229,7 +230,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         SnackBar(content: Text(error ?? 'Шаблон импортирован')),
       );
     } catch (e) {
-      debugPrint('🛑 Импорт не удался: $e');
+      debugPrint('🛑 Импорт не удался${path != null ? ' ($path)' : ''}: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Не удалось импортировать пак')),
@@ -297,6 +298,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     await showDialog(
       context: context,
       barrierDismissible: false,
+      barrierColor: Colors.black38,
       builder: (ctx) {
         var started = false;
         return StatefulBuilder(
