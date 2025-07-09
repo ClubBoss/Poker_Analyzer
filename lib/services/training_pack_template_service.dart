@@ -6,6 +6,8 @@ import '../models/v2/hero_position.dart';
 import '../models/game_type.dart';
 import '../models/action_entry.dart';
 import 'pack_generator_service.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrainingPackTemplateService {
   static final TrainingPackTemplate starterPushfold10bb = TrainingPackTemplate(
@@ -185,7 +187,7 @@ class TrainingPackTemplateService {
     ],
   );
 
-  static final TrainingPackTemplate starterPushfold12bb = TrainingPackTemplate(
+  static final TrainingPackTemplate _starterPushfold12bb = TrainingPackTemplate(
     id: 'starter_pushfold_12bb',
     name: 'Push/Fold 12BB (No Ante)',
     gameType: GameType.tournament,
@@ -195,6 +197,7 @@ class TrainingPackTemplateService {
     tags: const ['starter', 'push', '12bb', 'no_ante'],
     difficulty: '1',
     isBuiltIn: true,
+    anteBb: 0,
     spots: [
       TrainingPackSpot(
         id: 'pf12_1',
@@ -207,8 +210,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -224,8 +227,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -240,7 +243,7 @@ class TrainingPackTemplateService {
           playerCount: 2,
           stacks: {'0': 12, '1': 12},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold', ev: 0.0)]
           },
         ),
       ),
@@ -255,8 +258,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'call', amount: 11.5),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'call', amount: 12, ev: 0.0),
             ]
           },
         ),
@@ -286,8 +289,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -303,8 +306,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -320,8 +323,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -337,8 +340,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'call', amount: 11.5),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'call', amount: 12, ev: 0.0),
             ]
           },
         ),
@@ -354,8 +357,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -385,8 +388,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -402,8 +405,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -419,8 +422,8 @@ class TrainingPackTemplateService {
           stacks: {'0': 12, '1': 12},
           actions: {
             0: [
-              ActionEntry(0, 0, 'push', amount: 12),
-              ActionEntry(0, 1, 'fold'),
+              ActionEntry(0, 0, 'push', amount: 12, ev: 0.5),
+              ActionEntry(0, 1, 'fold', ev: 0.0),
             ]
           },
         ),
@@ -428,11 +431,18 @@ class TrainingPackTemplateService {
     ],
   );
 
+  static TrainingPackTemplate starterPushfold12bb([BuildContext? ctx]) {
+    if (ctx == null) return _starterPushfold12bb;
+    return _starterPushfold12bb.copyWith(
+      name: AppLocalizations.of(ctx)!.packPushFold12,
+    );
+  }
+
   static Future<TrainingPackTemplate> generateFromPreset(
       TrainingPackPreset preset) {
     return PackGeneratorService.generatePackFromPreset(preset);
   }
 
   static List<TrainingPackTemplate> getAllTemplates() =>
-      [starterPushfold10bb, starterPushfold12bb];
+      [starterPushfold10bb, starterPushfold12bb()];
 }
