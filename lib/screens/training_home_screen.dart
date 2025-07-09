@@ -185,6 +185,15 @@ class _PackCard extends StatelessWidget {
         .sortedByPriority()
         .firstOrNull;
     if (next == null) return;
+    final snoozeKey = 'snooze_tpl_${next.id}';
+    final snooze = prefs.getString(snoozeKey);
+    if (snooze != null) {
+      final savedAt = DateTime.tryParse(snooze);
+      if (savedAt != null &&
+          DateTime.now().difference(savedAt) < const Duration(hours: 12)) {
+        return;
+      }
+    }
     final start = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -215,6 +224,11 @@ class _PackCard extends StatelessWidget {
         );
       }
       onDone();
+    } else if (start == false) {
+      await prefs.setString(
+        snoozeKey,
+        DateTime.now().toIso8601String(),
+      );
     }
   }
 
