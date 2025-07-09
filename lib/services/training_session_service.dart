@@ -262,6 +262,34 @@ class TrainingSessionService extends ChangeNotifier {
     return startFromTemplate(tpl);
   }
 
+  Future<TrainingSession?> startFromPastMistakes(
+      TrainingPackTemplate template) async {
+    await _openBox();
+    final ids = <String>{};
+    for (final v in _box!.values.whereType<Map>()) {
+      try {
+        final s = TrainingSession.fromJson(
+            Map<String, dynamic>.from(v as Map));
+        if (s.templateId == template.id) {
+          ids.addAll(s.results.entries
+              .where((e) => e.value == false)
+              .map((e) => e.key));
+        }
+      } catch (_) {}
+    }
+    final spots = [
+      for (final s in template.spots)
+        if (ids.contains(s.id)) TrainingPackSpot.fromJson(s.toJson())
+    ];
+    if (spots.isEmpty) return null;
+    final tpl = template.copyWith(
+      name: 'Review Mistakes',
+      spots: spots,
+    );
+    await startSession(tpl, persist: false);
+    return _session;
+  }
+
   Future<void> complete(BuildContext context) async {
     if (results.values.any((v) => !v)) {
       Navigator.pushReplacement(

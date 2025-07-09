@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/session_log.dart';
 import 'training_session_service.dart';
@@ -57,6 +58,10 @@ class SessionLogService extends ChangeNotifier {
     );
     _logged.add(s.id);
     unawaited(_save(log));
+    unawaited(() async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('mistakes_tpl_${log.templateId}', log.mistakeCount > 0);
+    }());
   }
 
   List<SessionLog> filter({DateTimeRange? range, String? templateId}) {
