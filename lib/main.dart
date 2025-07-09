@@ -46,6 +46,7 @@ import 'services/next_step_engine.dart';
 import 'services/drill_suggestion_engine.dart';
 import 'services/drill_history_service.dart';
 import 'services/mixed_drill_history_service.dart';
+import 'services/hand_analysis_history_service.dart';
 import 'services/training_pack_play_controller.dart';
 import 'services/notification_service.dart';
 import 'services/daily_target_service.dart';
@@ -278,6 +279,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) => MixedDrillHistoryService()..load(),
         ),
+        ChangeNotifierProvider(create: (_) => HandAnalysisHistoryService()..load()),
         ChangeNotifierProvider(
           create: (_) => TrainingPackPlayController()..load(),
         ),

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/card_model.dart';
 import '../widgets/card_picker_widget.dart';
 import '../services/push_fold_ev_service.dart';
+import '../services/hand_analysis_history_service.dart';
+import '../models/hand_analysis_record.dart';
 import '../theme/app_colors.dart';
 import '../helpers/hand_utils.dart';
 
 class QuickHandAnalysisScreen extends StatefulWidget {
-  const QuickHandAnalysisScreen({super.key});
+  final HandAnalysisRecord? record;
+  const QuickHandAnalysisScreen({super.key, this.record});
 
   @override
   State<QuickHandAnalysisScreen> createState() => _QuickHandAnalysisScreenState();
@@ -23,6 +27,21 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
   String? _action;
 
   @override
+  void initState() {
+    super.initState();
+    final r = widget.record;
+    if (r != null) {
+      _stackController.text = r.stack.toString();
+      _playerCount = r.playerCount;
+      _heroIndex = r.heroIndex;
+      _cards = r.cards;
+      _ev = r.ev;
+      _icm = r.icm;
+      _action = r.action;
+    }
+  }
+
+  @override
   void dispose() {
     _stackController.dispose();
     super.dispose();
@@ -36,10 +55,23 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
     final ev = computePushEV(heroBbStack: stack, bbCount: _playerCount - 1, heroHand: hand, anteBb: 0);
     final stacks = List.filled(_playerCount, stack);
     final icm = computeIcmPushEV(chipStacksBb: stacks, heroIndex: _heroIndex, heroHand: hand, chipPushEv: ev);
+    final action = ev >= 0 ? 'push' : 'fold';
+    context.read<HandAnalysisHistoryService>().add(
+          HandAnalysisRecord(
+            card1: '${_cards[0].rank}${_cards[0].suit}',
+            card2: '${_cards[1].rank}${_cards[1].suit}',
+            stack: stack,
+            playerCount: _playerCount,
+            heroIndex: _heroIndex,
+            ev: ev,
+            icm: icm,
+            action: action,
+          ),
+        );
     setState(() {
       _ev = ev;
       _icm = icm;
-      _action = ev >= 0 ? 'push' : 'fold';
+      _action = action;
     });
   }
 
