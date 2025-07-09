@@ -343,6 +343,9 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
         for (final t in visible)
           if (t.gameType.toLowerCase().contains('cash')) t
       ];
+    } else if (_filter == 'mistakes') {
+      final service = context.read<MistakeReviewPackService>();
+      visible = [for (final t in visible) if (service.hasMistakes(t.id)) t];
     }
     final query = _searchCtrl.text.trim().toLowerCase();
     if (query.isNotEmpty) {
@@ -945,10 +948,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
               value: _filter,
               underline: const SizedBox.shrink(),
               onChanged: (v) => v != null ? _setFilter(v) : null,
-              items: const [
-                DropdownMenuItem(value: 'all', child: Text('All')),
-                DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
-                DropdownMenuItem(value: 'cash', child: Text('Cash')),
+              items: [
+                const DropdownMenuItem(value: 'all', child: Text('All')),
+                const DropdownMenuItem(value: 'tournament', child: Text('Tournament')),
+                const DropdownMenuItem(value: 'cash', child: Text('Cash')),
+                DropdownMenuItem(value: 'mistakes', child: Text(l.filterMistakes)),
               ],
             ),
             PopupMenuButton<String>(
