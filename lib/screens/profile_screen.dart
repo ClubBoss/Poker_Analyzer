@@ -66,12 +66,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             width: 8,
             height: 8,
-            decoration:
-                BoxDecoration(color: color, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 4),
-          Text(text,
-              style: const TextStyle(color: Colors.white, fontSize: 10)),
+          Text(text, style: const TextStyle(color: Colors.white, fontSize: 10)),
         ],
       );
 
@@ -103,28 +101,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final lines = [
       LineChartBarData(
         spots: preEv,
-        color: Colors.orangeAccent,
+        color: AppColors.evPre,
         barWidth: 2,
         isCurved: false,
         dotData: FlDotData(show: true),
       ),
       LineChartBarData(
         spots: postEv,
-        color: Colors.deepOrangeAccent,
+        color: AppColors.evPost,
         barWidth: 2,
         isCurved: false,
         dotData: FlDotData(show: true),
       ),
       LineChartBarData(
         spots: preIcm,
-        color: Colors.lightBlueAccent,
+        color: AppColors.icmPre,
         barWidth: 2,
         isCurved: false,
         dotData: FlDotData(show: true),
       ),
       LineChartBarData(
         spots: postIcm,
-        color: Colors.blueAccent,
+        color: AppColors.icmPost,
         barWidth: 2,
         isCurved: false,
         dotData: FlDotData(show: true),
@@ -179,8 +177,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         reservedSize: 30,
                         getTitlesWidget: (value, meta) => Text(
                           value.toInt().toString(),
-                          style:
-                              const TextStyle(color: Colors.white, fontSize: 10),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 10),
                         ),
                       ),
                     ),
@@ -222,10 +220,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Wrap(
             spacing: 8,
             children: [
-              _legendItem(Colors.orangeAccent, 'Pre EV'),
-              _legendItem(Colors.deepOrangeAccent, 'Post EV'),
-              _legendItem(Colors.lightBlueAccent, 'Pre ICM'),
-              _legendItem(Colors.blueAccent, 'Post ICM'),
+              _legendItem(AppColors.evPre, 'Pre EV'),
+              _legendItem(AppColors.evPost, 'Post EV'),
+              _legendItem(AppColors.icmPre, 'Pre ICM'),
+              _legendItem(AppColors.icmPost, 'Post ICM'),
             ],
           ),
         ],
@@ -254,15 +252,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('Accuracy: ${(acc * 100).toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white, fontSize: 16)),
             const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: _reset,
-          child: const Text('Reset Accuracy'),
+            ElevatedButton(
+              onPressed: _reset,
+              child: const Text('Reset Accuracy'),
+            ),
+            const SizedBox(height: 16),
+            _buildChart(),
+          ],
         ),
-        const SizedBox(height: 16),
-        _buildChart(),
-        ],
       ),
-    ),
-  );
-}
+    );
+  }
 }
