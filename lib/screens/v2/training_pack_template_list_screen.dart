@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../services/pack_import_service.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../models/v2/hand_data.dart';
@@ -3041,7 +3042,7 @@ class _TrainingPackTemplateListScreenState
           FloatingActionButton.extended(
             heroTag: 'reviewMistakesTplFab',
             icon: const Icon(Icons.error),
-            label: const Text('Review Mistakes'),
+            label: Text(AppLocalizations.of(context)!.reviewMistakes),
             onPressed: () async {
               final tpl =
                   await MistakeReviewPackService.latestTemplate(context);

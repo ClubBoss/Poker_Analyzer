@@ -10,6 +10,8 @@ class TrainingPackTemplateModel {
   final DateTime createdAt;
   final DateTime? lastGeneratedAt;
 
+  int get difficultyLevel => difficulty;
+
   const TrainingPackTemplateModel({
     required this.id,
     required this.name,

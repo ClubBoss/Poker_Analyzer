@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrainingSessionSummaryScreen extends StatelessWidget {
   final int correct;
@@ -25,6 +26,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final rate = total == 0 ? 0 : correct * 100 / total;
     final avg = total == 0 ? 0.0 : elapsed.inSeconds / total;
     return Scaffold(
@@ -50,7 +52,7 @@ class TrainingSessionSummaryScreen extends StatelessWidget {
               Text('Avg: ${avg.toStringAsFixed(1)} s/spot',
                   style: const TextStyle(color: Colors.white70)),
               const SizedBox(height: 24),
-              ElevatedButton(onPressed: onReview, child: const Text('Review Mistakes')),
+              ElevatedButton(onPressed: onReview, child: Text(l.reviewMistakes)),
               const SizedBox(height: 8),
               OutlinedButton(onPressed: onBack, child: const Text('Done')),
             ],
