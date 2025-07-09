@@ -671,6 +671,12 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       ),
       body: Column(
         children: [
+          SwitchListTile(
+            title: const Text('Избранное'),
+            value: _favoritesOnly,
+            onChanged: _setFavoritesOnly,
+            activeColor: Colors.orange,
+          ),
           FutureBuilder<TrainingPackTemplate?>(
             future: _loadLastPack(context),
             builder: (context, snap) {
