@@ -10,6 +10,7 @@ import '../helpers/training_pack_storage.dart';
 import '../helpers/training_pack_validator.dart';
 import '../services/training_pack_author_service.dart' show TrainingPackAuthorService, PresetConfig;
 import '../models/v2/hero_position.dart';
+import '../services/favorite_pack_service.dart';
 import 'v2/training_pack_template_editor_screen.dart';
 import 'training_session_screen.dart';
 import 'pack_preview_screen.dart';
@@ -56,39 +57,45 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
   final Set<HeroPosition> _posFilters = {};
   final Set<_StackRange> _stackFilters = {};
 
-  List<TrainingPackTemplate> get _filtered => _packs.where((p) {
-        final q = _query.toLowerCase();
-        final diffOk =
-            _difficultyFilter == null || p.difficulty == _difficultyFilter;
-        final textOk = p.name.toLowerCase().contains(q) ||
-            (p.difficulty?.toLowerCase().contains(q) ?? false);
-        var statusOk = true;
-        if (_statusFilters.isNotEmpty) {
-          final now = DateTime.now();
-          final total = p.spots.length;
-          final evPct = total == 0 ? 0 : p.evCovered * 100 / total;
-          final icmPct = total == 0 ? 0 : p.icmCovered * 100 / total;
-          final isNew = now.difference(p.createdAt).inDays < 3;
-          final isCompleted = p.evCovered + p.icmCovered >= total * 2;
-          final isIncomplete = evPct < 50 || icmPct < 50;
-          statusOk = false;
-          if (_statusFilters.contains('New') && isNew) statusOk = true;
-          if (_statusFilters.contains('Completed') && isCompleted) statusOk = true;
-          if (_statusFilters.contains('Incomplete') && isIncomplete) statusOk = true;
-        }
-        final posOk = _posFilters.isEmpty || _posFilters.contains(p.heroPos);
-        var stackOk = true;
-        if (_stackFilters.isNotEmpty) {
-          stackOk = false;
-          for (final r in _stackFilters) {
-            if (r.contains(p.heroBbStack)) {
-              stackOk = true;
-              break;
-            }
+  List<TrainingPackTemplate> get _filtered {
+    final fav = context.read<FavoritePackService>();
+    return _packs.where((p) {
+      final q = _query.toLowerCase();
+      final diffOk =
+          _difficultyFilter == null || p.difficulty == _difficultyFilter;
+      final textOk = p.name.toLowerCase().contains(q) ||
+          (p.difficulty?.toLowerCase().contains(q) ?? false);
+      var statusOk = true;
+      if (_statusFilters.isNotEmpty) {
+        final now = DateTime.now();
+        final total = p.spots.length;
+        final evPct = total == 0 ? 0 : p.evCovered * 100 / total;
+        final icmPct = total == 0 ? 0 : p.icmCovered * 100 / total;
+        final isNew = now.difference(p.createdAt).inDays < 3;
+        final isCompleted = p.evCovered + p.icmCovered >= total * 2;
+        final isIncomplete = evPct < 50 || icmPct < 50;
+        statusOk = false;
+        if (_statusFilters.contains('New') && isNew) statusOk = true;
+        if (_statusFilters.contains('Completed') && isCompleted) statusOk = true;
+        if (_statusFilters.contains('Incomplete') && isIncomplete) statusOk = true;
+      }
+      if (_statusFilters.contains('Favorites') && !fav.isFavorite(p.id)) {
+        statusOk = false;
+      }
+      final posOk = _posFilters.isEmpty || _posFilters.contains(p.heroPos);
+      var stackOk = true;
+      if (_stackFilters.isNotEmpty) {
+        stackOk = false;
+        for (final r in _stackFilters) {
+          if (r.contains(p.heroBbStack)) {
+            stackOk = true;
+            break;
           }
         }
-        return diffOk && textOk && statusOk && posOk && stackOk;
-      }).toList();
+      }
+      return diffOk && textOk && statusOk && posOk && stackOk;
+    }).toList();
+  }
 
   @override
   void didChangeDependencies() {
@@ -291,7 +298,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                   child: Wrap(
                     spacing: 8,
                     children: [
-                      for (final s in ['New', 'Completed', 'Incomplete'])
+                      for (final s in ['New', 'Completed', 'Incomplete', 'Favorites'])
                         FilterChip(
                           label: Text(s),
                           selected: _statusFilters.contains(s),
@@ -342,13 +349,18 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: _filtered.isEmpty &&
-                          (_query.isNotEmpty || _difficultyFilter != null)
-                      ? const Center(child: Text('No packs match'))
-                      : ListView.builder(
-                      itemCount: _filtered.length,
-                      itemBuilder: (_, i) {
-                        final t = _filtered[i];
+                  child: StreamBuilder<Set<String>>(
+                    stream:
+                        context.read<FavoritePackService>().favorites$,
+                    builder: (context, _) {
+                      final filtered = _filtered;
+                      return filtered.isEmpty &&
+                              (_query.isNotEmpty || _difficultyFilter != null)
+                          ? const Center(child: Text('No packs match'))
+                          : ListView.builder(
+                              itemCount: filtered.length,
+                              itemBuilder: (_, i) {
+                                final t = filtered[i];
                         final isNew =
                             DateTime.now().difference(t.createdAt).inDays < 3;
                         final total = t.spots.length;
@@ -358,6 +370,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                     t.spots.where((s) => s.heroIcmEv != null && !s.dirty).length;
                 final solvedAll = t.spots.every(
                     (s) => s.heroEv != null && s.heroIcmEv != null);
+                final fav = context.read<FavoritePackService>();
                 double pct(int done) =>
                     total == 0 ? 0 : done * 100 / total;
                 Color col(double p) => p >= 80
@@ -423,6 +436,17 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                       _StatChip(
                         label: '${pct(icmDone).round()} % ICM',
                         color: col(pct(icmDone)),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          fav.isFavorite(t.id)
+                              ? Icons.star
+                              : Icons.star_border,
+                        ),
+                        color:
+                            fav.isFavorite(t.id) ? Colors.amber : Colors.white54,
+                        onPressed: () =>
+                            context.read<FavoritePackService>().toggle(t.id),
                       ),
                       if (validateTrainingPackTemplate(t).isEmpty &&
                           !context.read<TemplateStorageService>().templates.any((e) => e.name == t.name))
