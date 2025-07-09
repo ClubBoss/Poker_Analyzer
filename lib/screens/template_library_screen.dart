@@ -334,7 +334,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
       }
     }
     await prefs.setBool('imported_initial_templates', true);
-    context.read<CloudSyncService>().save('imported_initial_templates', '1');
+    unawaited(
+        context.read<CloudSyncService>().save('imported_initial_templates', '1'));
     if (!mounted) return;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text('Добавлено $added паков')));

@@ -7,5 +7,8 @@ class AssetManifest {
       rootBundle
           .loadString('AssetManifest.json')
           .then<Map<String, dynamic>>(jsonDecode)
-          .catchError((_) => <String, dynamic>{});
+          .catchError((e) {
+        debugPrint('🛑 AssetManifest load failed: $e');
+        return <String, dynamic>{};
+      });
 }
