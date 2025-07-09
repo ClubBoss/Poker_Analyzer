@@ -58,6 +58,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   static const kSortName = 'name';
   static final _manifestFuture = AssetManifest.instance;
   final TextEditingController _searchCtrl = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   String _filter = 'all';
   String _sort = kSortEdited;
   bool _needsPractice = false;
@@ -72,6 +73,11 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   void initState() {
     super.initState();
     _searchCtrl.addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) FocusScope.of(context).requestFocus(_searchFocusNode);
+      });
+    });
     _init();
   }
 
@@ -84,6 +90,7 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -683,6 +690,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
             Expanded(
               child: TextField(
                 controller: _searchCtrl,
+                focusNode: _searchFocusNode,
+                autofocus: true,
                 decoration: const InputDecoration(hintText: 'Поиск', border: InputBorder.none),
                 style: const TextStyle(color: Colors.white),
               ),
